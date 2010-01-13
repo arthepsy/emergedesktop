@@ -6,7 +6,7 @@ TARGET_ARGS = -Wl,--out-implib,$(IMPLIB) -Wl,--enable-auto-image-base
 ifdef MINGW64
 		LIBS += -lstdc++.dll
 else
-		LIBS += -lstdc_s
+		LIBS += -lstdc++_s
 endif
 
 .IGNORE: distclean
