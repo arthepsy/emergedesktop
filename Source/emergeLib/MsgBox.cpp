@@ -172,8 +172,6 @@ LRESULT MsgBox::DoCommand(HWND hwndDlg, WPARAM wParam, LPARAM lParam UNUSED)
   switch (LOWORD(wParam))
     {
     case IDOK:
-      if (msgButtons == ELMB_YESNO)
-        wParam = IDYES;
       if (iter != hookMap.end())
         {
           UnhookWindowsHookEx(iter->second);
@@ -181,13 +179,15 @@ LRESULT MsgBox::DoCommand(HWND hwndDlg, WPARAM wParam, LPARAM lParam UNUSED)
         }
 
       if (modal)
-        EndDialog(hwndDlg, wParam);
+        {
+          if (msgButtons == ELMB_YESNO)
+            wParam = IDYES;
+          EndDialog(hwndDlg, wParam);
+        }
       else
         DestroyWindow(hwndDlg);
       return TRUE;
     case IDCANCEL:
-      if (msgButtons == ELMB_YESNO)
-        wParam = IDNO;
       if (iter != hookMap.end())
         {
           UnhookWindowsHookEx(iter->second);
@@ -195,7 +195,11 @@ LRESULT MsgBox::DoCommand(HWND hwndDlg, WPARAM wParam, LPARAM lParam UNUSED)
         }
 
       if (modal)
-        EndDialog(hwndDlg, wParam);
+        {
+          if (msgButtons == ELMB_YESNO)
+            wParam = IDNO;
+          EndDialog(hwndDlg, wParam);
+        }
       else
         DestroyWindow(hwndDlg);
       return TRUE;
