@@ -23,7 +23,6 @@
 
 #include <winver.h>
 #include <winuser.h>
-#include "../svnversion.h"
 #include "../version.h"
 
 VS_VERSION_INFO VERSIONINFO

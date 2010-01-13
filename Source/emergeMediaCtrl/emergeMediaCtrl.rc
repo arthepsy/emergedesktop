@@ -24,7 +24,6 @@
 #include <commctrl.h>
 #include "resource.h"
 #include "../version.h"
-#include "../svnversion.h"
 
 VS_VERSION_INFO VERSIONINFO
  FILEVERSION EMERGE_MAJOR_VERSION,EMERGE_MINOR_VERSION,EMERGE_RELEASE_VERSION,SVN_VERSION
