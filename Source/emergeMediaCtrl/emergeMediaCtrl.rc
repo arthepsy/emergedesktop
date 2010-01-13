@@ -1,0 +1,106 @@
+//---
+//
+//  This file is part of Emerge Desktop.
+//  Copyright (C) 2004-2010  The Emerge Desktop Development Team
+//
+//  Emerge Desktop is free software; you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation; either version 3 of the License, or
+//  (at your option) any later version.
+//
+//  Emerge Desktop is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//
+//  You should have received a copy of the GNU General Public License
+//  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+//
+//---
+
+#define UNICODE
+#define _WINGDI_
+
+#include <commctrl.h>
+#include "resource.h"
+#include "../version.h"
+#include "../svnversion.h"
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION EMERGE_MAJOR_VERSION,EMERGE_MINOR_VERSION,EMERGE_RELEASE_VERSION,SVN_VERSION
+ PRODUCTVERSION EMERGE_MAJOR_VERSION,EMERGE_MINOR_VERSION,EMERGE_RELEASE_VERSION,SVN_VERSION
+ FILEFLAGSMASK VS_FFI_FILEFLAGSMASK
+#ifdef DEBUG
+ FILEFLAGS VS_FF_DEBUG
+#endif
+ FILEOS VOS__WINDOWS32
+ FILETYPE VFT_APP
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "000004B0"
+        BEGIN
+            VALUE "CompanyName", "The Emerge Desktop Development Team"
+            VALUE "FileDescription", "emergeMediaCtrl - applet for the Emerge Desktop"
+            VALUE "FileVersion", EMERGE_MAJOR_VERSION_STR "." EMERGE_MINOR_VERSION_STR "." EMERGE_RELEASE_VERSION_STR "." SVN_VERSION_STR
+            VALUE "InternalName", "emergeMediaCtrl"
+            VALUE "LegalCopyright", "Copyright (C) 2004-2010"
+            VALUE "OriginalFilename", "emergeMediaCtrl.exe"
+            VALUE "ProductName", "emergeMediaCtrl"
+            VALUE "ProductVersion", EMERGE_MAJOR_VERSION_STR "." EMERGE_MINOR_VERSION_STR "." EMERGE_RELEASE_VERSION_STR "." SVN_VERSION_STR
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x0, 1200
+    END
+END
+
+#ifdef __GNUC__
+CREATEPROCESS_MANIFEST_RESOURCE_ID RT_MANIFEST "emergeMediaCtrl.exe.manifest"
+#endif
+
+IDI_DEFAULT	ICON	"icons/emerge.ico"
+
+IDD_CONFIG DIALOGEX 0, 0, 180, 250
+STYLE WS_POPUP | WS_VISIBLE | WS_CAPTION
+CAPTION "emergeMediaCtrl Configuration"
+FONT 8, "MS Shell Dlg"
+BEGIN
+	CONTROL	"SnapMove",IDC_SNAPMOVE,"Button",BS_AUTOCHECKBOX|WS_TABSTOP,5,5,55,10
+	CONTROL	"SnapSize",IDC_SNAPSIZE,"Button",BS_AUTOCHECKBOX|WS_TABSTOP,80,5,90,10
+
+	CONTROL	"Click Through:",IDC_CLICKTHROUGH,"Button",BS_AUTOCHECKBOX|WS_TABSTOP,5,20,60,10
+	COMBOBOX	IDC_CLICKTHROUGHMETHOD,65,18,60,150,CBS_DROPDOWNLIST|WS_VSCROLL|WS_TABSTOP
+
+  CONTROL  "Dynamic Positioning",IDC_DYNAMICPOSITIONING,"Button",BS_AUTOCHECKBOX|WS_TABSTOP,5,35,75,10
+
+	LTEXT    "Font",IDC_STATIC3,5,60,50,8
+	PUSHBUTTON  "",IDC_FONT,55,50,120,30,BS_CENTER|BS_FLAT
+
+	GROUPBOX	"Update",IDC_STATIC3,5,85,170,25,WS_GROUP
+	LTEXT		"Interval",IDC_STATIC4,10,95,25,8
+	EDITTEXT	IDC_UPDATEINTERVAL,40,93,35,12,ES_AUTOHSCROLL|ES_NUMBER
+  CONTROL "",IDC_UPDATEINTERVALUPDOWN,UPDOWN_CLASS,UDS_AUTOBUDDY|UDS_SETBUDDYINT|UDS_ARROWKEYS|UDS_ALIGNRIGHT|UDS_NOTHOUSANDS,0,0,10,12
+
+	GROUPBOX	"ZPosition",IDC_STATIC6,5,115,170,25,WS_GROUP
+	CONTROL	"Top",IDC_TOP,"Button",BS_AUTORADIOBUTTON|WS_TABSTOP,10,125,40,10
+	CONTROL	"Normal",IDC_NORMAL,"Button",BS_AUTORADIOBUTTON|WS_TABSTOP,70,125,40,10
+	CONTROL	"Bottom",IDC_BOTTOM,"Button",BS_AUTORADIOBUTTON|WS_TABSTOP,130,125,40,10
+
+	GROUPBOX	"Direction",IDC_STATIC7,5,145,170,75,WS_GROUP
+
+	GROUPBOX	"Horizontal Alignment",IDC_STATIC9,10,155,160,25,WS_GROUP
+	CONTROL	"Left",IDC_LEFT,"Button",BS_AUTORADIOBUTTON|WS_TABSTOP,15,165,40,10
+	CONTROL	"Center",IDC_HCENTER,"Button",BS_AUTORADIOBUTTON|WS_TABSTOP,75,165,40,10
+	CONTROL	"Right",IDC_RIGHT,"Button",BS_AUTORADIOBUTTON|WS_TABSTOP,130,165,35,10
+
+	GROUPBOX	"Vertical Alignment",IDC_STATIC10,10,190,160,25,WS_GROUP
+	CONTROL	"Top",IDC_UP,"Button",BS_AUTORADIOBUTTON|WS_TABSTOP,15,200,40,10
+	CONTROL	"Center",IDC_VCENTER,"Button",BS_AUTORADIOBUTTON|WS_TABSTOP,75,200,40,10
+	CONTROL	"Bottom",IDC_DOWN,"Button",BS_AUTORADIOBUTTON|WS_TABSTOP,130,200,35,10
+
+	PUSHBUTTON	"&OK",IDOK,5,230,70,14
+	PUSHBUTTON	"&Cancel",IDCANCEL,105,230,70,14
+END
+

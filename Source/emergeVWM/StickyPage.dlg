@@ -1,0 +1,50 @@
+//----  --------------------------------------------------------------------------------------------------------
+//
+//  This file is part of Emerge Desktop.
+//  Copyright (C) 2004-2010  The Emerge Desktop Development Team
+//
+//  Emerge Desktop is free software; you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation; either version 3 of the License, or
+//  (at your option) any later version.
+//
+//  Emerge Desktop is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//
+//  You should have received a copy of the GNU General Public License
+//  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+//
+//----  --------------------------------------------------------------------------------------------------------
+
+IDI_ADD     ICON    "icons/add.ico"
+IDI_EDIT    ICON    "icons/edit.ico"
+IDI_DEL     ICON    "icons/del.ico"
+IDI_FILE    ICON    "icons/folder.ico"
+IDI_SAVE    ICON    "icons/save.ico"
+IDI_ABORT   ICON    "icons/abort.ico"
+
+IDD_STICKY_PAGE DIALOGEX 0, 0, CONFIG_WIDTH, CONFIG_HEIGHT
+STYLE WS_POPUP | WS_VISIBLE | WS_CAPTION
+CAPTION "emergeVWM Configuration"
+FONT 8, "MS Shell Dlg"
+BEGIN
+
+CONTROL	"Hide Sticky Applications",IDC_HIDESTICKY,"Button",BS_AUTOCHECKBOX|WS_TABSTOP,5,5,100,10
+
+GROUPBOX	"Sticky Applications",IDC_STATIC5,5,15,CONFIG_WIDTH-10,CONFIG_HEIGHT-20,WS_GROUP
+CONTROL		"StickyList",IDC_STICKYLIST,"SysListView32",LVS_REPORT|LVS_SHOWSELALWAYS|WS_BORDER|WS_TABSTOP,10,25,CONFIG_WIDTH-40,CONFIG_HEIGHT-70
+
+PUSHBUTTON	"",IDC_ADDAPP,CONFIG_WIDTH-28,25,16,14,BS_ICON|BS_FLAT
+PUSHBUTTON	"",IDC_EDITAPP,CONFIG_WIDTH-28,41,16,14,BS_ICON|BS_FLAT
+PUSHBUTTON	"",IDC_DELAPP,CONFIG_WIDTH-28,57,16,14,BS_ICON|BS_FLAT
+
+GROUPBOX	"Application",IDC_STATIC6,10,CONFIG_HEIGHT-40,CONFIG_WIDTH-20,30,WS_GROUP
+EDITTEXT	IDC_APPLICATION,15,CONFIG_HEIGHT-29,CONFIG_WIDTH-83,12,ES_AUTOHSCROLL
+PUSHBUTTON	"",IDC_BROWSE,CONFIG_WIDTH-66,CONFIG_HEIGHT-30,16,14,BS_ICON|BS_FLAT
+PUSHBUTTON	"",IDC_SAVEAPP,CONFIG_WIDTH-48,CONFIG_HEIGHT-30,16,14,BS_ICON|BS_FLAT
+PUSHBUTTON	"",IDC_ABORTAPP,CONFIG_WIDTH-30,CONFIG_HEIGHT-30,16,14,BS_ICON|BS_FLAT
+
+END
+

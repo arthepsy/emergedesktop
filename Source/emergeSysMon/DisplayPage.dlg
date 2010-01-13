@@ -1,0 +1,55 @@
+//---
+//
+//  This file is part of Emerge Desktop.
+//  Copyright (C) 2004-2010  The Emerge Desktop Development Team
+//
+//  Emerge Desktop is free software; you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation; either version 3 of the License, or
+//  (at your option) any later version.
+//
+//  Emerge Desktop is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//
+//  You should have received a copy of the GNU General Public License
+//  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+//
+//---
+
+IDD_DISPLAY_PAGE DIALOGEX 0, 0, CONFIG_WIDTH, CONFIG_HEIGHT
+STYLE WS_POPUP | WS_VISIBLE | WS_CAPTION
+CAPTION "emergeSysMon Configuration"
+FONT 8, "MS Shell Dlg"
+BEGIN
+
+LTEXT    "Font",IDC_STATIC1,5,15,50,8
+PUSHBUTTON  "",IDC_FONTBUTTON,55,5,CONFIG_WIDTH-60,30,BS_CENTER|BS_FLAT
+
+GROUPBOX "Processor colors", IDC_STATIC1,5,40,CONFIG_WIDTH-10,30,WS_GROUP
+LTEXT "Method:",IDC_STATIC1,10,52,30,8
+COMBOBOX	IDC_METHODCPU,40,50,80,150,CBS_DROPDOWNLIST|WS_VSCROLL|WS_TABSTOP
+LTEXT "From Color:",IDC_STATIC1,130,52,40,8
+PUSHBUTTON	"",IDC_FROMCOLOURCPU,180,48,16,16,BS_BITMAP|BS_FLAT
+LTEXT "To Color:",IDC_STATIC1,210,52,40,8
+PUSHBUTTON	"",IDC_TOCOLOURCPU,250,48,16,16,BS_BITMAP|BS_FLAT
+
+GROUPBOX "Memory colors", IDC_STATIC1,5,80,CONFIG_WIDTH-10,30,WS_GROUP
+LTEXT "Method:",IDC_STATIC1,10,92,30,8
+COMBOBOX	IDC_METHODMEM,40,90,80,150,CBS_DROPDOWNLIST|WS_VSCROLL|WS_TABSTOP
+LTEXT "From Color:",IDC_STATIC1,130,92,40,8
+PUSHBUTTON	"",IDC_FROMCOLOURMEM,180,88,16,16,BS_BITMAP|BS_FLAT
+LTEXT "To Color:",IDC_STATIC1,210,92,40,8
+PUSHBUTTON	"",IDC_TOCOLOURMEM,250,88,16,16,BS_BITMAP|BS_FLAT
+
+GROUPBOX	"Numbers",IDC_STATIC9,5,120,CONFIG_WIDTH-10,50,WS_GROUP
+CONTROL	"Show numeric info",IDC_SHOWNUMBERS,"Button",BS_AUTOCHECKBOX|WS_TABSTOP,10,130,120,10
+GROUPBOX	"Number position",IDC_STATIC10,10,140,CONFIG_WIDTH-20,25,WS_GROUP
+CONTROL	"Left",IDC_TEXTLEFT,"Button",BS_AUTORADIOBUTTON|WS_TABSTOP,15,150,40,10
+CONTROL	"Under",IDC_TEXTDOWN,"Button",BS_AUTORADIOBUTTON|WS_TABSTOP,15+CONFIG_WIDTH/4,150,40,10
+CONTROL	"Right",IDC_TEXTRIGHT,"Button",BS_AUTORADIOBUTTON|WS_TABSTOP,15+(2*(CONFIG_WIDTH/4)),150,35,10
+CONTROL	"Over",IDC_TEXTUP,"Button",BS_AUTORADIOBUTTON|WS_TABSTOP,15+(3*(CONFIG_WIDTH/4)),150,25,10
+
+END
+

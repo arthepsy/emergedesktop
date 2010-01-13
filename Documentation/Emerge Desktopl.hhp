@@ -1,0 +1,35 @@
+[OPTIONS]
+Compatibility=1.1 or later
+Compiled file=Emerge Desktop.chm
+Contents file=Emerge Desktop.hhc
+Default Font=Tahoma,8,0
+Default topic=index.html
+Display compile progress=No
+Full-text search=Yes
+Index file=Emerge Desktop.hhk
+Language=0x1009 English (Canada)
+Title=Emerge Desktop - An Alternate Windows Shell
+
+
+[FILES]
+License.html
+emergeCommand.html
+emergeCore.html
+emergeHotkeys.html
+index.html
+emergeTasks.html
+emergeTray.html
+emergeVWM.html
+emergeDesktop.html
+emergeLauncher.html
+Directory.html
+Internal.html
+Schemes.html
+Switches.html
+TimeDate.html
+FAQs.html
+whatsnew.html
+emerge.html
+
+[INFOTYPES]
+

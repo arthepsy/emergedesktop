@@ -1,0 +1,6 @@
+Requirements:
+
+1.  Python
+2.  The win32gui module
+
+http://sourceforge.net/projects/pywin32/

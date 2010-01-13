@@ -1,0 +1,151 @@
+//----  --------------------------------------------------------------------------------------------------------
+//
+//  This file is part of Emerge Desktop.
+//  Copyright (C) 2004-2010  The Emerge Desktop Development Team
+//
+//  Emerge Desktop is free software; you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation; either version 3 of the License, or
+//  (at your option) any later version.
+//
+//  Emerge Desktop is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//
+//  You should have received a copy of the GNU General Public License
+//  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+//
+//----  --------------------------------------------------------------------------------------------------------
+
+#define UNICODE
+#define _WINGDI_
+
+#include "resource.h"
+#include "../svnversion.h"
+#include "../version.h"
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION COMMA_VERSION
+ PRODUCTVERSION COMMA_VERSION
+ FILEFLAGSMASK VS_FFI_FILEFLAGSMASK
+#ifdef DEBUG
+ FILEFLAGS VS_FF_DEBUG
+#endif
+ FILEOS VOS__WINDOWS32
+ FILETYPE VFT_APP
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "000004B0"
+        BEGIN
+            VALUE "CompanyName", "The Emerge Desktop Development Team"
+            VALUE "FileDescription", "emergeCore - the core of the Emerge Desktop"
+            VALUE "FileVersion", POINT_VERSION
+            VALUE "InternalName", "emergeCore"
+            VALUE "LegalCopyright", "Copyright (C) 2004-2010"
+            VALUE "OriginalFilename", "emergeCore.exe"
+            VALUE "ProductName", "emergeCore"
+            VALUE "ProductVersion", POINT_VERSION
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x0, 1200
+    END
+END
+
+#ifdef __GNUC__
+CREATEPROCESS_MANIFEST_RESOURCE_ID RT_MANIFEST "emergeCore.exe.manifest"
+#endif
+
+IDI_DEFAULT	ICON	"icons/emerge.ico"
+IDI_ADD		ICON	"icons/add.ico"
+IDI_EDIT	ICON	"icons/edit.ico"
+IDI_DEL		ICON	"icons/del.ico"
+IDI_SAVE	ICON	"icons/save.ico"
+IDI_ABORT	ICON	"icons/abort.ico"
+IDI_BROWSE	ICON	"icons/folder.ico"
+IDI_START	ICON	"icons/start.ico"
+IDI_STOP	ICON	"icons/stop.ico"
+IDI_UP		ICON	"icons/up.ico"
+IDI_DOWN	ICON	"icons/down.ico"
+
+IDD_LAUNCH DIALOGEX 0, 0, 170, 205
+STYLE WS_POPUP | WS_VISIBLE | WS_CAPTION
+CAPTION "Launch Applets"
+FONT 8, "MS Shell Dlg"
+BEGIN
+	CONTROL		"StickyList",IDC_APPLETLIST,"SysListView32",LVS_REPORT|LVS_SHOWSELALWAYS|
+			WS_BORDER|WS_TABSTOP,5,5,160,115
+
+	PUSHBUTTON	"",IDC_ADDAPP,5,125,16,14,BS_ICON|BS_FLAT
+	PUSHBUTTON	"",IDC_DELAPP,23,125,16,14,BS_ICON|BS_FLAT
+	PUSHBUTTON	"",IDC_UPAPP,41,125,16,14,BS_ICON|BS_FLAT
+	PUSHBUTTON	"",IDC_DOWNAPP,59,125,16,14,BS_ICON|BS_FLAT
+	PUSHBUTTON	"",IDC_STARTAPP,77,125,16,14,BS_ICON|BS_FLAT
+	PUSHBUTTON	"",IDC_STOPAPP,95,125,16,14,BS_ICON|BS_FLAT
+
+	PUSHBUTTON	"",IDC_SAVEAPP,131,125,16,14,BS_ICON|BS_FLAT
+	PUSHBUTTON	"",IDC_ABORTAPP,149,125,16,14,BS_ICON|BS_FLAT
+
+	GROUPBOX	"Applet",IDC_STATIC,5,145,160,30,WS_GROUP
+	EDITTEXT	IDC_APPLET,10,155,132,12,ES_AUTOHSCROLL
+	PUSHBUTTON	"",IDC_BROWSE,144,154,16,14,BS_ICON|BS_FLAT
+
+	PUSHBUTTON	"&OK",IDOK,5,185,70,14
+	PUSHBUTTON	"&Cancel",IDCANCEL,95,185,70,14
+END
+
+IDD_SHELL DIALOGEX 0, 0, 191, 105
+STYLE WS_POPUP | WS_VISIBLE | WS_CAPTION
+CAPTION "Desktop Shell"
+FONT 8, "MS Shell Dlg"
+BEGIN
+	LTEXT		"Shell:",IDC_STATIC,5,7,25,10
+	COMBOBOX	IDC_SHELLITEM,35,5,151,150,CBS_DROPDOWNLIST|WS_VSCROLL|WS_TABSTOP
+
+	PUSHBUTTON	"",IDC_ADDSHELL,5,22,16,14,BS_ICON|BS_FLAT
+	PUSHBUTTON	"",IDC_EDITSHELL,23,22,16,14,BS_ICON|BS_FLAT
+	PUSHBUTTON	"",IDC_DELSHELL,41,22,16,14,BS_ICON|BS_FLAT
+
+	PUSHBUTTON	"",IDC_SAVESHELL,152,22,16,14,BS_ICON|BS_FLAT
+	PUSHBUTTON	"",IDC_ABORTSHELL,170,22,16,14,BS_ICON|BS_FLAT
+
+	LTEXT		"Name:",IDC_NAMETEXT,5,47,35,10
+	EDITTEXT	IDC_SHELLNAME,45,45,141,12,ES_AUTOHSCROLL
+	LTEXT		"Command:",IDC_COMMANDTEXT,5,63,35,10
+	EDITTEXT	IDC_SHELLCOMMAND,45,61,123,12,ES_AUTOHSCROLL
+	PUSHBUTTON	"",IDC_BROWSESHELL,170,60,16,14,BS_ICON|BS_FLAT
+
+	PUSHBUTTON	"&OK",IDOK,5,85,70,14
+	PUSHBUTTON	"&Cancel",IDCANCEL,116,85,70,14
+END
+
+IDD_THEMESELECT DIALOGEX 0, 0, 249, 50
+STYLE WS_POPUP | WS_VISIBLE | WS_CAPTION
+CAPTION "Theme Manager"
+FONT 8, "MS Shell Dlg"
+BEGIN
+	LTEXT		"Theme:",IDC_STATIC,5,7,25,10
+	COMBOBOX	IDC_THEMEITEM,35,5,151,150,CBS_DROPDOWNLIST|WS_VSCROLL|WS_TABSTOP
+
+	PUSHBUTTON	"Save &As",IDC_SAVEAS,191,5,16,14,BS_ICON|BS_FLAT
+	PUSHBUTTON	"&Save",IDC_SAVETHEME,209,5,16,14,BS_ICON|BS_FLAT
+	PUSHBUTTON	"&Delete",IDC_DELTHEME,227,5,16,14,BS_ICON|BS_FLAT
+
+	PUSHBUTTON	"&OK",IDOK,5,30,70,14
+	PUSHBUTTON	"&Cancel",IDCANCEL,174,30,70,14
+END
+
+IDD_THEMESAVE DIALOGEX 0, 0, 191, 50
+STYLE WS_POPUP | WS_VISIBLE | WS_CAPTION
+CAPTION "Save Theme As..."
+FONT 8, "MS Shell Dlg"
+BEGIN
+	LTEXT		"Theme:",IDC_STATIC,5,7,25,10
+	EDITTEXT	IDC_THEMEITEM,35,5,151,12,ES_AUTOHSCROLL|WS_TABSTOP
+
+	PUSHBUTTON	"&OK",IDOK,5,30,70,14
+	PUSHBUTTON	"&Cancel",IDCANCEL,116,30,70,14
+END

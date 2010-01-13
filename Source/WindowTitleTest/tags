@@ -1,0 +1,23 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.8	//
+DoCommand	TestDialog.cpp	/^BOOL TestDialog::DoCommand(HWND hwndDlg, WPARAM wParam, LPARAM lParam UNUSED)$/;"	f	class:TestDialog
+IDC_TEST	resource.h	26;"	d
+IDD_DIALOG	resource.h	25;"	d
+SetTitle	TestDialog.cpp	/^void TestDialog::SetTitle(HWND hwndDlg)$/;"	f	class:TestDialog
+Show	TestDialog.cpp	/^int TestDialog::Show()$/;"	f	class:TestDialog
+TestDialog	TestDialog.cpp	/^TestDialog::TestDialog(HINSTANCE hInstance)$/;"	f	class:TestDialog
+TestDialog	TestDialog.h	/^class TestDialog$/;"	c
+TestDialogDlgProc	TestDialog.cpp	/^BOOL CALLBACK TestDialog::TestDialogDlgProc(HWND hwndDlg, UINT message, WPARAM wParam, LPARAM lParam)$/;"	f	class:TestDialog
+WinMain	main.cpp	/^int WINAPI WinMain (HINSTANCE hInstance,$/;"	f
+_NO_W32_PSEUDO_MODIFIERS	main.cpp	22;"	d	file:
+_WIN32_IE	TestDialog.h	24;"	d
+_WIN32_IE	TestDialog.h	25;"	d
+_WIN32_WINNT	TestDialog.h	27;"	d
+_WIN32_WINNT	TestDialog.h	28;"	d
+__DIALOG_H	TestDialog.h	22;"	d
+hInstance	TestDialog.h	/^    HINSTANCE hInstance;$/;"	m	class:TestDialog
+~TestDialog	TestDialog.cpp	/^TestDialog::~TestDialog()$/;"	f	class:TestDialog

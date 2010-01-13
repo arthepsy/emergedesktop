@@ -1,0 +1,90 @@
+<html>
+<head>
+<title>Time / Date Format Variables and Codes</title>
+<link rel = StyleSheet type = "text/css" HREF = "emerge.css">
+</head>
+<body>
+  <table cellpadding=5 cellspacing=0  bgcolor=#7F907F width=100%>
+    <tr>
+      <td>
+        <font color=white><b>Time / Date Format Variables and Codes</b></font>
+      </td>
+    </tr>
+  </table>
+<p>
+Emerge Desktop supports the following variables for Date / Time display:
+<ul>
+  <li><i>%a</i> - Abbreviated weekday name</li>
+  <li><i>%A</i> - Full weekday name</li>
+  <li><i>%b</i> - Abbreviated month name</li>
+  <li><i>%B</i> - Full month name</li>
+  <li><i>%c</i> - Date and time representation appropriate for locale</li>
+  <li><i>%d</i> - Day of month as decimal number (01 - 31)</li>
+  <li><i>%H</i> - Hour in 24-hour format (00 - 23)</li>
+  <li><i>%I</i> - Hour in 12-hour format (01 - 12)</li>
+  <li><i>%j</i> - Day of year as decimal number (001 - 366)</li>
+  <li><i>%m</i> - Month as decimal number (01 - 12)</li>
+  <li><i>%M</i> - Minute as decimal number (00 - 59)</li>
+  <li><i>%p</i> - Current locale's A.M./P.M. indicator for 12-hour clock</li>
+  <li><i>%S</i> - Second as decimal number (00 - 59)</li>
+  <li><i>%U</i> - Week of year as decimal number, with Sunday as first day of week (00 - 53)</li>
+  <li><i>%w</i> - Weekday as decimal number (0 - 6; Sunday is 0)</li>
+  <li><i>%W</i> - Week of year as decimal number, with Monday as first day of week (00 - 53)</li>
+  <li><i>%x</i> - Date representation for current locale</li>
+  <li><i>%X</i> - Time representation for current locale</li>
+  <li><i>%y</i> - Year without century, as decimal number (00 - 99)</li>
+  <li><i>%Y</i> - Year with century, as decimal number</li>
+  <li><i>%z, %Z</i> - Either the time-zone name or time zone abbreviation, depending on registry settings; no characters if time zone is unknown</li>
+  <li><i>%%</i> - Percent sign</li>
+</ul>
+<p>
+Additionally, the # flag may prefix any formatting code. In that case, the meaning of the format code is changed as follows.
+<p>
+<table cellspacing=2 cellpadding=2 border=0 bgcolor=#7F907F width=80%>
+  <tr>
+    <td bgcolor=#7F907F>
+      <font color=white><b>Format code</b></font>
+    </td>
+    <td bgcolor=#7F907F>
+      <font color=white><b>Meaning</b></font>
+    </td>
+  </tr>
+  <tr>
+    <td bgcolor=#D6DCD6 valign=top>
+      %#a, %#A, %#b, %#B, %#p, %#X, %#z, %#Z, %#%
+    </td>
+    <td bgcolor=#D6DCD6 valign=top>
+      # flag is ignored.
+    </td>
+  </tr>
+  <tr>
+    <td bgcolor=#D6DCD6 valign=top>
+      %#c
+    </td>
+    <td bgcolor=#D6DCD6 valign=top>
+      Long date and time representation, appropriate for current locale. For example: &quot;Tuesday, March 14, 1995, 12:41:29&quot;.
+    </td>
+  </tr>
+  <tr>
+    <td bgcolor=#D6DCD6 valign=top>
+      %#x
+    </td>
+    <td bgcolor=#D6DCD6 valign=top>
+      Long date representation, appropriate to current locale. For example: &quot;Tuesday, March 14, 1995&quot;.
+    </td>
+  </tr>
+  <tr>
+    <td bgcolor=#D6DCD6 valign=top>
+      %#d, %#H, %#I, %#j, %#m, %#M, %#S, %#U, %#w, %#W, %#y, %#Y
+    </td>
+    <td bgcolor=#D6DCD6 valign=top>
+      Remove leading zeros (if any).
+    </td>
+  </tr>
+</table>
+
+<p><b>Important Note:</b> Both the Time Format and Tootip Format text can be broken into two or more lines by inserting the %_ code (e.g. %A%_%x%_%X)</p>
+
+</body>
+</html>
+

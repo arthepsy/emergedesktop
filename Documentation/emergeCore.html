@@ -1,0 +1,39 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+    <head>
+        <title>emergeCore</title>
+        <link rel = StyleSheet type = "text/css" HREF = "emerge.css">
+    </head>
+<body> <table bgcolor="#7f907f" cellpadding="5" cellspacing="0" width="100%">
+<tr><td><font color="white"><b>About</b></font></td></tr></table>
+
+<p>emergeCore, as it name indicates, is the core component of Emerge Desktop. It is the messaging interface between all the other Emerge Desktop applets.</p>
+<p>It also launches all startup programs as well as starting the Microsoft DDE Server.</p>
+<p><table bgcolor="#7f907f" cellpadding="5" cellspacing="0" width="100%"><tr><td><font color="white"><b>Configuration</b></font></td> </tr> </table></p>
+
+<p>There are two major components of Emerge Desktop which are dependent on the Core: the applets loaded at Startup which are configured by the Launch Applets Configuration and the Shell Changer which allows to set Emerge Desktop (or any other alternate shell) as the default shell for the Current User or to switch to Windows Explorer.</p>
+
+<p>To display the Launch Applets Configuration dialog the user should click  with the right mouse button on the desktop window, and select Settings, Edit Launch Applets. Alternatively the user can type <i>CoreLaunchEditor</i> on the emergeCommand command line.</p><img style="width: 261px; height: 358px;" alt="" src="LaunchApplets.png">
+<p>To Add <img style="width: 24px; height: 23px;" alt="" src="Add.png"> items to the Launch list, the user must Browse <img style="width: 24px; height: 23px;" alt="" src="Browse.png"> to the file and then click on Save <img style="width: 24px; height: 23px;" alt="" src="Save.png"> to save the item or
+Clear <img style="width: 24px; height: 23px;" alt="" src="Clear.png"> to start again.<br>
+To delete a list item, the user should select it from the list and press the Delete <img style="width: 24px; height: 23px;" alt="" src="Delete.png"> button.<br>
+The Up <img style="width: 24px; height: 23px;" alt="" src="Up.png"> and Down <img style="width: 24px; height: 23px;" alt="" src="Down.png"> buttons allow the user to move an applet up or down in the launch list, to sort the launching order.<br>
+The Launch list can also be used to Stop <img style="width: 24px; height: 23px;" alt="" src="Stop.png"> (i.e. unload or close) or Start <img style="width: 24px; height: 23px;" alt="" src="Start.png"> (i.e. load or open) an applet by selecting it from the list and pressing the apropriate button.</p>
+
+<p>To display the Desktop Shell dialog the user should click  with the right mouse button on the desktop window, and select Settings, Change Desktop Shell. Alternatively the user can use the shortcut named &quot;Emerge Desktop Shell Changer&quot; included in the Emerge Desktop group added to the Startup menu during installation. This shortcut can be accessed both when Windows Explorer or Emerge Desktop is the shell. Finally, the user can type <i>CoreShellChanger</i> on the emergeCommand command line.</p>
+<img style="width: 293px; height: 196px;" alt="" src="DesktopShell.png">
+
+<p>Emerge Desktop and Windows Explorer are included by default in the Shell list (in fact they can not be removed from it). However the user can Add </p> <img style="width: 24px; height: 23px;" alt="" src="Add.png"> other shells to the list, by Browsing <img style="width: 24px; height: 23px;" alt="" src="Browse.png"> to the file, defining a Name, and then clicking on Save <img style="width: 24px; height: 23px;" alt="" src="Save.png"> to save the item or Clear <img style="width: 24px; height: 23px;" alt="" src="Clear.png"> to start again.<br> The added shells can be modified  or deleted by selecting it from the drop list and pressing the Modify <img style="width: 24px; height: 23px;" alt="" src="Modify.png"> or Delete <img style="width: 24px; height: 23px;" alt="" src="Delete.png"> button.</p>
+
+<p>To switch from one shell to another, the user should select the shell to be used on the next session from the drop list and click on the Change button. After rebooting or logoff, Windows will load with the selected shell.</p>
+
+<p>emergeCore settings are stored in <i>HKEY_CURRENT_USER\Software\Emerge Desktop\emergeCore</i> and consist of the following subkeys:</p>
+<ul><li><i>Settings</i> - all emergeCore related settings. Currently the options are: <ul>
+<li><i>InstallDir</i> - Path where Emerge Desktop was installed</li></ul></li> 
+<li><i>Launch</i> - stores a list of strings containing the applications to be launched when emergeCore executes. The values are of type String the name is up to the user (the order is dependent on the name used) and the data is the either the full path to the application to be launched or the path relative to the directory in which emergeCore exists.</li>
+<li><i>Shells</i> - stores a list of strings containing alternate shells to be launched. Explorer and Emerge Desktop are not listed although they show in the Shell Changer</li>
+</ul><br>
+<table bgcolor="#7f907f" cellpadding="5" cellspacing="0" width="100%"><tr><td>
+<font color="white"><b>Usage</b></font>
+</td> </tr></table>
+<p>emergeCore also supports command line switches (see <a href="Switches.html">Emerge Desktop Command Line Switches</a>).</p></body></html>

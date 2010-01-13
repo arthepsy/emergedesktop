@@ -1,0 +1,18 @@
+LDFLAGS += -shared
+CFLAGS += $(EXPORTS)
+IMPLIB = $(BIN_DIR)/lib$(TARGET).a
+TARGET_ARGS = -Wl,--out-implib,$(IMPLIB) -Wl,--enable-auto-image-base
+
+ifdef MINGW64
+		LIBS += -lstdc++.dll
+else
+		LIBS += -lstdc_s
+endif
+
+.IGNORE: distclean
+distclean: clean
+	$(call remove_files, $(DEPS))
+	$(call remove_file, $(BIN_DIR)/$(TARGET)$(SUFFIX))
+	$(call remove_file, $(IMPLIB))
+	$(call remove_file, $(DEFLIB))
+

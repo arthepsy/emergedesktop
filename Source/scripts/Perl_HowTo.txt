@@ -1,0 +1,8 @@
+Requirements:
+
+1.  Perl
+2.  The Win32::GUI module, either the Cygwin package (if you are using Cygwin) or from:
+
+http://sourceforge.net/projects/perl-win32-gui/
+
+I recommend that you download the PPM and follow the instructions.

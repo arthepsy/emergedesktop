@@ -1,0 +1,42 @@
+//----  --------------------------------------------------------------------------------------------------------
+//
+//  This file is part of Emerge Desktop.
+//  Copyright (C) 2004-2010  The Emerge Desktop Development Team
+//
+//  Emerge Desktop is free software; you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation; either version 3 of the License, or
+//  (at your option) any later version.
+//
+//  Emerge Desktop is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//
+//  You should have received a copy of the GNU General Public License
+//  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+//
+//----  --------------------------------------------------------------------------------------------------------
+
+IDD_CONFIG_PAGE DIALOGEX 0, 0, CONFIG_WIDTH, CONFIG_HEIGHT
+STYLE WS_POPUP | WS_VISIBLE | WS_CAPTION
+CAPTION "emergeVWM Configuration"
+FONT 8, "MS Shell Dlg"
+BEGIN
+
+	CONTROL	"SnapMove",IDC_SNAPMOVE,"Button",BS_AUTOCHECKBOX|WS_TABSTOP,5,5,55,10
+	CONTROL	"SnapSize",IDC_SNAPSIZE,"Button",BS_AUTOCHECKBOX|WS_TABSTOP,CONFIG_WIDTH-95,5,90,10
+
+	CONTROL	"Click Through:",IDC_CLICKTHROUGH,"Button",BS_AUTOCHECKBOX|WS_TABSTOP,5,20,60,10
+	COMBOBOX	IDC_CLICKTHROUGHMETHOD,65,18,60,150,CBS_DROPDOWNLIST|WS_VSCROLL|WS_TABSTOP
+
+  GROUPBOX	"Desktops",IDC_STATIC1,5,40,CONFIG_WIDTH-10,27,WS_GROUP
+  LTEXT		"Rows",IDC_STATIC2,10,52,30,8
+  EDITTEXT	IDC_DESKTOPROWS,40,50,30,12,ES_AUTOHSCROLL|ES_NUMBER
+  CONTROL "",IDC_ROWSUPDOWN,UPDOWN_CLASS,UDS_AUTOBUDDY|UDS_SETBUDDYINT|UDS_ARROWKEYS|UDS_ALIGNRIGHT|UDS_NOTHOUSANDS,0,0,10,12
+  LTEXT		"Columns",IDC_STATIC3,CONFIG_WIDTH-70,52,30,8
+  EDITTEXT	IDC_DESKTOPCOLUMNS,CONFIG_WIDTH-40,50,30,12,ES_AUTOHSCROLL|ES_NUMBER
+  CONTROL "",IDC_COLUMNSUPDOWN,UPDOWN_CLASS,UDS_AUTOBUDDY|UDS_SETBUDDYINT|UDS_ARROWKEYS|UDS_ALIGNRIGHT|UDS_NOTHOUSANDS,0,0,10,12
+
+END
+

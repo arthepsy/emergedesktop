@@ -1,0 +1,95 @@
+CC = g++
+AR = ar
+WINDRES = windres
+WINDRESOPS = -E -xc-header -DRC_INVOKED
+WINDRESFLAGS = -O COFF
+BIN_DIR = ../bin
+OBJ_DIR = .objs
+DEPS_DIR = .deps
+OBJS = $(patsubst %.cpp,../$(OBJ_DIR)/$(BUILD)/$(TARGET)/%.o,$(wildcard *.cpp)) $(patsubst %.rc,../$(OBJ_DIR)/$(BUILD)/$(TARGET)/%.o,$(TARGET).rc)
+DEPS = $(subst ../$(OBJ_DIR)/$(BUILD),../$(DEPS_DIR),$(OBJS:.o=.d)) $(subst ../$(OBJ_DIR)/$(BUILD),../$(DEPS_DIR),$(RES:.res=.d))
+TINY_DIR = ../$(OBJ_DIR)/$(BUILD)/tinyxml
+TARGET_OBJS += $(OBJS)
+TINYOBJS = $(patsubst ../tinyxml/%.cpp,../$(OBJ_DIR)/$(BUILD)/tinyxml/%.o,$(wildcard ../tinyxml/*.cpp))
+BUILD = Release
+SVN_FILE = ../svnversion.h
+LDFLAGS = -Wl,--subsystem,windows -shared-libgcc -Wl,--enable-auto-import
+CFLAGS = -W -Wall -Wextra -Werror -pedantic -D_GLIBCXX_DLL
+
+ifeq ($(MINGW64), 2)
+		CC = i686-w64-mingw32-g++
+		AR = i686-w64-mingw32-ar
+		WINDRES = i686-w64-mingw32-windres
+		LIBS += -L../bin
+		CFLAGS += -march=pentium4 -mfpmath=sse
+else ifeq ($(MINGW64), 1)
+		CC = x86_64-w64-mingw32-g++
+		AR = x86_64-w64-mingw32-ar
+		WINDRES = x86_64-w64-mingw32-windres
+		BIN_DIR = ../bin64
+		OBJ_DIR = .objs64
+		DEPS_DIR = .deps64
+		LIBS += -L../bin64
+else
+		LIBS += -L../bin
+		CFLAGS += -march=pentium4 -mfpmath=sse -fno-inline
+endif
+
+ifdef DEBUG
+		CFLAGS += -gstabs
+		BUILD = Debug
+else ifndef PROFILE
+		CFLAGS += -O2
+		LDFLAGS += -s
+endif
+
+ifdef PROFILE
+		LDFLAGS += -pg
+		CFLAGS += -pg -g
+endif
+
+all: $(BIN_DIR)/$(TARGET)$(SUFFIX)
+
+ifeq ($(MAKECMDGOALS),)
+include $(DEPS)
+endif
+
+ifeq ($(MAKECMDGOALS),all)
+include $(DEPS)
+endif
+
+.IGNORE: clean
+clean:
+	$(call remove_files, $(TARGET_OBJS))
+	$(call remove_file, $(BIN_DIR)/$(TARGET)$(SUFFIX))
+
+.PHONY: makedir
+makedir:
+	$(call make_dir,$(BIN_DIR))
+	$(call make_dir,$(TINY_DIR))
+	$(call make_dir,../$(OBJ_DIR)/$(BUILD)/$(TARGET))
+	$(call make_dir,../$(DEPS_DIR)/$(TARGET))
+
+.PHONY: makedep
+makedep: $(DEPS)
+
+../$(OBJ_DIR)/$(BUILD)/$(TARGET)/%.o: %.cpp
+	$(CC) $(CFLAGS) -c $< -o $@
+
+../$(DEPS_DIR)/$(TARGET)/%.d: %.cpp
+	$(CC) -MM -MF $@ -MT ../$(OBJ_DIR)/$(BUILD)/$(TARGET)/$(*F).o $<
+
+../$(DEPS_DIR)/$(TARGET)/%.d: %.rc $(SVN_FILE)
+	$(CC) $(WINDRESOPS) -MM -MF $@ -MT ../$(OBJ_DIR)/$(BUILD)/$(TARGET)/$(*F).o $<
+
+../$(DEPS_DIR)/tinyxml/%.d: $(TINYCCPS)
+	$(CC) -MM -MF $@ -MT ../$(OBJ_DIR)/$(BUILD)/$(TARGET)/$(*F).o $<
+
+../$(OBJ_DIR)/$(BUILD)/$(TARGET)/%.o: %.rc $(SVN_FILE)
+	$(WINDRES) --preprocessor="$(CC) $(WINDRESOPS)" $(WINDRESFLAGS) -i $< -o $@
+
+../$(OBJ_DIR)/$(BUILD)/tinyxml/%.o: ../tinyxml/%.cpp
+	$(CC) $(CFLAGS) -c $< -o $@
+
+$(BIN_DIR)/$(TARGET)$(SUFFIX): $(TARGET_OBJS)
+	$(CC) $(LDFLAGS) $(TARGET_ARGS) -o $@ $(TARGET_OBJS) $(LIBS)

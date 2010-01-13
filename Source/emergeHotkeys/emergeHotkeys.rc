@@ -1,0 +1,108 @@
+//----  --------------------------------------------------------------------------------------------------------
+//
+//  This file is part of Emerge Desktop.
+//  Copyright (C) 2004-2010  The Emerge Desktop Development Team
+//
+//  Emerge Desktop is free software; you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation; either version 3 of the License, or
+//  (at your option) any later version.
+//
+//  Emerge Desktop is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//
+//  You should have received a copy of the GNU General Public License
+//  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+//
+//----  --------------------------------------------------------------------------------------------------------
+
+#define UNICODE
+#define _WINGDI_
+
+#include "resource.h"
+#include "../svnversion.h"
+#include "../version.h"
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION COMMA_VERSION
+ PRODUCTVERSION COMMA_VERSION
+ FILEFLAGSMASK VS_FFI_FILEFLAGSMASK
+#ifdef DEBUG
+ FILEFLAGS VS_FF_DEBUG
+#endif
+ FILEOS VOS__WINDOWS32
+ FILETYPE VFT_APP
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "000004B0"
+        BEGIN
+            VALUE "CompanyName", "The Emerge Desktop Development Team"
+            VALUE "FileDescription", "emergeHotkeys - applet for the Emerge Desktop"
+            VALUE "FileVersion", POINT_VERSION
+            VALUE "InternalName", "emergeHotkeys"
+            VALUE "LegalCopyright", "Copyright (C) 2004-2010"
+            VALUE "OriginalFilename", "emergeHotkeys.exe"
+            VALUE "ProductName", "emergeHotkeys"
+            VALUE "ProductVersion", POINT_VERSION
+        END
+    END
+
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x0, 1200
+    END
+END
+
+#ifdef __GNUC__
+CREATEPROCESS_MANIFEST_RESOURCE_ID RT_MANIFEST "emergeHotkeys.exe.manifest"
+#endif
+
+IDI_DEFAULT	ICON	"icons/emerge.ico"
+IDI_ADD		ICON	"icons/add.ico"
+IDI_DEL		ICON	"icons/del.ico"
+IDI_EDIT	ICON	"icons/edit.ico"
+IDI_FOLDER	ICON	"icons/folder.ico"
+IDI_FILE	ICON	"icons/file.ico"
+IDI_SAVE	ICON	"icons/save.ico"
+IDI_ABORT	ICON	"icons/abort.ico"
+
+IDD_ACTIONS DIALOGEX 0, 0, 270, 275
+STYLE WS_POPUP | WS_VISIBLE | WS_CAPTION
+CAPTION "emergeHotkeys Configuration"
+FONT 8, "MS Shell Dlg"
+BEGIN
+	CONTROL		"StickyList",IDC_ACTIONSLIST,"SysListView32",LVS_REPORT|LVS_SHOWSELALWAYS|WS_BORDER|WS_TABSTOP,5,5,260,120
+
+	PUSHBUTTON	"",IDC_ADDAPP,5,130,16,14,BS_ICON|BS_FLAT
+	PUSHBUTTON	"",IDC_MODAPP,23,130,16,14,BS_ICON|BS_FLAT
+	PUSHBUTTON	"",IDC_DELAPP,41,130,16,14,BS_ICON|BS_FLAT
+
+	PUSHBUTTON	"",IDC_SAVEAPP,231,130,16,14,BS_ICON|BS_FLAT
+	PUSHBUTTON	"",IDC_ABORTAPP,249,130,16,14,BS_ICON|BS_FLAT
+
+	GROUPBOX	"Key Combination",IDC_STATIC1,5,150,260,25,WS_GROUP
+	CONTROL		"Shift",IDC_SHIFT,"Button",BS_AUTOCHECKBOX|WS_TABSTOP,10,160,30,10
+	CONTROL		"Ctrl",IDC_CTRL,"Button",BS_AUTOCHECKBOX|WS_TABSTOP,45,160,30,10
+	CONTROL		"Win",IDC_WIN,"Button",BS_AUTOCHECKBOX|WS_TABSTOP,80,160,30,10
+	CONTROL		"Alt",IDC_ALT,"Button",BS_AUTOCHECKBOX|WS_TABSTOP,115,160,30,10
+	LTEXT		"Key:",IDC_KEYTEXT,160,160,20,8
+	COMBOBOX	IDC_KEY,180,158,80,160,CBS_DROPDOWNLIST|WS_VSCROLL|WS_TABSTOP
+
+	GROUPBOX	"Action",IDC_STATIC2,5,180,260,50,WS_GROUP
+	CONTROL		"Execute:",IDC_EXTERNAL,"Button",BS_AUTORADIOBUTTON|WS_TABSTOP,10,192,40,8
+	EDITTEXT	IDC_APPLICATION,60,190,179,12,ES_AUTOHSCROLL
+	PUSHBUTTON	"",IDC_FILE,244,190,16,14,BS_ICON|BS_FLAT
+	PUSHBUTTON	"",IDC_FOLDER,244,210,16,14,BS_ICON|BS_FLAT
+	CONTROL		"Command:",IDC_INTERNAL,"Button",BS_AUTORADIOBUTTON|WS_TABSTOP,10,212,45,8
+	COMBOBOX	IDC_COMMAND,60,210,90,150,CBS_DROPDOWNLIST|WS_VSCROLL|WS_TABSTOP
+
+	PUSHBUTTON	"About",IDC_ABOUT,5,240,70,14
+	PUSHBUTTON	"Exit",IDC_EXIT,5,256,70,14
+
+	PUSHBUTTON	"&OK",IDOK,195,240,70,14
+	PUSHBUTTON	"&Cancel",IDCANCEL,195,256,70,14
+END
+

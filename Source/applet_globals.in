@@ -1,0 +1,11 @@
+ifdef MINGW64
+		LIBS += -lstdc++.dll
+else
+		LIBS += -lstdc_s
+endif
+
+.IGNORE: distclean
+distclean: clean
+	$(call remove_files, $(DEPS))
+	$(call remove_file, $(BIN_DIR)/$(TARGET)$(SUFFIX))
+

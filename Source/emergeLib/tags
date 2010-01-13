@@ -1,0 +1,362 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.8	//
+APPCOMMAND_BROWSER_BACKWARD	main.cpp	86;"	d	file:
+APPLETMONITORINFO	main.cpp	/^} APPLETMONITORINFO, *LPAPPLETMONITORINFO;$/;"	t	typeref:struct:_APPLETMONITORINFO	file:
+AppletEdge	emergeLib.h	/^  UINT AppletEdge;$/;"	m	struct:_SNAPSIZEINFO
+AppletMonitorEnum	main.cpp	/^BOOL CALLBACK AppletMonitorEnum(HMONITOR hMonitor, HDC hdcMonitor UNUSED, LPRECT lprcMonitor UNUSED, LPARAM dwData)$/;"	f
+AppletRect	emergeLib.h	/^  RECT *AppletRect;$/;"	m	struct:_SNAPMOVEINFO
+AppletRect	emergeLib.h	/^  RECT *AppletRect;$/;"	m	struct:_SNAPSIZEINFO
+AppletWindow	emergeLib.h	/^  HWND AppletWindow;$/;"	m	struct:_SNAPMOVEINFO
+AppletWindow	emergeLib.h	/^  HWND AppletWindow;$/;"	m	struct:_SNAPSIZEINFO
+Arguments	emergeLib.h	/^  WCHAR Arguments[MAX_PATH]; \/*!< Arguments of the shortcut *\/$/;"	m	struct:_SHORTCUTINFO
+Author	emergeLib.h	/^  WCHAR Author[MAX_PATH];$/;"	m	struct:_VERSIONINFO
+COMMAND_LOCK	emergeLib.h	179;"	d
+COMMAND_LOGOFF	emergeLib.h	169;"	d
+COMMAND_QUIT	emergeLib.h	164;"	d
+COMMAND_RUN	emergeLib.h	159;"	d
+COMMAND_SHUTDOWN	emergeLib.h	174;"	d
+CORE_ABOUT	emergeLib.h	114;"	d
+CORE_DESKTOP	emergeLib.h	111;"	d
+CORE_DISCONNECT	emergeLib.h	113;"	d
+CORE_EMPTYBIN	emergeLib.h	105;"	d
+CORE_HALT	emergeLib.h	108;"	d
+CORE_HIBERNATE	emergeLib.h	110;"	d
+CORE_HIDE	emergeLib.h	96;"	d
+CORE_LAUNCH	emergeLib.h	97;"	d
+CORE_LEFTMENU	emergeLib.h	118;"	d
+CORE_LOGOFF	emergeLib.h	106;"	d
+CORE_MENU	emergeLib.h	99;"	d
+CORE_MIDMENU	emergeLib.h	102;"	d
+CORE_QUIT	emergeLib.h	94;"	d
+CORE_REBOOT	emergeLib.h	107;"	d
+CORE_RECONFIGURE	emergeLib.h	115;"	d
+CORE_REFRESH	emergeLib.h	112;"	d
+CORE_RIGHTMENU	emergeLib.h	101;"	d
+CORE_RUN	emergeLib.h	103;"	d
+CORE_SETTINGS	emergeLib.h	98;"	d
+CORE_SHELL	emergeLib.h	100;"	d
+CORE_SHOW	emergeLib.h	95;"	d
+CORE_SHUTDOWN	emergeLib.h	104;"	d
+CORE_SUSPEND	emergeLib.h	109;"	d
+CORE_THEMESELECT	emergeLib.h	116;"	d
+CORE_WRITESETTINGS	emergeLib.h	117;"	d
+CP_APPLET	main.cpp	94;"	d	file:
+CP_THEME	main.cpp	92;"	d	file:
+CP_USER	main.cpp	93;"	d	file:
+CTP_FULL	emergeLib.h	214;"	d
+CTP_RELATIVE	emergeLib.h	215;"	d
+ConvertPath	main.cpp	/^bool ConvertPath(WCHAR *schemeFile, DWORD flags, DWORD path)$/;"	f
+DLL_EXPORT	emergeLib.h	28;"	d
+DLL_EXPORT	emergeLib.h	33;"	d
+DLL_EXPORT	emergeLib.h	40;"	d
+Description	emergeLib.h	/^  WCHAR Description[MAX_PATH];$/;"	m	struct:_VERSIONINFO
+DoCommand	MsgBox.cpp	/^LRESULT MsgBox::DoCommand(HWND hwndDlg, WPARAM wParam, LPARAM lParam UNUSED)$/;"	f	class:MsgBox
+DoCommand	Shutdown.cpp	/^BOOL Shutdown::DoCommand(HWND hwndDlg, WPARAM wParam, LPARAM lParam UNUSED)$/;"	f	class:Shutdown
+DoInitDialog	MsgBox.cpp	/^LRESULT MsgBox::DoInitDialog(HWND hwndDlg)$/;"	f	class:MsgBox
+DoInitDialog	Shutdown.cpp	/^BOOL Shutdown::DoInitDialog(HWND hwndDlg)$/;"	f	class:Shutdown
+DoNotify	Shutdown.cpp	/^BOOL Shutdown::DoNotify(HWND hwndDlg UNUSED, LPARAM lParam UNUSED)$/;"	f	class:Shutdown
+DoShutdown	Shutdown.cpp	/^bool Shutdown::DoShutdown(HWND hwndDlg)$/;"	f	class:Shutdown
+ELAV_MUTE	emergeLib.h	140;"	d
+ELAV_VOLUMEDOWN	emergeLib.h	142;"	d
+ELAV_VOLUMEUP	emergeLib.h	141;"	d
+ELAdjustVolume	main.cpp	/^bool ELAdjustVolume(UINT command)$/;"	f
+ELAppletFileVersion	main.cpp	/^bool ELAppletFileVersion(WCHAR *applet, LPVERSIONINFO versionInfo)$/;"	f
+ELAppletVersionInfo	main.cpp	/^bool ELAppletVersionInfo(HWND appWnd, LPVERSIONINFO versionInfo)$/;"	f
+ELCB_BACK	emergeLib.h	144;"	d
+ELCheckPathWithExtension	main.cpp	/^bool ELCheckPathWithExtension(LPTSTR path)$/;"	f
+ELCheckWindow	main.cpp	/^bool ELCheckWindow(HWND hwnd)$/;"	f
+ELClearEmergeVars	main.cpp	/^void ELClearEmergeVars()$/;"	f
+ELCloseRegKey	main.cpp	/^bool ELCloseRegKey(HKEY key)$/;"	f
+ELConvertAppletPath	main.cpp	/^bool ELConvertAppletPath(WCHAR *schemeFile, DWORD flags)$/;"	f
+ELConvertThemePath	main.cpp	/^bool ELConvertThemePath(WCHAR *schemeFile, DWORD flags)$/;"	f
+ELConvertUserPath	main.cpp	/^bool ELConvertUserPath(WCHAR *schemeFile, DWORD flags)$/;"	f
+ELCreateDirectory	main.cpp	/^bool ELCreateDirectory(std::wstring directory)$/;"	f
+ELDeleteRegKey	main.cpp	/^bool ELDeleteRegKey(LPTSTR subkey)$/;"	f
+ELDisplayChange	main.cpp	/^void ELDisplayChange(HWND hwnd)$/;"	f
+ELExecute	main.cpp	/^bool ELExecute(LPTSTR application, LPTSTR workingDir, int nShow)$/;"	f
+ELExecuteAlias	main.cpp	/^bool ELExecuteAlias(LPTSTR alias)$/;"	f
+ELExecuteAll	main.cpp	/^bool ELExecuteAll(WCHAR *command, WCHAR *workingDir)$/;"	f
+ELExecuteInternal	main.cpp	/^bool ELExecuteInternal(LPTSTR command)$/;"	f
+ELExecuteSpecialFolder	main.cpp	/^bool ELExecuteSpecialFolder(LPTSTR folder)$/;"	f
+ELExit	main.cpp	/^bool ELExit(UINT uFlag, bool prompt)$/;"	f
+ELExpandVars	main.cpp	/^std::wstring ELExpandVars(std::wstring value)$/;"	f
+ELFileOp	main.cpp	/^bool ELFileOp(HWND appletWnd, UINT function, std::wstring source, std::wstring destination)$/;"	f
+ELFileTypeCommand	main.cpp	/^bool ELFileTypeCommand(WCHAR *document, WCHAR *docArgs, WCHAR *commandLine)$/;"	f
+ELGetAnchorPoint	main.cpp	/^POINT ELGetAnchorPoint(HWND hwnd)$/;"	f
+ELGetAppPath	main.cpp	/^bool ELGetAppPath(const WCHAR *program, WCHAR *path)$/;"	f
+ELGetAppletMonitor	main.cpp	/^int ELGetAppletMonitor(HWND hwnd)$/;"	f
+ELGetCoreWindow	main.cpp	/^HWND ELGetCoreWindow()$/;"	f
+ELGetCurrentPath	main.cpp	/^bool ELGetCurrentPath(LPTSTR path)$/;"	f
+ELGetDesktopRect	main.cpp	/^HMONITOR ELGetDesktopRect(RECT *appletRect, RECT *rect)$/;"	f
+ELGetDesktopWindow	main.cpp	/^HWND ELGetDesktopWindow()$/;"	f
+ELGetFirstXMLElement	main.cpp	/^TiXmlElement *ELGetFirstXMLElement(TiXmlElement *xmlSection)$/;"	f
+ELGetFirstXMLElementByName	main.cpp	/^TiXmlElement *ELGetFirstXMLElementByName(TiXmlElement *xmlSection, WCHAR *elementName)$/;"	f
+ELGetMonitorRect	main.cpp	/^RECT ELGetMonitorRect(int monitor)$/;"	f
+ELGetSiblingXMLElement	main.cpp	/^TiXmlElement *ELGetSiblingXMLElement(TiXmlElement *xmlElement)$/;"	f
+ELGetSpecialFolder	main.cpp	/^bool ELGetSpecialFolder(int folder, WCHAR *folderPath)$/;"	f
+ELGetTempFileName	main.cpp	/^bool ELGetTempFileName(WCHAR *fileName)$/;"	f
+ELGetThemeInfo	main.cpp	/^void ELGetThemeInfo(LPTHEMEINFO themeInfo)$/;"	f
+ELGetThemeName	main.cpp	/^std::wstring ELGetThemeName()$/;"	f
+ELGetUserDataPath	main.cpp	/^std::wstring ELGetUserDataPath()$/;"	f
+ELGetWindowApp	main.cpp	/^bool ELGetWindowApp(HWND hWnd, WCHAR *processName, bool fullName)$/;"	f
+ELGetXMLConfig	main.cpp	/^TiXmlDocument *ELGetXMLConfig(TiXmlElement *element)$/;"	f
+ELGetXMLElementLabel	main.cpp	/^bool ELGetXMLElementLabel(TiXmlElement *xmlElement, WCHAR* xmlString)$/;"	f
+ELGetXMLElementText	main.cpp	/^bool ELGetXMLElementText(TiXmlElement *xmlElement, WCHAR* xmlString)$/;"	f
+ELGetXMLSection	main.cpp	/^TiXmlElement *ELGetXMLSection(TiXmlDocument *configXML, WCHAR *section, bool createSection)$/;"	f
+ELILClone	main.cpp	/^LPITEMIDLIST ELILClone(LPITEMIDLIST pidl)$/;"	f
+ELILFindLastID	main.cpp	/^LPITEMIDLIST ELILFindLastID(LPITEMIDLIST pidl)$/;"	f
+ELILFree	main.cpp	/^void ELILFree(LPITEMIDLIST pidl)$/;"	f
+ELILRemoveLastID	main.cpp	/^BOOL ELILRemoveLastID(LPITEMIDLIST pidl)$/;"	f
+ELIsExecutable	main.cpp	/^bool ELIsExecutable(WCHAR *extension)$/;"	f
+ELIsFullScreen	main.cpp	/^bool ELIsFullScreen(HWND appletWnd, HWND appWnd)$/;"	f
+ELIsInternalCommand	main.cpp	/^UINT ELIsInternalCommand(WCHAR *command)$/;"	f
+ELIsKeyDown	emergeLib.h	/^inline bool ELIsKeyDown(UINT virtualKey)$/;"	f
+ELIsModal	main.cpp	/^bool ELIsModal(HWND window)$/;"	f
+ELIsModifiedTheme	emergeLib.h	/^inline bool ELIsModifiedTheme(std::wstring theme)$/;"	f
+ELIsSpecialFolder	main.cpp	/^int ELIsSpecialFolder(WCHAR *folder)$/;"	f
+ELIsWow64	main.cpp	/^BOOL ELIsWow64()$/;"	f
+ELMB_ICONERROR	emergeLib.h	148;"	d
+ELMB_ICONQUESTION	emergeLib.h	147;"	d
+ELMB_ICONWARNING	emergeLib.h	146;"	d
+ELMB_MODAL	emergeLib.h	153;"	d
+ELMB_OK	emergeLib.h	150;"	d
+ELMB_YESNO	emergeLib.h	151;"	d
+ELMessageBox	main.cpp	/^int ELMessageBox(HWND hwnd, const WCHAR* messageText, const WCHAR* messageTitle, DWORD msgFlags)$/;"	f
+ELMid	main.cpp	/^int ELMid(int left, int right)$/;"	f
+ELOpenRegKey	main.cpp	/^bool ELOpenRegKey(LPCTSTR subkey, HKEY *key, bool createKey)$/;"	f
+ELOpenXMLConfig	main.cpp	/^std::tr1::shared_ptr<TiXmlDocument> ELOpenXMLConfig(std::wstring file, bool create)$/;"	f
+ELParseCommand	main.cpp	/^bool ELParseCommand(const WCHAR *application, WCHAR *program, WCHAR *arguments)$/;"	f
+ELParseShortcut	main.cpp	/^bool ELParseShortcut(LPCTSTR shortcut, LPSHORTCUTINFO shortcutInfo)$/;"	f
+ELPathFileExists	main.cpp	/^bool ELPathFileExists(const WCHAR *file)$/;"	f
+ELPathIsRelative	main.cpp	/^BOOL ELPathIsRelative(LPCTSTR lpszPath)$/;"	f
+ELPlaySound	main.cpp	/^bool ELPlaySound(const WCHAR *sound)$/;"	f
+ELQuit	main.cpp	/^bool ELQuit(bool prompt)$/;"	f
+ELReadFileBool	main.cpp	/^bool ELReadFileBool(const WCHAR *fileName, WCHAR *item, bool *target, bool notFound)$/;"	f
+ELReadFileByte	main.cpp	/^bool ELReadFileByte(const WCHAR *fileName, WCHAR *item, BYTE *target, BYTE notFound)$/;"	f
+ELReadFileColor	main.cpp	/^bool ELReadFileColor(const WCHAR *fileName, WCHAR *item, COLORREF *target, COLORREF notFound)$/;"	f
+ELReadFileInt	main.cpp	/^bool ELReadFileInt(const WCHAR *fileName, WCHAR *item, int *target, int notFound)$/;"	f
+ELReadFileString	main.cpp	/^bool ELReadFileString(const WCHAR *fileName, WCHAR *item, WCHAR *target, WCHAR *notFound)$/;"	f
+ELReadRegDWord	main.cpp	/^bool ELReadRegDWord(HKEY key, LPCTSTR value, DWORD *target, DWORD notFound)$/;"	f
+ELReadRegRect	main.cpp	/^bool ELReadRegRect(HKEY key, LPCTSTR value, RECT *target, RECT *notFound)$/;"	f
+ELReadRegString	main.cpp	/^bool ELReadRegString(HKEY key, LPCTSTR value, LPTSTR target, LPCTSTR notFound)$/;"	f
+ELReadXMLBoolValue	main.cpp	/^bool ELReadXMLBoolValue(TiXmlElement *section, const WCHAR *item, bool *value, bool defaultValue)$/;"	f
+ELReadXMLColorValue	main.cpp	/^bool ELReadXMLColorValue(TiXmlElement *section, const WCHAR *item, COLORREF *value, COLORREF defaultValue)$/;"	f
+ELReadXMLFloatValue	main.cpp	/^bool ELReadXMLFloatValue(TiXmlElement *section, const WCHAR *item, float *value, float defaultValue)$/;"	f
+ELReadXMLIntValue	main.cpp	/^bool ELReadXMLIntValue(TiXmlElement *section, const WCHAR *item, int *value, int defaultValue)$/;"	f
+ELReadXMLRectValue	main.cpp	/^bool ELReadXMLRectValue(TiXmlElement *section, const WCHAR *item, RECT *value, RECT defaultValue)$/;"	f
+ELReadXMLStringValue	main.cpp	/^bool ELReadXMLStringValue(TiXmlElement *section, const WCHAR *item, WCHAR *value, const WCHAR *defaultValue)$/;"	f
+ELRegisterShellHook	main.cpp	/^bool ELRegisterShellHook(HWND hwnd, DWORD method)$/;"	f
+ELRemoveXMLElement	main.cpp	/^bool ELRemoveXMLElement(TiXmlElement *xmlElement)$/;"	f
+ELRun	main.cpp	/^bool ELRun()$/;"	f
+ELSetEmergeVars	main.cpp	/^bool ELSetEmergeVars()$/;"	f
+ELSetFirstXMLElement	main.cpp	/^TiXmlElement *ELSetFirstXMLElement(TiXmlElement *xmlSection, const WCHAR *elementName)$/;"	f
+ELSetForeground	main.cpp	/^bool ELSetForeground(HWND wnd)$/;"	f
+ELSetModifiedTheme	main.cpp	/^bool ELSetModifiedTheme(std::wstring theme)$/;"	f
+ELSetSibilingXMLElement	main.cpp	/^TiXmlElement *ELSetSibilingXMLElement(TiXmlElement *xmlElement, const WCHAR *elementName)$/;"	f
+ELSetTheme	main.cpp	/^bool ELSetTheme(std::wstring theme)$/;"	f
+ELShowDesktop	main.cpp	/^bool ELShowDesktop()$/;"	f
+ELShutdown	main.cpp	/^bool ELShutdown(HWND wnd)$/;"	f
+ELSnapMove	main.cpp	/^bool ELSnapMove(LPSNAPMOVEINFO snapMove)$/;"	f
+ELSnapMoveToDesk	main.cpp	/^bool ELSnapMoveToDesk(RECT *AppletRect)$/;"	f
+ELSnapSize	main.cpp	/^bool ELSnapSize(LPSNAPSIZEINFO snapSize)$/;"	f
+ELSpecialFolderValue	main.cpp	/^bool ELSpecialFolderValue(WCHAR *folder, WCHAR *value)$/;"	f
+ELStealFocus	main.cpp	/^bool ELStealFocus(HWND hwnd)$/;"	f
+ELStringReplace	main.cpp	/^UINT ELStringReplace(WCHAR *original, WCHAR *pattern, WCHAR *replacement, bool ignoreCase)$/;"	f
+ELStripModified	main.cpp	/^void ELStripModified(WCHAR *theme)$/;"	f
+ELSwitchToThisWindow	main.cpp	/^bool ELSwitchToThisWindow(HWND wnd)$/;"	f
+ELThreadExecute	main.cpp	/^void ELThreadExecute(void *argument)$/;"	f
+ELToLower	main.cpp	/^std::wstring ELToLower(std::wstring workingString)$/;"	f
+ELUnExpandVars	main.cpp	/^bool ELUnExpandVars(LPTSTR value)$/;"	f
+ELVI_2K	emergeLib.h	185;"	d
+ELVI_VISTA	emergeLib.h	195;"	d
+ELVI_WIN7	emergeLib.h	200;"	d
+ELVI_XP	emergeLib.h	190;"	d
+ELVersionInfo	main.cpp	/^UINT ELVersionInfo()$/;"	f
+ELWriteDebug	main.cpp	/^void ELWriteDebug(std::wstring debugText)$/;"	f
+ELWriteFileBool	main.cpp	/^bool ELWriteFileBool(const WCHAR *fileName, WCHAR *keyword, bool value)$/;"	f
+ELWriteFileColor	main.cpp	/^bool ELWriteFileColor(const WCHAR *fileName, WCHAR *keyword, COLORREF value)$/;"	f
+ELWriteFileInt	main.cpp	/^bool ELWriteFileInt(const WCHAR *fileName, WCHAR *keyword, int value)$/;"	f
+ELWriteFileString	main.cpp	/^bool ELWriteFileString(const WCHAR *fileName, WCHAR *keyword, WCHAR *value)$/;"	f
+ELWriteRegDWord	main.cpp	/^bool ELWriteRegDWord(HKEY key, LPCTSTR value, DWORD *source)$/;"	f
+ELWriteRegRect	main.cpp	/^bool ELWriteRegRect(HKEY key, LPTSTR value, RECT *source)$/;"	f
+ELWriteRegString	main.cpp	/^bool ELWriteRegString(HKEY key, LPTSTR value, LPTSTR source)$/;"	f
+ELWriteXMLBoolValue	main.cpp	/^bool ELWriteXMLBoolValue(TiXmlElement *section, const WCHAR *item, bool value)$/;"	f
+ELWriteXMLColorValue	main.cpp	/^bool ELWriteXMLColorValue(TiXmlElement *section, const WCHAR *item, COLORREF value)$/;"	f
+ELWriteXMLConfig	main.cpp	/^bool ELWriteXMLConfig(TiXmlDocument *configXML)$/;"	f
+ELWriteXMLFloatValue	main.cpp	/^bool ELWriteXMLFloatValue(TiXmlElement *section, const WCHAR *item, float value)$/;"	f
+ELWriteXMLIntValue	main.cpp	/^bool ELWriteXMLIntValue(TiXmlElement *section, const WCHAR *item, int value)$/;"	f
+ELWriteXMLRectValue	main.cpp	/^bool ELWriteXMLRectValue(TiXmlElement *section, const WCHAR *item, RECT value)$/;"	f
+ELWriteXMLStringValue	main.cpp	/^bool ELWriteXMLStringValue(TiXmlElement *section, const WCHAR *item, const WCHAR *value)$/;"	f
+ELstringTowstring	main.cpp	/^std::wstring ELstringTowstring(std::string inString, UINT codePage)$/;"	f
+ELwcsftime	main.cpp	/^std::wstring ELwcsftime(const WCHAR *format, const struct tm *timeptr)$/;"	f
+ELwstringTostring	main.cpp	/^std::string ELwstringTostring(std::wstring inString, UINT codePage)$/;"	f
+EMERGE_CORE	emergeLib.h	90;"	d
+EMERGE_DISCONNECT	emergeLib.h	84;"	d
+EMERGE_DISPATCH	emergeLib.h	/^static const UINT EMERGE_DISPATCH = RegisterWindowMessage(TEXT("EmergeDispatch"));$/;"	v
+EMERGE_HALT	emergeLib.h	85;"	d
+EMERGE_HIBERNATE	emergeLib.h	83;"	d
+EMERGE_LOGOFF	emergeLib.h	87;"	d
+EMERGE_MESSAGE	emergeLib.h	/^static const UINT EMERGE_MESSAGE = RegisterWindowMessage(TEXT("EmergeMessage"));$/;"	v
+EMERGE_NOTIFY	emergeLib.h	/^static const UINT EMERGE_NOTIFY = RegisterWindowMessage(TEXT("EmergeNotify"));$/;"	v
+EMERGE_REBOOT	emergeLib.h	86;"	d
+EMERGE_REGISTER	emergeLib.h	/^static const UINT EMERGE_REGISTER = RegisterWindowMessage(TEXT("EmergeRegister"));$/;"	v
+EMERGE_SUSPEND	emergeLib.h	82;"	d
+EMERGE_UNREGISTER	emergeLib.h	/^static const UINT EMERGE_UNREGISTER = RegisterWindowMessage(TEXT("EmergeUnregister"));$/;"	v
+EMERGE_VWM	emergeLib.h	91;"	d
+FAPPCOMMAND_KEY	main.cpp	89;"	d	file:
+FullscreenEnum	main.cpp	/^BOOL CALLBACK FullscreenEnum(HWND hwnd, LPARAM lParam)$/;"	f
+GetMsgProc	MsgBox.cpp	/^LRESULT CALLBACK MsgBox::GetMsgProc(int nCode, WPARAM wParam, LPARAM lParam)$/;"	f	class:MsgBox
+GetPIDLGUID	main.cpp	/^bool GetPIDLGUID(LPITEMIDLIST pidl, WCHAR *classID)$/;"	f
+GetSpecialFolderGUID	main.cpp	/^bool GetSpecialFolderGUID(int folder, WCHAR *classID)$/;"	f
+GetWindowApp	main.cpp	/^std::wstring GetWindowApp(DWORD processID, bool fullName)$/;"	f
+HookMap	MsgBox.h	/^typedef std::map<HWND, HHOOK> HookMap;$/;"	t
+IDB_LOGO	resource.h	34;"	d
+IDC_LOGO	resource.h	29;"	d
+IDC_METHOD	resource.h	30;"	d
+IDC_MSGICON	resource.h	32;"	d
+IDC_MSGTEXT	resource.h	31;"	d
+IDC_STATIC	resource.h	28;"	d
+IDD_MSGBOX	resource.h	26;"	d
+IDD_SHUTDOWN	resource.h	25;"	d
+IconIndex	emergeLib.h	/^  int IconIndex; \/*!< Index of the icon to use for the shortcut *\/$/;"	m	struct:_SHORTCUTINFO
+IconPath	emergeLib.h	/^  WCHAR IconPath[MAX_PATH]; \/*!< Path to the icon for the shortcut *\/$/;"	m	struct:_SHORTCUTINFO
+IsClose	main.cpp	/^bool IsClose(int side, int edge)$/;"	f
+IsHookMessage	MsgBox.cpp	/^bool MsgBox::IsHookMessage(LPMSG lpMsg)$/;"	f	class:MsgBox
+LPAPPLETMONITORINFO	main.cpp	/^} APPLETMONITORINFO, *LPAPPLETMONITORINFO;$/;"	t	typeref:struct:_APPLETMONITORINFO	file:
+LPSHORTCUTINFO	emergeLib.h	/^SHORTCUTINFO, *LPSHORTCUTINFO;$/;"	t	typeref:struct:_SHORTCUTINFO
+LPSNAPMOVEINFO	emergeLib.h	/^SNAPMOVEINFO, *LPSNAPMOVEINFO;$/;"	t	typeref:struct:_SNAPMOVEINFO
+LPSNAPSIZEINFO	emergeLib.h	/^SNAPSIZEINFO, *LPSNAPSIZEINFO;$/;"	t	typeref:struct:_SNAPSIZEINFO
+LPTHEMEINFO	emergeLib.h	/^THEMEINFO, *LPTHEMEINFO;$/;"	t	typeref:struct:_THEMEINFO
+LPVERSIONINFO	emergeLib.h	/^VERSIONINFO, *LPVERSIONINFO;$/;"	t	typeref:struct:_VERSIONINFO
+MAX_LINE_LENGTH	emergeLib.h	72;"	d
+MSILClone	main.cpp	/^static fnILClone MSILClone = NULL;$/;"	v	file:
+MSILFindLastID	main.cpp	/^static fnILFindLastID MSILFindLastID = NULL;$/;"	v	file:
+MSILFree	main.cpp	/^static lpfnILFree MSILFree = NULL;$/;"	v	file:
+MSILRemoveLastID	main.cpp	/^static fnILRemoveLastID MSILRemoveLastID = NULL;$/;"	v	file:
+MSIsWow64Process	main.cpp	/^static lpfnIsWow64Process MSIsWow64Process = NULL;$/;"	v	file:
+MinimizeAll	main.cpp	/^BOOL CALLBACK MinimizeAll(HWND hwnd, LPARAM lParam UNUSED)$/;"	f
+MonitorRectEnum	main.cpp	/^BOOL CALLBACK MonitorRectEnum(HMONITOR hMonitor UNUSED, HDC hdcMonitor UNUSED, LPRECT lprcMonitor, LPARAM dwData)$/;"	f
+MsgBox	MsgBox.cpp	/^MsgBox::MsgBox(HINSTANCE hInstance, HWND mainWnd, const WCHAR *messageText, const WCHAR *messageTitle, DWORD iconType, DWORD buttonType)$/;"	f	class:MsgBox
+MsgBox	MsgBox.h	/^class MsgBox$/;"	c
+MsgBoxDlgProc	MsgBox.cpp	/^BOOL CALLBACK MsgBox::MsgBoxDlgProc(HWND hwndDlg, UINT message, WPARAM wParam, LPARAM lParam)$/;"	f	class:MsgBox
+OpenXMLConfig	main.cpp	/^std::tr1::shared_ptr<TiXmlDocument> OpenXMLConfig(std::string filename, bool create)$/;"	f
+Path	emergeLib.h	/^  WCHAR Path[MAX_PATH]; \/*!< Path to the executable defined by the shortcut *\/$/;"	m	struct:_SHORTCUTINFO
+PathTokenCheck	main.cpp	/^bool PathTokenCheck(WCHAR *path)$/;"	f
+RSH_REGISTER	emergeLib.h	137;"	d
+RSH_TASKMGR	emergeLib.h	138;"	d
+RSH_UNREGISTER	emergeLib.h	136;"	d
+ReadValue	main.cpp	/^bool ReadValue(const WCHAR *fileName, WCHAR *keyword, WCHAR *value)$/;"	f
+SHORTCUTINFO	emergeLib.h	/^SHORTCUTINFO, *LPSHORTCUTINFO;$/;"	t	typeref:struct:_SHORTCUTINFO
+SI_ALL	emergeLib.h	212;"	d
+SI_ARGUMENTS	emergeLib.h	208;"	d
+SI_ICONINDEX	emergeLib.h	211;"	d
+SI_ICONPATH	emergeLib.h	210;"	d
+SI_PATH	emergeLib.h	206;"	d
+SI_SHOW	emergeLib.h	209;"	d
+SI_WORKINGDIR	emergeLib.h	207;"	d
+SNAPMOVEINFO	emergeLib.h	/^SNAPMOVEINFO, *LPSNAPMOVEINFO;$/;"	t	typeref:struct:_SNAPMOVEINFO
+SNAPSIZEINFO	emergeLib.h	/^SNAPSIZEINFO, *LPSNAPSIZEINFO;$/;"	t	typeref:struct:_SNAPSIZEINFO
+SND_SYSTEM	emergeLib.h	203;"	d
+Show	MsgBox.cpp	/^int MsgBox::Show(bool modal)$/;"	f	class:MsgBox
+Show	Shutdown.cpp	/^int Shutdown::Show()$/;"	f	class:Shutdown
+ShowCmd	emergeLib.h	/^  int ShowCmd; \/*!< Initial visibility state of the shortcut *\/$/;"	m	struct:_SHORTCUTINFO
+Shutdown	Shutdown.cpp	/^Shutdown::Shutdown(HINSTANCE hInstance, HWND mainWnd)$/;"	f	class:Shutdown
+Shutdown	Shutdown.h	/^class Shutdown$/;"	c
+ShutdownDlgProc	Shutdown.cpp	/^BOOL CALLBACK Shutdown::ShutdownDlgProc(HWND hwndDlg, UINT message, WPARAM wParam, LPARAM lParam)$/;"	f	class:Shutdown
+SnapMoveEnum	main.cpp	/^BOOL CALLBACK SnapMoveEnum(HWND hwnd, LPARAM lParam)$/;"	f
+SnapMoveToEdge	main.cpp	/^bool SnapMoveToEdge(LPSNAPMOVEINFO snapMove, RECT rt)$/;"	f
+SnapSizeEnum	main.cpp	/^BOOL CALLBACK SnapSizeEnum(HWND hwnd, LPARAM lParam)$/;"	f
+SnapSizeToEdge	main.cpp	/^bool SnapSizeToEdge(LPSNAPSIZEINFO snapSize, RECT rt)$/;"	f
+THEMEINFO	emergeLib.h	/^THEMEINFO, *LPTHEMEINFO;$/;"	t	typeref:struct:_THEMEINFO
+ThemeEnum	main.cpp	/^BOOL CALLBACK ThemeEnum(HWND hwnd, LPARAM lParam)$/;"	f
+UNICODE	emergeLib.h	54;"	d
+UNUSED	emergeLib.h	45;"	d
+UNUSED	emergeLib.h	47;"	d
+VERSIONINFO	emergeLib.h	/^VERSIONINFO, *LPVERSIONINFO;$/;"	t	typeref:struct:_VERSIONINFO
+VWM_1	emergeLib.h	126;"	d
+VWM_2	emergeLib.h	127;"	d
+VWM_3	emergeLib.h	128;"	d
+VWM_4	emergeLib.h	129;"	d
+VWM_5	emergeLib.h	130;"	d
+VWM_6	emergeLib.h	131;"	d
+VWM_7	emergeLib.h	132;"	d
+VWM_8	emergeLib.h	133;"	d
+VWM_9	emergeLib.h	134;"	d
+VWM_DOWN	emergeLib.h	122;"	d
+VWM_GATHER	emergeLib.h	125;"	d
+VWM_LEFT	emergeLib.h	123;"	d
+VWM_RIGHT	emergeLib.h	124;"	d
+VWM_UP	emergeLib.h	121;"	d
+Version	emergeLib.h	/^  WCHAR Version[MAX_PATH];$/;"	m	struct:_VERSIONINFO
+VistaVolumeControl	main.cpp	/^bool VistaVolumeControl(UINT command)$/;"	f
+VolumeControl	main.cpp	/^bool VolumeControl(UINT command)$/;"	f
+WINVER	main.cpp	53;"	d	file:
+WINVER	main.cpp	54;"	d	file:
+WindowIconEnum	main.cpp	/^BOOL CALLBACK WindowIconEnum(HWND hwnd, LPARAM lParam)$/;"	f
+WorkingDirectory	emergeLib.h	/^  WCHAR WorkingDirectory[MAX_PATH]; \/*!< Working directory of the shortcut *\/$/;"	m	struct:_SHORTCUTINFO
+WriteValue	main.cpp	/^bool WriteValue(const WCHAR *fileName, WCHAR *keyword, WCHAR *value)$/;"	f
+_APPLETMONITORINFO	main.cpp	/^typedef struct _APPLETMONITORINFO$/;"	s	file:
+_IAudioEndpointVolume	main.cpp	82;"	d	file:
+_IMMDeviceEnumerator	main.cpp	81;"	d	file:
+_MMDeviceEnumerator	main.cpp	80;"	d	file:
+_SHORTCUTINFO	emergeLib.h	/^typedef struct _SHORTCUTINFO$/;"	s
+_SNAPMOVEINFO	emergeLib.h	/^typedef struct _SNAPMOVEINFO$/;"	s
+_SNAPSIZEINFO	emergeLib.h	/^typedef struct _SNAPSIZEINFO$/;"	s
+_THEMEINFO	emergeLib.h	/^typedef struct _THEMEINFO$/;"	s
+_VERSIONINFO	emergeLib.h	/^typedef struct _VERSIONINFO$/;"	s
+_WIN32_IE	MsgBox.h	24;"	d
+_WIN32_IE	MsgBox.h	25;"	d
+_WIN32_IE	Shutdown.h	24;"	d
+_WIN32_IE	Shutdown.h	25;"	d
+_WIN32_WINNT	MsgBox.h	27;"	d
+_WIN32_WINNT	MsgBox.h	28;"	d
+_WIN32_WINNT	Shutdown.h	27;"	d
+_WIN32_WINNT	Shutdown.h	28;"	d
+__EMERGELIB_H	emergeLib.h	25;"	d
+__MSGBOX_H	MsgBox.h	22;"	d
+__SHUTDOWN_H	Shutdown.h	22;"	d
+appletMonitor	main.cpp	/^  HMONITOR appletMonitor;$/;"	m	struct:_APPLETMONITORINFO	file:
+appletMonitorNum	main.cpp	/^  int appletMonitorNum;$/;"	m	struct:_APPLETMONITORINFO	file:
+appletMonitorRect	main.cpp	/^  RECT appletMonitorRect;$/;"	m	struct:_APPLETMONITORINFO	file:
+appletWnd	main.cpp	/^  HWND appletWnd;$/;"	m	struct:_APPLETMONITORINFO	file:
+enableDisconnect	Shutdown.h	/^  bool enableDisconnect;$/;"	m	class:Shutdown
+enumCount	main.cpp	/^int enumCount = 0;$/;"	v
+flags	emergeLib.h	/^  DWORD flags;$/;"	m	struct:_SHORTCUTINFO
+fnILClone	main.cpp	/^typedef LPITEMIDLIST (WINAPI *fnILClone)(LPCITEMIDLIST);$/;"	t	file:
+fnILFindLastID	main.cpp	/^typedef LPITEMIDLIST (WINAPI *fnILFindLastID)(LPCITEMIDLIST);$/;"	t	file:
+fnILRemoveLastID	main.cpp	/^typedef BOOL (WINAPI *fnILRemoveLastID)(LPCITEMIDLIST);$/;"	t	file:
+fromwstring	emergeLib.h	/^inline T fromwstring(const std::wstring& s)$/;"	f
+hInstance	MsgBox.h	/^  HINSTANCE hInstance;$/;"	m	class:MsgBox
+hInstance	Shutdown.h	/^  HINSTANCE hInstance;$/;"	m	class:Shutdown
+hookMap	MsgBox.h	/^static HookMap hookMap;$/;"	v
+logoBMP	Shutdown.h	/^  HBITMAP logoBMP;$/;"	m	class:Shutdown
+lpfnILFree	main.cpp	/^typedef void (WINAPI *lpfnILFree)(LPCITEMIDLIST);$/;"	t	file:
+lpfnIsWow64Process	main.cpp	/^typedef BOOL (WINAPI *lpfnIsWow64Process)(HANDLE, PBOOL);$/;"	t	file:
+lpfnMSRegisterShellHookWindow	main.cpp	/^typedef BOOL (WINAPI *lpfnMSRegisterShellHookWindow)(HWND hWnd, DWORD method);$/;"	t	file:
+lpfnMSRun	main.cpp	/^typedef void (__stdcall *lpfnMSRun)(HWND, HICON, LPCSTR, LPCSTR, LPCSTR, int);$/;"	t	file:
+lpfnMSSwitchToThisWindow	main.cpp	/^typedef void (__stdcall *lpfnMSSwitchToThisWindow)(HWND, BOOL);$/;"	t	file:
+mainWnd	MsgBox.h	/^  HWND mainWnd, toolWnd;$/;"	m	class:MsgBox
+mainWnd	Shutdown.h	/^  HWND mainWnd, toolWnd;$/;"	m	class:Shutdown
+modal	MsgBox.h	/^  bool modal;$/;"	m	class:MsgBox
+msgButtons	MsgBox.h	/^  DWORD msgButtons; \/\/ make this global for now, for some reason it causes a crash when defined as a class variable$/;"	m	class:MsgBox
+msgIcon	MsgBox.h	/^  HICON msgIcon;$/;"	m	class:MsgBox
+msgText	MsgBox.h	/^  WCHAR msgText[MAX_LINE_LENGTH], msgTitle[MAX_LINE_LENGTH];$/;"	m	class:MsgBox
+msgTitle	MsgBox.h	/^  WCHAR msgText[MAX_LINE_LENGTH], msgTitle[MAX_LINE_LENGTH];$/;"	m	class:MsgBox
+origin	emergeLib.h	/^  POINT origin;$/;"	m	struct:_SNAPMOVEINFO
+pMsgBox	MsgBox.cpp	/^MsgBox *pMsgBox;$/;"	v
+path	emergeLib.h	/^  WCHAR path[MAX_PATH];$/;"	m	struct:_THEMEINFO
+sound	MsgBox.h	/^  WCHAR *sound;$/;"	m	class:MsgBox
+stripQuotes	main.cpp	/^void stripQuotes(LPTSTR source)$/;"	f
+theme	emergeLib.h	/^  WCHAR theme[MAX_PATH];$/;"	m	struct:_THEMEINFO
+themePath	emergeLib.h	/^  WCHAR themePath[MAX_PATH];$/;"	m	struct:_THEMEINFO
+toolWnd	MsgBox.h	/^  HWND mainWnd, toolWnd;$/;"	m	class:MsgBox
+toolWnd	Shutdown.h	/^  HWND mainWnd, toolWnd;$/;"	m	class:Shutdown
+towstring	emergeLib.h	/^inline std::wstring towstring(const T& t)$/;"	f
+towstring	emergeLib.h	/^inline std::wstring towstring(const T& t, int precision)$/;"	f
+userPath	emergeLib.h	/^  WCHAR userPath[MAX_PATH];$/;"	m	struct:_THEMEINFO
+~MsgBox	MsgBox.cpp	/^MsgBox::~MsgBox()$/;"	f	class:MsgBox
+~Shutdown	Shutdown.cpp	/^Shutdown::~Shutdown()$/;"	f	class:Shutdown

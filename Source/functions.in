@@ -1,0 +1,17 @@
+PLATFORM = $(shell echo %WINDIR%)
+CYGWIN =
+remove_file = if exist $(subst /,\,$1) del $(subst /,\,$1)
+remove_files = del /q $(subst /,\,$1)
+make_dir = if not exist $(subst /,\,$1) mkdir $(subst /,\,$1)
+
+ifeq ($(PLATFORM),%WINDIR%)
+		CYGWIN = true
+endif
+
+
+ifdef CYGWIN
+		remove_file = if [ -f $1 ]; then rm -f $1; fi
+		remove_files = rm -f $1
+		make_dir = if [ ! -d $1 ]; then mkdir -p $1; fi
+endif
+

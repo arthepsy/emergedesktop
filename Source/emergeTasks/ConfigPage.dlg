@@ -1,0 +1,51 @@
+//----  --------------------------------------------------------------------------------------------------------
+//
+//  This file is part of Emerge Desktop.
+//  Copyright (C) 2004-2010  The Emerge Desktop Development Team
+//
+//  Emerge Desktop is free software; you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation; either version 3 of the License, or
+//  (at your option) any later version.
+//
+//  Emerge Desktop is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//
+//  You should have received a copy of the GNU General Public License
+//  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+//
+//----  --------------------------------------------------------------------------------------------------------
+
+IDD_CONFIG_PAGE DIALOGEX 0, 0, CONFIG_WIDTH, CONFIG_HEIGHT
+STYLE WS_POPUP | WS_VISIBLE | WS_CAPTION
+CAPTION "emergeTasks Configuration"
+FONT 8, "MS Shell Dlg"
+BEGIN
+	CONTROL	"SnapMove",IDC_SNAPMOVE,"Button",BS_AUTOCHECKBOX|WS_TABSTOP,5,5,55,10
+	CONTROL	"SnapSize",IDC_SNAPSIZE,"Button",BS_AUTOCHECKBOX|WS_TABSTOP,CONFIG_WIDTH-95,5,90,10
+
+	CONTROL	"AutoSize",IDC_AUTOSIZE,"Button",BS_AUTOCHECKBOX|WS_TABSTOP,5,20,55,10
+	CONTROL	"Highlight Active Task",IDC_ACTIVETASK,"Button",BS_AUTOCHECKBOX|WS_TABSTOP,CONFIG_WIDTH-95,20,90,10
+
+	CONTROL	"Click Through:",IDC_CLICKTHROUGH,"Button",BS_AUTOCHECKBOX|WS_TABSTOP,5,35,60,10
+	COMBOBOX	IDC_CLICKTHROUGHMETHOD,65,33,60,150,CBS_DROPDOWNLIST|WS_VSCROLL|WS_TABSTOP
+
+	LTEXT		"Icon Size:",IDC_STATIC1,5,50,35,8
+	COMBOBOX	IDC_ICONSIZE,40,48,50,150,CBS_DROPDOWNLIST|WS_VSCROLL|WS_TABSTOP
+
+	LTEXT		"Icon Spacing:",IDC_STATIC2,CONFIG_WIDTH-95,50,45,8
+	EDITTEXT	IDC_ICONSPACING,CONFIG_WIDTH-50,48,30,12,ES_AUTOHSCROLL|ES_NUMBER
+  CONTROL "",IDC_ICONSPACINGUPDOWN,UPDOWN_CLASS,UDS_AUTOBUDDY|UDS_SETBUDDYINT|UDS_ARROWKEYS|UDS_ALIGNRIGHT|UDS_NOTHOUSANDS,0,0,10,12
+
+	GROUPBOX	"Flash",IDC_STATIC3,5,65,CONFIG_WIDTH-10,25,WS_GROUP
+	CONTROL	"Enable",IDC_ENABLEFLASH,"Button",BS_AUTOCHECKBOX|WS_TABSTOP,10,75,40,10
+	LTEXT		"Interval",IDC_STATIC4,CONFIG_WIDTH/2-30,75,25,8
+	EDITTEXT	IDC_FLASHINTERVAL,CONFIG_WIDTH/2-5,73,35,12,ES_AUTOHSCROLL|ES_NUMBER
+  CONTROL "",IDC_FLASHINTERVALUPDOWN,UPDOWN_CLASS,UDS_AUTOBUDDY|UDS_SETBUDDYINT|UDS_ARROWKEYS|UDS_ALIGNRIGHT|UDS_NOTHOUSANDS,0,0,10,12
+	LTEXT		"Count",IDC_STATIC5,CONFIG_WIDTH-60,75,20,8
+	EDITTEXT	IDC_FLASHCOUNT,CONFIG_WIDTH-40,73,30,12,ES_AUTOHSCROLL|ES_NUMBER
+  CONTROL "",IDC_FLASHCOUNTUPDOWN,UPDOWN_CLASS,UDS_AUTOBUDDY|UDS_SETBUDDYINT|UDS_ARROWKEYS|UDS_ALIGNRIGHT|UDS_NOTHOUSANDS,0,0,10,12
+END
+

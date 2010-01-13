@@ -1,0 +1,20 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual C++ Express 2008
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "emergeSchemeEngine", "emergeSchemeEngine.vcproj", "{F6EC8FA7-7247-4BE8-BC1D-BD8C9B627F42}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F6EC8FA7-7247-4BE8-BC1D-BD8C9B627F42}.Debug|Win32.ActiveCfg = Debug|Win32
+		{F6EC8FA7-7247-4BE8-BC1D-BD8C9B627F42}.Debug|Win32.Build.0 = Debug|Win32
+		{F6EC8FA7-7247-4BE8-BC1D-BD8C9B627F42}.Release|Win32.ActiveCfg = Release|Win32
+		{F6EC8FA7-7247-4BE8-BC1D-BD8C9B627F42}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

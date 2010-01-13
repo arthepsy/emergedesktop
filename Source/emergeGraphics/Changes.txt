@@ -1,0 +1,46 @@
+[04/14/07 ir0nh34d main.cpp]
+- EGGetFileIcon now support system variables as part of the file name
+
+[10/21/06 ir0nh34d main.cpp]
+- for EGGetWindowIcon, if there is no window icon, use the application icon
+
+[06/20/06 ir0nh34d main.cpp, emergeGraphics.h]
+- added EGDrawAlphaText
+
+=== 3.0.1 ===
+
+[05/09/06 ir0nh34d main.cpp]
+- improved icon extraction from EGGetFileIcon
+
+=== 3.0.0 ===
+
+[02/09/06 ir0nh34d main.cpp, emergeGraphics.h]
+- added EGGetSystemIcon
+
+[01/20/06 ir0nh34d main.cpp, emergeGraphics.h]
+- added EGGetWindowIcon
+- renamed EGGetIcon to EGGetFileIcon
+
+[01/11/06 ir0nh34d main.cpp]
+- fixed Win2K support for EGGetIcon
+
+[01/09/06 ir0nhead main.cpp, emergeGraphics.h]
+-added EGGetIcon
+
+=== 2.0.2 ===
+
+[09/12/05 ir0nh34d main.cpp]
+- improved icon conversion
+- fixed 'empty icon' bug
+
+=== 2.0.1 ===
+
+[09/06/05 ir0nh34d main.cpp]
+- fixed 16-bit bug in EGConvertIcon
+
+[09/04/05 ir0nh34d main.cpp, emergeGraphics.h]
+- added EGCreateBitmap
+
+=== 2.0 ===
+
+- Initial Version

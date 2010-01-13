@@ -1,0 +1,78 @@
+<html>
+<body>
+  <table cellpadding='5' cellspacing='0'  bgcolor='#7F907F' width=100%>
+    <tr>
+      <td>
+        <font color=white><b>About</b></font>
+      </td>
+    </tr>
+  </table>
+<p>
+emergeNotes is a "quick note" applet for Emerge Desktop.
+<p>
+  <table cellpadding='5' cellspacing='0'  bgcolor='#7F907F' width=100%>
+    <tr>
+      <td>
+        <font color=white><b>Configuration</b></font>
+      </td>
+    </tr>
+  </table>
+<p>
+emergeNotes settings are stored in <i>HKEY_CURRENT_USER\Software\Emerge Desktop\emergeNotes</i> and consist of the following subkeys:
+<ul>
+  <li><i>Settings</i> - all emergeNotes related settings.  Currently the options are:</li>
+  <ul>
+    <li><i>X</i> - The position of the window on the x-axis (Default 0)</li>
+    <li><i>Y</i> - The position of the window on the y-axis (Default 0)</li>
+    <li><i>ActiveWindowAlpha</i> - The degree of alpha transaprency of the window (Default 100) when the mouse if over the window</li>
+    <li><i>InactiveWindowAlpha</i> - The degree of alpha transaprency of the window (Default 80) when the mouse if off the window</li>
+    <li><i>ZPosition</i> - The position of the window on the z-axis (window order - Default "normal")</li>
+    <li><i>LastSaved</i> - The fully qualified path to the last saved note</li>
+    <li><i>ReloadLastSaved</i> - Reload the last saved note on startup (Default 1)</li>
+    <li><i>Layout</i> - The layout to use for the applet (Default "Top")</li>
+  </ul>
+</ul>
+<p>
+Example configuration:
+<p>
+[HKEY_CURRENT_USER\Software\Emerge Desktop\emergeNotes]
+<p>
+[HKEY_CURRENT_USER\Software\Emerge Desktop\emergeNotes\Settings]<br />
+"X"=dword:00000338<br />
+"Y"=dword:000002e2<br />
+"ActiveWindowAlpha"=dword:00000050<br />
+"InactiveWindowAlpha"=dword:0000001e<br />
+"ZPosition"="Top"<br />
+"Layout"="Top"<br />
+"ReloadLastSaved"= dword:00000001
+<p>
+  <table cellpadding='5' cellspacing='0'  bgcolor='#7F907F' width=100%>
+    <tr>
+      <td>
+        <font color=white><b>Usage</b></font>
+      </td>
+    </tr>
+  </table>
+<p>
+Left clicking on the arrow will display a text box that can be used to type a quick note.  You can save, open or create new notes.
+<p>
+Holding down 'CTRL' while left clicking on the window will allow it to be dragged around the desktop.  When the window nears the screen edge, it will snap to it, also, it will not allow itself to be dragged offscreen.  By default, the new position is stored in the X and Y settings in the  registry so that they will be remebered on next start.  To bypass saving the new position, holding down 'Shift' while moving the window.
+<p>
+  <table cellpadding='5' cellspacing='0'  bgcolor='#7F907F' width=100%>
+    <tr>
+      <td>
+        <font color=white><b>Note</b></font>
+      </td>
+    </tr>
+  </table>
+<p>
+Thanks to all the people who submitted free MFC/VC++ classes at codeproject and codeguru or somewhere else in the web;
+emergeNotes uses (sometimes slightly modified) versions of:
+<ul>
+  <li>CLayeredWindowHelperST by Davide Calabrò</li>
+  <li>CReg by Bjarke Viksøe</li>
+  <li>CButtonST by Davide Calabrò</li>
+</ul>
+</body>
+</html>
+

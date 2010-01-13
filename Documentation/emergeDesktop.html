@@ -1,0 +1,90 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+    <head>
+        <title>emergeDesktop</title>
+        <link rel = StyleSheet type = "text/css" HREF = "emerge.css">
+    </head>
+<body>
+  <table bgcolor="#7f907f" cellpadding="5" cellspacing="0" width="100%">
+    <tr>
+      <td>
+        <font color="white"><b>About</b></font>
+      </td>
+    </tr>
+  </table>
+<p>emergeDesktop is the desktop component of Emerge Desktop. It provides the right and mid click menus.</p>
+  <table bgcolor="#7f907f" cellpadding="5" cellspacing="0" width="100%">
+    <tr>
+      <td>
+        <font color="white"><b>Configuration</b></font>
+      </td>
+    </tr>
+  </table>
+</p>
+<p>There are two major components of Emerge Desktop which are dependent on the Desktop: the Desktop Settings which define the active desktop area and general menu options, and the Menu Editor which allows to configure the user defined menus that show up when the user clicks with the Middle or Right mouse button on the desktop.</p>
+<p><b>Desktop Settings</b></p>
+<p>To display the Desktop Settings Configuration dialog the user should click  with the right mouse button on the desktop window, and select Settings, Configure. Alternatively the user can type <i>DesktopSettings</i> on the emergeCommand command line.</p>
+
+<img style="width: 261px; height: 285px;" alt="" src="DesktopSettings.png"><br>
+
+<p>Defining desktop borders, allows the user to define a desktop area, to which maximized applications are limited, and to have marginal areas to locate applets or simply to have access to a clear background area</p>
+
+<p>The desktop borders, can be applied to all monitors (when using a multimonitor setting) or just to the Primary by unchecking/checking the "Apply to Primary Monitor Only" box</p>
+
+<p>The Menu Opacity setting allows to select the Right and Middle menu's transparency. This can vary from 100 (Opaque) to 20 (Transparent). Transparency can not be set lower than 20 to prevent the menus from becoming unfindable.</p>
+
+<p><b>Menu Editor</b></p>
+
+<p>To display the Menu Editor dialog the user should click  with the right mouse button on the desktop window, and select Settings, Edit Desktop Menus. Alternatively the user can type <i>DesktopMenuEditor</i> on the emergeCommand command line.</p>
+
+<img style="width: 314px; height: 399px;" alt="" src="MenuEntries.png"><br>
+
+<p>To Add <img style="width: 24px; height: 23px;" alt="" src="Add.png"> a new menu item, after typing a Name and selecting a Type (e.g. Executable or Internal Command), the user should select a Value and a Working Directory (if appropriate) by using the Browse <img style="width: 24px; height: 23px;" alt="" src="Browse.png"> button and then click on Save <img style="width: 24px; height: 23px;" alt="" src="Save.png">  or Clear <img style="width: 24px; height: 23px;" alt="" src="Clear.png"> to start again.</p>
+
+<p><b>Important Note:</b> Folder items can be merged by adding a Pipe (|) between folders. E.g. Start menu is %StartMenu%|%CommonStartMenu%. This is particularly useful for items like Start Menu, Desktop or My Documents by using Emerge Desktop's <a href="Internal.html">Internal variables</a></p>
+
+<p>Menu items displayed in the list box can be Modified <img style="width: 24px; height: 23px;" alt="" src="Modify.png"> or Deleted <img style="width: 24px; height: 23px;" alt="" src="Delete.png"> by selecting the item from the list. If at any time the user adds, deletes or modifies incorrectly any menu item, he can undo changes by pressing the Cancel button. This will close the Configure box without saving any modifications since the dialog was opened.</p>
+
+<p>emergeDesktop settings are stored in <i>HKEY_CURRENT_USER\Software\Emerge Desktop\emergeDesktop</i> and consist of the following subkeys:</p><ul>
+  <li><i>RightMenu</i> - stores a list which defines the right click menu.  Valid values consist of:
+  <ul>
+    <li><i>Separator</i> - Type 0, it provides a separator between menu items</li>
+    <li><i>Executable</i> - Type 1, will attempt to execute the specified argument, if the argument is a folder, it will open an explorer window to the specified path.</li>
+    <li><i>System Command</i> - Type 2, valid options are any of Emerge Desktop's <a href="Internal.html">Internal Commands</a></li>
+    <li><i>DateTime</i> - Type 3, formating variables are described in <a href="TimeDate.html">Time / Date Format Variables</a></li>
+    <li><i>Special Folder</i> - Type 4, allows for the opening of special folders including 'Control
+Panel', 'My Documents', 'My Computer', 'Recycle Bin' and 'My Network Places'</li>
+    <li><i>Submenu</i> - Type 100, allows for the definition of registry based submenus.  Each submenu uses the same types as described here</li>
+    <li><i>Folder Menu</i> - Type 101, will create submenus of the path specified in the argument</li>
+    <li><i>Tasks Menu</i> - Type 102, will create a submenu of all the tasks currently running on the system</li>
+    <li><i>Settings Menu</i> - Type 103, will create a submenu of all the configuration dialogs including: Desktop Settings, Launch Applets, Menu Editor and Shell Changer.
+</li>
+<li><b>Note: If no menu key entries exist, a default menu will be generated.</b></li>
+  </ul>
+    </li>
+  <li><i>MidMenu</i> - stores a list which defines the middle click menu. It has the same options as RightMenu.</li>
+  <li><i>Settings</i> - all emergeDesktop related settings.  Currently the options are:
+  <ul>
+        <li><i>TopBorder</i> - The top border of the desktop work area (Default 0)</li>
+        <li><i>BottomBorder</i> - The bottom border of the desktop work area (Default 0)</li>
+        <li><i>LeftBorder</i> - The left border of the desktop work area (Default 0)</li>
+        <li><i>RightBorder</i> - The right border of the desktop work area (Default 0)</li>
+        <li><i>MenuAlpha</i> - The alpha transparency level of the desktop menus (Default 100)</li>
+        <li><i>MenuIcons</i> - Enable or disable the menu icons (Default 1)</li>
+  </ul></li>
+</ul><br><p>
+  <table bgcolor="#7f907f" cellpadding="5" cellspacing="0" width="100%">
+    <tr>
+      <td>
+        <font color="white"><b>Usage</b></font>
+      </td>
+    </tr>
+  </table>
+</p>
+<p>Right clicking on the desktop will display the 'right click menu'. The default RightMenu includes Windows standard items and Emerge Desktop configuration options.</p>
+<img src="RightMenu.png" width="148" height="213" border="0" alt="RightMenu">
+<p>Middle clicking on the desktop will display the 'middle click menu'. The default MidMenu includes Emerge Desktop's internal commands, namely the running Tasks submenu</p>
+</p>
+<img src="MidMenu.png" width="130" height="87" border="0" alt="MidMenu">
+
+</body></html>

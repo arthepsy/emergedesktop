@@ -1,0 +1,36 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+    <head>
+        <title>emergeHotkeys</title>
+        <link rel = StyleSheet type = "text/css" HREF = "emerge.css">
+    </head>
+<body><table bgcolor="#7f907f" cellpadding="5" cellspacing="0" width="100%"><tr>
+<td> <font color="white"><b>About</b></font>
+</td> </tr>
+</table><p>
+emergeHotkeys is the hotkey applet of Emerge Desktop. It defines a set
+of hotkeys that allow quick access to Emerge Desktop functions as well
+as launching other applications.
+</p><table bgcolor="#7f907f" cellpadding="5" cellspacing="0" width="100%"><tr>
+<td> <font color="white"><b>Configuration</b></font>
+</td> </tr>
+</table><p>emergeHotkeys is configured by pressing simultaneously the 'Shift' and 'Esc' keys. This will display the emergeHotkeys Configuration dialog box</p>
+<img src="ConfigHotkeys.png">
+<p>The key combination for a hotkey can be selected by ticking the modifiers Shift, Ctrl, Win or Alt (or none) and one key from the drop down list. Any keyboard key can be assigned to a new task even unused keys like Pause can be set to launch a Calculator. It is wise not to set a character key without any modifier since this will prevent from typing text.</p>
+
+<p><b>Important Note</b>: the Win key (alone) can also be assigned by selecting LeftWinKey or RightWinKey from the Key drop list. Key combinations don't work with the Win key only.</p>
+
+<p>A hotkey can be assigned to a file, a folder or an emerge <a href="Internal.html">Internal Command</a>. To Add <img style="width: 24px; height: 23px;" alt="" src="Add.png"> a new Key Combination, after selecting the action the user should click on Save <img style="width: 24px; height: 23px;" alt="" src="Save.png"> to save the hotkey or Clear <img style="width: 24px; height: 23px;" alt="" src="Clear.png"> to start again. If the hotkey selected is already in use by another program or reserved by the system,a warning message is displayed and the user has the opportunity to modify the key combination until a valid one is chosen.</p>
+<p>Hotkeys displayed in the list box can be Modified <img style="width: 24px; height: 23px;" alt="" src="Modify.png"> or Deleted <img style="width: 24px; height: 23px;" alt="" src="Delete.png">.
+If at any time the user adds, deletes or modifies incorrectly any key, he can undo changes by pressing the Cancel button. This will close the Configure box without saving any modifications since the dialog was opened.</p>
+<p>Hotkeys are stored in the registry only after pressing the OK button. This will also close the Configuration dialog</p>
+<p>The Exit button closes the emergeHotkeys module. It can be restarted by running the executable file emergeHotkeys.exe.</p>
+<p>emergeHotkeys settings are stored in <i>HKEY_CURRENT_USER\Software\Emerge Desktop\emergeHotkeys</i> and consist of the following subkeys:</p>
+<ul> <li><i>Actions</i> - stores a list strings containing the hotkeys to be registered when emergeHotkeys executes. The values are of type String the name is the key / modifier combination to be used as the hotkey and the data is either the full path to the application to be launched, the path to be opened. Additionally, you can specify a path or special folders including &quot;My Computer&quot;, &quot;My Documents&quot;, &quot;My Network Places&quot; or &quot;Control Panel&quot;. All the Emerge Desktop <a href="Internal.html">Internal Commands</a> are also supported.</li>
+</ul><br>
+<table bgcolor="#7f907f" cellpadding="5" cellspacing="0" width="100%"><tr>
+<td> <font color="white"><b>Usage</b></font>
+</td> </tr>
+</table><p>
+emergeHotkeys is used to define a set of hotkeys. Once the hotkeys are defined, you can use the key combination to execute the action specified.
+</p></body></html>

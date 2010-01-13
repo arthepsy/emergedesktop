@@ -1,0 +1,63 @@
+//----  --------------------------------------------------------------------------------------------------------
+//
+//  This file is part of Emerge Desktop.
+//  Copyright (C) 2004-2010  The Emerge Desktop Development Team
+//
+//  Emerge Desktop is free software; you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation; either version 3 of the License, or
+//  (at your option) any later version.
+//
+//  Emerge Desktop is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//
+//  You should have received a copy of the GNU General Public License
+//  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+//
+//----  --------------------------------------------------------------------------------------------------------
+
+IDI_ADD     ICON    "icons/add.ico"
+IDI_EDIT    ICON    "icons/edit.ico"
+IDI_DEL     ICON    "icons/del.ico"
+IDI_UP      ICON    "icons/up.ico"
+IDI_DOWN    ICON    "icons/down.ico"
+IDI_SAVE    ICON    "icons/save.ico"
+IDI_ABORT   ICON    "icons/abort.ico"
+IDI_BROWSE  ICON    "icons/folder.ico"
+
+IDD_LAUNCH_PAGE DIALOGEX 0, 0, CONFIG_WIDTH, CONFIG_HEIGHT
+STYLE WS_POPUP | WS_VISIBLE | WS_CAPTION
+CAPTION "emergeLauncher Configuration"
+FONT 8, "MS Shell Dlg"
+BEGIN
+
+  GROUPBOX	"Applications",IDC_STATIC8,5,5,CONFIG_WIDTH-10,CONFIG_HEIGHT-10,WS_GROUP
+
+  CONTROL		"AppList",IDC_APPLIST,"SysListView32",LVS_REPORT|LVS_SHOWSELALWAYS|WS_BORDER|WS_TABSTOP,10,15,CONFIG_WIDTH-40,CONFIG_HEIGHT-118
+
+  PUSHBUTTON	"",IDC_ADDITEM,CONFIG_WIDTH-28,15,16,14,BS_ICON|BS_FLAT
+  PUSHBUTTON	"",IDC_EDITITEM,CONFIG_WIDTH-28,31,16,14,BS_ICON|BS_FLAT
+  PUSHBUTTON	"",IDC_DELITEM,CONFIG_WIDTH-28,47,16,14,BS_ICON|BS_FLAT
+  PUSHBUTTON	"",IDC_UPITEM,CONFIG_WIDTH-28,63,16,14,BS_ICON|BS_FLAT
+  PUSHBUTTON	"",IDC_DOWNITEM,CONFIG_WIDTH-28,79,16,14,BS_ICON|BS_FLAT
+
+  CONTROL		"Execute:",IDC_EXEBUTTON,"Button",BS_AUTORADIOBUTTON|WS_TABSTOP,10,CONFIG_HEIGHT-98,45,8
+  EDITTEXT	IDC_COMMAND,70,CONFIG_HEIGHT-100,CONFIG_WIDTH-95,12,ES_AUTOHSCROLL
+  PUSHBUTTON	"",IDC_BROWSECOMMAND,CONFIG_WIDTH-24,CONFIG_HEIGHT-100,14,12,BS_ICON
+  CONTROL		"Command:",IDC_COMBUTTON,"Button",BS_AUTORADIOBUTTON|WS_TABSTOP,10,CONFIG_HEIGHT-83,45,8
+  COMBOBOX	IDC_INTERNAL,70,CONFIG_HEIGHT-85,CONFIG_WIDTH-80,150,CBS_DROPDOWNLIST|WS_VSCROLL|WS_TABSTOP
+  LTEXT		"Working Directory:",IDC_WORKINGDIRTEXT,10,CONFIG_HEIGHT-68,60,8
+  EDITTEXT	IDC_WORKINGDIR,70,CONFIG_HEIGHT-70,CONFIG_WIDTH-95,12,ES_AUTOHSCROLL
+  PUSHBUTTON	"",IDC_BROWSEWORKINGDIR,CONFIG_WIDTH-24,CONFIG_HEIGHT-70,14,12,BS_ICON
+  LTEXT		"Icon:",IDC_ICONTEXT,10,CONFIG_HEIGHT-53,35,8
+  EDITTEXT	IDC_ICONPATH,70,CONFIG_HEIGHT-55,CONFIG_WIDTH-95,12,ES_AUTOHSCROLL
+  PUSHBUTTON	"",IDC_BROWSEICON,CONFIG_WIDTH-24,CONFIG_HEIGHT-55,14,12,BS_ICON
+  LTEXT		"Tip:",IDC_TIPTEXT,10,CONFIG_HEIGHT-38,35,8
+  EDITTEXT	IDC_TIP,70,CONFIG_HEIGHT-40,CONFIG_WIDTH-80,12,ES_AUTOHSCROLL
+
+  PUSHBUTTON	"",IDC_SAVEITEM,CONFIG_WIDTH-44,CONFIG_HEIGHT-25,16,14,BS_ICON|BS_FLAT
+  PUSHBUTTON	"",IDC_ABORTITEM,CONFIG_WIDTH-26,CONFIG_HEIGHT-25,16,14,BS_ICON|BS_FLAT
+
+END

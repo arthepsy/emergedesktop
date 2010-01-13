@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CodeLite_Workspace Name="emerge" Database=".\emerge.tags">
+  <Project Name="emergeLib" Path="emergeLib\emergeLib.project" Active="No"/>
+  <Project Name="emergeGraphics" Path="emergeGraphics\emergeGraphics.project" Active="No"/>
+  <Project Name="emergeAppletEngine" Path="emergeAppletEngine\emergeAppletEngine.project"/>
+  <Project Name="emergeSchemeEngine" Path="emergeSchemeEngine\emergeSchemeEngine.project"/>
+  <Project Name="emergeBaseClasses" Path="emergeBaseClasses\emergeBaseClasses.project"/>
+  <Project Name="emergeCore" Path="emergeCore\emergeCore.project"/>
+  <Project Name="emergeCommand" Path="emergeCommand\emergeCommand.project"/>
+  <Project Name="emergeDesktop" Path="emergeDesktop\emergeDesktop.project" Active="Yes"/>
+  <Project Name="emergeHotkeys" Path="emergeHotkeys\emergeHotkeys.project"/>
+  <Project Name="emergeLauncher" Path="emergeLauncher\emergeLauncher.project" Active="No"/>
+  <Project Name="emergePower" Path="emergePower\emergePower.project"/>
+  <Project Name="emergeSysMon" Path="emergeSysMon\emergeSysMon.project"/>
+  <Project Name="emergeTasks" Path="emergeTasks\emergeTasks.project"/>
+  <Project Name="emergeTray" Path="emergeTray\emergeTray.project"/>
+  <Project Name="emergeVWM" Path="emergeVWM\emergeVWM.project"/>
+  <Project Name="emerge" Path="emerge\emerge.project" Active="No"/>
+  <Project Name="reg2xml" Path="reg2xml\reg2xml.project"/>
+  <BuildMatrix>
+    <WorkspaceConfiguration Name="Debug" Selected="no">
+      <Project Name="emergeLib" ConfigName="Debug"/>
+      <Project Name="emergeGraphics" ConfigName="Debug"/>
+      <Project Name="emergeAppletEngine" ConfigName="Debug"/>
+      <Project Name="emergeSchemeEngine" ConfigName="Debug"/>
+      <Project Name="emergeBaseClasses" ConfigName="Debug"/>
+      <Project Name="emergeCore" ConfigName="Debug"/>
+      <Project Name="emergeCommand" ConfigName="Debug"/>
+      <Project Name="emergeDesktop" ConfigName="Debug"/>
+      <Project Name="emergeHotkeys" ConfigName="Debug"/>
+      <Project Name="emergeLauncher" ConfigName="Debug"/>
+      <Project Name="emergePower" ConfigName="Debug"/>
+      <Project Name="emergeSysMon" ConfigName="Debug"/>
+      <Project Name="emergeTasks" ConfigName="Debug"/>
+      <Project Name="emergeTray" ConfigName="Debug"/>
+      <Project Name="emergeVWM" ConfigName="Debug"/>
+      <Project Name="emerge" ConfigName="Debug"/>
+      <Project Name="reg2xml" ConfigName="Debug"/>
+    </WorkspaceConfiguration>
+    <WorkspaceConfiguration Name="Release" Selected="yes">
+      <Project Name="emergeLib" ConfigName="Release"/>
+      <Project Name="emergeGraphics" ConfigName="Release"/>
+      <Project Name="emergeAppletEngine" ConfigName="Release"/>
+      <Project Name="emergeSchemeEngine" ConfigName="Release"/>
+      <Project Name="emergeBaseClasses" ConfigName="Release"/>
+      <Project Name="emergeCore" ConfigName="Release"/>
+      <Project Name="emergeCommand" ConfigName="Release"/>
+      <Project Name="emergeDesktop" ConfigName="Release"/>
+      <Project Name="emergeHotkeys" ConfigName="Release"/>
+      <Project Name="emergeLauncher" ConfigName="Release"/>
+      <Project Name="emergePower" ConfigName="Release"/>
+      <Project Name="emergeSysMon" ConfigName="Release"/>
+      <Project Name="emergeTasks" ConfigName="Release"/>
+      <Project Name="emergeTray" ConfigName="Release"/>
+      <Project Name="emergeVWM" ConfigName="Release"/>
+      <Project Name="emerge" ConfigName="Release"/>
+      <Project Name="reg2xml" ConfigName="Release"/>
+    </WorkspaceConfiguration>
+  </BuildMatrix>
+</CodeLite_Workspace>

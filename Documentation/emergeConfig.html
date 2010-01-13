@@ -1,0 +1,119 @@
+<html>
+<body>
+  <table cellpadding='5' cellspacing='0'  bgcolor='#7F907F' width=100%>
+    <tr>
+      <td>
+        <font color=white><b>About</b></font>
+      </td>
+    </tr>
+  </table>
+<p>
+emergeConfig is a configuration application for Emerge Desktop.  It allows for the changing of the various settings of each individual applet.
+<p>
+  <table cellpadding='5' cellspacing='0'  bgcolor='#7F907F' width=100%>
+    <tr>
+      <td>
+        <font color=white><b>Usage</b></font>
+      </td>
+    </tr>
+  </table>
+<p>
+The first page lists the version of emergeCore and emergeLib you are using as well as the applets that are configured to execute at astart up.  On this page you can start and stop each of the listed applets.
+<p>
+On the left-hand side of the window you will see the various catagories for which each applet falls into.  Expanding a category will list all the appropriate applets.
+<p>
+Each applet has it's own configuration page with the appropriate settings which you can modify.  Clicking apply will apply the changes immediately.
+<p>
+The emergeCore tab allows for the definition of the menu.  One of the available menu item types is a registry based submenu.  To add a registry based submenu, do the following:
+<ol>
+<li>Choose 'New', and 'Submenu' in the 'Type' combobox</li>
+<li>Enter a caption for the submenu, starting with '-' (i.e.: -mysubmenu)</li>
+<li>Click on 'Save'</li>
+<li>Choose 'New' again, and whatever you want in 'Type'</li>
+<li>Enter a caption for the submenu item, starting with '--' (i.e.: --my item nr.1)</li>
+<li>Click on 'Save'</li> 
+<li>Repeat steps 4 to 6 for all the entries</li>
+<li>When you are finished, click the 'Apply' button to apply the changes</li>
+</ol>
+<b>Shell Changer</b>
+<p>
+emergeConfig included a Shell Changer for switching between Emerge Desktop and Explorer (or any other shell you choose to add).  Shell Changer supports the following options:
+<p>
+<i>Current User Only</i>
+<p>
+<b>Note: The current user installation is based on the tutorial by Björn Brembs (http://brembs.net/litestep/win2k.html).</b>
+<p>
+Check this option to enable "Per User" setting.  The Shell path will be stored in HKCU section of the registry, and the following HKLM key:
+<p>
+Software\Microsoft\Windows NT\CurrentVersion\IniFileMapping\system.ini\boot\Shell
+<p>
+Will be set to:
+<p>
+USR:Software\Microsoft\Windows NT\CurrentVersion\Winlogon
+<p>
+Which tells Windows to load the Shell defined in the HKCU section.  This will allow each user to use a different Shell.  If this item is not checked, the Shell path will be stored in HKLM section of the registry, and the above HKLM key will be set to:
+<p>
+SYS:Software\Microsoft\Windows NT\CurrentVersion\Winlogon
+<p>
+Which tells Windows to load the Shell defined in HKLM section.  This will set the choosen Shell as the system shell for all users.
+<p>
+<i>Enable "DesktopProcess"</i>
+<p>
+Check this option if you need to run occasionally explorer.exe for file management (i.e., if you need to use TortoiseCvs, or some other tool wich needs explorer to run properly).  The setting will be stored in HKCU or HKLM section of the registry, depending on the selection done for "Current User Only" option.
+<p>
+The following key (in HKCU or HKLM) will be set to "1" (true):
+<p>  
+Software\Microsoft\Windows\CurrentVersion\Explorer\DesktopProcess
+<p>
+<i>Enable "BrowseNewProcess"</i>
+<p>
+Check this option if you need to run more than one explorer.exe window at the same time.  The setting will be stored in HKCU or HKLM section of the registry, depending on the selection done for "Current User Only" option.  The following key (in HKCU or HKLM) will be set to "yes":
+<p>  
+Software\Microsoft\Windows\CurrentVersion\Explorer\BrowseNewProcess\BrowseNewProcess
+<p>
+<i>Set Shell button</i>
+<p>
+This is the button used to set a Shell, that is, write its Path to the appropriate registry section.  Depending on the state of the "Current User Only" checkbox, the following key:
+<p>
+Software\Microsoft\Windows NT\CurrentVersion\Winlogon\Shell
+<p>
+in HKCU or HKLM will be set to the currently selected Shell Path in the Shell List Window.  The Shell Path must always be an "absolute path", with the only exception of explorer.exe.
+<p>
+You can use whatever you like for the "Shell Name" field.
+<p>
+<b>General Settings</b>
+<p>
+This page contains options that apply to all applets.  The options include:
+<ul>
+  <li><i>Disable "Drop Shadow" for all applets</i> - globally disable drop shadows for all applets, overriding the individual applet setting</li>
+  <li><i>Enable "Drop Shadow" for all applets</i> - globally enable drop shadows for all applets, overriding the individual applet setting</li>
+  <li><i>Enable custom "Drop Shadow" for each applet</i> - allows for the enabling of the "Drop Shadow" on a per applet basis</li>
+</ul>
+<p>
+<b>Note: The "Drop Shadow" effect required Windows XP or above</b>
+<p>
+<b>Theme Manager</b>
+<p>
+Finally, the Theme Manager allows for the storage of a given set of applet configurations (a theme).  This allows for the setting of various configurations that can be switched with the click of a button!
+<p>
+Themes are actually emergeScripts, as such, they are required to have the '.esc' extension.  They must be stored in '..\Emerge Desktop\themes'.  For details on how to create and modify theme scripts, see the <a href="emergeScriptEdit.html">emergeScriptEdit</a> documentation.
+<p>
+Theme manager buttons include:
+<ul>
+  <li><i>restart:</i> restart Emerge Desktop (note: currently emergeTray does not handle the restart gracefully, this will be corrected in a later release).</li>
+  <li><i>refresh:</i> reload the theme list</li>
+  <li><i>edit:</i> open the selected theme with emergeScriptEdit</li>
+  <li><i>load (or double clicking a list item):</i> execute the selected theme script</li>
+</ul>
+  <table cellpadding='5' cellspacing='0'  bgcolor='#7F907F' width=100%>
+    <tr>
+      <td>
+        <font color=white><b>Note</b></font>
+      </td>
+    </tr>
+  </table>
+<p>
+<b>In order for emergeConfig to operate properly the proper <a href="Directory.html">directory</a> structure must be used.
+</body>
+</html>
+

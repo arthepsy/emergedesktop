@@ -1,0 +1,72 @@
+//---
+//
+//  This file is part of Emerge Desktop.
+//  Copyright (C) 2004-2010  The Emerge Desktop Development Team
+//
+//  Emerge Desktop is free software; you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation; either version 3 of the License, or
+//  (at your option) any later version.
+//
+//  Emerge Desktop is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//
+//  You should have received a copy of the GNU General Public License
+//  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+//
+//---
+
+#define UNICODE
+#define _WINGDI_
+
+#include <commctrl.h>
+#include "resource.h"
+#include "../svnversion.h"
+#include "../version.h"
+#include "ConfigPage.dlg"
+#include "PositionPage.dlg"
+
+VS_VERSION_INFO VERSIONINFO
+FILEVERSION COMMA_VERSION
+PRODUCTVERSION COMMA_VERSION
+FILEFLAGSMASK VS_FFI_FILEFLAGSMASK
+#ifdef DEBUG
+FILEFLAGS VS_FF_DEBUG
+#endif
+FILEOS VOS__WINDOWS32
+FILETYPE VFT_APP
+BEGIN
+BLOCK "StringFileInfo"
+BEGIN
+BLOCK "000004B0"
+BEGIN
+VALUE "CompanyName", "The Emerge Desktop Development Team"
+VALUE "FileDescription", "emergePower - applet for the Emerge Desktop"
+VALUE "FileVersion", POINT_VERSION
+VALUE "InternalName", "emergePower"
+VALUE "LegalCopyright", "Copyright (C) 2004-2010"
+VALUE "OriginalFilename", "emergePower.exe"
+VALUE "ProductName", "emergePower"
+VALUE "ProductVersion", POINT_VERSION
+END
+END
+BLOCK "VarFileInfo"
+BEGIN
+VALUE "Translation", 0x0, 1200
+END
+END
+
+#ifdef __GNUC__
+CREATEPROCESS_MANIFEST_RESOURCE_ID RT_MANIFEST "emergePower.exe.manifest"
+#endif
+
+IDI_DEFAULT	ICON	"icons/emerge.ico"
+
+IDD_CONFIG DIALOGEX 0, 0, CONFIG_WIDTH, CONFIG_HEIGHT
+STYLE WS_POPUP | WS_VISIBLE | WS_CAPTION | DS_CENTER
+CAPTION "emergeTasks Configuration"
+FONT 8, "MS Shell Dlg"
+BEGIN
+END

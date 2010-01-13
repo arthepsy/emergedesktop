@@ -1,0 +1,82 @@
+//----  --------------------------------------------------------------------------------------------------------
+//
+//  This file is part of Emerge Desktop.
+//  Copyright (C) 2004-2010  The Emerge Desktop Development Team
+//
+//  Emerge Desktop is free software; you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation; either version 3 of the License, or
+//  (at your option) any later version.
+//
+//  Emerge Desktop is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//
+//  You should have received a copy of the GNU General Public License
+//  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+//
+//----  --------------------------------------------------------------------------------------------------------
+
+#define UNICODE
+#define _WINGDI_
+
+#include "resource.h"
+#include "../svnversion.h"
+#include "../version.h"
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION COMMA_VERSION
+ PRODUCTVERSION COMMA_VERSION
+ FILEFLAGSMASK VS_FFI_FILEFLAGSMASK
+#ifdef DEBUG
+ FILEFLAGS VS_FF_DEBUG
+#endif
+ FILEOS VOS__WINDOWS32
+ FILETYPE VFT_APP
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "000004B0"
+        BEGIN
+            VALUE "CompanyName", "The Emerge Desktop Development Team"
+            VALUE "FileDescription", "reg2xml - import Emerge Desktop regsitry settings in to XML"
+            VALUE "FileVersion", POINT_VERSION
+            VALUE "InternalName", "reg2xml"
+            VALUE "LegalCopyright", "Copyright (C) 2009-2010"
+            VALUE "OriginalFilename", "reg2xml.exe"
+            VALUE "ProductName", "reg2xml"
+            VALUE "ProductVersion", POINT_VERSION
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x0, 1200
+    END
+END
+
+#ifdef __GNUC__
+CREATEPROCESS_MANIFEST_RESOURCE_ID RT_MANIFEST "reg2xml.exe.manifest"
+#endif
+
+IDD_IMPORT DIALOGEX 0, 0, 195, 143
+STYLE WS_POPUP | WS_VISIBLE | WS_CAPTION
+CAPTION "Registry Importer"
+FONT 8, "MS Shell Dlg"
+BEGIN
+	GROUPBOX	"Applet",IDC_STATIC,5,5,80,109,WS_GROUP
+	CONTROL		"emergeCommand",IDC_COMMAND,"Button",BS_AUTOCHECKBOX|WS_TABSTOP,10,15,70,10
+	CONTROL		"emergeCore",IDC_CORE,"Button",BS_AUTOCHECKBOX|WS_TABSTOP,10,27,70,10
+	CONTROL		"emergeDesktop",IDC_DESKTOP,"Button",BS_AUTOCHECKBOX|WS_TABSTOP,10,39,70,10
+	CONTROL		"emergeHotkeys",IDC_HOTKEYS,"Button",BS_AUTOCHECKBOX|WS_TABSTOP,10,51,70,10
+	CONTROL		"emergeLauncher",IDC_LAUNCHER,"Button",BS_AUTOCHECKBOX|WS_TABSTOP,10,63,70,10
+	CONTROL		"emergeTasks",IDC_TASKS,"Button",BS_AUTOCHECKBOX|WS_TABSTOP,10,75,70,10
+	CONTROL		"emergeTray",IDC_TRAY,"Button",BS_AUTOCHECKBOX|WS_TABSTOP,10,87,70,10
+	CONTROL		"emergeVWM",IDC_VWM,"Button",BS_AUTOCHECKBOX|WS_TABSTOP,10,99,70,10
+
+	GROUPBOX	"Theme Name",IDC_STATIC,90,5,100,27,WS_GROUP
+	EDITTEXT	IDC_THEME,95,15,90,12,ES_AUTOHSCROLL
+
+	PUSHBUTTON	"&OK",IDOK,5,124,70,14
+	PUSHBUTTON	"&Cancel",IDCANCEL,120,124,70,14
+END
