@@ -6,6 +6,7 @@ tags
 .deps
 .objs
 bin
+hgversion.h
 
 # switch to regexp syntax.
 #syntax: regexp
