@@ -24,6 +24,7 @@
 #include <winver.h>
 #include <winuser.h>
 #include "../version.h"
+#include "../hgversion.h"
 
 VS_VERSION_INFO VERSIONINFO
  FILEVERSION COMMA_VERSION

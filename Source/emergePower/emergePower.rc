@@ -24,6 +24,7 @@
 #include <commctrl.h>
 #include "resource.h"
 #include "../version.h"
+#include "../hgversion.h"
 #include "ConfigPage.dlg"
 #include "PositionPage.dlg"
 

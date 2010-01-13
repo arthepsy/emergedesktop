@@ -12,6 +12,7 @@ TINY_DIR = ../$(OBJ_DIR)/$(BUILD)/tinyxml
 TARGET_OBJS += $(OBJS)
 TINYOBJS = $(patsubst ../tinyxml/%.cpp,../$(OBJ_DIR)/$(BUILD)/tinyxml/%.o,$(wildcard ../tinyxml/*.cpp))
 BUILD = Release
+HG_FILE = ../hgversion.h
 LDFLAGS = -Wl,--subsystem,windows -shared-libgcc -Wl,--enable-auto-import
 CFLAGS = -W -Wall -Wextra -Werror -pedantic -D_GLIBCXX_DLL
 
@@ -78,13 +79,13 @@ makedep: $(DEPS)
 ../$(DEPS_DIR)/$(TARGET)/%.d: %.cpp
 	$(CC) -MM -MF $@ -MT ../$(OBJ_DIR)/$(BUILD)/$(TARGET)/$(*F).o $<
 
-../$(DEPS_DIR)/$(TARGET)/%.d: %.rc $(SVN_FILE)
+../$(DEPS_DIR)/$(TARGET)/%.d: %.rc $(HG_FILE)
 	$(CC) $(WINDRESOPS) -MM -MF $@ -MT ../$(OBJ_DIR)/$(BUILD)/$(TARGET)/$(*F).o $<
 
 ../$(DEPS_DIR)/tinyxml/%.d: $(TINYCCPS)
 	$(CC) -MM -MF $@ -MT ../$(OBJ_DIR)/$(BUILD)/$(TARGET)/$(*F).o $<
 
-../$(OBJ_DIR)/$(BUILD)/$(TARGET)/%.o: %.rc $(SVN_FILE)
+../$(OBJ_DIR)/$(BUILD)/$(TARGET)/%.o: %.rc $(HG_FILE)
 	$(WINDRES) --preprocessor="$(CC) $(WINDRESOPS)" $(WINDRESFLAGS) -i $< -o $@
 
 ../$(OBJ_DIR)/$(BUILD)/tinyxml/%.o: ../tinyxml/%.cpp

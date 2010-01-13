@@ -12,6 +12,7 @@ BIN_DIR = bin
 SHELL_BREAK = &
 DOCUMENTATION = ./Documentation/*.chm
 BIN_LIST = ./$(BIN_DIR)/*.exe ./$(BIN_DIR)/*.dll
+SVN_FILE = hgversion.h
 ifdef MINGW64
 		PACKAGE = EmergeDesktop64
 		BIN_DIR = bin64
@@ -21,6 +22,8 @@ ifdef CYGWIN
 endif
 
 all: $(LIBS) $(APPLETS)
+
+include hg_file.in
 
 .PHONY: makedir makedep clean distclean
 makedir: all

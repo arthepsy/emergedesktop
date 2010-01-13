@@ -23,6 +23,7 @@
 
 #include "resource.h"
 #include "../version.h"
+#include "../hgversion.h"
 #include "ConfigPage.dlg"
 #include "IconHidePage.dlg"
 

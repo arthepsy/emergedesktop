@@ -1,2 +1,0 @@
-$(SVN_FILE):
-	svn info --revision HEAD | grep Revision | sed "s/Revision:/#define SVN_VERSION/g" > $(SVN_FILE)
