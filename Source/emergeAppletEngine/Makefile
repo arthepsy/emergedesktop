@@ -7,4 +7,3 @@ EXPORTS = -DEMERGEAPPLETENGINE_EXPORTS
 include ../functions.in
 include ../globals.in
 include ../lib_globals.in
-include ../svn.in

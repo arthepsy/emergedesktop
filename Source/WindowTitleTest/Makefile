@@ -10,4 +10,3 @@ OBJS = $(TARGET_DIR)/main.o \
 include ../functions.in
 include ../globals.in
 include ../applet_globals.in
-include ../svn.in

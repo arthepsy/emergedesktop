@@ -11,4 +11,3 @@ TARGET_OBJS = $(TINYOBJS)
 include ../functions.in
 include ../globals.in
 include ../lib_globals.in
-include ../svn.in
