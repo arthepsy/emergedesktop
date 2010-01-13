@@ -3,6 +3,9 @@ syntax: glob
 
 tags
 *.swp
+.deps
+.objs
+bin
 
 # switch to regexp syntax.
 #syntax: regexp
