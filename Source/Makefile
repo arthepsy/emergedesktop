@@ -13,7 +13,7 @@ SHELL_BREAK = &
 DOCUMENTATION = ./Documentation/*.chm
 BIN_LIST = ./$(BIN_DIR)/*.exe ./$(BIN_DIR)/*.dll
 SVN_FILE = hgversion.h
-ifdef MINGW64
+ifeq ($(MINGW64), 1)
 		PACKAGE = EmergeDesktop64
 		BIN_DIR = bin64
 endif
