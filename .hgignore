@@ -3,9 +3,13 @@ syntax: glob
 
 tags
 *.swp
+*.7z
 .deps
+.deps64
 .objs
+.objs64
 bin
+bin64
 hgversion.h
 
 # switch to regexp syntax.
