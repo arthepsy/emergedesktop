@@ -70,6 +70,9 @@ MsgBox::MsgBox(HINSTANCE hInstance, HWND mainWnd, const WCHAR *messageText, cons
 
 MsgBox::~MsgBox()
 {
+  std::wstring debug = L"In detor";
+  ELWriteDebug(debug);
+
   if (msgIcon)
     DestroyIcon(msgIcon);
 }
@@ -172,12 +175,6 @@ LRESULT MsgBox::DoCommand(HWND hwndDlg, WPARAM wParam, LPARAM lParam UNUSED)
   switch (LOWORD(wParam))
     {
     case IDOK:
-      if (iter != hookMap.end())
-        {
-          UnhookWindowsHookEx(iter->second);
-          hookMap.erase(iter);
-        }
-
       if (modal)
         {
           if (msgButtons == ELMB_YESNO)
@@ -185,15 +182,17 @@ LRESULT MsgBox::DoCommand(HWND hwndDlg, WPARAM wParam, LPARAM lParam UNUSED)
           EndDialog(hwndDlg, wParam);
         }
       else
-        DestroyWindow(hwndDlg);
+        {
+          if (iter != hookMap.end())
+            {
+              UnhookWindowsHookEx(iter->second);
+              hookMap.erase(iter);
+            }
+          DestroyWindow(hwndDlg);
+        }
+      delete this;
       return TRUE;
     case IDCANCEL:
-      if (iter != hookMap.end())
-        {
-          UnhookWindowsHookEx(iter->second);
-          hookMap.erase(iter);
-        }
-
       if (modal)
         {
           if (msgButtons == ELMB_YESNO)
@@ -201,7 +200,15 @@ LRESULT MsgBox::DoCommand(HWND hwndDlg, WPARAM wParam, LPARAM lParam UNUSED)
           EndDialog(hwndDlg, wParam);
         }
       else
-        DestroyWindow(hwndDlg);
+        {
+          if (iter != hookMap.end())
+            {
+              UnhookWindowsHookEx(iter->second);
+              hookMap.erase(iter);
+            }
+          DestroyWindow(hwndDlg);
+        }
+      delete this;
       return TRUE;
     }
 

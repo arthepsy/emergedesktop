@@ -1649,7 +1649,8 @@ int ELMessageBox(HWND hwnd, const WCHAR* messageText, const WCHAR* messageTitle,
 {
   int ret;
 
-  std::tr1::shared_ptr<MsgBox> msgBox(new MsgBox(GetModuleHandle(TEXT("emergeLib.dll")), hwnd, messageText, messageTitle, (msgFlags & 0x0000ff), (msgFlags & 0x00ff00)));
+  MsgBox *msgBox = new MsgBox(GetModuleHandle(TEXT("emergeLib.dll")), hwnd, messageText, messageTitle,
+                              (msgFlags & 0x0000ff), (msgFlags & 0x00ff00));
   ret = msgBox->Show((msgFlags & ELMB_MODAL) == ELMB_MODAL);
 
   return ret;
