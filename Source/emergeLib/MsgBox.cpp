@@ -70,9 +70,6 @@ MsgBox::MsgBox(HINSTANCE hInstance, HWND mainWnd, const WCHAR *messageText, cons
 
 MsgBox::~MsgBox()
 {
-  std::wstring debug = L"In detor";
-  ELWriteDebug(debug);
-
   if (msgIcon)
     DestroyIcon(msgIcon);
 }
