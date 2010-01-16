@@ -168,16 +168,25 @@ LRESULT MsgBox::DoInitDialog(HWND hwndDlg)
 LRESULT MsgBox::DoCommand(HWND hwndDlg, WPARAM wParam, LPARAM lParam UNUSED)
 {
   HookMap::iterator iter = hookMap.find(hwndDlg);
-  if (msgButtons == ELMB_YESNO)
-    wParam = IDYES;
+  LRESULT ret = FALSE;
 
   switch (LOWORD(wParam))
     {
     case IDCANCEL:
       if (msgButtons == ELMB_YESNO)
         wParam = IDNO;
+      ret = TRUE;
+      break;
     case IDOK:
-      if (modal)
+      if (msgButtons == ELMB_YESNO)
+        wParam = IDYES;
+      ret = TRUE;
+      break;
+    }
+
+  if (ret == TRUE)
+    {
+      if (modal || (msgButtons == ELMB_YESNO))
         EndDialog(hwndDlg, wParam);
       else
         {
@@ -190,10 +199,9 @@ LRESULT MsgBox::DoCommand(HWND hwndDlg, WPARAM wParam, LPARAM lParam UNUSED)
         }
       if (hookMap.empty())
         delete this;
-      return TRUE;
     }
 
-  return FALSE;
+  return ret;
 }
 
 bool MsgBox::IsHookMessage(LPMSG lpMsg)
