@@ -48,6 +48,7 @@
 #define IDC_STATIC24            1024
 #define IDC_STATIC25            1025
 #define IDC_STATIC26            1026
+#define IDC_STATIC27            1027
 
 #define IDD_SCHEMEEDITOR        100
 #define IDC_PREVIEW             101

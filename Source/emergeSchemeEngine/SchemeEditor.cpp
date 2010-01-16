@@ -194,6 +194,7 @@ void SchemeEditor::BuildPanelMap(HWND hwndDlg)
       iter->second->insert(iter->second->begin(), GetDlgItem(hwndDlg, IDC_STATIC20));
       iter->second->insert(iter->second->begin(), GetDlgItem(hwndDlg, IDC_STATIC21));
       iter->second->insert(iter->second->begin(), GetDlgItem(hwndDlg, IDC_STATIC26));
+      iter->second->insert(iter->second->begin(), GetDlgItem(hwndDlg, IDC_STATIC27));
       iter->second->insert(iter->second->begin(), GetDlgItem(hwndDlg, IDC_SHADOW));
       iter->second->insert(iter->second->begin(), GetDlgItem(hwndDlg, IDC_PADDING));
       iter->second->insert(iter->second->begin(), GetDlgItem(hwndDlg, IDC_PADDINGUPDOWN));
