@@ -168,16 +168,17 @@ LRESULT MsgBox::DoInitDialog(HWND hwndDlg)
 LRESULT MsgBox::DoCommand(HWND hwndDlg, WPARAM wParam, LPARAM lParam UNUSED)
 {
   HookMap::iterator iter = hookMap.find(hwndDlg);
+  if (msgButtons == ELMB_YESNO)
+    wParam = IDYES;
 
   switch (LOWORD(wParam))
     {
+    case IDCANCEL:
+      if (msgButtons == ELMB_YESNO)
+        wParam = IDNO;
     case IDOK:
       if (modal)
-        {
-          if (msgButtons == ELMB_YESNO)
-            wParam = IDYES;
-          EndDialog(hwndDlg, wParam);
-        }
+        EndDialog(hwndDlg, wParam);
       else
         {
           if (iter != hookMap.end())
@@ -187,25 +188,8 @@ LRESULT MsgBox::DoCommand(HWND hwndDlg, WPARAM wParam, LPARAM lParam UNUSED)
             }
           DestroyWindow(hwndDlg);
         }
-      delete this;
-      return TRUE;
-    case IDCANCEL:
-      if (modal)
-        {
-          if (msgButtons == ELMB_YESNO)
-            wParam = IDNO;
-          EndDialog(hwndDlg, wParam);
-        }
-      else
-        {
-          if (iter != hookMap.end())
-            {
-              UnhookWindowsHookEx(iter->second);
-              hookMap.erase(iter);
-            }
-          DestroyWindow(hwndDlg);
-        }
-      delete this;
+      if (hookMap.empty())
+        delete this;
       return TRUE;
     }
 
