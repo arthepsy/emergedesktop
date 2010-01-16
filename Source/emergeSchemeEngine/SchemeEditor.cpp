@@ -182,9 +182,6 @@ void SchemeEditor::BuildPanelMap(HWND hwndDlg)
       iter->second->insert(iter->second->begin(), GetDlgItem(hwndDlg, IDC_STATIC25));
       iter->second->insert(iter->second->begin(), GetDlgItem(hwndDlg, IDC_METHOD));
       iter->second->insert(iter->second->begin(), GetDlgItem(hwndDlg, IDC_INTERLACED));
-      iter->second->insert(iter->second->begin(), GetDlgItem(hwndDlg, IDC_FLAT));
-      iter->second->insert(iter->second->begin(), GetDlgItem(hwndDlg, IDC_RAISED));
-      iter->second->insert(iter->second->begin(), GetDlgItem(hwndDlg, IDC_SUNKEN));
       iter->second->insert(iter->second->begin(), GetDlgItem(hwndDlg, IDC_FROMCOLOUR));
       iter->second->insert(iter->second->begin(), GetDlgItem(hwndDlg, IDC_TOCOLOUR));
       iter->second->insert(iter->second->begin(), GetDlgItem(hwndDlg, IDC_SWITCH));
@@ -204,6 +201,9 @@ void SchemeEditor::BuildPanelMap(HWND hwndDlg)
       iter->second->insert(iter->second->begin(), GetDlgItem(hwndDlg, IDC_BEVELUPDOWN));
       iter->second->insert(iter->second->begin(), GetDlgItem(hwndDlg, IDC_BORDER));
       iter->second->insert(iter->second->begin(), GetDlgItem(hwndDlg, IDC_BORDERUPDOWN));
+      iter->second->insert(iter->second->begin(), GetDlgItem(hwndDlg, IDC_FLAT));
+      iter->second->insert(iter->second->begin(), GetDlgItem(hwndDlg, IDC_RAISED));
+      iter->second->insert(iter->second->begin(), GetDlgItem(hwndDlg, IDC_SUNKEN));
     }
 }
 
