@@ -155,7 +155,7 @@ static lpfnIsWow64Process MSIsWow64Process = NULL;
 
 std::tr1::shared_ptr<TiXmlDocument> OpenXMLConfig(std::string filename, bool create)
 {
-  std::tr1::shared_ptr<TiXmlDocument> configXML(new TiXmlDocument(filename.c_str()));
+  std::tr1::shared_ptr<TiXmlDocument> configXML(new TiXmlDocument(filename));
 
   if (!configXML->LoadFile())
     {
