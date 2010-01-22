@@ -71,6 +71,7 @@ topic alone.
 #include <tr1/memory>
 #include <tr1/shared_ptr.h>
 #include <vector>
+#include <deque>
 
 #ifdef __MINGW32__
 #include "../MinGWInterfaces.h"
@@ -95,6 +96,7 @@ topic alone.
 
 // Helper functions
 BOOL CALLBACK MinimizeAll(HWND hwnd, LPARAM lParam);
+BOOL CALLBACK RestoreAll();
 bool ELCheckPathWithExtension(LPTSTR path);
 bool IsClose(int side, int edge);
 WCHAR *ReadValue(const WCHAR *fileName, WCHAR *keyword);
@@ -127,7 +129,7 @@ typedef struct _APPLETMONITORINFO
 
 // Globals
 int enumCount = 0;
-
+std::deque <HWND> hwndDeque;
 // MS Run dialog
 typedef void (__stdcall *lpfnMSRun)(HWND, HICON, LPCSTR, LPCSTR, LPCSTR, int);
 
@@ -839,12 +841,12 @@ std::string ELwstringTostring(std::wstring inString, UINT codePage)
   std::vector<char> tmpString;
 
   size_t tmpStringLength = WideCharToMultiByte(codePage, 0, wideString.c_str(), wideString.length(), NULL, 0,
-                           NULL, NULL);
+                                               NULL, NULL);
   if (tmpStringLength != 0)
     {
       tmpString.reserve(tmpStringLength + 1);
       size_t writtenBytes = WideCharToMultiByte(codePage, 0, wideString.c_str(), wideString.length(), &tmpString.front(),
-                            tmpStringLength, NULL, NULL);
+                                                tmpStringLength, NULL, NULL);
       if (writtenBytes != 0)
         {
           if (writtenBytes <= tmpStringLength)
@@ -867,7 +869,7 @@ std::wstring ELstringTowstring(std::string inString, UINT codePage)
     {
       tmpString.reserve(tmpStringLength + 1);
       size_t writtenBytes = MultiByteToWideChar(codePage, 0, narrowString.c_str(), narrowString.length(), &tmpString.front(),
-                            tmpStringLength);
+                                                tmpStringLength);
       if (writtenBytes != 0)
         {
           if (writtenBytes <= tmpStringLength)
@@ -2335,7 +2337,7 @@ bool ELSwitchToThisWindow(HWND wnd)
   if (user32DLL)
     {
       static lpfnMSSwitchToThisWindow MSSwitchToThisWindow = (lpfnMSSwitchToThisWindow)GetProcAddress(
-            user32DLL, "SwitchToThisWindow");
+                                                                                                      user32DLL, "SwitchToThisWindow");
       if (MSSwitchToThisWindow)
         {
           MSSwitchToThisWindow(wnd, TRUE);
@@ -2714,7 +2716,10 @@ bool ELExit(UINT uFlag, bool prompt)
 
 bool ELShowDesktop()
 {
-  return (EnumWindows(MinimizeAll, 0) == TRUE);
+  if (hwndDeque.empty())
+    return (EnumWindows(MinimizeAll, 0) == TRUE);
+  else
+    return (RestoreAll() == TRUE);
 }
 
 /*!
@@ -2744,10 +2749,31 @@ bool ELCheckWindow(HWND hwnd)
 
 BOOL CALLBACK MinimizeAll(HWND hwnd, LPARAM lParam UNUSED)
 {
-  if (IsWindowVisible(hwnd))
-    PostMessage(hwnd, WM_SYSCOMMAND, SC_MINIMIZE, 0);
-
+  if (IsWindowVisible(hwnd) && ((GetWindowLongPtr(hwnd, GWL_STYLE) & WS_MINIMIZEBOX) == WS_MINIMIZEBOX))
+    {
+      //if sth is already minimized, we don't want it in our queue, because we don't want to restore it later
+      if (!IsIconic(hwnd))
+        {
+          ShowWindow(hwnd, SW_MINIMIZE);
+          hwndDeque.push_front(hwnd);
+        }
+    }
   return TRUE;
+}
+
+/*!
+  @fn RestoreAll()
+  @brief Helper function for ELShowDesktop that retores all windows in hwndDeque
+  @return TRUE
+  */
+
+BOOL CALLBACK RestoreAll()
+{
+  std::deque<HWND>::iterator itr;
+  for (itr=hwndDeque.begin(); itr!= hwndDeque.end(); ++itr)
+    ShowWindow(*itr, SW_RESTORE);
+  hwndDeque.clear();
+  return TRUE ;
 }
 
 bool ELGetTempFileName(WCHAR *fileName)
@@ -4051,7 +4077,7 @@ std::wstring ELwcsftime(const WCHAR *format, const struct tm *timeptr)
     {
       tmpString.resize(tmpStringLength + 1);
       size_t writtenBytes = MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, tmpDest, strlen(tmpDest), &tmpString.front(),
-                                         tmpStringLength);
+                                                tmpStringLength);
       if (writtenBytes != 0)
         {
           if (writtenBytes <= tmpStringLength)
