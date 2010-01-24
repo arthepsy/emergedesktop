@@ -49,6 +49,7 @@ void Settings::PopulateItems()
   std::tr1::shared_ptr<TiXmlDocument> configXML;
   TiXmlElement *settingsSection, *launchSection;
   bool found = false;
+  int type;
 
   configXML = ELOpenXMLConfig(xmlFile, false);
   if (configXML)
@@ -65,6 +66,7 @@ void Settings::PopulateItems()
               while (userIO.GetElement())
                 {
                   found = true; // Existing user settings found
+                  userIO.ReadInt(TEXT("Type"), type, 1);
                   userIO.ReadString(TEXT("Command"), app, TEXT(""));
                   userIO.ReadString(TEXT("Icon"), icon, TEXT(""));
                   userIO.ReadString(TEXT("Tip"), tip, TEXT(""));
@@ -75,8 +77,8 @@ void Settings::PopulateItems()
                     ELConvertThemePath(icon, CTP_FULL);
 
                   // Add new Launcher item to the vector and set the icon size
-                  itemList.push_back(std::tr1::shared_ptr<Item>(new Item(app, icon, tip, workingDir)));
-                  itemList.back()->SetIcon(GetIconSize());
+                  itemList.push_back(std::tr1::shared_ptr<Item>(new Item(type, app, icon, tip, workingDir)));
+                  itemList.back()->SetIcon(GetIconSize(), GetDirectionOrientation());
                 }
             }
         }
@@ -112,7 +114,7 @@ void Settings::DeleteItems(bool clearXML)
     itemList.erase(itemList.begin());
 }
 
-void Settings::WriteItem(WCHAR *command, WCHAR *iconPath, WCHAR *tip, WCHAR *workingDir)
+void Settings::WriteItem(int type, WCHAR *command, WCHAR *iconPath, WCHAR *tip, WCHAR *workingDir)
 {
   std::tr1::shared_ptr<TiXmlDocument> configXML;
   TiXmlElement *settingsSection, *launchSection;
@@ -131,6 +133,7 @@ void Settings::WriteItem(WCHAR *command, WCHAR *iconPath, WCHAR *tip, WCHAR *wor
               IOHelper userIO(launchSection);
               if (userIO.SetElement(TEXT("item")))
                 {
+                  userIO.WriteInt(TEXT("Type"), type);
                   userIO.WriteString(TEXT("Command"), command);
                   userIO.WriteString(TEXT("Icon"), iconPath);
                   userIO.WriteString(TEXT("Tip"), tip);

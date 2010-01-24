@@ -451,6 +451,8 @@ bool LaunchPage::DoExeCom(HWND hwndDlg, bool exeButton)
 bool LaunchPage::UpdateSettings(HWND hwndDlg)
 {
   WCHAR command[MAX_LINE_LENGTH], iconPath[MAX_LINE_LENGTH], tip[MAX_LINE_LENGTH], workingDir[MAX_LINE_LENGTH];
+  WCHAR typeName[MAX_LINE_LENGTH];
+  int type = 1;
   HWND listWnd = GetDlgItem(hwndDlg, IDC_APPLIST);
   bool listModified = ((saveCount != 0) || (deleteCount != 0) || itemMoved);
 
@@ -469,7 +471,10 @@ bool LaunchPage::UpdateSettings(HWND hwndDlg)
           ListView_GetItemText(listWnd, i, 2, iconPath, MAX_LINE_LENGTH);
           ListView_GetItemText(listWnd, i, 3, tip, MAX_LINE_LENGTH);
 
-          pSettings->WriteItem(command, iconPath, tip, workingDir);
+          if (wcsicmp(typeName, TEXT("separator")) == 0)
+            type = 0;
+
+          pSettings->WriteItem(type, command, iconPath, tip, workingDir);
 
           i++;
         }

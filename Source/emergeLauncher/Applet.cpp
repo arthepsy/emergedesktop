@@ -196,8 +196,12 @@ LRESULT Applet::ItemMouseEvent(UINT message, LPARAM lParam)
           if ((message == WM_LBUTTONDOWN) ||
               (message == WM_LBUTTONDBLCLK))
             {
-              if (_wcsicmp(pSettings->GetItem(i)->GetApp(), TEXT("separator")) != 0)
-                ELExecuteAll(pSettings->GetItem(i)->GetApp(), pSettings->GetItem(i)->GetWorkingDir());
+              switch (pSettings->GetItem(i)->GetType())
+                {
+                case 1:
+                  ELExecute(pSettings->GetItem(i)->GetApp(), pSettings->GetItem(i)->GetWorkingDir());
+                  break;
+                }
             }
 
           return 0;
@@ -237,7 +241,7 @@ void Applet::AppletUpdate()
 void Applet::UpdateIcons()
 {
   for (UINT i = 0; i < pSettings->GetItemListSize(); i++)
-    pSettings->GetItem(i)->SetIcon(pBaseSettings->GetIconSize());
+    pSettings->GetItem(i)->SetIcon(pBaseSettings->GetIconSize(), pSettings->GetDirectionOrientation());
 }
 
 //----  --------------------------------------------------------------------------------------------------------

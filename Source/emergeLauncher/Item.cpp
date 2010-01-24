@@ -19,6 +19,7 @@
 //----  --------------------------------------------------------------------------------------------------------
 
 #include "Item.h"
+#include "resource.h"
 #include <stdio.h>
 
 //----  --------------------------------------------------------------------------------------------------------
@@ -27,8 +28,9 @@
 // Returns:	Nothing
 // Purpose:	Creates TrayIcon Class Object
 //----  --------------------------------------------------------------------------------------------------------
-Item::Item(LPCTSTR app, LPCTSTR icon, LPCTSTR tip, LPCTSTR workingDir)
+Item::Item(int type, LPCTSTR app, LPCTSTR icon, LPCTSTR tip, LPCTSTR workingDir)
 {
+  this->type = type;
   wcscpy(this->app, app);
   wcscpy(this->tip, tip);
   wcscpy(iconPath, icon);
@@ -93,13 +95,18 @@ RECT *Item::GetRect()
   return &rect;
 }
 
+int Item::GetType()
+{
+  return type;
+}
+
 //----  --------------------------------------------------------------------------------------------------------
 // Function:	SetIcon
 // Requires:	HICON icon - new icon to use
 // Returns:	Nothing
 // Purpose:	Replaces existing task icon with new icon
 //----  --------------------------------------------------------------------------------------------------------
-void Item::SetIcon(int iconSize)
+void Item::SetIcon(int iconSize, WCHAR *orientation)
 {
   WCHAR source[MAX_LINE_LENGTH];
   WCHAR tmp[MAX_LINE_LENGTH];
@@ -109,75 +116,86 @@ void Item::SetIcon(int iconSize)
 
   convertIcon = true;
 
-  if (wcslen(iconPath) > 0)
-    origIcon = EGGetFileIcon(iconPath, iconSize);
-  else
+  switch (type)
     {
-      UINT specialFolder = ELIsSpecialFolder(app);
-      if (specialFolder == 0)
+    case 0:
+      if (wcsicmp(orientation, TEXT("vertical")) == 0)
+        origIcon = (HICON)LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_HSEPARATOR), IMAGE_ICON, iconSize, iconSize, 0);
+      else
+        origIcon = (HICON)LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_VSEPARATOR), IMAGE_ICON, iconSize, iconSize, 0);
+      break;
+    case 1:
+      if (wcslen(iconPath) > 0)
+        origIcon = EGGetFileIcon(iconPath, iconSize);
+      else
         {
-          UINT internalCommand = ELIsInternalCommand(app);
-          if (internalCommand == 0)
+          UINT specialFolder = ELIsSpecialFolder(app);
+          if (specialFolder == 0)
             {
-              if ((_wcsicmp(app, TEXT("%documents%")) == 0) ||
-                  (_wcsicmp(app, TEXT("%commondocuments%")) == 0))
-                origIcon = EGGetSystemIcon(ICON_MYDOCUMENTS, iconSize);
-              else if ((_wcsicmp(app, TEXT("%desktop%")) == 0) ||
-                       (_wcsicmp(app, TEXT("%commondesktop%")) == 0))
-                origIcon = EGGetSystemIcon(ICON_DESKTOP, iconSize);
+              UINT internalCommand = ELIsInternalCommand(app);
+              if (internalCommand == 0)
+                {
+                  if ((_wcsicmp(app, TEXT("%documents%")) == 0) ||
+                      (_wcsicmp(app, TEXT("%commondocuments%")) == 0))
+                    origIcon = EGGetSystemIcon(ICON_MYDOCUMENTS, iconSize);
+                  else if ((_wcsicmp(app, TEXT("%desktop%")) == 0) ||
+                           (_wcsicmp(app, TEXT("%commondesktop%")) == 0))
+                    origIcon = EGGetSystemIcon(ICON_DESKTOP, iconSize);
+                  else
+                    {
+                      ELParseCommand(app, source, tmp);
+                      origIcon = EGGetFileIcon(source, iconSize);
+                    }
+                }
               else
                 {
-                  ELParseCommand(app, source, tmp);
-                  origIcon = EGGetFileIcon(source, iconSize);
+                  switch (internalCommand)
+                    {
+                    case COMMAND_LOGOFF:
+                      origIcon = EGGetSystemIcon(ICON_LOGOFF, iconSize);
+                      break;
+
+                    case COMMAND_QUIT:
+                      origIcon = EGGetSystemIcon(ICON_QUIT, iconSize);
+                      break;
+
+                    case COMMAND_RUN:
+                      origIcon = EGGetSystemIcon(ICON_RUN, iconSize);
+                      break;
+
+                    case COMMAND_SHUTDOWN:
+                      origIcon = EGGetSystemIcon(ICON_SHUTDOWN, iconSize);
+                      break;
+
+                    case COMMAND_LOCK:
+                      origIcon = EGGetSystemIcon(ICON_LOCK, iconSize);
+                      break;
+                    }
                 }
             }
           else
             {
-              switch (internalCommand)
+              switch (specialFolder)
                 {
-                case COMMAND_LOGOFF:
-                  origIcon = EGGetSystemIcon(ICON_LOGOFF, iconSize);
+                case CSIDL_DRIVES:
+                  origIcon = EGGetSystemIcon(ICON_MYCOMPUTER, iconSize);
                   break;
 
-                case COMMAND_QUIT:
-                  origIcon = EGGetSystemIcon(ICON_QUIT, iconSize);
+                case CSIDL_CONTROLS:
+                  origIcon = EGGetSystemIcon(ICON_CONTROLPANEL, iconSize);
                   break;
 
-                case COMMAND_RUN:
-                  origIcon = EGGetSystemIcon(ICON_RUN, iconSize);
+                case CSIDL_NETWORK:
+                  origIcon = EGGetSystemIcon(ICON_NETWORKPLACES, iconSize);
                   break;
 
-                case COMMAND_SHUTDOWN:
-                  origIcon = EGGetSystemIcon(ICON_SHUTDOWN, iconSize);
-                  break;
-
-                case COMMAND_LOCK:
-                  origIcon = EGGetSystemIcon(ICON_LOCK, iconSize);
+                case CSIDL_BITBUCKET:
+                  origIcon = EGGetSystemIcon(ICON_RECYCLEBIN, iconSize);
                   break;
                 }
             }
         }
-      else
-        {
-          switch (specialFolder)
-            {
-            case CSIDL_DRIVES:
-              origIcon = EGGetSystemIcon(ICON_MYCOMPUTER, iconSize);
-              break;
-
-            case CSIDL_CONTROLS:
-              origIcon = EGGetSystemIcon(ICON_CONTROLPANEL, iconSize);
-              break;
-
-            case CSIDL_NETWORK:
-              origIcon = EGGetSystemIcon(ICON_NETWORKPLACES, iconSize);
-              break;
-
-            case CSIDL_BITBUCKET:
-              origIcon = EGGetSystemIcon(ICON_RECYCLEBIN, iconSize);
-              break;
-            }
-        }
+      break;
     }
 }
 

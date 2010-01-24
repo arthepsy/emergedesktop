@@ -43,17 +43,18 @@
 class Item
 {
 public:
-  Item(LPCTSTR app, LPCTSTR icon, LPCTSTR tip, LPCTSTR workingDir);
+  Item(int type, LPCTSTR app, LPCTSTR icon, LPCTSTR tip, LPCTSTR workingDir);
   ~Item();
 
   HWND GetWnd();
   HICON GetIcon();
   RECT *GetRect();
-  void SetIcon(int iconSize);
+  void SetIcon(int iconSize, WCHAR *orientation);
   void SetRect(RECT rect);
   void CreateNewIcon(HDC backgroundDC, BYTE foregroundAlpha);
   WCHAR *GetApp();
   WCHAR *GetTip();
+  int GetType();
   WCHAR *GetIconPath();
   WCHAR *GetWorkingDir();
 
@@ -64,6 +65,7 @@ private:
   WCHAR workingDir[MAX_LINE_LENGTH];
   RECT rect;
   bool convertIcon;
+  int type;
 };
 
 //====================

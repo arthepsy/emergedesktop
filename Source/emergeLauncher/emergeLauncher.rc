@@ -61,7 +61,9 @@ END
 CREATEPROCESS_MANIFEST_RESOURCE_ID RT_MANIFEST "emergeLauncher.exe.manifest"
 #endif
 
-IDI_DEFAULT ICON    "icons/emerge.ico"
+IDI_DEFAULT     ICON    "icons/emerge.ico"
+IDI_HSEPARATOR  ICON    "icons/HSeparator.ico"
+IDI_VSEPARATOR  ICON    "icons/VSeparator.ico"
 
 IDD_CONFIG DIALOGEX 0, 0, CONFIG_WIDTH, CONFIG_HEIGHT
 STYLE WS_POPUP | WS_VISIBLE | WS_CAPTION | DS_CENTER

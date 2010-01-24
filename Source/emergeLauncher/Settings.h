@@ -35,7 +35,7 @@ public:
   Item *GetItem(UINT index);
   void PopulateItems();
   void DeleteItems(bool clearXML);
-  void WriteItem(WCHAR *command, WCHAR *iconPath, WCHAR *tip, WCHAR *workingDir);
+  void WriteItem(int type, WCHAR *command, WCHAR *iconPath, WCHAR *tip, WCHAR *workingDir);
 
 protected:
   virtual void ResetDefaults();
