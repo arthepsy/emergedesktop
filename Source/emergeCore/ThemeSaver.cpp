@@ -102,7 +102,7 @@ bool ThemeSaver::SaveTheme(HWND hwndDlg)
   themePath = ELExpandVars(themePath);
 
   GetDlgItemText(hwndDlg, IDC_THEMEITEM, themeName, MAX_PATH);
-  if (_wcsicmp(themeName, TEXT("Default")) == 0)
+  if ((_wcsicmp(themeName, TEXT("Default")) == 0) || (_wcsicmp(themeName, TEXT("GBRY")) == 0))
     {
       swprintf(errorText, TEXT("'%s' cannot be used as a theme name"), themeName);
       ELMessageBox(hwndDlg, errorText, (WCHAR*)TEXT("Theme Manager"), ELMB_MODAL

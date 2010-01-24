@@ -136,8 +136,10 @@ BOOL ThemeSelector::DoInitDialog(HWND hwndDlg)
   bool isModifiedTheme = ELIsModifiedTheme(ELGetThemeName().c_str());
   std::wstring defaultModifiedTheme = TEXT("default (modified)");
   bool isDefaultModifiedTheme = (ELToLower(ELGetThemeName()) == defaultModifiedTheme);
+  std::wstring GBRYModifiedTheme = TEXT("gbry (modified)");
+  bool isGBRYModifiedTheme = (ELToLower(ELGetThemeName()) == GBRYModifiedTheme);
 
-  EnableWindow(saveWnd, isModifiedTheme && !isDefaultModifiedTheme);
+  EnableWindow(saveWnd, isModifiedTheme && !isDefaultModifiedTheme && !isGBRYModifiedTheme);
   EnableWindow(delWnd, !isModifiedTheme);
 
   PopulateThemes(themeWnd, (WCHAR*)ELGetThemeName().c_str());

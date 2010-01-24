@@ -28,6 +28,7 @@ BaseSettings::BaseSettings(bool allowAutoSize)
 {
   this->allowAutoSize = allowAutoSize;
   defaultTheme = TEXT("default");
+  GBRYTheme = TEXT("GBRY");
 }
 
 BaseSettings::~BaseSettings()
@@ -105,7 +106,7 @@ bool BaseSettings::CopyTheme()
   return false;
 }
 
-void BaseSettings::WriteSettings()
+bool BaseSettings::WriteSettings()
 {
   std::tr1::shared_ptr<TiXmlDocument> configXML;
   TiXmlElement *section;
@@ -113,6 +114,7 @@ void BaseSettings::WriteSettings()
   xmlFile += appletName;
   xmlFile += TEXT(".xml");
   std::wstring theme = ELGetThemeName();
+  bool ret = false;
 
   if (modifiedFlag)
     {
@@ -120,7 +122,7 @@ void BaseSettings::WriteSettings()
         CopyTheme();
 
       theme = ELToLower(theme);
-      if (theme != defaultTheme)
+      if ((theme != defaultTheme) && (theme != GBRYTheme))
         {
           configXML = ELOpenXMLConfig(xmlFile, true);
           if (configXML)
@@ -132,13 +134,15 @@ void BaseSettings::WriteSettings()
                   IOHelper helper(section);
                   DoWriteSettings(helper);
 
-                  ELWriteXMLConfig(configXML.get());
+                  ret = ELWriteXMLConfig(configXML.get());
                   oldTheme = ELGetThemeName();
                   modifiedFlag = false;
                 }
             }
         }
     }
+
+  return ret;
 }
 
 void BaseSettings::DoReadSettings(IOHelper& helper)

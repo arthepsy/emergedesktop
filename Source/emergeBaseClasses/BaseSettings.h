@@ -109,7 +109,7 @@ public:
   RECT *GetResolution();
   bool SetResolution(RECT *deskRect);
   bool SetClickThrough(int clickThrough);
-  void WriteSettings();
+  bool WriteSettings();
   bool SetAppletMonitor(int monitor);
   bool ModifiedCheck();
   void SetModified();
@@ -133,7 +133,7 @@ private:
   WCHAR schemeFile[MAX_PATH];
   WCHAR anchorPoint[MAX_LINE_LENGTH];
   bool modifiedFlag;
-  std::wstring oldTheme, defaultTheme;
+  std::wstring oldTheme, defaultTheme, GBRYTheme;
 };
 
 #endif
