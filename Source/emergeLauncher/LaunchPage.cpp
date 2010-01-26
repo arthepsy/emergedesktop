@@ -175,6 +175,7 @@ BOOL LaunchPage::DoInitDialog(HWND hwndDlg)
   HWND exeButtonWnd = GetDlgItem(hwndDlg, IDC_EXEBUTTON);
   HWND comButtonWnd = GetDlgItem(hwndDlg, IDC_COMBUTTON);
   HWND internalWnd = GetDlgItem(hwndDlg, IDC_INTERNAL);
+  HWND typeWnd = GetDlgItem(hwndDlg, IDC_TYPE);
 
   if (addIcon)
     SendMessage(addWnd, BM_SETIMAGE, IMAGE_ICON, (LPARAM)addIcon);
@@ -198,26 +199,34 @@ BOOL LaunchPage::DoInitDialog(HWND hwndDlg)
     }
 
   lvCol.mask = LVCF_TEXT | LVCF_WIDTH;
-  lvCol.pszText = (WCHAR*)TEXT("Command");
+  lvCol.pszText = (WCHAR*)TEXT("Type");
   lvCol.cx = 160;
   iRet = ListView_InsertColumn(listWnd, 0, &lvCol);
 
-  lvCol.pszText = (WCHAR*)TEXT("Working Directory");
+  lvCol.pszText = (WCHAR*)TEXT("Command");
   lvCol.cx = 160;
   iRet = ListView_InsertColumn(listWnd, 1, &lvCol);
 
+  lvCol.pszText = (WCHAR*)TEXT("Working Directory");
+  lvCol.cx = 160;
+  iRet = ListView_InsertColumn(listWnd, 2, &lvCol);
+
   lvCol.pszText = (WCHAR*)TEXT("Icon");
   lvCol.cx = 100;
-  iRet = ListView_InsertColumn(listWnd, 2, &lvCol);
+  iRet = ListView_InsertColumn(listWnd, 3, &lvCol);
 
   lvCol.pszText = (WCHAR*)TEXT("Tip");
   lvCol.cx = 160;
-  iRet = ListView_InsertColumn(listWnd, 3, &lvCol);
+  iRet = ListView_InsertColumn(listWnd, 4, &lvCol);
 
   dwRet = ListView_SetExtendedListViewStyle(listWnd,  LVS_EX_FULLROWSELECT);
 
   PopulateList(listWnd);
   PopulateInternal(internalWnd);
+
+  SendMessage(typeWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Separator"));
+  SendMessage(typeWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Executable"));
+  SendMessage(typeWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Internal Command"));
 
   EnableWindow(commandWnd, false);
   EnableWindow(iconWnd, false);
@@ -466,10 +475,11 @@ bool LaunchPage::UpdateSettings(HWND hwndDlg)
       pSettings->DeleteItems(true);
       while (i < ListView_GetItemCount(listWnd))
         {
-          ListView_GetItemText(listWnd, i, 0, command, MAX_LINE_LENGTH);
-          ListView_GetItemText(listWnd, i, 1, workingDir, MAX_LINE_LENGTH);
-          ListView_GetItemText(listWnd, i, 2, iconPath, MAX_LINE_LENGTH);
-          ListView_GetItemText(listWnd, i, 3, tip, MAX_LINE_LENGTH);
+          ListView_GetItemText(listWnd, i, 0, typeName, MAX_LINE_LENGTH);
+          ListView_GetItemText(listWnd, i, 1, command, MAX_LINE_LENGTH);
+          ListView_GetItemText(listWnd, i, 2, workingDir, MAX_LINE_LENGTH);
+          ListView_GetItemText(listWnd, i, 3, iconPath, MAX_LINE_LENGTH);
+          ListView_GetItemText(listWnd, i, 4, tip, MAX_LINE_LENGTH);
 
           if (wcsicmp(typeName, TEXT("separator")) == 0)
             type = 0;
@@ -494,12 +504,21 @@ void LaunchPage::PopulateList(HWND listWnd)
     {
       lvItem.iItem = i;
       lvItem.iSubItem = 0;
-      lvItem.pszText = pSettings->GetItem(i)->GetApp();
-      lvItem.cchTextMax = (int)wcslen(pSettings->GetItem(i)->GetApp());
+      switch (pSettings->GetItem(i)->GetType())
+        {
+        case 0:
+          lvItem.pszText = (WCHAR*)TEXT("Separator");
+          break;
+        default:
+          lvItem.pszText = (WCHAR*)TEXT("Executable");
+          break;
+        }
+      lvItem.cchTextMax = (int)wcslen(lvItem.pszText);
       iRet = ListView_InsertItem(listWnd, &lvItem);
-      ListView_SetItemText(listWnd, lvItem.iItem, 1, pSettings->GetItem(i)->GetWorkingDir());
-      ListView_SetItemText(listWnd, lvItem.iItem, 2, pSettings->GetItem(i)->GetIconPath());
-      ListView_SetItemText(listWnd, lvItem.iItem, 3, pSettings->GetItem(i)->GetTip());
+      ListView_SetItemText(listWnd, lvItem.iItem, 1, pSettings->GetItem(i)->GetApp());
+      ListView_SetItemText(listWnd, lvItem.iItem, 2, pSettings->GetItem(i)->GetWorkingDir());
+      ListView_SetItemText(listWnd, lvItem.iItem, 3, pSettings->GetItem(i)->GetIconPath());
+      ListView_SetItemText(listWnd, lvItem.iItem, 4, pSettings->GetItem(i)->GetTip());
     }
 }
 
@@ -557,7 +576,7 @@ bool LaunchPage::MoveItem(HWND hwndDlg, bool up)
   int i = 0;
   bool ret = false;
   LVITEM lvItem;
-  WCHAR command[MAX_PATH], workingDir[MAX_PATH], icon[MAX_PATH], tip[MAX_LINE_LENGTH];
+  WCHAR command[MAX_PATH], workingDir[MAX_PATH], icon[MAX_PATH], tip[MAX_LINE_LENGTH], typeName[MAX_LINE_LENGTH];
   BOOL bRet;
   int iRet;
 
@@ -577,10 +596,11 @@ bool LaunchPage::MoveItem(HWND hwndDlg, bool up)
         {
           ret = true;
 
-          ListView_GetItemText(listWnd, i, 0, command, MAX_PATH);
-          ListView_GetItemText(listWnd, i, 1, workingDir, MAX_PATH);
-          ListView_GetItemText(listWnd, i, 2, icon, MAX_PATH);
-          ListView_GetItemText(listWnd, i, 3, tip, MAX_LINE_LENGTH);
+          ListView_GetItemText(listWnd, i, 0, typeName, MAX_PATH);
+          ListView_GetItemText(listWnd, i, 1, command, MAX_PATH);
+          ListView_GetItemText(listWnd, i, 2, workingDir, MAX_PATH);
+          ListView_GetItemText(listWnd, i, 3, icon, MAX_PATH);
+          ListView_GetItemText(listWnd, i, 4, tip, MAX_LINE_LENGTH);
 
           if (up)
             lvItem.iItem = ListView_GetNextItem(listWnd, i, LVNI_ABOVE);
@@ -591,16 +611,17 @@ bool LaunchPage::MoveItem(HWND hwndDlg, bool up)
             break;
 
           lvItem.iSubItem = 0;
-          lvItem.pszText = command;
+          lvItem.pszText = typeName;
           lvItem.cchTextMax = MAX_PATH;
 
           bRet = ListView_DeleteItem(listWnd, i);
 
           itemMoved = true;
           iRet = ListView_InsertItem(listWnd, &lvItem);
-          ListView_SetItemText(listWnd, lvItem.iItem, 1, workingDir);
-          ListView_SetItemText(listWnd, lvItem.iItem, 2, icon);
-          ListView_SetItemText(listWnd, lvItem.iItem, 3, tip);
+          ListView_SetItemText(listWnd, lvItem.iItem, 1, command);
+          ListView_SetItemText(listWnd, lvItem.iItem, 2, workingDir);
+          ListView_SetItemText(listWnd, lvItem.iItem, 3, icon);
+          ListView_SetItemText(listWnd, lvItem.iItem, 4, tip);
 
           ListView_SetItemState(listWnd, lvItem.iItem, LVIS_SELECTED, LVIS_SELECTED);
           bRet = ListView_EnsureVisible(listWnd, lvItem.iItem, FALSE);
@@ -773,6 +794,7 @@ bool LaunchPage::SaveItem(HWND hwndDlg)
 {
   HWND listWnd = GetDlgItem(hwndDlg, IDC_APPLIST);
   WCHAR command[MAX_LINE_LENGTH], iconPath[MAX_LINE_LENGTH], tip[MAX_LINE_LENGTH], workingDir[MAX_LINE_LENGTH];
+  WCHAR typeName[MAX_LINE_LENGTH];
   int i = 0, iRet;
   LVITEM lvItem;
   BOOL bRet;
@@ -808,9 +830,10 @@ bool LaunchPage::SaveItem(HWND hwndDlg)
 
   lvItem.iItem = i;
   lvItem.iSubItem = 0;
-  lvItem.pszText = command;
+  lvItem.pszText = typeName;
   lvItem.cchTextMax = (int)wcslen(command);
   iRet = ListView_InsertItem(listWnd, &lvItem);
+  ListView_SetItemText(listWnd, lvItem.iItem, 1, command);
   ListView_SetItemText(listWnd, lvItem.iItem, 1, workingDir);
   ListView_SetItemText(listWnd, lvItem.iItem, 2, iconPath);
   ListView_SetItemText(listWnd, lvItem.iItem, 3, tip);

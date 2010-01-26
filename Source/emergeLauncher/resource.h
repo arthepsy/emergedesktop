@@ -30,6 +30,7 @@
 #define IDC_STATIC6             1006
 #define IDC_STATIC7             1007
 #define IDC_STATIC8             1008
+#define IDC_STATIC9             1009
 
 #define IDD_CONFIG              101
 #define IDC_WORKINGDIRTEXT      102
@@ -58,6 +59,7 @@
 #define IDC_INTERNAL            308
 #define IDC_EXEBUTTON           309
 #define IDC_COMBUTTON           310
+#define IDC_TYPE                311
 
 #define IDC_TOP                 400
 #define IDC_NORMAL              401
