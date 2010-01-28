@@ -448,7 +448,7 @@ void Command::ShowTextWindow()
   SetWindowText(hText, TEXT(""));
   SetForegroundWindow(commandWnd);
   SetFocus(hText);
-  DWORD pacOptions = ACO_AUTOSUGGEST | ACO_UPDOWNKEYDROPSLIST;
+  DWORD pacOptions = ACO_AUTOSUGGEST | ACO_UPDOWNKEYDROPSLIST | ACO_USETAB;
   if (pSettings->GetAutoComplete())
     pacOptions |= ACO_AUTOAPPEND;
 

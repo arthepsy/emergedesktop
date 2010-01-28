@@ -58,6 +58,10 @@
 #define ACO_AUTOAPPEND 0x02
 #endif
 
+#ifndef ACO_USETAB
+#define ACO_USETAB 0x10
+#endif
+
 class Command
 {
 public:
