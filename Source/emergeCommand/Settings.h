@@ -50,6 +50,8 @@ public:
   bool SetCommandTextAlign(WCHAR *commandTextAlign);
   bool SetClockVerticalAlign(WCHAR *clockVerticalAlign);
   bool SetCommandVerticalAlign(WCHAR *commandVerticalAlign);
+  bool GetAutoComplete();
+  bool SetAutoComplete(bool autoComplete);
   void WriteHistoryList();
   void BuildHistoryList();
   void AddHistoryItem(WCHAR *item);
@@ -63,6 +65,7 @@ protected:
   virtual void ResetDefaults();
 
 private:
+  bool autoComplete;
   std::vector<std::wstring> historyList;
   std::wstring xmlFile;
   WCHAR timeFormat[MAX_LINE_LENGTH];

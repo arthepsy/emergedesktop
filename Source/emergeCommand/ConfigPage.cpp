@@ -72,6 +72,9 @@ BOOL ConfigPage::DoInitDialog(HWND hwndDlg)
   if (pSettings->GetClickThrough())
     SendDlgItemMessage(hwndDlg, IDC_CLICKTHROUGH, BM_SETCHECK, BST_CHECKED, 0);
 
+  if (pSettings->GetAutoComplete())
+    SendDlgItemMessage(hwndDlg, IDC_AUTOCOMPLETE, BM_SETCHECK, BST_CHECKED, 0);
+
   SetDlgItemText(hwndDlg, IDC_CLOCKTEXT, pSettings->GetTimeFormat());
 
   SetDlgItemText(hwndDlg, IDC_TIPTEXT, pSettings->GetTipFormat());
@@ -169,6 +172,12 @@ bool ConfigPage::UpdateSettings(HWND hwndDlg)
 {
   WCHAR tmp[MAX_LINE_LENGTH];
   bool tmpBool = false;
+
+  if (SendDlgItemMessage(hwndDlg, IDC_AUTOCOMPLETE, BM_GETCHECK, 0, 0) == BST_CHECKED)
+    tmpBool = true;
+  else if (SendDlgItemMessage(hwndDlg, IDC_AUTOCOMPLETE, BM_GETCHECK, 0, 0) == BST_UNCHECKED)
+    tmpBool = false;
+  pSettings->SetAutoComplete(tmpBool);
 
   if (SendDlgItemMessage(hwndDlg, IDC_SNAPMOVE, BM_GETCHECK, 0, 0) == BST_CHECKED)
     tmpBool = true;

@@ -38,6 +38,7 @@ void Settings::DoReadSettings(IOHelper& helper)
   helper.ReadString(TEXT("TimeFormat"), timeFormat, TEXT("%A%_%x%_%X"));
   helper.ReadString(TEXT("TipFormat"), tipFormat, TEXT("%#c"));
   helper.ReadString(TEXT("Font"), fontString, TEXT("Tahoma-12"));
+  helper.ReadBool(TEXT("AutoComplete"), autoComplete, false);
 }
 
 void Settings::DoWriteSettings(IOHelper& helper)
@@ -49,6 +50,7 @@ void Settings::DoWriteSettings(IOHelper& helper)
   helper.WriteString(TEXT("ClockVerticalAlign"), clockVerticalAlign);
   helper.WriteString(TEXT("TimeFormat"), timeFormat);
   helper.WriteString(TEXT("TipFormat"), tipFormat);
+  helper.WriteBool(TEXT("AutoComplete"), autoComplete);
 
   EGFontToString(logFont, fontString);
   helper.WriteString(TEXT("Font"), fontString);
@@ -108,6 +110,11 @@ WCHAR *Settings::GetClockTextAlign()
   return clockTextAlign;
 }
 
+bool Settings::GetAutoComplete()
+{
+  return autoComplete;
+}
+
 WCHAR *Settings::GetClockVerticalAlign()
 {
   return clockVerticalAlign;
@@ -148,6 +155,16 @@ bool Settings::SetClockTextAlign(WCHAR *clockTextAlign)
   if (_wcsicmp(this->clockTextAlign, clockTextAlign) != 0)
     {
       wcscpy(this->clockTextAlign, clockTextAlign);
+      SetModified();
+    }
+  return true;
+}
+
+bool Settings::SetAutoComplete(bool autoComplete)
+{
+  if (this->autoComplete != autoComplete)
+    {
+      this->autoComplete = autoComplete;
       SetModified();
     }
   return true;

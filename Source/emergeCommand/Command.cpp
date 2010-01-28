@@ -448,6 +448,9 @@ void Command::ShowTextWindow()
   SetWindowText(hText, TEXT(""));
   SetForegroundWindow(commandWnd);
   SetFocus(hText);
+  DWORD pacOptions = ACO_AUTOSUGGEST | ACO_UPDOWNKEYDROPSLIST;
+  if (pSettings->GetAutoComplete())
+    pacOptions |= ACO_AUTOAPPEND;
 
   if (pac)
     {
@@ -456,7 +459,7 @@ void Command::ShowTextWindow()
       if (SUCCEEDED(pac->QueryInterface(IID_IAutoComplete2, &lpVoid)))
         {
           pac2 = reinterpret_cast <IAutoComplete2*> (lpVoid);
-          pac2->SetOptions(ACO_AUTOSUGGEST | ACO_UPDOWNKEYDROPSLIST);
+          pac2->SetOptions(pacOptions);
           pac2->Release();
         }
     }

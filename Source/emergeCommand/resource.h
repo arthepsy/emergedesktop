@@ -66,5 +66,6 @@
 #define IDC_CLICKTHROUGHMETHOD  703
 #define IDC_ANCHOR              704
 #define IDC_DYNAMICPOSITIONING  705
+#define IDC_AUTOCOMPLETE        706
 
 #define IDI_DEFAULT        1000

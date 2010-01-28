@@ -54,6 +54,10 @@
 #define ACO_UPDOWNKEYDROPSLIST 0x20
 #endif
 
+#ifndef ACO_AUTOAPPEND
+#define ACO_AUTOAPPEND 0x02
+#endif
+
 class Command
 {
 public:
