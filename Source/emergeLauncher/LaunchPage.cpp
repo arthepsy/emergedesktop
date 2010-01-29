@@ -55,16 +55,16 @@ LaunchPage::LaunchPage(HINSTANCE hInstance, std::tr1::shared_ptr<Settings> pSett
   InitCommonControls();
 
   toolWnd = CreateWindowEx(
-              0,
-              TOOLTIPS_CLASS,
-              NULL,
-              TTS_ALWAYSTIP|WS_POPUP|TTS_NOPREFIX,
-              CW_USEDEFAULT, CW_USEDEFAULT,
-              CW_USEDEFAULT, CW_USEDEFAULT,
-              NULL,
-              NULL,
-              hInstance,
-              NULL);
+                           0,
+                           TOOLTIPS_CLASS,
+                           NULL,
+                           TTS_ALWAYSTIP|WS_POPUP|TTS_NOPREFIX,
+                           CW_USEDEFAULT, CW_USEDEFAULT,
+                           CW_USEDEFAULT, CW_USEDEFAULT,
+                           NULL,
+                           NULL,
+                           hInstance,
+                           NULL);
 
   if (toolWnd)
     {
@@ -176,6 +176,7 @@ BOOL LaunchPage::DoInitDialog(HWND hwndDlg)
   HWND comButtonWnd = GetDlgItem(hwndDlg, IDC_COMBUTTON);
   HWND internalWnd = GetDlgItem(hwndDlg, IDC_INTERNAL);
   HWND typeWnd = GetDlgItem(hwndDlg, IDC_TYPE);
+  HWND typeLabelWnd = GetDlgItem(hwndDlg, IDC_STATIC9);
 
   if (addIcon)
     SendMessage(addWnd, BM_SETIMAGE, IMAGE_ICON, (LPARAM)addIcon);
@@ -247,6 +248,10 @@ BOOL LaunchPage::DoInitDialog(HWND hwndDlg)
   EnableWindow(exeButtonWnd, false);
   EnableWindow(comButtonWnd, false);
   EnableWindow(internalWnd, false);
+  EnableWindow(typeWnd, false);
+  EnableWindow(typeLabelWnd, false);
+  ShowWindow(comButtonWnd, SW_HIDE);
+  ShowWindow(internalWnd, SW_HIDE);
 
   ti.cbSize = TTTOOLINFOW_V2_SIZE;
   ti.uFlags = TTF_SUBCLASS;
@@ -340,6 +345,80 @@ BOOL LaunchPage::DoCommand(HWND hwndDlg, WPARAM wParam, LPARAM lParam UNUSED)
       exeButton = true;
     case IDC_COMBUTTON:
       return DoExeCom(hwndDlg, exeButton);
+    case IDC_TYPE:
+      if (HIWORD(wParam) == CBN_SELCHANGE)
+        return ToggleFields(hwndDlg);
+      break;
+    }
+
+  return FALSE;
+}
+
+BOOL LaunchPage::ToggleFields(HWND hwndDlg)
+{
+  HWND iconWnd = GetDlgItem(hwndDlg, IDC_ICONPATH);
+  HWND iconTextWnd = GetDlgItem(hwndDlg, IDC_ICONTEXT);
+  HWND tipWnd = GetDlgItem(hwndDlg, IDC_TIP);
+  HWND tipTextWnd = GetDlgItem(hwndDlg, IDC_TIPTEXT);
+  HWND browseIconWnd = GetDlgItem(hwndDlg, IDC_BROWSEICON);
+  HWND browseWorkingDirWnd = GetDlgItem(hwndDlg, IDC_BROWSEWORKINGDIR);
+  HWND workingDirWnd = GetDlgItem(hwndDlg, IDC_WORKINGDIR);
+  HWND workingDirTextWnd = GetDlgItem(hwndDlg, IDC_WORKINGDIRTEXT);
+  HWND exeButtonWnd = GetDlgItem(hwndDlg, IDC_EXEBUTTON);
+  HWND comButtonWnd = GetDlgItem(hwndDlg, IDC_COMBUTTON);
+  HWND internalWnd = GetDlgItem(hwndDlg, IDC_INTERNAL);
+  HWND browseCommandWnd = GetDlgItem(hwndDlg, IDC_BROWSECOMMAND);
+  HWND commandWnd = GetDlgItem(hwndDlg, IDC_COMMAND);
+  WCHAR typeName[MAX_LINE_LENGTH];
+
+  if (GetDlgItemText(hwndDlg, IDC_TYPE, typeName, MAX_LINE_LENGTH) != 0)
+    {
+      if (wcsicmp(typeName, TEXT("Separator")) == 0)
+        {
+          EnableWindow(exeButtonWnd, false);
+          EnableWindow(browseCommandWnd, false);
+          EnableWindow(commandWnd, false);
+          EnableWindow(comButtonWnd, false);
+          EnableWindow(internalWnd, false);
+        }
+      else if (wcsicmp(typeName, TEXT("Executable")) == 0)
+        {
+          EnableWindow(exeButtonWnd, true);
+          EnableWindow(browseCommandWnd, true);
+          EnableWindow(commandWnd, true);
+          ShowWindow(exeButtonWnd, SW_SHOW);
+          ShowWindow(browseCommandWnd, SW_SHOW);
+          ShowWindow(commandWnd, SW_SHOW);
+          ShowWindow(comButtonWnd, SW_HIDE);
+          ShowWindow(internalWnd, SW_HIDE);
+          EnableWindow(tipWnd, true);
+          EnableWindow(tipTextWnd, true);
+          EnableWindow(workingDirWnd, true);
+          EnableWindow(workingDirTextWnd, true);
+          EnableWindow(browseWorkingDirWnd, true);
+          EnableWindow(iconWnd, true);
+          EnableWindow(iconTextWnd, true);
+          EnableWindow(browseIconWnd, true);
+        }
+      else if (wcsicmp(typeName, TEXT("Internal Command")) == 0)
+        {
+          EnableWindow(comButtonWnd, true);
+          EnableWindow(internalWnd, true);
+          ShowWindow(comButtonWnd, SW_SHOW);
+          ShowWindow(internalWnd, SW_SHOW);
+          ShowWindow(exeButtonWnd, SW_HIDE);
+          ShowWindow(browseCommandWnd, SW_HIDE);
+          ShowWindow(commandWnd, SW_HIDE);
+          EnableWindow(tipWnd, true);
+          EnableWindow(tipTextWnd, true);
+          EnableWindow(workingDirWnd, false);
+          EnableWindow(workingDirTextWnd, false);
+          EnableWindow(browseWorkingDirWnd, false);
+          EnableWindow(iconWnd, true);
+          EnableWindow(iconTextWnd, true);
+          EnableWindow(browseIconWnd, true);
+        }
+      return TRUE;
     }
 
   return FALSE;
@@ -639,7 +718,6 @@ bool LaunchPage::DoAdd(HWND hwndDlg)
 {
   EnableFields(hwndDlg, true);
 
-  SendDlgItemMessage(hwndDlg, IDC_EXEBUTTON, BM_CLICK, 0, 0);
   SendDlgItemMessage(hwndDlg, IDC_INTERNAL, CB_SETCURSEL, (WPARAM)-1, 0);
 
   SetDlgItemText(hwndDlg, IDC_COMMAND, TEXT(""));
@@ -692,6 +770,8 @@ bool LaunchPage::EnableFields(HWND hwndDlg, bool enable)
   HWND exeButtonWnd = GetDlgItem(hwndDlg, IDC_EXEBUTTON);
   HWND comButtonWnd = GetDlgItem(hwndDlg, IDC_COMBUTTON);
   HWND internalWnd = GetDlgItem(hwndDlg, IDC_INTERNAL);
+  HWND typeWnd = GetDlgItem(hwndDlg, IDC_TYPE);
+  HWND typeLabelWnd = GetDlgItem(hwndDlg, IDC_STATIC9);
   int i = 0;
   bool selected = false;
 
@@ -705,27 +785,10 @@ bool LaunchPage::EnableFields(HWND hwndDlg, bool enable)
 
   if (enable)
     {
-      if (SendMessage(exeButtonWnd, BM_GETCHECK, 0, 0) == BST_CHECKED)
-        {
-          EnableWindow(commandWnd, true);
-          EnableWindow(browseCommandWnd, true);
-          EnableWindow(internalWnd, false);
-          EnableWindow(workingDirWnd, true);
-          EnableWindow(browseWorkingDirWnd, true);
-        }
-      else
-        {
-          EnableWindow(commandWnd, false);
-          EnableWindow(browseCommandWnd, false);
-          EnableWindow(internalWnd, true);
-          EnableWindow(workingDirWnd, false);
-          EnableWindow(browseWorkingDirWnd, false);
-        }
+      EnableWindow(typeWnd, true);
+      EnableWindow(typeLabelWnd, true);
       EnableWindow(listWnd, false);
-      EnableWindow(iconWnd, true);
-      EnableWindow(iconTextWnd, true);
-      EnableWindow(tipWnd, true);
-      EnableWindow(tipTextWnd, true);
+      ToggleFields(hwndDlg);
       EnableWindow(addWnd, false);
       EnableWindow(editWnd, false);
       EnableWindow(delWnd, false);
@@ -733,10 +796,6 @@ bool LaunchPage::EnableFields(HWND hwndDlg, bool enable)
       EnableWindow(upWnd, false);
       EnableWindow(saveWnd, true);
       EnableWindow(abortWnd, true);
-      EnableWindow(browseIconWnd, true);
-      EnableWindow(workingDirTextWnd, true);
-      EnableWindow(exeButtonWnd, true);
-      EnableWindow(comButtonWnd, true);
     }
   else
     {
@@ -771,6 +830,8 @@ bool LaunchPage::EnableFields(HWND hwndDlg, bool enable)
       EnableWindow(exeButtonWnd, false);
       EnableWindow(comButtonWnd, false);
       EnableWindow(internalWnd, false);
+      EnableWindow(typeWnd, false);
+      EnableWindow(typeLabelWnd, false);
     }
 
   return true;
@@ -965,43 +1026,62 @@ BOOL LaunchPage::PopulateFields(HWND hwndDlg, int itemIndex)
 {
   HWND listWnd = GetDlgItem(hwndDlg, IDC_APPLIST);
   HWND internalWnd = GetDlgItem(hwndDlg, IDC_INTERNAL);
-  HWND exeButtonWnd = GetDlgItem(hwndDlg, IDC_EXEBUTTON);
-  HWND comButtonWnd = GetDlgItem(hwndDlg, IDC_COMBUTTON);
+  HWND typeWnd = GetDlgItem(hwndDlg, IDC_TYPE);
   WCHAR command[MAX_LINE_LENGTH], workingDir[MAX_LINE_LENGTH], iconPath[MAX_LINE_LENGTH];
-  WCHAR tip[MAX_LINE_LENGTH];
+  WCHAR tip[MAX_LINE_LENGTH], typeName[MAX_LINE_LENGTH];
 
   if (itemIndex == -1)
     return TRUE;
 
   if (ListView_GetItemState(listWnd, itemIndex, LVIS_SELECTED))
     {
-      ListView_GetItemText(listWnd, itemIndex, 0, command, MAX_LINE_LENGTH);
-      int commandIndex = (int)SendMessage(internalWnd, CB_FINDSTRINGEXACT, (WPARAM)-1,
-                                          (LPARAM)command);
-      EnableWindow(exeButtonWnd, true);
-      EnableWindow(comButtonWnd, true);
-      if (commandIndex == CB_ERR)
+      ListView_GetItemText(listWnd, itemIndex, 0, typeName, MAX_LINE_LENGTH);
+      int typeIndex = (int)SendMessage(typeWnd, CB_FINDSTRINGEXACT, (WPARAM)-1,
+                                       (LPARAM)typeName);
+      if (typeIndex != CB_ERR)
         {
-          SetDlgItemText(hwndDlg, IDC_COMMAND, command);
-          SendMessage(internalWnd, CB_SETCURSEL, (WPARAM)-1, 0);
-          SendMessage(exeButtonWnd, BM_CLICK, 0, 0);
-        }
-      else
-        {
-          SetDlgItemText(hwndDlg, IDC_COMMAND, TEXT(""));
-          SendMessage(internalWnd, CB_SETCURSEL, commandIndex, 0);
-          SendMessage(comButtonWnd, BM_CLICK, 0, 0);
-        }
-      EnableWindow(exeButtonWnd, false);
-      EnableWindow(comButtonWnd, false);
-      SetFocus(listWnd);
+          SendMessage(typeWnd, CB_SETCURSEL, typeIndex, 0);
+          ListView_GetItemText(listWnd, itemIndex, 1, command, MAX_LINE_LENGTH);
+          int commandIndex = (int)SendMessage(internalWnd, CB_FINDSTRINGEXACT, (WPARAM)-1,
+                                              (LPARAM)command);
+          if (commandIndex != CB_ERR)
+            SendMessage(internalWnd, CB_SETCURSEL, commandIndex, 0);
+          else
+            SetDlgItemText(hwndDlg, IDC_COMMAND, command);
 
-      ListView_GetItemText(listWnd, itemIndex, 1, workingDir, MAX_LINE_LENGTH);
-      SetDlgItemText(hwndDlg, IDC_WORKINGDIR, workingDir);
-      ListView_GetItemText(listWnd, itemIndex, 2, iconPath, MAX_LINE_LENGTH);
-      SetDlgItemText(hwndDlg, IDC_ICONPATH, iconPath);
-      ListView_GetItemText(listWnd, itemIndex, 3, tip, MAX_LINE_LENGTH);
-      SetDlgItemText(hwndDlg, IDC_TIP, tip);
+          ListView_GetItemText(listWnd, itemIndex, 2, workingDir, MAX_LINE_LENGTH);
+          SetDlgItemText(hwndDlg, IDC_WORKINGDIR, workingDir);
+          ListView_GetItemText(listWnd, itemIndex, 3, iconPath, MAX_LINE_LENGTH);
+          SetDlgItemText(hwndDlg, IDC_ICONPATH, iconPath);
+          ListView_GetItemText(listWnd, itemIndex, 4, tip, MAX_LINE_LENGTH);
+          SetDlgItemText(hwndDlg, IDC_TIP, tip);
+
+          SetFocus(listWnd);
+        }
+      /*int commandIndex = (int)SendMessage(internalWnd, CB_FINDSTRINGEXACT, (WPARAM)-1,
+        (LPARAM)command);
+        if (commandIndex == CB_ERR)
+        {
+        SetDlgItemText(hwndDlg, IDC_COMMAND, command);
+        SendMessage(internalWnd, CB_SETCURSEL, (WPARAM)-1, 0);
+        SendMessage(exeButtonWnd, BM_CLICK, 0, 0);
+        }
+        else
+        {
+        SetDlgItemText(hwndDlg, IDC_COMMAND, TEXT(""));
+        SendMessage(internalWnd, CB_SETCURSEL, commandIndex, 0);
+        SendMessage(comButtonWnd, BM_CLICK, 0, 0);
+        }
+        EnableWindow(exeButtonWnd, false);
+        EnableWindow(comButtonWnd, false);
+        SetFocus(listWnd);
+
+        ListView_GetItemText(listWnd, itemIndex, 1, workingDir, MAX_LINE_LENGTH);
+        SetDlgItemText(hwndDlg, IDC_WORKINGDIR, workingDir);
+        ListView_GetItemText(listWnd, itemIndex, 2, iconPath, MAX_LINE_LENGTH);
+        SetDlgItemText(hwndDlg, IDC_ICONPATH, iconPath);
+        ListView_GetItemText(listWnd, itemIndex, 3, tip, MAX_LINE_LENGTH);
+        SetDlgItemText(hwndDlg, IDC_TIP, tip);*/
     }
 
   return TRUE;

@@ -63,6 +63,7 @@ public:
 private:
   std::tr1::shared_ptr<Settings> pSettings;
   BOOL GetIcon(HWND hwndDlg);
+  BOOL ToggleFields(HWND hwndDlg);
   HINSTANCE hInstance;
   HWND toolWnd;
   HICON addIcon, editIcon, delIcon, upIcon, downIcon, saveIcon, abortIcon, browseIcon;
