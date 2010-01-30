@@ -225,9 +225,10 @@ BOOL LaunchPage::DoInitDialog(HWND hwndDlg)
   PopulateList(listWnd);
   PopulateInternal(internalWnd);
 
-  SendMessage(typeWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Separator"));
   SendMessage(typeWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Executable"));
   SendMessage(typeWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Internal Command"));
+  SendMessage(typeWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Separator"));
+  SendMessage(typeWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Spacer"));
 
   EnableWindow(commandWnd, false);
   EnableWindow(iconWnd, false);
@@ -380,6 +381,30 @@ BOOL LaunchPage::ToggleFields(HWND hwndDlg)
           EnableWindow(commandWnd, false);
           EnableWindow(comButtonWnd, false);
           EnableWindow(internalWnd, false);
+          EnableWindow(tipWnd, false);
+          EnableWindow(tipTextWnd, false);
+          EnableWindow(workingDirWnd, false);
+          EnableWindow(workingDirTextWnd, false);
+          EnableWindow(browseWorkingDirWnd, false);
+          EnableWindow(iconWnd, false);
+          EnableWindow(iconTextWnd, false);
+          EnableWindow(browseIconWnd, false);
+        }
+      else if (wcsicmp(typeName, TEXT("Spacer")) == 0)
+        {
+          EnableWindow(exeButtonWnd, false);
+          EnableWindow(browseCommandWnd, false);
+          EnableWindow(commandWnd, false);
+          EnableWindow(comButtonWnd, false);
+          EnableWindow(internalWnd, false);
+          EnableWindow(tipWnd, false);
+          EnableWindow(tipTextWnd, false);
+          EnableWindow(workingDirWnd, false);
+          EnableWindow(workingDirTextWnd, false);
+          EnableWindow(browseWorkingDirWnd, false);
+          EnableWindow(iconWnd, true);
+          EnableWindow(iconTextWnd, true);
+          EnableWindow(browseIconWnd, true);
         }
       else if (wcsicmp(typeName, TEXT("Executable")) == 0)
         {
@@ -499,7 +524,6 @@ void LaunchPage::PopulateInternal(HWND internalWnd)
   SendMessage(internalWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("DesktopMenuEditor"));
   SendMessage(internalWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("CoreLaunchEditor"));
   SendMessage(internalWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("CoreShellChanger"));
-  SendMessage(internalWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Separator"));
 }
 
 bool LaunchPage::DoExeCom(HWND hwndDlg, bool exeButton)
@@ -562,6 +586,12 @@ bool LaunchPage::UpdateSettings(HWND hwndDlg)
 
           if (wcsicmp(typeName, TEXT("separator")) == 0)
             type = 0;
+          else if (wcsicmp(typeName, TEXT("spacer")) == 0)
+            type = 5;
+          else if (wcsicmp(typeName, TEXT("internal command")) == 0)
+            type = 2;
+          else
+            type = 1;
 
           pSettings->WriteItem(type, command, iconPath, tip, workingDir);
 
@@ -587,6 +617,12 @@ void LaunchPage::PopulateList(HWND listWnd)
         {
         case 0:
           lvItem.pszText = (WCHAR*)TEXT("Separator");
+          break;
+        case 2:
+          lvItem.pszText = (WCHAR*)TEXT("Internal Command");
+          break;
+        case 5:
+          lvItem.pszText = (WCHAR*)TEXT("Spacer");
           break;
         default:
           lvItem.pszText = (WCHAR*)TEXT("Executable");
@@ -845,6 +881,7 @@ bool LaunchPage::AbortItem(HWND hwndDlg)
   SetDlgItemText(hwndDlg, IDC_WORKINGDIR, TEXT(""));
 
   SendDlgItemMessage(hwndDlg, IDC_INTERNAL, CB_SETCURSEL, (WPARAM)-1, 0);
+  SendDlgItemMessage(hwndDlg, IDC_TYPE, CB_SETCURSEL, (WPARAM)-1, 0);
 
   edit = false;
 
@@ -862,17 +899,33 @@ bool LaunchPage::SaveItem(HWND hwndDlg)
 
   lvItem.mask = LVIF_TEXT;
 
-  if (SendDlgItemMessage(hwndDlg, IDC_EXEBUTTON, BM_GETCHECK, 0, 0) == BST_CHECKED)
-    GetDlgItemText(hwndDlg, IDC_COMMAND, command, MAX_LINE_LENGTH);
-  if (SendDlgItemMessage(hwndDlg, IDC_COMBUTTON, BM_GETCHECK, 0, 0) == BST_CHECKED)
-    GetDlgItemText(hwndDlg, IDC_INTERNAL, command, MAX_LINE_LENGTH);
-
-  if (wcslen(command) == 0)
+  if (GetDlgItemText(hwndDlg, IDC_TYPE, typeName, MAX_LINE_LENGTH) == 0)
     {
-      ELMessageBox(hwndDlg, (WCHAR*)TEXT("Command cannot be empty"), (WCHAR*)TEXT("emergeLauncher"),
+      ELMessageBox(hwndDlg, (WCHAR*)TEXT("Type cannot be empty"), (WCHAR*)TEXT("emergeLauncher"),
                    ELMB_OK|ELMB_ICONERROR|ELMB_MODAL);
       return false;
     }
+
+  if (wcsicmp(typeName, TEXT("Executable")) == 0)
+    {
+      if (GetDlgItemText(hwndDlg, IDC_COMMAND, command, MAX_LINE_LENGTH) == 0)
+        {
+          ELMessageBox(hwndDlg, (WCHAR*)TEXT("Command cannot be empty"), (WCHAR*)TEXT("emergeLauncher"),
+                       ELMB_OK|ELMB_ICONERROR|ELMB_MODAL);
+          return false;
+        }
+    }
+  else if (wcsicmp(typeName, TEXT("Internal Command")) == 0)
+    {
+      if (GetDlgItemText(hwndDlg, IDC_INTERNAL, command, MAX_LINE_LENGTH) == 0)
+        {
+          ELMessageBox(hwndDlg, (WCHAR*)TEXT("Command cannot be empty"), (WCHAR*)TEXT("emergeLauncher"),
+                       ELMB_OK|ELMB_ICONERROR|ELMB_MODAL);
+          return false;
+        }
+    }
+  else
+    ZeroMemory(command, MAX_LINE_LENGTH);
 
   GetDlgItemText(hwndDlg, IDC_ICONPATH, iconPath, MAX_LINE_LENGTH);
   GetDlgItemText(hwndDlg, IDC_TIP, tip, MAX_LINE_LENGTH);
@@ -895,9 +948,9 @@ bool LaunchPage::SaveItem(HWND hwndDlg)
   lvItem.cchTextMax = (int)wcslen(command);
   iRet = ListView_InsertItem(listWnd, &lvItem);
   ListView_SetItemText(listWnd, lvItem.iItem, 1, command);
-  ListView_SetItemText(listWnd, lvItem.iItem, 1, workingDir);
-  ListView_SetItemText(listWnd, lvItem.iItem, 2, iconPath);
-  ListView_SetItemText(listWnd, lvItem.iItem, 3, tip);
+  ListView_SetItemText(listWnd, lvItem.iItem, 2, workingDir);
+  ListView_SetItemText(listWnd, lvItem.iItem, 3, iconPath);
+  ListView_SetItemText(listWnd, lvItem.iItem, 4, tip);
 
   SetDlgItemText(hwndDlg, IDC_COMMAND, TEXT(""));
   SetDlgItemText(hwndDlg, IDC_ICONPATH, TEXT(""));
@@ -1021,7 +1074,6 @@ BOOL LaunchPage::DoNotify(HWND hwndDlg, LPARAM lParam)
   return FALSE;
 }
 
-
 BOOL LaunchPage::PopulateFields(HWND hwndDlg, int itemIndex)
 {
   HWND listWnd = GetDlgItem(hwndDlg, IDC_APPLIST);
@@ -1058,30 +1110,6 @@ BOOL LaunchPage::PopulateFields(HWND hwndDlg, int itemIndex)
 
           SetFocus(listWnd);
         }
-      /*int commandIndex = (int)SendMessage(internalWnd, CB_FINDSTRINGEXACT, (WPARAM)-1,
-        (LPARAM)command);
-        if (commandIndex == CB_ERR)
-        {
-        SetDlgItemText(hwndDlg, IDC_COMMAND, command);
-        SendMessage(internalWnd, CB_SETCURSEL, (WPARAM)-1, 0);
-        SendMessage(exeButtonWnd, BM_CLICK, 0, 0);
-        }
-        else
-        {
-        SetDlgItemText(hwndDlg, IDC_COMMAND, TEXT(""));
-        SendMessage(internalWnd, CB_SETCURSEL, commandIndex, 0);
-        SendMessage(comButtonWnd, BM_CLICK, 0, 0);
-        }
-        EnableWindow(exeButtonWnd, false);
-        EnableWindow(comButtonWnd, false);
-        SetFocus(listWnd);
-
-        ListView_GetItemText(listWnd, itemIndex, 1, workingDir, MAX_LINE_LENGTH);
-        SetDlgItemText(hwndDlg, IDC_WORKINGDIR, workingDir);
-        ListView_GetItemText(listWnd, itemIndex, 2, iconPath, MAX_LINE_LENGTH);
-        SetDlgItemText(hwndDlg, IDC_ICONPATH, iconPath);
-        ListView_GetItemText(listWnd, itemIndex, 3, tip, MAX_LINE_LENGTH);
-        SetDlgItemText(hwndDlg, IDC_TIP, tip);*/
     }
 
   return TRUE;

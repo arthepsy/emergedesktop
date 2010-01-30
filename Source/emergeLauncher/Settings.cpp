@@ -69,7 +69,8 @@ void Settings::PopulateItems()
                   userIO.ReadInt(TEXT("Type"), type, 1);
                   userIO.ReadString(TEXT("Command"), app, TEXT(""));
                   userIO.ReadString(TEXT("Icon"), icon, TEXT(""));
-                  userIO.ReadString(TEXT("Tip"), tip, TEXT(""));
+                  if ((type != 0) && (type != 5))
+                    userIO.ReadString(TEXT("Tip"), tip, TEXT(""));
                   userIO.ReadString(TEXT("WorkingDir"), workingDir, TEXT(""));
 
                   // Convert the iconValue to a full path if relative

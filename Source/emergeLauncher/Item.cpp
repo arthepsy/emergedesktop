@@ -32,7 +32,10 @@ Item::Item(int type, LPCTSTR app, LPCTSTR icon, LPCTSTR tip, LPCTSTR workingDir)
 {
   this->type = type;
   wcscpy(this->app, app);
-  wcscpy(this->tip, tip);
+  if ((type == 0) || (type == 5))
+    ZeroMemory((void*)tip, TIP_SIZE);
+  else
+    wcscpy(this->tip, tip);
   wcscpy(iconPath, icon);
   wcscpy(this->workingDir, workingDir);
   convertIcon = false;
@@ -124,7 +127,7 @@ void Item::SetIcon(int iconSize, WCHAR *orientation)
       else
         origIcon = (HICON)LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_VSEPARATOR), IMAGE_ICON, iconSize, iconSize, 0);
       break;
-    case 1:
+    default:
       if (wcslen(iconPath) > 0)
         origIcon = EGGetFileIcon(iconPath, iconSize);
       else

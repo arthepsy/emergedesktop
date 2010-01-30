@@ -1,3 +1,4 @@
+// vim: tags+=../emergeLib/tags
 //----  --------------------------------------------------------------------------------------------------------
 //
 //  This file is part of Emerge Desktop.
@@ -201,6 +202,8 @@ LRESULT Applet::ItemMouseEvent(UINT message, LPARAM lParam)
                 case 1:
                   ELExecute(pSettings->GetItem(i)->GetApp(), pSettings->GetItem(i)->GetWorkingDir());
                   break;
+                case 2:
+                  ELExecuteInternal(pSettings->GetItem(i)->GetApp());
                 }
             }
 
