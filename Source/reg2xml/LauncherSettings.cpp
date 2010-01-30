@@ -85,6 +85,7 @@ void LauncherSettings::ConvertSettings(IOHelper &keyHelper, IOHelper &xmlHelper)
         {
           subSection = ELSetFirstXMLElement(launchSection, TEXT("item"));
           launchHelper = std::tr1::shared_ptr<IOHelper>(new IOHelper(subSection));
+          launchHelper->WriteInt(TEXT("Type"), 1);
           launchHelper->WriteString(TEXT("Command"), app);
           launchHelper->WriteString(TEXT("Icon"), icon);
           launchHelper->WriteString(TEXT("Tip"), tip);
