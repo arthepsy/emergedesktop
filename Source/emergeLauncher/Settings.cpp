@@ -66,10 +66,10 @@ void Settings::PopulateItems()
               while (userIO.GetElement())
                 {
                   found = true; // Existing user settings found
-                  userIO.ReadInt(TEXT("Type"), type, 1);
+                  userIO.ReadInt(TEXT("Type"), type, IT_EXECUTABLE);
                   userIO.ReadString(TEXT("Command"), app, TEXT(""));
                   userIO.ReadString(TEXT("Icon"), icon, TEXT(""));
-                  if ((type != 0) && (type != 5))
+                  if ((type != IT_SEPARATOR) && (type != IT_SPACER))
                     userIO.ReadString(TEXT("Tip"), tip, TEXT(""));
                   userIO.ReadString(TEXT("WorkingDir"), workingDir, TEXT(""));
 

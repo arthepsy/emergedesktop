@@ -53,6 +53,19 @@
   */
 #define UNICODE 1
 
+typedef enum _ITEMTYPE {
+  IT_SEPARATOR = 0,
+  IT_EXECUTABLE,
+  IT_INTERNAL_COMMAND,
+  IT_DATE_TIME,
+  IT_SPECIAL_FOLDER,
+  IT_SPACER,
+  IT_XML_MENU = 100,
+  IT_FILE_MENU,
+  IT_TASKS_MENU,
+  IT_SETTINGS_MENU
+} ITEMTYPE;
+
 #include <windows.h>
 #include <shlwapi.h>
 #include <shlobj.h>

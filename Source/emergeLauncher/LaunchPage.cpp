@@ -564,7 +564,7 @@ bool LaunchPage::UpdateSettings(HWND hwndDlg)
 {
   WCHAR command[MAX_LINE_LENGTH], iconPath[MAX_LINE_LENGTH], tip[MAX_LINE_LENGTH], workingDir[MAX_LINE_LENGTH];
   WCHAR typeName[MAX_LINE_LENGTH];
-  int type = 1;
+  int type = IT_EXECUTABLE;
   HWND listWnd = GetDlgItem(hwndDlg, IDC_APPLIST);
   bool listModified = ((saveCount != 0) || (deleteCount != 0) || itemMoved);
 
@@ -585,13 +585,13 @@ bool LaunchPage::UpdateSettings(HWND hwndDlg)
           ListView_GetItemText(listWnd, i, 4, tip, MAX_LINE_LENGTH);
 
           if (wcsicmp(typeName, TEXT("separator")) == 0)
-            type = 0;
+            type = IT_SEPARATOR;
           else if (wcsicmp(typeName, TEXT("spacer")) == 0)
-            type = 5;
+            type = IT_SPACER;
           else if (wcsicmp(typeName, TEXT("internal command")) == 0)
-            type = 2;
+            type = IT_INTERNAL_COMMAND;
           else
-            type = 1;
+            type = IT_EXECUTABLE;
 
           pSettings->WriteItem(type, command, iconPath, tip, workingDir);
 
@@ -615,13 +615,13 @@ void LaunchPage::PopulateList(HWND listWnd)
       lvItem.iSubItem = 0;
       switch (pSettings->GetItem(i)->GetType())
         {
-        case 0:
+        case IT_SEPARATOR:
           lvItem.pszText = (WCHAR*)TEXT("Separator");
           break;
-        case 2:
+        case IT_INTERNAL_COMMAND:
           lvItem.pszText = (WCHAR*)TEXT("Internal Command");
           break;
-        case 5:
+        case IT_SPACER:
           lvItem.pszText = (WCHAR*)TEXT("Spacer");
           break;
         default:

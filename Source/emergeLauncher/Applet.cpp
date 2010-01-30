@@ -199,10 +199,10 @@ LRESULT Applet::ItemMouseEvent(UINT message, LPARAM lParam)
             {
               switch (pSettings->GetItem(i)->GetType())
                 {
-                case 1:
+                case IT_EXECUTABLE:
                   ELExecute(pSettings->GetItem(i)->GetApp(), pSettings->GetItem(i)->GetWorkingDir());
                   break;
-                case 2:
+                case IT_INTERNAL_COMMAND:
                   ELExecuteInternal(pSettings->GetItem(i)->GetApp());
                 }
             }
