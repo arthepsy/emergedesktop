@@ -1,3 +1,4 @@
+// vim: tags+=../emergeLib/tags
 //----  --------------------------------------------------------------------------------------------------------
 //
 //  This file is part of Emerge Desktop.
@@ -121,7 +122,7 @@ void Item::SetIcon(int iconSize, WCHAR *orientation)
 
   switch (type)
     {
-    case 0:
+    case IT_SEPARATOR:
       if (wcsicmp(orientation, TEXT("vertical")) == 0)
         origIcon = (HICON)LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_HSEPARATOR), IMAGE_ICON, iconSize, iconSize, 0);
       else

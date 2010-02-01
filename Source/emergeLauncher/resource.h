@@ -60,6 +60,8 @@
 #define IDC_EXEBUTTON           309
 #define IDC_COMBUTTON           310
 #define IDC_TYPE                311
+#define IDC_SPECIALFOLDER       312
+#define IDC_SPECIALFOLDERBUTTON 313
 
 #define IDC_TOP                 400
 #define IDC_NORMAL              401

@@ -54,7 +54,7 @@ public:
   bool CheckFields(HWND hwndDlg);
   bool CheckSaveCount(HWND hwndDlg);
   bool DoExeCom(HWND hwndDlg, bool exeButton);
-  void PopulateInternal(HWND internalWnd);
+  void PopulateComboBoxes(HWND internalWnd);
   bool DoAdd(HWND hwndDlg);
   bool DoEdit(HWND hwndDlg);
   BOOL PopulateFields(HWND hwndDlg, int itemIndex);

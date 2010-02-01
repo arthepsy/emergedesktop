@@ -204,6 +204,10 @@ LRESULT Applet::ItemMouseEvent(UINT message, LPARAM lParam)
                   break;
                 case IT_INTERNAL_COMMAND:
                   ELExecuteInternal(pSettings->GetItem(i)->GetApp());
+                  break;
+                case IT_SPECIAL_FOLDER:
+                  ELExecuteSpecialFolder(pSettings->GetItem(i)->GetApp());
+                  break;
                 }
             }
 

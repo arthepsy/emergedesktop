@@ -177,6 +177,8 @@ BOOL LaunchPage::DoInitDialog(HWND hwndDlg)
   HWND internalWnd = GetDlgItem(hwndDlg, IDC_INTERNAL);
   HWND typeWnd = GetDlgItem(hwndDlg, IDC_TYPE);
   HWND typeLabelWnd = GetDlgItem(hwndDlg, IDC_STATIC9);
+  HWND specialFolderWnd = GetDlgItem(hwndDlg, IDC_SPECIALFOLDER);
+  HWND specialFolderLabelWnd = GetDlgItem(hwndDlg, IDC_SPECIALFOLDERBUTTON);
 
   if (addIcon)
     SendMessage(addWnd, BM_SETIMAGE, IMAGE_ICON, (LPARAM)addIcon);
@@ -223,12 +225,7 @@ BOOL LaunchPage::DoInitDialog(HWND hwndDlg)
   dwRet = ListView_SetExtendedListViewStyle(listWnd,  LVS_EX_FULLROWSELECT);
 
   PopulateList(listWnd);
-  PopulateInternal(internalWnd);
-
-  SendMessage(typeWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Executable"));
-  SendMessage(typeWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Internal Command"));
-  SendMessage(typeWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Separator"));
-  SendMessage(typeWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Spacer"));
+  PopulateComboBoxes(hwndDlg);
 
   EnableWindow(commandWnd, false);
   EnableWindow(iconWnd, false);
@@ -251,8 +248,12 @@ BOOL LaunchPage::DoInitDialog(HWND hwndDlg)
   EnableWindow(internalWnd, false);
   EnableWindow(typeWnd, false);
   EnableWindow(typeLabelWnd, false);
+  EnableWindow(specialFolderWnd, false);
+  EnableWindow(specialFolderLabelWnd, false);
   ShowWindow(comButtonWnd, SW_HIDE);
   ShowWindow(internalWnd, SW_HIDE);
+  ShowWindow(specialFolderWnd, SW_HIDE);
+  ShowWindow(specialFolderLabelWnd, SW_HIDE);
 
   ti.cbSize = TTTOOLINFOW_V2_SIZE;
   ti.uFlags = TTF_SUBCLASS;
@@ -370,12 +371,16 @@ BOOL LaunchPage::ToggleFields(HWND hwndDlg)
   HWND internalWnd = GetDlgItem(hwndDlg, IDC_INTERNAL);
   HWND browseCommandWnd = GetDlgItem(hwndDlg, IDC_BROWSECOMMAND);
   HWND commandWnd = GetDlgItem(hwndDlg, IDC_COMMAND);
+  HWND specialFolderWnd = GetDlgItem(hwndDlg, IDC_SPECIALFOLDER);
+  HWND specialFolderLabelWnd = GetDlgItem(hwndDlg, IDC_SPECIALFOLDERBUTTON);
   WCHAR typeName[MAX_LINE_LENGTH];
 
   if (GetDlgItemText(hwndDlg, IDC_TYPE, typeName, MAX_LINE_LENGTH) != 0)
     {
       if (wcsicmp(typeName, TEXT("Separator")) == 0)
         {
+          EnableWindow(specialFolderWnd, false);
+          EnableWindow(specialFolderLabelWnd, false);
           EnableWindow(exeButtonWnd, false);
           EnableWindow(browseCommandWnd, false);
           EnableWindow(commandWnd, false);
@@ -392,6 +397,8 @@ BOOL LaunchPage::ToggleFields(HWND hwndDlg)
         }
       else if (wcsicmp(typeName, TEXT("Spacer")) == 0)
         {
+          EnableWindow(specialFolderWnd, false);
+          EnableWindow(specialFolderLabelWnd, false);
           EnableWindow(exeButtonWnd, false);
           EnableWindow(browseCommandWnd, false);
           EnableWindow(commandWnd, false);
@@ -408,6 +415,10 @@ BOOL LaunchPage::ToggleFields(HWND hwndDlg)
         }
       else if (wcsicmp(typeName, TEXT("Executable")) == 0)
         {
+          EnableWindow(specialFolderWnd, false);
+          EnableWindow(specialFolderLabelWnd, false);
+          ShowWindow(specialFolderWnd, SW_HIDE);
+          ShowWindow(specialFolderLabelWnd, SW_HIDE);
           EnableWindow(exeButtonWnd, true);
           EnableWindow(browseCommandWnd, true);
           EnableWindow(commandWnd, true);
@@ -427,10 +438,36 @@ BOOL LaunchPage::ToggleFields(HWND hwndDlg)
         }
       else if (wcsicmp(typeName, TEXT("Internal Command")) == 0)
         {
+          EnableWindow(specialFolderWnd, false);
+          EnableWindow(specialFolderLabelWnd, false);
+          ShowWindow(specialFolderWnd, SW_HIDE);
+          ShowWindow(specialFolderLabelWnd, SW_HIDE);
           EnableWindow(comButtonWnd, true);
           EnableWindow(internalWnd, true);
           ShowWindow(comButtonWnd, SW_SHOW);
           ShowWindow(internalWnd, SW_SHOW);
+          ShowWindow(exeButtonWnd, SW_HIDE);
+          ShowWindow(browseCommandWnd, SW_HIDE);
+          ShowWindow(commandWnd, SW_HIDE);
+          EnableWindow(tipWnd, true);
+          EnableWindow(tipTextWnd, true);
+          EnableWindow(workingDirWnd, false);
+          EnableWindow(workingDirTextWnd, false);
+          EnableWindow(browseWorkingDirWnd, false);
+          EnableWindow(iconWnd, true);
+          EnableWindow(iconTextWnd, true);
+          EnableWindow(browseIconWnd, true);
+        }
+      else if (wcsicmp(typeName, TEXT("Special Folder")) == 0)
+        {
+          EnableWindow(specialFolderWnd, true);
+          EnableWindow(specialFolderLabelWnd, true);
+          ShowWindow(specialFolderWnd, SW_SHOW);
+          ShowWindow(specialFolderLabelWnd, SW_SHOW);
+          EnableWindow(comButtonWnd, false);
+          EnableWindow(internalWnd, false);
+          ShowWindow(comButtonWnd, SW_HIDE);
+          ShowWindow(internalWnd, SW_HIDE);
           ShowWindow(exeButtonWnd, SW_HIDE);
           ShowWindow(browseCommandWnd, SW_HIDE);
           ShowWindow(commandWnd, SW_HIDE);
@@ -485,8 +522,28 @@ BOOL LaunchPage::GetIcon(HWND hwndDlg)
   return TRUE;
 }
 
-void LaunchPage::PopulateInternal(HWND internalWnd)
+void LaunchPage::PopulateComboBoxes(HWND hwndDlg)
 {
+  HWND internalWnd = GetDlgItem(hwndDlg, IDC_INTERNAL);
+  HWND typeWnd = GetDlgItem(hwndDlg, IDC_TYPE);
+  HWND specialFolderWnd = GetDlgItem(hwndDlg, IDC_SPECIALFOLDER);
+  WCHAR tmp[MAX_PATH];
+
+  if (ELGetSpecialFolder(CSIDL_DRIVES, tmp))
+    SendMessage(specialFolderWnd, CB_ADDSTRING, 0, (LPARAM)tmp);
+  if (ELGetSpecialFolder(CSIDL_NETWORK, tmp))
+    SendMessage(specialFolderWnd, CB_ADDSTRING, 0, (LPARAM)tmp);
+  if (ELGetSpecialFolder(CSIDL_CONTROLS, tmp))
+    SendMessage(specialFolderWnd, CB_ADDSTRING, 0, (LPARAM)tmp);
+  if (ELGetSpecialFolder(CSIDL_BITBUCKET, tmp))
+    SendMessage(specialFolderWnd, CB_ADDSTRING, 0, (LPARAM)tmp);
+
+  SendMessage(typeWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Executable"));
+  SendMessage(typeWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Internal Command"));
+  SendMessage(typeWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Separator"));
+  SendMessage(typeWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Spacer"));
+  SendMessage(typeWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Special Folder"));
+
   SendMessage(internalWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("RightDeskMenu"));
   SendMessage(internalWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("MidDeskMenu"));
   SendMessage(internalWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Quit"));
@@ -590,6 +647,8 @@ bool LaunchPage::UpdateSettings(HWND hwndDlg)
             type = IT_SPACER;
           else if (wcsicmp(typeName, TEXT("internal command")) == 0)
             type = IT_INTERNAL_COMMAND;
+          else if (wcsicmp(typeName, TEXT("special folder")) == 0)
+            type = IT_SPECIAL_FOLDER;
           else
             type = IT_EXECUTABLE;
 
@@ -623,6 +682,9 @@ void LaunchPage::PopulateList(HWND listWnd)
           break;
         case IT_SPACER:
           lvItem.pszText = (WCHAR*)TEXT("Spacer");
+          break;
+        case IT_SPECIAL_FOLDER:
+          lvItem.pszText = (WCHAR*)TEXT("Special Folder");
           break;
         default:
           lvItem.pszText = (WCHAR*)TEXT("Executable");
@@ -918,6 +980,15 @@ bool LaunchPage::SaveItem(HWND hwndDlg)
   else if (wcsicmp(typeName, TEXT("Internal Command")) == 0)
     {
       if (GetDlgItemText(hwndDlg, IDC_INTERNAL, command, MAX_LINE_LENGTH) == 0)
+        {
+          ELMessageBox(hwndDlg, (WCHAR*)TEXT("Command cannot be empty"), (WCHAR*)TEXT("emergeLauncher"),
+                       ELMB_OK|ELMB_ICONERROR|ELMB_MODAL);
+          return false;
+        }
+    }
+  else if (wcsicmp(typeName, TEXT("Special Folder")) == 0)
+    {
+      if (GetDlgItemText(hwndDlg, IDC_SPECIALFOLDER, command, MAX_LINE_LENGTH) == 0)
         {
           ELMessageBox(hwndDlg, (WCHAR*)TEXT("Command cannot be empty"), (WCHAR*)TEXT("emergeLauncher"),
                        ELMB_OK|ELMB_ICONERROR|ELMB_MODAL);
