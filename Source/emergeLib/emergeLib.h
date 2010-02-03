@@ -324,7 +324,6 @@ DLL_EXPORT bool ELSwitchToThisWindow(HWND wnd);
 DLL_EXPORT bool ELSetForeground(HWND wnd);
 DLL_EXPORT bool ELParseShortcut(LPCTSTR shortcut, LPSHORTCUTINFO shortcutInfo);
 DLL_EXPORT bool ELExit(UINT uFlag , bool prompt);
-DLL_EXPORT bool ELShowDesktop();
 DLL_EXPORT bool ELCheckWindow(HWND hwnd);
 DLL_EXPORT HICON ELConvertIcon(HICON sourceIcon, HINSTANCE appInstance, COLORREF bgColour, BYTE bgAlpha);
 DLL_EXPORT bool ELReadFileInt(const WCHAR *fileName, WCHAR *item, int *target, int notFound);

@@ -95,8 +95,6 @@ topic alone.
 #define CP_APPLET 3
 
 // Helper functions
-BOOL CALLBACK MinimizeAll(HWND hwnd, LPARAM lParam);
-BOOL CALLBACK RestoreAll();
 bool ELCheckPathWithExtension(LPTSTR path);
 bool IsClose(int side, int edge);
 WCHAR *ReadValue(const WCHAR *fileName, WCHAR *keyword);
@@ -129,7 +127,20 @@ typedef struct _APPLETMONITORINFO
 
 // Globals
 int enumCount = 0;
+
+// Globally shared data
+/*#ifdef __GNUC__
+//bool showDesktop __attribute__((section ("shared"), shared)) = false;
 std::deque <HWND> hwndDeque;
+//std::deque <HWND> hwndDeque __attribute__((section ("shared"), shared));
+#else
+#pragma data_seg( ".shared" )
+//bool showDesktop = false;
+std::deque <HWND> hwndDeque;
+#pragma data_seg()
+#pragma comment(linker, "/SECTION:.shared,RWS")
+#endif*/
+
 // MS Run dialog
 typedef void (__stdcall *lpfnMSRun)(HWND, HICON, LPCSTR, LPCSTR, LPCSTR, int);
 
@@ -1104,7 +1115,8 @@ bool ELExecuteInternal(LPTSTR command)
     }
   else if (_wcsicmp(command, TEXT("ShowDesktop")) == 0)
     {
-      ELShowDesktop();
+      ELSwitchToThisWindow(ELGetCoreWindow());
+      PostMessage(ELGetCoreWindow(), EMERGE_DISPATCH, (WPARAM)EMERGE_CORE, (LPARAM)CORE_DESKTOP);
       return true;
     }
   else if (_wcsicmp(command, TEXT("DesktopSettings")) == 0)
@@ -2709,20 +2721,6 @@ bool ELExit(UINT uFlag, bool prompt)
 }
 
 /*!
-  @fn ELShowDesktop()
-  @brief Shows the desktop by minimizing all top level windows
-  @return true if successful
-  */
-
-bool ELShowDesktop()
-{
-  if (hwndDeque.empty())
-    return (EnumWindows(MinimizeAll, 0) == TRUE);
-  else
-    return (RestoreAll() == TRUE);
-}
-
-/*!
   @fn ELCheckWindow(HWND hwnd)
   @brief Check to seee if the window is a valid 'task'
   @param hwnd window handle
@@ -2737,43 +2735,6 @@ bool ELCheckWindow(HWND hwnd)
     return true;
 
   return false;
-}
-
-/*!
-  @fn MinimizeAll(HWND hwnd, LPARAM lParam)
-  @brief Helper function for ELShowDesktop that minimizes all windows currently open
-  @param hwnd window handle to minimize
-  @param lParam not used
-  @return TRUE
-  */
-
-BOOL CALLBACK MinimizeAll(HWND hwnd, LPARAM lParam UNUSED)
-{
-  if (IsWindowVisible(hwnd) && ((GetWindowLongPtr(hwnd, GWL_STYLE) & WS_MINIMIZEBOX) == WS_MINIMIZEBOX))
-    {
-      //if sth is already minimized, we don't want it in our queue, because we don't want to restore it later
-      if (!IsIconic(hwnd))
-        {
-          ShowWindow(hwnd, SW_MINIMIZE);
-          hwndDeque.push_front(hwnd);
-        }
-    }
-  return TRUE;
-}
-
-/*!
-  @fn RestoreAll()
-  @brief Helper function for ELShowDesktop that retores all windows in hwndDeque
-  @return TRUE
-  */
-
-BOOL CALLBACK RestoreAll()
-{
-  std::deque<HWND>::iterator itr;
-  for (itr=hwndDeque.begin(); itr!= hwndDeque.end(); ++itr)
-    ShowWindow(*itr, SW_RESTORE);
-  hwndDeque.clear();
-  return TRUE ;
 }
 
 bool ELGetTempFileName(WCHAR *fileName)

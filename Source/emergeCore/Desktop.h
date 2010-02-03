@@ -30,6 +30,7 @@
 #define WINVER 0x0501
 
 #include "MessageControl.h"
+#include <deque>
 
 #define DESKTOP_TIMER         1
 #define DESKTOP_POLL_INTERVAL 100
@@ -38,6 +39,7 @@ class Desktop
 {
 private:
   std::tr1::shared_ptr<MessageControl> pMessageControl;
+  std::deque<HWND> minimizedWindowDeque;
   HINSTANCE mainInst;
   HWND mainWnd;
   bool registered;
@@ -46,14 +48,16 @@ private:
   static LRESULT CALLBACK DesktopProcedure (HWND, UINT, WPARAM, LPARAM);
   static VOID CALLBACK DesktopTimerProc(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime);
   static BOOL CALLBACK SetMonitorArea(HMONITOR hMonitor, HDC hdcMonitor, LPRECT lprcMonitor, LPARAM dwData);
+  static BOOL CALLBACK MinimizeWindowsEnum(HWND hwnd, LPARAM lParam);
 
 public:
   Desktop(HINSTANCE hInstance, std::tr1::shared_ptr<MessageControl> pMessageControl);
   ~Desktop();
   bool Initialize();
-  LRESULT DoDefault(UINT message, UINT shellMessage, HWND task);
   void ShowMenu(UINT menu);
   void SetWorkArea();
+  void DoWindowPosChanging(LPWINDOWPOS winPos);
+  void ToggleDesktop();
 };
 
 #endif

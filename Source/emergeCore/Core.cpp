@@ -401,7 +401,7 @@ LRESULT Core::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
           break;
 
         case CORE_DESKTOP:
-          ELShowDesktop();
+          pDesktop->ToggleDesktop();
           break;
 
         case CORE_ABOUT:

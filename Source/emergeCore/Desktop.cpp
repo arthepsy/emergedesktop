@@ -19,8 +19,22 @@
 //----  --------------------------------------------------------------------------------------------------------
 
 #include "Desktop.h"
+#include <deque>
+
+std::deque<HWND> hwndDeque;
 
 WCHAR desktopClass[] = TEXT("progman");
+
+BOOL CALLBACK Desktop::MinimizeWindowsEnum(HWND hwnd, LPARAM lParam)
+{
+  if (!IsIconic(hwnd) && ELCheckWindow(hwnd))
+    {
+      ShowWindow(hwnd, SW_MINIMIZE);
+      ((std::deque<HWND>*)lParam)->push_back(hwnd);
+    }
+
+  return TRUE;
+}
 
 Desktop::Desktop(HINSTANCE hInstance, std::tr1::shared_ptr<MessageControl> pMessageControl)
 {
@@ -121,13 +135,13 @@ LRESULT CALLBACK Desktop::DesktopProcedure (HWND hwnd, UINT message, WPARAM wPar
       break;
 
     case WM_PAINT:
-    {
-      PAINTSTRUCT ps;
-      HDC hdc = BeginPaint(hwnd, &ps);
-      PaintDesktop(hdc);
-      EndPaint(hwnd, &ps);
-    }
-    break;
+        {
+          PAINTSTRUCT ps;
+          HDC hdc = BeginPaint(hwnd, &ps);
+          PaintDesktop(hdc);
+          EndPaint(hwnd, &ps);
+        }
+      break;
 
     case WM_RBUTTONDOWN:
       pDesktop->ShowMenu(CORE_RIGHTMENU);
@@ -142,23 +156,17 @@ LRESULT CALLBACK Desktop::DesktopProcedure (HWND hwnd, UINT message, WPARAM wPar
       break;
 
     case WM_DISPLAYCHANGE:
-    {
-      SetWindowPos(hwnd, HWND_BOTTOM,
-                   GetSystemMetrics(SM_XVIRTUALSCREEN), GetSystemMetrics(SM_YVIRTUALSCREEN),
-                   GetSystemMetrics(SM_CXVIRTUALSCREEN), GetSystemMetrics(SM_CYVIRTUALSCREEN),
-                   SWP_SHOWWINDOW);
-    }
-    break;
+        {
+          SetWindowPos(hwnd, HWND_BOTTOM,
+                       GetSystemMetrics(SM_XVIRTUALSCREEN), GetSystemMetrics(SM_YVIRTUALSCREEN),
+                       GetSystemMetrics(SM_CXVIRTUALSCREEN), GetSystemMetrics(SM_CYVIRTUALSCREEN),
+                       SWP_SHOWWINDOW);
+        }
+      break;
 
     case WM_WINDOWPOSCHANGING:
-    {
-      LPWINDOWPOS lpWinPos = (LPWINDOWPOS)lParam;
-
-      lpWinPos->hwndInsertAfter = HWND_BOTTOM;
-      lpWinPos->flags |= SWP_NOACTIVATE;
-      lpWinPos->flags &= ~SWP_NOZORDER;
-    }
-    break;
+      pDesktop->DoWindowPosChanging((LPWINDOWPOS)lParam);
+      break;
 
     case WM_DESTROY:
     case WM_NCDESTROY:
@@ -167,39 +175,44 @@ LRESULT CALLBACK Desktop::DesktopProcedure (HWND hwnd, UINT message, WPARAM wPar
 
       // If not handled just forward the message on
     default:
-      //if (!pDesktop->DoDefault(message, (UINT)wParam, (HWND)lParam))
-      return DefWindowProc(hwnd, message, wParam, lParam);
+        return DefWindowProc(hwnd, message, wParam, lParam);
     }
 
   return 0;
+}
+
+void Desktop::DoWindowPosChanging(LPWINDOWPOS winPos)
+{
+  if (minimizedWindowDeque.empty())
+    {
+      winPos->hwndInsertAfter = HWND_BOTTOM;
+      winPos->flags |= SWP_NOACTIVATE;
+      winPos->flags &= ~SWP_NOZORDER;
+    }
+  else
+    winPos->hwndInsertAfter = NULL;
+}
+
+void Desktop::ToggleDesktop()
+{
+  std::deque<HWND>::iterator iter;
+  if (!minimizedWindowDeque.empty())
+    {
+      for (iter = minimizedWindowDeque.begin(); iter != minimizedWindowDeque.end(); iter++)
+        ShowWindow(*iter, SW_SHOWNOACTIVATE);
+      minimizedWindowDeque.clear();
+      SetWindowPos(mainWnd, HWND_BOTTOM, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOSENDCHANGING | SWP_NOACTIVATE);
+    }
+  else
+    {
+      SetWindowPos(mainWnd, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOSENDCHANGING);
+      EnumWindows(MinimizeWindowsEnum, (LPARAM)&minimizedWindowDeque);
+    }
 }
 
 void Desktop::ShowMenu(UINT menu)
 {
   pMessageControl->DispatchMessage(EMERGE_CORE, menu);
-}
-
-LRESULT Desktop::DoDefault(UINT message, UINT shellMessage, HWND task)
-{
-  WCHAR taskClass[MAX_LINE_LENGTH];
-  WINDOWINFO wndInfo;
-  wndInfo.cbSize = sizeof(WINDOWINFO);
-
-  if (message == ShellMessage)
-    {
-      switch (shellMessage)
-        {
-          //A new "task" was created
-        case HSHELL_WINDOWCREATED:
-          RealGetWindowClass(task, taskClass, MAX_LINE_LENGTH);
-          if (_wcsicmp(taskClass, TEXT("$$$Secure UAP Dummy Window Class For Interim Dialog")) == 0)
-            ELSwitchToThisWindow(task);
-          return 1;
-        }
-
-    }
-
-  return 0;
 }
 
 bool Desktop::SetBackgroundImage()
