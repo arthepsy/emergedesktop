@@ -31,7 +31,7 @@ BOOL CALLBACK Desktop::MinimizeWindowsEnum(HWND hwnd, LPARAM lParam)
     {
       if (!IsIconic(hwnd))
         {
-          ShowWindow(hwnd, SW_MINIMIZE);
+          ShowWindow(hwnd, SW_SHOWMINNOACTIVE);
           ((std::deque<HWND>*)lParam)->push_front(hwnd);
         }
     }
