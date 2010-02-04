@@ -27,10 +27,13 @@ WCHAR desktopClass[] = TEXT("progman");
 
 BOOL CALLBACK Desktop::MinimizeWindowsEnum(HWND hwnd, LPARAM lParam)
 {
-  if (!IsIconic(hwnd) && ELCheckWindow(hwnd))
+  if (IsWindowVisible(hwnd) && ((GetWindowLongPtr(hwnd, GWL_STYLE) & WS_MINIMIZEBOX) == WS_MINIMIZEBOX))
     {
-      ShowWindow(hwnd, SW_MINIMIZE);
-      ((std::deque<HWND>*)lParam)->push_back(hwnd);
+      if (!IsIconic(hwnd))
+        {
+          ShowWindow(hwnd, SW_MINIMIZE);
+          ((std::deque<HWND>*)lParam)->push_front(hwnd);
+        }
     }
 
   return TRUE;
@@ -175,7 +178,7 @@ LRESULT CALLBACK Desktop::DesktopProcedure (HWND hwnd, UINT message, WPARAM wPar
 
       // If not handled just forward the message on
     default:
-        return DefWindowProc(hwnd, message, wParam, lParam);
+      return DefWindowProc(hwnd, message, wParam, lParam);
     }
 
   return 0;
