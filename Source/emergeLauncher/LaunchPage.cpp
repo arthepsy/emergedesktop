@@ -870,6 +870,8 @@ bool LaunchPage::EnableFields(HWND hwndDlg, bool enable)
   HWND internalWnd = GetDlgItem(hwndDlg, IDC_INTERNAL);
   HWND typeWnd = GetDlgItem(hwndDlg, IDC_TYPE);
   HWND typeLabelWnd = GetDlgItem(hwndDlg, IDC_STATIC9);
+  HWND specialFolderWnd = GetDlgItem(hwndDlg, IDC_SPECIALFOLDER);
+  HWND specialFolderButtonWnd = GetDlgItem(hwndDlg, IDC_SPECIALFOLDERBUTTON);
   int i = 0;
   bool selected = false;
 
@@ -930,6 +932,8 @@ bool LaunchPage::EnableFields(HWND hwndDlg, bool enable)
       EnableWindow(internalWnd, false);
       EnableWindow(typeWnd, false);
       EnableWindow(typeLabelWnd, false);
+      EnableWindow(specialFolderWnd, false);
+      EnableWindow(specialFolderButtonWnd, false);
     }
 
   return true;
@@ -1148,8 +1152,13 @@ BOOL LaunchPage::DoNotify(HWND hwndDlg, LPARAM lParam)
 BOOL LaunchPage::PopulateFields(HWND hwndDlg, int itemIndex)
 {
   HWND listWnd = GetDlgItem(hwndDlg, IDC_APPLIST);
-  HWND internalWnd = GetDlgItem(hwndDlg, IDC_INTERNAL);
   HWND typeWnd = GetDlgItem(hwndDlg, IDC_TYPE);
+  HWND internalWnd = GetDlgItem(hwndDlg, IDC_INTERNAL);
+  HWND internalButtonWnd = GetDlgItem(hwndDlg, IDC_COMBUTTON);
+  HWND specialFolderWnd = GetDlgItem(hwndDlg, IDC_SPECIALFOLDER);
+  HWND specialFolderButtonWnd = GetDlgItem(hwndDlg, IDC_SPECIALFOLDERBUTTON);
+  HWND commandWnd = GetDlgItem(hwndDlg, IDC_COMMAND);
+  HWND commandButtonWnd = GetDlgItem(hwndDlg, IDC_EXEBUTTON);
   WCHAR command[MAX_LINE_LENGTH], workingDir[MAX_LINE_LENGTH], iconPath[MAX_LINE_LENGTH];
   WCHAR tip[MAX_LINE_LENGTH], typeName[MAX_LINE_LENGTH];
 
@@ -1165,12 +1174,45 @@ BOOL LaunchPage::PopulateFields(HWND hwndDlg, int itemIndex)
         {
           SendMessage(typeWnd, CB_SETCURSEL, typeIndex, 0);
           ListView_GetItemText(listWnd, itemIndex, 1, command, MAX_LINE_LENGTH);
-          int commandIndex = (int)SendMessage(internalWnd, CB_FINDSTRINGEXACT, (WPARAM)-1,
-                                              (LPARAM)command);
-          if (commandIndex != CB_ERR)
-            SendMessage(internalWnd, CB_SETCURSEL, commandIndex, 0);
+          if (wcsicmp(typeName, TEXT("internal command")) == 0)
+            {
+              ShowWindow(internalButtonWnd, true);
+              ShowWindow(internalWnd, true);
+              ShowWindow(commandWnd, false);
+              ShowWindow(commandButtonWnd, false);
+              ShowWindow(specialFolderWnd, false);
+              ShowWindow(specialFolderButtonWnd, false);
+
+              int commandIndex = (int)SendMessage(internalWnd, CB_FINDSTRINGEXACT, (WPARAM)-1,
+                                                  (LPARAM)command);
+              if (commandIndex != CB_ERR)
+                SendMessage(internalWnd, CB_SETCURSEL, commandIndex, 0);
+            }
+          else if (wcsicmp(typeName, TEXT("special folder")) == 0)
+            {
+              ShowWindow(internalButtonWnd, false);
+              ShowWindow(internalWnd, false);
+              ShowWindow(commandWnd, false);
+              ShowWindow(commandButtonWnd, false);
+              ShowWindow(specialFolderWnd, true);
+              ShowWindow(specialFolderButtonWnd, true);
+
+              int specialIndex = (int)SendMessage(specialFolderWnd, CB_FINDSTRINGEXACT, (WPARAM)-1,
+                                                  (LPARAM)command);
+              if (specialIndex != CB_ERR)
+                SendMessage(specialFolderWnd, CB_SETCURSEL, specialIndex, 0);
+            }
           else
-            SetDlgItemText(hwndDlg, IDC_COMMAND, command);
+            {
+              ShowWindow(internalButtonWnd, false);
+              ShowWindow(internalWnd, false);
+              ShowWindow(commandWnd, true);
+              ShowWindow(commandButtonWnd, true);
+              ShowWindow(specialFolderWnd, false);
+              ShowWindow(specialFolderButtonWnd, false);
+
+              SetDlgItemText(hwndDlg, IDC_COMMAND, command);
+            }
 
           ListView_GetItemText(listWnd, itemIndex, 2, workingDir, MAX_LINE_LENGTH);
           SetDlgItemText(hwndDlg, IDC_WORKINGDIR, workingDir);
