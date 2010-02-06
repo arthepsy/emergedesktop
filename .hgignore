@@ -12,6 +12,10 @@ tags
 bin
 bin64
 hgversion.h
+*.bmarks
+*.layout
+*.save
+*.depend
 
 # switch to regexp syntax.
 #syntax: regexp
