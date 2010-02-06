@@ -2348,8 +2348,8 @@ bool ELSwitchToThisWindow(HWND wnd)
   HMODULE user32DLL = GetModuleHandle(TEXT("user32.dll"));
   if (user32DLL)
     {
-      static lpfnMSSwitchToThisWindow MSSwitchToThisWindow = (lpfnMSSwitchToThisWindow)GetProcAddress(
-                                                                                                      user32DLL, "SwitchToThisWindow");
+      static lpfnMSSwitchToThisWindow MSSwitchToThisWindow =
+        (lpfnMSSwitchToThisWindow)GetProcAddress(user32DLL, "SwitchToThisWindow");
       if (MSSwitchToThisWindow)
         {
           MSSwitchToThisWindow(wnd, TRUE);
