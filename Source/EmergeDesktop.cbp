@@ -606,7 +606,7 @@
 			<Add library="stdc++_s" />
 		</Linker>
 		<ExtraCommands>
-			<Add before='[[ local svnfile = _T(&quot;svnversion.h&quot;); local svncmd = _T(&quot;cmd /c svn info --revision HEAD | grep Revision | sed -f svnversion.sed &gt; svnversion.h&quot;); if ( !IO.FileExists(svnfile) ) { IO.Execute(svncmd); } ]]' />
+			<Add before='[[ local hgfile = _T(&quot;hgversion.h&quot;); local hgcmd = _T(&quot;cmd /c hg summary | grep parent | sed &apos;s/parent:/#define BUILD_VERSION/g&apos; | sed &apos;s/:[0-9a-z]* tip//g&apos; &gt; hgversion.h&quot;); if ( !IO.FileExists(hgfile) ) { IO.Execute(hgcmd); } ]]' />
 		</ExtraCommands>
 		<Unit filename="emergeAppletEngine\emergeAppletEngine.h">
 			<Option target="emergeAppletEngine - Release" />
@@ -1493,6 +1493,7 @@
 		<Unit filename="emerge\main.cpp">
 			<Option target="emerge - Release" />
 		</Unit>
+		<Unit filename="hgversion.h" />
 		<Unit filename="reg2xml\AppletSettings.cpp">
 			<Option target="reg2xml - Release" />
 		</Unit>
@@ -1572,7 +1573,6 @@
 		<Unit filename="reg2xml\resource.h">
 			<Option target="reg2xml - Release" />
 		</Unit>
-		<Unit filename="svnversion.h" />
 		<Unit filename="tinyxml\tinystr.cpp">
 			<Option target="emergeLib - Release" />
 			<Option target="emergeLib - Debug" />
