@@ -17,6 +17,7 @@
 				<Option createStaticLib="1" />
 				<Compiler>
 					<Add option="-DEMERGELIB_EXPORTS" />
+					<Add option="-DTIXML_USE_STL" />
 				</Compiler>
 				<ResourceCompiler>
 					<Add directory=".\emergeLib" />
@@ -606,7 +607,7 @@
 			<Add library="stdc++_s" />
 		</Linker>
 		<ExtraCommands>
-			<Add before='[[ local hgfile = _T(&quot;hgversion.h&quot;); local hgcmd = _T(&quot;cmd /c hg summary | grep parent | sed &apos;s/parent:/#define BUILD_VERSION/g&apos; | sed &apos;s/:[0-9a-z]* tip//g&apos; &gt; hgversion.h&quot;); if ( !IO.FileExists(hgfile) ) { IO.Execute(hgcmd); } ]]' />
+			<Add before='[[ local hgfile = _T(&quot;hgversion.h&quot;); local hgcmd = _T(&quot;cmd /c hg summary | grep parent | sed -f hgversion.sed &gt; hgversion.h&quot;); if ( !IO.FileExists(hgfile) ) { IO.Execute(hgcmd); } ]]' />
 		</ExtraCommands>
 		<Unit filename="emergeAppletEngine\emergeAppletEngine.h">
 			<Option target="emergeAppletEngine - Release" />
