@@ -27,13 +27,12 @@ WCHAR desktopClass[] = TEXT("progman");
 
 BOOL CALLBACK Desktop::MinimizeWindowsEnum(HWND hwnd, LPARAM lParam)
 {
-  if (IsWindowVisible(hwnd) && ((GetWindowLongPtr(hwnd, GWL_STYLE) & WS_MINIMIZEBOX) == WS_MINIMIZEBOX))
+  std::wstring debug;
+
+  if (ELCheckWindow(hwnd))
     {
       if (!IsIconic(hwnd))
-        {
-          ShowWindow(hwnd, SW_SHOWMINNOACTIVE);
-          ((std::deque<HWND>*)lParam)->push_front(hwnd);
-        }
+        ((std::deque<HWND>*)lParam)->push_front(hwnd);
     }
 
   return TRUE;
@@ -83,9 +82,6 @@ bool Desktop::Initialize()
                SWP_SHOWWINDOW);
 
   SetBackgroundImage();
-
-  if (ELRegisterShellHook(mainWnd, RSH_TASKMGR))
-    ShellMessage = RegisterWindowMessage(TEXT("SHELLHOOK"));
 
   return true;
 }
@@ -138,13 +134,13 @@ LRESULT CALLBACK Desktop::DesktopProcedure (HWND hwnd, UINT message, WPARAM wPar
       break;
 
     case WM_PAINT:
-        {
-          PAINTSTRUCT ps;
-          HDC hdc = BeginPaint(hwnd, &ps);
-          PaintDesktop(hdc);
-          EndPaint(hwnd, &ps);
-        }
-      break;
+    {
+      PAINTSTRUCT ps;
+      HDC hdc = BeginPaint(hwnd, &ps);
+      PaintDesktop(hdc);
+      EndPaint(hwnd, &ps);
+    }
+    break;
 
     case WM_RBUTTONDOWN:
       pDesktop->ShowMenu(CORE_RIGHTMENU);
@@ -159,13 +155,13 @@ LRESULT CALLBACK Desktop::DesktopProcedure (HWND hwnd, UINT message, WPARAM wPar
       break;
 
     case WM_DISPLAYCHANGE:
-        {
-          SetWindowPos(hwnd, HWND_BOTTOM,
-                       GetSystemMetrics(SM_XVIRTUALSCREEN), GetSystemMetrics(SM_YVIRTUALSCREEN),
-                       GetSystemMetrics(SM_CXVIRTUALSCREEN), GetSystemMetrics(SM_CYVIRTUALSCREEN),
-                       SWP_SHOWWINDOW);
-        }
-      break;
+    {
+      SetWindowPos(hwnd, HWND_BOTTOM,
+                   GetSystemMetrics(SM_XVIRTUALSCREEN), GetSystemMetrics(SM_YVIRTUALSCREEN),
+                   GetSystemMetrics(SM_CXVIRTUALSCREEN), GetSystemMetrics(SM_CYVIRTUALSCREEN),
+                   SWP_SHOWWINDOW);
+    }
+    break;
 
     case WM_WINDOWPOSCHANGING:
       pDesktop->DoWindowPosChanging((LPWINDOWPOS)lParam);
@@ -208,8 +204,10 @@ void Desktop::ToggleDesktop()
     }
   else
     {
-      SetWindowPos(mainWnd, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOSENDCHANGING);
       EnumWindows(MinimizeWindowsEnum, (LPARAM)&minimizedWindowDeque);
+      SetWindowPos(mainWnd, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOSENDCHANGING);
+      for (iter = minimizedWindowDeque.begin(); iter != minimizedWindowDeque.end(); iter++)
+        ShowWindow(*iter, SW_MINIMIZE);
     }
 }
 
