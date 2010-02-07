@@ -129,6 +129,7 @@ static const UINT EMERGE_MESSAGE = RegisterWindowMessage(TEXT("EmergeMessage"));
 #define CORE_THEMESELECT    122
 #define CORE_WRITESETTINGS  123
 #define CORE_LEFTMENU       124
+#define CORE_REPOSITION     125
 
 // EMERGE_VWM Messages
 #define VWM_UP          200

@@ -402,7 +402,7 @@ LRESULT Core::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 
         case CORE_DESKTOP:
           pDesktop->ToggleDesktop();
-          pMessageControl->DispatchMessage(EMERGE_CORE, CORE_RECONFIGURE);
+          pMessageControl->DispatchMessage(EMERGE_CORE, CORE_REPOSITION);
           break;
 
         case CORE_ABOUT:

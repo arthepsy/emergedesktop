@@ -251,9 +251,7 @@ void BaseApplet::AdjustRect(RECT *wndRect)
 
 LRESULT BaseApplet::DoWindowPosChanging(WINDOWPOS *windowPos)
 {
-  if ((_wcsicmp(pBaseSettings->GetZPosition(), TEXT("bottom")) == 0) ||
-      (!IsWindowVisible(mainWnd) && !fullScreen &&
-       (_wcsicmp(pBaseSettings->GetZPosition(), TEXT("top")) != 0)))
+  if (_wcsicmp(pBaseSettings->GetZPosition(), TEXT("bottom")) == 0)
     {
       windowPos->flags |= SWP_NOACTIVATE;
       windowPos->hwndInsertAfter = ELGetDesktopWindow();
@@ -752,6 +750,7 @@ LRESULT BaseApplet::DoEmergeNotify(UINT messageClass, UINT message)
                            SWP_NOACTIVATE | SWP_HIDEWINDOW);
             }
           break;
+
         case CORE_SHOW:
           if (appletHidden)
             {
@@ -760,10 +759,21 @@ LRESULT BaseApplet::DoEmergeNotify(UINT messageClass, UINT message)
                            SWP_NOACTIVATE | SWP_SHOWWINDOW);
             }
           break;
+
         case CORE_REFRESH:
           ZeroMemory(&oldrt, sizeof(RECT));
           UpdateGUI(ESEGetScheme());
           break;
+
+        case CORE_REPOSITION:
+        {
+          HWND hwndInsertBehind = NULL;
+          if (wcsicmp(pBaseSettings->GetZPosition(), TEXT("top")) != 0)
+            hwndInsertBehind = ELGetDesktopWindow();
+          SetWindowPos(mainWnd, hwndInsertBehind, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
+        }
+        break;
+
         case CORE_RECONFIGURE:
           UpdateGUI();
           break;
