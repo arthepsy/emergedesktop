@@ -251,7 +251,9 @@ void BaseApplet::AdjustRect(RECT *wndRect)
 
 LRESULT BaseApplet::DoWindowPosChanging(WINDOWPOS *windowPos)
 {
-  if (_wcsicmp(pBaseSettings->GetZPosition(), TEXT("bottom")) == 0)
+  if ((_wcsicmp(pBaseSettings->GetZPosition(), TEXT("bottom")) == 0) ||
+      (!IsWindowVisible(mainWnd) && !fullScreen &&
+       (_wcsicmp(pBaseSettings->GetZPosition(), TEXT("top")) != 0)))
     {
       windowPos->flags |= SWP_NOACTIVATE;
       windowPos->hwndInsertAfter = ELGetDesktopWindow();
