@@ -414,7 +414,12 @@ LRESULT Applet::TaskMouseEvent(UINT message, LPARAM lParam)
                   if (windowHandle == activeWnd)
                     ShowWindow(windowHandle, SW_MINIMIZE);
                   else
-                    ELSwitchToThisWindow(windowHandle);
+                  {
+                    if (IsIconic(windowHandle))
+                      ShowWindow(windowHandle, SW_RESTORE);
+                    else
+                      SetForegroundWindow(windowHandle);
+                  }
                 }
             }
           else if (message == WM_RBUTTONUP)
