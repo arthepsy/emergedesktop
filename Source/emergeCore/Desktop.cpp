@@ -207,7 +207,7 @@ void Desktop::ToggleDesktop()
       EnumWindows(MinimizeWindowsEnum, (LPARAM)&minimizedWindowDeque);
       SetWindowPos(mainWnd, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOSENDCHANGING);
       for (iter = minimizedWindowDeque.begin(); iter != minimizedWindowDeque.end(); iter++)
-        ShowWindow(*iter, SW_MINIMIZE);
+        ShowWindow(*iter, SW_SHOWMINNOACTIVE);
     }
 }
 
