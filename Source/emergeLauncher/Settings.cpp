@@ -69,7 +69,8 @@ void Settings::PopulateItems()
                   userIO.ReadInt(TEXT("Type"), type, IT_EXECUTABLE);
                   userIO.ReadString(TEXT("Command"), app, TEXT(""));
                   userIO.ReadString(TEXT("Icon"), icon, TEXT(""));
-                  if ((type != IT_SEPARATOR) && (type != IT_SPACER))
+                  if ((type != IT_SEPARATOR) && (type != IT_SPACER) &&
+                      (type != IT_DOUBLESEPARATOR))
                     userIO.ReadString(TEXT("Tip"), tip, TEXT(""));
                   userIO.ReadString(TEXT("WorkingDir"), workingDir, TEXT(""));
 

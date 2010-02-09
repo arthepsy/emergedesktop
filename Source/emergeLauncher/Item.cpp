@@ -128,6 +128,12 @@ void Item::SetIcon(int iconSize, WCHAR *orientation)
       else
         origIcon = (HICON)LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_VSEPARATOR), IMAGE_ICON, iconSize, iconSize, 0);
       break;
+    case IT_DOUBLESEPARATOR:
+      if (wcsicmp(orientation, TEXT("vertical")) == 0)
+        origIcon = (HICON)LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_DOUBLEHSEPARATOR), IMAGE_ICON, iconSize, iconSize, 0);
+      else
+        origIcon = (HICON)LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_DOUBLEVSEPARATOR), IMAGE_ICON, iconSize, iconSize, 0);
+      break;
     default:
       if (wcslen(iconPath) > 0)
         origIcon = EGGetFileIcon(iconPath, iconSize);

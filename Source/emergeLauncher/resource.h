@@ -95,3 +95,5 @@
 #define IDI_BROWSE              1008
 #define IDI_VSEPARATOR          1009
 #define IDI_HSEPARATOR          1010
+#define IDI_DOUBLEVSEPARATOR    1011
+#define IDI_DOUBLEHSEPARATOR    1012

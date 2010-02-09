@@ -55,16 +55,16 @@ LaunchPage::LaunchPage(HINSTANCE hInstance, std::tr1::shared_ptr<Settings> pSett
   InitCommonControls();
 
   toolWnd = CreateWindowEx(
-                           0,
-                           TOOLTIPS_CLASS,
-                           NULL,
-                           TTS_ALWAYSTIP|WS_POPUP|TTS_NOPREFIX,
-                           CW_USEDEFAULT, CW_USEDEFAULT,
-                           CW_USEDEFAULT, CW_USEDEFAULT,
-                           NULL,
-                           NULL,
-                           hInstance,
-                           NULL);
+              0,
+              TOOLTIPS_CLASS,
+              NULL,
+              TTS_ALWAYSTIP|WS_POPUP|TTS_NOPREFIX,
+              CW_USEDEFAULT, CW_USEDEFAULT,
+              CW_USEDEFAULT, CW_USEDEFAULT,
+              NULL,
+              NULL,
+              hInstance,
+              NULL);
 
   if (toolWnd)
     {
@@ -377,7 +377,8 @@ BOOL LaunchPage::ToggleFields(HWND hwndDlg)
 
   if (GetDlgItemText(hwndDlg, IDC_TYPE, typeName, MAX_LINE_LENGTH) != 0)
     {
-      if (wcsicmp(typeName, TEXT("Separator")) == 0)
+      if ((wcsicmp(typeName, TEXT("Separator")) == 0) ||
+          (wcsicmp(typeName, TEXT("Double Separator")) == 0))
         {
           EnableWindow(specialFolderWnd, false);
           EnableWindow(specialFolderLabelWnd, false);
@@ -541,6 +542,7 @@ void LaunchPage::PopulateComboBoxes(HWND hwndDlg)
   SendMessage(typeWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Executable"));
   SendMessage(typeWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Internal Command"));
   SendMessage(typeWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Separator"));
+  SendMessage(typeWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Double Separator"));
   SendMessage(typeWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Spacer"));
   SendMessage(typeWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Special Folder"));
 
@@ -641,7 +643,9 @@ bool LaunchPage::UpdateSettings(HWND hwndDlg)
           ListView_GetItemText(listWnd, i, 3, iconPath, MAX_LINE_LENGTH);
           ListView_GetItemText(listWnd, i, 4, tip, MAX_LINE_LENGTH);
 
-          if (wcsicmp(typeName, TEXT("separator")) == 0)
+          if (wcsicmp(typeName, TEXT("double separator")) == 0)
+            type = IT_DOUBLESEPARATOR;
+          else if (wcsicmp(typeName, TEXT("separator")) == 0)
             type = IT_SEPARATOR;
           else if (wcsicmp(typeName, TEXT("spacer")) == 0)
             type = IT_SPACER;
@@ -674,6 +678,9 @@ void LaunchPage::PopulateList(HWND listWnd)
       lvItem.iSubItem = 0;
       switch (pSettings->GetItem(i)->GetType())
         {
+        case IT_DOUBLESEPARATOR:
+          lvItem.pszText = (WCHAR*)TEXT("Double Separator");
+          break;
         case IT_SEPARATOR:
           lvItem.pszText = (WCHAR*)TEXT("Separator");
           break;
