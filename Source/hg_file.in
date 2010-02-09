@@ -1,2 +1,2 @@
 $(HG_FILE):
-	hg summary | grep parent | sed "s/parent:/#define BUILD_VERSION/g" | sed "s/:[0-9a-z]* tip//g" > $(HG_FILE)
+	hg summary | grep parent | sed -f hgversion.sed > $(HG_FILE)
