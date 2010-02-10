@@ -137,6 +137,8 @@ void Item::SetIcon(int iconSize, WCHAR *orientation)
           else
             origIcon = (HICON)LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_DOUBLEVSEPARATOR), IMAGE_ICON, iconSize, iconSize, 0);
         }
+      else if ((wcsicmp(app, TEXT("custom")) == 0) && (wcslen(iconPath) > 0))
+        origIcon = EGGetFileIcon(iconPath, iconSize);
       break;
     default:
       if (wcslen(iconPath) > 0)
