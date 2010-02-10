@@ -62,6 +62,8 @@
 #define IDC_TYPE                311
 #define IDC_SPECIALFOLDER       312
 #define IDC_SPECIALFOLDERBUTTON 313
+#define IDC_SEPARATOR           314
+#define IDC_SEPARATORBUTTON     315
 
 #define IDC_TOP                 400
 #define IDC_NORMAL              401

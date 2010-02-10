@@ -123,16 +123,20 @@ void Item::SetIcon(int iconSize, WCHAR *orientation)
   switch (type)
     {
     case IT_SEPARATOR:
-      if (wcsicmp(orientation, TEXT("vertical")) == 0)
-        origIcon = (HICON)LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_HSEPARATOR), IMAGE_ICON, iconSize, iconSize, 0);
-      else
-        origIcon = (HICON)LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_VSEPARATOR), IMAGE_ICON, iconSize, iconSize, 0);
-      break;
-    case IT_DOUBLESEPARATOR:
-      if (wcsicmp(orientation, TEXT("vertical")) == 0)
-        origIcon = (HICON)LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_DOUBLEHSEPARATOR), IMAGE_ICON, iconSize, iconSize, 0);
-      else
-        origIcon = (HICON)LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_DOUBLEVSEPARATOR), IMAGE_ICON, iconSize, iconSize, 0);
+      if (wcsicmp(app, TEXT("single")) == 0)
+        {
+          if (wcsicmp(orientation, TEXT("vertical")) == 0)
+            origIcon = (HICON)LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_HSEPARATOR), IMAGE_ICON, iconSize, iconSize, 0);
+          else
+            origIcon = (HICON)LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_VSEPARATOR), IMAGE_ICON, iconSize, iconSize, 0);
+        }
+      else if (wcsicmp(app, TEXT("double")) == 0)
+        {
+          if (wcsicmp(orientation, TEXT("vertical")) == 0)
+            origIcon = (HICON)LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_DOUBLEHSEPARATOR), IMAGE_ICON, iconSize, iconSize, 0);
+          else
+            origIcon = (HICON)LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_DOUBLEVSEPARATOR), IMAGE_ICON, iconSize, iconSize, 0);
+        }
       break;
     default:
       if (wcslen(iconPath) > 0)
