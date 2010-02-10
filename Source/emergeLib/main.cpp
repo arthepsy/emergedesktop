@@ -852,12 +852,12 @@ std::string ELwstringTostring(std::wstring inString, UINT codePage)
   std::vector<char> tmpString;
 
   size_t tmpStringLength = WideCharToMultiByte(codePage, 0, wideString.c_str(), wideString.length(), NULL, 0,
-                                               NULL, NULL);
+                           NULL, NULL);
   if (tmpStringLength != 0)
     {
       tmpString.reserve(tmpStringLength + 1);
       size_t writtenBytes = WideCharToMultiByte(codePage, 0, wideString.c_str(), wideString.length(), &tmpString.front(),
-                                                tmpStringLength, NULL, NULL);
+                            tmpStringLength, NULL, NULL);
       if (writtenBytes != 0)
         {
           if (writtenBytes <= tmpStringLength)
@@ -880,7 +880,7 @@ std::wstring ELstringTowstring(std::string inString, UINT codePage)
     {
       tmpString.reserve(tmpStringLength + 1);
       size_t writtenBytes = MultiByteToWideChar(codePage, 0, narrowString.c_str(), narrowString.length(), &tmpString.front(),
-                                                tmpStringLength);
+                            tmpStringLength);
       if (writtenBytes != 0)
         {
           if (writtenBytes <= tmpStringLength)
@@ -1170,6 +1170,16 @@ bool ELExecuteInternal(LPTSTR command)
       ELAdjustVolume(ELAV_MUTE);
       return true;
     }
+  else if (_wcsicmp(command, TEXT("Homepage")) == 0)
+    {
+      ELExecute((WCHAR*)TEXT("http://emergedesktop.org"));
+      return true;
+    }
+  else if (_wcsicmp(command, TEXT("Tutorial")) == 0)
+    {
+      ELExecute((WCHAR*)TEXT("http://sites.google.com/site/emergedesktop/Home"));
+      return true;
+    }
   /*  else if (_wcsicmp(command, TEXT("BrowserBack")) == 0)
       {
       ELControlBrowser(ELCB_BACK);
@@ -1216,7 +1226,10 @@ bool ELParseCommand(const WCHAR *application, WCHAR *program, WCHAR *arguments)
   workingApp = ELExpandVars(workingApp);
 
   // Bail if workingApp is a directory, UNC Path or it exists
-  if (PathIsDirectory(workingApp.c_str()) || PathIsUNC(workingApp.c_str()) || ELPathFileExists(workingApp.c_str()))
+  if (PathIsDirectory(workingApp.c_str()) ||
+      PathIsUNC(workingApp.c_str()) ||
+      PathIsURL(workingApp.c_str()) ||
+      ELPathFileExists(workingApp.c_str()))
     {
       wcscpy(program, workingApp.c_str());
       return true;
@@ -1448,8 +1461,9 @@ bool ELExecute(LPTSTR application, LPTSTR workingDir, int nShow)
         }
     }
 
-  // If the program doesn't exist return false so as to not generate stray DDE calls
-  if (!PathFileExists(program))
+  // If the program doesn't exist or is not a URL return false so as to not
+  // generate stray DDE calls
+  if (!PathFileExists(program) && !PathIsURL(program))
     return false;
 
   if (!ELFileTypeCommand(program, arguments, command))
@@ -1515,7 +1529,7 @@ bool ELExecute(LPTSTR application, LPTSTR workingDir, int nShow)
 
 bool ELFileTypeCommand(WCHAR *document, WCHAR *docArgs, WCHAR *commandLine)
 {
-  WCHAR *extension = _wcslwr(PathFindExtension(document));
+  WCHAR *extension = PathFindExtension(document);
   WCHAR docExecutable[MAX_LINE_LENGTH], shortDoc[MAX_LINE_LENGTH], quotedDoc[MAX_LINE_LENGTH];
   DWORD size = MAX_LINE_LENGTH;
   BOOL isDirectory = PathIsDirectory(document);
@@ -4038,7 +4052,7 @@ std::wstring ELwcsftime(const WCHAR *format, const struct tm *timeptr)
     {
       tmpString.resize(tmpStringLength + 1);
       size_t writtenBytes = MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, tmpDest, strlen(tmpDest), &tmpString.front(),
-                                                tmpStringLength);
+                            tmpStringLength);
       if (writtenBytes != 0)
         {
           if (writtenBytes <= tmpStringLength)

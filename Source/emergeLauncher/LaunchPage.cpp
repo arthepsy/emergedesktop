@@ -583,6 +583,8 @@ void LaunchPage::PopulateComboBoxes(HWND hwndDlg)
   SendMessage(internalWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("DesktopMenuEditor"));
   SendMessage(internalWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("CoreLaunchEditor"));
   SendMessage(internalWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("CoreShellChanger"));
+  SendMessage(internalWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Homepage"));
+  SendMessage(internalWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Tutorial"));
 }
 
 bool LaunchPage::DoExeCom(HWND hwndDlg, bool exeButton)
