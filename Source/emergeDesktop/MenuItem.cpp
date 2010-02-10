@@ -97,10 +97,10 @@ void MenuItem::SetIcon()
 
   switch (type)
     {
-    case 0:
+    case IT_SEPARATOR:
       icon = EGGetWindowIcon((HWND)_wtoi(value), true, true);
       break;
-    case 1:
+    case IT_EXECUTABLE:
       if ((_wcsicmp(value, TEXT("%documents%")) == 0) ||
           (_wcsicmp(value, TEXT("%commondocuments%")) == 0))
         icon = EGGetSystemIcon(ICON_MYDOCUMENTS, 16);
@@ -113,7 +113,7 @@ void MenuItem::SetIcon()
           icon = EGGetFileIcon(app, 16);
         }
       break;
-    case 2:
+    case IT_INTERNAL_COMMAND:
       if (_wcsicmp(value, TEXT("logoff")) == 0)
         icon = EGGetSystemIcon(ICON_LOGOFF, 16);
       else if (_wcsicmp(value, TEXT("shutdown")) == 0)
@@ -125,7 +125,7 @@ void MenuItem::SetIcon()
       else if (_wcsicmp(value, TEXT("lock")) == 0)
         icon = EGGetSystemIcon(ICON_LOCK, 16);
       break;
-    case 4:
+    case IT_SPECIAL_FOLDER:
     {
       UINT specialFolder = ELIsSpecialFolder(value);
 
@@ -146,13 +146,13 @@ void MenuItem::SetIcon()
         }
     }
     break;
-    case 101:
+    case IT_FILE_MENU:
       icon = EGGetFileIcon(value, 16);
       if (icon != NULL)
         break;
-    case 100:
-    case 102:
-    case 103:
+    case IT_XML_MENU:
+    case IT_TASKS_MENU:
+    case IT_SETTINGS_MENU:
       ELGetCurrentPath(app);
       icon = EGGetFileIcon(app, 16);
       break;

@@ -183,7 +183,7 @@ BOOL ItemEditor::DoInitDialog(HWND hwndDlg)
               (WPARAM)GetTypeValue(type), 0);
   switch (type)
     {
-    case 2:
+    case IT_INTERNAL_COMMAND:
       SendMessage(commandWnd, CB_SETCURSEL,
                   SendMessage(commandWnd,
                               CB_FINDSTRINGEXACT,
@@ -191,7 +191,7 @@ BOOL ItemEditor::DoInitDialog(HWND hwndDlg)
                               (LPARAM)value),
                   0);
       break;
-    case 4:
+    case IT_SPECIAL_FOLDER:
     {
       int folder = ELIsSpecialFolder(value);
       if (ELGetSpecialFolder(folder, value))
@@ -311,7 +311,7 @@ bool ItemEditor::DoBrowseItem(HWND hwndDlg, bool workingDir)
 
   ZeroMemory(tmp, MAX_PATH);
 
-  if ((type == 101) || workingDir)
+  if ((type == IT_FILE_MENU) || workingDir)
     {
       ZeroMemory(&bi, sizeof(BROWSEINFO));
       bi.hwndOwner = hwndDlg;
@@ -365,7 +365,7 @@ bool ItemEditor::DoBrowseItem(HWND hwndDlg, bool workingDir)
       if (GetOpenFileName(&ofn))
         {
           ELUnExpandVars(tmp);
-          if (type == 4)
+          if (type == IT_SPECIAL_FOLDER)
             swprintf(tmp, TEXT("*%s"), PathFindFileName(tmp));
 
           SetDlgItemText(hwndDlg, IDC_ITEMVALUE, tmp);
@@ -381,23 +381,23 @@ int ItemEditor::GetTypeValue(UINT type)
 {
   switch (type)
     {
-    case 0:
+    case IT_SEPARATOR:
       return 0;
-    case 1:
+    case IT_EXECUTABLE:
       return 1;
-    case 2:
+    case IT_INTERNAL_COMMAND:
       return 2;
-    case 3:
+    case IT_DATE_TIME:
       return 3;
-    case 4:
+    case IT_SPECIAL_FOLDER:
       return 4;
-    case 100:
+    case IT_XML_MENU:
       return 5;
-    case 101:
+    case IT_FILE_MENU:
       return 6;
-    case 102:
+    case IT_TASKS_MENU:
       return 7;
-    case 103:
+    case IT_SETTINGS_MENU:
       return 8;
     }
 
@@ -557,23 +557,23 @@ UINT ItemEditor::GetValueType(int value)
   switch (value)
     {
     case 0:
-      return 0;
+      return IT_SEPARATOR;
     case 1:
-      return 1;
+      return IT_EXECUTABLE;
     case 2:
-      return 2;
+      return IT_INTERNAL_COMMAND;
     case 3:
-      return 3;
+      return IT_DATE_TIME;
     case 4:
-      return 4;
+      return IT_SPECIAL_FOLDER;
     case 5:
-      return 100;
+      return IT_XML_MENU;
     case 6:
-      return 101;
+      return IT_FILE_MENU;
     case 7:
-      return 102;
+      return IT_TASKS_MENU;
     case 8:
-      return 103;
+      return IT_SETTINGS_MENU;
     }
 
   return 0;
@@ -592,13 +592,13 @@ void ItemEditor::SetTooltip(HWND browseWnd, UINT type)
 
   switch (type)
     {
-    case 1:
+    case IT_EXECUTABLE:
       ti.lpszText = (WCHAR*)TEXT("Browse for a file");
       break;
-    case 4:
-      ti.lpszText = (WCHAR*)TEXT("Browse for an ELScript");
+    case IT_SPECIAL_FOLDER:
+      ti.lpszText = (WCHAR*)TEXT("Browse for an special folder");
       break;
-    case 101:
+    case IT_FILE_MENU:
       ti.lpszText = (WCHAR*)TEXT("Browse for a directory");
     }
 

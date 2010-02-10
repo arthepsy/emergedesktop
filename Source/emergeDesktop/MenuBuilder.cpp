@@ -504,7 +504,7 @@ bool MenuBuilder::AddMenuItem(MenuMap::iterator iter, int index)
     {
       if (ELReadXMLIntValue(newElement,  (WCHAR*)TEXT("Type"), &type, 0))
         {
-          if (type == 100)
+          if (type == IT_XML_MENU)
             {
               subMenu = ELGetFirstXMLElementByName(newElement, (WCHAR*)TEXT("Submenu"));
               if (subMenu)
@@ -658,21 +658,21 @@ void MenuBuilder::BuildMenu(MenuMap::iterator iter)
   ClearMenu(iter);
 
   // Registry based menu
-  if (type == 100)
+  if (type == IT_XML_MENU)
     {
       BuildXMLMenu(iter);
       return;
     }
 
   // Path based menu
-  if (type == 101)
+  if (type == IT_FILE_MENU)
     {
       BuildFileMenu(iter);
       return;
     }
 
   // Tasks based menu
-  if (type == 102)
+  if (type == IT_TASKS_MENU)
     {
       taskMenu = iter->first;
       EnumWindows(BuildTasksMenu, reinterpret_cast<LPARAM>(this));
@@ -680,7 +680,7 @@ void MenuBuilder::BuildMenu(MenuMap::iterator iter)
     }
 
   // Settings menu
-  if (type == 103)
+  if (type == IT_SETTINGS_MENU)
     {
       BuildSettingsMenu(iter);
       return;
@@ -721,7 +721,7 @@ void MenuBuilder::BuildXMLMenu(MenuMap::iterator iter)
       ELReadXMLIntValue(child, (WCHAR*)TEXT("Type"), &type, 0);
 
       // Separator
-      if (type == 0)
+      if (type == IT_SEPARATOR)
         {
           MenuItem *menuItem = new MenuItem(NULL, type, NULL, NULL, child);
 
@@ -737,7 +737,7 @@ void MenuBuilder::BuildXMLMenu(MenuMap::iterator iter)
         }
 
       // Executable
-      if (type == 1)
+      if (type == IT_EXECUTABLE)
         {
           if (ELReadXMLStringValue(child, (WCHAR*)TEXT("Value"), value, (WCHAR*)TEXT("\0")))
             {
@@ -766,7 +766,7 @@ void MenuBuilder::BuildXMLMenu(MenuMap::iterator iter)
         }
 
       // System Command
-      if (type == 2)
+      if (type == IT_INTERNAL_COMMAND)
         {
           if (ELReadXMLStringValue(child, (WCHAR*)TEXT("Value"), value, (WCHAR*)TEXT("\0")))
             {
@@ -798,7 +798,7 @@ void MenuBuilder::BuildXMLMenu(MenuMap::iterator iter)
             }
         }
 
-      if (type == 3)
+      if (type == IT_DATE_TIME)
         {
           if (ELReadXMLStringValue(child, (WCHAR*)TEXT("Value"), value, (WCHAR*)TEXT("\0")))
             {
@@ -825,7 +825,7 @@ void MenuBuilder::BuildXMLMenu(MenuMap::iterator iter)
         }
 
       // Special Folder
-      if (type == 4)
+      if (type == IT_SPECIAL_FOLDER)
         {
           if (ELReadXMLStringValue(child, (WCHAR*)TEXT("Value"), value, (WCHAR*)TEXT("\0")))
             {
@@ -853,7 +853,7 @@ void MenuBuilder::BuildXMLMenu(MenuMap::iterator iter)
         }
 
       // Registry based submenu
-      if (type == 100)
+      if (type == IT_XML_MENU)
         {
           ELReadXMLStringValue(child, (WCHAR*)TEXT("Name"), name, (WCHAR*)TEXT("\0"));
           subSection = ELGetFirstXMLElementByName(child, (WCHAR*)TEXT("Submenu"));
@@ -887,7 +887,7 @@ void MenuBuilder::BuildXMLMenu(MenuMap::iterator iter)
         }
 
       // Path based submenu
-      if (type == 101)
+      if (type == IT_FILE_MENU)
         {
           ELReadXMLStringValue(child, (WCHAR*)TEXT("Name"), name, (WCHAR*)TEXT("\0"));
           ELReadXMLStringValue(child, (WCHAR*)TEXT("Value"), value, (WCHAR*)TEXT("\0"));
@@ -920,7 +920,7 @@ void MenuBuilder::BuildXMLMenu(MenuMap::iterator iter)
         }
 
       // Tasks(102) or Settings(103) submenu
-      if ((type == 102) || (type == 103))
+      if ((type == IT_TASKS_MENU) || (type == IT_SETTINGS_MENU))
         {
           ELReadXMLStringValue(child, (WCHAR*)TEXT("Name"), name, (WCHAR*)TEXT("\0"));
           subMenu = CreatePopupMenu();
@@ -974,7 +974,7 @@ void MenuBuilder::BuildDefaultMenu(MenuMap::iterator iter)
       if (ELIsKeyDown(VK_RBUTTON))
         {
           xmlItem = ELSetFirstXMLElement(section, (WCHAR*)TEXT("item"));
-          type = 4;
+          type = IT_SPECIAL_FOLDER;
           if (xmlItem)
             {
               ELGetSpecialFolder(CSIDL_DRIVES, specialFolder);
@@ -993,12 +993,12 @@ void MenuBuilder::BuildDefaultMenu(MenuMap::iterator iter)
             }
 
           xmlItem = ELSetFirstXMLElement(section, (WCHAR*)TEXT("item"));
-          type = 0;
+          type = IT_SEPARATOR;
           if (xmlItem)
             ELWriteXMLIntValue(xmlItem, (WCHAR*)TEXT("Type"), type);
 
           xmlItem = ELSetFirstXMLElement(section, (WCHAR*)TEXT("item"));
-          type = 101;
+          type = IT_FILE_MENU;
           if (xmlItem)
             {
               ELGetSpecialFolder(CSIDL_STARTMENU, specialFolder);
@@ -1026,12 +1026,12 @@ void MenuBuilder::BuildDefaultMenu(MenuMap::iterator iter)
             }
 
           xmlItem = ELSetFirstXMLElement(section, (WCHAR*)TEXT("item"));
-          type = 0;
+          type = IT_SEPARATOR;
           if (xmlItem)
             ELWriteXMLIntValue(xmlItem, (WCHAR*)TEXT("Type"), type);
 
           xmlItem = ELSetFirstXMLElement(section, (WCHAR*)TEXT("item"));
-          type = 103;
+          type = IT_SETTINGS_MENU;
           if (xmlItem)
             {
               ELWriteXMLIntValue(xmlItem, (WCHAR*)TEXT("Type"), type);
@@ -1040,7 +1040,7 @@ void MenuBuilder::BuildDefaultMenu(MenuMap::iterator iter)
             }
 
           xmlItem = ELSetFirstXMLElement(section, (WCHAR*)TEXT("item"));
-          type = 1;
+          type = IT_EXECUTABLE;
           if (xmlItem)
             {
               ELWriteXMLIntValue(xmlItem, (WCHAR*)TEXT("Type"), type);
@@ -1049,12 +1049,12 @@ void MenuBuilder::BuildDefaultMenu(MenuMap::iterator iter)
             }
 
           xmlItem = ELSetFirstXMLElement(section, (WCHAR*)TEXT("item"));
-          type = 0;
+          type = IT_SEPARATOR;
           if (xmlItem)
             ELWriteXMLIntValue(xmlItem, (WCHAR*)TEXT("Type"), type);
 
           xmlItem = ELSetFirstXMLElement(section, (WCHAR*)TEXT("item"));
-          type = 2;
+          type = IT_INTERNAL_COMMAND;
           if (xmlItem)
             {
               ELWriteXMLIntValue(xmlItem, (WCHAR*)TEXT("Type"), type);
@@ -1083,7 +1083,7 @@ void MenuBuilder::BuildDefaultMenu(MenuMap::iterator iter)
       else if (ELIsKeyDown(VK_MBUTTON))
         {
           xmlItem = ELSetFirstXMLElement(section, (WCHAR*)TEXT("item"));
-          type = 102;
+          type = IT_TASKS_MENU;
           if (xmlItem)
             {
               ELWriteXMLIntValue(xmlItem, (WCHAR*)TEXT("Type"), type);
@@ -1092,12 +1092,12 @@ void MenuBuilder::BuildDefaultMenu(MenuMap::iterator iter)
             }
 
           xmlItem = ELSetFirstXMLElement(section, (WCHAR*)TEXT("item"));
-          type = 0;
+          type = IT_SEPARATOR;
           if (xmlItem)
             ELWriteXMLIntValue(xmlItem, (WCHAR*)TEXT("Type"), type);
 
           xmlItem = ELSetFirstXMLElement(section, (WCHAR*)TEXT("item"));
-          type = 2;
+          type = IT_INTERNAL_COMMAND;
           if (xmlItem)
             {
               ELWriteXMLIntValue(xmlItem, (WCHAR*)TEXT("Type"), type);
@@ -1733,16 +1733,16 @@ void MenuBuilder::ExecuteXMLMenuItem(UINT type, WCHAR *value, WCHAR *workingDir)
 
   switch (type)
     {
-    case 1:
+    case IT_EXECUTABLE:
       ret = ELExecute(value, workingDir);
       break;
-    case 2:
+    case IT_INTERNAL_COMMAND:
       ret = ELExecuteInternal(value);
       break;
-    case 3:
+    case IT_DATE_TIME:
       ret = ELExecute((WCHAR*)TEXT("timedate.cpl"));
       break;
-    case 4:
+    case IT_SPECIAL_FOLDER:
       ret = ELExecuteSpecialFolder(value);
       break;
     }

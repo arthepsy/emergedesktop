@@ -351,9 +351,9 @@ bool MenuEditor::BuildMenuTreeHelper (HWND treeWnd, HTREEITEM parent, TiXmlEleme
       tvInsert.hParent = parent;
       tvInsert.hInsertAfter=TVI_LAST;
       tvInsert.item.mask = TVIF_TEXT;
-      if (type == 0)
+      if (type == IT_SEPARATOR)
         tvInsert.item.pszText = (WCHAR*)TEXT("[Separator]");
-      else if (type == 3)
+      else if (type == IT_DATE_TIME)
         tvInsert.item.pszText = (WCHAR*)TEXT("[DateTime]");
       else
         tvInsert.item.pszText = name;
@@ -362,7 +362,7 @@ bool MenuEditor::BuildMenuTreeHelper (HWND treeWnd, HTREEITEM parent, TiXmlEleme
 
       treeMap.insert(TreeItem(child, menuItem));
 
-      if (type == 100)
+      if (type == IT_XML_MENU)
         {
           subMenu = ELGetFirstXMLElementByName(xmlItem, (WCHAR*)TEXT("Submenu"));
           if (subMenu)
@@ -558,7 +558,7 @@ bool MenuEditor::WriteMenuHelper(TiXmlElement *section, HWND treeWnd, HTREEITEM 
                 ELWriteXMLStringValue(item, (WCHAR*)TEXT("WorkingDir"),
                                       iter->second.workingDir);
 
-              if (iter->second.type == 100)
+              if (iter->second.type == IT_XML_MENU)
                 {
                   subItem = ELSetFirstXMLElement(item, TEXT("Submenu"));
                   WriteMenuHelper(subItem, treeWnd, child);
@@ -650,7 +650,7 @@ BOOL MenuEditor::DoMenuNotify(HWND hwndDlg, WPARAM wParam UNUSED, LPARAM lParam)
               SetDlgItemText(hwndDlg, IDC_WORKINGDIR, iter->second.workingDir);
               SendMessage(typeWnd, CB_SETCURSEL,
                           (WPARAM)GetTypeValue(iter->second.type), 0);
-              if (iter->second.type == 2)
+              if (iter->second.type == IT_INTERNAL_COMMAND)
                 {
                   ShowWindow(valueWnd, false);
                   ShowWindow(browseWnd, false);
@@ -663,7 +663,7 @@ BOOL MenuEditor::DoMenuNotify(HWND hwndDlg, WPARAM wParam UNUSED, LPARAM lParam)
                               0);
                 }
             }
-          else if (iter->second.type == 4)
+          else if (iter->second.type == IT_SPECIAL_FOLDER)
             {
               ShowWindow(valueWnd, false);
               ShowWindow(browseWnd, false);
@@ -717,23 +717,23 @@ int MenuEditor::GetTypeValue(UINT type)
 {
   switch (type)
     {
-    case 0:
+    case IT_SEPARATOR:
       return 0;
-    case 1:
+    case IT_EXECUTABLE:
       return 1;
-    case 2:
+    case IT_INTERNAL_COMMAND:
       return 2;
-    case 3:
+    case IT_DATE_TIME:
       return 3;
-    case 4:
+    case IT_SPECIAL_FOLDER:
       return 4;
-    case 100:
+    case IT_XML_MENU:
       return 5;
-    case 101:
+    case IT_FILE_MENU:
       return 6;
-    case 102:
+    case IT_TASKS_MENU:
       return 7;
-    case 103:
+    case IT_SETTINGS_MENU:
       return 8;
     }
 
@@ -849,9 +849,9 @@ BOOL MenuEditor::DoMenuMouseLButtonUp(HWND hwndDlg, WPARAM wParam UNUSED, LPARAM
           tvInsert.hParent = parent;
           tvInsert.hInsertAfter = prev;
           tvInsert.item.mask = TVIF_TEXT;
-          if (iter->second.type == 0)
+          if (iter->second.type == IT_SEPARATOR)
             tvInsert.item.pszText = (WCHAR*)TEXT("[Separator]");
-          else if (iter->second.type == 3)
+          else if (iter->second.type == IT_DATE_TIME)
             tvInsert.item.pszText = (WCHAR*)TEXT("[DateTime]");
           else
             tvInsert.item.pszText = iter->second.name;
@@ -860,7 +860,7 @@ BOOL MenuEditor::DoMenuMouseLButtonUp(HWND hwndDlg, WPARAM wParam UNUSED, LPARAM
 
           treeMap.insert(TreeItem(item, iter->second));
 
-          if (iter->second.type == 100)
+          if (iter->second.type == IT_XML_MENU)
             MoveSubmenu(treeWnd, item, iter->first);
 
           DeleteItem(treeWnd, iter->first);
@@ -890,9 +890,9 @@ void MenuEditor::MoveSubmenu(HWND treeWnd, HTREEITEM target, HTREEITEM source)
       tvInsert.hParent = target;
       tvInsert.hInsertAfter = TVI_LAST;
       tvInsert.item.mask = TVIF_TEXT;
-      if (iter->second.type == 0)
+      if (iter->second.type == IT_SEPARATOR)
         tvInsert.item.pszText = (WCHAR*)TEXT("[Separator]");
-      else if (iter->second.type == 3)
+      else if (iter->second.type == IT_DATE_TIME)
         tvInsert.item.pszText = (WCHAR*)TEXT("[DateTime]");
       else
         tvInsert.item.pszText = iter->second.name;
@@ -900,7 +900,7 @@ void MenuEditor::MoveSubmenu(HWND treeWnd, HTREEITEM target, HTREEITEM source)
       item = TreeView_InsertItem(treeWnd, &tvInsert);
       treeMap.insert(TreeItem(item, iter->second));
 
-      if (iter->second.type == 100)
+      if (iter->second.type == IT_XML_MENU)
         MoveSubmenu(treeWnd, item, child);
 
       child = TreeView_GetNextSibling(treeWnd, iter->first);
@@ -1118,13 +1118,13 @@ bool MenuEditor::DoSaveItem(HWND hwndDlg)
 
   iter->second.type = GetValueType((int)SendMessage(typeWnd, CB_GETCURSEL, 0, 0));
 
-  if (iter->second.type == 0)
+  if (iter->second.type == IT_SEPARATOR)
     pItem.pszText = (WCHAR*)TEXT("[Separator]");
   else
     {
-      if (iter->second.type == 2)
+      if (iter->second.type == IT_INTERNAL_COMMAND)
         GetDlgItemText(hwndDlg, IDC_ITEMCOMMAND, value, MAX_LINE_LENGTH);
-      else if (iter->second.type == 4)
+      else if (iter->second.type == IT_SPECIAL_FOLDER)
         {
           GetDlgItemText(hwndDlg, IDC_ITEMSPECIALFOLDERS, tmp, MAX_LINE_LENGTH);
           if (!ELSpecialFolderValue(tmp, value))
@@ -1133,7 +1133,7 @@ bool MenuEditor::DoSaveItem(HWND hwndDlg)
       else
         GetDlgItemText(hwndDlg, IDC_ITEMVALUE, value, MAX_LINE_LENGTH);
 
-      if (iter->second.type == 3)
+      if (iter->second.type == IT_DATE_TIME)
         pItem.pszText = (WCHAR*)TEXT("[DateTime]");
 
       GetDlgItemText(hwndDlg, IDC_WORKINGDIR, workingDir, MAX_LINE_LENGTH);
@@ -1143,7 +1143,7 @@ bool MenuEditor::DoSaveItem(HWND hwndDlg)
           wcscpy(iter->second.name, name);
           pItem.pszText = name;
 
-          if ((iter->second.type == 100) &&
+          if ((iter->second.type == IT_XML_MENU) &&
               (TreeView_GetChild(treeWnd, iter->first) == NULL))
             {
               MENUTREEITEM menuItem;
@@ -1198,14 +1198,14 @@ bool MenuEditor::DoAbortItem(HWND hwndDlg)
     {
       SetDlgItemText(hwndDlg, IDC_ITEMNAME, iter->second.name);
 
-      if (iter->second.type == 2)
+      if (iter->second.type == IT_INTERNAL_COMMAND)
         SendMessage(commandWnd, CB_SETCURSEL,
                     SendMessage(commandWnd,
                                 CB_FINDSTRINGEXACT,
                                 (WPARAM)-1,
                                 (LPARAM)iter->second.value),
                     0);
-      else if (iter->second.type == 4)
+      else if (iter->second.type == IT_SPECIAL_FOLDER)
         {
           int folder = ELIsSpecialFolder(iter->second.value);
           if (ELGetSpecialFolder(folder, value))
@@ -1386,7 +1386,7 @@ bool MenuEditor::DoBrowseItem(HWND hwndDlg, bool workingDir)
 
   ZeroMemory(tmp, MAX_PATH);
 
-  if ((type == 101) || workingDir)
+  if ((type == IT_FILE_MENU) || workingDir)
     {
       ZeroMemory(&bi, sizeof(BROWSEINFO));
       if (workingDir)
@@ -1448,7 +1448,7 @@ bool MenuEditor::DoBrowseItem(HWND hwndDlg, bool workingDir)
       if (GetOpenFileName(&ofn))
         {
           ELUnExpandVars(tmp);
-          if (type == 4)
+          if (type == IT_SPECIAL_FOLDER)
             swprintf(tmp, TEXT("*%s"), PathFindFileName(tmp));
 
           SetDlgItemText(hwndDlg, IDC_ITEMVALUE, tmp);
@@ -1473,13 +1473,13 @@ void MenuEditor::SetTooltip(HWND browseWnd, UINT type)
 
   switch (type)
     {
-    case 1:
+    case IT_EXECUTABLE:
       ti.lpszText = (WCHAR*)TEXT("Browse for a file");
       break;
-    case 4:
-      ti.lpszText = (WCHAR*)TEXT("Browse for an ELScript");
+    case IT_SPECIAL_FOLDER:
+      ti.lpszText = (WCHAR*)TEXT("Browse for a special folder");
       break;
-    case 101:
+    case IT_FILE_MENU:
       ti.lpszText = (WCHAR*)TEXT("Browse for a directory");
     }
 
