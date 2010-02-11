@@ -4,13 +4,13 @@
 	<Project>
 		<Option title="EmergeDesktop_W64" />
 		<Option pch_mode="2" />
-		<Option compiler="copy_of_gnu_gcc_compiler_for_mingw64" />
+		<Option compiler="gnu_gcc_compiler_for_mingw64" />
 		<Build>
 			<Target title="emergeLib - Release">
 				<Option output="bin64\emergeLib" prefix_auto="1" extension_auto="1" />
 				<Option object_output=".objs64\Release" />
 				<Option type="3" />
-				<Option compiler="copy_of_gnu_gcc_compiler_for_mingw64" />
+				<Option compiler="gnu_gcc_compiler_for_mingw64" />
 				<Option createDefFile="1" />
 				<Option createStaticLib="1" />
 				<Compiler>
@@ -38,7 +38,7 @@
 				<Option output="bin64\emergeGraphics" prefix_auto="1" extension_auto="1" />
 				<Option object_output=".objs64\Release" />
 				<Option type="3" />
-				<Option compiler="copy_of_gnu_gcc_compiler_for_mingw64" />
+				<Option compiler="gnu_gcc_compiler_for_mingw64" />
 				<Option createDefFile="1" />
 				<Option createStaticLib="1" />
 				<Compiler>
@@ -63,7 +63,7 @@
 				<Option output="bin64\emergeAppletEngine" prefix_auto="1" extension_auto="1" />
 				<Option object_output=".objs64\Release" />
 				<Option type="3" />
-				<Option compiler="copy_of_gnu_gcc_compiler_for_mingw64" />
+				<Option compiler="gnu_gcc_compiler_for_mingw64" />
 				<Option createDefFile="1" />
 				<Option createStaticLib="1" />
 				<Compiler>
@@ -84,7 +84,7 @@
 				<Option output="bin64\emergeSchemeEngine" prefix_auto="1" extension_auto="1" />
 				<Option object_output=".objs64\Release" />
 				<Option type="3" />
-				<Option compiler="copy_of_gnu_gcc_compiler_for_mingw64" />
+				<Option compiler="gnu_gcc_compiler_for_mingw64" />
 				<Option createDefFile="1" />
 				<Option createStaticLib="1" />
 				<Compiler>
@@ -108,7 +108,7 @@
 				<Option output="bin64\emergeBaseClasses" prefix_auto="1" extension_auto="1" />
 				<Option object_output=".objs64\Release" />
 				<Option type="3" />
-				<Option compiler="copy_of_gnu_gcc_compiler_for_mingw64" />
+				<Option compiler="gnu_gcc_compiler_for_mingw64" />
 				<Option createDefFile="1" />
 				<Option createStaticLib="1" />
 				<Compiler>
@@ -136,7 +136,7 @@
 				<Option object_output=".objs64\Release" />
 				<Option external_deps="bin\emergeLib.dll;" />
 				<Option type="0" />
-				<Option compiler="copy_of_gnu_gcc_compiler_for_mingw64" />
+				<Option compiler="gnu_gcc_compiler_for_mingw64" />
 				<Compiler>
 					<Add option="-O2" />
 				</Compiler>
@@ -159,7 +159,7 @@
 				<Option object_output=".objs64\Release" />
 				<Option external_deps="bin\emergeAppletEngine.dll;bin\emergeBaseClasses.dll;bin\emergeGraphics.dll;bin\emergeLib.dll;bin\emergeSchemeEngine.dll;" />
 				<Option type="0" />
-				<Option compiler="copy_of_gnu_gcc_compiler_for_mingw64" />
+				<Option compiler="gnu_gcc_compiler_for_mingw64" />
 				<Compiler>
 					<Add option="-O2" />
 				</Compiler>
@@ -184,7 +184,7 @@
 				<Option object_output=".objs64\Release" />
 				<Option external_deps="bin\emergeLib.dll;bin\emergeAppletEngine.dll;bin\emergeGraphics.dll;" />
 				<Option type="0" />
-				<Option compiler="copy_of_gnu_gcc_compiler_for_mingw64" />
+				<Option compiler="gnu_gcc_compiler_for_mingw64" />
 				<Compiler>
 					<Add option="-O2" />
 				</Compiler>
@@ -209,7 +209,7 @@
 				<Option object_output=".objs64\Release" />
 				<Option external_deps="bin\emergeAppletEngine.dll;bin\emergeLib.dll;" />
 				<Option type="0" />
-				<Option compiler="copy_of_gnu_gcc_compiler_for_mingw64" />
+				<Option compiler="gnu_gcc_compiler_for_mingw64" />
 				<Compiler>
 					<Add option="-O2" />
 				</Compiler>
@@ -230,7 +230,7 @@
 				<Option object_output=".objs64\Release" />
 				<Option external_deps="bin\emergeAppletEngine.dll;bin\emergeBaseClasses.dll;bin\emergeGraphics.dll;bin\emergeLib.dll;bin\emergeSchemeEngine.dll;" />
 				<Option type="0" />
-				<Option compiler="copy_of_gnu_gcc_compiler_for_mingw64" />
+				<Option compiler="gnu_gcc_compiler_for_mingw64" />
 				<Compiler>
 					<Add option="-O2" />
 				</Compiler>
@@ -254,7 +254,7 @@
 				<Option object_output=".objs64\Release" />
 				<Option external_deps="bin\emergeAppletEngine.dll;bin\emergeBaseClasses.dll;bin\emergeGraphics.dll;bin\emergeLib.dll;bin\emergeSchemeEngine.dll;" />
 				<Option type="0" />
-				<Option compiler="copy_of_gnu_gcc_compiler_for_mingw64" />
+				<Option compiler="gnu_gcc_compiler_for_mingw64" />
 				<Compiler>
 					<Add option="-O2" />
 				</Compiler>
@@ -277,7 +277,7 @@
 				<Option object_output=".objs64\Release" />
 				<Option external_deps="bin\emergeAppletEngine.dll;bin\emergeBaseClasses.dll;bin\emergeGraphics.dll;bin\emergeLib.dll;bin\emergeSchemeEngine.dll;" />
 				<Option type="0" />
-				<Option compiler="copy_of_gnu_gcc_compiler_for_mingw64" />
+				<Option compiler="gnu_gcc_compiler_for_mingw64" />
 				<Compiler>
 					<Add option="-O2" />
 				</Compiler>
@@ -302,7 +302,7 @@
 				<Option object_output=".objs64\Release" />
 				<Option external_deps="bin\emergeAppletEngine.dll;bin\emergeBaseClasses.dll;bin\emergeGraphics.dll;bin\emergeLib.dll;bin\emergeSchemeEngine.dll;" />
 				<Option type="0" />
-				<Option compiler="copy_of_gnu_gcc_compiler_for_mingw64" />
+				<Option compiler="gnu_gcc_compiler_for_mingw64" />
 				<Compiler>
 					<Add option="-O2" />
 				</Compiler>
@@ -326,7 +326,7 @@
 				<Option object_output=".objs64\Release" />
 				<Option external_deps="bin\emergeLib.dll;" />
 				<Option type="0" />
-				<Option compiler="copy_of_gnu_gcc_compiler_for_mingw64" />
+				<Option compiler="gnu_gcc_compiler_for_mingw64" />
 				<Compiler>
 					<Add option="-O2" />
 				</Compiler>
@@ -341,7 +341,7 @@
 				<Option object_output=".objs64\Release" />
 				<Option external_deps="bin\emergeAppletEngine.dll;bin\emergeBaseClasses.dll;bin\emergeGraphics.dll;bin\emergeLib.dll;bin\emergeSchemeEngine.dll;" />
 				<Option type="0" />
-				<Option compiler="copy_of_gnu_gcc_compiler_for_mingw64" />
+				<Option compiler="gnu_gcc_compiler_for_mingw64" />
 				<Compiler>
 					<Add option="-O2" />
 				</Compiler>
@@ -364,7 +364,7 @@
 				<Option object_output=".objs64\Release" />
 				<Option external_deps="bin\emergeAppletEngine.dll;bin\emergeBaseClasses.dll;bin\emergeGraphics.dll;bin\emergeLib.dll;bin\emergeSchemeEngine.dll;" />
 				<Option type="0" />
-				<Option compiler="copy_of_gnu_gcc_compiler_for_mingw64" />
+				<Option compiler="gnu_gcc_compiler_for_mingw64" />
 				<Compiler>
 					<Add option="-O2" />
 				</Compiler>
@@ -387,7 +387,7 @@
 				<Option object_output=".objs64\Release" />
 				<Option external_deps="bin\emergeAppletEngine.dll;bin\emergeBaseClasses.dll;bin\emergeGraphics.dll;bin\emergeLib.dll;bin\emergeSchemeEngine.dll;" />
 				<Option type="0" />
-				<Option compiler="copy_of_gnu_gcc_compiler_for_mingw64" />
+				<Option compiler="gnu_gcc_compiler_for_mingw64" />
 				<Compiler>
 					<Add option="-O2" />
 				</Compiler>
@@ -409,7 +409,7 @@
 				<Option object_output=".objs64\Release" />
 				<Option external_deps="bin\emergeLib.dll;" />
 				<Option type="0" />
-				<Option compiler="copy_of_gnu_gcc_compiler_for_mingw64" />
+				<Option compiler="gnu_gcc_compiler_for_mingw64" />
 				<Compiler>
 					<Add option="-O2" />
 				</Compiler>
@@ -427,7 +427,7 @@
 				<Option object_output=".objs64\Release" />
 				<Option external_deps="bin\emergeAppletEngine.dll;bin\emergeBaseClasses.dll;bin\emergeGraphics.dll;bin\emergeLib.dll;bin\emergeSchemeEngine.dll;" />
 				<Option type="0" />
-				<Option compiler="copy_of_gnu_gcc_compiler_for_mingw64" />
+				<Option compiler="gnu_gcc_compiler_for_mingw64" />
 				<Compiler>
 					<Add option="-O2" />
 				</Compiler>
