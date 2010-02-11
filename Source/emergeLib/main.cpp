@@ -1177,7 +1177,7 @@ bool ELExecuteInternal(LPTSTR command)
     }
   else if (_wcsicmp(command, TEXT("Tutorial")) == 0)
     {
-      ELExecute((WCHAR*)TEXT("http://sites.google.com/site/emergedesktop/Home"));
+      ELExecute((WCHAR*)TEXT("http://sites.google.com/site/emergedesktop/Home/getting-started/the-basics"));
       return true;
     }
   /*  else if (_wcsicmp(command, TEXT("BrowserBack")) == 0)
