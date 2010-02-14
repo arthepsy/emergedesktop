@@ -1,4 +1,4 @@
-CC = g++
+CC = mingw32-g++
 AR = ar
 WINDRES = windres
 WINDRESOPS = -E -xc-header -DRC_INVOKED
@@ -13,8 +13,10 @@ TARGET_OBJS += $(OBJS)
 TINYOBJS = $(patsubst ../tinyxml/%.cpp,../$(OBJ_DIR)/$(BUILD)/tinyxml/%.o,$(wildcard ../tinyxml/*.cpp))
 BUILD = Release
 HG_FILE = ../hgversion.h
+HG_SED = ../hgversion.sed
 LDFLAGS = -Wl,--subsystem,windows -shared-libgcc -Wl,--enable-auto-import
 CFLAGS = -W -Wall -Wextra -Werror -pedantic -D_GLIBCXX_DLL
+MINGW64 = 2
 
 ifeq ($(MINGW64), 2)
 		CC = i686-w64-mingw32-g++
