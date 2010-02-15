@@ -1,7 +1,7 @@
-ifdef MINGW64
-		LIBS += -lstdc++.dll
-else
+ifeq ($(MINGW64), 0)
 		LIBS += -lstdc++_s
+else
+		LIBS += -lstdc++.dll
 endif
 
 .IGNORE: distclean

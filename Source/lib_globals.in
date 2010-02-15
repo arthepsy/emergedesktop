@@ -3,10 +3,10 @@ CFLAGS += $(EXPORTS)
 IMPLIB = $(BIN_DIR)/lib$(TARGET).a
 TARGET_ARGS = -Wl,--out-implib,$(IMPLIB) -Wl,--enable-auto-image-base
 
-ifdef MINGW64
-		LIBS += -lstdc++.dll
-else
+ifeq ($(MINGW64), 0)
 		LIBS += -lstdc++_s
+else
+		LIBS += -lstdc++.dll
 endif
 
 .IGNORE: distclean
