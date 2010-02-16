@@ -185,12 +185,6 @@ bool ConfigPage::UpdateSettings(HWND hwndDlg)
   pSettings->SetMonitorPagefile(
     SendDlgItemMessage(hwndDlg, IDC_MONITORPAGE, BM_GETCHECK, 0, 0) == BST_CHECKED);
 
-  if (SendDlgItemMessage(hwndDlg, IDC_HISTORYMODE, BM_GETCHECK, 0, 0) == BST_CHECKED)
-    success = true;
-  else if (SendDlgItemMessage(hwndDlg, IDC_HISTORYMODE, BM_GETCHECK, 0, 0) == BST_UNCHECKED)
-    success = false;
-  pSettings->SetHistoryMode(success);
-
   result = GetDlgItemInt(hwndDlg, IDC_UPDATEINTERVAL, &success, false);
   if (success)
     pSettings->SetUpdateInterval(result);
