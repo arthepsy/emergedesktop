@@ -260,6 +260,8 @@ void ItemEditor::PopulateSpecialFolders(HWND specialFoldersWnd)
 {
   WCHAR tmp[MAX_PATH];
 
+  if (ELGetSpecialFolder(CSIDL_PERSONAL, tmp))
+    SendMessage(specialFoldersWnd, CB_ADDSTRING, 0, (LPARAM)tmp);
   if (ELGetSpecialFolder(CSIDL_DRIVES, tmp))
     SendMessage(specialFoldersWnd, CB_ADDSTRING, 0, (LPARAM)tmp);
   if (ELGetSpecialFolder(CSIDL_NETWORK, tmp))

@@ -193,6 +193,10 @@ void Item::SetIcon(int iconSize, WCHAR *orientation)
             {
               switch (specialFolder)
                 {
+                case CSIDL_PERSONAL:
+                  origIcon = EGGetSystemIcon(ICON_MYDOCUMENTS, iconSize);
+                  break;
+
                 case CSIDL_DRIVES:
                   origIcon = EGGetSystemIcon(ICON_MYCOMPUTER, iconSize);
                   break;

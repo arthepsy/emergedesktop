@@ -3286,6 +3286,16 @@ bool ELSpecialFolderValue(WCHAR *folder, WCHAR *value)
   LPITEMIDLIST pidl = NULL;
   SHFILEINFO fileInfo;
 
+  SHGetSpecialFolderLocation(NULL, CSIDL_PERSONAL, &pidl);
+  SHGetFileInfo((LPCTSTR)pidl, 0, &fileInfo, sizeof(fileInfo), SHGFI_PIDL | SHGFI_DISPLAYNAME);
+  ELILFree(pidl);
+
+  if (_wcsicmp(folder, fileInfo.szDisplayName) == 0)
+    {
+      wcscpy(value, TEXT("CSIDL_PERSONAL"));
+      return true;
+    }
+
   SHGetSpecialFolderLocation(NULL, CSIDL_DRIVES, &pidl);
   SHGetFileInfo((LPCTSTR)pidl, 0, &fileInfo, sizeof(fileInfo), SHGFI_PIDL | SHGFI_DISPLAYNAME);
   ELILFree(pidl);
@@ -3340,6 +3350,8 @@ int ELIsSpecialFolder(WCHAR *folder)
   LPITEMIDLIST pidl = NULL;
   SHFILEINFO fileInfo;
 
+  if (_wcsicmp(folder, TEXT("CSIDL_PERSONAL")) == 0)
+    return CSIDL_PERSONAL;
   if (_wcsicmp(folder, TEXT("CSIDL_DRIVES")) == 0)
     return CSIDL_DRIVES;
   if (_wcsicmp(folder, TEXT("CSIDL_CONTROLS")) == 0)
@@ -3348,6 +3360,13 @@ int ELIsSpecialFolder(WCHAR *folder)
     return CSIDL_BITBUCKET;
   if (_wcsicmp(folder, TEXT("CSIDL_NETWORK")) == 0)
     return CSIDL_NETWORK;
+
+  SHGetSpecialFolderLocation(NULL, CSIDL_PERSONAL, &pidl);
+  SHGetFileInfo((LPCTSTR)pidl, 0, &fileInfo, sizeof(fileInfo), SHGFI_PIDL | SHGFI_DISPLAYNAME);
+  ELILFree(pidl);
+
+  if (_wcsicmp(folder, fileInfo.szDisplayName) == 0)
+    return CSIDL_PERSONAL;
 
   SHGetSpecialFolderLocation(NULL, CSIDL_DRIVES, &pidl);
   SHGetFileInfo((LPCTSTR)pidl, 0, &fileInfo, sizeof(fileInfo), SHGFI_PIDL | SHGFI_DISPLAYNAME);

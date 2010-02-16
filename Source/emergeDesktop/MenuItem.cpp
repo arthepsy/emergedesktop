@@ -131,6 +131,9 @@ void MenuItem::SetIcon()
 
       switch (specialFolder)
         {
+        case CSIDL_PERSONAL:
+          icon = EGGetSystemIcon(ICON_MYDOCUMENTS, 16);
+          break;
         case CSIDL_DRIVES:
           icon = EGGetSystemIcon(ICON_MYCOMPUTER, 16);
           break;
