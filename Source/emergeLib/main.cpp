@@ -1376,15 +1376,7 @@ bool ELExecuteSpecialFolder(LPTSTR folder)
   WCHAR command[MAX_LINE_LENGTH], classID[MAX_PATH];
   wcscpy(command, TEXT("%windir%\\explorer.exe ::"));
 
-  std::wstring debug = L"Incoming folder: ";
-  debug += folder;
-  ELWriteDebug(debug);
-
   int specialFolder = ELIsSpecialFolder(folder);
-
-  debug = L"specialFolder ID: ";
-  debug += towstring(specialFolder);
-  ELWriteDebug(debug);
 
   switch (specialFolder)
     {
@@ -1411,8 +1403,6 @@ bool ELExecuteSpecialFolder(LPTSTR folder)
 
 BOOL CALLBACK WindowIconEnum(HWND hwnd, LPARAM lParam)
 {
-  std::wstring debug = L"In Enum";
-  ELWriteDebug(debug);
   SendMessage(hwnd, WM_SETICON, ICON_SMALL, lParam);
   SendMessage(hwnd, WM_SETICON, ICON_BIG, lParam);
   return TRUE;
