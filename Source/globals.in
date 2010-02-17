@@ -16,7 +16,7 @@ HG_FILE = ../hgversion.h
 HG_SED = ../hgversion.sed
 LDFLAGS = -Wl,--subsystem,windows -shared-libgcc -Wl,--enable-auto-import
 CFLAGS = -W -Wall -Wextra -Werror -pedantic -D_GLIBCXX_DLL
-MINGW64 = 2
+MINGW64 = 0
 
 ifeq ($(MINGW64), 2)
 		CC = i686-w64-mingw32-g++
