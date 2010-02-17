@@ -1376,7 +1376,15 @@ bool ELExecuteSpecialFolder(LPTSTR folder)
   WCHAR command[MAX_LINE_LENGTH], classID[MAX_PATH];
   wcscpy(command, TEXT("%windir%\\explorer.exe ::"));
 
+  std::wstring debug = L"Incoming folder: ";
+  debug += folder;
+  ELWriteDebug(debug);
+
   int specialFolder = ELIsSpecialFolder(folder);
+
+  debug = L"specialFolder ID: ";
+  debug += towstring(specialFolder);
+  ELWriteDebug(debug);
 
   switch (specialFolder)
     {
@@ -1392,6 +1400,7 @@ bool ELExecuteSpecialFolder(LPTSTR folder)
               wcscat(command, TEXT("\\::"));
             }
         }
+      break;
     default:
       if (GetSpecialFolderGUID(specialFolder, classID))
         wcscat(command, classID);
@@ -3281,62 +3290,86 @@ UINT ELIsInternalCommand(WCHAR *command)
   return 0;
 }
 
+int ELSpecialFolderID(WCHAR *folder)
+{
+  int csidl = 0;
+
+  if (_wcsicmp(folder, TEXT("CSIDL_PERSONAL")) == 0)
+    csidl = CSIDL_PERSONAL;
+  else if (_wcsicmp(folder, TEXT("CSIDL_DRIVES")) == 0)
+    csidl = CSIDL_DRIVES;
+  else if (_wcsicmp(folder, TEXT("CSIDL_CONTROLS")) == 0)
+    csidl = CSIDL_CONTROLS;
+  else if (_wcsicmp(folder, TEXT("CSIDL_BITBUCKET")) == 0)
+    csidl = CSIDL_BITBUCKET;
+  else if (_wcsicmp(folder, TEXT("CSIDL_NETWORK")) == 0)
+    csidl = CSIDL_NETWORK;
+
+  return csidl;
+}
+
 bool ELSpecialFolderValue(WCHAR *folder, WCHAR *value)
 {
   LPITEMIDLIST pidl = NULL;
   SHFILEINFO fileInfo;
+  bool ret = false;
 
-  SHGetSpecialFolderLocation(NULL, CSIDL_PERSONAL, &pidl);
-  SHGetFileInfo((LPCTSTR)pidl, 0, &fileInfo, sizeof(fileInfo), SHGFI_PIDL | SHGFI_DISPLAYNAME);
-  ELILFree(pidl);
-
-  if (_wcsicmp(folder, fileInfo.szDisplayName) == 0)
+  if (SUCCEEDED(SHGetSpecialFolderLocation(NULL, CSIDL_PERSONAL, &pidl)))
     {
-      wcscpy(value, TEXT("CSIDL_PERSONAL"));
-      return true;
+      SHGetFileInfo((LPCTSTR)pidl, 0, &fileInfo, sizeof(fileInfo), SHGFI_PIDL | SHGFI_DISPLAYNAME);
+      if (_wcsicmp(folder, fileInfo.szDisplayName) == 0)
+        {
+          wcscpy(value, TEXT("CSIDL_PERSONAL"));
+          ret = true;
+        }
+      ELILFree(pidl);
     }
 
-  SHGetSpecialFolderLocation(NULL, CSIDL_DRIVES, &pidl);
-  SHGetFileInfo((LPCTSTR)pidl, 0, &fileInfo, sizeof(fileInfo), SHGFI_PIDL | SHGFI_DISPLAYNAME);
-  ELILFree(pidl);
-
-  if (_wcsicmp(folder, fileInfo.szDisplayName) == 0)
+  if (SUCCEEDED(SHGetSpecialFolderLocation(NULL, CSIDL_DRIVES, &pidl)))
     {
-      wcscpy(value, TEXT("CSIDL_DRIVES"));
-      return true;
+      SHGetFileInfo((LPCTSTR)pidl, 0, &fileInfo, sizeof(fileInfo), SHGFI_PIDL | SHGFI_DISPLAYNAME);
+      if (_wcsicmp(folder, fileInfo.szDisplayName) == 0)
+        {
+          wcscpy(value, TEXT("CSIDL_DRIVES"));
+          ret = true;
+        }
+      ELILFree(pidl);
     }
 
-  SHGetSpecialFolderLocation(NULL, CSIDL_CONTROLS, &pidl);
-  SHGetFileInfo((LPCTSTR)pidl, 0, &fileInfo, sizeof(fileInfo), SHGFI_PIDL | SHGFI_DISPLAYNAME);
-  ELILFree(pidl);
-
-  if (_wcsicmp(folder, fileInfo.szDisplayName) == 0)
+  if (SUCCEEDED(SHGetSpecialFolderLocation(NULL, CSIDL_CONTROLS, &pidl)))
     {
-      wcscpy(value, TEXT("CSIDL_CONTROLS"));
-      return true;
+      SHGetFileInfo((LPCTSTR)pidl, 0, &fileInfo, sizeof(fileInfo), SHGFI_PIDL | SHGFI_DISPLAYNAME);
+      if (_wcsicmp(folder, fileInfo.szDisplayName) == 0)
+        {
+          wcscpy(value, TEXT("CSIDL_CONTROLS"));
+          ret = true;
+        }
+      ELILFree(pidl);
     }
 
-  SHGetSpecialFolderLocation(NULL, CSIDL_BITBUCKET, &pidl);
-  SHGetFileInfo((LPCTSTR)pidl, 0, &fileInfo, sizeof(fileInfo), SHGFI_PIDL | SHGFI_DISPLAYNAME);
-  ELILFree(pidl);
-
-  if (_wcsicmp(folder, fileInfo.szDisplayName) == 0)
+  if (SUCCEEDED(SHGetSpecialFolderLocation(NULL, CSIDL_BITBUCKET, &pidl)))
     {
-      wcscpy(value, TEXT("CSIDL_BITBUCKET"));
-      return true;
+      SHGetFileInfo((LPCTSTR)pidl, 0, &fileInfo, sizeof(fileInfo), SHGFI_PIDL | SHGFI_DISPLAYNAME);
+      if (_wcsicmp(folder, fileInfo.szDisplayName) == 0)
+        {
+          wcscpy(value, TEXT("CSIDL_BITBUCKET"));
+          ret = true;
+        }
+      ELILFree(pidl);
     }
 
-  SHGetSpecialFolderLocation(NULL, CSIDL_NETWORK, &pidl);
-  SHGetFileInfo((LPCTSTR)pidl, 0, &fileInfo, sizeof(fileInfo), SHGFI_PIDL | SHGFI_DISPLAYNAME);
-  ELILFree(pidl);
-
-  if (_wcsicmp(folder, fileInfo.szDisplayName) == 0)
+  if (SUCCEEDED(SHGetSpecialFolderLocation(NULL, CSIDL_NETWORK, &pidl)))
     {
-      wcscpy(value, TEXT("CSIDL_NETWORK"));
-      return true;
+      SHGetFileInfo((LPCTSTR)pidl, 0, &fileInfo, sizeof(fileInfo), SHGFI_PIDL | SHGFI_DISPLAYNAME);
+      if (_wcsicmp(folder, fileInfo.szDisplayName) == 0)
+        {
+          wcscpy(value, TEXT("CSIDL_NETWORK"));
+          ret = true;
+        }
+      ELILFree(pidl);
     }
 
-  return false;
+  return ret;
 }
 
 /*!
@@ -3349,54 +3382,51 @@ int ELIsSpecialFolder(WCHAR *folder)
 {
   LPITEMIDLIST pidl = NULL;
   SHFILEINFO fileInfo;
+  int csidl = 0;
 
-  if (_wcsicmp(folder, TEXT("CSIDL_PERSONAL")) == 0)
-    return CSIDL_PERSONAL;
-  if (_wcsicmp(folder, TEXT("CSIDL_DRIVES")) == 0)
-    return CSIDL_DRIVES;
-  if (_wcsicmp(folder, TEXT("CSIDL_CONTROLS")) == 0)
-    return CSIDL_CONTROLS;
-  if (_wcsicmp(folder, TEXT("CSIDL_BITBUCKET")) == 0)
-    return CSIDL_BITBUCKET;
-  if (_wcsicmp(folder, TEXT("CSIDL_NETWORK")) == 0)
-    return CSIDL_NETWORK;
+  csidl = ELSpecialFolderID(folder);
 
-  SHGetSpecialFolderLocation(NULL, CSIDL_PERSONAL, &pidl);
-  SHGetFileInfo((LPCTSTR)pidl, 0, &fileInfo, sizeof(fileInfo), SHGFI_PIDL | SHGFI_DISPLAYNAME);
-  ELILFree(pidl);
+  if (SUCCEEDED(SHGetSpecialFolderLocation(NULL, CSIDL_PERSONAL, &pidl)))
+    {
+      SHGetFileInfo((LPCTSTR)pidl, 0, &fileInfo, sizeof(fileInfo), SHGFI_PIDL | SHGFI_DISPLAYNAME);
+      if (_wcsicmp(folder, fileInfo.szDisplayName) == 0)
+        csidl = CSIDL_PERSONAL;
+      ELILFree(pidl);
+    }
 
-  if (_wcsicmp(folder, fileInfo.szDisplayName) == 0)
-    return CSIDL_PERSONAL;
+  if (SUCCEEDED(SHGetSpecialFolderLocation(NULL, CSIDL_DRIVES, &pidl)))
+    {
+      SHGetFileInfo((LPCTSTR)pidl, 0, &fileInfo, sizeof(fileInfo), SHGFI_PIDL | SHGFI_DISPLAYNAME);
+      if (_wcsicmp(folder, fileInfo.szDisplayName) == 0)
+        csidl = CSIDL_DRIVES;
+      ELILFree(pidl);
+    }
 
-  SHGetSpecialFolderLocation(NULL, CSIDL_DRIVES, &pidl);
-  SHGetFileInfo((LPCTSTR)pidl, 0, &fileInfo, sizeof(fileInfo), SHGFI_PIDL | SHGFI_DISPLAYNAME);
-  ELILFree(pidl);
+  if (SUCCEEDED(SHGetSpecialFolderLocation(NULL, CSIDL_CONTROLS, &pidl)))
+    {
+      SHGetFileInfo((LPCTSTR)pidl, 0, &fileInfo, sizeof(fileInfo), SHGFI_PIDL | SHGFI_DISPLAYNAME);
+      if (_wcsicmp(folder, fileInfo.szDisplayName) == 0)
+        csidl = CSIDL_CONTROLS;
+      ELILFree(pidl);
+    }
 
-  if (_wcsicmp(folder, fileInfo.szDisplayName) == 0)
-    return CSIDL_DRIVES;
+  if (SUCCEEDED(SHGetSpecialFolderLocation(NULL, CSIDL_BITBUCKET, &pidl)))
+    {
+      SHGetFileInfo((LPCTSTR)pidl, 0, &fileInfo, sizeof(fileInfo), SHGFI_PIDL | SHGFI_DISPLAYNAME);
+      if (_wcsicmp(folder, fileInfo.szDisplayName) == 0)
+        csidl = CSIDL_BITBUCKET;
+      ELILFree(pidl);
+    }
 
-  SHGetSpecialFolderLocation(NULL, CSIDL_CONTROLS, &pidl);
-  SHGetFileInfo((LPCTSTR)pidl, 0, &fileInfo, sizeof(fileInfo), SHGFI_PIDL | SHGFI_DISPLAYNAME);
-  ELILFree(pidl);
+  if (SUCCEEDED(SHGetSpecialFolderLocation(NULL, CSIDL_NETWORK, &pidl)))
+    {
+      SHGetFileInfo((LPCTSTR)pidl, 0, &fileInfo, sizeof(fileInfo), SHGFI_PIDL | SHGFI_DISPLAYNAME);
+      if (_wcsicmp(folder, fileInfo.szDisplayName) == 0)
+        csidl = CSIDL_NETWORK;
+      ELILFree(pidl);
+    }
 
-  if (_wcsicmp(folder, fileInfo.szDisplayName) == 0)
-    return CSIDL_CONTROLS;
-
-  SHGetSpecialFolderLocation(NULL, CSIDL_BITBUCKET, &pidl);
-  SHGetFileInfo((LPCTSTR)pidl, 0, &fileInfo, sizeof(fileInfo), SHGFI_PIDL | SHGFI_DISPLAYNAME);
-  ELILFree(pidl);
-
-  if (_wcsicmp(folder, fileInfo.szDisplayName) == 0)
-    return CSIDL_BITBUCKET;
-
-  SHGetSpecialFolderLocation(NULL, CSIDL_NETWORK, &pidl);
-  SHGetFileInfo((LPCTSTR)pidl, 0, &fileInfo, sizeof(fileInfo), SHGFI_PIDL | SHGFI_DISPLAYNAME);
-  ELILFree(pidl);
-
-  if (_wcsicmp(folder, fileInfo.szDisplayName) == 0)
-    return CSIDL_NETWORK;
-
-  return 0;
+  return csidl;
 }
 
 /*!
@@ -3414,6 +3444,7 @@ bool ELGetSpecialFolder(int folder, WCHAR *folderPath)
     {
       SHGetFileInfo((LPCTSTR)pidl, 0, &fileInfo, sizeof(fileInfo), SHGFI_PIDL | SHGFI_DISPLAYNAME);
       wcscpy(folderPath, fileInfo.szDisplayName);
+      ELILFree(pidl);
       return true;
     }
 

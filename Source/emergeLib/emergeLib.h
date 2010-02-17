@@ -343,6 +343,7 @@ DLL_EXPORT bool ELIsFullScreen(HWND appletWnd, HWND appWnd);
 DLL_EXPORT bool ELParseCommand(const WCHAR *application, WCHAR *program, WCHAR *arguments);
 DLL_EXPORT int ELIsSpecialFolder(WCHAR *folder);
 DLL_EXPORT bool ELSpecialFolderValue(WCHAR *folder, WCHAR *value);
+DLL_EXPORT int ELSpecialFolderID(WCHAR *folder);
 DLL_EXPORT UINT ELIsInternalCommand(WCHAR *command);
 DLL_EXPORT bool ELGetSpecialFolder(int folder, WCHAR *folderPath);
 DLL_EXPORT void ELWriteDebug(std::wstring debugText);

@@ -963,7 +963,7 @@ void MenuBuilder::BuildXMLMenu(MenuMap::iterator iter)
 
 void MenuBuilder::BuildDefaultMenu(MenuMap::iterator iter)
 {
-  WCHAR specialFolder[MAX_PATH];
+  WCHAR specialFolder[MAX_PATH], value[MAX_PATH];
   TiXmlElement *section, *xmlItem;
 
   section = iter->second->GetSection();
@@ -980,7 +980,8 @@ void MenuBuilder::BuildDefaultMenu(MenuMap::iterator iter)
               ELGetSpecialFolder(CSIDL_DRIVES, specialFolder);
               ELWriteXMLIntValue(xmlItem, (WCHAR*)TEXT("Type"), type);
               ELWriteXMLStringValue(xmlItem, (WCHAR*)TEXT("Name"), specialFolder);
-              ELWriteXMLStringValue(xmlItem, (WCHAR*)TEXT("Value"), specialFolder);
+              if (ELSpecialFolderValue(specialFolder, value))
+                ELWriteXMLStringValue(xmlItem, (WCHAR*)TEXT("Value"), value);
             }
 
           xmlItem = ELSetFirstXMLElement(section, (WCHAR*)TEXT("item"));
@@ -989,7 +990,8 @@ void MenuBuilder::BuildDefaultMenu(MenuMap::iterator iter)
               ELGetSpecialFolder(CSIDL_BITBUCKET, specialFolder);
               ELWriteXMLIntValue(xmlItem, (WCHAR*)TEXT("Type"), type);
               ELWriteXMLStringValue(xmlItem, (WCHAR*)TEXT("Name"), specialFolder);
-              ELWriteXMLStringValue(xmlItem, (WCHAR*)TEXT("Value"), specialFolder);
+              if (ELSpecialFolderValue(specialFolder, value))
+                ELWriteXMLStringValue(xmlItem, (WCHAR*)TEXT("Value"), value);
             }
 
           xmlItem = ELSetFirstXMLElement(section, (WCHAR*)TEXT("item"));

@@ -55,16 +55,16 @@ LaunchPage::LaunchPage(HINSTANCE hInstance, std::tr1::shared_ptr<Settings> pSett
   InitCommonControls();
 
   toolWnd = CreateWindowEx(
-              0,
-              TOOLTIPS_CLASS,
-              NULL,
-              TTS_ALWAYSTIP|WS_POPUP|TTS_NOPREFIX,
-              CW_USEDEFAULT, CW_USEDEFAULT,
-              CW_USEDEFAULT, CW_USEDEFAULT,
-              NULL,
-              NULL,
-              hInstance,
-              NULL);
+                           0,
+                           TOOLTIPS_CLASS,
+                           NULL,
+                           TTS_ALWAYSTIP|WS_POPUP|TTS_NOPREFIX,
+                           CW_USEDEFAULT, CW_USEDEFAULT,
+                           CW_USEDEFAULT, CW_USEDEFAULT,
+                           NULL,
+                           NULL,
+                           hInstance,
+                           NULL);
 
   if (toolWnd)
     {
@@ -673,7 +673,7 @@ bool LaunchPage::DoExeCom(HWND hwndDlg, bool exeButton)
 bool LaunchPage::UpdateSettings(HWND hwndDlg)
 {
   WCHAR command[MAX_LINE_LENGTH], iconPath[MAX_LINE_LENGTH], tip[MAX_LINE_LENGTH], workingDir[MAX_LINE_LENGTH];
-  WCHAR typeName[MAX_LINE_LENGTH];
+  WCHAR typeName[MAX_LINE_LENGTH], tmp[MAX_LINE_LENGTH];
   int type = IT_EXECUTABLE;
   HWND listWnd = GetDlgItem(hwndDlg, IDC_APPLIST);
   bool listModified = ((saveCount != 0) || (deleteCount != 0) || itemMoved);
@@ -699,7 +699,11 @@ bool LaunchPage::UpdateSettings(HWND hwndDlg)
           else if (wcsicmp(typeName, TEXT("internal command")) == 0)
             type = IT_INTERNAL_COMMAND;
           else if (wcsicmp(typeName, TEXT("special folder")) == 0)
-            type = IT_SPECIAL_FOLDER;
+            {
+              type = IT_SPECIAL_FOLDER;
+              wcscpy(tmp, command);
+              ELSpecialFolderValue(tmp, command);
+            }
           else
             type = IT_EXECUTABLE;
 
@@ -718,6 +722,7 @@ void LaunchPage::PopulateList(HWND listWnd)
   LVITEM lvItem;
   lvItem.mask = LVIF_TEXT;
   int iRet;
+  WCHAR tmp[MAX_LINE_LENGTH];
 
   for (UINT i = 0; i < pSettings->GetItemListSize(); i++)
     {
@@ -740,7 +745,13 @@ void LaunchPage::PopulateList(HWND listWnd)
         }
       lvItem.cchTextMax = (int)wcslen(lvItem.pszText);
       iRet = ListView_InsertItem(listWnd, &lvItem);
-      ListView_SetItemText(listWnd, lvItem.iItem, 1, pSettings->GetItem(i)->GetApp());
+      if (pSettings->GetItem(i)->GetType() == IT_SPECIAL_FOLDER)
+        {
+          if (ELGetSpecialFolder(ELSpecialFolderID(pSettings->GetItem(i)->GetApp()), tmp))
+            ListView_SetItemText(listWnd, lvItem.iItem, 1, tmp);
+        }
+      else
+        ListView_SetItemText(listWnd, lvItem.iItem, 1, pSettings->GetItem(i)->GetApp());
       ListView_SetItemText(listWnd, lvItem.iItem, 2, pSettings->GetItem(i)->GetWorkingDir());
       ListView_SetItemText(listWnd, lvItem.iItem, 3, pSettings->GetItem(i)->GetIconPath());
       ListView_SetItemText(listWnd, lvItem.iItem, 4, pSettings->GetItem(i)->GetTip());
