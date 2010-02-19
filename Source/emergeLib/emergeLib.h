@@ -191,27 +191,6 @@ static const UINT EMERGE_MESSAGE = RegisterWindowMessage(TEXT("EmergeMessage"));
   */
 #define COMMAND_LOCK            5
 
-/*!
-  @def ELVI_2K
-  @brief ELVersionInfo define for Windows 2000
-  */
-#define ELVI_2K     1
-/*!
-  @def ELVI_XP
-  @brief ELVersionInfo define for Windows XP
-  */
-#define ELVI_XP     2
-/*!
-  @def ELVI_VISTA
-  @brief ELVersionInfo define for Windows Vista
-  */
-#define ELVI_VISTA  3
-/*!
-  @def ELVI_WIN7
-  @brief ELVersionInfo define for Windows 7
-  */
-#define ELVI_WIN7   4
-
 #ifndef SND_SYSTEM
 #define SND_SYSTEM      0x200000
 #endif
@@ -335,7 +314,7 @@ DLL_EXPORT bool ELWriteFileInt(const WCHAR *fileName, WCHAR *keyword, int value)
 DLL_EXPORT bool ELWriteFileString(const WCHAR *fileName, WCHAR *keyword, WCHAR *value);
 DLL_EXPORT bool ELWriteFileBool(const WCHAR *fileName, WCHAR *keyword, bool value);
 DLL_EXPORT bool ELWriteFileColor(const WCHAR *fileName, WCHAR *keyword, COLORREF value);
-DLL_EXPORT UINT ELVersionInfo();
+DLL_EXPORT float ELVersionInfo();
 DLL_EXPORT bool ELAppletVersionInfo(HWND appWnd, LPVERSIONINFO versionInfo);
 DLL_EXPORT bool ELAppletFileVersion(WCHAR *applet, LPVERSIONINFO versionInfo);
 DLL_EXPORT bool ELGetWindowApp(HWND hWnd, WCHAR *processName, bool fullName);

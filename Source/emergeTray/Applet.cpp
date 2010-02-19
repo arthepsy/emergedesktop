@@ -857,7 +857,7 @@ bool Applet::TrayMouseEvent(UINT message, LPARAM lParam)
                                     }
                                     break;*/
 
-                  /*if (ELVersionInfo() == ELVI_WIN7)
+                  /*if (ELVersionInfo() >= 7.0)
                     {
                     case WM_LBUTTONDOWN:
                     debug = TEXT("LBUTTONDOWN");

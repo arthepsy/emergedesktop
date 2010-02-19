@@ -80,7 +80,7 @@ BOOL ConfigPage::DoInitDialog(HWND hwndDlg)
 
   SendMessage(iconSizeWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("16x16"));
   SendMessage(iconSizeWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("32x32"));
-  if (ELVersionInfo() != ELVI_2K)
+  if (ELVersionInfo() != 5.0)
     SendMessage(iconSizeWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("48x48"));
 
   if (pSettings->GetIconSize() == 48)

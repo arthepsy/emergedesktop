@@ -73,7 +73,7 @@ int WINAPI WinMain (HINSTANCE hInstance,
           return 0;
         }
 
-      if (ELVersionInfo() == ELVI_VISTA)
+      if (ELVersionInfo() >= 6.0)
         wcscpy(shellEvent, TEXT("ShellDesktopSwitchEvent"));
       else
         wcscpy(shellEvent, TEXT("msgina: ShellReadyEvent"));

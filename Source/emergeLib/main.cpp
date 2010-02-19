@@ -1384,7 +1384,7 @@ bool ELExecuteSpecialFolder(LPTSTR folder)
       return false;
 
     case CSIDL_CONTROLS:
-      if (ELVersionInfo() != ELVI_VISTA)
+      if (ELVersionInfo() < 6.0)
         {
           if (GetSpecialFolderGUID(CSIDL_DRIVES, classID))
             {
@@ -1392,7 +1392,6 @@ bool ELExecuteSpecialFolder(LPTSTR folder)
               wcscat(command, TEXT("\\::"));
             }
         }
-      break;
     default:
       if (GetSpecialFolderGUID(specialFolder, classID))
         wcscat(command, classID);
@@ -3072,23 +3071,17 @@ bool ELReadFileColor(const WCHAR *fileName, WCHAR *item, COLORREF *target, COLOR
   @return Version of Operating System
   */
 
-UINT ELVersionInfo()
+float ELVersionInfo()
 {
   OSVERSIONINFO osv;
   ZeroMemory(&osv, sizeof(osv));
   osv.dwOSVersionInfoSize = sizeof(osv);
   GetVersionEx(&osv);
 
-  if ((osv.dwMajorVersion == 5 ) && (osv.dwMinorVersion == 0))
-    return ELVI_2K;
-  else  if ((osv.dwMajorVersion == 5 ) && (osv.dwMinorVersion >= 1))
-    return ELVI_XP;
-  else  if (osv.dwMajorVersion == 6 )
-    return ELVI_VISTA;
-  else  if (osv.dwMajorVersion == 7 )
-    return ELVI_WIN7;
+  float fMajor = (float)osv.dwMajorVersion;
+  float fMinor = (float)osv.dwMinorVersion / 10.0;
 
-  return 0;
+  return (fMajor + fMinor);
 }
 
 /*!
@@ -3483,7 +3476,7 @@ bool ELStealFocus(HWND hwnd)
 bool ELAdjustVolume(UINT command)
 {
   bool ret = false;
-  if (ELVersionInfo() == ELVI_VISTA)
+  if (ELVersionInfo() >= 6.0)
     ret = VistaVolumeControl(command);
   else
     ret = VolumeControl(command);
@@ -3906,7 +3899,7 @@ bool ELPlaySound(const WCHAR *sound)
 {
   UINT soundFlags = SND_ALIAS | SND_ASYNC | SND_NODEFAULT;
 
-  if (ELVersionInfo() == ELVI_VISTA)
+  if (ELVersionInfo() >= 6.0)
     soundFlags |= SND_SYSTEM;
 
   return PlaySound(sound, NULL, soundFlags) == TRUE;

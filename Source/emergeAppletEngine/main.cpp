@@ -104,7 +104,7 @@ LRESULT EAEHitTest(HWND hwnd, int guiBorder, bool autoSize, int x, int y)
 //----  --------------------------------------------------------------------------------------------------------
 HWND EAEUpdateGUI(HWND hwnd, bool shadow, WCHAR *zposition)
 {
-  if (ELVersionInfo() != ELVI_2K)
+  if (ELVersionInfo() != 5.0)
     {
       if (shadow)
         SetClassLongPtr(hwnd, GCL_STYLE, GetClassLongPtr(hwnd, GCL_STYLE) | CS_DROPSHADOW);
