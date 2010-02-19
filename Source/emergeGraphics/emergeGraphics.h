@@ -135,6 +135,7 @@ DLL_EXPORT HPEN EGCreatePen(DWORD style, DWORD width, BYTE alpha, COLORREF colou
 DLL_EXPORT HBITMAP EGCreateBitmap(BYTE alpha, COLORREF colour, RECT wndRect);
 DLL_EXPORT HICON EGGetFileIcon(WCHAR *file, UINT iconSize);
 DLL_EXPORT HICON EGGetWindowIcon(HWND hwnd, bool smallIcon, bool force);
+DLL_EXPORT HICON EGGetSpecialFolderIcon(int csidl, UINT iconSize);
 DLL_EXPORT HICON EGGetSystemIcon(UINT iconIndex, UINT iconSize);
 DLL_EXPORT bool EGDrawAlphaText(BYTE alpha, CLIENTINFO clientInfo, FORMATINFO formatInfo, WCHAR *commandText);
 DLL_EXPORT HDC EGBeginPaint(HWND wnd);

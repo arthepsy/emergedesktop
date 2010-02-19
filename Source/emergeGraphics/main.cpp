@@ -254,7 +254,7 @@ HICON EGConvertIcon(HICON sourceIcon, RECT iconRect, HDC backgroundDC, BYTE fore
               pixel = ((UINT32*)bmpBits)[x + y * mask.bmWidth] << 4;
               pixel = pixel >> 4;
 
-              if (ELVersionInfo() != ELVI_2K)
+              if (ELVersionInfo() != 5.0)
                 {
                   if (hasAlpha)
                     {
@@ -273,7 +273,7 @@ HICON EGConvertIcon(HICON sourceIcon, RECT iconRect, HDC backgroundDC, BYTE fore
             {
               ((UINT32*)targetBits)[x + y * mask.bmWidth] = 0x00000000;
 
-              if (ELVersionInfo() == ELVI_2K)
+              if (ELVersionInfo() == 5.0)
                 {
                   ((UINT32*)targetBits)[x + y * mask.bmWidth] =
                     ((UINT32*)bgBits)[x + y * mask.bmWidth];
@@ -528,9 +528,9 @@ UINT32 EGGetPixel(BYTE alpha, COLORREF colour)
   fAlphaFactor = (float)alpha / (float)0xff;
 
   pixel = (alpha << 24) |
-    ((UCHAR)(GetRValue(colour) * fAlphaFactor) << 16) |
-    ((UCHAR)(GetGValue(colour) * fAlphaFactor) << 8) |
-    (UCHAR)(GetBValue(colour) * fAlphaFactor);
+          ((UCHAR)(GetRValue(colour) * fAlphaFactor) << 16) |
+          ((UCHAR)(GetGValue(colour) * fAlphaFactor) << 8) |
+          (UCHAR)(GetBValue(colour) * fAlphaFactor);
 
   return pixel;
 }
@@ -816,6 +816,27 @@ HICON EGGetWindowIcon(HWND hwnd, bool smallIcon, bool force)
   return icon;
 }
 
+HICON EGGetSpecialFolderIcon(int csidl, UINT iconSize)
+{
+  HICON icon = NULL;
+  LPITEMIDLIST pidl = NULL;
+  SHFILEINFO fileInfo;
+  WCHAR iconLocation[MAX_LINE_LENGTH];
+
+  if (SUCCEEDED(SHGetSpecialFolderLocation(NULL, csidl, &pidl)))
+    {
+      if (SHGetFileInfo((LPCTSTR)pidl, 0, &fileInfo, sizeof(fileInfo), SHGFI_PIDL|SHGFI_ICONLOCATION) != 0)
+      {
+        swprintf(iconLocation, TEXT("%s,%d"), fileInfo.szDisplayName, fileInfo.iIcon);
+        icon = EGGetFileIcon(iconLocation, iconSize);
+      }
+
+      ELILFree(pidl);
+    }
+
+  return icon;
+}
+
 HICON EGGetSystemIcon(UINT iconIndex, UINT iconSize)
 {
   HICON icon = NULL;
@@ -838,26 +859,17 @@ HICON EGGetSystemIcon(UINT iconIndex, UINT iconSize)
       wcscat(source, TEXT("\\emergeGraphics.dll"));
       break;
     case ICON_MYCOMPUTER:
-      wcscpy(source, TEXT("%SystemRoot%\\explorer.exe"));
-      break;
+      return EGGetSpecialFolderIcon(CSIDL_DRIVES, iconSize);
     case ICON_CONTROLPANEL:
-      iconLocation = -137;
-      break;
+      return EGGetSpecialFolderIcon(CSIDL_CONTROLS, iconSize);
     case ICON_MYDOCUMENTS:
-      if (ELVersionInfo() == ELVI_2K)
-        wcscpy(source, TEXT("%SystemRoot%\\system32\\mydocs.dll"));
-      else
-        iconLocation = -235;
-      break;
+      return EGGetSpecialFolderIcon(CSIDL_PERSONAL, iconSize);
     case ICON_NETWORKPLACES:
-      iconLocation = 17;
-      break;
+      return EGGetSpecialFolderIcon(CSIDL_NETWORK, iconSize);
     case ICON_RECYCLEBIN:
-      iconLocation = 31;
-      break;
+      return EGGetSpecialFolderIcon(CSIDL_BITBUCKET, iconSize);
     case ICON_DESKTOP:
-      iconLocation = 34;
-      break;
+      return EGGetSpecialFolderIcon(CSIDL_DESKTOP, iconSize);
     case ICON_RUN:
       iconLocation = 24;
       break;
@@ -983,7 +995,7 @@ bool EGDrawAlphaText(BYTE alpha, CLIENTINFO clientInfo, FORMATINFO formatInfo, W
     for (x = 0; x < bmi.bmiHeader.biWidth; x++)
       {
         pixel = ((UINT32 *)maskBits)
-          [x + ((bmi.bmiHeader.biHeight - (y + 1)) * bmi.bmiHeader.biWidth)];
+                [x + ((bmi.bmiHeader.biHeight - (y + 1)) * bmi.bmiHeader.biWidth)];
 
         if (pixel != 0)
           {
