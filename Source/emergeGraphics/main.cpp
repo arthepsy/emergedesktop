@@ -858,18 +858,6 @@ HICON EGGetSystemIcon(UINT iconIndex, UINT iconSize)
       ELGetCurrentPath(source);
       wcscat(source, TEXT("\\emergeGraphics.dll"));
       break;
-    case ICON_MYCOMPUTER:
-      return EGGetSpecialFolderIcon(CSIDL_DRIVES, iconSize);
-    case ICON_CONTROLPANEL:
-      return EGGetSpecialFolderIcon(CSIDL_CONTROLS, iconSize);
-    case ICON_MYDOCUMENTS:
-      return EGGetSpecialFolderIcon(CSIDL_PERSONAL, iconSize);
-    case ICON_NETWORKPLACES:
-      return EGGetSpecialFolderIcon(CSIDL_NETWORK, iconSize);
-    case ICON_RECYCLEBIN:
-      return EGGetSpecialFolderIcon(CSIDL_BITBUCKET, iconSize);
-    case ICON_DESKTOP:
-      return EGGetSpecialFolderIcon(CSIDL_DESKTOP, iconSize);
     case ICON_RUN:
       iconLocation = 24;
       break;

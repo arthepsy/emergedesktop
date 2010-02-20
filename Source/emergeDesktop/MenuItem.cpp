@@ -93,7 +93,7 @@ HICON MenuItem::GetIcon()
 
 void MenuItem::SetIcon()
 {
-  WCHAR app[MAX_PATH], args[MAX_PATH];
+  WCHAR app[MAX_PATH], args[MAX_PATH], *lwrValue = wcslwr(_wcsdup(value));
 
   switch (type)
     {
@@ -101,12 +101,12 @@ void MenuItem::SetIcon()
       icon = EGGetWindowIcon((HWND)_wtoi(value), true, true);
       break;
     case IT_EXECUTABLE:
-      if ((_wcsicmp(value, TEXT("%documents%")) == 0) ||
-          (_wcsicmp(value, TEXT("%commondocuments%")) == 0))
-        icon = EGGetSystemIcon(ICON_MYDOCUMENTS, 16);
-      else if ((_wcsicmp(value, TEXT("%desktop%")) == 0) ||
-               (_wcsicmp(value, TEXT("%commondesktop%")) == 0))
-        icon = EGGetSystemIcon(ICON_DESKTOP, 16);
+      if ((wcsstr(lwrValue, TEXT("%documents%")) != NULL) ||
+          (wcsstr(lwrValue, TEXT("%commondocuments%")) != NULL))
+        icon = EGGetSpecialFolderIcon(CSIDL_PERSONAL, 16);
+      else if ((wcsstr(lwrValue, TEXT("%desktop%")) != NULL) ||
+               (wcsstr(lwrValue, TEXT("%commondesktop%")) != NULL))
+        icon = EGGetSpecialFolderIcon(CSIDL_DESKTOP, 16);
       else
         {
           ELParseCommand(value, app, args);
@@ -128,29 +128,18 @@ void MenuItem::SetIcon()
     case IT_SPECIAL_FOLDER:
     {
       UINT specialFolder = ELIsSpecialFolder(value);
-
-      switch (specialFolder)
-        {
-        case CSIDL_PERSONAL:
-          icon = EGGetSystemIcon(ICON_MYDOCUMENTS, 16);
-          break;
-        case CSIDL_DRIVES:
-          icon = EGGetSystemIcon(ICON_MYCOMPUTER, 16);
-          break;
-        case CSIDL_CONTROLS:
-          icon = EGGetSystemIcon(ICON_CONTROLPANEL, 16);
-          break;
-        case CSIDL_NETWORK:
-          icon = EGGetSystemIcon(ICON_NETWORKPLACES, 16);
-          break;
-        case CSIDL_BITBUCKET:
-          icon = EGGetSystemIcon(ICON_RECYCLEBIN, 16);
-          break;
-        }
+      icon = EGGetSpecialFolderIcon(specialFolder, 16);
     }
     break;
     case IT_FILE_MENU:
-      icon = EGGetFileIcon(value, 16);
+      if ((wcsstr(lwrValue, TEXT("%documents%")) != NULL) ||
+          (wcsstr(lwrValue, TEXT("%commondocuments%")) != NULL))
+        icon = EGGetSpecialFolderIcon(CSIDL_PERSONAL, 16);
+      else if ((wcsstr(lwrValue, TEXT("%desktop%")) != NULL) ||
+               (wcsstr(lwrValue, TEXT("%commondesktop%")) != NULL))
+        icon = EGGetSpecialFolderIcon(CSIDL_DESKTOP, 16);
+      else
+        icon = EGGetFileIcon(value, 16);
       if (icon != NULL)
         break;
     case IT_XML_MENU:
@@ -160,6 +149,8 @@ void MenuItem::SetIcon()
       icon = EGGetFileIcon(app, 16);
       break;
     }
+
+    free(lwrValue);
 }
 
 void MenuItem::SetValue(WCHAR *value)

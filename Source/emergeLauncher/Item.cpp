@@ -112,8 +112,7 @@ int Item::GetType()
 //----  --------------------------------------------------------------------------------------------------------
 void Item::SetIcon(int iconSize, WCHAR *orientation)
 {
-  WCHAR source[MAX_LINE_LENGTH];
-  WCHAR tmp[MAX_LINE_LENGTH];
+  WCHAR source[MAX_LINE_LENGTH], tmp[MAX_LINE_LENGTH], *lwrApp = _wcslwr(_wcsdup(app));
 
   if (origIcon)
     DestroyIcon(origIcon);
@@ -151,12 +150,12 @@ void Item::SetIcon(int iconSize, WCHAR *orientation)
               UINT internalCommand = ELIsInternalCommand(app);
               if (internalCommand == 0)
                 {
-                  if ((_wcsicmp(app, TEXT("%documents%")) == 0) ||
-                      (_wcsicmp(app, TEXT("%commondocuments%")) == 0))
-                    origIcon = EGGetSystemIcon(ICON_MYDOCUMENTS, iconSize);
-                  else if ((_wcsicmp(app, TEXT("%desktop%")) == 0) ||
-                           (_wcsicmp(app, TEXT("%commondesktop%")) == 0))
-                    origIcon = EGGetSystemIcon(ICON_DESKTOP, iconSize);
+                  if ((wcsstr(lwrApp, TEXT("%documents%")) != NULL) ||
+                      (wcsstr(lwrApp, TEXT("%commondocuments%")) != NULL))
+                    origIcon = EGGetSpecialFolderIcon(CSIDL_PERSONAL, 16);
+                  else if ((wcsstr(lwrApp, TEXT("%desktop%")) != NULL) ||
+                           (wcsstr(lwrApp, TEXT("%commondesktop%")) != NULL))
+                    origIcon = EGGetSpecialFolderIcon(CSIDL_DESKTOP, 16);
                   else
                     {
                       ELParseCommand(app, source, tmp);
@@ -190,33 +189,12 @@ void Item::SetIcon(int iconSize, WCHAR *orientation)
                 }
             }
           else
-            {
-              switch (specialFolder)
-                {
-                case CSIDL_PERSONAL:
-                  origIcon = EGGetSystemIcon(ICON_MYDOCUMENTS, iconSize);
-                  break;
-
-                case CSIDL_DRIVES:
-                  origIcon = EGGetSystemIcon(ICON_MYCOMPUTER, iconSize);
-                  break;
-
-                case CSIDL_CONTROLS:
-                  origIcon = EGGetSystemIcon(ICON_CONTROLPANEL, iconSize);
-                  break;
-
-                case CSIDL_NETWORK:
-                  origIcon = EGGetSystemIcon(ICON_NETWORKPLACES, iconSize);
-                  break;
-
-                case CSIDL_BITBUCKET:
-                  origIcon = EGGetSystemIcon(ICON_RECYCLEBIN, iconSize);
-                  break;
-                }
-            }
+            origIcon = EGGetSpecialFolderIcon(specialFolder, iconSize);
         }
       break;
     }
+
+    free(lwrApp);
 }
 
 //----  --------------------------------------------------------------------------------------------------------
