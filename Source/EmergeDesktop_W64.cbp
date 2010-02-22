@@ -1248,6 +1248,7 @@
 		<Unit filename="emerge\main.cpp">
 			<Option target="emerge - Release" />
 		</Unit>
+		<Unit filename="hgversion.h" />
 		<Unit filename="reg2xml\AppletSettings.cpp">
 			<Option target="reg2xml - Release" />
 		</Unit>
@@ -1318,7 +1319,6 @@
 		<Unit filename="reg2xml\resource.h">
 			<Option target="reg2xml - Release" />
 		</Unit>
-		<Unit filename="svnversion.h" />
 		<Unit filename="tinyxml\tinystr.cpp">
 			<Option target="emergeLib - Release" />
 		</Unit>
