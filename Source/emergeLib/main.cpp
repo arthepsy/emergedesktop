@@ -1536,6 +1536,10 @@ bool ELFileTypeCommand(WCHAR *document, WCHAR *docArgs, WCHAR *commandLine)
   if (isDirectory)
     extension = (WCHAR*)TEXT("Folder");
 
+  // Don't attempt to determine URL handler
+  if (PathIsURL(document))
+    return false;
+
   GetShortPathName(document, shortDoc, MAX_LINE_LENGTH);
   swprintf(quotedDoc, TEXT("\"%s\""), document);
 
