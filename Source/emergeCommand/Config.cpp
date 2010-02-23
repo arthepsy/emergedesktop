@@ -70,7 +70,7 @@ INT_PTR Config::DoInitDialog(HWND hwndDlg)
   psp[0].hInstance = hInstance;
   psp[0].pszTemplate = MAKEINTRESOURCE(IDD_CONFIG_PAGE);
   psp[0].pfnDlgProc = pConfigPage->ConfigPageDlgProc;
-  psp[0].pszTitle = TEXT("Configuration");
+  psp[0].pszTitle = TEXT("General");
   psp[0].lParam = reinterpret_cast<LPARAM>(pConfigPage.get());
   psp[0].pfnCallback = NULL;
 
@@ -97,7 +97,7 @@ INT_PTR Config::DoInitDialog(HWND hwndDlg)
   psh.dwFlags = PSH_PROPSHEETPAGE | PSH_NOAPPLYNOW | PSH_NOCONTEXTHELP;
   psh.hwndParent = hwndDlg;
   psh.hInstance = hInstance;
-  psh.pszCaption = TEXT("emergeCommand Properties");
+  psh.pszCaption = TEXT("emergeCommand Configuration");
   psh.nPages = sizeof(psp) /
                sizeof(PROPSHEETPAGE);
   psh.nStartPage = 0;
