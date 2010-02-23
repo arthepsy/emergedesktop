@@ -1543,7 +1543,7 @@ bool ELFileTypeCommand(WCHAR *document, WCHAR *docArgs, WCHAR *commandLine)
   GetShortPathName(document, shortDoc, MAX_LINE_LENGTH);
   swprintf(quotedDoc, TEXT("\"%s\""), document);
 
-  if (_wcsicmp(extension, TEXT(".exe")) == 0)
+  if (ELIsExecutable(extension))
     return false;
 
   if (FAILED(AssocQueryString(ASSOCF_NOTRUNCATE, ASSOCSTR_COMMAND,
