@@ -826,10 +826,10 @@ HICON EGGetSpecialFolderIcon(int csidl, UINT iconSize)
   if (SUCCEEDED(SHGetSpecialFolderLocation(NULL, csidl, &pidl)))
     {
       if (SHGetFileInfo((LPCTSTR)pidl, 0, &fileInfo, sizeof(fileInfo), SHGFI_PIDL|SHGFI_ICONLOCATION) != 0)
-      {
-        swprintf(iconLocation, TEXT("%s,%d"), fileInfo.szDisplayName, fileInfo.iIcon);
-        icon = EGGetFileIcon(iconLocation, iconSize);
-      }
+        {
+          swprintf(iconLocation, TEXT("%s,%d"), fileInfo.szDisplayName, fileInfo.iIcon);
+          icon = EGGetFileIcon(iconLocation, iconSize);
+        }
 
       ELILFree(pidl);
     }
@@ -854,6 +854,8 @@ HICON EGGetSystemIcon(UINT iconIndex, UINT iconSize)
 
   switch (iconIndex)
     {
+    case ICON_EMERGE:
+      iconLocation = 1;
     case ICON_QUIT:
       ELGetCurrentPath(source);
       wcscat(source, TEXT("\\emergeGraphics.dll"));

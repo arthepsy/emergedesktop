@@ -51,12 +51,14 @@
 #define CS_DROPSHADOW   0x00020000
 #endif
 
+
 #define ICON_DEFAULT        0
 #define ICON_RUN            4
 #define ICON_SHUTDOWN       5
 #define ICON_LOGOFF         7
 #define ICON_QUIT           9
 #define ICON_LOCK           10
+#define ICON_EMERGE         11
 
 #define EGDAT_LEFT          1
 #define EGDAT_HCENTER       2

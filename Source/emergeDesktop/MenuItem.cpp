@@ -144,9 +144,11 @@ void MenuItem::SetIcon()
         break;
     case IT_XML_MENU:
     case IT_TASKS_MENU:
-    case IT_SETTINGS_MENU:
       ELGetCurrentPath(app);
       icon = EGGetFileIcon(app, 16);
+      break;
+    case IT_SETTINGS_MENU:
+      icon = EGGetSystemIcon(ICON_EMERGE, 16);
       break;
     }
 
