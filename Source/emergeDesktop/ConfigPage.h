@@ -18,35 +18,42 @@
 //
 //---
 
-#ifndef __CONFIG_H
-#define __CONFIG_H
+#ifndef __CONFIGPAGE_H
+#define __CONFIGPAGE_H
 
 #undef _WIN32_IE
-#define _WIN32_IE 0x0600
+#define _WIN32_IE	0x501
+
+#undef _WIN32_WINNT
+#define _WIN32_WINNT	0x501
 
 #include "Settings.h"
+#include <shlwapi.h>
+#include <commctrl.h>
 #include "resource.h"
-#include "ConfigPage.h"
-#include "MenuEditor.h"
-#include <tr1/memory>
-#include <tr1/shared_ptr.h>
+#include <map>
+#include <string>
 
-class Config
+class ConfigPage
 {
 public:
-  Config(HINSTANCE hInstance, HWND mainWnd, std::tr1::shared_ptr<Settings> pSettings);
-  ~Config();
+  ConfigPage(HINSTANCE hInstance, HWND mainWnd, std::tr1::shared_ptr<Settings> pSettings);
+  ~ConfigPage();
   int Show();
-  INT_PTR DoInitDialog(HWND hwndDlg);
+  BOOL DoInitDialog(HWND hwndDlg);
+  BOOL DoSettingsCommand(HWND hwndDlg, WPARAM wParam, LPARAM lParam);
+  BOOL DoSettingsNotify(HWND hwndDlg, LPARAM lParam);
+  BOOL DoSettingsChange(HWND hwndDlg, WPARAM wParam);
+  bool UpdateSettings(HWND hwndDlg);
+  bool GetVisible();
+  static BOOL CALLBACK ConfigPageDlgProc(HWND hwndDlg, UINT message, WPARAM wParam, LPARAM lParam);
 
 private:
-  std::tr1::shared_ptr<MenuEditor> pMenuEditor;
-  std::tr1::shared_ptr<ConfigPage> pConfigPage;
   std::tr1::shared_ptr<Settings> pSettings;
-  HINSTANCE hInstance;
-  HWND mainWnd;
+  void SetTooltip(HWND browseWnd, UINT type);
   bool dialogVisible;
-  static INT_PTR CALLBACK ConfigDlgProc(HWND hwndDlg, UINT message, WPARAM wParam, LPARAM lParam);
+  HINSTANCE hInstance;
+  HWND mainWnd, toolWnd;
 };
 
 #endif

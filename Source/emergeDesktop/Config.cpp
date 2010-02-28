@@ -1,7 +1,7 @@
-//---
+//----  --------------------------------------------------------------------------------------------------------
 //
 //  This file is part of Emerge Desktop.
-//  Copyright (C) 2004-2007  The Emerge Desktop Development Team
+//  Copyright (C) 2004-2010  The Emerge Desktop Development Team
 //
 //  Emerge Desktop is free software; you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -16,11 +16,11 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
-//---
+//----  --------------------------------------------------------------------------------------------------------
 
 #include "Config.h"
 
-BOOL CALLBACK Config::SettingsDlgProc(HWND hwndDlg, UINT message, WPARAM wParam, LPARAM lParam)
+INT_PTR CALLBACK Config::ConfigDlgProc(HWND hwndDlg, UINT message, WPARAM wParam UNUSED, LPARAM lParam UNUSED)
 {
   static Config *pConfig = NULL;
 
@@ -31,249 +31,82 @@ BOOL CALLBACK Config::SettingsDlgProc(HWND hwndDlg, UINT message, WPARAM wParam,
       if (!pConfig)
         break;
       return pConfig->DoInitDialog(hwndDlg);
-
-    case WM_COMMAND:
-      return pConfig->DoSettingsCommand(hwndDlg, wParam, lParam);
-
-    case WM_NOTIFY:
-      return pConfig->DoSettingsNotify(hwndDlg, lParam);
     }
 
-  return FALSE;
+  return 0;
 }
 
 Config::Config(HINSTANCE hInstance, HWND mainWnd, std::tr1::shared_ptr<Settings> pSettings)
 {
   this->hInstance = hInstance;
   this->mainWnd = mainWnd;
-  dialogVisible = false;
   this->pSettings = pSettings;
 
-  InitCommonControls();
+  dialogVisible = false;
 
-  toolWnd = CreateWindowEx(
-              0,
-              TOOLTIPS_CLASS,
-              NULL,
-              TTS_ALWAYSTIP|WS_POPUP|TTS_NOPREFIX,
-              CW_USEDEFAULT, CW_USEDEFAULT,
-              CW_USEDEFAULT, CW_USEDEFAULT,
-              NULL,
-              NULL,
-              hInstance,
-              NULL);
-
-  if (toolWnd)
-    {
-      SendMessage(toolWnd, TTM_SETMAXTIPWIDTH, 0, 300);
-      SetWindowPos(toolWnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE |
-                   SWP_NOACTIVATE);
-    }
+  pConfigPage = std::tr1::shared_ptr<ConfigPage>(new ConfigPage(hInstance, mainWnd, pSettings));
+  pMenuEditor = std::tr1::shared_ptr<MenuEditor>(new MenuEditor(hInstance, mainWnd));
 }
 
 Config::~Config()
 {
-  DestroyWindow(toolWnd);
 }
 
 int Config::Show()
 {
   dialogVisible = true;
-  return (int)DialogBoxParam(hInstance, MAKEINTRESOURCE(IDD_SETTINGS), mainWnd, (DLGPROC)SettingsDlgProc, (LPARAM)this);
+  return (int)DialogBoxParam(hInstance, MAKEINTRESOURCE(IDD_SETTINGS), mainWnd, (DLGPROC)ConfigDlgProc, (LPARAM)this);
 }
 
-BOOL Config::DoInitDialog(HWND hwndDlg)
+INT_PTR Config::DoInitDialog(HWND hwndDlg)
 {
-  RECT rect;
-  int x, y;
+  int ret;
+  PROPSHEETPAGE psp[2];
+  PROPSHEETHEADER psh;
 
-  HWND sliderWnd = GetDlgItem(hwndDlg, IDC_SLIDER);
-
-  GetWindowRect(hwndDlg, &rect);
-
-  x = (GetSystemMetrics(SM_CXSCREEN) / 2) - ((rect.right - rect.left) / 2);
-  y = (GetSystemMetrics(SM_CYSCREEN) / 2) - ((rect.bottom - rect.top) / 2);
-  SetWindowPos(hwndDlg, HWND_TOPMOST, x, y, 0, 0, SWP_NOSIZE);
   ELStealFocus(hwndDlg);
 
-  SetDlgItemInt(hwndDlg, IDC_TOPBORDER, pSettings->GetTopBorder(), false);
-  SetDlgItemInt(hwndDlg, IDC_LEFTBORDER, pSettings->GetLeftBorder(), false);
-  SetDlgItemInt(hwndDlg, IDC_RIGHTBORDER, pSettings->GetRightBorder(), false);
-  SetDlgItemInt(hwndDlg, IDC_BOTTOMBORDER, pSettings->GetBottomBorder(), false);
+  psp[0].dwSize = sizeof(PROPSHEETPAGE);
+  psp[0].dwFlags = PSP_USETITLE;
+  psp[0].hInstance = hInstance;
+  psp[0].pszTemplate = MAKEINTRESOURCE(IDD_CONFIG_PAGE);
+  psp[0].pfnDlgProc = pConfigPage->ConfigPageDlgProc;
+  psp[0].pszTitle = TEXT("General");
+  psp[0].lParam = reinterpret_cast<LPARAM>(pConfigPage.get());
+  psp[0].pfnCallback = NULL;
 
-  SendDlgItemMessage(hwndDlg, IDC_TOPUPDOWN, UDM_SETRANGE, (WPARAM)0, (LPARAM)1000);
-  SendDlgItemMessage(hwndDlg, IDC_LEFTUPDOWN, UDM_SETRANGE, (WPARAM)0, (LPARAM)1000);
-  SendDlgItemMessage(hwndDlg, IDC_RIGHTUPDOWN, UDM_SETRANGE, (WPARAM)0, (LPARAM)1000);
-  SendDlgItemMessage(hwndDlg, IDC_BOTTOMUPDOWN, UDM_SETRANGE, (WPARAM)0, (LPARAM)1000);
+  psp[1].dwSize = sizeof(PROPSHEETPAGE);
+  psp[1].dwFlags = PSP_USETITLE;
+  psp[1].hInstance = hInstance;
+  psp[1].pszTemplate = MAKEINTRESOURCE(IDD_MENU);
+  psp[1].pfnDlgProc = pMenuEditor->MenuEditorDlgProc;
+  psp[1].pszTitle = TEXT("Menu Editor");
+  psp[1].lParam = reinterpret_cast<LPARAM>(pMenuEditor.get());
+  psp[1].pfnCallback = NULL;
 
-  SetDlgItemInt(hwndDlg, IDC_MENUALPHA, pSettings->GetMenuAlpha(), false);
+  psh.dwSize = sizeof(PROPSHEETHEADER);
+  psh.dwFlags = PSH_PROPSHEETPAGE | PSH_NOAPPLYNOW | PSH_NOCONTEXTHELP;
+  psh.hwndParent = hwndDlg;
+  psh.hInstance = hInstance;
+  psh.pszCaption = TEXT("emergeDesktop Configuration");
+  psh.nPages = sizeof(psp) /
+               sizeof(PROPSHEETPAGE);
+  psh.nStartPage = 0;
+  psh.ppsp = (LPCPROPSHEETPAGE) &psp;
+  psh.pfnCallback = NULL;
 
-  if (pSettings->GetMenuIcons())
-    SendDlgItemMessage(hwndDlg, IDC_MENUICONS, BM_SETCHECK, BST_CHECKED, 0);
+  ret = PropertySheet(&psh);
 
-  if (pSettings->GetBorderPrimary())
-    SendDlgItemMessage(hwndDlg, IDC_BORDERPRI, BM_SETCHECK, BST_CHECKED, 0);
-
-  SendMessage(sliderWnd, TBM_SETRANGE, (WPARAM)TRUE, (LPARAM)MAKELONG(20, 100));
-  SendMessage(sliderWnd, TBM_SETPOS, (WPARAM)TRUE, (LPARAM)pSettings->GetMenuAlpha());
-
-  return TRUE;
-}
-
-bool Config::GetVisible()
-{
-  return dialogVisible;
-}
-
-BOOL Config::DoSettingsCommand(HWND hwndDlg, WPARAM wParam, LPARAM lParam UNUSED)
-{
-  switch (LOWORD(wParam))
+  if (ret >= 1)
     {
-    case IDOK:
-      if (!UpdateSettings(hwndDlg))
-        break;
-    case IDCANCEL:
-      dialogVisible = false;
-      EndDialog(hwndDlg, wParam);
-      return TRUE;
-    case IDC_MENUALPHA:
-      return pConfig->DoSettingsChange(hwndDlg, wParam);
+      pSettings->WriteSettings();
+      EndDialog(hwndDlg, IDOK);
     }
+  if (ret <= 0)
+    EndDialog(hwndDlg, IDCANCEL);
 
-  return FALSE;
-}
+  dialogVisible = false;
 
-bool Config::UpdateSettings(HWND hwndDlg)
-{
-  UINT result;
-  BOOL success;
-
-  if (SendDlgItemMessage(hwndDlg, IDC_MENUICONS, BM_GETCHECK, 0, 0) == BST_CHECKED)
-    {
-      if (!pSettings->GetMenuIcons())
-        pSettings->SetMenuIcons(true);
-    }
-  else if (SendDlgItemMessage(hwndDlg, IDC_MENUICONS, BM_GETCHECK, 0, 0) == BST_UNCHECKED)
-    {
-      if (pSettings->GetMenuIcons())
-        pSettings->SetMenuIcons(false);
-    }
-
-  if (SendDlgItemMessage(hwndDlg, IDC_BORDERPRI, BM_GETCHECK, 0, 0) == BST_CHECKED)
-    {
-      if (!pSettings->GetBorderPrimary())
-        pSettings->SetBorderPrimary(true);
-    }
-  else if (SendDlgItemMessage(hwndDlg, IDC_BORDERPRI, BM_GETCHECK, 0, 0) == BST_UNCHECKED)
-    {
-      if (pSettings->GetBorderPrimary())
-        pSettings->SetBorderPrimary(false);
-    }
-
-  result = GetDlgItemInt(hwndDlg, IDC_TOPBORDER, &success, false);
-  if (success)
-    pSettings->SetTopBorder(result);
-  else
-    {
-      ELMessageBox(hwndDlg, (WCHAR*)TEXT("Invalid value for top border"), (WCHAR*)TEXT("emergeCore"),
-                   ELMB_OK|ELMB_ICONERROR|ELMB_MODAL);
-      SetDlgItemInt(hwndDlg, IDC_TOPBORDER, pSettings->GetTopBorder(), false);
-      return false;
-    }
-
-  result = GetDlgItemInt(hwndDlg, IDC_LEFTBORDER, &success, false);
-  if (success)
-    pSettings->SetLeftBorder(result);
-  else
-    {
-      ELMessageBox(hwndDlg, (WCHAR*)TEXT("Invalid value for left border"), (WCHAR*)TEXT("emergeCore"),
-                   ELMB_OK|ELMB_ICONERROR|ELMB_MODAL);
-      SetDlgItemInt(hwndDlg, IDC_LEFTBORDER, pSettings->GetLeftBorder(), false);
-      return false;
-    }
-
-  result = GetDlgItemInt(hwndDlg, IDC_RIGHTBORDER, &success, false);
-  if (success)
-    pSettings->SetRightBorder(result);
-  else
-    {
-      ELMessageBox(hwndDlg, (WCHAR*)TEXT("Invalid value for right border"), (WCHAR*)TEXT("emergeCore"),
-                   ELMB_OK|ELMB_ICONERROR|ELMB_MODAL);
-      SetDlgItemInt(hwndDlg, IDC_RIGHTBORDER, pSettings->GetRightBorder(), false);
-      return false;
-    }
-
-  result = GetDlgItemInt(hwndDlg, IDC_BOTTOMBORDER, &success, false);
-  if (success)
-    pSettings->SetBottomBorder(result);
-  else
-    {
-      ELMessageBox(hwndDlg, (WCHAR*)TEXT("Invalid value for bottom border"), (WCHAR*)TEXT("emergeCore"),
-                   ELMB_OK|ELMB_ICONERROR|ELMB_MODAL);
-      SetDlgItemInt(hwndDlg, IDC_BOTTOMBORDER, pSettings->GetBottomBorder(), false);
-      return false;
-    }
-
-  result = GetDlgItemInt(hwndDlg, IDC_MENUALPHA, &success, false);
-  if (success)
-    pSettings->SetMenuAlpha(result);
-  else
-    {
-      ELMessageBox(hwndDlg, (WCHAR*)TEXT("Invalid value for menu alpha"), (WCHAR*)TEXT("emergeCore"),
-                   ELMB_OK|ELMB_ICONERROR|ELMB_MODAL);
-      SetDlgItemInt(hwndDlg, IDC_MENUALPHA, pSettings->GetMenuAlpha(), false);
-      return false;
-    }
-
-  pSettings->WriteSettings();
-
-  return true;
-}
-
-BOOL Config::DoSettingsNotify(HWND hwndDlg, LPARAM lParam)
-{
-  HWND sliderWnd = GetDlgItem(hwndDlg, IDC_SLIDER);
-
-  NMHDR *nmhdr = (NMHDR*)lParam;
-
-  if (nmhdr->hwndFrom == sliderWnd)
-    {
-      UINT sliderValue = (UINT)SendMessage(sliderWnd, TBM_GETPOS, 0, 0);
-      SetDlgItemInt(hwndDlg, IDC_MENUALPHA, sliderValue, false);
-
-      return TRUE;
-    }
-
-  return FALSE;
-}
-
-BOOL Config::DoSettingsChange(HWND hwndDlg, WPARAM wParam)
-{
-  WCHAR tmp[MAX_LINE_LENGTH];
-
-  HWND sliderWnd = GetDlgItem(hwndDlg, IDC_SLIDER);
-  HWND alphaWnd = GetDlgItem(hwndDlg, IDC_MENUALPHA);
-
-  if (HIWORD(wParam) == EN_CHANGE)
-    {
-      int tmpLength = GetWindowText(alphaWnd, tmp, MAX_LINE_LENGTH);
-      if (tmpLength > 1)
-        {
-          SendMessage(sliderWnd, TBM_SETPOS, (WPARAM)TRUE, (LPARAM)_wtoi(tmp));
-          SendMessage(alphaWnd, EM_SETSEL, (WPARAM)tmpLength, (LPARAM)tmpLength);
-
-          return TRUE;
-        }
-    }
-
-  if (HIWORD(wParam) == EN_KILLFOCUS)
-    {
-      GetWindowText(alphaWnd, tmp, MAX_LINE_LENGTH);
-      SendMessage(sliderWnd, TBM_SETPOS, (WPARAM)TRUE, (LPARAM)_wtoi(tmp));
-
-      return TRUE;
-    }
-
-  return FALSE;
+  return 1;
 }
 

@@ -52,7 +52,6 @@ class MenuEditor
 public:
   MenuEditor(HINSTANCE hInstance, HWND mainWnd);
   ~MenuEditor();
-  int Show();
   BOOL DoInitDialog(HWND hwndDlg);
   BOOL DoMenuCommand(HWND hwndDlg, WPARAM wParam, LPARAM lParam);
   BOOL DoMenuNotify(HWND hwndDlg, WPARAM wParam, LPARAM lParam);
@@ -65,6 +64,7 @@ public:
   bool UpdateSettings(HWND hwndDlg);
   bool UpdateMenu(HWND hwndDlg);
   bool GetVisible();
+  static BOOL CALLBACK MenuEditorDlgProc(HWND hwndDlg, UINT message, WPARAM wParam, LPARAM lParam);
 
 private:
   bool CheckFields(HWND hwndDlg);
@@ -101,7 +101,6 @@ private:
   HICON addIcon, editIcon, delIcon, saveIcon, abortIcon, browseIcon;
   UINT saveCount, deleteCount;
   bool dialogVisible;
-  static BOOL CALLBACK MenuDlgProc(HWND hwndDlg, UINT message, WPARAM wParam, LPARAM lParam);
   std::wstring xmlFile;
 };
 

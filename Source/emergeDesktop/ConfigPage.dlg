@@ -1,0 +1,49 @@
+//----  --------------------------------------------------------------------------------------------------------
+//
+//  This file is part of Emerge Desktop.
+//  Copyright (C) 2004-2010  The Emerge Desktop Development Team
+//
+//  Emerge Desktop is free software; you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation; either version 3 of the License, or
+//  (at your option) any later version.
+//
+//  Emerge Desktop is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//
+//  You should have received a copy of the GNU General Public License
+//  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+//
+//----  --------------------------------------------------------------------------------------------------------
+
+
+IDD_CONFIG_PAGE DIALOGEX 0, 0, 170, 165
+STYLE WS_POPUP | WS_VISIBLE | WS_CAPTION
+CAPTION "Desktop Settings"
+FONT 8, "MS Shell Dlg"
+BEGIN
+	GROUPBOX	"Desktop Borders",IDC_STATIC1,5,5,160,80,WS_GROUP
+	LTEXT		"Top:",IDC_STATIC2,60,17,25,8
+	EDITTEXT	IDC_TOPBORDER,85,15,35,12,ES_AUTOHSCROLL|ES_NUMBER
+  CONTROL "",IDC_TOPUPDOWN,UPDOWN_CLASS,UDS_AUTOBUDDY|UDS_SETBUDDYINT|UDS_ARROWKEYS|UDS_ALIGNRIGHT|UDS_NOTHOUSANDS,0,0,10,12
+	LTEXT		"Left:",IDC_STATIC3,10,37,25,8
+	EDITTEXT	IDC_LEFTBORDER,35,35,35,12,ES_AUTOHSCROLL|ES_NUMBER
+  CONTROL "",IDC_LEFTUPDOWN,UPDOWN_CLASS,UDS_AUTOBUDDY|UDS_SETBUDDYINT|UDS_ARROWKEYS|UDS_ALIGNRIGHT|UDS_NOTHOUSANDS,0,0,10,12
+	LTEXT		"Right:",IDC_STATIC4,100,37,25,8
+	EDITTEXT	IDC_RIGHTBORDER,125,35,35,12,ES_AUTOHSCROLL|ES_NUMBER
+  CONTROL "",IDC_RIGHTUPDOWN,UPDOWN_CLASS,UDS_AUTOBUDDY|UDS_SETBUDDYINT|UDS_ARROWKEYS|UDS_ALIGNRIGHT|UDS_NOTHOUSANDS,0,0,10,12
+	LTEXT		"Bottom:",IDC_STATIC5,60,57,25,8
+	EDITTEXT	IDC_BOTTOMBORDER,85,55,35,12,ES_AUTOHSCROLL|ES_NUMBER
+  CONTROL "",IDC_BOTTOMUPDOWN,UPDOWN_CLASS,UDS_AUTOBUDDY|UDS_SETBUDDYINT|UDS_ARROWKEYS|UDS_ALIGNRIGHT|UDS_NOTHOUSANDS,0,0,10,12
+
+  CONTROL		"Apply to Primary Monitor Only",IDC_BORDERPRI,"Button",BS_MULTILINE|BS_AUTOCHECKBOX|WS_TABSTOP|BS_TOP,10,70,125,10
+
+	GROUPBOX	"Menu Opacity",IDC_STATIC6,5,87,160,40,WS_GROUP
+	CONTROL		"AlphaSlider",IDC_SLIDER,"msctls_trackbar32",TBS_NOTICKS|TBS_TOP|
+			WS_TABSTOP,10,98,125,26
+	EDITTEXT	IDC_MENUALPHA,140,105,20,10,ES_AUTOHSCROLL|ES_NUMBER
+
+	CONTROL		"Menu Icons",IDC_MENUICONS,"Button",BS_AUTOCHECKBOX|WS_TABSTOP,5,130,50,10
+END

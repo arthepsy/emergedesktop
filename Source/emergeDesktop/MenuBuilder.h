@@ -64,7 +64,6 @@
 #define BSM_ABOUT        0x01
 #define BSM_CONFIGURE    0x02
 #define BSM_LAUNCH       0x03
-#define BSM_MENUS        0x04
 #define BSM_SHELL        0x05
 #define BSM_ALIAS        0x06
 #define BSM_SELECTTHEME  0x07

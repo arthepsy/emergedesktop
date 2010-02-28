@@ -37,6 +37,7 @@
 #define IDD_SETTINGS		    201
 #define IDD_MENU		        202
 #define IDD_ITEMEDIT        203
+#define IDD_CONFIG_PAGE     204
 
 #define IDC_TOPBORDER		    300
 #define IDC_LEFTBORDER		    301

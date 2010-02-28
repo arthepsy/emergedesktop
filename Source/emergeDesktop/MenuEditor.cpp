@@ -23,14 +23,16 @@
 
 TreeItemMap treeMap;
 
-BOOL CALLBACK MenuEditor::MenuDlgProc(HWND hwndDlg, UINT message, WPARAM wParam, LPARAM lParam)
+BOOL CALLBACK MenuEditor::MenuEditorDlgProc(HWND hwndDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
   static MenuEditor *pMenuEditor = NULL;
+  PROPSHEETPAGE *psp;
 
   switch (message)
     {
     case WM_INITDIALOG:
-      pMenuEditor = reinterpret_cast<MenuEditor*>(lParam);
+      psp = (PROPSHEETPAGE*)lParam;
+      pMenuEditor = reinterpret_cast<MenuEditor*>(psp->lParam);
       if (!pMenuEditor)
         break;
       return pMenuEditor->DoInitDialog(hwndDlg);
@@ -110,12 +112,6 @@ MenuEditor::~MenuEditor()
     DestroyIcon(browseIcon);
 
   DestroyWindow(toolWnd);
-}
-
-int MenuEditor::Show()
-{
-  dialogVisible = true;
-  return (int)DialogBoxParam(hInstance, MAKEINTRESOURCE(IDD_MENU), mainWnd, (DLGPROC)MenuDlgProc, (LPARAM)this);
 }
 
 BOOL MenuEditor::DoInitDialog(HWND hwndDlg)
@@ -451,24 +447,6 @@ BOOL MenuEditor::DoMenuCommand(HWND hwndDlg, WPARAM wParam, LPARAM lParam)
 {
   switch (LOWORD(wParam))
     {
-    case IDOK:
-      if (!CheckFields(hwndDlg))
-        break;
-      if (!UpdateMenu(hwndDlg))
-        break;
-      dialogVisible = false;
-      treeMap.clear();
-      EndDialog(hwndDlg, wParam);
-      return TRUE;
-    case IDCANCEL:
-      if (!CheckFields(hwndDlg))
-        break;
-      if (!CheckSaveCount(hwndDlg))
-        break;
-      dialogVisible = false;
-      treeMap.clear();
-      EndDialog(hwndDlg, wParam);
-      return TRUE;
     case IDC_DELITEM:
       return DoDelItem(hwndDlg);
     case IDC_EDITITEM:
@@ -711,6 +689,37 @@ BOOL MenuEditor::DoMenuNotify(HWND hwndDlg, WPARAM wParam UNUSED, LPARAM lParam)
 
       return TRUE;
     }
+
+    case PSN_APPLY:
+      if (!CheckFields(hwndDlg))
+        {
+          SetWindowLongPtr(hwndDlg, DWLP_MSGRESULT, PSNRET_INVALID);
+          return 1;
+        }
+
+      if (UpdateMenu(hwndDlg))
+        {
+          SetWindowLongPtr(hwndDlg, DWLP_MSGRESULT, PSNRET_NOERROR);
+          treeMap.clear();
+        }
+      else
+        SetWindowLongPtr(hwndDlg, DWLP_MSGRESULT, PSNRET_INVALID);
+      return 1;
+
+    case PSN_SETACTIVE:
+      SetWindowLongPtr(hwndDlg, DWLP_MSGRESULT, 0);
+      return 1;
+
+    case PSN_KILLACTIVE:
+      SetWindowLongPtr(hwndDlg, DWLP_MSGRESULT, FALSE);
+      return 1;
+
+    case PSN_QUERYCANCEL:
+      if (CheckFields(hwndDlg))
+        SetWindowLong(hwndDlg,DWLP_MSGRESULT,FALSE);
+      else
+        SetWindowLong(hwndDlg,DWLP_MSGRESULT,TRUE);
+      return TRUE;
     }
 
   return FALSE;

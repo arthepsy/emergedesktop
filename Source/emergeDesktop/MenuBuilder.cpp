@@ -234,10 +234,6 @@ LRESULT MenuBuilder::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lP
         }
         break;
 
-        case CORE_MENU:
-          pMenuEditor->Show();
-          break;
-
         case CORE_RIGHTMENU:
           return DoButtonDown(WM_RBUTTONDOWN);
 
@@ -1694,7 +1690,6 @@ void MenuBuilder::BuildSettingsMenu(MenuMap::iterator iter)
   AddSettingsItem(iter, (WCHAR*)TEXT("Change Desktop Shell"), BSM_SHELL);
   AddSettingsItem(iter, (WCHAR*)TEXT("\0"), BSM_SEPARATOR);
   AddSettingsItem(iter, (WCHAR*)TEXT("Edit Launch Applets"), BSM_LAUNCH);
-  AddSettingsItem(iter, (WCHAR*)TEXT("Edit Desktop Menus"), BSM_MENUS);
   AddSettingsItem(iter, (WCHAR*)TEXT("Edit Aliases"), BSM_ALIAS);
   AddSettingsItem(iter, (WCHAR*)TEXT("\0"), BSM_SEPARATOR);
   AddSettingsItem(iter, (WCHAR*)TEXT("Theme Manager"), BSM_SELECTTHEME);
@@ -1774,9 +1769,6 @@ void MenuBuilder::ExecuteSettingsMenuItem(UINT index)
       break;
     case 2:
       ELExecuteInternal((WCHAR*)TEXT("CoreLaunchEditor"));
-      break;
-    case 3:
-      res = pMenuEditor->Show();
       break;
     case 4:
       ELExecuteInternal((WCHAR*)TEXT("CoreShellChanger"));
