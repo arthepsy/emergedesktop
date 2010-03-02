@@ -643,29 +643,30 @@ BOOL MenuEditor::DoMenuNotify(HWND hwndDlg, WPARAM wParam UNUSED, LPARAM lParam)
                                           (LPARAM)iter->second.value),
                               0);
                 }
-            }
-          else if (iter->second.type == IT_SPECIAL_FOLDER)
-            {
-              ShowWindow(valueWnd, false);
-              ShowWindow(browseWnd, false);
-              ShowWindow(specialFoldersWnd, true);
-              int folder = ELIsSpecialFolder(iter->second.value);
-              if (ELGetSpecialFolder(folder, value))
-                SendMessage(specialFoldersWnd, CB_SETCURSEL,
-                            SendMessage(specialFoldersWnd,
-                                        CB_FINDSTRINGEXACT,
-                                        (WPARAM)-1,
-                                        (LPARAM)value),
-                            0);
-            }
-          else
-            {
-              ShowWindow(valueWnd, true);
-              ShowWindow(browseWnd, true);
-              ShowWindow(commandWnd, false);
-              ShowWindow(specialFoldersWnd, false);
-              SetDlgItemText(hwndDlg, IDC_ITEMVALUE, iter->second.value);
-              SetTooltip(browseWnd, iter->second.type);
+              else if (iter->second.type == IT_SPECIAL_FOLDER)
+                {
+                  ShowWindow(valueWnd, false);
+                  ShowWindow(browseWnd, false);
+                  ShowWindow(commandWnd, true);
+                  ShowWindow(specialFoldersWnd, true);
+                  int folder = ELIsSpecialFolder(iter->second.value);
+                  if (ELGetSpecialFolder(folder, value))
+                    SendMessage(specialFoldersWnd, CB_SETCURSEL,
+                                SendMessage(specialFoldersWnd,
+                                            CB_FINDSTRINGEXACT,
+                                            (WPARAM)-1,
+                                            (LPARAM)value),
+                                0);
+                }
+              else
+                {
+                  ShowWindow(valueWnd, true);
+                  ShowWindow(browseWnd, true);
+                  ShowWindow(commandWnd, false);
+                  ShowWindow(specialFoldersWnd, false);
+                  SetDlgItemText(hwndDlg, IDC_ITEMVALUE, iter->second.value);
+                  SetTooltip(browseWnd, iter->second.type);
+                }
             }
         }
     }
@@ -1497,4 +1498,5 @@ void MenuEditor::SetTooltip(HWND browseWnd, UINT type)
 
   SendMessage(toolWnd, TTM_SETTOOLINFO, 0, (LPARAM)(LPTOOLINFO)&ti);
 }
+
 
