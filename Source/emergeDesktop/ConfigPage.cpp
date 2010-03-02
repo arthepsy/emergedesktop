@@ -20,7 +20,7 @@
 
 #include "Config.h"
 
-BOOL CALLBACK ConfigPage::ConfigPageDlgProc(HWND hwndDlg, UINT message, WPARAM wParam, LPARAM lParam)
+INT_PTR CALLBACK ConfigPage::ConfigPageDlgProc(HWND hwndDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
   static ConfigPage *pConfigPage = NULL;
   PROPSHEETPAGE *psp;

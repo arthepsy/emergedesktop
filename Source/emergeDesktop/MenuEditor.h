@@ -64,7 +64,7 @@ public:
   bool UpdateSettings(HWND hwndDlg);
   bool UpdateMenu(HWND hwndDlg);
   bool GetVisible();
-  static BOOL CALLBACK MenuEditorDlgProc(HWND hwndDlg, UINT message, WPARAM wParam, LPARAM lParam);
+  static INT_PTR CALLBACK MenuEditorDlgProc(HWND hwndDlg, UINT message, WPARAM wParam, LPARAM lParam);
 
 private:
   bool CheckFields(HWND hwndDlg);

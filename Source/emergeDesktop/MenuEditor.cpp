@@ -23,7 +23,7 @@
 
 TreeItemMap treeMap;
 
-BOOL CALLBACK MenuEditor::MenuEditorDlgProc(HWND hwndDlg, UINT message, WPARAM wParam, LPARAM lParam)
+INT_PTR CALLBACK MenuEditor::MenuEditorDlgProc(HWND hwndDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
   static MenuEditor *pMenuEditor = NULL;
   PROPSHEETPAGE *psp;

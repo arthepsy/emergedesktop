@@ -46,7 +46,7 @@ public:
   BOOL DoSettingsChange(HWND hwndDlg, WPARAM wParam);
   bool UpdateSettings(HWND hwndDlg);
   bool GetVisible();
-  static BOOL CALLBACK ConfigPageDlgProc(HWND hwndDlg, UINT message, WPARAM wParam, LPARAM lParam);
+  static INT_PTR CALLBACK ConfigPageDlgProc(HWND hwndDlg, UINT message, WPARAM wParam, LPARAM lParam);
 
 private:
   std::tr1::shared_ptr<Settings> pSettings;
