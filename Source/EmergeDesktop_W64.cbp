@@ -658,6 +658,15 @@
 		<Unit filename="emergeDesktop\Config.h">
 			<Option target="emergeDesktop - Release" />
 		</Unit>
+		<Unit filename="emergeDesktop\ConfigPage.cpp">
+			<Option target="emergeDesktop - Release" />
+		</Unit>
+		<Unit filename="emergeDesktop\ConfigPage.dlg">
+			<Option target="emergeDesktop - Release" />
+		</Unit>
+		<Unit filename="emergeDesktop\ConfigPage.h">
+			<Option target="emergeDesktop - Release" />
+		</Unit>
 		<Unit filename="emergeDesktop\CustomDataObject.cpp">
 			<Option target="emergeDesktop - Release" />
 		</Unit>
@@ -689,6 +698,9 @@
 			<Option target="emergeDesktop - Release" />
 		</Unit>
 		<Unit filename="emergeDesktop\MenuEditor.cpp">
+			<Option target="emergeDesktop - Release" />
+		</Unit>
+		<Unit filename="emergeDesktop\MenuEditor.dlg">
 			<Option target="emergeDesktop - Release" />
 		</Unit>
 		<Unit filename="emergeDesktop\MenuEditor.h">
