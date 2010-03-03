@@ -71,6 +71,7 @@ private:
   HICON addIcon, delIcon, startIcon, stopIcon, upIcon, downIcon, browseIcon, saveIcon, abortIcon;
   static BOOL CALLBACK LaunchDlgProc(HWND hwndDlg, UINT message, WPARAM wParam, LPARAM lParam);
   static BOOL CALLBACK AppletCheck(HWND hwnd, LPARAM lParam);
+  static BOOL CALLBACK GatherApplet(HWND hwnd, LPARAM lParam);
   std::wstring xmlFile;
   std::wstring selectedApplet;
 };

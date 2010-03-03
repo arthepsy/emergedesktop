@@ -57,6 +57,27 @@ BOOL CALLBACK LaunchEditor::AppletCheck(HWND hwnd, LPARAM lParam)
   return true;
 }
 
+BOOL CALLBACK LaunchEditor::GatherApplet(HWND hwnd, LPARAM lParam)
+{
+  LaunchEditor *pLaunchEditor = reinterpret_cast<LaunchEditor*>(lParam);
+  WCHAR fileName[MAX_PATH];
+  POINT cursorPt;
+  RECT appletRect;
+
+  if (!ELGetWindowApp(hwnd, fileName, true))
+    return true;
+
+  GetCursorPos(&cursorPt);
+  GetClientRect(hwnd, &appletRect);
+
+  if (_wcsicmp(fileName, pLaunchEditor->GetSelectedApplet().c_str()) == 0)
+    SetWindowPos(hwnd, HWND_TOPMOST, cursorPt.x - (appletRect.right / 2),
+                 cursorPt.y - (appletRect.bottom / 2), 0, 0,
+                 SWP_NOSIZE|SWP_NOSENDCHANGING);
+
+  return true;
+}
+
 std::wstring LaunchEditor::GetSelectedApplet()
 {
   return selectedApplet;
@@ -70,16 +91,16 @@ LaunchEditor::LaunchEditor(HINSTANCE hInstance, HWND mainWnd)
   InitCommonControls();
 
   toolWnd = CreateWindowEx(
-                           0,
-                           TOOLTIPS_CLASS,
-                           NULL,
-                           TTS_ALWAYSTIP|WS_POPUP|TTS_NOPREFIX,
-                           CW_USEDEFAULT, CW_USEDEFAULT,
-                           CW_USEDEFAULT, CW_USEDEFAULT,
-                           NULL,
-                           NULL,
-                           hInstance,
-                           NULL);
+              0,
+              TOOLTIPS_CLASS,
+              NULL,
+              TTS_ALWAYSTIP|WS_POPUP|TTS_NOPREFIX,
+              CW_USEDEFAULT, CW_USEDEFAULT,
+              CW_USEDEFAULT, CW_USEDEFAULT,
+              NULL,
+              NULL,
+              hInstance,
+              NULL);
 
   if (toolWnd)
     {
@@ -817,10 +838,16 @@ BOOL LaunchEditor::DoRightClick(HWND hwndDlg, int index)
   HWND listWnd = GetDlgItem(hwndDlg, IDC_APPLETLIST);
   WCHAR tmp[MAX_LINE_LENGTH], applet[MAX_PATH], appletName[MAX_PATH];
   VERSIONINFO versionInfo;
+  HMENU appletMenu = CreatePopupMenu();
+  POINT mousePt;
+
+  AppendMenu(appletMenu, MF_STRING, 1, TEXT("About"));
+  AppendMenu(appletMenu, MF_STRING, 2, TEXT("Gather"));
 
   ListView_GetItemText(listWnd, index, 0, applet, MAX_PATH);
   wcscpy(appletName, PathFindFileName(applet));
   PathRemoveExtension(appletName);
+  GetCursorPos(&mousePt);
 
   if (ELAppletFileVersion(applet, &versionInfo))
     {
@@ -828,12 +855,23 @@ BOOL LaunchEditor::DoRightClick(HWND hwndDlg, int index)
                versionInfo.Description,
                versionInfo.Version,
                versionInfo.Author);
-
-      ELMessageBox(hwndDlg, tmp, appletName, ELMB_ICONQUESTION|ELMB_OK|ELMB_MODAL);
-
-      return TRUE;
     }
 
-  return FALSE;
-}
+  switch (TrackPopupMenuEx(appletMenu, TPM_RETURNCMD, mousePt.x, mousePt.y,
+                           hwndDlg, NULL))
+    {
+    case 1:
+      ELMessageBox(hwndDlg, tmp, appletName,
+                   ELMB_ICONQUESTION|ELMB_OK|ELMB_MODAL);
+      break;
+    case 2:
+      selectedApplet = applet;
+      selectedApplet = ELExpandVars(selectedApplet);
+      EnumWindows(GatherApplet, reinterpret_cast<LPARAM>(this));
+      break;
+    }
 
+  DestroyMenu(appletMenu);
+
+  return TRUE;
+}

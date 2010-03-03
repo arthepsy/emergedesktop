@@ -128,6 +128,9 @@ LRESULT BaseApplet::DoEnterSizeMove(HWND hwnd)
   GetWindowRect(hwnd, &referenceRect);
   anchor = ELGetAnchorPoint(hwnd);
 
+  SetWindowPos(hwnd, HWND_TOPMOST, 0, 0, 0, 0,
+               SWP_NOSIZE|SWP_NOMOVE|SWP_NOSENDCHANGING);
+
   return 0;
 }
 
@@ -148,6 +151,15 @@ LRESULT BaseApplet::DoExitSizeMove(HWND hwnd)
 
   if ((currentWidth != referenceWidth) || (currentHeight != referenceHeight))
     DoSize(currentWidth, currentHeight);
+
+  if (wcsicmp(pBaseSettings->GetZPosition(), TEXT("Top")) != 0)
+    {
+      SetWindowPos(mainWnd, HWND_NOTOPMOST, 0 , 0, 0, 0,
+                   SWP_NOSIZE|SWP_NOMOVE|SWP_NOSENDCHANGING);
+      if (wcsicmp(pBaseSettings->GetZPosition(), TEXT("Bottom")) == 0)
+        SetWindowPos(mainWnd, ELGetDesktopWindow(), 0 , 0, 0, 0,
+                     SWP_NOSIZE|SWP_NOMOVE|SWP_NOSENDCHANGING);
+    }
 
   pBaseSettings->WriteSettings();
 
