@@ -51,6 +51,8 @@ BOOL CALLBACK LaunchEditor::AppletCheck(HWND hwnd, LPARAM lParam)
   if (!ELGetWindowApp(hwnd, fileName, true))
     return true;
 
+  ELWriteDebug(pLaunchEditor->GetSelectedApplet());
+
   if (_wcsicmp(fileName, pLaunchEditor->GetSelectedApplet().c_str()) == 0)
     SendMessage(hwnd, WM_NCDESTROY, 0, 0);
 
@@ -185,13 +187,17 @@ BOOL LaunchEditor::DoInitDialog(HWND hwndDlg)
   ELStealFocus(hwndDlg);
 
   lvCol.mask = LVCF_TEXT | LVCF_WIDTH;
+  lvCol.pszText = (WCHAR*)TEXT("State");
+  lvCol.cx = 50;
+  ret = ListView_InsertColumn(listWnd, 0, &lvCol);
+
   lvCol.pszText = (WCHAR*)TEXT("Applet");
   lvCol.cx = MAX_PATH;
-  ret = ListView_InsertColumn(listWnd, 0, &lvCol);
+  ret = ListView_InsertColumn(listWnd, 1, &lvCol);
 
   lvCol.pszText = (WCHAR*)TEXT("Version");
   lvCol.cx = 100;
-  ret = ListView_InsertColumn(listWnd, 1, &lvCol);
+  ret = ListView_InsertColumn(listWnd, 2, &lvCol);
 
   ret = ListView_SetExtendedListViewStyle(listWnd,  LVS_EX_FULLROWSELECT);
 
@@ -371,7 +377,7 @@ bool LaunchEditor::DoLaunchMove(HWND hwndDlg, bool up)
   int i = 0, lvret;
   bool ret = false;
   LVITEM lvItem;
-  WCHAR applet[MAX_PATH], version[MAX_PATH];
+  WCHAR applet[MAX_PATH], version[MAX_PATH], state[MAX_PATH];
 
   if (ListView_GetSelectedCount(listWnd) > 1)
     {
@@ -391,8 +397,9 @@ bool LaunchEditor::DoLaunchMove(HWND hwndDlg, bool up)
         {
           ret = true;
 
-          ListView_GetItemText(listWnd, i, 0, applet, MAX_PATH);
-          ListView_GetItemText(listWnd, i, 1, version, MAX_PATH);
+          ListView_GetItemText(listWnd, i, 0, state, MAX_PATH);
+          ListView_GetItemText(listWnd, i, 1, applet, MAX_PATH);
+          ListView_GetItemText(listWnd, i, 2, version, MAX_PATH);
 
           if (up)
             lvItem.iItem = ListView_GetNextItem(listWnd, i, LVNI_ABOVE);
@@ -403,13 +410,14 @@ bool LaunchEditor::DoLaunchMove(HWND hwndDlg, bool up)
             break;
 
           lvItem.iSubItem = 0;
-          lvItem.pszText = applet;
+          lvItem.pszText = state;
           lvItem.cchTextMax = MAX_PATH;
 
           lvret = ListView_DeleteItem(listWnd, i);
 
           lvret = ListView_InsertItem(listWnd, &lvItem);
-          ListView_SetItemText(listWnd, lvItem.iItem, 1, version);
+          ListView_SetItemText(listWnd, lvItem.iItem, 1, applet);
+          ListView_SetItemText(listWnd, lvItem.iItem, 2, version);
 
           ListView_SetItemState(listWnd, lvItem.iItem, LVIS_SELECTED, LVIS_SELECTED);
           lvret = ListView_EnsureVisible(listWnd, lvItem.iItem, FALSE);
@@ -436,8 +444,9 @@ bool LaunchEditor::DoLaunchStart(HWND hwndDlg)
         {
           ret = true;
 
-          ListView_GetItemText(listWnd, i, 0, applet, MAX_PATH);
-          ELExecute(applet);
+          ListView_GetItemText(listWnd, i, 1, applet, MAX_PATH);
+          if (ELExecute(applet))
+            ListView_SetItemText(listWnd, i, 0, (WCHAR*)TEXT("Started"));
         }
 
       i++;
@@ -460,6 +469,7 @@ bool LaunchEditor::DoLaunchStop(HWND hwndDlg)
             {
               selectedApplet = applet;
               EnumWindows(AppletCheck, reinterpret_cast<LPARAM>(this));
+              ListView_SetItemText(listWnd, i, 0, (WCHAR*)TEXT("Stopped"));
             }
         }
 
@@ -474,7 +484,7 @@ bool LaunchEditor::GetLaunchAppletName(int index, WCHAR *applet)
   HWND listWnd = GetDlgItem(dlgWnd, IDC_APPLETLIST);
   std::wstring workingApplet;
 
-  ListView_GetItemText(listWnd, index, 0, applet, MAX_PATH);
+  ListView_GetItemText(listWnd, index, 1, applet, MAX_PATH);
   workingApplet = applet;
   workingApplet = ELExpandVars(workingApplet);
   wcscpy(applet, workingApplet.c_str());
@@ -524,7 +534,7 @@ bool LaunchEditor::UpdateLaunch(HWND hwndDlg)
       // Loop while there are entries in the key
       while (i < ListView_GetItemCount(listWnd))
         {
-          ListView_GetItemText(listWnd, i, 0, applet, MAX_PATH);
+          ListView_GetItemText(listWnd, i, 1, applet, MAX_PATH);
           first = ELSetFirstXMLElement(section, TEXT("item"));
           if (first)
             ELWriteXMLStringValue(first, TEXT("Command"), applet);
@@ -602,12 +612,14 @@ void LaunchEditor::InsertListViewItem(HWND listWnd, int index, const WCHAR *item
   lvItem.mask = LVIF_TEXT;
   lvItem.iItem = index;
   lvItem.iSubItem = 0;
-  lvItem.pszText = tmp;
-  lvItem.cchTextMax = (int)wcslen(tmp);
+  lvItem.pszText = (WCHAR*)TEXT("Started");
+  lvItem.cchTextMax = (int)wcslen(lvItem.pszText);
   ret = ListView_InsertItem(listWnd, &lvItem);
 
+  ListView_SetItemText(listWnd, lvItem.iItem, 1, tmp);
+
   if (ELAppletFileVersion(tmp, &versionInfo))
-    ListView_SetItemText(listWnd, lvItem.iItem, 1, versionInfo.Version);
+    ListView_SetItemText(listWnd, lvItem.iItem, 2, versionInfo.Version);
 }
 
 bool LaunchEditor::DoLaunchDelete(HWND hwndDlg)
@@ -728,10 +740,12 @@ bool LaunchEditor::DoLaunchSave(HWND hwndDlg)
         {
           lvItem.iItem = ListView_GetItemCount(listWnd);
           lvItem.iSubItem = 0;
-          lvItem.pszText = tmp;
-          lvItem.cchTextMax = (int)wcslen(tmp);
+          lvItem.pszText = (WCHAR*)TEXT("Started");
+          lvItem.cchTextMax = (int)wcslen(lvItem.pszText);
           if (ListView_InsertItem(listWnd, &lvItem) != -1)
             {
+              ListView_SetItemText(listWnd, lvItem.iItem, 1, tmp);
+
               if (ELAppletFileVersion(tmp, &versionInfo))
                 ListView_SetItemText(listWnd, lvItem.iItem, 1, versionInfo.Version);
 
@@ -844,7 +858,7 @@ BOOL LaunchEditor::DoRightClick(HWND hwndDlg, int index)
   AppendMenu(appletMenu, MF_STRING, 1, TEXT("About"));
   AppendMenu(appletMenu, MF_STRING, 2, TEXT("Gather"));
 
-  ListView_GetItemText(listWnd, index, 0, applet, MAX_PATH);
+  ListView_GetItemText(listWnd, index, 1, applet, MAX_PATH);
   wcscpy(appletName, PathFindFileName(applet));
   PathRemoveExtension(appletName);
   GetCursorPos(&mousePt);
