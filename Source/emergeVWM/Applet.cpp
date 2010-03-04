@@ -343,17 +343,12 @@ bool Applet::IsWindowValidTask(HWND hwnd)
   if (!IsWindowVisible(hwnd))
     return false;
 
+  if (ELIsApplet(hwnd))
+    return false;
+
   // Ignore toolwindows
   /*  if((GetWindowLongPtr(hwnd, GWL_EXSTYLE) & WS_EX_TOOLWINDOW) == WS_EX_TOOLWINDOW)
       return false;*/
-
-  // Ignore Emerge Desktop Applets
-  if (_wcsicmp(windowClass, TEXT("EmergeDesktopApplet")) == 0)
-    return false;
-
-  // Ignore Emerge Desktop Applets
-  if (_wcsicmp(windowClass, TEXT("progman")) == 0)
-    return false;
 
   // Ignore menus
   if (_wcsicmp(windowClass, TEXT("#32768")) == 0)

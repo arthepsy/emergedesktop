@@ -319,6 +319,7 @@ DLL_EXPORT bool ELAppletVersionInfo(HWND appWnd, LPVERSIONINFO versionInfo);
 DLL_EXPORT bool ELAppletFileVersion(WCHAR *applet, LPVERSIONINFO versionInfo);
 DLL_EXPORT bool ELGetWindowApp(HWND hWnd, WCHAR *processName, bool fullName);
 DLL_EXPORT bool ELIsFullScreen(HWND appletWnd, HWND appWnd);
+DLL_EXPORT bool ELIsApplet(HWND hwnd);
 DLL_EXPORT bool ELParseCommand(const WCHAR *application, WCHAR *program, WCHAR *arguments);
 DLL_EXPORT int ELIsSpecialFolder(WCHAR *folder);
 DLL_EXPORT bool ELSpecialFolderValue(WCHAR *folder, WCHAR *value);

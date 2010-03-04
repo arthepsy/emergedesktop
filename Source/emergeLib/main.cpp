@@ -99,7 +99,6 @@ bool ELCheckPathWithExtension(LPTSTR path);
 bool IsClose(int side, int edge);
 WCHAR *ReadValue(const WCHAR *fileName, WCHAR *keyword);
 void stripQuotes(LPTSTR source);
-BOOL CALLBACK EnumAppletWindows(HWND hwnd, LPARAM lParam);
 bool SnapMoveToEdge(LPSNAPMOVEINFO snapMove, RECT rt);
 bool SnapSizeToEdge(LPSNAPSIZEINFO snapSize, RECT rt);
 std::wstring GetWindowApp(DWORD processID, bool fullName);
@@ -4108,4 +4107,28 @@ BOOL ELPathIsRelative(LPCTSTR lpszPath)
   tmpPath = ELExpandVars(tmpPath);
 
   return PathIsRelative(tmpPath.c_str());
+}
+
+bool ELIsApplet(HWND hwnd)
+{
+  WCHAR windowClass[MAX_LINE_LENGTH];
+  RealGetWindowClass(hwnd, windowClass, MAX_LINE_LENGTH);
+
+  // emergeApplet Class
+  if (_wcsicmp(windowClass, TEXT("EmergeDesktopApplet")) == 0)
+    return true;
+
+  // emergeCore Class
+  if (_wcsicmp(windowClass, TEXT("EmergeDesktopCore")) == 0)
+    return true;
+
+  // emergeDesktop Class
+  if (_wcsicmp(windowClass, TEXT("EmergeDesktopMenuBuilder")) == 0)
+    return true;
+
+  // Desktop Class
+  if (_wcsicmp(windowClass, TEXT("progman")) == 0)
+    return true;
+
+  return false;
 }

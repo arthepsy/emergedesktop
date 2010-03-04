@@ -43,6 +43,16 @@ BOOL CALLBACK LaunchEditor::LaunchDlgProc(HWND hwndDlg, UINT message, WPARAM wPa
   return FALSE;
 }
 
+BOOL CALLBACK LaunchEditor::StartedAppletCheck(HWND hwnd, LPARAM lParam)
+{
+  WindowList *windowList = reinterpret_cast<WindowList*>(lParam);
+
+  if (ELIsApplet(hwnd))
+    windowList->push_back(hwnd);
+
+  return true;
+}
+
 BOOL CALLBACK LaunchEditor::AppletCheck(HWND hwnd, LPARAM lParam)
 {
   LaunchEditor *pLaunchEditor = reinterpret_cast<LaunchEditor*>(lParam);
@@ -50,8 +60,6 @@ BOOL CALLBACK LaunchEditor::AppletCheck(HWND hwnd, LPARAM lParam)
 
   if (!ELGetWindowApp(hwnd, fileName, true))
     return true;
-
-  ELWriteDebug(pLaunchEditor->GetSelectedApplet());
 
   if (_wcsicmp(fileName, pLaunchEditor->GetSelectedApplet().c_str()) == 0)
     SendMessage(hwnd, WM_NCDESTROY, 0, 0);
@@ -604,22 +612,45 @@ void LaunchEditor::InsertListViewItem(HWND listWnd, int index, const WCHAR *item
   LVITEM lvItem;
   WCHAR tmp[MAX_PATH];
   int ret;
+  WindowList windowList;
+  WindowList::iterator iter;
+  std::wstring workingItem, expandedItem;
 
   wcscpy(tmp, item);
   if (ELPathIsRelative(tmp))
     ELConvertAppletPath(tmp, CTP_FULL);
+  workingItem = tmp;
+  expandedItem = ELExpandVars(workingItem);
+
+  EnumWindows(StartedAppletCheck, (LPARAM)&windowList);
+
+  iter = windowList.begin();
+  while (iter != windowList.end())
+    {
+      if (ELGetWindowApp((*iter), tmp, true))
+        {
+          if (wcsicmp(expandedItem.c_str(), tmp) == 0)
+            break;
+        }
+      iter++;
+    }
 
   lvItem.mask = LVIF_TEXT;
   lvItem.iItem = index;
   lvItem.iSubItem = 0;
-  lvItem.pszText = (WCHAR*)TEXT("Started");
+  if (iter == windowList.end())
+    lvItem.pszText = (WCHAR*)TEXT("Stopped");
+  else
+    lvItem.pszText = (WCHAR*)TEXT("Started");
   lvItem.cchTextMax = (int)wcslen(lvItem.pszText);
   ret = ListView_InsertItem(listWnd, &lvItem);
 
-  ListView_SetItemText(listWnd, lvItem.iItem, 1, tmp);
+  ListView_SetItemText(listWnd, lvItem.iItem, 1, (WCHAR*)workingItem.c_str());
 
   if (ELAppletFileVersion(tmp, &versionInfo))
     ListView_SetItemText(listWnd, lvItem.iItem, 2, versionInfo.Version);
+
+  windowList.clear();
 }
 
 bool LaunchEditor::DoLaunchDelete(HWND hwndDlg)
@@ -816,7 +847,7 @@ BOOL LaunchEditor::PopulateFields(HWND hwndDlg, int index)
   HWND listWnd = GetDlgItem(hwndDlg, IDC_APPLETLIST);
   WCHAR applet[MAX_PATH];
 
-  ListView_GetItemText(listWnd, index, 0, applet, MAX_PATH);
+  ListView_GetItemText(listWnd, index, 1, applet, MAX_PATH);
   SetDlgItemText(hwndDlg, IDC_APPLET, applet);
 
   return TRUE;
@@ -889,3 +920,4 @@ BOOL LaunchEditor::DoRightClick(HWND hwndDlg, int index)
 
   return TRUE;
 }
+
