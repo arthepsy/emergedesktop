@@ -121,8 +121,6 @@ LaunchEditor::LaunchEditor(HINSTANCE hInstance, HWND mainWnd)
 
   addIcon = (HICON)LoadImage(hInstance, MAKEINTRESOURCE(IDI_ADD), IMAGE_ICON, 16, 16, 0);
   delIcon = (HICON)LoadImage(hInstance, MAKEINTRESOURCE(IDI_DEL), IMAGE_ICON, 16, 16, 0);
-  startIcon = (HICON)LoadImage(hInstance, MAKEINTRESOURCE(IDI_START), IMAGE_ICON, 16, 16, 0);
-  stopIcon = (HICON)LoadImage(hInstance, MAKEINTRESOURCE(IDI_STOP), IMAGE_ICON, 16, 16, 0);
   browseIcon = (HICON)LoadImage(hInstance, MAKEINTRESOURCE(IDI_BROWSE), IMAGE_ICON, 16, 16, 0);
   upIcon = (HICON)LoadImage(hInstance, MAKEINTRESOURCE(IDI_UP), IMAGE_ICON, 16, 16, 0);
   downIcon = (HICON)LoadImage(hInstance, MAKEINTRESOURCE(IDI_DOWN), IMAGE_ICON, 16, 16, 0);
@@ -139,10 +137,6 @@ LaunchEditor::~LaunchEditor()
     DestroyIcon(addIcon);
   if (delIcon)
     DestroyIcon(delIcon);
-  if (startIcon)
-    DestroyIcon(startIcon);
-  if (stopIcon)
-    DestroyIcon(stopIcon);
   if (upIcon)
     DestroyIcon(upIcon);
   if (downIcon)
@@ -174,8 +168,6 @@ BOOL LaunchEditor::DoInitDialog(HWND hwndDlg)
 
   HWND addWnd = GetDlgItem(hwndDlg, IDC_ADDAPP);
   HWND delWnd = GetDlgItem(hwndDlg, IDC_DELAPP);
-  HWND startWnd = GetDlgItem(hwndDlg, IDC_STARTAPP);
-  HWND stopWnd = GetDlgItem(hwndDlg, IDC_STOPAPP);
   HWND listWnd = GetDlgItem(hwndDlg, IDC_APPLETLIST);
   HWND browseWnd = GetDlgItem(hwndDlg, IDC_BROWSE);
   HWND appletWnd = GetDlgItem(hwndDlg, IDC_APPLET);
@@ -213,10 +205,6 @@ BOOL LaunchEditor::DoInitDialog(HWND hwndDlg)
     SendMessage(addWnd, BM_SETIMAGE, IMAGE_ICON, (LPARAM)addIcon);
   if (delIcon)
     SendMessage(delWnd, BM_SETIMAGE, IMAGE_ICON, (LPARAM)delIcon);
-  if (startIcon)
-    SendMessage(startWnd, BM_SETIMAGE, IMAGE_ICON, (LPARAM)startIcon);
-  if (stopIcon)
-    SendMessage(stopWnd, BM_SETIMAGE, IMAGE_ICON, (LPARAM)stopIcon);
   if (browseIcon)
     SendMessage(browseWnd, BM_SETIMAGE, IMAGE_ICON, (LPARAM)browseIcon);
   if (upIcon)
@@ -241,18 +229,6 @@ BOOL LaunchEditor::DoInitDialog(HWND hwndDlg)
   ti.uId = (ULONG_PTR)delWnd;
   ti.lpszText = (WCHAR*)TEXT("Delete Launch Applet");
   GetClientRect(delWnd, &ti.rect);
-  SendMessage(toolWnd, TTM_ADDTOOL, 0, (LPARAM)(LPTOOLINFO)&ti);
-
-  ti.hwnd = startWnd;
-  ti.uId = (ULONG_PTR)startWnd;
-  ti.lpszText = (WCHAR*)TEXT("Start Launch Applet");
-  GetClientRect(startWnd, &ti.rect);
-  SendMessage(toolWnd, TTM_ADDTOOL, 0, (LPARAM)(LPTOOLINFO)&ti);
-
-  ti.hwnd = stopWnd;
-  ti.uId = (ULONG_PTR)stopWnd;
-  ti.lpszText = (WCHAR*)TEXT("Stop Launch Applet");
-  GetClientRect(stopWnd, &ti.rect);
   SendMessage(toolWnd, TTM_ADDTOOL, 0, (LPARAM)(LPTOOLINFO)&ti);
 
   ti.hwnd = browseWnd;
@@ -289,8 +265,6 @@ BOOL LaunchEditor::DoInitDialog(HWND hwndDlg)
 
   EnableWindow(upWnd, false);
   EnableWindow(downWnd, false);
-  EnableWindow(startWnd, false);
-  EnableWindow(stopWnd, false);
   EnableWindow(delWnd, false);
   EnableWindow(appletWnd, false);
   EnableWindow(browseWnd, false);
@@ -366,10 +340,6 @@ BOOL LaunchEditor::DoLaunchCommand(HWND hwndDlg, WPARAM wParam, LPARAM lParam UN
       return DoLaunchAbort(hwndDlg);
     case IDC_BROWSE:
       return DoLaunchBrowse(hwndDlg);
-    case IDC_STARTAPP:
-      return DoLaunchStart(hwndDlg);
-    case IDC_STOPAPP:
-      return DoLaunchStop(hwndDlg);
     case IDC_UPAPP:
       return DoLaunchMove(hwndDlg, true);
     case IDC_DOWNAPP:
@@ -439,50 +409,23 @@ bool LaunchEditor::DoLaunchMove(HWND hwndDlg, bool up)
   return ret;
 }
 
-bool LaunchEditor::DoLaunchStart(HWND hwndDlg)
+bool LaunchEditor::DoLaunchStart(HWND listWnd, int index)
 {
-  HWND listWnd = GetDlgItem(hwndDlg, IDC_APPLETLIST);
-  int i = 0;
   bool ret = false;
-  WCHAR applet[MAX_PATH];
 
-  while (i < ListView_GetItemCount(listWnd))
+  if (ELExecute((WCHAR*)selectedApplet.c_str()))
     {
-      if (ListView_GetItemState(listWnd, i, LVIS_SELECTED))
-        {
-          ret = true;
-
-          ListView_GetItemText(listWnd, i, 1, applet, MAX_PATH);
-          if (ELExecute(applet))
-            ListView_SetItemText(listWnd, i, 0, (WCHAR*)TEXT("Started"));
-        }
-
-      i++;
+      ListView_SetItemText(listWnd, index, 0, (WCHAR*)TEXT("Started"));
+      ret = true;
     }
 
   return ret;
 }
 
-bool LaunchEditor::DoLaunchStop(HWND hwndDlg)
+bool LaunchEditor::DoLaunchStop(HWND listWnd, int index)
 {
-  int i = 0;
-  HWND listWnd = GetDlgItem(hwndDlg, IDC_APPLETLIST);
-  WCHAR applet[MAX_LINE_LENGTH];
-
-  while (i < ListView_GetItemCount(listWnd))
-    {
-      if (ListView_GetItemState(listWnd, i, LVIS_SELECTED))
-        {
-          if (GetLaunchAppletName(i, applet))
-            {
-              selectedApplet = applet;
-              EnumWindows(AppletCheck, reinterpret_cast<LPARAM>(this));
-              ListView_SetItemText(listWnd, i, 0, (WCHAR*)TEXT("Stopped"));
-            }
-        }
-
-      i++;
-    }
+  EnumWindows(AppletCheck, reinterpret_cast<LPARAM>(this));
+  ListView_SetItemText(listWnd, index, 0, (WCHAR*)TEXT("Stopped"));
 
   return true;
 }
@@ -657,8 +600,6 @@ bool LaunchEditor::DoLaunchDelete(HWND hwndDlg)
 {
   HWND listWnd = GetDlgItem(hwndDlg, IDC_APPLETLIST);
   HWND delWnd = GetDlgItem(hwndDlg, IDC_DELAPP);
-  HWND startWnd = GetDlgItem(hwndDlg, IDC_STARTAPP);
-  HWND stopWnd = GetDlgItem(hwndDlg, IDC_STOPAPP);
   HWND upWnd = GetDlgItem(hwndDlg, IDC_UPAPP);
   HWND downWnd = GetDlgItem(hwndDlg, IDC_DOWNAPP);
   bool ret = false;
@@ -702,8 +643,6 @@ bool LaunchEditor::DoLaunchDelete(HWND hwndDlg)
   if (ListView_GetItemCount(listWnd) == 0)
     {
       EnableWindow(delWnd, false);
-      EnableWindow(startWnd, false);
-      EnableWindow(stopWnd, false);
       EnableWindow(upWnd, false);
       EnableWindow(downWnd, false);
     }
@@ -856,8 +795,6 @@ BOOL LaunchEditor::PopulateFields(HWND hwndDlg, int index)
 BOOL LaunchEditor::DoNotify(HWND hwndDlg, LPARAM lParam)
 {
   HWND delWnd = GetDlgItem(hwndDlg, IDC_DELAPP);
-  HWND startWnd = GetDlgItem(hwndDlg, IDC_STARTAPP);
-  HWND stopWnd = GetDlgItem(hwndDlg, IDC_STOPAPP);
   HWND upWnd = GetDlgItem(hwndDlg, IDC_UPAPP);
   HWND downWnd = GetDlgItem(hwndDlg, IDC_DOWNAPP);
 
@@ -865,8 +802,6 @@ BOOL LaunchEditor::DoNotify(HWND hwndDlg, LPARAM lParam)
     {
     case LVN_ITEMCHANGED:
       EnableWindow(delWnd, true);
-      EnableWindow(startWnd, true);
-      EnableWindow(stopWnd, true);
       EnableWindow(upWnd, true);
       EnableWindow(downWnd, true);
       return PopulateFields(hwndDlg, ((LPNMLISTVIEW)lParam)->iItem);
@@ -885,11 +820,21 @@ BOOL LaunchEditor::DoRightClick(HWND hwndDlg, int index)
   VERSIONINFO versionInfo;
   HMENU appletMenu = CreatePopupMenu();
   POINT mousePt;
+  bool start = false;
 
   AppendMenu(appletMenu, MF_STRING, 1, TEXT("About"));
   AppendMenu(appletMenu, MF_STRING, 2, TEXT("Gather"));
 
   ListView_GetItemText(listWnd, index, 1, applet, MAX_PATH);
+  ListView_GetItemText(listWnd, index, 0, tmp, MAX_LINE_LENGTH);
+  if (wcsicmp(tmp, TEXT("stopped")) == 0)
+    {
+      AppendMenu(appletMenu, MF_STRING, 3, TEXT("Start"));
+      start = true;
+    }
+  else
+    AppendMenu(appletMenu, MF_STRING, 3, TEXT("Stop"));
+
   wcscpy(appletName, PathFindFileName(applet));
   PathRemoveExtension(appletName);
   GetCursorPos(&mousePt);
@@ -914,10 +859,17 @@ BOOL LaunchEditor::DoRightClick(HWND hwndDlg, int index)
       selectedApplet = ELExpandVars(selectedApplet);
       EnumWindows(GatherApplet, reinterpret_cast<LPARAM>(this));
       break;
+    case 3:
+      selectedApplet = applet;
+      selectedApplet = ELExpandVars(selectedApplet);
+      if (start)
+        DoLaunchStart(listWnd, index);
+      else
+        DoLaunchStop(listWnd, index);
+      break;
     }
 
   DestroyMenu(appletMenu);
 
   return TRUE;
 }
-

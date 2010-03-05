@@ -36,8 +36,6 @@
 #define IDC_BROWSE		    502
 #define IDC_APPLETLIST		503
 #define IDC_DELAPP		    504
-#define IDC_STARTAPP		  505
-#define IDC_STOPAPP		    506
 #define IDC_UPAPP		      507
 #define IDC_DOWNAPP		    508
 #define IDC_SAVEAPP		    509
@@ -66,7 +64,5 @@
 #define IDI_SAVE		    1004
 #define IDI_ABORT		    1005
 #define IDI_BROWSE		  1006
-#define IDI_START		    1007
-#define IDI_STOP		    1008
 #define IDI_UP			    1009
 #define IDI_DOWN		    1010
