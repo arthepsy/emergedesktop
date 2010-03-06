@@ -101,7 +101,6 @@ WCHAR *ReadValue(const WCHAR *fileName, WCHAR *keyword);
 void stripQuotes(LPTSTR source);
 bool SnapMoveToEdge(LPSNAPMOVEINFO snapMove, RECT rt);
 bool SnapSizeToEdge(LPSNAPSIZEINFO snapSize, RECT rt);
-std::wstring GetWindowApp(DWORD processID, bool fullName);
 bool WriteValue(const WCHAR *fileName, WCHAR *keyword, WCHAR *value);
 BOOL CALLBACK FullscreenEnum(HWND hwnd, LPARAM lParam);
 BOOL CALLBACK WindowIconEnum(HWND hwnd, LPARAM lParam);
@@ -940,7 +939,7 @@ void ELWriteDebug(std::wstring debugText)
   filename = ELwstringTostring(wideFilename);
 
   out.open(filename.c_str(), std::wfstream::out | std::wfstream::app);
-  out << GetWindowApp(GetCurrentProcessId(), false) << TEXT(": ") << debugText << std::endl;
+  out << ELGetProcessIDApp(GetCurrentProcessId(), false) << TEXT(": ") << debugText << std::endl;
   out.close();
 }
 
@@ -3191,7 +3190,7 @@ bool ELAppletFileVersion(WCHAR *applet, LPVERSIONINFO versionInfo)
   @return applet name if successful
   */
 
-std::wstring GetWindowApp(DWORD processID, bool fullName)
+std::wstring ELGetProcessIDApp(DWORD processID, bool fullName)
 {
   DWORD needed;
   HANDLE hProcess;
@@ -3239,7 +3238,7 @@ bool ELGetWindowApp(HWND hWnd, WCHAR *processName, bool fullName)
   std::wstring tmpName;
 
   GetWindowThreadProcessId(hWnd, &processID);
-  tmpName = GetWindowApp(processID, fullName);
+  tmpName = ELGetProcessIDApp(processID, fullName);
 
   if (tmpName.size() != 0)
     {

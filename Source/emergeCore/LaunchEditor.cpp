@@ -43,16 +43,6 @@ BOOL CALLBACK LaunchEditor::LaunchDlgProc(HWND hwndDlg, UINT message, WPARAM wPa
   return FALSE;
 }
 
-BOOL CALLBACK LaunchEditor::StartedAppletCheck(HWND hwnd, LPARAM lParam)
-{
-  WindowList *windowList = reinterpret_cast<WindowList*>(lParam);
-
-  if (ELIsApplet(hwnd))
-    windowList->push_back(hwnd);
-
-  return true;
-}
-
 BOOL CALLBACK LaunchEditor::AppletCheck(HWND hwnd, LPARAM lParam)
 {
   LaunchEditor *pLaunchEditor = reinterpret_cast<LaunchEditor*>(lParam);
@@ -555,33 +545,28 @@ void LaunchEditor::InsertListViewItem(HWND listWnd, int index, const WCHAR *item
   LVITEM lvItem;
   WCHAR tmp[MAX_PATH];
   int ret;
-  WindowList windowList;
-  WindowList::iterator iter;
   std::wstring workingItem, expandedItem;
+  DWORD processList[1024], cbNeeded, processCount, i;
 
   wcscpy(tmp, item);
   if (ELPathIsRelative(tmp))
     ELConvertAppletPath(tmp, CTP_FULL);
   workingItem = tmp;
-  expandedItem = ELExpandVars(workingItem);
+  expandedItem = ELToLower(ELExpandVars(workingItem));
 
-  EnumWindows(StartedAppletCheck, (LPARAM)&windowList);
+  EnumProcesses(processList, sizeof(processList), &cbNeeded);
+  processCount = cbNeeded / sizeof(DWORD);
 
-  iter = windowList.begin();
-  while (iter != windowList.end())
+  for (i = 0; i < processCount; i++)
     {
-      if (ELGetWindowApp((*iter), tmp, true))
-        {
-          if (wcsicmp(expandedItem.c_str(), tmp) == 0)
-            break;
-        }
-      iter++;
+      if (ELToLower(ELGetProcessIDApp(processList[i], true)) == expandedItem)
+        break;
     }
 
   lvItem.mask = LVIF_TEXT;
   lvItem.iItem = index;
   lvItem.iSubItem = 0;
-  if (iter == windowList.end())
+  if (i == processCount)
     lvItem.pszText = (WCHAR*)TEXT("Stopped");
   else
     lvItem.pszText = (WCHAR*)TEXT("Started");
@@ -592,8 +577,6 @@ void LaunchEditor::InsertListViewItem(HWND listWnd, int index, const WCHAR *item
 
   if (ELAppletFileVersion(tmp, &versionInfo))
     ListView_SetItemText(listWnd, lvItem.iItem, 2, versionInfo.Version);
-
-  windowList.clear();
 }
 
 bool LaunchEditor::DoLaunchDelete(HWND hwndDlg)

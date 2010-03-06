@@ -32,13 +32,11 @@
 #include <shlwapi.h>
 #include <commctrl.h>
 #include "resource.h"
+#include "psapi.h"
 #include <map>
-#include <vector>
 #include <process.h>
 #include <stdio.h>
 #include "../emergeLib/emergeLib.h"
-
-typedef std::vector<HWND> WindowList;
 
 class LaunchEditor
 {
@@ -75,7 +73,6 @@ private:
   static BOOL CALLBACK LaunchDlgProc(HWND hwndDlg, UINT message, WPARAM wParam, LPARAM lParam);
   static BOOL CALLBACK AppletCheck(HWND hwnd, LPARAM lParam);
   static BOOL CALLBACK GatherApplet(HWND hwnd, LPARAM lParam);
-  static BOOL CALLBACK StartedAppletCheck(HWND hwnd, LPARAM lParam);
   std::wstring xmlFile;
   std::wstring selectedApplet;
 };
