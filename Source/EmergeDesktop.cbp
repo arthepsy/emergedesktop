@@ -149,6 +149,7 @@
 					<Add library="ole32" />
 					<Add library="comctl32" />
 					<Add library="uuid" />
+					<Add library="psapi" />
 					<Add directory=".\bin" />
 				</Linker>
 			</Target>
