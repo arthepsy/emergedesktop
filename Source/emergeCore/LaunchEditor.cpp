@@ -545,17 +545,33 @@ void LaunchEditor::InsertListViewItem(HWND listWnd, int index, const WCHAR *item
   LVITEM lvItem;
   WCHAR tmp[MAX_PATH];
   int ret;
-  std::wstring workingItem, expandedItem;
-  DWORD processList[1024], cbNeeded, processCount, i;
+  std::wstring workingItem;
 
   wcscpy(tmp, item);
   if (ELPathIsRelative(tmp))
     ELConvertAppletPath(tmp, CTP_FULL);
-  workingItem = tmp;
-  expandedItem = ELToLower(ELExpandVars(workingItem));
+
+  lvItem.mask = LVIF_TEXT;
+  lvItem.iItem = index;
+  lvItem.iSubItem = 0;
+  lvItem.pszText = GetLaunchItemState(tmp);
+  lvItem.cchTextMax = (int)wcslen(lvItem.pszText);
+  ret = ListView_InsertItem(listWnd, &lvItem);
+
+  ListView_SetItemText(listWnd, lvItem.iItem, 1, tmp);
+
+  if (ELAppletFileVersion(tmp, &versionInfo))
+    ListView_SetItemText(listWnd, lvItem.iItem, 2, versionInfo.Version);
+}
+
+WCHAR *LaunchEditor::GetLaunchItemState(WCHAR *launchItem)
+{
+  DWORD processList[1024], cbNeeded, processCount, i;
+  std::wstring expandedItem, workingItem = launchItem;
 
   EnumProcesses(processList, sizeof(processList), &cbNeeded);
   processCount = cbNeeded / sizeof(DWORD);
+  expandedItem = ELToLower(ELExpandVars(workingItem));
 
   for (i = 0; i < processCount; i++)
     {
@@ -563,20 +579,10 @@ void LaunchEditor::InsertListViewItem(HWND listWnd, int index, const WCHAR *item
         break;
     }
 
-  lvItem.mask = LVIF_TEXT;
-  lvItem.iItem = index;
-  lvItem.iSubItem = 0;
   if (i == processCount)
-    lvItem.pszText = (WCHAR*)TEXT("Stopped");
-  else
-    lvItem.pszText = (WCHAR*)TEXT("Started");
-  lvItem.cchTextMax = (int)wcslen(lvItem.pszText);
-  ret = ListView_InsertItem(listWnd, &lvItem);
+    return (WCHAR*)TEXT("Stopped");
 
-  ListView_SetItemText(listWnd, lvItem.iItem, 1, (WCHAR*)workingItem.c_str());
-
-  if (ELAppletFileVersion(tmp, &versionInfo))
-    ListView_SetItemText(listWnd, lvItem.iItem, 2, versionInfo.Version);
+  return (WCHAR*)TEXT("Started");
 }
 
 bool LaunchEditor::DoLaunchDelete(HWND hwndDlg)
@@ -693,14 +699,14 @@ bool LaunchEditor::DoLaunchSave(HWND hwndDlg)
         {
           lvItem.iItem = ListView_GetItemCount(listWnd);
           lvItem.iSubItem = 0;
-          lvItem.pszText = (WCHAR*)TEXT("Started");
+          lvItem.pszText = GetLaunchItemState(tmp);
           lvItem.cchTextMax = (int)wcslen(lvItem.pszText);
           if (ListView_InsertItem(listWnd, &lvItem) != -1)
             {
               ListView_SetItemText(listWnd, lvItem.iItem, 1, tmp);
 
               if (ELAppletFileVersion(tmp, &versionInfo))
-                ListView_SetItemText(listWnd, lvItem.iItem, 1, versionInfo.Version);
+                ListView_SetItemText(listWnd, lvItem.iItem, 2, versionInfo.Version);
 
               saveCount++;
               deleteCount++;

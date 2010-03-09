@@ -66,6 +66,7 @@ private:
   void InsertListViewItem(HWND listWnd, int index, const WCHAR *item);
   BOOL DoRightClick(HWND hwndDlg, int index);
   BOOL PopulateFields(HWND hwndDlg, int index);
+  WCHAR *GetLaunchItemState(WCHAR *launchItem);
   UINT saveCount, deleteCount;
   HINSTANCE hInstance;
   HWND mainWnd, toolWnd, dlgWnd;
