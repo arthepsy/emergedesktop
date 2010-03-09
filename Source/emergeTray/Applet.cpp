@@ -493,10 +493,13 @@ void Applet::ShowHiddenIcons(bool cmd, bool force)
 
       if (pSettings->GetAutoSize())
         {
-          AdjustRect(&wndRect);
-          SetWindowPos(mainWnd, NULL, wndRect.left, wndRect.top,
-                       wndRect.right - wndRect.left, wndRect.bottom - wndRect.top,
-                       SWP_NOZORDER | SWP_NOACTIVATE);
+          if (GetWindowRect(mainWnd, &wndRect))
+            {
+              AdjustRect(&wndRect);
+              SetWindowPos(mainWnd, NULL, wndRect.left, wndRect.top,
+                           wndRect.right - wndRect.left, wndRect.bottom - wndRect.top,
+                           SWP_NOZORDER | SWP_NOACTIVATE);
+            }
         }
       DrawAlphaBlend();
     }
@@ -533,11 +536,14 @@ void Applet::CleanTray()
             {
               if (pSettings->GetAutoSize())
                 {
-                  AdjustRect(&wndRect);
-                  SetWindowPos(mainWnd, NULL, wndRect.left, wndRect.top,
-                               wndRect.right - wndRect.left,
-                               wndRect.bottom - wndRect.top,
-                               SWP_NOZORDER | SWP_NOACTIVATE);
+                  if (GetWindowRect(mainWnd, &wndRect))
+                    {
+                      AdjustRect(&wndRect);
+                      SetWindowPos(mainWnd, NULL, wndRect.left, wndRect.top,
+                                   wndRect.right - wndRect.left,
+                                   wndRect.bottom - wndRect.top,
+                                   SWP_NOZORDER | SWP_NOACTIVATE);
+                    }
                 }
 
             }
@@ -609,10 +615,13 @@ LRESULT Applet::RemoveTrayIcon(HWND hwnd, UINT uID)
     {
       if (pSettings->GetAutoSize())
         {
-          AdjustRect(&wndRect);
-          SetWindowPos(mainWnd, NULL, wndRect.left, wndRect.top,
-                       wndRect.right - wndRect.left, wndRect.bottom - wndRect.top,
-                       SWP_NOZORDER | SWP_NOACTIVATE);
+          if (GetWindowRect(mainWnd, &wndRect))
+            {
+              AdjustRect(&wndRect);
+              SetWindowPos(mainWnd, NULL, wndRect.left, wndRect.top,
+                           wndRect.right - wndRect.left, wndRect.bottom - wndRect.top,
+                           SWP_NOZORDER | SWP_NOACTIVATE);
+            }
         }
 
       DrawAlphaBlend();
@@ -696,11 +705,14 @@ LRESULT Applet::ModifyTrayIcon(HWND hwnd, UINT uID, UINT uFlags, UINT uCallbackM
       SortIcons();
       if (pSettings->GetAutoSize())
         {
-          AdjustRect(&wndRect);
-          SetWindowPos(mainWnd, NULL, wndRect.left, wndRect.top,
-                       wndRect.right - wndRect.left,
-                       wndRect.bottom - wndRect.top,
-                       SWP_NOZORDER | SWP_NOACTIVATE);
+          if (GetWindowRect(mainWnd, &wndRect))
+            {
+              AdjustRect(&wndRect);
+              SetWindowPos(mainWnd, NULL, wndRect.left, wndRect.top,
+                           wndRect.right - wndRect.left,
+                           wndRect.bottom - wndRect.top,
+                           SWP_NOZORDER | SWP_NOACTIVATE);
+            }
         }
     }
 
@@ -755,10 +767,13 @@ LRESULT Applet::AddTrayIcon(HWND hwnd, UINT uID, UINT uFlags, UINT uCallbackMess
     {
       if (pSettings->GetAutoSize())
         {
-          AdjustRect(&wndRect);
-          SetWindowPos(mainWnd, NULL, wndRect.left, wndRect.top,
-                       wndRect.right - wndRect.left, wndRect.bottom - wndRect.top,
-                       SWP_NOZORDER | SWP_NOACTIVATE);
+          if (GetWindowRect(mainWnd, &wndRect))
+            {
+              AdjustRect(&wndRect);
+              SetWindowPos(mainWnd, NULL, wndRect.left, wndRect.top,
+                           wndRect.right - wndRect.left, wndRect.bottom - wndRect.top,
+                           SWP_NOZORDER | SWP_NOACTIVATE);
+            }
         }
 
       DrawAlphaBlend();

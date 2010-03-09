@@ -177,6 +177,9 @@ void BaseApplet::UpdateGUI(WCHAR *schemeFile)
     schemeFile = pBaseSettings->GetSchemeFile();
   ESELoadScheme(schemeFile, &guiInfo);
 
+  //std::wstring debug = L"Loaded scheme file";
+  //ELWriteDebug(debug);
+
   if (pBaseSettings->GetClickThrough() == 2)
     guiInfo.alphaBackground = 0;
 
@@ -189,8 +192,17 @@ void BaseApplet::UpdateGUI(WCHAR *schemeFile)
 
   AppletUpdate(); // Call any applet specific update
 
+  //debug = L"Completed AppletUpdate";
+  //ELWriteDebug(debug);
+
   if (pBaseSettings->GetAutoSize())
-    AdjustRect(&wndRect);
+    {
+      wndRect.top = pBaseSettings->GetY();
+      wndRect.bottom = wndRect.top;
+      wndRect.left = pBaseSettings->GetX();
+      wndRect.right = wndRect.left;
+      AdjustRect(&wndRect);
+    }
   else
     {
       if (_wcsicmp(pBaseSettings->GetVerticalDirection(), TEXT("up")) == 0)
@@ -211,6 +223,9 @@ void BaseApplet::UpdateGUI(WCHAR *schemeFile)
       wndRect.right = wndRect.left + pBaseSettings->GetWidth() + (2 * dragBorder);
     }
 
+  //debug = L"Calculated size / position";
+  //ELWriteDebug(debug);
+
   // Set focus to mainWnd to fix the 'top' z-order issue
   ELStealFocus(mainWnd);
   SetWindowPos(mainWnd, hWndInsertAfter, wndRect.left, wndRect.top,
@@ -219,9 +234,15 @@ void BaseApplet::UpdateGUI(WCHAR *schemeFile)
   if (pBaseAppletMenu)
     pBaseAppletMenu->UpdateHook(guiInfo.alphaMenu);
 
+  //debug = L"Updated Menu Hook";
+  //ELWriteDebug(debug);
+
   ZeroMemory(&oldrt, sizeof(RECT));
 
   DrawAlphaBlend();
+
+  //debug = L"Completed AlphaBlend";
+  //ELWriteDebug(debug);
 }
 
 void BaseApplet::AppletUpdate()
@@ -235,9 +256,6 @@ void BaseApplet::AdjustRect(RECT *wndRect)
 
   ZeroMemory(&autoSizeInfo, sizeof(AUTOSIZEINFO));
 
-  wndRect->left = (int)pBaseSettings->GetX();
-  wndRect->top = (int)pBaseSettings->GetY();
-
   autoSizeInfo.hwnd = mainWnd;
   autoSizeInfo.rect = wndRect;
   autoSizeInfo.dragBorder = guiInfo.dragBorder + guiInfo.bevelWidth + guiInfo.padding;
@@ -249,14 +267,14 @@ void BaseApplet::AdjustRect(RECT *wndRect)
     autoSizeInfo.orientation = ASI_VERTICAL;
 
   if (_wcsicmp(pBaseSettings->GetVerticalDirection(), TEXT("up")) == 0)
-    autoSizeInfo.verticalDirection = ASI_UP;
+      autoSizeInfo.verticalDirection = ASI_UP;
   else if (_wcsicmp(pBaseSettings->GetVerticalDirection(), TEXT("center")) == 0)
-    autoSizeInfo.verticalDirection = ASI_CENTER;
+      autoSizeInfo.verticalDirection = ASI_CENTER;
 
   if (_wcsicmp(pBaseSettings->GetHorizontalDirection(), TEXT("left")) == 0)
-    autoSizeInfo.horizontalDirection = ASI_LEFT;
+      autoSizeInfo.horizontalDirection = ASI_LEFT;
   else if (_wcsicmp(pBaseSettings->GetHorizontalDirection(), TEXT("center")) == 0)
-    autoSizeInfo.horizontalDirection = ASI_MIDDLE;
+      autoSizeInfo.horizontalDirection = ASI_MIDDLE;
 
   EAEAutoSize(autoSizeInfo);
 }

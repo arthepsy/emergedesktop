@@ -225,6 +225,7 @@ LRESULT EAEDisplayChange(HMONITOR appletMonitor, RECT *appletRect, RECT *oldDesk
 bool EAEAutoSize(AUTOSIZEINFO autoSizeInfo)
 {
   UINT width, height;
+  RECT newRect;
 
   if (autoSizeInfo.orientation == ASI_VERTICAL)
     {
@@ -247,18 +248,36 @@ bool EAEAutoSize(AUTOSIZEINFO autoSizeInfo)
     }
 
   if (autoSizeInfo.verticalDirection == ASI_UP)
-    autoSizeInfo.rect->top -= height;
-  if (autoSizeInfo.verticalDirection == ASI_CENTER)
-    autoSizeInfo.rect->top -= height / 2;
+    {
+      newRect.top = autoSizeInfo.rect->bottom;
+      newRect.top -= height;
+    }
+  else if (autoSizeInfo.verticalDirection == ASI_CENTER)
+    {
+      newRect.top = autoSizeInfo.rect->top + ((autoSizeInfo.rect->bottom - autoSizeInfo.rect->top) / 2);
+      newRect.top -= height / 2;
+    }
+  else
+    newRect.top = autoSizeInfo.rect->top;
 
 
   if (autoSizeInfo.horizontalDirection == ASI_LEFT)
-    autoSizeInfo.rect->left -= width;
-  if (autoSizeInfo.horizontalDirection == ASI_MIDDLE)
-    autoSizeInfo.rect->left -= width / 2;
+    {
+      newRect.left = autoSizeInfo.rect->right;
+      newRect.left -= width;
+    }
+  else if (autoSizeInfo.horizontalDirection == ASI_MIDDLE)
+    {
+      newRect.left = autoSizeInfo.rect->left + ((autoSizeInfo.rect->right - autoSizeInfo.rect->left) / 2);
+      newRect.left -= width / 2;
+    }
+  else
+    newRect.left = autoSizeInfo.rect->left;
 
-  autoSizeInfo.rect->right = autoSizeInfo.rect->left + width;
-  autoSizeInfo.rect->bottom = autoSizeInfo.rect->top + height;
+  newRect.right = newRect.left + width;
+  newRect.bottom = newRect.top + height;
+
+  CopyRect(autoSizeInfo.rect, &newRect);
 
   return true;
 }

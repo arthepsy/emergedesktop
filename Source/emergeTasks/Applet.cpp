@@ -263,12 +263,15 @@ LRESULT Applet::AddTask(HWND task)
 
   if (pSettings->GetAutoSize())
     {
-      AdjustRect(&wndRect);
-      UpdateIcons();
-      SetWindowPos(mainWnd, NULL, wndRect.left, wndRect.top,
-                   wndRect.right - wndRect.left,
-                   wndRect.bottom - wndRect.top,
-                   SWP_NOZORDER | SWP_NOACTIVATE);
+      if (GetWindowRect(mainWnd, &wndRect))
+        {
+          AdjustRect(&wndRect);
+          UpdateIcons();
+          SetWindowPos(mainWnd, NULL, wndRect.left, wndRect.top,
+                       wndRect.right - wndRect.left,
+                       wndRect.bottom - wndRect.top,
+                       SWP_NOZORDER | SWP_NOACTIVATE);
+        }
     }
 
   DrawAlphaBlend();
@@ -322,12 +325,15 @@ LRESULT Applet::RemoveTask(HWND task)
 
   if (pSettings->GetAutoSize())
     {
-      AdjustRect(&wndRect);
-      UpdateIcons();
-      SetWindowPos(mainWnd, NULL, wndRect.left, wndRect.top,
-                   wndRect.right - wndRect.left,
-                   wndRect.bottom - wndRect.top,
-                   SWP_NOZORDER | SWP_NOACTIVATE);
+      if (GetWindowRect(mainWnd, &wndRect))
+        {
+          AdjustRect(&wndRect);
+          UpdateIcons();
+          SetWindowPos(mainWnd, NULL, wndRect.left, wndRect.top,
+                       wndRect.right - wndRect.left,
+                       wndRect.bottom - wndRect.top,
+                       SWP_NOZORDER | SWP_NOACTIVATE);
+        }
     }
 
   DrawAlphaBlend();
@@ -368,12 +374,15 @@ bool Applet::CleanTasks()
 
   if (refresh && pSettings->GetAutoSize())
     {
-      AdjustRect(&wndRect);
-      UpdateIcons();
-      SetWindowPos(mainWnd, NULL, wndRect.left, wndRect.top,
-                   wndRect.right - wndRect.left,
-                   wndRect.bottom - wndRect.top,
-                   SWP_NOZORDER | SWP_NOACTIVATE);
+      if (GetWindowRect(mainWnd, &wndRect))
+        {
+          AdjustRect(&wndRect);
+          UpdateIcons();
+          SetWindowPos(mainWnd, NULL, wndRect.left, wndRect.top,
+                       wndRect.right - wndRect.left,
+                       wndRect.bottom - wndRect.top,
+                       SWP_NOZORDER | SWP_NOACTIVATE);
+        }
     }
 
   return refresh;
@@ -414,12 +423,12 @@ LRESULT Applet::TaskMouseEvent(UINT message, LPARAM lParam)
                   if (windowHandle == activeWnd)
                     ShowWindow(windowHandle, SW_MINIMIZE);
                   else
-                  {
-                    if (IsIconic(windowHandle))
-                      ShowWindow(windowHandle, SW_RESTORE);
-                    else
-                      SetForegroundWindow(windowHandle);
-                  }
+                    {
+                      if (IsIconic(windowHandle))
+                        ShowWindow(windowHandle, SW_RESTORE);
+                      else
+                        SetForegroundWindow(windowHandle);
+                    }
                 }
             }
           else if (message == WM_RBUTTONUP)
