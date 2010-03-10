@@ -16,6 +16,7 @@ hgversion.h
 *.layout
 *.save
 *.depend
+*.out
 
 # switch to regexp syntax.
 #syntax: regexp
