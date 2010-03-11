@@ -149,7 +149,7 @@ int LaunchEditor::Show()
 BOOL LaunchEditor::DoInitDialog(HWND hwndDlg)
 {
   RECT rect;
-  int x, y, ret;
+  int x, y;
   LVCOLUMN lvCol;
   TOOLINFO ti;
   dlgWnd = hwndDlg;
@@ -179,17 +179,17 @@ BOOL LaunchEditor::DoInitDialog(HWND hwndDlg)
   lvCol.mask = LVCF_TEXT | LVCF_WIDTH;
   lvCol.pszText = (WCHAR*)TEXT("State");
   lvCol.cx = 50;
-  ret = ListView_InsertColumn(listWnd, 0, &lvCol);
+  ListView_InsertColumn(listWnd, 0, &lvCol);
 
   lvCol.pszText = (WCHAR*)TEXT("Applet");
   lvCol.cx = MAX_PATH;
-  ret = ListView_InsertColumn(listWnd, 1, &lvCol);
+  ListView_InsertColumn(listWnd, 1, &lvCol);
 
   lvCol.pszText = (WCHAR*)TEXT("Version");
   lvCol.cx = 100;
-  ret = ListView_InsertColumn(listWnd, 2, &lvCol);
+  ListView_InsertColumn(listWnd, 2, &lvCol);
 
-  ret = ListView_SetExtendedListViewStyle(listWnd,  LVS_EX_FULLROWSELECT);
+  ListView_SetExtendedListViewStyle(listWnd,  LVS_EX_FULLROWSELECT);
 
   if (addIcon)
     SendMessage(addWnd, BM_SETIMAGE, IMAGE_ICON, (LPARAM)addIcon);
@@ -342,7 +342,7 @@ BOOL LaunchEditor::DoLaunchCommand(HWND hwndDlg, WPARAM wParam, LPARAM lParam UN
 bool LaunchEditor::DoLaunchMove(HWND hwndDlg, bool up)
 {
   HWND listWnd = GetDlgItem(hwndDlg, IDC_APPLETLIST);
-  int i = 0, lvret;
+  int i = 0;
   bool ret = false;
   LVITEM lvItem;
   WCHAR applet[MAX_PATH], version[MAX_PATH], state[MAX_PATH];
@@ -381,14 +381,14 @@ bool LaunchEditor::DoLaunchMove(HWND hwndDlg, bool up)
           lvItem.pszText = state;
           lvItem.cchTextMax = MAX_PATH;
 
-          lvret = ListView_DeleteItem(listWnd, i);
+          ListView_DeleteItem(listWnd, i);
 
-          lvret = ListView_InsertItem(listWnd, &lvItem);
+          ListView_InsertItem(listWnd, &lvItem);
           ListView_SetItemText(listWnd, lvItem.iItem, 1, applet);
           ListView_SetItemText(listWnd, lvItem.iItem, 2, version);
 
           ListView_SetItemState(listWnd, lvItem.iItem, LVIS_SELECTED, LVIS_SELECTED);
-          lvret = ListView_EnsureVisible(listWnd, lvItem.iItem, FALSE);
+          ListView_EnsureVisible(listWnd, lvItem.iItem, FALSE);
 
           break;
         }
@@ -544,7 +544,6 @@ void LaunchEditor::InsertListViewItem(HWND listWnd, int index, const WCHAR *item
   VERSIONINFO versionInfo;
   LVITEM lvItem;
   WCHAR tmp[MAX_PATH];
-  int ret;
   std::wstring workingItem;
 
   wcscpy(tmp, item);
@@ -556,7 +555,7 @@ void LaunchEditor::InsertListViewItem(HWND listWnd, int index, const WCHAR *item
   lvItem.iSubItem = 0;
   lvItem.pszText = GetLaunchItemState(tmp);
   lvItem.cchTextMax = (int)wcslen(lvItem.pszText);
-  ret = ListView_InsertItem(listWnd, &lvItem);
+  ListView_InsertItem(listWnd, &lvItem);
 
   ListView_SetItemText(listWnd, lvItem.iItem, 1, tmp);
 
@@ -592,7 +591,7 @@ bool LaunchEditor::DoLaunchDelete(HWND hwndDlg)
   HWND upWnd = GetDlgItem(hwndDlg, IDC_UPAPP);
   HWND downWnd = GetDlgItem(hwndDlg, IDC_DOWNAPP);
   bool ret = false;
-  int i = 0, prevItem = 0, lvret;
+  int i = 0, prevItem = 0;
 
   if (ListView_GetSelectedCount(listWnd) > 1)
     {
@@ -608,7 +607,7 @@ bool LaunchEditor::DoLaunchDelete(HWND hwndDlg)
         {
           ret = true;
           prevItem = ListView_GetNextItem(listWnd, i, LVNI_ABOVE);
-          lvret = ListView_DeleteItem(listWnd, i);
+          ListView_DeleteItem(listWnd, i);
           deleteCount++;
 
           ListView_SetItemState(listWnd, i, LVIS_SELECTED,
@@ -619,7 +618,7 @@ bool LaunchEditor::DoLaunchDelete(HWND hwndDlg)
                 {
                   ListView_SetItemState(listWnd, prevItem, LVIS_SELECTED,
                                         LVIS_SELECTED);
-                  lvret = ListView_EnsureVisible(listWnd, prevItem, FALSE);
+                  ListView_EnsureVisible(listWnd, prevItem, FALSE);
                 }
             }
 

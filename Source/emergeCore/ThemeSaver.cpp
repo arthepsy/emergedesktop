@@ -47,6 +47,9 @@ ThemeSaver::ThemeSaver(HINSTANCE hInstance, HWND mainWnd)
   this->hInstance = hInstance;
   this->mainWnd = mainWnd;
 
+  ZeroMemory(title, sizeof(title));
+  ZeroMemory(theme, sizeof(theme));
+
   InitCommonControls();
 }
 

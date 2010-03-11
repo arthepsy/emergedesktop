@@ -41,11 +41,6 @@ std::vector<HANDLE> processList;
 Shell::Shell()
 {}
 
-bool Shell::Initialize()
-{
-  return true;
-}
-
 Shell::~Shell()
 {
 }

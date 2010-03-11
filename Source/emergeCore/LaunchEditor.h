@@ -32,7 +32,7 @@
 #include <shlwapi.h>
 #include <commctrl.h>
 #include "resource.h"
-#include "psapi.h"
+#include <psapi.h>
 #include <map>
 #include <process.h>
 #include <stdio.h>

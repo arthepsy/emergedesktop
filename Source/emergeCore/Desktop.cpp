@@ -197,7 +197,7 @@ void Desktop::ToggleDesktop()
   std::deque<HWND>::iterator iter;
   if (!minimizedWindowDeque.empty())
     {
-      for (iter = minimizedWindowDeque.begin(); iter != minimizedWindowDeque.end(); iter++)
+      for (iter = minimizedWindowDeque.begin(); iter != minimizedWindowDeque.end(); ++iter)
         ShowWindow(*iter, SW_SHOWNOACTIVATE);
       minimizedWindowDeque.clear();
       SetWindowPos(mainWnd, HWND_BOTTOM, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOSENDCHANGING | SWP_NOACTIVATE);
@@ -206,7 +206,7 @@ void Desktop::ToggleDesktop()
     {
       EnumWindows(MinimizeWindowsEnum, (LPARAM)&minimizedWindowDeque);
       SetWindowPos(mainWnd, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOSENDCHANGING);
-      for (iter = minimizedWindowDeque.begin(); iter != minimizedWindowDeque.end(); iter++)
+      for (iter = minimizedWindowDeque.begin(); iter != minimizedWindowDeque.end(); ++iter)
         ShowWindow(*iter, SW_SHOWMINNOACTIVE);
     }
 }

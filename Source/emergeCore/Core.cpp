@@ -61,7 +61,6 @@ bool Core::Initialize(WCHAR *commandLine)
 
   // Start the shell functions
   pShell = std::tr1::shared_ptr<Shell>(new Shell());
-  pShell->Initialize();
 
   // Start the DDE Service
   pDDEService = std::tr1::shared_ptr<DDEService>(new DDEService());

@@ -38,7 +38,6 @@ class Shell
 public:
   Shell();
   ~Shell();
-  bool Initialize();
   bool RunRegEntries(HKEY key, bool clearEntry, bool wait);
   void RunRegStartup();
   void RunFolderEntries(LPTSTR path);
