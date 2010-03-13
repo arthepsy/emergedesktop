@@ -23,7 +23,6 @@ ifeq ($(MINGW64), 2)
 		AR = i686-w64-mingw32-ar
 		WINDRES = i686-w64-mingw32-windres
 		LIBS += -L../bin
-		CFLAGS += -march=pentium4 -mfpmath=sse
 else ifeq ($(MINGW64), 1)
 		CC = x86_64-w64-mingw32-g++
 		AR = x86_64-w64-mingw32-ar
@@ -34,7 +33,7 @@ else ifeq ($(MINGW64), 1)
 		LIBS += -L../bin64
 else
 		LIBS += -L../bin
-		CFLAGS += -march=pentium4 -mfpmath=sse -fno-inline
+		CFLAGS += -fno-inline
 endif
 
 ifdef DEBUG

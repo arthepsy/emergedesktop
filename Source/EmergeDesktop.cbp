@@ -592,7 +592,7 @@
 			<Add alias="All - Release" targets="emergeLib - Release;emergeGraphics - Release;emergeAppletEngine - Release;emergeSchemeEngine - Release;emergeBaseClasses - Release;emergeCore - Release;emergeCommand - Release;emergeDesktop - Release;emergeHotkeys - Release;emergeLauncher - Release;emergeTasks - Release;emergeTray - Release;emergeVWM - Release;emerge - Release;emergePower - Release;reg2xml - Release;emergeSysMon - Release;" />
 		</VirtualTargets>
 		<Compiler>
-			<Add option="-march=pentium4" />
+			<Add option="-march=i586" />
 			<Add option="-O2" />
 			<Add option="-pedantic" />
 			<Add option="-Wfatal-errors" />
@@ -600,7 +600,6 @@
 			<Add option="-Wall" />
 			<Add option="-W" />
 			<Add option="-fno-inline" />
-			<Add option="-mfpmath=sse" />
 			<Add option="-D_GLIBCXX_DLL" />
 		</Compiler>
 		<Linker>
