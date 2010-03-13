@@ -177,9 +177,6 @@ void BaseApplet::UpdateGUI(WCHAR *schemeFile)
     schemeFile = pBaseSettings->GetSchemeFile();
   ESELoadScheme(schemeFile, &guiInfo);
 
-  //std::wstring debug = L"Loaded scheme file";
-  //ELWriteDebug(debug);
-
   if (pBaseSettings->GetClickThrough() == 2)
     guiInfo.alphaBackground = 0;
 
@@ -191,9 +188,6 @@ void BaseApplet::UpdateGUI(WCHAR *schemeFile)
   hWndInsertAfter = EAEUpdateGUI(mainWnd, guiInfo.windowShadow, pBaseSettings->GetZPosition());
 
   AppletUpdate(); // Call any applet specific update
-
-  //debug = L"Completed AppletUpdate";
-  //ELWriteDebug(debug);
 
   if (pBaseSettings->GetAutoSize())
     {
@@ -223,9 +217,6 @@ void BaseApplet::UpdateGUI(WCHAR *schemeFile)
       wndRect.right = wndRect.left + pBaseSettings->GetWidth() + (2 * dragBorder);
     }
 
-  //debug = L"Calculated size / position";
-  //ELWriteDebug(debug);
-
   // Set focus to mainWnd to fix the 'top' z-order issue
   ELStealFocus(mainWnd);
   SetWindowPos(mainWnd, hWndInsertAfter, wndRect.left, wndRect.top,
@@ -234,15 +225,9 @@ void BaseApplet::UpdateGUI(WCHAR *schemeFile)
   if (pBaseAppletMenu)
     pBaseAppletMenu->UpdateHook(guiInfo.alphaMenu);
 
-  //debug = L"Updated Menu Hook";
-  //ELWriteDebug(debug);
-
   ZeroMemory(&oldrt, sizeof(RECT));
 
   DrawAlphaBlend();
-
-  //debug = L"Completed AlphaBlend";
-  //ELWriteDebug(debug);
 }
 
 void BaseApplet::AppletUpdate()
