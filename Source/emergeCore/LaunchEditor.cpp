@@ -91,16 +91,16 @@ LaunchEditor::LaunchEditor(HINSTANCE hInstance, HWND mainWnd)
   InitCommonControls();
 
   toolWnd = CreateWindowEx(
-              0,
-              TOOLTIPS_CLASS,
-              NULL,
-              TTS_ALWAYSTIP|WS_POPUP|TTS_NOPREFIX,
-              CW_USEDEFAULT, CW_USEDEFAULT,
-              CW_USEDEFAULT, CW_USEDEFAULT,
-              NULL,
-              NULL,
-              hInstance,
-              NULL);
+                           0,
+                           TOOLTIPS_CLASS,
+                           NULL,
+                           TTS_ALWAYSTIP|WS_POPUP|TTS_NOPREFIX,
+                           CW_USEDEFAULT, CW_USEDEFAULT,
+                           CW_USEDEFAULT, CW_USEDEFAULT,
+                           NULL,
+                           NULL,
+                           hInstance,
+                           NULL);
 
   if (toolWnd)
     {
@@ -179,17 +179,21 @@ BOOL LaunchEditor::DoInitDialog(HWND hwndDlg)
   lvCol.mask = LVCF_TEXT | LVCF_WIDTH;
   lvCol.pszText = (WCHAR*)TEXT("State");
   lvCol.cx = 50;
-  ListView_InsertColumn(listWnd, 0, &lvCol);
+  if (ListView_InsertColumn(listWnd, 0, &lvCol) == -1)
+    return FALSE;
 
   lvCol.pszText = (WCHAR*)TEXT("Applet");
   lvCol.cx = MAX_PATH;
-  ListView_InsertColumn(listWnd, 1, &lvCol);
+  if (ListView_InsertColumn(listWnd, 1, &lvCol) == -1)
+    return FALSE;
 
   lvCol.pszText = (WCHAR*)TEXT("Version");
   lvCol.cx = 100;
-  ListView_InsertColumn(listWnd, 2, &lvCol);
+  if (ListView_InsertColumn(listWnd, 2, &lvCol) == -1)
+    return FALSE;
 
-  ListView_SetExtendedListViewStyle(listWnd,  LVS_EX_FULLROWSELECT);
+  if (ListView_SetExtendedListViewStyle(listWnd,  LVS_EX_FULLROWSELECT) != 0)
+    return FALSE;
 
   if (addIcon)
     SendMessage(addWnd, BM_SETIMAGE, IMAGE_ICON, (LPARAM)addIcon);
@@ -363,8 +367,6 @@ bool LaunchEditor::DoLaunchMove(HWND hwndDlg, bool up)
     {
       if (ListView_GetItemState(listWnd, i, LVIS_SELECTED))
         {
-          ret = true;
-
           ListView_GetItemText(listWnd, i, 0, state, MAX_PATH);
           ListView_GetItemText(listWnd, i, 1, applet, MAX_PATH);
           ListView_GetItemText(listWnd, i, 2, version, MAX_PATH);
@@ -381,14 +383,18 @@ bool LaunchEditor::DoLaunchMove(HWND hwndDlg, bool up)
           lvItem.pszText = state;
           lvItem.cchTextMax = MAX_PATH;
 
-          ListView_DeleteItem(listWnd, i);
+          if (ListView_DeleteItem(listWnd, i))
+            {
 
-          ListView_InsertItem(listWnd, &lvItem);
-          ListView_SetItemText(listWnd, lvItem.iItem, 1, applet);
-          ListView_SetItemText(listWnd, lvItem.iItem, 2, version);
+              if (ListView_InsertItem(listWnd, &lvItem) != -1)
+                {
+                  ListView_SetItemText(listWnd, lvItem.iItem, 1, applet);
+                  ListView_SetItemText(listWnd, lvItem.iItem, 2, version);
+                }
 
-          ListView_SetItemState(listWnd, lvItem.iItem, LVIS_SELECTED, LVIS_SELECTED);
-          ListView_EnsureVisible(listWnd, lvItem.iItem, FALSE);
+              ListView_SetItemState(listWnd, lvItem.iItem, LVIS_SELECTED, LVIS_SELECTED);
+              ret = (ListView_EnsureVisible(listWnd, lvItem.iItem, FALSE) == TRUE);
+            }
 
           break;
         }
@@ -555,9 +561,8 @@ void LaunchEditor::InsertListViewItem(HWND listWnd, int index, const WCHAR *item
   lvItem.iSubItem = 0;
   lvItem.pszText = GetLaunchItemState(tmp);
   lvItem.cchTextMax = (int)wcslen(lvItem.pszText);
-  ListView_InsertItem(listWnd, &lvItem);
-
-  ListView_SetItemText(listWnd, lvItem.iItem, 1, tmp);
+  if (ListView_InsertItem(listWnd, &lvItem) != -1)
+    ListView_SetItemText(listWnd, lvItem.iItem, 1, tmp);
 
   if (ELAppletFileVersion(tmp, &versionInfo))
     ListView_SetItemText(listWnd, lvItem.iItem, 2, versionInfo.Version);
@@ -605,9 +610,9 @@ bool LaunchEditor::DoLaunchDelete(HWND hwndDlg)
     {
       if (ListView_GetItemState(listWnd, i, LVIS_SELECTED))
         {
-          ret = true;
           prevItem = ListView_GetNextItem(listWnd, i, LVNI_ABOVE);
-          ListView_DeleteItem(listWnd, i);
+          if (!ListView_DeleteItem(listWnd, i))
+            return ret;
           deleteCount++;
 
           ListView_SetItemState(listWnd, i, LVIS_SELECTED,
@@ -618,7 +623,7 @@ bool LaunchEditor::DoLaunchDelete(HWND hwndDlg)
                 {
                   ListView_SetItemState(listWnd, prevItem, LVIS_SELECTED,
                                         LVIS_SELECTED);
-                  ListView_EnsureVisible(listWnd, prevItem, FALSE);
+                  ret = (ListView_EnsureVisible(listWnd, prevItem, FALSE) == TRUE);
                 }
             }
 
