@@ -33,7 +33,6 @@ else ifeq ($(MINGW64), 1)
 		LIBS += -L../bin64
 else
 		LIBS += -L../bin
-		CFLAGS += -fno-inline
 endif
 
 ifdef DEBUG

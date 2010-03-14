@@ -1,8 +1,4 @@
-ifeq ($(MINGW64), 0)
-		LIBS += -lstdc++_s
-else
-		LIBS += -lstdc++.dll
-endif
+LIBS += -lstdc++.dll
 
 .IGNORE: distclean
 distclean: clean
