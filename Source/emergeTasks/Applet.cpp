@@ -399,7 +399,6 @@ LRESULT Applet::TaskMouseEvent(UINT message, LPARAM lParam)
 {
   TaskVector::iterator iter;
   HWND windowHandle;
-
   POINT pt;
 
   pt.x = LOWORD(lParam);
