@@ -252,14 +252,14 @@ void BaseApplet::AdjustRect(RECT *wndRect)
     autoSizeInfo.orientation = ASI_VERTICAL;
 
   if (_wcsicmp(pBaseSettings->GetVerticalDirection(), TEXT("up")) == 0)
-      autoSizeInfo.verticalDirection = ASI_UP;
+    autoSizeInfo.verticalDirection = ASI_UP;
   else if (_wcsicmp(pBaseSettings->GetVerticalDirection(), TEXT("center")) == 0)
-      autoSizeInfo.verticalDirection = ASI_CENTER;
+    autoSizeInfo.verticalDirection = ASI_CENTER;
 
   if (_wcsicmp(pBaseSettings->GetHorizontalDirection(), TEXT("left")) == 0)
-      autoSizeInfo.horizontalDirection = ASI_LEFT;
+    autoSizeInfo.horizontalDirection = ASI_LEFT;
   else if (_wcsicmp(pBaseSettings->GetHorizontalDirection(), TEXT("center")) == 0)
-      autoSizeInfo.horizontalDirection = ASI_MIDDLE;
+    autoSizeInfo.horizontalDirection = ASI_MIDDLE;
 
   EAEAutoSize(autoSizeInfo);
 }
@@ -711,7 +711,7 @@ LRESULT BaseApplet::DoTimer(UINT_PTR timerID)
 
       // Make sure to clear the transparent style if set
       LONG_PTR windowStyle = GetWindowLongPtr(mainWnd, GWL_EXSTYLE);
-      if ((windowStyle & WS_EX_TRANSPARENT) == WS_EX_TRANSPARENT)
+      if ((!mouseOver && ((windowStyle & WS_EX_TRANSPARENT) == WS_EX_TRANSPARENT)) || ELIsKeyDown(VK_SHIFT))
         SetWindowLongPtr(mainWnd, GWL_EXSTYLE, windowStyle & ~WS_EX_TRANSPARENT);
 
       return 0;
@@ -781,13 +781,13 @@ LRESULT BaseApplet::DoEmergeNotify(UINT messageClass, UINT message)
           break;
 
         case CORE_REPOSITION:
-        {
-          HWND hwndInsertBehind = NULL;
-          if (wcsicmp(pBaseSettings->GetZPosition(), TEXT("top")) != 0)
-            hwndInsertBehind = ELGetDesktopWindow();
-          SetWindowPos(mainWnd, hwndInsertBehind, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
-        }
-        break;
+            {
+              HWND hwndInsertBehind = NULL;
+              if (wcsicmp(pBaseSettings->GetZPosition(), TEXT("top")) != 0)
+                hwndInsertBehind = ELGetDesktopWindow();
+              SetWindowPos(mainWnd, hwndInsertBehind, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
+            }
+          break;
 
         case CORE_RECONFIGURE:
           UpdateGUI();
@@ -811,19 +811,14 @@ LRESULT BaseApplet::DoSysColorChange()
   return 0;
 }
 
-LRESULT BaseApplet::DoHitTest(LPARAM lParam)
+LRESULT BaseApplet::DoHitTest(LPARAM lParam UNUSED)
 {
+  LONG_PTR windowStyle = GetWindowLongPtr(mainWnd, GWL_EXSTYLE);
   if (!ClickThrough())
     return EAEHitTest(mainWnd, guiInfo.dragBorder, pBaseSettings->GetAutoSize(),
                       LOWORD(lParam), HIWORD(lParam));
   else
-    {
-      SetWindowLongPtr(mainWnd, GWL_EXSTYLE,
-                       GetWindowLongPtr(mainWnd, GWL_EXSTYLE) | WS_EX_TRANSPARENT);
-
-      // Make sure to set the timer so that we will get out of a transparent state
-      SetTimer(mainWnd, MOUSE_TIMER, MOUSE_POLL_TIME, NULL);
-    }
+    SetWindowLongPtr(mainWnd, GWL_EXSTYLE, windowStyle | WS_EX_TRANSPARENT);
 
   return 0;
 }
