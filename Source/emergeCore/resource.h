@@ -42,6 +42,8 @@
 #define IDC_DOWNAPP		    508
 #define IDC_SAVEAPP		    509
 #define IDC_ABORTAPP      510
+#define IDC_INFOAPP       511
+#define IDC_GATHERAPP     512
 
 #define IDC_SHELLITEM       600
 #define IDC_SHELLNAME       601
@@ -70,3 +72,5 @@
 #define IDI_STOP        1008
 #define IDI_UP			    1009
 #define IDI_DOWN		    1010
+#define IDI_INFO		    1011
+#define IDI_GATHER	    1012

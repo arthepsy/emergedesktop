@@ -118,6 +118,8 @@ LaunchEditor::LaunchEditor(HINSTANCE hInstance, HWND mainWnd)
   abortIcon = (HICON)LoadImage(hInstance, MAKEINTRESOURCE(IDI_ABORT), IMAGE_ICON, 16, 16, 0);
   startIcon = (HICON)LoadImage(hInstance, MAKEINTRESOURCE(IDI_START), IMAGE_ICON, 16, 16, 0);
   stopIcon = (HICON)LoadImage(hInstance, MAKEINTRESOURCE(IDI_STOP), IMAGE_ICON, 16, 16, 0);
+  infoIcon = (HICON)LoadImage(hInstance, MAKEINTRESOURCE(IDI_INFO), IMAGE_ICON, 16, 16, 0);
+  gatherIcon = (HICON)LoadImage(hInstance, MAKEINTRESOURCE(IDI_GATHER), IMAGE_ICON, 16, 16, 0);
 
   xmlFile = TEXT("%ThemeDir%\\");
   xmlFile += TEXT("emergeCore.xml");
@@ -173,6 +175,8 @@ BOOL LaunchEditor::DoInitDialog(HWND hwndDlg)
   HWND abortWnd = GetDlgItem(hwndDlg, IDC_ABORTAPP);
   HWND startWnd = GetDlgItem(hwndDlg, IDC_STARTAPP);
   HWND stopWnd = GetDlgItem(hwndDlg, IDC_STOPAPP);
+  HWND infoWnd = GetDlgItem(hwndDlg, IDC_INFOAPP);
+  HWND gatherWnd = GetDlgItem(hwndDlg, IDC_GATHERAPP);
 
   saveCount = 0;
   deleteCount = 0;
@@ -221,6 +225,10 @@ BOOL LaunchEditor::DoInitDialog(HWND hwndDlg)
     SendMessage(startWnd, BM_SETIMAGE, IMAGE_ICON, (LPARAM)startIcon);
   if (stopIcon)
     SendMessage(stopWnd, BM_SETIMAGE, IMAGE_ICON, (LPARAM)stopIcon);
+  if (infoIcon)
+    SendMessage(infoWnd, BM_SETIMAGE, IMAGE_ICON, (LPARAM)infoIcon);
+  if (gatherIcon)
+    SendMessage(gatherWnd, BM_SETIMAGE, IMAGE_ICON, (LPARAM)gatherIcon);
 
   ti.cbSize = TTTOOLINFOW_V2_SIZE;
   ti.uFlags = TTF_SUBCLASS;
@@ -267,6 +275,18 @@ BOOL LaunchEditor::DoInitDialog(HWND hwndDlg)
   GetClientRect(downWnd, &ti.rect);
   SendMessage(toolWnd, TTM_ADDTOOL, 0, (LPARAM)(LPTOOLINFO)&ti);
 
+  ti.hwnd = infoWnd;
+  ti.uId = (ULONG_PTR)infoWnd;
+  ti.lpszText = (WCHAR*)TEXT("Applet Information");
+  GetClientRect(downWnd, &ti.rect);
+  SendMessage(toolWnd, TTM_ADDTOOL, 0, (LPARAM)(LPTOOLINFO)&ti);
+
+  ti.hwnd = gatherWnd;
+  ti.uId = (ULONG_PTR)gatherWnd;
+  ti.lpszText = (WCHAR*)TEXT("Gather Applet");
+  GetClientRect(downWnd, &ti.rect);
+  SendMessage(toolWnd, TTM_ADDTOOL, 0, (LPARAM)(LPTOOLINFO)&ti);
+
   ti.hwnd = saveWnd;
   ti.uId = (ULONG_PTR)saveWnd;
   ti.lpszText = (WCHAR*)TEXT("Save Changes");
@@ -290,6 +310,8 @@ BOOL LaunchEditor::DoInitDialog(HWND hwndDlg)
   EnableWindow(abortWnd, false);
   EnableWindow(startWnd, false);
   EnableWindow(stopWnd, false);
+  EnableWindow(infoWnd, false);
+  EnableWindow(gatherWnd, false);
 
   return TRUE;
 }
@@ -368,9 +390,66 @@ BOOL LaunchEditor::DoLaunchCommand(HWND hwndDlg, WPARAM wParam, LPARAM lParam UN
       return DoMultiStart(hwndDlg);
     case IDC_STOPAPP:
       return DoMultiStop(hwndDlg);
+    case IDC_GATHERAPP:
+      return DoMultiGather(hwndDlg);
+    case IDC_INFOAPP:
+      return DoMultiInfo(hwndDlg);
     }
 
   return FALSE;
+}
+
+BOOL LaunchEditor::DoMultiInfo(HWND hwndDlg)
+{
+  HWND listWnd = GetDlgItem(hwndDlg, IDC_APPLETLIST);
+  int listCount = ListView_GetItemCount(listWnd);
+  WCHAR name[MAX_PATH], appletName[MAX_PATH], tmp[MAX_LINE_LENGTH];
+  VERSIONINFO versionInfo;
+  BOOL ret = FALSE;
+
+  for (int i = 0; i < listCount; i++)
+    {
+      if (ListView_GetItemState(listWnd, i, LVIS_SELECTED))
+        {
+          ListView_GetItemText(listWnd, i, 1, name, MAX_PATH);
+          wcscpy(appletName, PathFindFileName(name));
+          PathRemoveExtension(appletName);
+          if (ELAppletFileVersion(name, &versionInfo))
+            {
+              swprintf(tmp, TEXT("%s\n\nVersion: %s\n\nAuthor: %s"),
+                       versionInfo.Description,
+                       versionInfo.Version,
+                       versionInfo.Author);
+              ELMessageBox(hwndDlg, tmp, appletName,
+                           ELMB_ICONQUESTION|ELMB_OK|ELMB_MODAL);
+              ret = TRUE;
+            }
+        }
+    }
+
+  return ret;
+}
+
+BOOL LaunchEditor::DoMultiGather(HWND hwndDlg)
+{
+  HWND listWnd = GetDlgItem(hwndDlg, IDC_APPLETLIST);
+  int listCount = ListView_GetItemCount(listWnd);
+  WCHAR name[MAX_PATH];
+  BOOL ret = FALSE;
+
+  for (int i = 0; i < listCount; i++)
+    {
+      if (ListView_GetItemState(listWnd, i, LVIS_SELECTED))
+        {
+          ListView_GetItemText(listWnd, i, 1, name, MAX_PATH);
+          selectedApplet = name;
+          selectedApplet = ELExpandVars(selectedApplet);
+          EnumWindows(GatherApplet, reinterpret_cast<LPARAM>(this));
+          ret = TRUE;
+        }
+    }
+
+  return ret;
 }
 
 BOOL LaunchEditor::DoMultiStop(HWND hwndDlg)
@@ -379,11 +458,6 @@ BOOL LaunchEditor::DoMultiStop(HWND hwndDlg)
   int listCount = ListView_GetItemCount(listWnd);
   WCHAR name[MAX_PATH];
   BOOL ret = FALSE;
-
-  std::wstring debug = L"In MultiStop";
-  ELWriteDebug(debug);
-  debug = towstring(listCount);
-  ELWriteDebug(debug);
 
   for (int i = 0; i < listCount; i++)
     {
@@ -678,6 +752,8 @@ bool LaunchEditor::DoLaunchDelete(HWND hwndDlg)
   HWND downWnd = GetDlgItem(hwndDlg, IDC_DOWNAPP);
   HWND startWnd = GetDlgItem(hwndDlg, IDC_STARTAPP);
   HWND stopWnd = GetDlgItem(hwndDlg, IDC_STOPAPP);
+  HWND infoWnd = GetDlgItem(hwndDlg, IDC_INFOAPP);
+  HWND gatherWnd = GetDlgItem(hwndDlg, IDC_GATHERAPP);
   bool ret = false;
   int i = 0, prevItem = 0;
 
@@ -723,6 +799,8 @@ bool LaunchEditor::DoLaunchDelete(HWND hwndDlg)
       EnableWindow(downWnd, false);
       EnableWindow(startWnd, false);
       EnableWindow(stopWnd, false);
+      EnableWindow(infoWnd, false);
+      EnableWindow(gatherWnd, false);
     }
 
   return ret;
@@ -877,6 +955,8 @@ BOOL LaunchEditor::DoNotify(HWND hwndDlg, LPARAM lParam)
   HWND downWnd = GetDlgItem(hwndDlg, IDC_DOWNAPP);
   HWND startWnd = GetDlgItem(hwndDlg, IDC_STARTAPP);
   HWND stopWnd = GetDlgItem(hwndDlg, IDC_STOPAPP);
+  HWND infoWnd = GetDlgItem(hwndDlg, IDC_INFOAPP);
+  HWND gatherWnd = GetDlgItem(hwndDlg, IDC_GATHERAPP);
 
   switch (((LPNMITEMACTIVATE)lParam)->hdr.code)
     {
@@ -886,10 +966,13 @@ BOOL LaunchEditor::DoNotify(HWND hwndDlg, LPARAM lParam)
       EnableWindow(downWnd, true);
       EnableWindow(startWnd, true);
       EnableWindow(stopWnd, true);
+      EnableWindow(infoWnd, true);
+      EnableWindow(gatherWnd, true);
       return PopulateFields(hwndDlg, ((LPNMLISTVIEW)lParam)->iItem);
 
-    case NM_RCLICK:
-      return DoRightClick(hwndDlg, ((LPNMITEMACTIVATE)lParam)->iItem);
+      // Disable Right click menu for now
+      //case NM_RCLICK:
+      //return DoRightClick(hwndDlg, ((LPNMITEMACTIVATE)lParam)->iItem);
     }
 
   return FALSE;

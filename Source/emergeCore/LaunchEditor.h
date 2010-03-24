@@ -63,6 +63,8 @@ private:
   bool DoLaunchStart(HWND listWnd, int index);
   BOOL DoMultiStart(HWND hwndDlg);
   BOOL DoMultiStop(HWND hwndDlg);
+  BOOL DoMultiGather(HWND hwndDlg);
+  BOOL DoMultiInfo(HWND hwndDlg);
   bool DoLaunchMove(HWND listWnd, bool up);
   bool CheckSaveCount(HWND hwndDlg);
   void InsertListViewItem(HWND listWnd, int index, const WCHAR *item);
@@ -73,6 +75,7 @@ private:
   HINSTANCE hInstance;
   HWND mainWnd, toolWnd, dlgWnd;
   HICON addIcon, delIcon, upIcon, downIcon, browseIcon, saveIcon, abortIcon, startIcon, stopIcon;
+  HICON infoIcon, gatherIcon;
   static BOOL CALLBACK LaunchDlgProc(HWND hwndDlg, UINT message, WPARAM wParam, LPARAM lParam);
   static BOOL CALLBACK AppletCheck(HWND hwnd, LPARAM lParam);
   static BOOL CALLBACK GatherApplet(HWND hwnd, LPARAM lParam);
