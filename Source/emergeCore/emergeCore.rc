@@ -72,6 +72,7 @@ IDI_START	ICON	"../icons/start.ico"
 IDI_STOP	ICON	"../icons/stop.ico"
 IDI_INFO	ICON	"../icons/info.ico"
 IDI_GATHER	ICON	"../icons/gather.ico"
+IDI_SAVEAS	ICON	"../icons/saveas.ico"
 
 IDD_LAUNCH DIALOGEX 0, 0, CONFIG_WIDTH, CONFIG_HEIGHT
 STYLE WS_POPUP | WS_VISIBLE | WS_CAPTION

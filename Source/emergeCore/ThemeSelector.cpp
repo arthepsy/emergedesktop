@@ -45,9 +45,9 @@ ThemeSelector::ThemeSelector(HINSTANCE hInstance, HWND mainWnd)
   this->hInstance = hInstance;
   this->mainWnd = mainWnd;
 
-  saveasIcon = (HICON)LoadImage(hInstance, MAKEINTRESOURCE(IDI_EDIT), IMAGE_ICON, 16, 16, 0);
+  saveasIcon = (HICON)LoadImage(hInstance, MAKEINTRESOURCE(IDI_SAVEAS), IMAGE_ICON, 16, 16, 0);
   saveIcon = (HICON)LoadImage(hInstance, MAKEINTRESOURCE(IDI_SAVE), IMAGE_ICON, 16, 16, 0);
-  delIcon = (HICON)LoadImage(hInstance, MAKEINTRESOURCE(IDI_DEL), IMAGE_ICON, 16, 16, 0);
+  delIcon = (HICON)LoadImage(hInstance, MAKEINTRESOURCE(IDI_ABORT), IMAGE_ICON, 16, 16, 0);
 
   InitCommonControls();
 

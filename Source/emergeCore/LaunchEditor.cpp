@@ -190,7 +190,7 @@ BOOL LaunchEditor::DoInitDialog(HWND hwndDlg)
 
   lvCol.mask = LVCF_TEXT | LVCF_WIDTH;
   lvCol.pszText = (WCHAR*)TEXT("State");
-  lvCol.cx = 50;
+  lvCol.cx = 70;
   if (ListView_InsertColumn(listWnd, 0, &lvCol) == -1)
     return FALSE;
 
@@ -467,7 +467,7 @@ BOOL LaunchEditor::DoMultiStop(HWND hwndDlg)
           selectedApplet = name;
           selectedApplet = ELExpandVars(selectedApplet);
           EnumWindows(AppletCheck, reinterpret_cast<LPARAM>(this));
-          ListView_SetItemText(listWnd, i, 0, (WCHAR*)TEXT("Stopped"));
+          ListView_SetItemText(listWnd, i, 0, (WCHAR*)TEXT("Not Loaded"));
           ret = TRUE;
         }
     }
@@ -490,7 +490,7 @@ BOOL LaunchEditor::DoMultiStart(HWND hwndDlg)
           if (ELExecute(name))
             {
               ret = TRUE;
-              ListView_SetItemText(listWnd, i, 0, (WCHAR*)TEXT("Started"));
+              ListView_SetItemText(listWnd, i, 0, (WCHAR*)TEXT("Loaded"));
             }
         }
     }
@@ -566,7 +566,7 @@ bool LaunchEditor::DoLaunchStart(HWND listWnd, int index)
 
   if (ELExecute((WCHAR*)selectedApplet.c_str()))
     {
-      ListView_SetItemText(listWnd, index, 0, (WCHAR*)TEXT("Started"));
+      ListView_SetItemText(listWnd, index, 0, (WCHAR*)TEXT("Loaded"));
       ret = true;
     }
 
@@ -576,7 +576,7 @@ bool LaunchEditor::DoLaunchStart(HWND listWnd, int index)
 bool LaunchEditor::DoLaunchStop(HWND listWnd, int index)
 {
   EnumWindows(AppletCheck, reinterpret_cast<LPARAM>(this));
-  ListView_SetItemText(listWnd, index, 0, (WCHAR*)TEXT("Stopped"));
+  ListView_SetItemText(listWnd, index, 0, (WCHAR*)TEXT("Not Loaded"));
 
   return true;
 }
@@ -739,9 +739,9 @@ WCHAR *LaunchEditor::GetLaunchItemState(WCHAR *launchItem)
     }
 
   if (i == processCount)
-    return (WCHAR*)TEXT("Stopped");
+    return (WCHAR*)TEXT("Not Loaded");
 
-  return (WCHAR*)TEXT("Started");
+  return (WCHAR*)TEXT("Loaded");
 }
 
 bool LaunchEditor::DoLaunchDelete(HWND hwndDlg)

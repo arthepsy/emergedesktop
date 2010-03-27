@@ -74,3 +74,4 @@
 #define IDI_DOWN		    1010
 #define IDI_INFO		    1011
 #define IDI_GATHER	    1012
+#define IDI_SAVEAS	    1013
