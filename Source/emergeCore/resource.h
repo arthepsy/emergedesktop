@@ -62,16 +62,3 @@
 #define IDC_DELTHEME    703
 
 #define IDI_DEFAULT		  1000
-#define IDI_ADD			    1001
-#define IDI_EDIT		    1002
-#define IDI_DEL			    1003
-#define IDI_SAVE		    1004
-#define IDI_ABORT		    1005
-#define IDI_BROWSE		  1006
-#define IDI_START       1007
-#define IDI_STOP        1008
-#define IDI_UP			    1009
-#define IDI_DOWN		    1010
-#define IDI_INFO		    1011
-#define IDI_GATHER	    1012
-#define IDI_SAVEAS	    1013

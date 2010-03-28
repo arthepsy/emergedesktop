@@ -59,20 +59,7 @@ END
 CREATEPROCESS_MANIFEST_RESOURCE_ID RT_MANIFEST "emergeCore.exe.manifest"
 #endif
 
-IDI_DEFAULT	ICON	"../icons/emerge.ico"
-IDI_ADD		ICON	"../icons/add.ico"
-IDI_EDIT	ICON	"../icons/edit.ico"
-IDI_DEL		ICON	"../icons/delete.ico"
-IDI_SAVE	ICON	"../icons/save.ico"
-IDI_ABORT	ICON	"../icons/abort.ico"
-IDI_BROWSE	ICON	"../icons/folder.ico"
-IDI_UP		ICON	"../icons/up.ico"
-IDI_DOWN	ICON	"../icons/down.ico"
-IDI_START	ICON	"../icons/start.ico"
-IDI_STOP	ICON	"../icons/stop.ico"
-IDI_INFO	ICON	"../icons/info.ico"
-IDI_GATHER	ICON	"../icons/gather.ico"
-IDI_SAVEAS	ICON	"../icons/saveas.ico"
+IDI_DEFAULT	ICON	"../emerge.ico"
 
 IDD_LAUNCH DIALOGEX 0, 0, CONFIG_WIDTH, CONFIG_HEIGHT
 STYLE WS_POPUP | WS_VISIBLE | WS_CAPTION

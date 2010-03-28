@@ -45,9 +45,9 @@ ThemeSelector::ThemeSelector(HINSTANCE hInstance, HWND mainWnd)
   this->hInstance = hInstance;
   this->mainWnd = mainWnd;
 
-  saveasIcon = (HICON)LoadImage(hInstance, MAKEINTRESOURCE(IDI_SAVEAS), IMAGE_ICON, 16, 16, 0);
-  saveIcon = (HICON)LoadImage(hInstance, MAKEINTRESOURCE(IDI_SAVE), IMAGE_ICON, 16, 16, 0);
-  delIcon = (HICON)LoadImage(hInstance, MAKEINTRESOURCE(IDI_ABORT), IMAGE_ICON, 16, 16, 0);
+  ExtractIconEx(TEXT("emergeIcons.dll"), 10, NULL, &saveasIcon, 1);
+  ExtractIconEx(TEXT("emergeIcons.dll"), 9, NULL, &saveIcon, 1);
+  ExtractIconEx(TEXT("emergeIcons.dll"), 1, NULL, &delIcon, 1);
 
   InitCommonControls();
 
