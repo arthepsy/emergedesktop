@@ -109,17 +109,17 @@ LaunchEditor::LaunchEditor(HINSTANCE hInstance, HWND mainWnd)
                    SWP_NOACTIVATE);
     }
 
-  addIcon = (HICON)LoadImage(hInstance, MAKEINTRESOURCE(IDI_ADD), IMAGE_ICON, 16, 16, 0);
-  delIcon = (HICON)LoadImage(hInstance, MAKEINTRESOURCE(IDI_DEL), IMAGE_ICON, 16, 16, 0);
-  browseIcon = (HICON)LoadImage(hInstance, MAKEINTRESOURCE(IDI_BROWSE), IMAGE_ICON, 16, 16, 0);
-  upIcon = (HICON)LoadImage(hInstance, MAKEINTRESOURCE(IDI_UP), IMAGE_ICON, 16, 16, 0);
-  downIcon = (HICON)LoadImage(hInstance, MAKEINTRESOURCE(IDI_DOWN), IMAGE_ICON, 16, 16, 0);
-  saveIcon = (HICON)LoadImage(hInstance, MAKEINTRESOURCE(IDI_SAVE), IMAGE_ICON, 16, 16, 0);
-  abortIcon = (HICON)LoadImage(hInstance, MAKEINTRESOURCE(IDI_ABORT), IMAGE_ICON, 16, 16, 0);
-  startIcon = (HICON)LoadImage(hInstance, MAKEINTRESOURCE(IDI_START), IMAGE_ICON, 16, 16, 0);
-  stopIcon = (HICON)LoadImage(hInstance, MAKEINTRESOURCE(IDI_STOP), IMAGE_ICON, 16, 16, 0);
-  infoIcon = (HICON)LoadImage(hInstance, MAKEINTRESOURCE(IDI_INFO), IMAGE_ICON, 16, 16, 0);
-  gatherIcon = (HICON)LoadImage(hInstance, MAKEINTRESOURCE(IDI_GATHER), IMAGE_ICON, 16, 16, 0);
+  ExtractIconEx(TEXT("emergeIcons.dll"), 2, NULL, &addIcon, 1);
+  ExtractIconEx(TEXT("emergeIcons.dll"), 3, NULL, &delIcon, 1);
+  ExtractIconEx(TEXT("emergeIcons.dll"), 6, NULL, &browseIcon, 1);
+  ExtractIconEx(TEXT("emergeIcons.dll"), 13, NULL, &upIcon, 1);
+  ExtractIconEx(TEXT("emergeIcons.dll"), 4, NULL, &downIcon, 1);
+  ExtractIconEx(TEXT("emergeIcons.dll"), 9, NULL, &saveIcon, 1);
+  ExtractIconEx(TEXT("emergeIcons.dll"), 1, NULL, &abortIcon, 1);
+  ExtractIconEx(TEXT("emergeIcons.dll"), 11, NULL, &startIcon, 1);
+  ExtractIconEx(TEXT("emergeIcons.dll"), 12, NULL, &stopIcon, 1);
+  ExtractIconEx(TEXT("emergeIcons.dll"), 8, NULL, &infoIcon, 1);
+  ExtractIconEx(TEXT("emergeIcons.dll"), 7, NULL, &gatherIcon, 1);
 
   xmlFile = TEXT("%ThemeDir%\\");
   xmlFile += TEXT("emergeCore.xml");
