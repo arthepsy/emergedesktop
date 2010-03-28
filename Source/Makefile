@@ -3,7 +3,7 @@
 
 include functions.in
 
-LIBS = emergeLib emergeGraphics emergeAppletEngine emergeSchemeEngine emergeBaseClasses
+LIBS = emergeLib emergeGraphics emergeAppletEngine emergeSchemeEngine emergeBaseClasses emergeIcons
 APPLETS = emergeCore emergeDesktop emergeHotkeys emergeTasks emergeCommand emergeLauncher \
 					emergeVWM emergeTray emerge emergePower emergeSysMon reg2xml
 VERSION = 4.1
