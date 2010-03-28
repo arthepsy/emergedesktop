@@ -1,0 +1,69 @@
+//----  --------------------------------------------------------------------------------------------------------
+//
+//  This file is part of Emerge Desktop.
+//  Copyright (C) 2004-2010  The Emerge Desktop Development Team
+//
+//  Emerge Desktop is free software; you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation; either version 3 of the License, or
+//  (at your option) any later version.
+//
+//  Emerge Desktop is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//
+//  You should have received a copy of the GNU General Public License
+//  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+//
+//----  --------------------------------------------------------------------------------------------------------
+
+#include "resource.h"
+#include "../version.h"
+#include "../hgversion.h"
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION COMMA_VERSION
+ PRODUCTVERSION COMMA_VERSION
+ FILEFLAGSMASK VS_FFI_FILEFLAGSMASK
+#ifdef DEBUG
+ FILEFLAGS VS_FF_DEBUG
+#endif
+ FILEOS VOS__WINDOWS32
+ FILETYPE VFT_DLL
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "000004B0"
+        BEGIN
+            VALUE "CompanyName", "The Emerge Desktop Development Team"
+            VALUE "FileDescription", "emergeIcons - Emerge Desktop icons library"
+            VALUE "FileVersion", POINT_VERSION
+            VALUE "InternalName", "emergeIcons"
+            VALUE "LegalCopyright", "Copyright (C) 2010"
+            VALUE "OriginalFilename", "emergeIcons.dll"
+            VALUE "ProductName", "emergeIcons"
+            VALUE "ProductVersion", POINT_VERSION
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x0, 1200
+    END
+END
+
+IDI_EMERGE  ICON    "emerge.ico"
+IDI_ABORT   ICON    "abort.ico"
+IDI_ADD     ICON    "add.ico"
+IDI_DELETE  ICON    "delete.ico"
+IDI_DOWN    ICON    "down.ico"
+IDI_EDIT    ICON    "edit.ico"
+IDI_FOLDER  ICON    "folder.ico"
+IDI_GATHER  ICON    "gather.ico"
+IDI_INFO    ICON    "info.ico"
+IDI_SAVE    ICON    "save.ico"
+IDI_SAVEAS  ICON    "saveas.ico"
+IDI_START   ICON    "start.ico"
+IDI_STOP    ICON    "stop.ico"
+IDI_UP      ICON    "up.ico"
+
