@@ -1,3 +1,4 @@
+// vim: tags+=../emergeLib/tags
 //----  --------------------------------------------------------------------------------------------------------
 //
 //  This file is part of Emerge Desktop.
@@ -323,32 +324,67 @@ void Shell::RunFolderStartup()
   LPITEMIDLIST item;
   LPMALLOC pMalloc;
 
+  std::wstring debug;
   // Get the contents of the common startup folder
-  SHGetSpecialFolderLocation(NULL, CSIDL_COMMON_STARTUP, &item);
-  SHGetPathFromIDList(item, szPath);
-
-  // Execute the contents
-  RunFolderEntries(szPath);
-
-  // Cleanup
-  if (SUCCEEDED(SHGetMalloc(&pMalloc)))
+  if (SUCCEEDED(SHGetSpecialFolderLocation(NULL, CSIDL_COMMON_STARTUP, &item)))
     {
-      pMalloc->Free(item);
-      pMalloc->Release();
+      if (SHGetPathFromIDList(item, szPath))
+        {
+          debug = L"Common startup folder: ";
+          debug += szPath;
+          ELWriteDebug(debug);
+
+          // Execute the contents
+          RunFolderEntries(szPath);
+
+          // Cleanup
+          if (SUCCEEDED(SHGetMalloc(&pMalloc)))
+            {
+              pMalloc->Free(item);
+              pMalloc->Release();
+            }
+        }
+      else
+        {
+          debug = L"Failed to get common startup folder path";
+          ELWriteDebug(debug);
+        }
+    }
+  else
+    {
+      debug = L"Failed to get common startup folder location";
+      ELWriteDebug(debug);
     }
 
   // Get the contents of the current user's startup folder
-  SHGetSpecialFolderLocation(NULL, CSIDL_STARTUP, &item);
-  SHGetPathFromIDList(item, szPath);
-
-  // Execute the contents
-  RunFolderEntries(szPath);
-
-  // Cleanup
-  if (SUCCEEDED(SHGetMalloc(&pMalloc)))
+  if (SUCCEEDED(SHGetSpecialFolderLocation(NULL, CSIDL_STARTUP, &item)))
     {
-      pMalloc->Free(item);
-      pMalloc->Release();
+      if (SHGetPathFromIDList(item, szPath))
+        {
+          debug = L"Current user's startup folder: ";
+          debug += szPath;
+          ELWriteDebug(debug);
+
+          // Execute the contents
+          RunFolderEntries(szPath);
+
+          // Cleanup
+          if (SUCCEEDED(SHGetMalloc(&pMalloc)))
+            {
+              pMalloc->Free(item);
+              pMalloc->Release();
+            }
+        }
+      else
+        {
+          debug = L"Failed to get current user's startup folder path";
+          ELWriteDebug(debug);
+        }
+    }
+  else
+    {
+      debug = L"Failed to get current user's startup folder location";
+      ELWriteDebug(debug);
     }
 }
 

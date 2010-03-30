@@ -20,17 +20,22 @@
 
 #include <winver.h>
 
-#define IDI_EMERGE  0
-#define IDI_ABORT   1
-#define IDI_ADD     2
-#define IDI_DELETE  3
-#define IDI_DOWN    4
-#define IDI_EDIT    5
-#define IDI_FOLDER  6
-#define IDI_GATHER  7
-#define IDI_INFO    8
-#define IDI_SAVE    9
-#define IDI_SAVEAS  10
-#define IDI_START   11
-#define IDI_STOP    12
-#define IDI_UP      13
+#define IDI_EMERGE              0
+#define IDI_ABORT               1
+#define IDI_ADD                 2
+#define IDI_DELETE              3
+#define IDI_DOWN                4
+#define IDI_EDIT                5
+#define IDI_FOLDER              6
+#define IDI_GATHER              7
+#define IDI_INFO                8
+#define IDI_SAVE                9
+#define IDI_SAVEAS              10
+#define IDI_START               11
+#define IDI_STOP                12
+#define IDI_UP                  13
+#define IDI_VSEPARATOR          14
+#define IDI_HSEPARATOR          15
+#define IDI_DOUBLEVSEPARATOR    16
+#define IDI_DOUBLEHSEPARATOR    17
+

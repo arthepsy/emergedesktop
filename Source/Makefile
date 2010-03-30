@@ -42,6 +42,10 @@ $(APPLETS): $(LIBS)
 emergeLib:
 	$(MAKE) -C $@ $(MAKECMDGOALS)
 
+.PHONY: emergeIcons
+emergeIcons:
+	$(MAKE) -C $@ $(MAKECMDGOALS)
+
 .PHONY: emergeGraphics
 emergeGraphics: emergeLib
 	$(MAKE) -C $@ $(MAKECMDGOALS)

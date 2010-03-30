@@ -528,9 +528,9 @@ UINT32 EGGetPixel(BYTE alpha, COLORREF colour)
   fAlphaFactor = (float)alpha / (float)0xff;
 
   pixel = (alpha << 24) |
-          ((UCHAR)(GetRValue(colour) * fAlphaFactor) << 16) |
-          ((UCHAR)(GetGValue(colour) * fAlphaFactor) << 8) |
-          (UCHAR)(GetBValue(colour) * fAlphaFactor);
+    ((UCHAR)(GetRValue(colour) * fAlphaFactor) << 16) |
+    ((UCHAR)(GetGValue(colour) * fAlphaFactor) << 8) |
+    (UCHAR)(GetBValue(colour) * fAlphaFactor);
 
   return pixel;
 }
@@ -593,7 +593,6 @@ HICON EGGetFileIcon(WCHAR *file, UINT iconSize)
   WCHAR *token, *source;
   int iconIndex = 0;
   UINT iconFlags = 0;
-  UINT iconID;
   HRESULT hr;
   LPVOID lpVoid;
   bool hasIndex = false;
@@ -626,14 +625,9 @@ HICON EGGetFileIcon(WCHAR *file, UINT iconSize)
       free(source);
     }
 
-  if (MSPrivateExtractIcons == NULL)
-    MSPrivateExtractIcons = (fnPrivateExtractIcons)GetProcAddress(GetModuleHandle(TEXT("user32.dll")), "PrivateExtractIconsW");
-  if (MSPrivateExtractIcons == NULL)
-    return icon;
-
   if (hasIndex)
     {
-      MSPrivateExtractIcons(supliedFile.c_str(), iconIndex, iconSize, iconSize, &icon, &iconID, 1, 0);
+      icon = EGExtractIcon(supliedFile.c_str(), iconIndex, iconSize);
       return icon;
     }
 
@@ -701,8 +695,7 @@ HICON EGGetFileIcon(WCHAR *file, UINT iconSize)
     DestroyIcon(tmpIcon);
 
   if (icon == NULL)
-    MSPrivateExtractIcons(iconLocation, iconIndex, iconSize, iconSize, &icon,
-                          &iconID, 1, 0);
+    icon = EGExtractIcon(iconLocation, iconIndex, iconSize);
 
   if (icon == NULL)
     icon = EGGetSystemIcon(ICON_DEFAULT, iconSize);
@@ -837,18 +830,24 @@ HICON EGGetSpecialFolderIcon(int csidl, UINT iconSize)
   return icon;
 }
 
-HICON EGGetSystemIcon(UINT iconIndex, UINT iconSize)
+HICON EGExtractIcon(const WCHAR *iconLocation, int iconIndex, int iconSize)
 {
   HICON icon = NULL;
   UINT iconID;
-  UINT ret;
-  WCHAR source[MAX_PATH];
-  int iconLocation = 0;
 
   if (MSPrivateExtractIcons == NULL)
     MSPrivateExtractIcons = (fnPrivateExtractIcons)GetProcAddress(GetModuleHandle(TEXT("user32.dll")), "PrivateExtractIconsW");
-  if (MSPrivateExtractIcons == NULL)
-    return icon;
+  if (MSPrivateExtractIcons != NULL)
+    MSPrivateExtractIcons(iconLocation, iconIndex, iconSize, iconSize, &icon, &iconID, 1, 0);
+
+  return icon;
+}
+
+HICON EGGetSystemIcon(UINT iconIndex, UINT iconSize)
+{
+  HICON icon = NULL;
+  WCHAR source[MAX_PATH];
+  int iconLocation = 0;
 
   wcscpy(source, TEXT("%SystemRoot%\\system32\\shell32.dll"));
 
@@ -873,7 +872,7 @@ HICON EGGetSystemIcon(UINT iconIndex, UINT iconSize)
       iconLocation = 47;
       break;
     }
-  ret = MSPrivateExtractIcons(source, iconLocation, iconSize, iconSize, &icon, &iconID, 1, 0);
+  icon = EGExtractIcon(source, iconLocation, iconSize);
 
   return icon;
 }
@@ -985,7 +984,7 @@ bool EGDrawAlphaText(BYTE alpha, CLIENTINFO clientInfo, FORMATINFO formatInfo, W
     for (x = 0; x < bmi.bmiHeader.biWidth; x++)
       {
         pixel = ((UINT32 *)maskBits)
-                [x + ((bmi.bmiHeader.biHeight - (y + 1)) * bmi.bmiHeader.biWidth)];
+          [x + ((bmi.bmiHeader.biHeight - (y + 1)) * bmi.bmiHeader.biWidth)];
 
         if (pixel != 0)
           {

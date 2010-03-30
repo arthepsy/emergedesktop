@@ -125,16 +125,16 @@ void Item::SetIcon(int iconSize, WCHAR *orientation)
       if (wcsicmp(app, TEXT("single")) == 0)
         {
           if (wcsicmp(orientation, TEXT("vertical")) == 0)
-            origIcon = (HICON)LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_HSEPARATOR), IMAGE_ICON, iconSize, iconSize, 0);
+            origIcon = EGExtractIcon(TEXT("emergeIcons.dll"), 15, iconSize);
           else
-            origIcon = (HICON)LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_VSEPARATOR), IMAGE_ICON, iconSize, iconSize, 0);
+            origIcon = EGExtractIcon(TEXT("emergeIcons.dll"), 14, iconSize);
         }
       else if (wcsicmp(app, TEXT("double")) == 0)
         {
           if (wcsicmp(orientation, TEXT("vertical")) == 0)
-            origIcon = (HICON)LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_DOUBLEHSEPARATOR), IMAGE_ICON, iconSize, iconSize, 0);
+            origIcon = EGExtractIcon(TEXT("emergeIcons.dll"), 17, iconSize);
           else
-            origIcon = (HICON)LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_DOUBLEVSEPARATOR), IMAGE_ICON, iconSize, iconSize, 0);
+            origIcon = EGExtractIcon(TEXT("emergeIcons.dll"), 16, iconSize);
         }
       else if ((wcsicmp(app, TEXT("custom")) == 0) && (wcslen(iconPath) > 0))
         origIcon = EGGetFileIcon(iconPath, iconSize);
