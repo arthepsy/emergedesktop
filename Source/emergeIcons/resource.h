@@ -38,4 +38,5 @@
 #define IDI_HSEPARATOR          15
 #define IDI_DOUBLEVSEPARATOR    16
 #define IDI_DOUBLEHSEPARATOR    17
+#define IDI_FILE                18
 

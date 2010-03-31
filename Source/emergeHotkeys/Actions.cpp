@@ -74,13 +74,13 @@ Actions::Actions(HINSTANCE hInstance, HWND mainWnd, std::tr1::shared_ptr<Setting
                    SWP_NOACTIVATE);
     }
 
-  addIcon = (HICON)LoadImage(hInstance, MAKEINTRESOURCE(IDI_ADD), IMAGE_ICON, 16, 16, 0);
-  delIcon = (HICON)LoadImage(hInstance, MAKEINTRESOURCE(IDI_DEL), IMAGE_ICON, 16, 16, 0);
-  editIcon = (HICON)LoadImage(hInstance, MAKEINTRESOURCE(IDI_EDIT), IMAGE_ICON, 16, 16, 0);
-  folderIcon = (HICON)LoadImage(hInstance, MAKEINTRESOURCE(IDI_FOLDER), IMAGE_ICON, 16, 16, 0);
-  fileIcon = (HICON)LoadImage(hInstance, MAKEINTRESOURCE(IDI_FILE), IMAGE_ICON, 16, 16, 0);
-  saveIcon = (HICON)LoadImage(hInstance, MAKEINTRESOURCE(IDI_SAVE), IMAGE_ICON, 16, 16, 0);
-  abortIcon = (HICON)LoadImage(hInstance, MAKEINTRESOURCE(IDI_ABORT), IMAGE_ICON, 16, 16, 0);
+  ExtractIconEx(TEXT("emergeIcons.dll"), 2, NULL, &addIcon, 1);
+  ExtractIconEx(TEXT("emergeIcons.dll"), 5, NULL, &editIcon, 1);
+  ExtractIconEx(TEXT("emergeIcons.dll"), 3, NULL, &delIcon, 1);
+  ExtractIconEx(TEXT("emergeIcons.dll"), 6, NULL, &folderIcon, 1);
+  ExtractIconEx(TEXT("emergeIcons.dll"), 18, NULL, &fileIcon, 1);
+  ExtractIconEx(TEXT("emergeIcons.dll"), 9, NULL, &saveIcon, 1);
+  ExtractIconEx(TEXT("emergeIcons.dll"), 1, NULL, &abortIcon, 1);
 }
 
 Actions::~Actions()

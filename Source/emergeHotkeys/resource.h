@@ -53,10 +53,3 @@
 #define IDC_ABOUT			501
 
 #define IDI_DEFAULT		    1000
-#define IDI_ADD			    1001
-#define IDI_EDIT		    1002
-#define IDI_DEL			    1003
-#define IDI_FILE		    1004
-#define IDI_FOLDER		    1005
-#define IDI_SAVE			1006
-#define IDI_ABORT			1007

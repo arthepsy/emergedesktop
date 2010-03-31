@@ -60,14 +60,7 @@ END
 CREATEPROCESS_MANIFEST_RESOURCE_ID RT_MANIFEST "emergeHotkeys.exe.manifest"
 #endif
 
-IDI_DEFAULT	ICON	"icons/emerge.ico"
-IDI_ADD		ICON	"icons/add.ico"
-IDI_DEL		ICON	"icons/del.ico"
-IDI_EDIT	ICON	"icons/edit.ico"
-IDI_FOLDER	ICON	"icons/folder.ico"
-IDI_FILE	ICON	"icons/file.ico"
-IDI_SAVE	ICON	"icons/save.ico"
-IDI_ABORT	ICON	"icons/abort.ico"
+IDI_DEFAULT	ICON	"../emerge.ico"
 
 IDD_ACTIONS DIALOGEX 0, 0, 270, 275
 STYLE WS_POPUP | WS_VISIBLE | WS_CAPTION

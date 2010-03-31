@@ -70,4 +70,5 @@ IDI_VSEPARATOR        ICON  "VSeparator.ico"
 IDI_HSEPARATOR        ICON  "HSeparator.ico"
 IDI_DOUBLEVSEPARATOR  ICON  "DoubleVSeparator.ico"
 IDI_DOUBLEHSEPARATOR  ICON  "DoubleHSeparator.ico"
+IDI_FILE              ICON  "file.ico"
 
