@@ -69,8 +69,3 @@
 #define IDC_ICONSPACINGUPDOWN 702
 
 #define IDI_DEFAULT         800
-#define IDI_ADD             801
-#define IDI_DEL             802
-#define IDI_SAVE            803
-#define IDI_ABORT           804
-#define IDI_EDIT            805

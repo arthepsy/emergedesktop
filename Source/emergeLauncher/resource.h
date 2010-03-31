@@ -87,15 +87,3 @@
 #define IDC_ABORTITEM           606
 
 #define IDI_DEFAULT             1000
-#define IDI_ADD                 1001
-#define IDI_EDIT                1002
-#define IDI_DEL                 1003
-#define IDI_UP                  1004
-#define IDI_DOWN                1005
-#define IDI_SAVE                1006
-#define IDI_ABORT               1007
-#define IDI_BROWSE              1008
-#define IDI_VSEPARATOR          1009
-#define IDI_HSEPARATOR          1010
-#define IDI_DOUBLEVSEPARATOR    1011
-#define IDI_DOUBLEHSEPARATOR    1012
