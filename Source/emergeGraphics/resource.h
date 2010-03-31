@@ -19,6 +19,3 @@
 //---
 
 #include <winver.h>
-
-#define IDI_QUIT   0
-#define IDI_EMERGE 1

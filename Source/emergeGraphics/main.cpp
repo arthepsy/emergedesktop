@@ -854,10 +854,12 @@ HICON EGGetSystemIcon(UINT iconIndex, UINT iconSize)
   switch (iconIndex)
     {
     case ICON_EMERGE:
-      iconLocation = 1;
+      wcscpy(source, TEXT("emergeIcons.dll"));
+      iconLocation = 0;
+      break;
     case ICON_QUIT:
-      ELGetCurrentPath(source);
-      wcscat(source, TEXT("\\emergeGraphics.dll"));
+      wcscpy(source, TEXT("emergeIcons.dll"));
+      iconLocation = 19;
       break;
     case ICON_RUN:
       iconLocation = 24;

@@ -52,5 +52,3 @@ BEGIN
     END
 END
 
-IDI_QUIT    ICON    "icons/unemerge.ico"
-IDI_EMERGE  ICON    "icons/emerge.ico"

@@ -66,7 +66,7 @@ ItemEditor::ItemEditor(HINSTANCE hInstance, HWND mainWnd)
                    SWP_NOACTIVATE);
     }
 
-  browseIcon = (HICON)LoadImage(hInstance, MAKEINTRESOURCE(IDI_BROWSE), IMAGE_ICON, 16, 16, 0);
+  ExtractIconEx(TEXT("emergeIcons.dll"), 6, NULL, &browseIcon, 1);
 
   dialogVisible = false;
 }
