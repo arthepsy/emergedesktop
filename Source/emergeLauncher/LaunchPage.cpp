@@ -73,14 +73,14 @@ LaunchPage::LaunchPage(HINSTANCE hInstance, std::tr1::shared_ptr<Settings> pSett
                    SWP_NOACTIVATE);
     }
 
-  addIcon = (HICON)LoadImage(hInstance, MAKEINTRESOURCE(IDI_ADD), IMAGE_ICON, 16, 16, 0);
-  editIcon = (HICON)LoadImage(hInstance, MAKEINTRESOURCE(IDI_EDIT), IMAGE_ICON, 16, 16, 0);
-  delIcon = (HICON)LoadImage(hInstance, MAKEINTRESOURCE(IDI_DEL), IMAGE_ICON, 16, 16, 0);
-  upIcon = (HICON)LoadImage(hInstance, MAKEINTRESOURCE(IDI_UP), IMAGE_ICON, 16, 16, 0);
-  downIcon = (HICON)LoadImage(hInstance, MAKEINTRESOURCE(IDI_DOWN), IMAGE_ICON, 16, 16, 0);
-  saveIcon = (HICON)LoadImage(hInstance, MAKEINTRESOURCE(IDI_SAVE), IMAGE_ICON, 16, 16, 0);
-  abortIcon = (HICON)LoadImage(hInstance, MAKEINTRESOURCE(IDI_ABORT), IMAGE_ICON, 16, 16, 0);
-  browseIcon = (HICON)LoadImage(hInstance, MAKEINTRESOURCE(IDI_BROWSE), IMAGE_ICON, 16, 16, 0);
+  ExtractIconEx(TEXT("emergeIcons.dll"), 2, NULL, &addIcon, 1);
+  ExtractIconEx(TEXT("emergeIcons.dll"), 5, NULL, &editIcon, 1);
+  ExtractIconEx(TEXT("emergeIcons.dll"), 3, NULL, &delIcon, 1);
+  ExtractIconEx(TEXT("emergeIcons.dll"), 6, NULL, &browseIcon, 1);
+  ExtractIconEx(TEXT("emergeIcons.dll"), 13, NULL, &upIcon, 1);
+  ExtractIconEx(TEXT("emergeIcons.dll"), 4, NULL, &downIcon, 1);
+  ExtractIconEx(TEXT("emergeIcons.dll"), 9, NULL, &saveIcon, 1);
+  ExtractIconEx(TEXT("emergeIcons.dll"), 1, NULL, &abortIcon, 1);
 }
 
 LaunchPage::~LaunchPage()
