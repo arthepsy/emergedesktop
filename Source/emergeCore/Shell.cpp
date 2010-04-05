@@ -324,16 +324,11 @@ void Shell::RunFolderStartup()
   LPITEMIDLIST item;
   LPMALLOC pMalloc;
 
-  std::wstring debug;
   // Get the contents of the common startup folder
   if (SUCCEEDED(SHGetSpecialFolderLocation(NULL, CSIDL_COMMON_STARTUP, &item)))
     {
       if (SHGetPathFromIDList(item, szPath))
         {
-          debug = L"Common startup folder: ";
-          debug += szPath;
-          ELWriteDebug(debug);
-
           // Execute the contents
           RunFolderEntries(szPath);
 
@@ -344,16 +339,6 @@ void Shell::RunFolderStartup()
               pMalloc->Release();
             }
         }
-      else
-        {
-          debug = L"Failed to get common startup folder path";
-          ELWriteDebug(debug);
-        }
-    }
-  else
-    {
-      debug = L"Failed to get common startup folder location";
-      ELWriteDebug(debug);
     }
 
   // Get the contents of the current user's startup folder
@@ -361,10 +346,6 @@ void Shell::RunFolderStartup()
     {
       if (SHGetPathFromIDList(item, szPath))
         {
-          debug = L"Current user's startup folder: ";
-          debug += szPath;
-          ELWriteDebug(debug);
-
           // Execute the contents
           RunFolderEntries(szPath);
 
@@ -375,16 +356,6 @@ void Shell::RunFolderStartup()
               pMalloc->Release();
             }
         }
-      else
-        {
-          debug = L"Failed to get current user's startup folder path";
-          ELWriteDebug(debug);
-        }
-    }
-  else
-    {
-      debug = L"Failed to get current user's startup folder location";
-      ELWriteDebug(debug);
     }
 }
 
