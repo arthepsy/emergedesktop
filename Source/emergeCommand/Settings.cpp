@@ -38,7 +38,7 @@ void Settings::DoReadSettings(IOHelper& helper)
   helper.ReadString(TEXT("TimeFormat"), timeFormat, TEXT("%A%_%x%_%X"));
   helper.ReadString(TEXT("TipFormat"), tipFormat, TEXT("%#c"));
   helper.ReadString(TEXT("Font"), fontString, TEXT("Tahoma-12"));
-  helper.ReadBool(TEXT("AutoComplete"), autoComplete, false);
+  helper.ReadBool(TEXT("AutoComplete"), autoComplete, true);
 }
 
 void Settings::DoWriteSettings(IOHelper& helper)
@@ -78,6 +78,7 @@ void Settings::ResetDefaults()
   wcscpy(timeFormat, (WCHAR*)TEXT("%A%_%x%_%X"));
   wcscpy(tipFormat, (WCHAR*)TEXT("%#c"));
   wcscpy(fontString, (WCHAR*)TEXT("Tahoma-12"));
+  autoComplete = true;
   x = 208;
 }
 
