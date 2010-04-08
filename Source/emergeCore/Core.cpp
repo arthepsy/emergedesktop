@@ -126,7 +126,7 @@ bool Core::Initialize(WCHAR *commandLine)
   // Load the start up entries in the registry and the startup
   // folders only if /nostartup is NOT passed as an argument
   // or the startup items have not already been started
-  if (!wcsstr(commandLine, TEXT("/nostartup")) && pShell->FirstRunCheck())
+  if ((wcsstr(commandLine, TEXT("/nostartup")) == 0) && pShell->FirstRunCheck())
     {
       pShell->RunRegStartup();
       pShell->RunFolderStartup();
