@@ -47,7 +47,7 @@ ThemeSelector::ThemeSelector(HINSTANCE hInstance, HWND mainWnd)
 
   ExtractIconEx(TEXT("emergeIcons.dll"), 10, NULL, &saveasIcon, 1);
   ExtractIconEx(TEXT("emergeIcons.dll"), 9, NULL, &saveIcon, 1);
-  ExtractIconEx(TEXT("emergeIcons.dll"), 1, NULL, &delIcon, 1);
+  ExtractIconEx(TEXT("emergeIcons.dll"), 3, NULL, &delIcon, 1);
 
   InitCommonControls();
 
