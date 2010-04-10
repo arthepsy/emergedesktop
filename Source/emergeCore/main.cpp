@@ -49,7 +49,7 @@ int WINAPI WinMain (HINSTANCE hInstance,
   else
     wcscpy(args, token);
 
-  if ((_wcsicmp(args, TEXT("/nostartup")) == 0) || (wcslen(args) == 0))
+  if (wcslen(args) == 0)
     {
       abort = false;
       block = true;

@@ -117,19 +117,20 @@ bool Core::Initialize(WCHAR *commandLine)
   pDesktop->Initialize();
 
   // Launch additional Emerge Desktop applets
-  if (wcsstr(commandLine, (WCHAR*)TEXT("/nostartup")) == 0)
-    RunLaunchItems();
+  RunLaunchItems();
 
   pShell->RegisterShell(mainWnd, true);
   pShell->BuildTaskList();
 
   // Load the start up entries in the registry and the startup
-  // folders only if /nostartup is NOT passed as an argument
-  // or the startup items have not already been started
-  if ((wcsstr(commandLine, TEXT("/nostartup")) == 0) && pShell->FirstRunCheck())
+  // folders only if the startup items have not already been started
+  if (pShell->FirstRunCheck())
     {
-      pShell->RunRegStartup();
-      pShell->RunFolderStartup();
+      if (!ELIsKeyDown(VK_SHIFT))
+        pShell->RunFolderStartup();
+
+      if (!ELIsKeyDown(VK_CONTROL))
+        pShell->RunRegStartup();
     }
 
   pMessageControl->AddType(mainWnd, EMERGE_CORE);
