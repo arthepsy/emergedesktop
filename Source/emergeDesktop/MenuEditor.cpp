@@ -717,7 +717,10 @@ BOOL MenuEditor::DoMenuNotify(HWND hwndDlg, WPARAM wParam UNUSED, LPARAM lParam)
 
     case PSN_QUERYCANCEL:
       if (CheckFields(hwndDlg))
-        SetWindowLong(hwndDlg,DWLP_MSGRESULT,FALSE);
+        {
+          SetWindowLong(hwndDlg,DWLP_MSGRESULT,FALSE);
+          treeMap.clear();
+        }
       else
         SetWindowLong(hwndDlg,DWLP_MSGRESULT,TRUE);
       return TRUE;
