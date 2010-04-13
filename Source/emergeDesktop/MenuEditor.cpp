@@ -66,16 +66,16 @@ MenuEditor::MenuEditor(HINSTANCE hInstance, HWND mainWnd)
   InitCommonControls();
 
   toolWnd = CreateWindowEx(
-              0,
-              TOOLTIPS_CLASS,
-              NULL,
-              TTS_ALWAYSTIP|WS_POPUP|TTS_NOPREFIX,
-              CW_USEDEFAULT, CW_USEDEFAULT,
-              CW_USEDEFAULT, CW_USEDEFAULT,
-              NULL,
-              NULL,
-              hInstance,
-              NULL);
+                           0,
+                           TOOLTIPS_CLASS,
+                           NULL,
+                           TTS_ALWAYSTIP|WS_POPUP|TTS_NOPREFIX,
+                           CW_USEDEFAULT, CW_USEDEFAULT,
+                           CW_USEDEFAULT, CW_USEDEFAULT,
+                           NULL,
+                           NULL,
+                           hInstance,
+                           NULL);
 
   if (toolWnd)
     {
@@ -98,6 +98,8 @@ MenuEditor::MenuEditor(HINSTANCE hInstance, HWND mainWnd)
 
 MenuEditor::~MenuEditor()
 {
+  treeMap.clear();
+
   if (addIcon)
     DestroyIcon(addIcon);
   if (editIcon)
@@ -604,92 +606,92 @@ BOOL MenuEditor::DoMenuNotify(HWND hwndDlg, WPARAM wParam UNUSED, LPARAM lParam)
   switch (((LPNMHDR)lParam)->code)
     {
     case TVN_SELCHANGING:
-    {
-      selected = ((LPNMTREEVIEW)lParam)->itemNew.hItem;
-
-      iter = treeMap.find(selected);
-
-      if ((selected == rightRoot) || (selected == midRoot))
         {
-          if (TreeView_SelectDropTarget(treeWnd, selected))
+          selected = ((LPNMTREEVIEW)lParam)->itemNew.hItem;
+
+          iter = treeMap.find(selected);
+
+          if ((selected == rightRoot) || (selected == midRoot))
+            {
+              if (TreeView_SelectDropTarget(treeWnd, selected))
+                {
+                  EnableWindow(addWnd, true);
+                  EnableWindow(editWnd, false);
+                  EnableWindow(delWnd, false);
+                }
+            }
+          else if (iter != treeMap.end())
             {
               EnableWindow(addWnd, true);
-              EnableWindow(editWnd, false);
-              EnableWindow(delWnd, false);
-            }
-        }
-      else if (iter != treeMap.end())
-        {
-          EnableWindow(addWnd, true);
-          EnableWindow(editWnd, true);
-          EnableWindow(delWnd, true);
+              EnableWindow(editWnd, true);
+              EnableWindow(delWnd, true);
 
-          if (TreeView_SelectDropTarget(treeWnd, iter->first))
-            {
-              SetDlgItemText(hwndDlg, IDC_ITEMNAME, iter->second.name);
-              SetDlgItemText(hwndDlg, IDC_ITEMVALUE, iter->second.value);
-              SetDlgItemText(hwndDlg, IDC_WORKINGDIR, iter->second.workingDir);
-              SendMessage(typeWnd, CB_SETCURSEL,
-                          (WPARAM)GetTypeValue(iter->second.type), 0);
-              if (iter->second.type == IT_INTERNAL_COMMAND)
+              if (TreeView_SelectDropTarget(treeWnd, iter->first))
                 {
-                  ShowWindow(valueWnd, false);
-                  ShowWindow(browseWnd, false);
-                  ShowWindow(commandWnd, true);
-                  SendMessage(commandWnd, CB_SETCURSEL,
-                              SendMessage(commandWnd,
-                                          CB_FINDSTRINGEXACT,
-                                          (WPARAM)-1,
-                                          (LPARAM)iter->second.value),
-                              0);
-                }
-              else if (iter->second.type == IT_SPECIAL_FOLDER)
-                {
-                  ShowWindow(valueWnd, false);
-                  ShowWindow(browseWnd, false);
-                  ShowWindow(commandWnd, true);
-                  ShowWindow(specialFoldersWnd, true);
-                  int folder = ELIsSpecialFolder(iter->second.value);
-                  if (ELGetSpecialFolder(folder, value))
-                    SendMessage(specialFoldersWnd, CB_SETCURSEL,
-                                SendMessage(specialFoldersWnd,
-                                            CB_FINDSTRINGEXACT,
-                                            (WPARAM)-1,
-                                            (LPARAM)value),
-                                0);
-                }
-              else
-                {
-                  ShowWindow(valueWnd, true);
-                  ShowWindow(browseWnd, true);
-                  ShowWindow(commandWnd, false);
-                  ShowWindow(specialFoldersWnd, false);
+                  SetDlgItemText(hwndDlg, IDC_ITEMNAME, iter->second.name);
                   SetDlgItemText(hwndDlg, IDC_ITEMVALUE, iter->second.value);
-                  SetTooltip(browseWnd, iter->second.type);
+                  SetDlgItemText(hwndDlg, IDC_WORKINGDIR, iter->second.workingDir);
+                  SendMessage(typeWnd, CB_SETCURSEL,
+                              (WPARAM)GetTypeValue(iter->second.type), 0);
+                  if (iter->second.type == IT_INTERNAL_COMMAND)
+                    {
+                      ShowWindow(valueWnd, false);
+                      ShowWindow(browseWnd, false);
+                      ShowWindow(commandWnd, true);
+                      SendMessage(commandWnd, CB_SETCURSEL,
+                                  SendMessage(commandWnd,
+                                              CB_FINDSTRINGEXACT,
+                                              (WPARAM)-1,
+                                              (LPARAM)iter->second.value),
+                                  0);
+                    }
+                  else if (iter->second.type == IT_SPECIAL_FOLDER)
+                    {
+                      ShowWindow(valueWnd, false);
+                      ShowWindow(browseWnd, false);
+                      ShowWindow(commandWnd, true);
+                      ShowWindow(specialFoldersWnd, true);
+                      int folder = ELIsSpecialFolder(iter->second.value);
+                      if (ELGetSpecialFolder(folder, value))
+                        SendMessage(specialFoldersWnd, CB_SETCURSEL,
+                                    SendMessage(specialFoldersWnd,
+                                                CB_FINDSTRINGEXACT,
+                                                (WPARAM)-1,
+                                                (LPARAM)value),
+                                    0);
+                    }
+                  else
+                    {
+                      ShowWindow(valueWnd, true);
+                      ShowWindow(browseWnd, true);
+                      ShowWindow(commandWnd, false);
+                      ShowWindow(specialFoldersWnd, false);
+                      SetDlgItemText(hwndDlg, IDC_ITEMVALUE, iter->second.value);
+                      SetTooltip(browseWnd, iter->second.type);
+                    }
                 }
             }
         }
-    }
-    break;
+      break;
 
     case TVN_BEGINDRAG:
-    {
-      selected = ((LPNMTREEVIEW)lParam)->itemNew.hItem;
+        {
+          selected = ((LPNMTREEVIEW)lParam)->itemNew.hItem;
 
-      if ((selected == rightRoot) || (selected == midRoot))
-        return FALSE;
+          if ((selected == rightRoot) || (selected == midRoot))
+            return FALSE;
 
-      pItem.mask = TVIF_STATE | TVIF_HANDLE;
-      pItem.stateMask = TVIS_BOLD;
-      pItem.hItem = selected;
-      pItem.state = TVIS_BOLD;
-      SendMessage(treeWnd, TVM_SETITEM, 0, (LPARAM)&pItem);
+          pItem.mask = TVIF_STATE | TVIF_HANDLE;
+          pItem.stateMask = TVIS_BOLD;
+          pItem.hItem = selected;
+          pItem.state = TVIS_BOLD;
+          SendMessage(treeWnd, TVM_SETITEM, 0, (LPARAM)&pItem);
 
-      SetCapture(hwndDlg);
-      dragging = true;
+          SetCapture(hwndDlg);
+          dragging = true;
 
-      return TRUE;
-    }
+          return TRUE;
+        }
 
     case PSN_APPLY:
       if (!CheckFields(hwndDlg))
@@ -699,10 +701,7 @@ BOOL MenuEditor::DoMenuNotify(HWND hwndDlg, WPARAM wParam UNUSED, LPARAM lParam)
         }
 
       if (UpdateMenu(hwndDlg))
-        {
-          SetWindowLongPtr(hwndDlg, DWLP_MSGRESULT, PSNRET_NOERROR);
-          treeMap.clear();
-        }
+        SetWindowLongPtr(hwndDlg, DWLP_MSGRESULT, PSNRET_NOERROR);
       else
         SetWindowLongPtr(hwndDlg, DWLP_MSGRESULT, PSNRET_INVALID);
       return 1;
@@ -717,10 +716,7 @@ BOOL MenuEditor::DoMenuNotify(HWND hwndDlg, WPARAM wParam UNUSED, LPARAM lParam)
 
     case PSN_QUERYCANCEL:
       if (CheckFields(hwndDlg))
-        {
-          SetWindowLong(hwndDlg,DWLP_MSGRESULT,FALSE);
-          treeMap.clear();
-        }
+        SetWindowLong(hwndDlg,DWLP_MSGRESULT,FALSE);
       else
         SetWindowLong(hwndDlg,DWLP_MSGRESULT,TRUE);
       return TRUE;
