@@ -52,16 +52,16 @@ ThemeSelector::ThemeSelector(HINSTANCE hInstance, HWND mainWnd)
   InitCommonControls();
 
   toolWnd = CreateWindowEx(
-              0,
-              TOOLTIPS_CLASS,
-              NULL,
-              TTS_ALWAYSTIP|WS_POPUP|TTS_NOPREFIX,
-              CW_USEDEFAULT, CW_USEDEFAULT,
-              CW_USEDEFAULT, CW_USEDEFAULT,
-              NULL,
-              NULL,
-              hInstance,
-              NULL);
+                           0,
+                           TOOLTIPS_CLASS,
+                           NULL,
+                           TTS_ALWAYSTIP|WS_POPUP|TTS_NOPREFIX,
+                           CW_USEDEFAULT, CW_USEDEFAULT,
+                           CW_USEDEFAULT, CW_USEDEFAULT,
+                           NULL,
+                           NULL,
+                           hInstance,
+                           NULL);
 
   if (toolWnd)
     {
@@ -315,11 +315,8 @@ BOOL ThemeSelector::DoThemeCheck(HWND hwndDlg)
       if (ELMessageBox(hwndDlg, errorText, TEXT("Theme Selector"),
                        ELMB_ICONQUESTION | ELMB_YESNO) == IDYES)
         {
-          if (pThemeSaver->Show(theme) == IDOK)
-            {
-              if (ELFileOp(hwndDlg, FO_DELETE, themePath))
-                PopulateThemes(themeWnd, theme);
-            }
+          if (pThemeSaver->Show((WCHAR*)ELGetThemeName().c_str()) == IDOK)
+            PopulateThemes(themeWnd, theme);
         }
       else
         {
