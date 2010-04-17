@@ -296,13 +296,13 @@ BOOL LaunchPage::DoInitDialog(HWND hwndDlg)
 
   ti.hwnd = saveWnd;
   ti.uId = (ULONG_PTR)saveWnd;
-  ti.lpszText = (WCHAR*)TEXT("Save Item");
+  ti.lpszText = (WCHAR*)TEXT("Save Changes");
   GetClientRect(downWnd, &ti.rect);
   SendMessage(toolWnd, TTM_ADDTOOL, 0, (LPARAM)(LPTOOLINFO)&ti);
 
   ti.hwnd = abortWnd;
   ti.uId = (ULONG_PTR)abortWnd;
-  ti.lpszText = (WCHAR*)TEXT("Discard Item");
+  ti.lpszText = (WCHAR*)TEXT("Discard Changes");
   GetClientRect(abortWnd, &ti.rect);
   SendMessage(toolWnd, TTM_ADDTOOL, 0, (LPARAM)(LPTOOLINFO)&ti);
 
