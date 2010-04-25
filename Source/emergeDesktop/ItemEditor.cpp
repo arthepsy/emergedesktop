@@ -48,16 +48,16 @@ ItemEditor::ItemEditor(HINSTANCE hInstance, HWND mainWnd)
   InitCommonControls();
 
   toolWnd = CreateWindowEx(
-              0,
-              TOOLTIPS_CLASS,
-              NULL,
-              TTS_ALWAYSTIP|WS_POPUP|TTS_NOPREFIX,
-              CW_USEDEFAULT, CW_USEDEFAULT,
-              CW_USEDEFAULT, CW_USEDEFAULT,
-              NULL,
-              NULL,
-              hInstance,
-              NULL);
+                           0,
+                           TOOLTIPS_CLASS,
+                           NULL,
+                           TTS_ALWAYSTIP|WS_POPUP|TTS_NOPREFIX,
+                           CW_USEDEFAULT, CW_USEDEFAULT,
+                           CW_USEDEFAULT, CW_USEDEFAULT,
+                           NULL,
+                           NULL,
+                           hInstance,
+                           NULL);
 
   if (toolWnd)
     {
@@ -67,6 +67,7 @@ ItemEditor::ItemEditor(HINSTANCE hInstance, HWND mainWnd)
     }
 
   ExtractIconEx(TEXT("emergeIcons.dll"), 6, NULL, &browseIcon, 1);
+  ExtractIconEx(TEXT("emergeIcons.dll"), 18, NULL, &fileIcon, 1);
 
   dialogVisible = false;
 }
@@ -75,6 +76,8 @@ ItemEditor::~ItemEditor()
 {
   if (browseIcon)
     DestroyIcon(browseIcon);
+  if (fileIcon)
+    DestroyIcon(fileIcon);
 
   DestroyWindow(toolWnd);
 }
@@ -125,11 +128,10 @@ BOOL ItemEditor::DoInitDialog(HWND hwndDlg)
   PopulateSpecialFolders(specialFoldersWnd);
   ShowWindow(specialFoldersWnd, false);
 
+  if (fileIcon)
+    SendMessage(browseWnd, BM_SETIMAGE, IMAGE_ICON, (LPARAM)fileIcon);
   if (browseIcon)
-    {
-      SendMessage(browseWnd, BM_SETIMAGE, IMAGE_ICON, (LPARAM)browseIcon);
-      SendMessage(dirBrowseWnd, BM_SETIMAGE, IMAGE_ICON, (LPARAM)browseIcon);
-    }
+    SendMessage(dirBrowseWnd, BM_SETIMAGE, IMAGE_ICON, (LPARAM)browseIcon);
 
   ti.cbSize = TTTOOLINFOW_V2_SIZE;
   ti.uFlags = TTF_SUBCLASS;
@@ -192,17 +194,17 @@ BOOL ItemEditor::DoInitDialog(HWND hwndDlg)
                   0);
       break;
     case IT_SPECIAL_FOLDER:
-    {
-      int folder = ELIsSpecialFolder(value);
-      if (ELGetSpecialFolder(folder, value))
-        SendMessage(specialFoldersWnd, CB_SETCURSEL,
-                    SendMessage(specialFoldersWnd,
-                                CB_FINDSTRINGEXACT,
-                                (WPARAM)-1,
-                                (LPARAM)value),
-                    0);
-    }
-    break;
+        {
+          int folder = ELIsSpecialFolder(value);
+          if (ELGetSpecialFolder(folder, value))
+            SendMessage(specialFoldersWnd, CB_SETCURSEL,
+                        SendMessage(specialFoldersWnd,
+                                    CB_FINDSTRINGEXACT,
+                                    (WPARAM)-1,
+                                    (LPARAM)value),
+                        0);
+        }
+      break;
     default:
       SetDlgItemText(hwndDlg, IDC_ITEMVALUE, value);
       break;

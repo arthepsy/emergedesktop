@@ -54,7 +54,7 @@ private:
   UINT type;
   HINSTANCE hInstance;
   HWND mainWnd, toolWnd;
-  HICON browseIcon;
+  HICON browseIcon, fileIcon;
   bool dialogVisible;
   static BOOL CALLBACK MenuDlgProc(HWND hwndDlg, UINT message, WPARAM wParam, LPARAM lParam);
   bool DoSelChange(HWND hwndDlg, HWND typeWnd);

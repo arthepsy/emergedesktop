@@ -77,6 +77,7 @@ LaunchPage::LaunchPage(HINSTANCE hInstance, std::tr1::shared_ptr<Settings> pSett
   ExtractIconEx(TEXT("emergeIcons.dll"), 5, NULL, &editIcon, 1);
   ExtractIconEx(TEXT("emergeIcons.dll"), 3, NULL, &delIcon, 1);
   ExtractIconEx(TEXT("emergeIcons.dll"), 6, NULL, &browseIcon, 1);
+  ExtractIconEx(TEXT("emergeIcons.dll"), 18, NULL, &fileIcon, 1);
   ExtractIconEx(TEXT("emergeIcons.dll"), 13, NULL, &upIcon, 1);
   ExtractIconEx(TEXT("emergeIcons.dll"), 4, NULL, &downIcon, 1);
   ExtractIconEx(TEXT("emergeIcons.dll"), 9, NULL, &saveIcon, 1);
@@ -101,6 +102,8 @@ LaunchPage::~LaunchPage()
     DestroyIcon(abortIcon);
   if (browseIcon)
     DestroyIcon(browseIcon);
+  if (fileIcon)
+    DestroyIcon(fileIcon);
 }
 
 bool LaunchPage::CheckSaveCount(HWND hwndDlg)
@@ -196,12 +199,13 @@ BOOL LaunchPage::DoInitDialog(HWND hwndDlg)
     SendMessage(saveWnd, BM_SETIMAGE, IMAGE_ICON, (LPARAM)saveIcon);
   if (abortIcon)
     SendMessage(abortWnd, BM_SETIMAGE, IMAGE_ICON, (LPARAM)abortIcon);
-  if (browseIcon)
+  if (fileIcon)
     {
-      SendMessage(browseCommandWnd, BM_SETIMAGE, IMAGE_ICON, (LPARAM)browseIcon);
-      SendMessage(browseIconWnd, BM_SETIMAGE, IMAGE_ICON, (LPARAM)browseIcon);
-      SendMessage(browseWorkingDirWnd, BM_SETIMAGE, IMAGE_ICON, (LPARAM)browseIcon);
+      SendMessage(browseCommandWnd, BM_SETIMAGE, IMAGE_ICON, (LPARAM)fileIcon);
+      SendMessage(browseIconWnd, BM_SETIMAGE, IMAGE_ICON, (LPARAM)fileIcon);
     }
+  if (browseIcon)
+    SendMessage(browseWorkingDirWnd, BM_SETIMAGE, IMAGE_ICON, (LPARAM)browseIcon);
 
   lvCol.mask = LVCF_TEXT | LVCF_WIDTH;
   lvCol.pszText = (WCHAR*)TEXT("Type");

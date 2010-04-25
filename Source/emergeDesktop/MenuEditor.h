@@ -98,7 +98,7 @@ private:
   HWND mainWnd, toolWnd;
   HTREEITEM rightRoot, midRoot, selected, hoverItem;
   bool dragging, edit;
-  HICON addIcon, editIcon, delIcon, saveIcon, abortIcon, browseIcon;
+  HICON addIcon, editIcon, delIcon, saveIcon, abortIcon, browseIcon, fileIcon;
   UINT saveCount, deleteCount;
   bool dialogVisible;
   std::wstring xmlFile;

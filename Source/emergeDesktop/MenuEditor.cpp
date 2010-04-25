@@ -90,6 +90,7 @@ MenuEditor::MenuEditor(HINSTANCE hInstance, HWND mainWnd)
   ExtractIconEx(TEXT("emergeIcons.dll"), 9, NULL, &saveIcon, 1);
   ExtractIconEx(TEXT("emergeIcons.dll"), 1, NULL, &abortIcon, 1);
   ExtractIconEx(TEXT("emergeIcons.dll"), 6, NULL, &browseIcon, 1);
+  ExtractIconEx(TEXT("emergeIcons.dll"), 18, NULL, &fileIcon, 1);
 
   dialogVisible = false;
 
@@ -110,6 +111,8 @@ MenuEditor::~MenuEditor()
     DestroyIcon(saveIcon);
   if (abortIcon)
     DestroyIcon(abortIcon);
+  if (fileIcon)
+    DestroyIcon(fileIcon);
   if (browseIcon)
     DestroyIcon(browseIcon);
 
@@ -168,11 +171,10 @@ BOOL MenuEditor::DoInitDialog(HWND hwndDlg)
     SendMessage(saveWnd, BM_SETIMAGE, IMAGE_ICON, (LPARAM)saveIcon);
   if (abortIcon)
     SendMessage(abortWnd, BM_SETIMAGE, IMAGE_ICON, (LPARAM)abortIcon);
+  if (fileIcon)
+    SendMessage(browseWnd, BM_SETIMAGE, IMAGE_ICON, (LPARAM)fileIcon);
   if (browseIcon)
-    {
-      SendMessage(browseWnd, BM_SETIMAGE, IMAGE_ICON, (LPARAM)browseIcon);
-      SendMessage(dirBrowseWnd, BM_SETIMAGE, IMAGE_ICON, (LPARAM)browseIcon);
-    }
+    SendMessage(dirBrowseWnd, BM_SETIMAGE, IMAGE_ICON, (LPARAM)browseIcon);
 
   ti.cbSize = TTTOOLINFOW_V2_SIZE;
   ti.uFlags = TTF_SUBCLASS;

@@ -67,7 +67,7 @@ private:
   BOOL ToggleIconFields(HWND hwndDlg);
   HINSTANCE hInstance;
   HWND toolWnd;
-  HICON addIcon, editIcon, delIcon, upIcon, downIcon, saveIcon, abortIcon, browseIcon;
+  HICON addIcon, editIcon, delIcon, upIcon, downIcon, saveIcon, abortIcon, browseIcon, fileIcon;
   bool edit, itemMoved;
   UINT saveCount, deleteCount;
 };
