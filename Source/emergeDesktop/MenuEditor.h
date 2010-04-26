@@ -70,6 +70,7 @@ private:
   bool CheckFields(HWND hwndDlg);
   bool DoSelChange(HWND hwndDlg, HWND typeWnd);
   bool EnableFields(HWND hwndDlg, UINT index);
+  bool ShowFields(HWND hwndDlg, UINT index);
   bool PopulateList(HWND listWnd);
   bool PopulateTree(HWND treeWnd);
   bool DoLaunchAdd(HWND listWnd);
