@@ -408,6 +408,94 @@ int ItemEditor::GetTypeValue(UINT type)
   return -1;
 }
 
+bool ItemEditor::ShowFields(HWND hwndDlg, int index)
+{
+  HWND valueWnd = GetDlgItem(hwndDlg, IDC_ITEMVALUE);
+  HWND commandWnd = GetDlgItem(hwndDlg, IDC_ITEMCOMMAND);
+  HWND browseWnd = GetDlgItem(hwndDlg, IDC_ITEMBROWSE);
+  HWND specialFoldersWnd = GetDlgItem(hwndDlg, IDC_ITEMSPECIALFOLDERS);
+
+  switch (index)
+    {
+    case 0:
+      SetDlgItemText(hwndDlg, IDC_VALUETEXT, TEXT("Execute:"));
+      if (fileIcon)
+        SendMessage(browseWnd, BM_SETIMAGE, IMAGE_ICON, (LPARAM)fileIcon);
+      ShowWindow(valueWnd, true);
+      ShowWindow(browseWnd, true);
+      ShowWindow(commandWnd, false);
+      ShowWindow(specialFoldersWnd, false);
+      break;
+    case 2:
+      SetDlgItemText(hwndDlg, IDC_VALUETEXT, TEXT("Command:"));
+      if (fileIcon)
+        SendMessage(browseWnd, BM_SETIMAGE, IMAGE_ICON, (LPARAM)fileIcon);
+      ShowWindow(valueWnd, false);
+      ShowWindow(browseWnd, false);
+      ShowWindow(specialFoldersWnd, false);
+      ShowWindow(commandWnd, true);
+      break;
+    case 3:
+      SetDlgItemText(hwndDlg, IDC_VALUETEXT, TEXT("Format:"));
+      if (fileIcon)
+        SendMessage(browseWnd, BM_SETIMAGE, IMAGE_ICON, (LPARAM)fileIcon);
+      ShowWindow(valueWnd, true);
+      ShowWindow(browseWnd, true);
+      ShowWindow(commandWnd, false);
+      ShowWindow(specialFoldersWnd, false);
+      break;
+    case 4:
+      SetDlgItemText(hwndDlg, IDC_VALUETEXT, TEXT("Special Folder:"));
+      if (fileIcon)
+        SendMessage(browseWnd, BM_SETIMAGE, IMAGE_ICON, (LPARAM)fileIcon);
+      ShowWindow(valueWnd, false);
+      ShowWindow(browseWnd, false);
+      ShowWindow(commandWnd, false);
+      ShowWindow(specialFoldersWnd, true);
+      break;
+    case 5:
+    case 7:
+    case 8:
+      SetDlgItemText(hwndDlg, IDC_VALUETEXT, TEXT("Execute:"));
+      if (fileIcon)
+        SendMessage(browseWnd, BM_SETIMAGE, IMAGE_ICON, (LPARAM)fileIcon);
+      ShowWindow(valueWnd, true);
+      ShowWindow(browseWnd, true);
+      ShowWindow(commandWnd, false);
+      ShowWindow(specialFoldersWnd, false);
+      break;
+    case 1:
+      SetDlgItemText(hwndDlg, IDC_VALUETEXT, TEXT("Execute:"));
+      if (fileIcon)
+        SendMessage(browseWnd, BM_SETIMAGE, IMAGE_ICON, (LPARAM)fileIcon);
+      ShowWindow(valueWnd, true);
+      ShowWindow(browseWnd, true);
+      ShowWindow(commandWnd, false);
+      ShowWindow(specialFoldersWnd, false);
+      break;
+    case 6:
+      SetDlgItemText(hwndDlg, IDC_VALUETEXT, TEXT("Path:"));
+      if (browseIcon)
+        SendMessage(browseWnd, BM_SETIMAGE, IMAGE_ICON, (LPARAM)browseIcon);
+      ShowWindow(valueWnd, true);
+      ShowWindow(browseWnd, true);
+      ShowWindow(commandWnd, false);
+      ShowWindow(specialFoldersWnd, false);
+      break;
+    default:
+      SetDlgItemText(hwndDlg, IDC_VALUETEXT, TEXT("Execute:"));
+      if (fileIcon)
+        SendMessage(browseWnd, BM_SETIMAGE, IMAGE_ICON, (LPARAM)fileIcon);
+      ShowWindow(valueWnd, true);
+      ShowWindow(browseWnd, true);
+      ShowWindow(commandWnd, false);
+      ShowWindow(specialFoldersWnd, false);
+      break;
+    }
+
+  return true;
+}
+
 bool ItemEditor::EnableFields(HWND hwndDlg)
 {
   HWND nameWnd = GetDlgItem(hwndDlg, IDC_ITEMNAME);
@@ -433,10 +521,6 @@ bool ItemEditor::EnableFields(HWND hwndDlg)
       EnableWindow(dirWnd, false);
       EnableWindow(workingDirTextWnd, false);
       EnableWindow(dirBrowseWnd, false);
-      ShowWindow(valueWnd, true);
-      ShowWindow(browseWnd, true);
-      ShowWindow(commandWnd, false);
-      ShowWindow(specialFoldersWnd, false);
       EnableWindow(nameWnd, false);
       EnableWindow(nameTextWnd, false);
       EnableWindow(valueWnd, false);
@@ -447,10 +531,6 @@ bool ItemEditor::EnableFields(HWND hwndDlg)
       EnableWindow(dirWnd, false);
       EnableWindow(workingDirTextWnd, false);
       EnableWindow(dirBrowseWnd, false);
-      ShowWindow(valueWnd, false);
-      ShowWindow(browseWnd, false);
-      ShowWindow(specialFoldersWnd, false);
-      ShowWindow(commandWnd, true);
       EnableWindow(commandWnd, true);
       EnableWindow(nameWnd, true);
       EnableWindow(nameTextWnd, true);
@@ -460,10 +540,6 @@ bool ItemEditor::EnableFields(HWND hwndDlg)
       EnableWindow(dirWnd, false);
       EnableWindow(workingDirTextWnd, false);
       EnableWindow(dirBrowseWnd, false);
-      ShowWindow(valueWnd, true);
-      ShowWindow(browseWnd, true);
-      ShowWindow(commandWnd, false);
-      ShowWindow(specialFoldersWnd, false);
       EnableWindow(valueWnd, true);
       EnableWindow(valueTextWnd, true);
       EnableWindow(browseWnd, false);
@@ -474,10 +550,6 @@ bool ItemEditor::EnableFields(HWND hwndDlg)
       EnableWindow(dirWnd, false);
       EnableWindow(workingDirTextWnd, false);
       EnableWindow(dirBrowseWnd, false);
-      ShowWindow(valueWnd, false);
-      ShowWindow(browseWnd, false);
-      ShowWindow(commandWnd, false);
-      ShowWindow(specialFoldersWnd, true);
       EnableWindow(specialFoldersWnd, true);
       EnableWindow(nameWnd, true);
       EnableWindow(nameTextWnd, true);
@@ -489,10 +561,6 @@ bool ItemEditor::EnableFields(HWND hwndDlg)
       EnableWindow(dirWnd, false);
       EnableWindow(workingDirTextWnd, false);
       EnableWindow(dirBrowseWnd, false);
-      ShowWindow(valueWnd, true);
-      ShowWindow(browseWnd, true);
-      ShowWindow(commandWnd, false);
-      ShowWindow(specialFoldersWnd, false);
       EnableWindow(valueWnd, false);
       EnableWindow(valueTextWnd, false);
       EnableWindow(browseWnd, false);
@@ -503,10 +571,6 @@ bool ItemEditor::EnableFields(HWND hwndDlg)
       EnableWindow(dirWnd, true);
       EnableWindow(workingDirTextWnd, true);
       EnableWindow(dirBrowseWnd, true);
-      ShowWindow(valueWnd, true);
-      ShowWindow(browseWnd, true);
-      ShowWindow(commandWnd, false);
-      ShowWindow(specialFoldersWnd, false);
       EnableWindow(nameWnd, true);
       EnableWindow(nameTextWnd, true);
       EnableWindow(valueWnd, true);
@@ -517,10 +581,6 @@ bool ItemEditor::EnableFields(HWND hwndDlg)
       EnableWindow(dirWnd, false);
       EnableWindow(workingDirTextWnd, false);
       EnableWindow(dirBrowseWnd, false);
-      ShowWindow(valueWnd, true);
-      ShowWindow(browseWnd, true);
-      ShowWindow(commandWnd, false);
-      ShowWindow(specialFoldersWnd, false);
       EnableWindow(nameWnd, true);
       EnableWindow(nameTextWnd, true);
       EnableWindow(valueWnd, true);
@@ -531,10 +591,6 @@ bool ItemEditor::EnableFields(HWND hwndDlg)
       EnableWindow(dirWnd, false);
       EnableWindow(workingDirTextWnd, false);
       EnableWindow(dirBrowseWnd, false);
-      ShowWindow(valueWnd, true);
-      ShowWindow(browseWnd, true);
-      ShowWindow(commandWnd, false);
-      ShowWindow(specialFoldersWnd, false);
       EnableWindow(nameWnd, true);
       EnableWindow(nameTextWnd, true);
       EnableWindow(valueWnd, false);
@@ -542,7 +598,7 @@ bool ItemEditor::EnableFields(HWND hwndDlg)
       EnableWindow(browseWnd, false);
     }
 
-  return true;
+  return ShowFields(hwndDlg, index);
 }
 
 bool ItemEditor::DoSelChange(HWND hwndDlg, HWND typeWnd)

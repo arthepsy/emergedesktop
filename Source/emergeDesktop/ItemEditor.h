@@ -59,6 +59,7 @@ private:
   static BOOL CALLBACK MenuDlgProc(HWND hwndDlg, UINT message, WPARAM wParam, LPARAM lParam);
   bool DoSelChange(HWND hwndDlg, HWND typeWnd);
   bool EnableFields(HWND hwndDlg);
+  bool ShowFields(HWND hwndDlg, int index);
   int GetTypeValue(UINT type);
   UINT GetValueType(int value);
   void SetTooltip(HWND browseWnd, UINT type);
