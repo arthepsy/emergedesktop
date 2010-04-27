@@ -65,7 +65,7 @@ bool Shell::RunRegEntries(HKEY key, bool clearEntry, bool wait UNUSED)
   while (RegEnumValue(key, index, value, &valueSize, NULL, &type, data, &dataSize) == ERROR_SUCCESS)
     {
       // If it's a string, execute it
-      if (type == REG_SZ)
+      if ((type == REG_SZ) || (type == REG_EXPAND_SZ))
         {
           swprintf(error, TEXT("Failed to execute \"%s\""), (WCHAR*)data);
           if (!ELExecute((WCHAR*)data))
