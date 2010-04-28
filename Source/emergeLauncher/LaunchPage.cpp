@@ -877,9 +877,17 @@ bool LaunchPage::MoveItem(HWND hwndDlg, bool up)
 
 bool LaunchPage::DoAdd(HWND hwndDlg)
 {
-  EnableFields(hwndDlg, true);
+  HWND typeWnd = GetDlgItem(hwndDlg, IDC_TYPE);
+  HWND abortWnd = GetDlgItem(hwndDlg, IDC_ABORTITEM);
 
+  EnableFields(hwndDlg, false);
+  EnableWindow(typeWnd, true);
+  EnableWindow(abortWnd, true);
+
+  SendDlgItemMessage(hwndDlg, IDC_TYPE, CB_SETCURSEL, (WPARAM)-1, 0);
   SendDlgItemMessage(hwndDlg, IDC_INTERNAL, CB_SETCURSEL, (WPARAM)-1, 0);
+  SendDlgItemMessage(hwndDlg, IDC_SEPARATOR, CB_SETCURSEL, (WPARAM)-1, 0);
+  SendDlgItemMessage(hwndDlg, IDC_SPECIALFOLDER, CB_SETCURSEL, (WPARAM)-1, 0);
 
   SetDlgItemText(hwndDlg, IDC_COMMAND, TEXT(""));
   SetDlgItemText(hwndDlg, IDC_WORKINGDIR, TEXT(""));
