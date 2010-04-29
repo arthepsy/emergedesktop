@@ -342,8 +342,7 @@ BOOL LaunchPage::DoCommand(HWND hwndDlg, WPARAM wParam, LPARAM lParam UNUSED)
     case IDC_DOWNITEM:
       return MoveItem(hwndDlg, false);
     case IDC_SAVEITEM:
-      SaveItem(hwndDlg);
-      return EnableFields(hwndDlg, false);
+      return SaveItem(hwndDlg);
     case IDC_ABORTITEM:
       AbortItem(hwndDlg);
       return EnableFields(hwndDlg, false);
@@ -416,10 +415,13 @@ BOOL LaunchPage::ToggleFields(HWND hwndDlg)
   HWND specialFolderLabelWnd = GetDlgItem(hwndDlg, IDC_SPECIALFOLDERBUTTON);
   HWND separatorWnd = GetDlgItem(hwndDlg, IDC_SEPARATOR);
   HWND separatorLabelWnd = GetDlgItem(hwndDlg, IDC_SEPARATORBUTTON);
+  HWND saveWnd = GetDlgItem(hwndDlg, IDC_SAVEITEM);
   WCHAR typeName[MAX_LINE_LENGTH];
 
   if (GetDlgItemText(hwndDlg, IDC_TYPE, typeName, MAX_LINE_LENGTH) != 0)
     {
+      EnableWindow(saveWnd, true);
+
       if (wcsicmp(typeName, TEXT("Separator")) == 0)
         {
           EnableWindow(separatorWnd, true);
@@ -878,10 +880,12 @@ bool LaunchPage::MoveItem(HWND hwndDlg, bool up)
 bool LaunchPage::DoAdd(HWND hwndDlg)
 {
   HWND typeWnd = GetDlgItem(hwndDlg, IDC_TYPE);
+  HWND typeLabelWnd = GetDlgItem(hwndDlg, IDC_STATIC9);
   HWND abortWnd = GetDlgItem(hwndDlg, IDC_ABORTITEM);
 
   EnableFields(hwndDlg, false);
   EnableWindow(typeWnd, true);
+  EnableWindow(typeLabelWnd, true);
   EnableWindow(abortWnd, true);
 
   SendDlgItemMessage(hwndDlg, IDC_TYPE, CB_SETCURSEL, (WPARAM)-1, 0);
