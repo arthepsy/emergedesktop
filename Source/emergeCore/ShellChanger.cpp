@@ -75,7 +75,7 @@ ShellChanger::ShellChanger(HINSTANCE hInstance, HWND mainWnd)
   ExtractIconEx(TEXT("emergeIcons.dll"), 3, NULL, &delIcon, 1);
   ExtractIconEx(TEXT("emergeIcons.dll"), 9, NULL, &saveIcon, 1);
   ExtractIconEx(TEXT("emergeIcons.dll"), 1, NULL, &abortIcon, 1);
-  ExtractIconEx(TEXT("emergeIcons.dll"), 6, NULL, &browseIcon, 1);
+  ExtractIconEx(TEXT("emergeIcons.dll"), 18, NULL, &browseIcon, 1);
 
   xmlFile = TEXT("%EmergeDir%\\files\\emergeCore.xml");
 }
