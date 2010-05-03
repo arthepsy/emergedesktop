@@ -1752,6 +1752,7 @@ void MenuBuilder::ExecuteSettingsMenuItem(UINT index)
 {
   std::wstring aliasFile;
   Config config(mainInst, menuWnd, pSettings);
+  HANDLE cmdFile;
 
   switch (index)
     {
@@ -1779,13 +1780,18 @@ void MenuBuilder::ExecuteSettingsMenuItem(UINT index)
         ELCreateDirectory(aliasFile);
       aliasFile += TEXT("cmd.txt");
       if (!ELPathFileExists(aliasFile.c_str()))
-        CloseHandle(CreateFile(aliasFile.c_str(),
+        {
+          aliasFile = ELExpandVars(aliasFile);
+          cmdFile = CreateFile(aliasFile.c_str(),
                                GENERIC_ALL,
                                0,
                                NULL,
                                CREATE_NEW,
                                FILE_ATTRIBUTE_NORMAL,
-                               NULL));
+                               NULL);
+          if (cmdFile != INVALID_HANDLE_VALUE)
+            CloseHandle(cmdFile);
+        }
       ELExecute((WCHAR*)aliasFile.c_str());
       break;
     case 6:
