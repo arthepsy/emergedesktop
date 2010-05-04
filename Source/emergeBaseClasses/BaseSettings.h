@@ -113,6 +113,8 @@ public:
   bool SetAppletMonitor(int monitor);
   bool ModifiedCheck();
   void SetModified();
+  void ClearModified();
+  bool GetModified();
   bool CopyTheme();
 
 protected:

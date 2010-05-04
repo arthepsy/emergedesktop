@@ -67,7 +67,7 @@ void BaseSettings::ReadSettings()
 
               IOHelper helper(section);
               DoReadSettings(helper);
-              modifiedFlag = false;
+              ClearModified();
               if (ELPathIsRelative(schemeFile))
                 ELConvertThemePath(schemeFile, CTP_FULL);
             }
@@ -116,7 +116,7 @@ bool BaseSettings::WriteSettings()
   std::wstring theme = ELGetThemeName();
   bool ret = false;
 
-  if (modifiedFlag)
+  if (GetModified())
     {
       if (ModifiedCheck())
         CopyTheme();
@@ -136,7 +136,7 @@ bool BaseSettings::WriteSettings()
 
                   ret = ELWriteXMLConfig(configXML.get());
                   oldTheme = ELGetThemeName();
-                  modifiedFlag = false;
+                  ClearModified();
                 }
             }
         }
@@ -219,6 +219,16 @@ void BaseSettings::ResetDefaults()
 void BaseSettings::SetModified()
 {
   modifiedFlag = true;
+}
+
+bool BaseSettings::GetModified()
+{
+  return modifiedFlag;
+}
+
+void BaseSettings::ClearModified()
+{
+  modifiedFlag = false;
 }
 
 bool BaseSettings::SetSize(int width, int height)
