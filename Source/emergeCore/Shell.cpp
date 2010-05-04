@@ -53,7 +53,7 @@ Shell::~Shell()
 // Returns:	bool - true if entries exist, false otherwise
 // Purpose:	Enumerates and executes the registry key contents
 //----  --------------------------------------------------------------------------------------------------------
-bool Shell::RunRegEntries(HKEY key, bool clearEntry, bool wait UNUSED)
+bool Shell::RunRegEntries(HKEY key, bool clearEntry, bool wait UNUSED, bool showStartupErrors)
 {
   DWORD type, index = 0, valueSize = MAX_LINE_LENGTH, dataSize = MAX_LINE_LENGTH;
   BYTE data[MAX_LINE_LENGTH];
@@ -68,7 +68,7 @@ bool Shell::RunRegEntries(HKEY key, bool clearEntry, bool wait UNUSED)
       if ((type == REG_SZ) || (type == REG_EXPAND_SZ))
         {
           swprintf(error, TEXT("Failed to execute \"%s\""), (WCHAR*)data);
-          if (!ELExecute((WCHAR*)data))
+          if (!ELExecute((WCHAR*)data) && showStartupErrors)
             ELMessageBox(GetDesktopWindow(), error, (WCHAR*)TEXT("emergeCore"), ELMB_ICONWARNING|ELMB_OK);
 
           if (clearEntry)
@@ -190,7 +190,7 @@ void Shell::ClearSessionInformation()
 // Returns:	Nothing
 // Purpose:	Executes the contents of the startup registry keys
 //----  --------------------------------------------------------------------------------------------------------
-void Shell::RunRegStartup()
+void Shell::RunRegStartup(bool showStartupErrors)
 {
   HKEY key;
 
@@ -201,7 +201,7 @@ void Shell::RunRegStartup()
                    KEY_READ,
                    &key) == ERROR_SUCCESS)
     {
-      RunRegEntries(key, false, false);
+      RunRegEntries(key, false, false, showStartupErrors);
       ELCloseRegKey(key);
     }
 
@@ -212,7 +212,7 @@ void Shell::RunRegStartup()
                    KEY_READ,
                    &key) == ERROR_SUCCESS)
     {
-      RunRegEntries(key, false, false);
+      RunRegEntries(key, false, false, showStartupErrors);
       ELCloseRegKey(key);
     }
 
@@ -223,7 +223,7 @@ void Shell::RunRegStartup()
                    KEY_READ,
                    &key) == ERROR_SUCCESS)
     {
-      RunRegEntries(key, false, false);
+      RunRegEntries(key, false, false, showStartupErrors);
       ELCloseRegKey(key);
     }
 
@@ -235,7 +235,7 @@ void Shell::RunRegStartup()
                    KEY_ALL_ACCESS,
                    &key) == ERROR_SUCCESS)
     {
-      RunRegEntries(key, true, false);
+      RunRegEntries(key, true, false, showStartupErrors);
       ELCloseRegKey(key);
     }
 
@@ -247,7 +247,7 @@ void Shell::RunRegStartup()
                    KEY_ALL_ACCESS,
                    &key) == ERROR_SUCCESS)
     {
-      RunRegEntries(key, true, false);
+      RunRegEntries(key, true, false, showStartupErrors);
       ELCloseRegKey(key);
     }
 
@@ -258,7 +258,7 @@ void Shell::RunRegStartup()
                    KEY_READ,
                    &key) == ERROR_SUCCESS)
     {
-      RunRegEntries(key, true, false);
+      RunRegEntries(key, true, false, showStartupErrors);
       ELCloseRegKey(key);
     }
 }
@@ -269,7 +269,7 @@ void Shell::RunRegStartup()
 // Returns:	Nothing
 // Purpose:	Enumerates and executes the files in the path
 //----  --------------------------------------------------------------------------------------------------------
-void Shell::RunFolderEntries(LPTSTR path)
+void Shell::RunFolderEntries(LPTSTR path, bool showStartupErrors)
 {
   WCHAR appPath[MAX_PATH], app[MAX_PATH];
   WIN32_FIND_DATA findData;
@@ -300,7 +300,7 @@ void Shell::RunFolderEntries(LPTSTR path)
           wcscpy(app, appPath);
           wcscat(app, findData.cFileName);
           swprintf(error, TEXT("Failed to execute \"%s\""), app);
-          if (!ELExecute((WCHAR*)app))
+          if (!ELExecute((WCHAR*)app) && showStartupErrors)
             ELMessageBox(GetDesktopWindow(), error, (WCHAR*)TEXT("emergeCore"), ELMB_ICONWARNING|ELMB_OK);
         }
 
@@ -318,7 +318,7 @@ void Shell::RunFolderEntries(LPTSTR path)
 // Returns:	Nothing
 // Purpose:	Executes the contents of the startup folders
 //----  --------------------------------------------------------------------------------------------------------
-void Shell::RunFolderStartup()
+void Shell::RunFolderStartup(bool showStartupErrors)
 {
   WCHAR szPath[MAX_PATH];
   LPITEMIDLIST item;
@@ -330,7 +330,7 @@ void Shell::RunFolderStartup()
       if (SHGetPathFromIDList(item, szPath))
         {
           // Execute the contents
-          RunFolderEntries(szPath);
+          RunFolderEntries(szPath, showStartupErrors);
 
           // Cleanup
           if (SUCCEEDED(SHGetMalloc(&pMalloc)))
@@ -347,7 +347,7 @@ void Shell::RunFolderStartup()
       if (SHGetPathFromIDList(item, szPath))
         {
           // Execute the contents
-          RunFolderEntries(szPath);
+          RunFolderEntries(szPath, showStartupErrors);
 
           // Cleanup
           if (SUCCEEDED(SHGetMalloc(&pMalloc)))

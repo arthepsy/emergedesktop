@@ -55,6 +55,7 @@
 #define IDC_SAVESHELL       607
 #define IDC_ABORTSHELL      608
 #define IDC_CHANGESHELL     609
+#define IDC_STARTERROR      610
 
 #define IDC_THEMEITEM   700
 #define IDC_SAVEAS      701

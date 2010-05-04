@@ -43,10 +43,11 @@ BOOL CALLBACK ShellChanger::ShellDlgProc(HWND hwndDlg, UINT message, WPARAM wPar
   return FALSE;
 }
 
-ShellChanger::ShellChanger(HINSTANCE hInstance, HWND mainWnd)
+ShellChanger::ShellChanger(HINSTANCE hInstance, HWND mainWnd, std::tr1::shared_ptr<Settings> pSettings)
 {
-  (*this).hInstance = hInstance;
-  (*this).mainWnd = mainWnd;
+  this->hInstance = hInstance;
+  this->mainWnd = mainWnd;
+  this->pSettings = pSettings;
   edit = false;
 
   InitCommonControls();
@@ -117,7 +118,6 @@ BOOL ShellChanger::DoInitDialog(HWND hwndDlg)
   HWND commandWnd = GetDlgItem(hwndDlg, IDC_SHELLCOMMAND);
   HWND commandTextWnd = GetDlgItem(hwndDlg, IDC_COMMANDTEXT);
   HWND shellWnd = GetDlgItem(hwndDlg, IDC_SHELLITEM);
-
   HWND saveWnd = GetDlgItem(hwndDlg, IDC_SAVESHELL);
   HWND abortWnd = GetDlgItem(hwndDlg, IDC_ABORTSHELL);
   HWND addWnd = GetDlgItem(hwndDlg, IDC_ADDSHELL);
@@ -190,6 +190,9 @@ BOOL ShellChanger::DoInitDialog(HWND hwndDlg)
   EnableWindow(browseWnd, false);
   EnableWindow(nameTextWnd, false);
   EnableWindow(commandTextWnd, false);
+
+  if (pSettings->GetShowStartupErrors())
+    SendDlgItemMessage(hwndDlg, IDC_STARTERROR, BM_SETCHECK, BST_CHECKED, 0);
 
   PopulateShells(shellWnd);
   UpdateFields(hwndDlg);
@@ -355,6 +358,7 @@ bool ShellChanger::DoSetShell(HWND hwndDlg)
   WCHAR name[MAX_LINE_LENGTH], command[MAX_LINE_LENGTH];
   DWORD process;
   REGSAM regMask = 0;
+  bool success = false;
 
   GetDlgItemText(hwndDlg, IDC_SHELLITEM, name, MAX_LINE_LENGTH);
   GetShellCommand(hwndDlg, name, command);
@@ -418,6 +422,13 @@ bool ShellChanger::DoSetShell(HWND hwndDlg)
   emergeCmd += TEXT("cmd.txt");
   CopyFile(appletCmd.c_str(), emergeCmd.c_str(), TRUE);
 
+  if (SendDlgItemMessage(hwndDlg, IDC_STARTERROR, BM_GETCHECK, 0, 0) == BST_CHECKED)
+    success = true;
+  else if (SendDlgItemMessage(hwndDlg, IDC_STARTERROR, BM_GETCHECK, 0, 0) == BST_UNCHECKED)
+    success = false;
+  pSettings->SetShowStartupErrors(success);
+  pSettings->WriteSettings();
+
   ELMessageBox(hwndDlg, (WCHAR*)TEXT("Changes will take affect after reboot."), (WCHAR*)TEXT("emergeCore"),
                ELMB_OK|ELMB_ICONQUESTION|ELMB_MODAL);
 
@@ -458,6 +469,7 @@ void ShellChanger::UpdateFields(HWND hwndDlg)
   HWND editWnd = GetDlgItem(hwndDlg, IDC_EDITSHELL);
   HWND delWnd = GetDlgItem(hwndDlg, IDC_DELSHELL);
   HWND changeWnd = GetDlgItem(hwndDlg, IDOK);
+  HWND startErrorWnd = GetDlgItem(hwndDlg, IDC_STARTERROR);
   EmergeShellItemMap::iterator iter;
   int index;
 
@@ -470,6 +482,12 @@ void ShellChanger::UpdateFields(HWND hwndDlg)
 
       SetDlgItemText(hwndDlg, IDC_SHELLNAME, name);
       SetDlgItemText(hwndDlg, IDC_SHELLCOMMAND, command);
+
+      if (index == 0)
+        EnableWindow(startErrorWnd, true);
+      else
+        EnableWindow(startErrorWnd, false);
+
       if (index > 1)
         {
           EnableWindow(editWnd, true);

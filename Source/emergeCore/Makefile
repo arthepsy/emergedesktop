@@ -1,6 +1,15 @@
 TARGET = emergeCore
 SUFFIX = .exe
-LIBS += -lshell32 -lemergeLib -lshlwapi -lole32 -lcomctl32 -luuid -lwinmm -lcomdlg32 -lpsapi
+LIBS += -lshell32 \
+				-lemergeLib \
+				-lemergeBaseClasses \
+				-lshlwapi \
+				-lole32 \
+				-lcomctl32 \
+				-luuid \
+				-lwinmm \
+				-lcomdlg32 \
+				-lpsapi
 
 include ../functions.in
 include ../globals.in

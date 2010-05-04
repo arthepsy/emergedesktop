@@ -49,9 +49,13 @@ bool Core::Initialize(WCHAR *commandLine)
       return false;
     }
 
+  // Initialize Settings
+  pSettings = std::tr1::shared_ptr<Settings>(new Settings());
+  pSettings->ReadSettings();
+
   if (wcsstr(commandLine, TEXT("/shellchanger")) != 0)
     {
-      pShellChanger = std::tr1::shared_ptr<ShellChanger>(new ShellChanger(mainInst, NULL));
+      pShellChanger = std::tr1::shared_ptr<ShellChanger>(new ShellChanger(mainInst, NULL, pSettings));
       pShellChanger->Show();
 
       return false;
@@ -127,16 +131,16 @@ bool Core::Initialize(WCHAR *commandLine)
   if (pShell->FirstRunCheck())
     {
       if (!ELIsKeyDown(VK_SHIFT))
-        pShell->RunFolderStartup();
+        pShell->RunFolderStartup(pSettings->GetShowStartupErrors());
 
       if (!ELIsKeyDown(VK_CONTROL))
-        pShell->RunRegStartup();
+        pShell->RunRegStartup(pSettings->GetShowStartupErrors());
     }
 
   pMessageControl->AddType(mainWnd, EMERGE_CORE);
 
   pLaunchEditor = std::tr1::shared_ptr<LaunchEditor>(new LaunchEditor(mainInst, mainWnd));
-  pShellChanger = std::tr1::shared_ptr<ShellChanger>(new ShellChanger(mainInst, mainWnd));
+  pShellChanger = std::tr1::shared_ptr<ShellChanger>(new ShellChanger(mainInst, mainWnd, pSettings));
   pThemeSelector = std::tr1::shared_ptr<ThemeSelector>(new ThemeSelector(mainInst, mainWnd));
 
   HMODULE wtslib = NULL;
@@ -349,7 +353,8 @@ LRESULT Core::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
           break;
 
         case CORE_SHELL:
-          pShellChanger->Show();
+          if (pShellChanger->Show() == IDOK)
+            pSettings->ReadSettings();
           break;
 
         case CORE_THEMESELECT:

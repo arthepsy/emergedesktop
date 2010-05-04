@@ -38,10 +38,10 @@ class Shell
 public:
   Shell();
   ~Shell();
-  bool RunRegEntries(HKEY key, bool clearEntry, bool wait);
-  void RunRegStartup();
-  void RunFolderEntries(LPTSTR path);
-  void RunFolderStartup();
+  bool RunRegEntries(HKEY key, bool clearEntry, bool wait, bool showStartupErrors);
+  void RunRegStartup(bool showStartupErrors);
+  void RunFolderEntries(LPTSTR path, bool showStartupErrors);
+  void RunFolderStartup(bool showStartupErrors);
   bool FirstRunCheck();
   bool UpdateTaskCount(UINT message, UINT shellMessage, HWND task);
   void ClearSessionInformation();

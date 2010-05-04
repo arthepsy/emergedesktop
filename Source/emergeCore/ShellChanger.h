@@ -35,6 +35,7 @@
 #include <map>
 #include <string>
 #include "../emergeLib/emergeLib.h"
+#include "Settings.h"
 
 #ifndef RRF_RT_ANY
 #define RRF_RT_ANY 0x0000ffff
@@ -82,13 +83,14 @@ typedef std::pair<std::wstring, std::wstring> EmergeShellItem;
 class ShellChanger
 {
 public:
-  ShellChanger(HINSTANCE hInstance, HWND mainWnd);
+  ShellChanger(HINSTANCE hInstance, HWND mainWnd, std::tr1::shared_ptr<Settings> pSettings);
   ~ShellChanger();
   int Show();
   BOOL DoInitDialog(HWND hwndDlg);
   BOOL DoShellCommand(HWND hwndDlg, WPARAM wParam, LPARAM lParam);
 
 private:
+  std::tr1::shared_ptr<Settings> pSettings;
   EmergeShellItemMap shellMap;
   bool CheckFields(HWND hwndDlg);
   void PopulateShells(HWND shellWnd);
