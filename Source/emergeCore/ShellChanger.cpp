@@ -559,7 +559,7 @@ bool ShellChanger::DoDelShell(HWND hwndDlg)
   HWND shellWnd = GetDlgItem(hwndDlg, IDC_SHELLITEM);
   WCHAR name[MAX_LINE_LENGTH];
 
-  GetDlgItemText(hwndDlg, IDC_SHELLNAME, name, MAX_LINE_LENGTH);
+  GetDlgItemText(hwndDlg, IDC_SHELLITEM, name, MAX_LINE_LENGTH);
 
   SetDlgItemText(hwndDlg, IDC_SHELLNAME, TEXT("\0"));
   SetDlgItemText(hwndDlg, IDC_SHELLCOMMAND, TEXT("\0"));
@@ -708,7 +708,9 @@ bool ShellChanger::DoSaveShell(HWND hwndDlg)
   EmergeShellItemMap::iterator iter;
   iter = shellMap.find(newName);
   swprintf(tmp, TEXT("A Shell with the name '%s' already exists"), newName);
-  if (iter != shellMap.end())
+  if ((iter != shellMap.end()) ||
+      (_wcsicmp(newName, TEXT("Windows Explorer")) == 0) ||
+      (_wcsicmp(newName, TEXT("Emerge Desktop")) == 0))
     {
       ELMessageBox(hwndDlg, tmp, (WCHAR*)TEXT("emergeCore"),
                    ELMB_OK|ELMB_ICONERROR|ELMB_MODAL);
@@ -732,12 +734,14 @@ bool ShellChanger::DeleteShell(HWND hwndDlg, WCHAR *name)
   iter = shellMap.find(name);
 
   // Note: Order is important!
-  if (iter != shellMap.end())
-    shellMap.erase(iter);
+  if (iter == shellMap.end())
+    return false;
+
+  shellMap.erase(iter);
 
   item = (int)SendMessage(shellWnd, CB_FINDSTRINGEXACT, (WPARAM)-1, (LPARAM)name);
 
-  if (item != CB_ERR)
+  if ((item != CB_ERR) && (item > 1))
     {
       SendMessage(shellWnd, CB_DELETESTRING, (WPARAM)item, 0);
       return true;
