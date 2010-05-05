@@ -127,12 +127,17 @@ bool LaunchPage::CheckFields(HWND hwndDlg)
   WCHAR tmp[MAX_LINE_LENGTH];
   HWND commandWnd = GetDlgItem(hwndDlg, IDC_COMMAND);
   HWND internalWnd = GetDlgItem(hwndDlg, IDC_INTERNAL);
+  HWND separatorWnd = GetDlgItem(hwndDlg, IDC_SEPARATOR);
+  HWND specialFolderWnd = GetDlgItem(hwndDlg, IDC_SPECIALFOLDER);
 
-  if ((!IsWindowEnabled(commandWnd)) && (!IsWindowEnabled(internalWnd)))
+  if ((!IsWindowEnabled(commandWnd)) && (!IsWindowEnabled(internalWnd)) &&
+      (!IsWindowEnabled(separatorWnd)) && (!IsWindowEnabled(specialFolderWnd)))
     return true;
 
   if ((GetDlgItemText(hwndDlg, IDC_COMMAND, tmp, MAX_LINE_LENGTH) != 0) ||
-      (GetDlgItemText(hwndDlg, IDC_INTERNAL, tmp, MAX_LINE_LENGTH) != 0))
+      (GetDlgItemText(hwndDlg, IDC_INTERNAL, tmp, MAX_LINE_LENGTH) != 0) ||
+      (GetDlgItemText(hwndDlg, IDC_SEPARATOR, tmp, MAX_LINE_LENGTH) != 0) ||
+      (GetDlgItemText(hwndDlg, IDC_SPECIALFOLDER, tmp, MAX_LINE_LENGTH) != 0))
     {
       if (ELMessageBox(hwndDlg,
                        (WCHAR*)TEXT("The current command will be lost.\n\nDo you wish to continue?"),
