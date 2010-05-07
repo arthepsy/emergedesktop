@@ -458,7 +458,7 @@ void Applet::UpdateBars()
           wcscat(tip, L": ");
           _itow(CPUUsages[i], buf, 10);
           wcscat(tip, buf);
-          wcscat(tip, L"% ");
+          wcscat(tip, L"%\n");
         }
     }
   if (pSettings->GetMonitorCommitCharge())
@@ -469,21 +469,21 @@ void Applet::UpdateBars()
       wcscat(tip, L"% (");
       _itow(usedMBytes, buf, 10);
       wcscat(tip, buf);
-      wcscat(tip, L"MB) ");
+      wcscat(tip, L"MB)\n");
     }
   if (pSettings->GetMonitorPhysicalMem())
     {
       wcscat(tip, L"Physical: ");
       _itow(physicalUsage, buf, 10);
       wcscat(tip, buf);
-      wcscat(tip, L"% ");
+      wcscat(tip, L"%\n");
     }
   if (pSettings->GetMonitorPagefile())
     {
       wcscat(tip, L"Pagefile: ");
       _itow(pagefile, buf, 10);
       wcscat(tip, buf);
-      wcscat(tip, L"% ");
+      wcscat(tip, L"%");
     }
 
 
