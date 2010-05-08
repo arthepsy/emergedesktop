@@ -56,10 +56,9 @@ INT_PTR CALLBACK MenuEditor::MenuEditorDlgProc(HWND hwndDlg, UINT message, WPARA
   return FALSE;
 }
 
-MenuEditor::MenuEditor(HINSTANCE hInstance, HWND mainWnd)
+MenuEditor::MenuEditor(HINSTANCE hInstance)
 {
   (*this).hInstance = hInstance;
-  (*this).mainWnd = mainWnd;
   edit = false;
   dragging = false;
 
@@ -407,7 +406,7 @@ bool MenuEditor::CheckSaveCount(HWND hwndDlg)
   if ((saveCount != 0) || (deleteCount != 0))
     {
       if (ELMessageBox(hwndDlg,
-                       (WCHAR*)TEXT("All current modifications will be lost.  To save and exit press OK.\n\nDo you wish to continue?"),
+                       (WCHAR*)TEXT("All current modifications will be lost.\n\nDo you wish to continue?"),
                        (WCHAR*)TEXT("emergeDesktop"),
                        ELMB_YESNO|ELMB_ICONQUESTION|ELMB_MODAL) == IDYES)
         return true;
@@ -708,7 +707,7 @@ BOOL MenuEditor::DoMenuNotify(HWND hwndDlg, WPARAM wParam UNUSED, LPARAM lParam)
       return 1;
 
     case PSN_QUERYCANCEL:
-      if (CheckFields(hwndDlg))
+      if (CheckFields(hwndDlg) && CheckSaveCount(hwndDlg))
         SetWindowLong(hwndDlg,DWLP_MSGRESULT,FALSE);
       else
         SetWindowLong(hwndDlg,DWLP_MSGRESULT,TRUE);

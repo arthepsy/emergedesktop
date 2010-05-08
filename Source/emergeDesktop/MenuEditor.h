@@ -50,7 +50,7 @@ typedef std::pair<HTREEITEM, MENUTREEITEM> TreeItem;
 class MenuEditor
 {
 public:
-  MenuEditor(HINSTANCE hInstance, HWND mainWnd);
+  MenuEditor(HINSTANCE hInstance);
   ~MenuEditor();
   BOOL DoInitDialog(HWND hwndDlg);
   BOOL DoMenuCommand(HWND hwndDlg, WPARAM wParam, LPARAM lParam);
@@ -96,7 +96,7 @@ private:
   bool CheckSaveCount(HWND hwndDlg);
   UINT GetValueType(int value);
   HINSTANCE hInstance;
-  HWND mainWnd, toolWnd;
+  HWND toolWnd;
   HTREEITEM rightRoot, midRoot, selected, hoverItem;
   bool dragging, edit;
   HICON addIcon, editIcon, delIcon, saveIcon, abortIcon, browseIcon, fileIcon;

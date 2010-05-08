@@ -1,3 +1,4 @@
+// vim: tags+=../emergeLib/tags
 //----  --------------------------------------------------------------------------------------------------------
 //
 //  This file is part of Emerge Desktop.
@@ -36,16 +37,13 @@ INT_PTR CALLBACK Config::ConfigDlgProc(HWND hwndDlg, UINT message, WPARAM wParam
   return 0;
 }
 
-Config::Config(HINSTANCE hInstance, HWND mainWnd, std::tr1::shared_ptr<Settings> pSettings)
+Config::Config(HINSTANCE hInstance, std::tr1::shared_ptr<Settings> pSettings)
 {
   this->hInstance = hInstance;
-  this->mainWnd = mainWnd;
   this->pSettings = pSettings;
 
-  dialogVisible = false;
-
-  pConfigPage = std::tr1::shared_ptr<ConfigPage>(new ConfigPage(hInstance, mainWnd, pSettings));
-  pMenuEditor = std::tr1::shared_ptr<MenuEditor>(new MenuEditor(hInstance, mainWnd));
+  pConfigPage = std::tr1::shared_ptr<ConfigPage>(new ConfigPage(hInstance, pSettings));
+  pMenuEditor = std::tr1::shared_ptr<MenuEditor>(new MenuEditor(hInstance));
 }
 
 Config::~Config()
@@ -54,8 +52,19 @@ Config::~Config()
 
 int Config::Show()
 {
-  dialogVisible = true;
-  return (int)DialogBoxParam(hInstance, MAKEINTRESOURCE(IDD_SETTINGS), mainWnd, (DLGPROC)ConfigDlgProc, (LPARAM)this);
+  int ret = 0;
+  HANDLE hMutex = CreateMutex(NULL, false, TEXT("emergeDesktop Config"));
+  if (GetLastError() == ERROR_ALREADY_EXISTS)
+    {
+      CloseHandle(hMutex);
+      return ret;
+    }
+
+  ret = (int)DialogBoxParam(hInstance, MAKEINTRESOURCE(IDD_SETTINGS), FindWindow(TEXT("progman"), NULL), (DLGPROC)ConfigDlgProc, (LPARAM)this);
+
+  CloseHandle(hMutex);
+
+  return ret;
 }
 
 INT_PTR Config::DoInitDialog(HWND hwndDlg)
@@ -65,6 +74,7 @@ INT_PTR Config::DoInitDialog(HWND hwndDlg)
   PROPSHEETHEADER psh;
 
   ELStealFocus(hwndDlg);
+  SetWindowPos(hwndDlg, HWND_TOPMOST, 0, 0, 0, 0,  SWP_NOSIZE|SWP_NOMOVE);
 
   psp[0].dwSize = sizeof(PROPSHEETPAGE);
   psp[0].dwFlags = PSP_USETITLE;
@@ -104,8 +114,6 @@ INT_PTR Config::DoInitDialog(HWND hwndDlg)
     }
   if (ret <= 0)
     EndDialog(hwndDlg, IDCANCEL);
-
-  dialogVisible = false;
 
   return 1;
 }

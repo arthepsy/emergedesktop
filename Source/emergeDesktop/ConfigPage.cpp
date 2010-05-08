@@ -44,10 +44,9 @@ INT_PTR CALLBACK ConfigPage::ConfigPageDlgProc(HWND hwndDlg, UINT message, WPARA
   return FALSE;
 }
 
-ConfigPage::ConfigPage(HINSTANCE hInstance, HWND mainWnd, std::tr1::shared_ptr<Settings> pSettings)
+ConfigPage::ConfigPage(HINSTANCE hInstance, std::tr1::shared_ptr<Settings> pSettings)
 {
   this->hInstance = hInstance;
-  this->mainWnd = mainWnd;
   dialogVisible = false;
   this->pSettings = pSettings;
 

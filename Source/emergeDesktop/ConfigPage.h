@@ -37,7 +37,7 @@
 class ConfigPage
 {
 public:
-  ConfigPage(HINSTANCE hInstance, HWND mainWnd, std::tr1::shared_ptr<Settings> pSettings);
+  ConfigPage(HINSTANCE hInstance, std::tr1::shared_ptr<Settings> pSettings);
   ~ConfigPage();
   int Show();
   BOOL DoInitDialog(HWND hwndDlg);
@@ -53,7 +53,7 @@ private:
   void SetTooltip(HWND browseWnd, UINT type);
   bool dialogVisible;
   HINSTANCE hInstance;
-  HWND mainWnd, toolWnd;
+  HWND toolWnd;
 };
 
 #endif

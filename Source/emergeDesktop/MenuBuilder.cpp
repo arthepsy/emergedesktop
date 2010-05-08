@@ -81,7 +81,7 @@ bool MenuBuilder::Initialize()
   pSettings = std::tr1::shared_ptr<Settings>(new Settings());
   pSettings->Init(menuWnd, (WCHAR*)TEXT("emergeDesktop"));
   pSettings->ReadSettings();
-  pMenuEditor = std::tr1::shared_ptr<MenuEditor>(new MenuEditor(mainInst, menuWnd));
+  pMenuEditor = std::tr1::shared_ptr<MenuEditor>(new MenuEditor(mainInst));
   pItemEditor = std::tr1::shared_ptr<ItemEditor>(new ItemEditor(mainInst, menuWnd));
 
   SetWorkArea();
@@ -225,7 +225,7 @@ LRESULT MenuBuilder::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lP
         {
         case CORE_SETTINGS:
         {
-          Config config(mainInst, menuWnd, pSettings);
+          Config config(mainInst, pSettings);
           if (config.Show() == IDOK)
             {
               UpdateMenuHook();
@@ -1751,7 +1751,7 @@ void MenuBuilder::ExecuteXMLMenuItem(UINT type, WCHAR *value, WCHAR *workingDir)
 void MenuBuilder::ExecuteSettingsMenuItem(UINT index)
 {
   std::wstring aliasFile;
-  Config config(mainInst, menuWnd, pSettings);
+  Config config(mainInst, pSettings);
   HANDLE cmdFile;
 
   switch (index)
