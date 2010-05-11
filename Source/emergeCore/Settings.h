@@ -18,8 +18,8 @@
 //
 //---
 
-#ifndef __CORESETTINGS_H
-#define __CORESETTINGS_H
+#ifndef __EC_CORESETTINGS_H
+#define __EC_CORESETTINGS_H
 
 #undef _WIN32_IE
 #define _WIN32_IE	0x600

@@ -18,8 +18,8 @@
 //
 //----  --------------------------------------------------------------------------------------------------------
 
-#ifndef __SETTINGS_H
-#define __SETTINGS_H
+#ifndef __EH_SETTINGS_H
+#define __EH_SETTINGS_H
 
 #include "HotkeyCombo.h"
 #include "../emergeBaseClasses/BaseSettings.h"

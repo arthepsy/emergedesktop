@@ -18,8 +18,8 @@
 //
 //----  --------------------------------------------------------------------------------------------------------
 
-#ifndef __APPLET_H
-#define __APPLET_H
+#ifndef __ETR_APPLET_H
+#define __ETR_APPLET_H
 
 // Define required for the Window Transparency
 #undef _WIN32_WINNT
@@ -432,6 +432,8 @@ typedef struct SHELLTRAYDATAWOW32
 }
 SHELLTRAYDATAWOW32, *PSHELLTRAYDATAWOW32;
 
+// In SDK 7.0A the structure NOTIFYICONIDENTIFIER is defined in ShellAPI.h
+#ifndef NTDDI_WIN7
 typedef struct _NOTIFYICONIDENTIFIER
 {
   DWORD cbSize;
@@ -439,6 +441,7 @@ typedef struct _NOTIFYICONIDENTIFIER
   UINT uID;
   GUID guidItem;
 } NOTIFYICONIDENTIFIER, *PNOTIFYICONIDENTIFIER;
+#endif
 
 typedef struct ICONIDENTIFIERDATA
 {

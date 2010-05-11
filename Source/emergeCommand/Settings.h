@@ -18,8 +18,8 @@
 //
 //---
 
-#ifndef __SETTINGS_H
-#define __SETTINGS_H
+#ifndef __ECM_SETTINGS_H
+#define __ECM_SETTINGS_H
 
 #include "../emergeLib/emergeLib.h"
 #include "../emergeBaseClasses/BaseSettings.h"

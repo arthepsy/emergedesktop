@@ -18,8 +18,8 @@
 //
 //---
 
-#ifndef __MENULISTITEM_H
-#define __MENULISTITEM_H
+#ifndef __ED_MENULISTITEM_H
+#define __ED_MENULISTITEM_H
 
 #include "../emergeLib/emergeLib.h"
 #include "MenuItem.h"

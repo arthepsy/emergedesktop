@@ -22,8 +22,8 @@
 //
 //----  --------------------------------------------------------------------------------------------------------
 
-#ifndef __DDEWORKER_H
-#define __DDEWORKER_H
+#ifndef __EC_DDEWORKER_H
+#define __EC_DDEWORKER_H
 
 #define UNICODE 1
 

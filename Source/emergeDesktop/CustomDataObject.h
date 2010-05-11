@@ -18,8 +18,8 @@
 //
 //----  --------------------------------------------------------------------------------------------------------
 
-#ifndef __CUSTOMDATAOBJECT_H
-#define __CUSTOMDATAOBJECT_H
+#ifndef __ED_CUSTOMDATAOBJECT_H
+#define __ED_CUSTOMDATAOBJECT_H
 
 #include "../emergeLib/emergeLib.h"
 

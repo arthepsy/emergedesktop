@@ -18,8 +18,8 @@
 //
 //---
 
-#ifndef __STICKYPAGE_H
-#define __STICKYPAGE_H
+#ifndef __EV_STICKYPAGE_H
+#define __EV_STICKYPAGE_H
 
 #undef _WIN32_IE
 #define _WIN32_IE	0x600
@@ -30,8 +30,13 @@
 #include "Settings.h"
 #include <shlwapi.h>
 #include "resource.h"
+
+#ifdef __GNUC__
 #include <tr1/memory>
 #include <tr1/shared_ptr.h>
+#else
+#include <memory>
+#endif
 
 class StickyPage
 {

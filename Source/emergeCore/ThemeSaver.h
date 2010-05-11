@@ -19,8 +19,8 @@
 //
 //----  --------------------------------------------------------------------------------------------------------
 
-#ifndef __THEMESAVER_H
-#define __THEMESAVER_H
+#ifndef __EC_THEMESAVER_H
+#define __EC_THEMESAVER_H
 
 #undef _WIN32_IE
 #define _WIN32_IE	0x501

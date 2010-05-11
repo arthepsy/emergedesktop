@@ -18,8 +18,8 @@
 //
 //---
 
-#ifndef __CONFIG_H
-#define __CONFIG_H
+#ifndef __ESM_CONFIG_H
+#define __ESM_CONFIG_H
 
 #undef _WIN32_IE
 #define _WIN32_IE 0x0600
@@ -30,8 +30,13 @@
 #include "../emergeSchemeEngine/SchemeEditor.h"
 #include "ConfigPage.h"
 #include "DisplayPage.h"
+
+#ifdef __GNUC__
 #include <tr1/memory>
 #include <tr1/shared_ptr.h>
+#else
+#include <memory>
+#endif
 
 class Config
 {

@@ -18,8 +18,8 @@
 //
 //---
 
-#ifndef __DISPLAYPAGE_H
-#define __DISPLAYPAGE_H
+#ifndef __ESM_DISPLAYPAGE_H
+#define __ESM_DISPLAYPAGE_H
 
 #include "Settings.h"
 #include "resource.h"

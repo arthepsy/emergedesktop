@@ -1178,6 +1178,8 @@ LRESULT Applet::TrayIconEvent(COPYDATASTRUCT *cpData)
   HICON icon = NULL;
   HWND hwnd = NULL;
   DWORD message = 0;
+
+  //OutputDebugString(TEXT("TrayIconEvent with tooltip: "));
   if (IsWindow(((PSHELLTRAYDATA)cpData->lpData)->iconData.hWnd))
     {
       message = ((PSHELLTRAYDATA)cpData->lpData)->dwMessage;

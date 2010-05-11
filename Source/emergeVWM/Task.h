@@ -24,8 +24,8 @@
 //
 //-----
 
-#ifndef __TASK_H
-#define __TASK_H
+#ifndef __EV_TASK_H
+#define __EV_TASK_H
 
 //-----
 //

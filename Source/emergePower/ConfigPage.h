@@ -18,13 +18,18 @@
 //
 //---
 
-#ifndef __CONFIGPAGE_H
-#define __CONFIGPAGE_H
+#ifndef __EP_CONFIGPAGE_H
+#define __EP_CONFIGPAGE_H
 
 #include "Settings.h"
 #include "resource.h"
+
+#ifdef __GNUC__
 #include <tr1/memory>
 #include <tr1/shared_ptr.h>
+#else
+#include <memory>
+#endif
 
 class ConfigPage
 {

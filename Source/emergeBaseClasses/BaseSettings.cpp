@@ -21,8 +21,13 @@
 
 #include "BaseSettings.h"
 #include <stdio.h>
+
+#ifdef __GNUC__
 #include <tr1/memory>
 #include <tr1/shared_ptr.h>
+#else
+#include <memory>
+#endif
 
 BaseSettings::BaseSettings(bool allowAutoSize)
 {

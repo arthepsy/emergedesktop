@@ -18,8 +18,8 @@
 //
 //---
 
-#ifndef __SCHEMEEDITOR_H
-#define __SCHEMEEDITOR_H
+#ifndef __ESE_SCHEMEEDITOR_H
+#define __ESE_SCHEMEEDITOR_H
 
 #undef _WIN32_IE
 #define _WIN32_IE	0x501

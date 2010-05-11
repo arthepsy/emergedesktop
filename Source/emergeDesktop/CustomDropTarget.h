@@ -18,8 +18,8 @@
 //
 //----  --------------------------------------------------------------------------------------------------------
 
-#ifndef __CUSTOMDROPTARGET_H
-#define __CUSTOMDROPTARGET_H
+#ifndef __ED_CUSTOMDROPTARGET_H
+#define __ED_CUSTOMDROPTARGET_H
 
 #include "../emergeLib/emergeLib.h"
 

@@ -18,8 +18,8 @@
 //
 //----  --------------------------------------------------------------------------------------------------------
 
-#ifndef __APPLET_H
-#define __APPLET_H
+#ifndef __EL_APPLET_H
+#define __EL_APPLET_H
 
 // Defines required for tooltip
 #undef _WIN32_IE

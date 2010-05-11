@@ -18,8 +18,8 @@
 //
 //---
 
-#ifndef __BASEAPPLETMENU_H
-#define __BASEAPPLETMENU_H
+#ifndef __EB_BASEAPPLETMENU_H
+#define __EB_BASEAPPLETMENU_H
 
 // Define required for the Window Transparency
 #undef _WIN32_WINNT

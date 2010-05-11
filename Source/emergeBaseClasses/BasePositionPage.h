@@ -18,11 +18,16 @@
 //
 //---
 
-#ifndef __BASEPOSITIONPAGE_H
-#define __BASEPOSITIONPAGE_H
+#ifndef __EB_BASEPOSITIONPAGE_H
+#define __EB_BASEPOSITIONPAGE_H
 
+#ifdef __GNUC__
 #include <tr1/memory>
 #include <tr1/shared_ptr.h>
+#else
+#include <memory>
+#endif
+
 #include "BaseSettings.h"
 #include "resource.h"
 

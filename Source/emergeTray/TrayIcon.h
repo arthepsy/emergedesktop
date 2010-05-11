@@ -18,8 +18,8 @@
 //
 //---
 
-#ifndef __TRAYICON_H
-#define __TRAYICON_H
+#ifndef __ETR_TRAYICON_H
+#define __ETR_TRAYICON_H
 
 // Defines required for tooltip
 #undef _WIN32_IE

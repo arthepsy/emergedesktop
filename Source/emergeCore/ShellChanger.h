@@ -18,8 +18,8 @@
 //
 //----  --------------------------------------------------------------------------------------------------------
 
-#ifndef __SHELLCHANGER_H
-#define __SHELLCHANGER_H
+#ifndef __EC_SHELLCHANGER_H
+#define __EC_SHELLCHANGER_H
 
 #undef _WIN32_IE
 #define _WIN32_IE	0x501

@@ -18,8 +18,8 @@
 //
 //----  --------------------------------------------------------------------------------------------------------
 
-#ifndef __MENUBUILDER_H
-#define __MENUBUILDER_H
+#ifndef __ED_MENUBUILDER_H
+#define __ED_MENUBUILDER_H
 
 // Define required for the Window Transparency
 #undef _WIN32_WINNT

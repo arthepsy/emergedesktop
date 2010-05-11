@@ -18,8 +18,8 @@
 //
 //----  --------------------------------------------------------------------------------------------------------
 
-#ifndef __BASESETTINGS_H
-#define __BASESETTINGS_H
+#ifndef __EB_BASESETTINGS_H
+#define __EB_BASESETTINGS_H
 
 #define UNICODE 1
 

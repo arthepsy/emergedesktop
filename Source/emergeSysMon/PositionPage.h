@@ -18,8 +18,8 @@
 //
 //---
 
-#ifndef __POSITIONPAGE_H
-#define __POSITIONPAGE_H
+#ifndef __ESM_POSITIONPAGE_H
+#define __ESM_POSITIONPAGE_H
 
 #include "Settings.h"
 #include "resource.h"

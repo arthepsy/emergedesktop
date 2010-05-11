@@ -18,8 +18,8 @@
 //
 //----  --------------------------------------------------------------------------------------------------------
 
-#ifndef __HOTKEYCOMBO_H
-#define __HOTKEYCOMBO_H
+#ifndef __EH_HOTKEYCOMBO_H
+#define __EH_HOTKEYCOMBO_H
 
 #undef _WIN32_IE
 #define _WIN32_IE	0x501

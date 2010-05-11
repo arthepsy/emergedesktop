@@ -18,8 +18,8 @@
 //
 //----  --------------------------------------------------------------------------------------------------------
 
-#ifndef __CUSTOMDROPSOURCE_H
-#define __CUSTOMDROPSOURCE_H
+#ifndef __ED_CUSTOMDROPSOURCE_H
+#define __ED_CUSTOMDROPSOURCE_H
 
 #include "../emergeLib/emergeLib.h"
 

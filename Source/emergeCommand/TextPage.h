@@ -18,11 +18,16 @@
 //
 //---
 
-#ifndef __TEXTPAGE_H
-#define __TEXTPAGE_H
+#ifndef __ECM_TEXTPAGE_H
+#define __ECM_TEXTPAGE_H
 
+#ifdef __GNUC__
 #include <tr1/memory>
 #include <tr1/shared_ptr.h>
+#else
+#include <memory>
+#endif
+
 #include "Settings.h"
 #include "resource.h"
 

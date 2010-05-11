@@ -18,8 +18,8 @@
 //
 //----  --------------------------------------------------------------------------------------------------------
 
-#ifndef __BASEAPPLET_H
-#define __BASEAPPLET_H
+#ifndef __EB_BASEAPPLET_H
+#define __EB_BASEAPPLET_H
 
 // Define required for the Window Transparency
 #undef _WIN32_WINNT
@@ -32,8 +32,13 @@
 #include "../emergeSchemeEngine/emergeSchemeEngine.h"
 #include "BaseSettings.h"
 #include "BaseAppletMenu.h"
+
+#ifdef __GNUC__
 #include <tr1/memory>
 #include <tr1/shared_ptr.h>
+#else
+#include <memory>
+#endif
 
 #ifdef EMERGEBASECLASSES_EXPORTS
 #undef DLL_EXPORT

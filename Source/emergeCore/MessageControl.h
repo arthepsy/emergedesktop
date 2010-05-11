@@ -24,8 +24,8 @@
 //
 //----  --------------------------------------------------------------------------------------------------------
 
-#ifndef __MESSAGECONTROL_H
-#define __MESSAGECONTROL_H
+#ifndef __EC_MESSAGECONTROL_H
+#define __EC_MESSAGECONTROL_H
 
 #include "../emergeLib/emergeLib.h"
 #include <map>

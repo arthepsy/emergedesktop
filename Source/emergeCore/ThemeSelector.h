@@ -18,8 +18,8 @@
 //
 //----  --------------------------------------------------------------------------------------------------------
 
-#ifndef __THEMESELECTOR_H
-#define __THEMESELECTOR_H
+#ifndef __EC_THEMESELECTOR_H
+#define __EC_THEMESELECTOR_H
 
 #undef _WIN32_IE
 #define _WIN32_IE	0x501

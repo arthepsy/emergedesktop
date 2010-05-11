@@ -19,8 +19,8 @@
 //
 //----  --------------------------------------------------------------------------------------------------------
 
-#ifndef __CORE_H
-#define __CORE_H
+#ifndef __EC_CORE_H
+#define __EC_CORE_H
 
 #include <process.h>
 #include <string>

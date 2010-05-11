@@ -23,13 +23,18 @@
 //
 //-----
 
-#ifndef __CUSTOMSOURCE_H
-#define __CUSTOMSOURCE_H
+#ifndef __ECM_CUSTOMSOURCE_H
+#define __ECM_CUSTOMSOURCE_H
 
 #include <stdio.h>
 #include "Settings.h"
+
+#ifdef __GNUC__
 #include <tr1/memory>
 #include <tr1/shared_ptr.h>
+#else
+#include <memory>
+#endif
 
 //#define MAX_HISTORY 9
 

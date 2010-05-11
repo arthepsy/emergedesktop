@@ -73,8 +73,14 @@ typedef enum _ITEMTYPE {
 #include <string>
 #include <sstream>
 #include <iomanip>
+
+#ifdef __GNUC__
 #include <tr1/memory>
 #include <tr1/shared_ptr.h>
+#else
+#include <memory>
+#endif
+
 #include "../tinyxml/tinyxml.h"
 
 /*!

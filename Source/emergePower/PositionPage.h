@@ -18,13 +18,18 @@
 //
 //---
 
-#ifndef __POSITIONPAGE_H
-#define __POSITIONPAGE_H
+#ifndef __EP_POSITIONPAGE_H
+#define __EP_POSITIONPAGE_H
 
 #include "Settings.h"
 #include "resource.h"
+
+#ifdef __GNUC__
 #include <tr1/memory>
 #include <tr1/shared_ptr.h>
+#else
+#include <memory>
+#endif
 
 class PositionPage
 {

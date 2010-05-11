@@ -18,8 +18,8 @@
 //
 //---
 
-#ifndef __MENUEDITOR_H
-#define __MENUEDITOR_H
+#ifndef __ED_MENUEDITOR_H
+#define __ED_MENUEDITOR_H
 
 #undef _WIN32_IE
 #define _WIN32_IE	0x501

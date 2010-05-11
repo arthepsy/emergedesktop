@@ -18,8 +18,8 @@
 //
 //----  --------------------------------------------------------------------------------------------------------
 
-#ifndef __APPLET_H
-#define __APPLET_H
+#ifndef __EH_APPLET_H
+#define __EH_APPLET_H
 
 #include "Actions.h"
 #include <process.h>

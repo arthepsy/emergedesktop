@@ -18,8 +18,8 @@
 //
 //----  --------------------------------------------------------------------------------------------------------
 
-#ifndef __LAUNCHEDITOR_H
-#define __LAUNCHEDITOR_H
+#ifndef __EC_LAUNCHEDITOR_H
+#define __EC_LAUNCHEDITOR_H
 
 #undef _WIN32_IE
 #define _WIN32_IE	0x501

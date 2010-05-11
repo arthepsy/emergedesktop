@@ -18,8 +18,8 @@
 //
 //----  --------------------------------------------------------------------------------------------------------
 
-#ifndef __DESKTOP_H
-#define __DESKTOP_H
+#ifndef __EC_DESKTOP_H
+#define __EC_DESKTOP_H
 
 // Define required for the Window Transparency
 #undef _WIN32_WINNT

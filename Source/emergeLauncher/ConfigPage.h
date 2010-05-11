@@ -18,8 +18,8 @@
 //
 //---
 
-#ifndef __CONFIGPAGE_H
-#define __CONFIGPAGE_H
+#ifndef __EL_CONFIGPAGE_H
+#define __EL_CONFIGPAGE_H
 
 #undef _WIN32_IE
 #define _WIN32_IE	0x600
@@ -32,8 +32,13 @@
 
 #include "Settings.h"
 #include "resource.h"
+
+#ifdef __GNUC__
 #include <tr1/memory>
 #include <tr1/shared_ptr.h>
+#else
+#include <memory>
+#endif
 
 class ConfigPage
 {

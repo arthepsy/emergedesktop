@@ -18,8 +18,8 @@
 //
 //---
 
-#ifndef __ITEM_H
-#define __ITEM_H
+#ifndef __EL_ITEM_H
+#define __EL_ITEM_H
 
 #include "../emergeLib/emergeLib.h"
 #include "../emergeGraphics/emergeGraphics.h"

@@ -22,8 +22,8 @@
 //
 //----  --------------------------------------------------------------------------------------------------------
 
-#ifndef __DDESERVICE_H
-#define __DDESERVICE_H
+#ifndef __EC_DDESERVICE_H
+#define __EC_DDESERVICE_H
 
 #define UNICODE 1
 

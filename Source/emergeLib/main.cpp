@@ -68,10 +68,15 @@ topic alone.
 #include <algorithm>
 #include <powrprof.h>
 #include <cctype>
-#include <tr1/memory>
-#include <tr1/shared_ptr.h>
 #include <vector>
 #include <deque>
+
+#ifdef __GNUC__
+#include <tr1/memory>
+#include <tr1/shared_ptr.h>
+#else
+#include <memory>
+#endif
 
 #ifdef __MINGW32__
 #include "../MinGWInterfaces.h"
@@ -166,7 +171,7 @@ static lpfnIsWow64Process MSIsWow64Process = NULL;
 
 std::tr1::shared_ptr<TiXmlDocument> OpenXMLConfig(std::string filename, bool create)
 {
-  std::tr1::shared_ptr<TiXmlDocument> configXML(new TiXmlDocument(filename));
+  std::tr1::shared_ptr<TiXmlDocument> configXML(new TiXmlDocument(filename.c_str()));
 
   if (!configXML->LoadFile())
     {
@@ -847,22 +852,21 @@ std::string ELwstringTostring(std::wstring inString, UINT codePage)
 {
   std::wstring wideString = inString;
   std::string returnString;
-  std::vector<char> tmpString;
 
   size_t tmpStringLength = WideCharToMultiByte(codePage, 0, wideString.c_str(), wideString.length(), NULL, 0,
                            NULL, NULL);
   if (tmpStringLength != 0)
     {
-      tmpString.reserve(tmpStringLength + 1);
-      size_t writtenBytes = WideCharToMultiByte(codePage, 0, wideString.c_str(), wideString.length(), &tmpString.front(),
+      LPSTR tmpString = new char[tmpStringLength + 1];
+      size_t writtenBytes = WideCharToMultiByte(codePage, 0, wideString.c_str(), wideString.length(), tmpString,
                             tmpStringLength, NULL, NULL);
       if (writtenBytes != 0)
         {
           if (writtenBytes <= tmpStringLength)
             tmpString[writtenBytes] = '\0';
-          returnString = &tmpString.front();
+          returnString = tmpString;
         }
-      tmpString.clear();
+      delete tmpString;
     }
   return returnString;
 }
@@ -871,21 +875,20 @@ std::wstring ELstringTowstring(std::string inString, UINT codePage)
 {
   std::string narrowString = inString;
   std::wstring returnString;
-  std::vector<WCHAR> tmpString;
 
   size_t tmpStringLength = MultiByteToWideChar(codePage, 0, narrowString.c_str(), narrowString.length(), NULL, 0);
   if (tmpStringLength != 0)
     {
-      tmpString.reserve(tmpStringLength + 1);
-      size_t writtenBytes = MultiByteToWideChar(codePage, 0, narrowString.c_str(), narrowString.length(), &tmpString.front(),
+      LPWSTR tmpString = new WCHAR[tmpStringLength + 1];
+      size_t writtenBytes = MultiByteToWideChar(codePage, 0, narrowString.c_str(), narrowString.length(), tmpString,
                             tmpStringLength);
       if (writtenBytes != 0)
         {
           if (writtenBytes <= tmpStringLength)
             tmpString[writtenBytes] = '\0';
-          returnString = &tmpString.front();
+          returnString = tmpString;
         }
-      tmpString.clear();
+      delete tmpString;
     }
 
   return returnString;

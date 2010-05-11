@@ -18,11 +18,16 @@
 //
 //---
 
-#ifndef __CONFIGPAGE_H
-#define __CONFIGPAGE_H
+#ifndef __ET_CONFIGPAGE_H
+#define __ET_CONFIGPAGE_H
 
+#ifdef __GNUC__
 #include <tr1/memory>
 #include <tr1/shared_ptr.h>
+#else
+#include <memory>
+#endif
+
 #include "Settings.h"
 #include "resource.h"
 

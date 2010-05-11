@@ -18,8 +18,8 @@
 //
 //---
 
-#ifndef __CONFIGPAGE_H
-#define __CONFIGPAGE_H
+#ifndef __ED_CONFIGPAGE_H
+#define __ED_CONFIGPAGE_H
 
 #undef _WIN32_IE
 #define _WIN32_IE	0x501

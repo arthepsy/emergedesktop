@@ -18,8 +18,8 @@
 //
 //----  --------------------------------------------------------------------------------------------------------
 
-#ifndef __ACTIONS_H
-#define __ACTIONS_H
+#ifndef __EH_ACTIONS_H
+#define __EH_ACTIONS_H
 
 #undef _WIN32_IE
 #define _WIN32_IE	0x501

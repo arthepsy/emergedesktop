@@ -26,8 +26,13 @@
 #include "BImage.h"
 #include "../emergeGraphics/emergeGraphics.h"
 #include <malloc.h>
+
+#ifdef __GNUC__
 #include <tr1/memory>
 #include <tr1/shared_ptr.h>
+#else
+#include <memory>
+#endif
 
 BYTE convertcolour(BYTE colour, bool dark)
 {

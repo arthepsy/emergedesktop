@@ -18,8 +18,8 @@
 //
 //---
 
-#ifndef __APPLET_H
-#define __APPLET_H
+#ifndef __EP_APPLET_H
+#define __EP_APPLET_H
 
 // Define required for the Window Transparency
 #undef _WIN32_WINNT

@@ -18,8 +18,8 @@
 //
 //----  --------------------------------------------------------------------------------------------------------
 
-#ifndef __SHELL_H
-#define __SHELL_H
+#ifndef __EC_SHELL_H
+#define __EC_SHELL_H
 
 #include "../emergeLib/emergeLib.h"
 #include <vector>

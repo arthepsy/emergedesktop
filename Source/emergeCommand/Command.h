@@ -18,8 +18,8 @@
 //
 //---
 
-#ifndef __COMMAND_H
-#define __COMMAND_H
+#ifndef __ECM_COMMAND_H
+#define __ECM_COMMAND_H
 
 #undef _WIN32_IE
 #define _WIN32_IE 0x0600 // Enables all the needed define's in ShellAPI.h
@@ -40,8 +40,13 @@
 #include <process.h>
 #include <shlobj.h>
 #include <shldisp.h>
+
+#ifdef __GNUC__
 #include <tr1/memory>
 #include <tr1/shared_ptr.h>
+#else
+#include <memory>
+#endif
 
 #define MAX_RUN_STRING 1024
 #define FOCUS_TIMER 1

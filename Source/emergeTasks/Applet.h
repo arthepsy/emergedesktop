@@ -18,8 +18,8 @@
 //
 //----  --------------------------------------------------------------------------------------------------------
 
-#ifndef __APPLET_H
-#define __APPLET_H
+#ifndef __ET_APPLET_H
+#define __ET_APPLET_H
 
 // Define required for the Window Transparency
 #undef _WIN32_WINNT
@@ -29,8 +29,13 @@
 #undef WINVER
 #define WINVER 0x0501
 
+#ifdef __GNUC__
 #include <tr1/memory>
 #include <tr1/shared_ptr.h>
+#else
+#include <memory>
+#endif
+
 #include <vector>
 #include <map>
 #include <stdlib.h>

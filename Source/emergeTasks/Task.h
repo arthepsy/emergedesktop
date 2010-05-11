@@ -24,8 +24,8 @@
 //
 //----  --------------------------------------------------------------------------------------------------------
 
-#ifndef __TASK_H
-#define __TASK_H
+#ifndef __ET_TASK_H
+#define __ET_TASK_H
 
 // Defines required for tooltip
 #undef _WIN32_IE

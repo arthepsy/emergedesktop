@@ -18,8 +18,8 @@
 //
 //---
 
-#ifndef __CONFIGPAGE_H
-#define __CONFIGPAGE_H
+#ifndef __ESM_CONFIGPAGE_H
+#define __ESM_CONFIGPAGE_H
 
 #include "Settings.h"
 #include "resource.h"

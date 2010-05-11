@@ -18,8 +18,8 @@
 //
 //---
 
-#ifndef __APPBAR_H
-#define __APPBAR_H
+#ifndef __ETR_APPBAR_H
+#define __ETR_APPBAR_H
 
 // Define required for the Window Transparency
 #undef _WIN32_WINNT
