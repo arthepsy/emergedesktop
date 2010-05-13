@@ -93,7 +93,7 @@ HICON MenuItem::GetIcon()
 
 void MenuItem::SetIcon()
 {
-  WCHAR app[MAX_PATH], args[MAX_PATH], *lwrValue = wcslwr(_wcsdup(value));
+  WCHAR app[MAX_PATH], args[MAX_PATH], *lwrValue = _wcslwr(_wcsdup(value));
 
   switch (type)
     {

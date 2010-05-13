@@ -992,7 +992,7 @@ BOOL LaunchEditor::DoRightClick(HWND hwndDlg, int index)
 
   ListView_GetItemText(listWnd, index, 1, applet, MAX_PATH);
   ListView_GetItemText(listWnd, index, 0, tmp, MAX_LINE_LENGTH);
-  if (wcsicmp(tmp, TEXT("stopped")) == 0)
+  if (_wcsicmp(tmp, TEXT("stopped")) == 0)
     {
       AppendMenu(appletMenu, MF_STRING, 3, TEXT("Start"));
       start = true;

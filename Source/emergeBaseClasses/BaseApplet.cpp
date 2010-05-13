@@ -152,11 +152,11 @@ LRESULT BaseApplet::DoExitSizeMove(HWND hwnd)
   if ((currentWidth != referenceWidth) || (currentHeight != referenceHeight))
     DoSize(currentWidth, currentHeight);
 
-  if (wcsicmp(pBaseSettings->GetZPosition(), TEXT("Top")) != 0)
+  if (_wcsicmp(pBaseSettings->GetZPosition(), TEXT("Top")) != 0)
     {
       SetWindowPos(mainWnd, HWND_NOTOPMOST, 0 , 0, 0, 0,
                    SWP_NOSIZE|SWP_NOMOVE|SWP_NOSENDCHANGING);
-      if (wcsicmp(pBaseSettings->GetZPosition(), TEXT("Bottom")) == 0)
+      if (_wcsicmp(pBaseSettings->GetZPosition(), TEXT("Bottom")) == 0)
         SetWindowPos(mainWnd, ELGetDesktopWindow(), 0 , 0, 0, 0,
                      SWP_NOSIZE|SWP_NOMOVE|SWP_NOSENDCHANGING);
     }
@@ -783,7 +783,7 @@ LRESULT BaseApplet::DoEmergeNotify(UINT messageClass, UINT message)
         case CORE_REPOSITION:
             {
               HWND hwndInsertBehind = NULL;
-              if (wcsicmp(pBaseSettings->GetZPosition(), TEXT("top")) != 0)
+              if (_wcsicmp(pBaseSettings->GetZPosition(), TEXT("top")) != 0)
                 hwndInsertBehind = ELGetDesktopWindow();
               SetWindowPos(mainWnd, hwndInsertBehind, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
             }

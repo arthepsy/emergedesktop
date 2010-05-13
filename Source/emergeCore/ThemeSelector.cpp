@@ -306,7 +306,7 @@ BOOL ThemeSelector::DoThemeCheck(HWND hwndDlg)
   themePath = ELExpandVars(themePath);
 
   GetWindowText(themeWnd, theme, MAX_PATH);
-  EnableWindow(delWnd, (wcsicmp(theme, TEXT("Default")) != 0));
+  EnableWindow(delWnd, (_wcsicmp(theme, TEXT("Default")) != 0));
   EnableWindow(saveWnd, (ELIsModifiedTheme(theme) && (_wcsicmp(theme, TEXT("Default (Modified)")) != 0)));
 
   if (ELIsModifiedTheme(ELGetThemeName().c_str()) && PathIsDirectory(themePath.c_str()))

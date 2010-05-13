@@ -382,7 +382,7 @@ BOOL LaunchPage::ToggleIconFields(HWND hwndDlg)
 
   if (GetDlgItemText(hwndDlg, IDC_SEPARATOR, separatorName, MAX_LINE_LENGTH) != 0)
     {
-      if (wcsicmp(separatorName, TEXT("Custom")) == 0)
+      if (_wcsicmp(separatorName, TEXT("Custom")) == 0)
         {
           EnableWindow(iconWnd, true);
           EnableWindow(iconTextWnd, true);
@@ -427,7 +427,7 @@ BOOL LaunchPage::ToggleFields(HWND hwndDlg)
     {
       EnableWindow(saveWnd, true);
 
-      if (wcsicmp(typeName, TEXT("Separator")) == 0)
+      if (_wcsicmp(typeName, TEXT("Separator")) == 0)
         {
           EnableWindow(separatorWnd, true);
           EnableWindow(separatorLabelWnd, true);
@@ -456,7 +456,7 @@ BOOL LaunchPage::ToggleFields(HWND hwndDlg)
           EnableWindow(iconTextWnd, false);
           EnableWindow(browseIconWnd, false);
         }
-      else if (wcsicmp(typeName, TEXT("Executable")) == 0)
+      else if (_wcsicmp(typeName, TEXT("Executable")) == 0)
         {
           EnableWindow(separatorWnd, false);
           EnableWindow(separatorLabelWnd, false);
@@ -483,7 +483,7 @@ BOOL LaunchPage::ToggleFields(HWND hwndDlg)
           EnableWindow(iconTextWnd, true);
           EnableWindow(browseIconWnd, true);
         }
-      else if (wcsicmp(typeName, TEXT("Internal Command")) == 0)
+      else if (_wcsicmp(typeName, TEXT("Internal Command")) == 0)
         {
           EnableWindow(separatorWnd, false);
           EnableWindow(separatorLabelWnd, false);
@@ -509,7 +509,7 @@ BOOL LaunchPage::ToggleFields(HWND hwndDlg)
           EnableWindow(iconTextWnd, true);
           EnableWindow(browseIconWnd, true);
         }
-      else if (wcsicmp(typeName, TEXT("Special Folder")) == 0)
+      else if (_wcsicmp(typeName, TEXT("Special Folder")) == 0)
         {
           EnableWindow(separatorWnd, false);
           EnableWindow(separatorLabelWnd, false);
@@ -705,11 +705,11 @@ bool LaunchPage::UpdateSettings(HWND hwndDlg)
           ListView_GetItemText(listWnd, i, 3, iconPath, MAX_LINE_LENGTH);
           ListView_GetItemText(listWnd, i, 4, tip, MAX_LINE_LENGTH);
 
-          if (wcsicmp(typeName, TEXT("separator")) == 0)
+          if (_wcsicmp(typeName, TEXT("separator")) == 0)
             type = IT_SEPARATOR;
-          else if (wcsicmp(typeName, TEXT("internal command")) == 0)
+          else if (_wcsicmp(typeName, TEXT("internal command")) == 0)
             type = IT_INTERNAL_COMMAND;
-          else if (wcsicmp(typeName, TEXT("special folder")) == 0)
+          else if (_wcsicmp(typeName, TEXT("special folder")) == 0)
             {
               type = IT_SPECIAL_FOLDER;
               wcscpy(tmp, command);
@@ -1056,7 +1056,7 @@ bool LaunchPage::SaveItem(HWND hwndDlg)
       return false;
     }
 
-  if (wcsicmp(typeName, TEXT("Executable")) == 0)
+  if (_wcsicmp(typeName, TEXT("Executable")) == 0)
     {
       if (GetDlgItemText(hwndDlg, IDC_COMMAND, command, MAX_LINE_LENGTH) == 0)
         {
@@ -1065,7 +1065,7 @@ bool LaunchPage::SaveItem(HWND hwndDlg)
           return false;
         }
     }
-  else if (wcsicmp(typeName, TEXT("Separator")) == 0)
+  else if (_wcsicmp(typeName, TEXT("Separator")) == 0)
     {
       if (GetDlgItemText(hwndDlg, IDC_SEPARATOR, command, MAX_LINE_LENGTH) == 0)
         {
@@ -1074,7 +1074,7 @@ bool LaunchPage::SaveItem(HWND hwndDlg)
           return false;
         }
     }
-  else if (wcsicmp(typeName, TEXT("Internal Command")) == 0)
+  else if (_wcsicmp(typeName, TEXT("Internal Command")) == 0)
     {
       if (GetDlgItemText(hwndDlg, IDC_INTERNAL, command, MAX_LINE_LENGTH) == 0)
         {
@@ -1083,7 +1083,7 @@ bool LaunchPage::SaveItem(HWND hwndDlg)
           return false;
         }
     }
-  else if (wcsicmp(typeName, TEXT("Special Folder")) == 0)
+  else if (_wcsicmp(typeName, TEXT("Special Folder")) == 0)
     {
       if (GetDlgItemText(hwndDlg, IDC_SPECIALFOLDER, command, MAX_LINE_LENGTH) == 0)
         {
@@ -1269,7 +1269,7 @@ BOOL LaunchPage::PopulateFields(HWND hwndDlg, int itemIndex)
         {
           SendMessage(typeWnd, CB_SETCURSEL, typeIndex, 0);
           ListView_GetItemText(listWnd, itemIndex, 1, command, MAX_LINE_LENGTH);
-          if (wcsicmp(typeName, TEXT("internal command")) == 0)
+          if (_wcsicmp(typeName, TEXT("internal command")) == 0)
             {
               ShowWindow(internalButtonWnd, SW_SHOW);
               ShowWindow(internalWnd, SW_SHOW);
@@ -1285,7 +1285,7 @@ BOOL LaunchPage::PopulateFields(HWND hwndDlg, int itemIndex)
               if (commandIndex != CB_ERR)
                 SendMessage(internalWnd, CB_SETCURSEL, commandIndex, 0);
             }
-          else if (wcsicmp(typeName, TEXT("special folder")) == 0)
+          else if (_wcsicmp(typeName, TEXT("special folder")) == 0)
             {
               ShowWindow(internalButtonWnd, SW_HIDE);
               ShowWindow(internalWnd, SW_HIDE);
@@ -1301,7 +1301,7 @@ BOOL LaunchPage::PopulateFields(HWND hwndDlg, int itemIndex)
               if (specialIndex != CB_ERR)
                 SendMessage(specialFolderWnd, CB_SETCURSEL, specialIndex, 0);
             }
-          else if (wcsicmp(typeName, TEXT("separator")) == 0)
+          else if (_wcsicmp(typeName, TEXT("separator")) == 0)
             {
               ShowWindow(internalButtonWnd, SW_HIDE);
               ShowWindow(internalWnd, SW_HIDE);

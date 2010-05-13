@@ -122,21 +122,21 @@ void Item::SetIcon(int iconSize, WCHAR *orientation)
   switch (type)
     {
     case IT_SEPARATOR:
-      if (wcsicmp(app, TEXT("single")) == 0)
+      if (_wcsicmp(app, TEXT("single")) == 0)
         {
-          if (wcsicmp(orientation, TEXT("vertical")) == 0)
+          if (_wcsicmp(orientation, TEXT("vertical")) == 0)
             origIcon = EGExtractIcon(TEXT("emergeIcons.dll"), 15, iconSize);
           else
             origIcon = EGExtractIcon(TEXT("emergeIcons.dll"), 14, iconSize);
         }
-      else if (wcsicmp(app, TEXT("double")) == 0)
+      else if (_wcsicmp(app, TEXT("double")) == 0)
         {
-          if (wcsicmp(orientation, TEXT("vertical")) == 0)
+          if (_wcsicmp(orientation, TEXT("vertical")) == 0)
             origIcon = EGExtractIcon(TEXT("emergeIcons.dll"), 17, iconSize);
           else
             origIcon = EGExtractIcon(TEXT("emergeIcons.dll"), 16, iconSize);
         }
-      else if ((wcsicmp(app, TEXT("custom")) == 0) && (wcslen(iconPath) > 0))
+      else if ((_wcsicmp(app, TEXT("custom")) == 0) && (wcslen(iconPath) > 0))
         origIcon = EGGetFileIcon(iconPath, iconSize);
       break;
     default:
