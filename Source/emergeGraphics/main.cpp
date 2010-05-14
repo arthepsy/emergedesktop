@@ -1071,8 +1071,9 @@ void EGFontToString(const LOGFONT& logFont, WCHAR *fontString)
 void EGStringToFont(const WCHAR *fontString, LOGFONT& logFont)
 {
   WCHAR *token;
+  WCHAR *workingFontString = _wcsdup(fontString);
   HDC hdc = CreateCompatibleDC(NULL);
-  token = wcstok((WCHAR*)fontString, TEXT("-"));
+  token = wcstok((WCHAR*)workingFontString, TEXT("-"));
   wcscpy(logFont.lfFaceName, token);
   token = wcstok(NULL, TEXT("-"));
   while (token)
@@ -1093,4 +1094,5 @@ void EGStringToFont(const WCHAR *fontString, LOGFONT& logFont)
       token = wcstok(NULL, TEXT("-"));
     }
   DeleteDC(hdc);
+  free(workingFontString);
 }
