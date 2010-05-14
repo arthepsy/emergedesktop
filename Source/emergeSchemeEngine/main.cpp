@@ -59,12 +59,43 @@ void ESESetScheme(WCHAR *schemeFile)
 bool ESEWriteScheme(WCHAR *schemeFile, LPGUIINFO guiInfo, HWND hwnd)
 {
   std::wstring workingScheme = schemeFile;
+  std::wstring theme = ELGetThemeName();
   workingScheme = ELExpandVars(workingScheme);
 
   if (workingScheme.empty())
     {
       ELMessageBox(hwnd, L"Scheme name cannot be empty", L"Scheme Editor", ELMB_MODAL|ELMB_ICONERROR|ELMB_OK);
       return false;
+    }
+
+  if (!ELIsModifiedTheme(theme))
+    {
+      std::wstring errorMessage;
+
+      if (ELSetModifiedTheme(theme))
+        {
+          std::wstring oldThemePath = TEXT("%EmergeDir%\\themes\\") + theme;
+          oldThemePath += TEXT("\\*");
+          std::wstring newThemePath = TEXT("%ThemeDir%");
+
+          if (!ELFileOp(hwnd, FO_COPY, oldThemePath, newThemePath))
+            {
+              errorMessage = L"Cannot create \'";
+              errorMessage += newThemePath;
+              errorMessage += L"\'.";
+              ELMessageBox(hwnd, errorMessage.c_str(), L"Scheme Editor", ELMB_MODAL|ELMB_ICONERROR|ELMB_OK);
+              return false;
+            }
+
+          workingScheme = ESEGetScheme();
+          workingScheme = ELExpandVars(workingScheme);
+        }
+      else
+        {
+          errorMessage = L"Failed to create modified theme.";
+          ELMessageBox(hwnd, errorMessage.c_str(), L"Scheme Editor", ELMB_MODAL|ELMB_ICONERROR|ELMB_OK);
+          return false;
+        }
     }
 
   ELWriteFileInt(workingScheme.c_str(), (WCHAR*)TEXT("alpha.active:"), (int)guiInfo->alphaActive);
