@@ -40,6 +40,7 @@ DLL_EXPORT void ESESetScheme(WCHAR *schemeFile);
 DLL_EXPORT bool ESEWriteScheme(WCHAR *schemeFile, LPGUIINFO guiInfo, HWND hwnd);
 DLL_EXPORT void ESEReadScheme(WCHAR *schemeFile, LPGUIINFO guiInfo);
 DLL_EXPORT void ESELoadScheme(WCHAR *schemeFile, LPGUIINFO guiInfo);
+DLL_EXPORT bool ESEEqualScheme(LPGUIINFO sourceInfo, LPGUIINFO targetInfo);
 DLL_EXPORT HDC ESEPaintBackground(RECT clientRect, LPGUIINFO guiInfo, bool active);
 
 #endif

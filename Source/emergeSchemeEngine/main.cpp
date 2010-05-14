@@ -56,11 +56,87 @@ void ESESetScheme(WCHAR *schemeFile)
   wcscpy(scheme, schemeFile);
 }
 
+bool ESEEqualScheme(LPGUIINFO sourceInfo, LPGUIINFO targetInfo)
+{
+  if (sourceInfo->alphaActive != targetInfo->alphaActive)
+    return false;
+
+  if (sourceInfo->alphaInactive != targetInfo->alphaInactive)
+    return false;
+
+  if (sourceInfo->alphaBackground != targetInfo->alphaBackground)
+    return false;
+
+  if (sourceInfo->alphaMenu != targetInfo->alphaMenu)
+    return false;
+
+  if (sourceInfo->alphaForeground != targetInfo->alphaForeground)
+    return false;
+
+  if (sourceInfo->alphaFrame != targetInfo->alphaFrame)
+    return false;
+
+  if (sourceInfo->alphaSelected != targetInfo->alphaSelected)
+    return false;
+
+  if (sourceInfo->alphaBorder != targetInfo->alphaBorder)
+    return false;
+
+  if (sourceInfo->alphaText != targetInfo->alphaText)
+    return false;
+
+  if (sourceInfo->colorBackground != targetInfo->colorBackground)
+    return false;
+
+  if (sourceInfo->colorSelected != targetInfo->colorSelected)
+    return false;
+
+  if (sourceInfo->colorForeground != targetInfo->colorForeground)
+    return false;
+
+  if (sourceInfo->colorFrame != targetInfo->colorFrame)
+    return false;
+
+  if (sourceInfo->colorFont != targetInfo->colorFont)
+    return false;
+
+  if (sourceInfo->colorBorder != targetInfo->colorBorder)
+    return false;
+
+  if (sourceInfo->windowShadow != targetInfo->windowShadow)
+    return false;
+
+  if (sourceInfo->dragBorder != targetInfo->dragBorder)
+    return false;
+
+  if (sourceInfo->bevelWidth != targetInfo->bevelWidth)
+    return false;
+
+  if (sourceInfo->padding != targetInfo->padding)
+    return false;
+
+  if (sourceInfo->gradientFrom != targetInfo->gradientFrom)
+    return false;
+
+  if (sourceInfo->gradientTo != targetInfo->gradientTo)
+    return false;
+
+  if (_wcsicmp(sourceInfo->gradientMethod, targetInfo->gradientMethod) != 0)
+    return false;
+
+  return true;
+}
+
 bool ESEWriteScheme(WCHAR *schemeFile, LPGUIINFO guiInfo, HWND hwnd)
 {
+  GUIINFO origGuiInfo;
   std::wstring workingScheme = schemeFile;
   std::wstring theme = ELGetThemeName();
   workingScheme = ELExpandVars(workingScheme);
+
+  ESEReadScheme(schemeFile, &origGuiInfo);
+  if (ESEEqualScheme(&origGuiInfo, guiInfo))
+    return true;
 
   if (workingScheme.empty())
     {
