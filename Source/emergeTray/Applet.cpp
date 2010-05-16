@@ -193,7 +193,7 @@ LRESULT CALLBACK Applet::WindowProcedure (HWND hwnd, UINT message, WPARAM wParam
 }
 
 Applet::Applet(HINSTANCE hInstance)
-  :BaseApplet(hInstance, myName, true)
+:BaseApplet(hInstance, myName, true)
 {
   mainInst = hInstance;
 
@@ -436,9 +436,9 @@ void Applet::StartSSO(CLSID clsid)
     {
       // Start ShellServiceObject
       reinterpret_cast <IOleCommandTarget*> (lpVoid)->Exec(&CGID_ShellServiceObject,
-          OLECMDID_NEW,
-          OLECMDEXECOPT_DODEFAULT,
-          NULL, NULL);
+                                                           OLECMDID_NEW,
+                                                           OLECMDEXECOPT_DODEFAULT,
+                                                           NULL, NULL);
       ssoIconList.push_back(reinterpret_cast <IOleCommandTarget*>(lpVoid));
     }
 }
@@ -856,49 +856,49 @@ bool Applet::TrayMouseEvent(UINT message, LPARAM lParam)
           switch ((*iter)->GetIconVersion())
             {
             case NOTIFYICON_VERSION_4:
-            {
-              switch (message)
                 {
-                case WM_RBUTTONUP:
+                  switch (message)
+                    {
+                    case WM_RBUTTONUP:
+                      SendNotifyMessage((*iter)->GetWnd(), (*iter)->GetCallback(), MAKEWPARAM(cursorPT.x, cursorPT.y),
+                                        MAKELPARAM(message, (*iter)->GetID()));
+                      message = WM_CONTEXTMENU;
+                      break;
+                      /*                case WM_MOUSEMOVE:
+                                        if (activeIcon == NULL)
+                                        {
+                                        message = NIN_POPUPOPEN;
+                                        activeIcon = (*iter);
+                                        }
+                                        break;*/
+
+                      /*if (ELVersionInfo() >= 7.0)
+                        {
+                        case WM_LBUTTONDOWN:
+                        debug = TEXT("LBUTTONDOWN");
+                        ELWriteDebug(debug);
+                        return 0;
+                        case WM_LBUTTONUP:
+                        debug = TEXT("LBUTTONUP");
+                        ELWriteDebug(debug);
+                        SendNotifyMessage((*iter)->GetWnd(), (*iter)->GetCallback(), MAKEWPARAM(cursorPT.x, cursorPT.y),
+                        MAKELPARAM(NIN_POPUPCLOSE, (*iter)->GetID()));
+                        SendNotifyMessage((*iter)->GetWnd(), (*iter)->GetCallback(), MAKEWPARAM(cursorPT.x, cursorPT.y),
+                        MAKELPARAM(WM_LBUTTONDOWN, (*iter)->GetID()));
+                        SendNotifyMessage((*iter)->GetWnd(), (*iter)->GetCallback(), MAKEWPARAM(cursorPT.x, cursorPT.y),
+                        MAKELPARAM(message, (*iter)->GetID()));
+                        return 0;
+                        case WM_LBUTTONDBLCLK:
+                        debug = TEXT("LBUTTONDBLCLK");
+                        ELWriteDebug(debug);
+                        return 0;
+                        }*/
+                    }
+
                   SendNotifyMessage((*iter)->GetWnd(), (*iter)->GetCallback(), MAKEWPARAM(cursorPT.x, cursorPT.y),
                                     MAKELPARAM(message, (*iter)->GetID()));
-                  message = WM_CONTEXTMENU;
-                  break;
-                  /*                case WM_MOUSEMOVE:
-                                    if (activeIcon == NULL)
-                                    {
-                                    message = NIN_POPUPOPEN;
-                                    activeIcon = (*iter);
-                                    }
-                                    break;*/
-
-                  /*if (ELVersionInfo() >= 7.0)
-                    {
-                    case WM_LBUTTONDOWN:
-                    debug = TEXT("LBUTTONDOWN");
-                    ELWriteDebug(debug);
-                    return 0;
-                    case WM_LBUTTONUP:
-                    debug = TEXT("LBUTTONUP");
-                    ELWriteDebug(debug);
-                    SendNotifyMessage((*iter)->GetWnd(), (*iter)->GetCallback(), MAKEWPARAM(cursorPT.x, cursorPT.y),
-                    MAKELPARAM(NIN_POPUPCLOSE, (*iter)->GetID()));
-                    SendNotifyMessage((*iter)->GetWnd(), (*iter)->GetCallback(), MAKEWPARAM(cursorPT.x, cursorPT.y),
-                    MAKELPARAM(WM_LBUTTONDOWN, (*iter)->GetID()));
-                    SendNotifyMessage((*iter)->GetWnd(), (*iter)->GetCallback(), MAKEWPARAM(cursorPT.x, cursorPT.y),
-                    MAKELPARAM(message, (*iter)->GetID()));
-                    return 0;
-                    case WM_LBUTTONDBLCLK:
-                    debug = TEXT("LBUTTONDBLCLK");
-                    ELWriteDebug(debug);
-                    return 0;
-                    }*/
                 }
-
-              SendNotifyMessage((*iter)->GetWnd(), (*iter)->GetCallback(), MAKEWPARAM(cursorPT.x, cursorPT.y),
-                                MAKELPARAM(message, (*iter)->GetID()));
-            }
-            break;
+              break;
             case NOTIFYICON_VERSION:
               if (((*iter)->GetIconVersion() == NOTIFYICON_VERSION) && (message == WM_RBUTTONUP))
                 {
@@ -1179,122 +1179,134 @@ LRESULT Applet::TrayIconEvent(COPYDATASTRUCT *cpData)
   HWND hwnd = NULL;
   DWORD message = 0;
 
+  DWORD iconDataSize = 0;
+  void* iconData = NULL;
+
   //OutputDebugString(TEXT("TrayIconEvent with tooltip: "));
   if (IsWindow(((PSHELLTRAYDATA)cpData->lpData)->iconData.hWnd))
     {
       message = ((PSHELLTRAYDATA)cpData->lpData)->dwMessage;
-
-      switch (((PSHELLTRAYDATA)cpData->lpData)->iconData.cbSize)
-        {
-        case sizeof(NID_5W):
-        case sizeof(NID_6W):
-        case sizeof(NID_7W):
-          iconData5W = (NID_5W*)&((PSHELLTRAYDATA)cpData->lpData)->iconData;
-          iconVersion = iconData5W->uVersion;
-          hwnd = (HWND)iconData5W->hWnd;
-          uID = iconData5W->uID;
-          uCallbackMessage = iconData5W->uCallbackMessage;
-          uFlags = iconData5W->uFlags;
-
-          if ((uFlags & NIF_INFO) == NIF_INFO)
-            {
-              wcscpy(iconTip, iconData5W->szInfo);
-              iconTip[TIP_SIZE - 1] = '0';
-              uFlags |= NIF_TIP;
-            }
-          else if ((uFlags & NIF_TIP) == NIF_TIP)
-            {
-              wcscpy(iconTip, iconData5W->szTip);
-              iconTip[TIP_SIZE - 1] = '0';
-            }
-
-          if ((uFlags & NIF_ICON) == NIF_ICON)
-            icon = (HICON)iconData5W->hIcon;
-
-          if ((uFlags & NIF_STATE) == NIF_STATE)
-            {
-              if ((iconData5W->dwState & iconData5W->dwStateMask & NIS_HIDDEN) == NIS_HIDDEN)
-                hidden = true;
-              if ((iconData5W->dwState & iconData5W->dwStateMask & NIS_SHAREDICON) == NIS_SHAREDICON)
-                shared = true;
-            }
-          break;
-
-        case sizeof(NID_5A):
-        case sizeof(NID_6A):
-        case sizeof(NID_7A):
-          iconData5A = (NID_5A*)&((PSHELLTRAYDATA)cpData->lpData)->iconData;
-          iconVersion = iconData5A->uVersion;
-          hwnd = (HWND)iconData5A->hWnd;
-          uID = iconData5A->uID;
-          uCallbackMessage = iconData5A->uCallbackMessage;
-          uFlags = iconData5A->uFlags;
-
-          if ((uFlags & NIF_INFO) == NIF_INFO)
-            {
-              wideString = ELstringTowstring(iconData5A->szInfo);
-              wcsncpy(iconTip, wideString.c_str(), TIP_SIZE);
-              uFlags |= NIF_TIP;
-            }
-          else if ((uFlags & NIF_TIP) == NIF_TIP)
-            {
-              wideString = ELstringTowstring(iconData5A->szTip);
-              wcsncpy(iconTip, wideString.c_str(), TIP_SIZE);
-            }
-
-          if ((uFlags & NIF_ICON) == NIF_ICON)
-            icon = (HICON)iconData5A->hIcon;
-
-          if ((uFlags & NIF_STATE) == NIF_STATE)
-            {
-              if ((iconData5A->dwState & iconData5A->dwStateMask & NIS_HIDDEN) == NIS_HIDDEN)
-                hidden = true;
-              if ((iconData5A->dwState & iconData5A->dwStateMask & NIS_SHAREDICON) == NIS_SHAREDICON)
-                shared = true;
-            }
-          break;
-
-        case sizeof(NID_4W):
-          iconData4W = (NID_4W*)&((PSHELLTRAYDATA)cpData->lpData)->iconData;
-          hwnd = (HWND)iconData4W->hWnd;
-          uID = iconData4W->uID;
-          uCallbackMessage = iconData4W->uCallbackMessage;
-          uFlags = iconData4W->uFlags;
-
-          if ((uFlags & NIF_TIP) == NIF_TIP)
-            {
-              wcsncpy(iconTip, iconData4W->szTip, TIP_SIZE);
-              iconTip[TIP_SIZE - 1]='\0';
-            }
-          break;
-
-        case sizeof(NID_4A):
-          iconData4A = (NID_4A*)&((PSHELLTRAYDATA)cpData->lpData)->iconData;
-          hwnd = (HWND)iconData4A->hWnd;
-          uID = iconData4A->uID;
-          uCallbackMessage = iconData4A->uCallbackMessage;
-          uFlags = iconData4A->uFlags;
-
-          if ((uFlags & NIF_TIP) == NIF_TIP)
-            {
-              wideString = ELstringTowstring(iconData4A->szTip);
-              wcsncpy(iconTip, wideString.c_str(), TIP_SIZE);
-            }
-          break;
-        default:
-          return 0;
-        }
+      iconDataSize = ((PSHELLTRAYDATA)cpData->lpData)->iconData.cbSize;
+      iconData = &((PSHELLTRAYDATA)cpData->lpData)->iconData;
     }
   else if (IsWindow((HWND)((PSHELLTRAYDATAWOW32)cpData->lpData)->iconData.hWnd))
     {
       message = ((PSHELLTRAYDATAWOW32)cpData->lpData)->dwMessage;
+      iconDataSize = ((PSHELLTRAYDATAWOW32)cpData->lpData)->iconData.cbSize;
+      iconData = &((PSHELLTRAYDATAWOW32)cpData->lpData)->iconData;
+    }
+  else
+    return 0;
 
-      switch (((PSHELLTRAYDATAWOW32)cpData->lpData)->iconData.cbSize)
+  switch (iconDataSize)
+    {
+    case sizeof(NID_5W):
+    case sizeof(NID_6W):
+    case sizeof(NID_7W):
+      iconData5W = (NID_5W*)iconData;
+      iconVersion = iconData5W->uVersion;
+      hwnd = (HWND)iconData5W->hWnd;
+      uID = iconData5W->uID;
+      uCallbackMessage = iconData5W->uCallbackMessage;
+      uFlags = iconData5W->uFlags;
+
+      if ((uFlags & NIF_INFO) == NIF_INFO)
+        {
+          wcscpy(iconTip, iconData5W->szInfo);
+          iconTip[TIP_SIZE - 1] = '0';
+          uFlags |= NIF_TIP;
+        }
+      else if ((uFlags & NIF_TIP) == NIF_TIP)
+        {
+          wcscpy(iconTip, iconData5W->szTip);
+          iconTip[TIP_SIZE - 1] = '0';
+        }
+
+      if ((uFlags & NIF_ICON) == NIF_ICON)
+        icon = (HICON)iconData5W->hIcon;
+
+      if ((uFlags & NIF_STATE) == NIF_STATE)
+        {
+          if ((iconData5W->dwState & iconData5W->dwStateMask & NIS_HIDDEN) == NIS_HIDDEN)
+            hidden = true;
+          if ((iconData5W->dwState & iconData5W->dwStateMask & NIS_SHAREDICON) == NIS_SHAREDICON)
+            shared = true;
+        }
+      break;
+
+    case sizeof(NID_5A):
+    case sizeof(NID_6A):
+    case sizeof(NID_7A):
+      iconData5A = (NID_5A*)iconData;
+      iconVersion = iconData5A->uVersion;
+      hwnd = (HWND)iconData5A->hWnd;
+      uID = iconData5A->uID;
+      uCallbackMessage = iconData5A->uCallbackMessage;
+      uFlags = iconData5A->uFlags;
+
+      if ((uFlags & NIF_INFO) == NIF_INFO)
+        {
+          wideString = ELstringTowstring(iconData5A->szInfo);
+          wcsncpy(iconTip, wideString.c_str(), TIP_SIZE);
+          uFlags |= NIF_TIP;
+        }
+      else if ((uFlags & NIF_TIP) == NIF_TIP)
+        {
+          wideString = ELstringTowstring(iconData5A->szTip);
+          wcsncpy(iconTip, wideString.c_str(), TIP_SIZE);
+        }
+
+      if ((uFlags & NIF_ICON) == NIF_ICON)
+        icon = (HICON)iconData5A->hIcon;
+
+      if ((uFlags & NIF_STATE) == NIF_STATE)
+        {
+          if ((iconData5A->dwState & iconData5A->dwStateMask & NIS_HIDDEN) == NIS_HIDDEN)
+            hidden = true;
+          if ((iconData5A->dwState & iconData5A->dwStateMask & NIS_SHAREDICON) == NIS_SHAREDICON)
+            shared = true;
+        }
+      break;
+
+    case sizeof(NID_4W):
+      iconData4W = (NID_4W*)iconData;
+      hwnd = (HWND)iconData4W->hWnd;
+      uID = iconData4W->uID;
+      uCallbackMessage = iconData4W->uCallbackMessage;
+      uFlags = iconData4W->uFlags;
+
+      if ((uFlags & NIF_TIP) == NIF_TIP)
+        {
+          wcsncpy(iconTip, iconData4W->szTip, TIP_SIZE);
+          iconTip[TIP_SIZE - 1]='\0';
+        }
+      break;
+
+    case sizeof(NID_4A):
+      iconData4A = (NID_4A*)iconData;
+      hwnd = (HWND)iconData4A->hWnd;
+      uID = iconData4A->uID;
+      uCallbackMessage = iconData4A->uCallbackMessage;
+      uFlags = iconData4A->uFlags;
+
+      if ((uFlags & NIF_TIP) == NIF_TIP)
+        {
+          wideString = ELstringTowstring(iconData4A->szTip);
+          wcsncpy(iconTip, wideString.c_str(), TIP_SIZE);
+        }
+      break;
+    }
+
+  // If the icon notification type was not determined, attempt to check against 32-bit types.
+  // This is required since x64 Windows makes use of both 32-bit and 64-bit notifications.
+  if ((uID == 0) && (uCallbackMessage == 0) && (uFlags == 0) && (hwnd == NULL))
+    {
+      switch (iconDataSize)
         {
         case sizeof(NID_5W_WOW32):
         case sizeof(NID_6W_WOW32):
         case sizeof(NID_7W_WOW32):
-          iconData5W32 = (NID_5W_WOW32*)&((PSHELLTRAYDATAWOW32)cpData->lpData)->iconData;
+          iconData5W32 = (NID_5W_WOW32*)iconData;
           iconVersion = iconData5W32->uVersion;
           hwnd = (HWND)iconData5W32->hWnd;
           uID = iconData5W32->uID;
@@ -1328,7 +1340,7 @@ LRESULT Applet::TrayIconEvent(COPYDATASTRUCT *cpData)
         case sizeof(NID_5A_WOW32):
         case sizeof(NID_6A_WOW32):
         case sizeof(NID_7A_WOW32):
-          iconData5A32 = (NID_5A_WOW32*)&((PSHELLTRAYDATAWOW32)cpData->lpData)->iconData;
+          iconData5A32 = (NID_5A_WOW32*)iconData;
           iconVersion = iconData5A32->uVersion;
           hwnd = (HWND)iconData5A32->hWnd;
           uID = iconData5A32->uID;
@@ -1360,7 +1372,7 @@ LRESULT Applet::TrayIconEvent(COPYDATASTRUCT *cpData)
           break;
 
         case sizeof(NID_4W_WOW32):
-          iconData4W32 = (NID_4W_WOW32*)&((PSHELLTRAYDATAWOW32)cpData->lpData)->iconData;
+          iconData4W32 = (NID_4W_WOW32*)iconData;
           hwnd = (HWND)iconData4W32->hWnd;
           uID = iconData4W32->uID;
           uCallbackMessage = iconData4W32->uCallbackMessage;
@@ -1373,8 +1385,8 @@ LRESULT Applet::TrayIconEvent(COPYDATASTRUCT *cpData)
             }
           break;
 
-        case sizeof(NID_4A):
-          iconData4A32 = (NID_4A_WOW32*)&((PSHELLTRAYDATAWOW32)cpData->lpData)->iconData;
+        case sizeof(NID_4A_WOW32):
+          iconData4A32 = (NID_4A_WOW32*)iconData;
           hwnd = (HWND)iconData4A32->hWnd;
           uID = iconData4A32->uID;
           uCallbackMessage = iconData4A32->uCallbackMessage;
@@ -1386,12 +1398,11 @@ LRESULT Applet::TrayIconEvent(COPYDATASTRUCT *cpData)
               wcsncpy(iconTip, wideString.c_str(), TIP_SIZE);
             }
           break;
+
         default:
           return 0;
         }
     }
-  else
-    return 0;
 
   switch (message)
     {
