@@ -62,6 +62,9 @@ void Settings::ResetDefaults()
 
 void Settings::DoReadSettings(IOHelper& helper)
 {
+  // Clear the logFont on read so there isn't any font style transposing between themes
+  ZeroMemory(&logFont, sizeof(LOGFONT));
+
   BaseSettings::DoReadSettings(helper);
   helper.ReadInt(TEXT("UpdateInterval"), updateInterval, 2000);
   if (updateInterval < MINIMUM_UPDATE_INTERVAL)
