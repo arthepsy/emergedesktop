@@ -24,11 +24,13 @@
 Settings::Settings()
   :BaseSettings(false)
 {
-  ZeroMemory(&logFont, sizeof(LOGFONT));
 }
 
 void Settings::DoReadSettings(IOHelper& helper)
 {
+  // Clear the logFont on read so there isn't any font style transposing between themes
+  ZeroMemory(&logFont, sizeof(LOGFONT));
+
   BaseSettings::DoReadSettings(helper);
   helper.ReadString(TEXT("TextAlign"), clockTextAlign, TEXT("left"));
   helper.ReadString(TEXT("VerticalAlign"), clockVerticalAlign, TEXT("top"));

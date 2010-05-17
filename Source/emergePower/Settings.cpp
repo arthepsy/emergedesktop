@@ -32,6 +32,9 @@ Settings::Settings(): BaseSettings(false)
 
 void Settings::DoReadSettings(IOHelper& helper)
 {
+  // Clear the logFont on read so there isn't any font style transposing between themes
+  ZeroMemory(&logFont, sizeof(LOGFONT));
+
   BaseSettings::DoReadSettings(helper);
   helper.ReadString(TEXT("Font"), fontString, TEXT("Tahoma-12"));
   helper.ReadInt(TEXT("UpdateInterval"), updateInterval, 60);

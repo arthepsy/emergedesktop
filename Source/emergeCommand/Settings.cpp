@@ -24,12 +24,14 @@
 Settings::Settings()
   :BaseSettings(false)
 {
-  ZeroMemory(&logFont, sizeof(LOGFONT));
   xmlFile = TEXT("%EmergeDir%\\files\\emergeCommand.xml");
 }
 
 void Settings::DoReadSettings(IOHelper& helper)
 {
+  // Clear the logFont on read so there isn't any font style transposing between themes
+  ZeroMemory(&logFont, sizeof(LOGFONT));
+
   BaseSettings::DoReadSettings(helper);
   helper.ReadString(TEXT("ClockTextAlign"), clockTextAlign, TEXT("left"));
   helper.ReadString(TEXT("CommandTextAlign"), commandTextAlign, TEXT("left"));
