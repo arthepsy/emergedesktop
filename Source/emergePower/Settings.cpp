@@ -68,7 +68,7 @@ void Settings::SetFont(LOGFONT *logFont)
 {
   WCHAR tmp[MAX_LINE_LENGTH];
   EGFontToString(*logFont, tmp);
-  if (_wcsicmp(fontString, tmp) != 0)
+  if (!EGEqualLogFont(this->logFont, *logFont))
     {
       wcscpy(fontString, tmp);
       CopyMemory(&this->logFont, logFont, sizeof(LOGFONT));

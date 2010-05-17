@@ -92,7 +92,13 @@ bool Settings::SetFont(LOGFONT *logFont)
 {
   WCHAR tmp[MAX_LINE_LENGTH];
   EGFontToString(*logFont, tmp);
-  if (_wcsicmp(fontString, tmp) != 0)
+
+  std::wstring debug = tmp;
+  ELWriteDebug(debug);
+  debug = fontString;
+  ELWriteDebug(debug);
+
+  if (!EGEqualLogFont(this->logFont, *logFont))
     {
       wcscpy(fontString, tmp);
       CopyMemory(&this->logFont, logFont, sizeof(LOGFONT));

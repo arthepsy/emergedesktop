@@ -1054,6 +1054,53 @@ void EGEndPaint()
     DeleteDC(hdc);
 }
 
+bool EGEqualLogFont(const LOGFONT& source, const LOGFONT& target)
+{
+  if (source.lfHeight != target.lfHeight)
+    return false;
+
+  if (source.lfWidth != target.lfWidth)
+    return false;
+
+  if (source.lfEscapement != target.lfEscapement)
+    return false;
+
+  if (source.lfOrientation != target.lfOrientation)
+    return false;
+
+  if (source.lfWeight != target.lfWeight)
+    return false;
+
+  if (source.lfItalic != target.lfItalic)
+    return false;
+
+  if (source.lfUnderline != target.lfUnderline)
+    return false;
+
+  if (source.lfStrikeOut != target.lfStrikeOut)
+    return false;
+
+  if (source.lfCharSet != target.lfCharSet)
+    return false;
+
+  if (source.lfOutPrecision != target.lfOutPrecision)
+    return false;
+
+  if (source.lfClipPrecision != target.lfClipPrecision)
+    return false;
+
+  if (source.lfQuality != target.lfQuality)
+    return false;
+
+  if (source.lfPitchAndFamily != target.lfPitchAndFamily)
+    return false;
+
+  if (_wcsicmp(source.lfFaceName, target.lfFaceName) != 0)
+    return false;
+
+  return true;
+}
+
 void EGFontToString(const LOGFONT& logFont, WCHAR *fontString)
 {
   WCHAR tmp[MAX_LINE_LENGTH];
@@ -1064,7 +1111,7 @@ void EGFontToString(const LOGFONT& logFont, WCHAR *fontString)
   if (logFont.lfItalic)
     wcscat(tmp, TEXT("-Italic"));
   int fontHeight = MulDiv(logFont.lfHeight, 72, GetDeviceCaps(hdc, LOGPIXELSY));
-  swprintf(fontString, TEXT("%s-%d"), tmp, -fontHeight);
+  swprintf(fontString, TEXT("%s-%d"), tmp, fontHeight);
   DeleteDC(hdc);
 }
 

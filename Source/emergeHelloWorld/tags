@@ -25,7 +25,6 @@ DoReadSettings	Settings.cpp	/^void Settings::DoReadSettings(IOHelper& helper)$/;
 DoWriteSettings	Settings.cpp	/^void Settings::DoWriteSettings(IOHelper& helper)$/;"	f	class:Settings
 FULLSCREEN_POLL_TIME	Applet.h	41;"	d
 FULLSCREEN_TIMER	Applet.h	40;"	d
-FocusWindowEnum	main.cpp	/^BOOL CALLBACK FocusWindowEnum(HWND hwnd, LPARAM lParam UNUSED)$/;"	f
 GetDisplayLines	Settings.cpp	/^UINT Settings::GetDisplayLines()$/;"	f	class:Settings
 GetDisplayTextFormat	Settings.cpp	/^WCHAR *Settings::GetDisplayTextFormat()$/;"	f	class:Settings
 GetDisplayTipFormat	Settings.cpp	/^WCHAR *Settings::GetDisplayTipFormat()$/;"	f	class:Settings
@@ -79,6 +78,7 @@ MOUSE_POLL_TIME	Applet.h	37;"	d
 MOUSE_TIMER	Applet.h	36;"	d
 PaintContent	Applet.cpp	/^LRESULT Applet::PaintContent(HDC hdc, RECT clientrt)$/;"	f	class:Applet
 ResetDefaults	Settings.cpp	/^void Settings::ResetDefaults()$/;"	f	class:Settings
+SUFFIX	Makefile	/^SUFFIX = .exe$/;"	m
 SetFont	Settings.cpp	/^bool Settings::SetFont(LOGFONT *logFont)$/;"	f	class:Settings
 SetTextAlign	Settings.cpp	/^bool Settings::SetTextAlign(WCHAR *clockTextAlign)$/;"	f	class:Settings
 SetTextFormat	Settings.cpp	/^bool Settings::SetTextFormat(WCHAR *textFormat)$/;"	f	class:Settings
@@ -88,6 +88,7 @@ Settings	Settings.cpp	/^Settings::Settings()$/;"	f	class:Settings
 Settings	Settings.h	/^class Settings : public BaseSettings$/;"	c
 Show	Config.cpp	/^int Config::Show()$/;"	f	class:Config
 ShowConfig	Applet.cpp	/^void Applet::ShowConfig()$/;"	f	class:Applet
+TARGET	Makefile	/^TARGET = emergeHelloWorld$/;"	m
 TextPage	TextPage.cpp	/^TextPage::TextPage(std::tr1::shared_ptr<Settings> pSettings)$/;"	f	class:TextPage
 TextPage	TextPage.h	/^class TextPage$/;"	c
 TextPageDlgProc	TextPage.cpp	/^INT_PTR CALLBACK TextPage::TextPageDlgProc(HWND hwndDlg, UINT message, WPARAM wParam UNUSED, LPARAM lParam)$/;"	f	class:TextPage
