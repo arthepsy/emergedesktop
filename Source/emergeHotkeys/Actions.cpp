@@ -173,6 +173,7 @@ BOOL Actions::DoInitDialog(HWND hwndDlg)
   SetWindowPos(hwndDlg, HWND_TOPMOST, x, y, 0, 0, SWP_NOSIZE);
 
   ELStealFocus(hwndDlg);
+  SetWindowPos(hwndDlg, HWND_TOPMOST, 0, 0, 0, 0,  SWP_NOSIZE|SWP_NOMOVE);
 
   lvCol.mask = LVCF_TEXT | LVCF_WIDTH;
   lvCol.pszText = (WCHAR*)TEXT("Key Combination");

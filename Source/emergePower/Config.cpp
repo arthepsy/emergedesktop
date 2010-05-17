@@ -64,6 +64,7 @@ INT_PTR Config::DoInitDialog(HWND hwndDlg)
   PROPSHEETHEADER psh;
 
   ELStealFocus(hwndDlg);
+  SetWindowPos(hwndDlg, HWND_TOPMOST, 0, 0, 0, 0,  SWP_NOSIZE|SWP_NOMOVE);
 
   psp[0].dwSize = sizeof(PROPSHEETPAGE);
   psp[0].dwFlags = PSP_USETITLE;
