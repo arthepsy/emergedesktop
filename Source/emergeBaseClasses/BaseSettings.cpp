@@ -118,7 +118,6 @@ bool BaseSettings::WriteSettings()
   std::wstring xmlFile = TEXT("%ThemeDir%\\");
   xmlFile += appletName;
   xmlFile += TEXT(".xml");
-  std::wstring theme = ELGetThemeName();
   bool ret = false;
 
   if (GetModified())
@@ -126,6 +125,7 @@ bool BaseSettings::WriteSettings()
       if (ModifiedCheck())
         CopyTheme();
 
+      std::wstring theme = ELGetThemeName();
       theme = ELToLower(theme);
       if ((theme != defaultTheme) && (theme != GBRYTheme))
         {
