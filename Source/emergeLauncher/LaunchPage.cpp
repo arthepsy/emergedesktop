@@ -347,9 +347,12 @@ BOOL LaunchPage::DoCommand(HWND hwndDlg, WPARAM wParam, LPARAM lParam UNUSED)
     case IDC_DOWNITEM:
       return MoveItem(hwndDlg, false);
     case IDC_SAVEITEM:
-      return SaveItem(hwndDlg);
+      if (!SaveItem(hwndDlg))
+        return FALSE;
+      return EnableFields(hwndDlg, false);
     case IDC_ABORTITEM:
-      AbortItem(hwndDlg);
+      if (!AbortItem(hwndDlg))
+        return FALSE;
       return EnableFields(hwndDlg, false);
     case IDC_BROWSECOMMAND:
       return Browse(hwndDlg, BROWSE_COMMAND);
@@ -1032,6 +1035,8 @@ bool LaunchPage::AbortItem(HWND hwndDlg)
 
   SendDlgItemMessage(hwndDlg, IDC_INTERNAL, CB_SETCURSEL, (WPARAM)-1, 0);
   SendDlgItemMessage(hwndDlg, IDC_TYPE, CB_SETCURSEL, (WPARAM)-1, 0);
+  SendDlgItemMessage(hwndDlg, IDC_SEPARATOR, CB_SETCURSEL, (WPARAM)-1, 0);
+  SendDlgItemMessage(hwndDlg, IDC_SPECIALFOLDER, CB_SETCURSEL, (WPARAM)-1, 0);
 
   edit = false;
 
@@ -1126,6 +1131,9 @@ bool LaunchPage::SaveItem(HWND hwndDlg)
   SetDlgItemText(hwndDlg, IDC_WORKINGDIR, TEXT(""));
 
   SendDlgItemMessage(hwndDlg, IDC_INTERNAL, CB_SETCURSEL, (WPARAM)-1, 0);
+  SendDlgItemMessage(hwndDlg, IDC_TYPE, CB_SETCURSEL, (WPARAM)-1, 0);
+  SendDlgItemMessage(hwndDlg, IDC_SEPARATOR, CB_SETCURSEL, (WPARAM)-1, 0);
+  SendDlgItemMessage(hwndDlg, IDC_SPECIALFOLDER, CB_SETCURSEL, (WPARAM)-1, 0);
 
   saveCount++;
   edit = false;
