@@ -816,6 +816,9 @@ HICON EGGetSpecialFolderIcon(int csidl, UINT iconSize)
   SHFILEINFO fileInfo;
   WCHAR iconLocation[MAX_LINE_LENGTH];
 
+  if ((csidl == CSIDL_PERSONAL) && (ELVersionInfo() == 5.0))
+    return EGExtractIcon(TEXT("%SystemRoot%\\system32\\mydocs.dll"), 0, iconSize);
+
   if (SUCCEEDED(SHGetSpecialFolderLocation(NULL, csidl, &pidl)))
     {
       if (SHGetFileInfo((LPCTSTR)pidl, 0, &fileInfo, sizeof(fileInfo), SHGFI_PIDL|SHGFI_ICONLOCATION) != 0)
