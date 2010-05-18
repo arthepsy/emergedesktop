@@ -1392,8 +1392,10 @@ bool ELExecuteSpecialFolder(LPTSTR folder)
       break;
     case CSIDL_PERSONAL:
       if (ELVersionInfo() == 5.0)
-        wcscpy(command, TEXT("%Documents%"));
-      break;
+        {
+          wcscpy(command, TEXT("%Documents%"));
+          break;
+        }
     default:
       if (GetSpecialFolderGUID(specialFolder, classID))
         wcscat(command, classID);
