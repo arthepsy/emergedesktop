@@ -1,3 +1,4 @@
+// vim: tags+=../emergeLib/tags
 //----  --------------------------------------------------------------------------------------------------------
 //
 //  This file is part of Emerge Desktop.
@@ -510,14 +511,14 @@ bool ItemEditor::EnableFields(HWND hwndDlg)
   HWND workingDirTextWnd = GetDlgItem(hwndDlg, IDC_WORKINGDIRTEXT);
   HWND dirBrowseWnd = GetDlgItem(hwndDlg, IDC_DIRBROWSE);
   HWND specialFoldersWnd = GetDlgItem(hwndDlg, IDC_ITEMSPECIALFOLDERS);
-  int index = (int)SendMessage(typeWnd, CB_GETCURSEL, 0, 0);
+  int index = GetValueType((int)SendMessage(typeWnd, CB_GETCURSEL, 0, 0));
 
   EnableWindow(typeWnd, true);
   EnableWindow(typeTextWnd, true);
 
   switch (index)
     {
-    case 0:
+    case IT_SEPARATOR:
       EnableWindow(dirWnd, false);
       EnableWindow(workingDirTextWnd, false);
       EnableWindow(dirBrowseWnd, false);
@@ -527,7 +528,7 @@ bool ItemEditor::EnableFields(HWND hwndDlg)
       EnableWindow(valueTextWnd, false);
       EnableWindow(browseWnd, false);
       break;
-    case 2:
+    case IT_INTERNAL_COMMAND:
       EnableWindow(dirWnd, false);
       EnableWindow(workingDirTextWnd, false);
       EnableWindow(dirBrowseWnd, false);
@@ -536,7 +537,7 @@ bool ItemEditor::EnableFields(HWND hwndDlg)
       EnableWindow(nameTextWnd, true);
       EnableWindow(valueTextWnd, true);
       break;
-    case 3:
+    case IT_DATE_TIME:
       EnableWindow(dirWnd, false);
       EnableWindow(workingDirTextWnd, false);
       EnableWindow(dirBrowseWnd, false);
@@ -546,7 +547,7 @@ bool ItemEditor::EnableFields(HWND hwndDlg)
       EnableWindow(nameWnd, false);
       EnableWindow(nameTextWnd, true);
       break;
-    case 4:
+    case IT_SPECIAL_FOLDER:
       EnableWindow(dirWnd, false);
       EnableWindow(workingDirTextWnd, false);
       EnableWindow(dirBrowseWnd, false);
@@ -555,9 +556,9 @@ bool ItemEditor::EnableFields(HWND hwndDlg)
       EnableWindow(nameTextWnd, true);
       EnableWindow(valueTextWnd, true);
       break;
-    case 5:
-    case 7:
-    case 8:
+    case IT_XML_MENU:
+    case IT_SETTINGS_MENU:
+    case IT_TASKS_MENU:
       EnableWindow(dirWnd, false);
       EnableWindow(workingDirTextWnd, false);
       EnableWindow(dirBrowseWnd, false);
@@ -567,7 +568,7 @@ bool ItemEditor::EnableFields(HWND hwndDlg)
       EnableWindow(nameWnd, true);
       EnableWindow(nameTextWnd, true);
       break;
-    case 1:
+    case IT_EXECUTABLE:
       EnableWindow(dirWnd, true);
       EnableWindow(workingDirTextWnd, true);
       EnableWindow(dirBrowseWnd, true);
@@ -577,7 +578,7 @@ bool ItemEditor::EnableFields(HWND hwndDlg)
       EnableWindow(valueTextWnd, true);
       EnableWindow(browseWnd, true);
       break;
-    case 6:
+    case IT_FILE_MENU:
       EnableWindow(dirWnd, false);
       EnableWindow(workingDirTextWnd, false);
       EnableWindow(dirBrowseWnd, false);
