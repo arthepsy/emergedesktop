@@ -50,6 +50,7 @@
 #define DRM_DELETE          0x100
 #define DRM_EDIT            0x200
 #define DRM_ADD             0x300
+#define DRM_RUNAS           0x400
 
 #ifndef MND_CONTINUE
 #define MND_CONTINUE 0
@@ -109,10 +110,11 @@ private:
   static LRESULT CALLBACK MenuProcedure (HWND, UINT, WPARAM, LPARAM);
   static BOOL CALLBACK SetMonitorArea(HMONITOR hMonitor, HDC hdcMonitor, LPRECT lprcMonitor, LPARAM dwData);
   MenuMap::iterator GetMenuIterID(POINT pt, int *index);
-  int DisplayRegContext(POINT pt);
+  int DisplayRegContext(POINT pt, int type);
   bool registered;
   bool AddMenuItem(MenuMap::iterator iter, int index);
   bool EditMenuItem(MenuMap::iterator iter, int index);
+  void ElevatedExecute(MenuItem *menuItem);
 //    CustomDropTarget *customDropTarget;
 //    IDropTarget *dropTarget;
 

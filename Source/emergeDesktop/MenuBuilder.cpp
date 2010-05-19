@@ -224,15 +224,15 @@ LRESULT MenuBuilder::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lP
       switch (lParam)
         {
         case CORE_SETTINGS:
-        {
-          Config config(mainInst, pSettings);
-          if (config.Show() == IDOK)
             {
-              UpdateMenuHook();
-              SetWorkArea();
+              Config config(mainInst, pSettings);
+              if (config.Show() == IDOK)
+                {
+                  UpdateMenuHook();
+                  SetWorkArea();
+                }
             }
-        }
-        break;
+          break;
 
         case CORE_RIGHTMENU:
           return DoButtonDown(WM_RBUTTONDOWN);
@@ -398,7 +398,7 @@ LRESULT MenuBuilder::DoContextMenu(POINT pt)
     {
       int res;
     case 100:
-      res = DisplayRegContext(pt);
+      res = DisplayRegContext(pt, iter->second->GetMenuItem(itemID)->GetType());
       switch (res)
         {
         case DRM_DELETE:
@@ -415,6 +415,9 @@ LRESULT MenuBuilder::DoContextMenu(POINT pt)
         case DRM_ADD:
           AddMenuItem(iter, index);
           break;
+        case DRM_RUNAS:
+          ElevatedExecute(iter->second->GetMenuItem(itemID));
+          break;
         }
       break;
     case 101:
@@ -423,32 +426,37 @@ LRESULT MenuBuilder::DoContextMenu(POINT pt)
         SendMessage(menuWnd, WM_CANCELMODE, 0, 0);
       break;
     case 102:
-    {
-      HWND task = (HWND)_wtoi(value);
-      res = EAEDisplayMenu(menuWnd, task);
-      switch (res)
         {
-        case SC_CLOSE:
-          DeleteMenu(iter->first, index, MF_BYPOSITION);
-          break;
-        case SC_SIZE:
-        case SC_MOVE:
-        case SC_MAXIMIZE:
-        case SC_RESTORE:
-          ELSwitchToThisWindow(task);
-          SendMessage(menuWnd, WM_CANCELMODE, 0, 0);
-          break;
+          HWND task = (HWND)_wtoi(value);
+          res = EAEDisplayMenu(menuWnd, task);
+          switch (res)
+            {
+            case SC_CLOSE:
+              DeleteMenu(iter->first, index, MF_BYPOSITION);
+              break;
+            case SC_SIZE:
+            case SC_MOVE:
+            case SC_MAXIMIZE:
+            case SC_RESTORE:
+              ELSwitchToThisWindow(task);
+              SendMessage(menuWnd, WM_CANCELMODE, 0, 0);
+              break;
+            }
+          if (res)
+            PostMessage(task, WM_SYSCOMMAND, (WPARAM)res, MAKELPARAM(pt.x, pt.y));
         }
-      if (res)
-        PostMessage(task, WM_SYSCOMMAND, (WPARAM)res, MAKELPARAM(pt.x, pt.y));
-    }
-    break;
-    /*    case 103:
-          ExecuteSettingsMenuItem(itemID);
-          break;*/
+      break;
+      /*    case 103:
+            ExecuteSettingsMenuItem(itemID);
+            break;*/
     }
 
   return 1;
+}
+
+void MenuBuilder::ElevatedExecute(MenuItem *menuItem)
+{
+  ELExecute(menuItem->GetValue(), menuItem->GetWorkingDir(), SW_SHOW, (WCHAR*)TEXT("runas"));
 }
 
 bool MenuBuilder::AddMenuItem(MenuMap::iterator iter, int index)
@@ -545,11 +553,16 @@ bool MenuBuilder::EditMenuItem(MenuMap::iterator iter, int index)
   return true;
 }
 
-int MenuBuilder::DisplayRegContext(POINT pt)
+int MenuBuilder::DisplayRegContext(POINT pt, int type)
 {
   HMENU menu;
 
   menu = CreatePopupMenu();
+  if (type == IT_EXECUTABLE)
+    {
+      AppendMenu(menu, MF_STRING, DRM_RUNAS, TEXT("Run Elevated"));
+      AppendMenu(menu, MF_SEPARATOR, 0, NULL);
+    }
   AppendMenu(menu, MF_STRING, DRM_ADD, TEXT("Insert Menu Item"));
   AppendMenu(menu, MF_STRING, DRM_EDIT, TEXT("Edit Menu Item"));
   AppendMenu(menu, MF_STRING, DRM_DELETE, TEXT("Delete Menu Item"));
@@ -626,20 +639,20 @@ LRESULT CALLBACK MenuBuilder::HookCallWndProc(int nCode, WPARAM wParam, LPARAM l
       switch (cwps.message)
         {
         case WM_CREATE:
-        {
-          WCHAR szClass[128];
-          GetClassName(cwps.hwnd, szClass, 127);
-          if (_wcsicmp(szClass, TEXT("#32768"))==0)
             {
-              SetWindowLongPtr(cwps.hwnd,
-                               GWL_EXSTYLE,
-                               GetWindowLongPtr(cwps.hwnd, GWL_EXSTYLE) | WS_EX_LAYERED);
-              SetLayeredWindowAttributes(cwps.hwnd,
-                                         0,
-                                         (BYTE)((255 * globalMenuAlpha) / 100), LWA_ALPHA);
+              WCHAR szClass[128];
+              GetClassName(cwps.hwnd, szClass, 127);
+              if (_wcsicmp(szClass, TEXT("#32768"))==0)
+                {
+                  SetWindowLongPtr(cwps.hwnd,
+                                   GWL_EXSTYLE,
+                                   GetWindowLongPtr(cwps.hwnd, GWL_EXSTYLE) | WS_EX_LAYERED);
+                  SetLayeredWindowAttributes(cwps.hwnd,
+                                             0,
+                                             (BYTE)((255 * globalMenuAlpha) / 100), LWA_ALPHA);
+                }
             }
-        }
-        break;
+          break;
         }
     }
 
@@ -1249,10 +1262,10 @@ void MenuBuilder::BuildFileMenuFromString(MenuMap::iterator iter, WCHAR *parsedV
               MenuItem *menuItem;
               wcscpy(extension, PathFindExtension(tmp));
               bool isShortcut = (_wcsicmp(extension, TEXT(".lnk")) == 0) ||
-                                (_wcsicmp(extension, TEXT(".pif")) == 0) ||
-                                (_wcsicmp(extension, TEXT(".scf")) == 0) ||
-                                (_wcsicmp(extension, TEXT(".pnagent")) == 0) ||
-                                (_wcsicmp(extension, TEXT(".url")) == 0);
+                (_wcsicmp(extension, TEXT(".pif")) == 0) ||
+                (_wcsicmp(extension, TEXT(".scf")) == 0) ||
+                (_wcsicmp(extension, TEXT(".pnagent")) == 0) ||
+                (_wcsicmp(extension, TEXT(".url")) == 0);
 
               wcscpy(entry, tmp);
               wcscpy(tmp, findData.cFileName);
