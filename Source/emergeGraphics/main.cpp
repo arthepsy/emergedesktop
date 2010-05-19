@@ -598,10 +598,18 @@ HICON EGGetFileIcon(WCHAR *file, UINT iconSize)
   bool hasIndex = false;
   std::wstring supliedFile;
 
+  std::wstring debug = file;
+  ELWriteDebug(debug);
+
   if (file == NULL)
     return icon;
 
   supliedFile = file;
+  if (!supliedFile.empty())
+    {
+      if (supliedFile.at(0) == '@')
+        supliedFile = supliedFile.substr(1);
+    }
   supliedFile = ELExpandVars(supliedFile);
   if (!PathFileExists(supliedFile.c_str()))
     {

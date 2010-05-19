@@ -1218,6 +1218,11 @@ bool ELParseCommand(const WCHAR *application, WCHAR *program, WCHAR *arguments)
   size_t appLength = wcslen(application);
   std::wstring workingApp = application;
 
+  if (!workingApp.empty())
+    {
+      if (workingApp.at(0) == '@')
+        workingApp = workingApp.substr(1);
+    }
   workingApp = ELExpandVars(workingApp);
 
   // Bail if workingApp is a directory, UNC Path or it exists
