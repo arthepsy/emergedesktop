@@ -854,12 +854,12 @@ std::string ELwstringTostring(std::wstring inString, UINT codePage)
   std::string returnString;
 
   size_t tmpStringLength = WideCharToMultiByte(codePage, 0, wideString.c_str(), wideString.length(), NULL, 0,
-                           NULL, NULL);
+                                               NULL, NULL);
   if (tmpStringLength != 0)
     {
       LPSTR tmpString = new char[tmpStringLength + 1];
       size_t writtenBytes = WideCharToMultiByte(codePage, 0, wideString.c_str(), wideString.length(), tmpString,
-                            tmpStringLength, NULL, NULL);
+                                                tmpStringLength, NULL, NULL);
       if (writtenBytes != 0)
         {
           if (writtenBytes <= tmpStringLength)
@@ -881,7 +881,7 @@ std::wstring ELstringTowstring(std::string inString, UINT codePage)
     {
       LPWSTR tmpString = new WCHAR[tmpStringLength + 1];
       size_t writtenBytes = MultiByteToWideChar(codePage, 0, narrowString.c_str(), narrowString.length(), tmpString,
-                            tmpStringLength);
+                                                tmpStringLength);
       if (writtenBytes != 0)
         {
           if (writtenBytes <= tmpStringLength)
@@ -1419,7 +1419,7 @@ BOOL CALLBACK WindowIconEnum(HWND hwnd, LPARAM lParam)
 // Returns:	HANDLE
 // Purpose:	Executes the application
 //----  --------------------------------------------------------------------------------------------------------
-bool ELExecute(LPTSTR application, LPTSTR workingDir, int nShow)
+bool ELExecute(LPTSTR application, LPTSTR workingDir, int nShow, WCHAR *verb)
 {
   WCHAR program[MAX_PATH], directory[MAX_PATH], arguments[MAX_LINE_LENGTH];
   WCHAR command[MAX_LINE_LENGTH];
@@ -1438,6 +1438,14 @@ bool ELExecute(LPTSTR application, LPTSTR workingDir, int nShow)
   ZeroMemory(directory, MAX_PATH);
   ZeroMemory(arguments, MAX_LINE_LENGTH);
 
+  if (!workingString.empty())
+    {
+      if (workingString.at(0) == '@')
+        {
+          verb = (WCHAR*)TEXT("runas");
+          workingString = workingString.substr(1);
+        }
+    }
   workingString = ELExpandVars(workingString);
   shortcutPath = workingString;
 
@@ -1501,20 +1509,23 @@ bool ELExecute(LPTSTR application, LPTSTR workingDir, int nShow)
       si.wShowWindow = nShow;
     }
 
-  if (CreateProcess(NULL,
-                    command,
-                    NULL,
-                    NULL,
-                    FALSE,
-                    NORMAL_PRIORITY_CLASS,
-                    NULL,
-                    commandDir,
-                    &si,
-                    &pi))
+  if (verb == NULL)
     {
-      CloseHandle(pi.hProcess);
-      CloseHandle(pi.hThread);
-      return true;
+      if (CreateProcess(NULL,
+                        command,
+                        NULL,
+                        NULL,
+                        FALSE,
+                        NORMAL_PRIORITY_CLASS,
+                        NULL,
+                        commandDir,
+                        &si,
+                        &pi))
+        {
+          CloseHandle(pi.hProcess);
+          CloseHandle(pi.hThread);
+          return true;
+        }
     }
 
   // Call ShellExecuteEx as an 'all-else-fails' mechanism since things like UAC escalation don't play nice
@@ -1524,6 +1535,7 @@ bool ELExecute(LPTSTR application, LPTSTR workingDir, int nShow)
   sei.lpFile = program;
   sei.lpParameters = arguments;
   sei.lpDirectory = commandDir;
+  sei.lpVerb = verb;
   sei.nShow = nShow;
 
   return (ShellExecuteEx(&sei) == TRUE);
@@ -4093,7 +4105,7 @@ std::wstring ELwcsftime(const WCHAR *format, const struct tm *timeptr)
     {
       tmpString.resize(tmpStringLength + 1);
       size_t writtenBytes = MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, tmpDest, strlen(tmpDest), &tmpString.front(),
-                            tmpStringLength);
+                                                tmpStringLength);
       if (writtenBytes != 0)
         {
           if (writtenBytes <= tmpStringLength)

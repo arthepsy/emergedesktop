@@ -286,7 +286,7 @@ DLL_EXPORT bool ELOpenRegKey(LPCTSTR subkey, HKEY *key, bool createKey);
 DLL_EXPORT bool ELDeleteRegKey(LPTSTR subkey);
 DLL_EXPORT bool ELCloseRegKey(HKEY key);
 DLL_EXPORT void ELThreadExecute(void *argument);
-DLL_EXPORT bool ELExecute(LPTSTR application, LPTSTR workingDir = (WCHAR*)TEXT("\0"), int nShow = SW_SHOW);
+DLL_EXPORT bool ELExecute(LPTSTR application, LPTSTR workingDir = (WCHAR*)TEXT("\0"), int nShow = SW_SHOW, WCHAR *verb = NULL);
 DLL_EXPORT bool ELExecuteInternal(LPTSTR application);
 DLL_EXPORT bool ELExecuteAlias(LPTSTR alias);
 DLL_EXPORT bool ELExecuteSpecialFolder(LPTSTR folder);
