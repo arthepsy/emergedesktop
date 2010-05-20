@@ -88,6 +88,7 @@ BOOL Shutdown::DoInitDialog(HWND hwndDlg)
   SendDlgItemMessage(hwndDlg, IDC_METHOD, CB_ADDSTRING, 0, (LPARAM)TEXT("Turn Off"));
   SendDlgItemMessage(hwndDlg, IDC_METHOD, CB_ADDSTRING, 0, (LPARAM)TEXT("Restart"));
   SendDlgItemMessage(hwndDlg, IDC_METHOD, CB_ADDSTRING, 0, (LPARAM)TEXT("Stand By"));
+  SendDlgItemMessage(hwndDlg, IDC_METHOD, CB_ADDSTRING, 0, (LPARAM)TEXT("Hibernate"));
   SendDlgItemMessage(hwndDlg, IDC_METHOD, CB_ADDSTRING, 0, (LPARAM)TEXT("Logoff"));
 #ifndef _W64
   if (WTSQuerySessionInformation(WTS_CURRENT_SERVER_HANDLE,
@@ -143,15 +144,18 @@ bool Shutdown::DoShutdown(HWND hwndDlg)
       method = EMERGE_SUSPEND;
       break;
     case 3:
-      method = EMERGE_LOGOFF;
+      method = EMERGE_HIBERNATE;
       break;
     case 4:
+      method = EMERGE_LOGOFF;
+      break;
+    case 5:
       if (enableDisconnect)
         {
           method = EMERGE_DISCONNECT;
           break;
         }
-    case 5:
+    case 6:
       ELQuit(false);
       return true;
     default:
