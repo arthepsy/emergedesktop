@@ -40,7 +40,23 @@ Settings::~Settings()
 void Settings::ResetDefaults()
 {
   BaseSettings::ResetDefaults();
-  y = 104;
+  x = 0;
+  y = -40;
+  width = 281;
+  height = 32;
+  wcscpy(zPosition, TEXT("Top"));
+  wcscpy(horizontalDirection, TEXT("right"));
+  wcscpy(verticalDirection, TEXT("down"));
+  wcscpy(directionOrientation, TEXT("horizontal"));
+  autoSize = true;
+  iconSize = 32;
+  iconSpacing = 3;
+  snapMove = true;
+  snapSize = true;
+  dynamicPositioning = true;
+  clickThrough = 0;
+  appletMonitor = 0;
+  wcscpy(anchorPoint, TEXT("BottomLeft"));
 }
 
 void Settings::PopulateItems()
@@ -83,6 +99,27 @@ void Settings::PopulateItems()
                 }
             }
         }
+    }
+
+  // Populate default items
+  if (!found)
+    {
+      itemList.push_back(std::tr1::shared_ptr<Item>(new Item(2, L"RightDeskMenu", L"%AppletDir%\\emergeCore.exe,0", L"", L"")));
+      itemList.back()->SetIcon(GetIconSize(), GetDirectionOrientation());
+      itemList.push_back(std::tr1::shared_ptr<Item>(new Item(0, L"Double", L"", L"", L"")));
+      itemList.back()->SetIcon(GetIconSize(), GetDirectionOrientation());
+      itemList.push_back(std::tr1::shared_ptr<Item>(new Item(2, L"Homepage", L"%ProgramFiles%\\Internet Explorer\\iexplore.exe,0", L"Emerge Desktop Homepage", L"")));
+      itemList.back()->SetIcon(GetIconSize(), GetDirectionOrientation());
+      itemList.push_back(std::tr1::shared_ptr<Item>(new Item(2, L"ShowDesktop", L"%WinDir%\\system32\\shell32.dll,34", L"Show Desktop", L"")));
+      itemList.back()->SetIcon(GetIconSize(), GetDirectionOrientation());
+      itemList.push_back(std::tr1::shared_ptr<Item>(new Item(4, L"CSIDL_PERSONAL", L"", L"My Documents", L"")));
+      itemList.back()->SetIcon(GetIconSize(), GetDirectionOrientation());
+      itemList.push_back(std::tr1::shared_ptr<Item>(new Item(1, L"%AppletDir%\\documentation\\Emerge Desktop.chm", L"%SystemRoot%\\system32\\shell32.dll,23", L"Emerge Desktop Help", L"")));
+      itemList.back()->SetIcon(GetIconSize(), GetDirectionOrientation());
+      itemList.push_back(std::tr1::shared_ptr<Item>(new Item(2, L"Tutorial", L"%WinDir%\\system32\\shell32.dll,13", L"Emerge Desktop Online Tutorial", L"")));
+      itemList.back()->SetIcon(GetIconSize(), GetDirectionOrientation());
+      itemList.push_back(std::tr1::shared_ptr<Item>(new Item(0, L"Single", L"", L"", L"")));
+      itemList.back()->SetIcon(GetIconSize(), GetDirectionOrientation());
     }
 }
 

@@ -240,7 +240,6 @@ void Applet::AppletUpdate()
   for (UINT i = 0; i < pSettings->GetItemListSize(); i++)
     DeleteTip(i);
 
-  //UpdateIcons();
   pSettings->DeleteItems(false);
   pSettings->PopulateItems();
 }

@@ -24,7 +24,7 @@
 WCHAR appletName[] = TEXT("emergeTasks");
 
 Settings::Settings()
-  :BaseSettings(true)
+:BaseSettings(true)
 {
   hiliteActive = true;
   flashCount = 0;
@@ -53,10 +53,27 @@ void Settings::DoWriteSettings(IOHelper& helper)
 void Settings::ResetDefaults()
 {
   BaseSettings::ResetDefaults();
-  hiliteActive = true;
+  hiliteActive = false;
   flashCount = 0;
   enableFlash = true;
   flashInterval = 1000;
+  x = 285;
+  y = -40;
+  width = 271;
+  height = 32;
+  wcscpy(zPosition, TEXT("Top"));
+  wcscpy(horizontalDirection, TEXT("right"));
+  wcscpy(verticalDirection, TEXT("up"));
+  wcscpy(directionOrientation, TEXT("horizontal"));
+  autoSize = false;
+  iconSize = 32;
+  iconSpacing = 7;
+  snapMove = true;
+  snapSize = true;
+  dynamicPositioning = true;
+  clickThrough = 0;
+  appletMonitor = 0;
+  wcscpy(anchorPoint, TEXT("BottomLeft"));
 }
 
 bool Settings::GetHiliteActive()

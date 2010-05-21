@@ -123,17 +123,19 @@ protected:
   virtual void DoInitialize();
   virtual void ResetDefaults();
   int x, y;
+  int width, height, iconSize, iconSpacing, clickThrough, appletMonitor;
+  WCHAR horizontalDirection[MAX_LINE_LENGTH], verticalDirection[MAX_LINE_LENGTH],
+  directionOrientation[MAX_LINE_LENGTH];
+  bool autoSize, snapMove, snapSize, dynamicPositioning;
+  WCHAR anchorPoint[MAX_LINE_LENGTH];
+  WCHAR zPosition[MAX_LINE_LENGTH];
 
 private:
   HWND appletWnd;
-  int width, height, iconSize, iconSpacing, clickThrough, appletMonitor;
-  WCHAR zPosition[MAX_LINE_LENGTH];
   WCHAR keyString[MAX_LINE_LENGTH];
-  WCHAR horizontalDirection[MAX_LINE_LENGTH], verticalDirection[MAX_LINE_LENGTH],
-  directionOrientation[MAX_LINE_LENGTH], appletName[MAX_LINE_LENGTH];
-  bool autoSize, snapMove, snapSize, dynamicPositioning, allowAutoSize;
+  WCHAR appletName[MAX_LINE_LENGTH];
+  bool allowAutoSize;
   WCHAR schemeFile[MAX_PATH];
-  WCHAR anchorPoint[MAX_LINE_LENGTH];
   bool modifiedFlag;
   std::wstring oldTheme, defaultTheme, GBRYTheme;
 };

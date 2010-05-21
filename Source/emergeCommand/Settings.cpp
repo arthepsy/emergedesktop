@@ -73,15 +73,31 @@ void Settings::DoInitialize()
 void Settings::ResetDefaults()
 {
   BaseSettings::ResetDefaults();
-  wcscpy(clockTextAlign, (WCHAR*)TEXT("left"));
+  wcscpy(clockTextAlign, (WCHAR*)TEXT("center"));
   wcscpy(commandTextAlign, (WCHAR*)TEXT("left"));
-  wcscpy(commandVerticalAlign, (WCHAR*)TEXT("top"));
-  wcscpy(clockVerticalAlign, (WCHAR*)TEXT("top"));
-  wcscpy(timeFormat, (WCHAR*)TEXT("%A%_%x%_%X"));
-  wcscpy(tipFormat, (WCHAR*)TEXT("%#c"));
-  wcscpy(fontString, (WCHAR*)TEXT("Tahoma-12"));
+  wcscpy(commandVerticalAlign, (WCHAR*)TEXT("center"));
+  wcscpy(clockVerticalAlign, (WCHAR*)TEXT("center"));
+  wcscpy(timeFormat, (WCHAR*)TEXT("%#H:%M"));
+  wcscpy(tipFormat, (WCHAR*)TEXT("%#x"));
+  wcscpy(fontString, (WCHAR*)TEXT("Arial-16"));
   autoComplete = true;
-  x = 208;
+  x = -72;
+  y = -40;
+  width = 64;
+  height = 32;
+  wcscpy(zPosition, TEXT("Top"));
+  wcscpy(horizontalDirection, TEXT("right"));
+  wcscpy(verticalDirection, TEXT("down"));
+  wcscpy(directionOrientation, TEXT("horizontal"));
+  autoSize = false;
+  iconSize = 16;
+  iconSpacing = 1;
+  snapMove = true;
+  snapSize = true;
+  dynamicPositioning = true;
+  clickThrough = 0;
+  appletMonitor = 0;
+  wcscpy(anchorPoint, TEXT("BottomRight"));
 }
 
 
@@ -94,11 +110,6 @@ bool Settings::SetFont(LOGFONT *logFont)
 {
   WCHAR tmp[MAX_LINE_LENGTH];
   EGFontToString(*logFont, tmp);
-
-  std::wstring debug = tmp;
-  ELWriteDebug(debug);
-  debug = fontString;
-  ELWriteDebug(debug);
 
   if (!EGEqualLogFont(this->logFont, *logFont))
     {

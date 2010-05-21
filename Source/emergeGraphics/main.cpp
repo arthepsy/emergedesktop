@@ -598,9 +598,6 @@ HICON EGGetFileIcon(WCHAR *file, UINT iconSize)
   bool hasIndex = false;
   std::wstring supliedFile;
 
-  std::wstring debug = file;
-  ELWriteDebug(debug);
-
   if (file == NULL)
     return icon;
 

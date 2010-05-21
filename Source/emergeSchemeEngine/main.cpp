@@ -215,25 +215,25 @@ void ESEReadScheme(WCHAR *schemeFile, LPGUIINFO guiInfo)
   ELReadFileByte(workingScheme.c_str(), (WCHAR*)TEXT("alpha.border:"), &guiInfo->alphaBorder, 100);
   ELReadFileByte(workingScheme.c_str(), (WCHAR*)TEXT("alpha.text:"), &guiInfo->alphaText, 100);
   ELReadFileColor(workingScheme.c_str(), (WCHAR*)TEXT("color.background:"), &guiInfo->colorBackground,
-                  GetSysColor(COLOR_BTNFACE));
+                  RGB(212,208,200));
   ELReadFileColor(workingScheme.c_str(), (WCHAR*)TEXT("color.selected:"), &guiInfo->colorSelected,
-                  GetSysColor(COLOR_HIGHLIGHT));
+                  RGB(10,36,106));
   ELReadFileColor(workingScheme.c_str(), (WCHAR*)TEXT("color.foreground:"), &guiInfo->colorForeground,
-                  GetSysColor(COLOR_WINDOW));
+                  RGB(255,255,255));
   ELReadFileColor(workingScheme.c_str(), (WCHAR*)TEXT("color.frame:"), &guiInfo->colorFrame,
-                  GetSysColor(COLOR_ACTIVECAPTION));
+                  RGB(10,36,106));
   ELReadFileColor(workingScheme.c_str(), (WCHAR*)TEXT("color.font:"), &guiInfo->colorFont,
-                  GetSysColor(COLOR_BTNTEXT));
+                  RGB(255,255,255));
   ELReadFileColor(workingScheme.c_str(), (WCHAR*)TEXT("color.border:"), &guiInfo->colorBorder, RGB(0, 0, 0));
-  ELReadFileBool(workingScheme.c_str(), (WCHAR*)TEXT("window.shadow:"), &guiInfo->windowShadow, true);
-  ELReadFileInt(workingScheme.c_str(), (WCHAR*)TEXT("window.dragborder:"), &guiInfo->dragBorder, 1);
-  ELReadFileInt(workingScheme.c_str(), (WCHAR*)TEXT("window.bevelWidth:"), &guiInfo->bevelWidth, 1);
-  ELReadFileInt(workingScheme.c_str(), (WCHAR*)TEXT("window.padding:"), &guiInfo->padding, 0);
+  ELReadFileBool(workingScheme.c_str(), (WCHAR*)TEXT("window.shadow:"), &guiInfo->windowShadow, false);
+  ELReadFileInt(workingScheme.c_str(), (WCHAR*)TEXT("window.dragborder:"), &guiInfo->dragBorder, 0);
+  ELReadFileInt(workingScheme.c_str(), (WCHAR*)TEXT("window.bevelWidth:"), &guiInfo->bevelWidth, 0);
+  ELReadFileInt(workingScheme.c_str(), (WCHAR*)TEXT("window.padding:"), &guiInfo->padding, 4);
   ELReadFileColor(workingScheme.c_str(), (WCHAR*)TEXT("gradient.colorFrom:"), &guiInfo->gradientFrom,
-                  GetSysColor(COLOR_ACTIVECAPTION));
+                  RGB(255,255,255));
   ELReadFileColor(workingScheme.c_str(), (WCHAR*)TEXT("gradient.colorTo:"), &guiInfo->gradientTo,
-                  GetSysColor(COLOR_GRADIENTACTIVECAPTION));
-  ELReadFileString(workingScheme.c_str(), (WCHAR*)TEXT("gradient.method:"), guiInfo->gradientMethod, (WCHAR*)TEXT("Solid"));
+                  RGB(0,0,0));
+  ELReadFileString(workingScheme.c_str(), (WCHAR*)TEXT("gradient.method:"), guiInfo->gradientMethod, (WCHAR*)TEXT("VerticalFlat"));
 }
 
 void ESELoadScheme(WCHAR *schemeFile, LPGUIINFO guiInfo)

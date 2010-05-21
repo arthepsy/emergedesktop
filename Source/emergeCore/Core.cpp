@@ -244,6 +244,21 @@ bool Core::RunLaunchItems()
       wcscat(path, TEXT("emergeDesktop.exe"));
       if (ELPathFileExists(path))
         ELExecute(path);
+
+      wcscpy(path, installDir);
+      wcscat(path, TEXT("emergeCommand.exe"));
+      if (ELPathFileExists(path))
+        ELExecute(path);
+
+      wcscpy(path, installDir);
+      wcscat(path, TEXT("emergeLauncher.exe"));
+      if (ELPathFileExists(path))
+        ELExecute(path);
+
+      wcscpy(path, installDir);
+      wcscat(path, TEXT("emergeHotkeys.exe"));
+      if (ELPathFileExists(path))
+        ELExecute(path);
     }
 
   return found;
@@ -551,6 +566,9 @@ bool Core::CheckLaunchList()
       CheckLaunchItem(&launchMap, TEXT("emergeTasks.exe"));
       CheckLaunchItem(&launchMap, TEXT("emergeTray.exe"));
       CheckLaunchItem(&launchMap, TEXT("emergeDesktop.exe"));
+      CheckLaunchItem(&launchMap, TEXT("emergeCommand.exe"));
+      CheckLaunchItem(&launchMap, TEXT("emergeLauncher.exe"));
+      CheckLaunchItem(&launchMap, TEXT("emergeHotkeys.exe"));
     }
 
   while (!launchMap.empty())

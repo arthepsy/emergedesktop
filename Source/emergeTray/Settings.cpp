@@ -47,7 +47,23 @@ void Settings::ResetDefaults()
 {
   BaseSettings::ResetDefaults();
   unhideIcons = true;
-  x = 104;
+  x = -72;
+  y = -1;
+  width = 156;
+  height = 32;
+  wcscpy(zPosition, TEXT("Top"));
+  wcscpy(horizontalDirection, TEXT("left"));
+  wcscpy(verticalDirection, TEXT("up"));
+  wcscpy(directionOrientation, TEXT("horizontal"));
+  autoSize = false;
+  iconSize = 16;
+  iconSpacing = 3;
+  snapMove = true;
+  snapSize = true;
+  dynamicPositioning = true;
+  clickThrough = 0;
+  appletMonitor = 0;
+  wcscpy(anchorPoint, TEXT("BottomRight"));
 }
 
 bool Settings::GetUnhideIcons()

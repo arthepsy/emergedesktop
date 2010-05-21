@@ -46,7 +46,7 @@ void Settings::DoInitialize()
 void Settings::ResetDefaults()
 {
   topBorder = 0;
-  bottomBorder = 0;
+  bottomBorder = 44;
   leftBorder = 0;
   rightBorder = 0;
   menuAlpha = 100;
