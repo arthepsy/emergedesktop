@@ -143,6 +143,7 @@
 				</ResourceCompiler>
 				<Linker>
 					<Add option="-s" />
+					<Add library="emergeBaseClasses" />
 					<Add library="emergeLib" />
 					<Add library="shell32" />
 					<Add library="shlwapi" />
@@ -789,6 +790,14 @@
 			<Option target="emergeCore - Debug" />
 		</Unit>
 		<Unit filename="emergeCore\MessageControl.h">
+			<Option target="emergeCore - Release" />
+			<Option target="emergeCore - Debug" />
+		</Unit>
+		<Unit filename="emergeCore\Settings.cpp">
+			<Option target="emergeCore - Release" />
+			<Option target="emergeCore - Debug" />
+		</Unit>
+		<Unit filename="emergeCore\Settings.h">
 			<Option target="emergeCore - Release" />
 			<Option target="emergeCore - Debug" />
 		</Unit>
