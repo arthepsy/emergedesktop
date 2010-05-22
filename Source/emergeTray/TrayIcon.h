@@ -61,9 +61,9 @@ public:
   bool GetShared();
   UINT GetIconVersion();
   void SetIconVersion(UINT iconVersion);
-  void SetIcon(HICON icon);
-  void SetCallback(UINT callbackMessage);
-  void SetTip(WCHAR *tip);
+  bool SetIcon(HICON icon);
+  bool SetCallback(UINT callbackMessage);
+  bool SetTip(WCHAR *tip);
   void SetFlags(UINT flags);
   void SetRect(RECT rect);
   void SetHidden(bool hidden);
@@ -84,6 +84,10 @@ private:
   bool hidden;
   bool shared;
   bool convertIcon;
+
+  // Holds refrence to original icon handler
+  // (since we do not create this icon we should not destroy it either)
+  HICON origIconSource;
 };
 
 //====================

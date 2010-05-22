@@ -43,6 +43,7 @@ TrayIcon::TrayIcon(HINSTANCE appInstance, HWND wnd, UINT id, HWND mainWnd, HWND 
   this->toolWnd = toolWnd;
   origIcon = NULL;
   newIcon = NULL;
+  origIconSource = NULL;
   callbackMessage = 0;
   wcscpy(tip, TEXT("\0"));
   flags = 0;
@@ -202,42 +203,63 @@ void TrayIcon::SetIconVersion(UINT iconVersion)
 //-----
 // Function:	SetIcon
 // Requires:	HICON icon - new icon
-// Returns:	Nothing
+// Returns:	true if icon was updated, false otherwise
 // Purpose:	Replaces existing icon with new icon
 //-----
-void TrayIcon::SetIcon(HICON icon)
+bool TrayIcon::SetIcon(HICON icon)
 {
-  if (origIcon)
-    DestroyIcon(origIcon);
+  if (origIconSource != icon)
+  {
+    if (origIcon)
+      DestroyIcon(origIcon);
 
-  origIcon = CopyIcon(icon);
-  convertIcon = true;
+	origIconSource = icon;
+    origIcon = CopyIcon(icon);
+    convertIcon = true;
+
+	// changed
+	return true;
+  }
+
+  return false;
 }
 
 //-----
 // Function:	SetCallback
 // Requires:	UINT callbackMessage
-// Returns:	Nothing
+// Returns:	true if callback was updated, false otherwise
 // Purpose:	Replaces the existing callback message with the new one
 //-----
-void TrayIcon::SetCallback(UINT callbackMessage)
+bool TrayIcon::SetCallback(UINT callbackMessage)
 {
-  (*this).callbackMessage = callbackMessage;
+  if ((*this).callbackMessage != callbackMessage)
+  {
+    (*this).callbackMessage = callbackMessage;
+
+	return true;
+  }
+
+  return false;
 }
 
 //-----
 // Function:	SetTip
 // Requires:	WCHAR *tip - new tooltip text
-// Returns:	Nothing
+// Returns:	true if tooltip was updated, false otherwise
 // Purpose:	Replaces the existing tooltip text
 //-----
-void TrayIcon::SetTip(WCHAR *tip)
+bool TrayIcon::SetTip(WCHAR *tip)
 {
   if (wcscmp((*this).tip, tip) != 0)
     {
       wcscpy((*this).tip, tip);
       UpdateTip();
+
+	  // changed
+	  return true;
     }
+
+  return false;
 }
 
 //-----

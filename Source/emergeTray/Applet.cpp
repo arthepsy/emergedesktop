@@ -657,6 +657,7 @@ LRESULT Applet::ModifyTrayIcon(HWND hwnd, UINT uID, UINT uFlags, UINT uCallbackM
   CleanTray();
 
   bool adjust = false;
+  bool changed = false;
   TrayIcon *pTrayIcon = FindTrayIcon(hwnd, uID);
   RECT wndRect;
 
@@ -667,11 +668,12 @@ LRESULT Applet::ModifyTrayIcon(HWND hwnd, UINT uID, UINT uFlags, UINT uCallbackM
 
   if ((uFlags & NIF_ICON) == NIF_ICON)
     {
-      if ((pTrayIcon->GetFlags() & NIF_ICON) != NIF_ICON)
-        adjust = true;
-
-      pTrayIcon->SetIcon(icon);
-      pTrayIcon->SetFlags(pTrayIcon->GetFlags() | NIF_ICON);
+      if (pTrayIcon->SetIcon(icon))
+        {
+          pTrayIcon->SetFlags(pTrayIcon->GetFlags() | NIF_ICON);
+          adjust = true;
+          changed = true;
+        }
     }
 
   if (!isHide)
@@ -680,6 +682,7 @@ LRESULT Applet::ModifyTrayIcon(HWND hwnd, UINT uID, UINT uFlags, UINT uCallbackM
         {
           pTrayIcon->SetHidden(hidden);
           adjust = true;
+          changed = true;
         }
     }
 
@@ -687,16 +690,22 @@ LRESULT Applet::ModifyTrayIcon(HWND hwnd, UINT uID, UINT uFlags, UINT uCallbackM
 
   if ((uFlags & NIF_MESSAGE) == NIF_MESSAGE)
     {
-      pTrayIcon->SetCallback(uCallbackMessage);
-      pTrayIcon->SetFlags(pTrayIcon->GetFlags() | NIF_MESSAGE);
+      if (pTrayIcon->SetCallback(uCallbackMessage))
+        {
+          pTrayIcon->SetFlags(pTrayIcon->GetFlags() | NIF_MESSAGE);
+          changed = true;
+        }
     }
 
   if ((uFlags & NIF_TIP) == NIF_TIP)
     {
       if (!isHide || (isHide && (wcslen(newTip) != 0)))
         {
-          pTrayIcon->SetTip(newTip);
-          pTrayIcon->SetFlags(pTrayIcon->GetFlags() | NIF_TIP);
+          if (pTrayIcon->SetTip(newTip))
+            {
+              pTrayIcon->SetFlags(pTrayIcon->GetFlags() | NIF_TIP);
+              changed = true;
+            }
         }
     }
 
@@ -716,7 +725,8 @@ LRESULT Applet::ModifyTrayIcon(HWND hwnd, UINT uID, UINT uFlags, UINT uCallbackM
         }
     }
 
-  if (!isHide)
+  // ELWriteDebug(towstring<UINT>(uFlags));
+  if ((!isHide) && (changed))
     DrawAlphaBlend();
 
   return 1;
