@@ -22,7 +22,7 @@
 #include "Settings.h"
 
 Settings::Settings(HWND mainWnd)
-  :BaseSettings(true)
+:BaseSettings(true)
 {
   (*this).mainWnd = mainWnd;
   xmlFile = TEXT("%EmergeDir%\\files\\emergeHotkeys.xml");
@@ -168,7 +168,31 @@ bool Settings::BuildList(bool backup)
         }
     }
 
-  return found;
+  if (!found)
+    {
+      if (backup)
+        {
+          backupList.push_back( std::tr1::shared_ptr<HotkeyCombo>(new HotkeyCombo((WCHAR*)L"Win+R", (WCHAR*)L"Run")) );
+          backupList.push_back( std::tr1::shared_ptr<HotkeyCombo>(new HotkeyCombo((WCHAR*)L"Win+D", (WCHAR*)L"ShowDesktop")) );
+          backupList.push_back( std::tr1::shared_ptr<HotkeyCombo>(new HotkeyCombo((WCHAR*)L"Win+E", (WCHAR*)L"explorer /e")) );
+          backupList.push_back( std::tr1::shared_ptr<HotkeyCombo>(new HotkeyCombo((WCHAR*)L"VolumeMute", (WCHAR*)L"VolumeMute")) );
+          backupList.push_back( std::tr1::shared_ptr<HotkeyCombo>(new HotkeyCombo((WCHAR*)L"VolumeUp", (WCHAR*)L"VolumeUp")) );
+          backupList.push_back( std::tr1::shared_ptr<HotkeyCombo>(new HotkeyCombo((WCHAR*)L"VolumeDown", (WCHAR*)L"VolumeDown")) );
+          backupList.push_back( std::tr1::shared_ptr<HotkeyCombo>(new HotkeyCombo((WCHAR*)L"LeftWinKey", (WCHAR*)L"RightDeskMenu")) );
+        }
+      else
+        {
+          hotkeyList.push_back( std::tr1::shared_ptr<HotkeyCombo>(new HotkeyCombo((WCHAR*)L"Win+R", (WCHAR*)L"Run")) );
+          hotkeyList.push_back( std::tr1::shared_ptr<HotkeyCombo>(new HotkeyCombo((WCHAR*)L"Win+D", (WCHAR*)L"ShowDesktop")) );
+          hotkeyList.push_back( std::tr1::shared_ptr<HotkeyCombo>(new HotkeyCombo((WCHAR*)L"Win+E", (WCHAR*)L"explorer /e")) );
+          hotkeyList.push_back( std::tr1::shared_ptr<HotkeyCombo>(new HotkeyCombo((WCHAR*)L"VolumeMute", (WCHAR*)L"VolumeMute")) );
+          hotkeyList.push_back( std::tr1::shared_ptr<HotkeyCombo>(new HotkeyCombo((WCHAR*)L"VolumeUp", (WCHAR*)L"VolumeUp")) );
+          hotkeyList.push_back( std::tr1::shared_ptr<HotkeyCombo>(new HotkeyCombo((WCHAR*)L"VolumeDown", (WCHAR*)L"VolumeDown")) );
+          hotkeyList.push_back( std::tr1::shared_ptr<HotkeyCombo>(new HotkeyCombo((WCHAR*)L"LeftWinKey", (WCHAR*)L"RightDeskMenu")) );
+        }
+    }
+
+    return found;
 }
 
 UINT Settings::FindHotkeyListItem(WCHAR *tmpKey, WCHAR *tmpAction)
