@@ -191,7 +191,10 @@ std::tr1::shared_ptr<TiXmlDocument> OpenXMLConfig(std::string filename, bool cre
 
 bool ELPathFileExists(const WCHAR *file)
 {
-  return (PathFileExists(file) && !ELPathIsRelative(file));
+  std::wstring workingFile = file;
+  workingFile = ELExpandVars(workingFile);
+
+  return (PathFileExists(workingFile.c_str()) && !ELPathIsRelative(workingFile.c_str()));
 }
 
 // Don't use any EmergeVars in ELGetThemeInfo because it is used to derive the EmergeVars
@@ -1454,9 +1457,9 @@ bool ELExecute(LPTSTR application, LPTSTR workingDir, int nShow, WCHAR *verb)
   workingString = ELExpandVars(workingString);
   shortcutPath = workingString;
 
-  ELParseCommand(workingString.c_str(), program, arguments);
+  if (ELParseCommand(workingString.c_str(), program, arguments))
+    workingString = program;
   shortcutInfo.flags = SI_PATH | SI_ARGUMENTS | SI_WORKINGDIR | SI_SHOW;
-  workingString = program;
   if (ELParseShortcut(workingString.c_str(), &shortcutInfo))
     {
       isShortcut = true;
@@ -1476,9 +1479,14 @@ bool ELExecute(LPTSTR application, LPTSTR workingDir, int nShow, WCHAR *verb)
         }
     }
 
+  // Expand variables again so as to not confuse CreateProcess and ShellExecuteEx
+  workingString = program;
+  workingString = ELExpandVars(workingString);
+  wcscpy(program, workingString.c_str());
+
   // If the program doesn't exist or is not a URL return false so as to not
   // generate stray DDE calls
-  if (!PathFileExists(program) && !PathIsURL(program))
+  if (!ELPathFileExists(program) && !PathIsURL(program))
     return false;
 
   if (!ELFileTypeCommand(program, arguments, command))
@@ -1778,6 +1786,9 @@ bool PathTokenCheck(WCHAR *path)
   working = ELExpandVars(working);
   if (!ELGetAppPath(working.c_str(), tmp))
     wcscpy(tmp, working.c_str());
+
+  // Strip quotes since the system 'Path...' functions don't seem to like them
+  stripQuotes(tmp);
 
   if (ELPathFileExists(tmp) && !PathIsDirectory(tmp))
     {
