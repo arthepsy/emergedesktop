@@ -421,6 +421,14 @@
 					<Add directory=".\bin" />
 				</Linker>
 			</Target>
+			<Target title="emergeIcons - Release">
+				<Option output="bin\emergeIcons" prefix_auto="1" extension_auto="1" />
+				<Option object_output=".objs\Release" />
+				<Option type="3" />
+				<Option compiler="gcc" />
+				<Option createDefFile="1" />
+				<Option createStaticLib="1" />
+			</Target>
 			<Target title="emergeLib - Debug">
 				<Option platforms="Windows;" />
 				<Option output="bin\emergeLib" prefix_auto="1" extension_auto="1" />
@@ -590,7 +598,7 @@
 			</Target>
 		</Build>
 		<VirtualTargets>
-			<Add alias="All - Release" targets="emergeLib - Release;emergeGraphics - Release;emergeAppletEngine - Release;emergeSchemeEngine - Release;emergeBaseClasses - Release;emergeCore - Release;emergeCommand - Release;emergeDesktop - Release;emergeHotkeys - Release;emergeLauncher - Release;emergeTasks - Release;emergeTray - Release;emergeVWM - Release;emerge - Release;emergePower - Release;reg2xml - Release;emergeSysMon - Release;" />
+			<Add alias="All - Release" targets="emergeLib - Release;emergeGraphics - Release;emergeAppletEngine - Release;emergeSchemeEngine - Release;emergeBaseClasses - Release;emergeCore - Release;emergeCommand - Release;emergeDesktop - Release;emergeHotkeys - Release;emergeLauncher - Release;emergeTasks - Release;emergeTray - Release;emergeVWM - Release;emerge - Release;emergePower - Release;emergeSysMon - Release;reg2xml - Release;emergeIcons - Release;" />
 		</VirtualTargets>
 		<Compiler>
 			<Add option="-march=i586" />
@@ -1069,6 +1077,13 @@
 		<Unit filename="emergeHotkeys\resource.h">
 			<Option target="emergeHotkeys - Release" />
 		</Unit>
+		<Unit filename="emergeIcons\emergeIcons.rc">
+			<Option compilerVar="WINDRES" />
+			<Option target="emergeIcons - Release" />
+		</Unit>
+		<Unit filename="emergeIcons\resource.h">
+			<Option target="emergeIcons - Release" />
+		</Unit>
 		<Unit filename="emergeLauncher\Applet.cpp">
 			<Option target="emergeLauncher - Release" />
 		</Unit>
@@ -1520,7 +1535,34 @@
 		<Unit filename="emerge\main.cpp">
 			<Option target="emerge - Release" />
 		</Unit>
-		<Unit filename="hgversion.h" />
+		<Unit filename="hgversion.h">
+			<Option target="emergeLib - Release" />
+			<Option target="emergeGraphics - Release" />
+			<Option target="emergeAppletEngine - Release" />
+			<Option target="emergeSchemeEngine - Release" />
+			<Option target="emergeBaseClasses - Release" />
+			<Option target="emergeCore - Release" />
+			<Option target="emergeCommand - Release" />
+			<Option target="emergeDesktop - Release" />
+			<Option target="emergeHotkeys - Release" />
+			<Option target="emergeLauncher - Release" />
+			<Option target="emergeTasks - Release" />
+			<Option target="emergeTray - Release" />
+			<Option target="emergeVWM - Release" />
+			<Option target="emerge - Release" />
+			<Option target="emergePower - Release" />
+			<Option target="emergeSysMon - Release" />
+			<Option target="emergeMediaCtrl - Release" />
+			<Option target="reg2xml - Release" />
+			<Option target="emergeHelloWorld - Release" />
+			<Option target="emergeLib - Debug" />
+			<Option target="emergeAppletEngine - Debug" />
+			<Option target="emergeDesktop - Debug" />
+			<Option target="emergeCore - Debug" />
+			<Option target="emergeCommand - Debug" />
+			<Option target="emergeTray - Debug" />
+			<Option target="emergeTasks - Debug" />
+		</Unit>
 		<Unit filename="reg2xml\AppletSettings.cpp">
 			<Option target="reg2xml - Release" />
 		</Unit>
@@ -1624,7 +1666,34 @@
 			<Option target="emergeLib - Release" />
 			<Option target="emergeLib - Debug" />
 		</Unit>
-		<Unit filename="version.h" />
+		<Unit filename="version.h">
+			<Option target="emergeLib - Release" />
+			<Option target="emergeGraphics - Release" />
+			<Option target="emergeAppletEngine - Release" />
+			<Option target="emergeSchemeEngine - Release" />
+			<Option target="emergeBaseClasses - Release" />
+			<Option target="emergeCore - Release" />
+			<Option target="emergeCommand - Release" />
+			<Option target="emergeDesktop - Release" />
+			<Option target="emergeHotkeys - Release" />
+			<Option target="emergeLauncher - Release" />
+			<Option target="emergeTasks - Release" />
+			<Option target="emergeTray - Release" />
+			<Option target="emergeVWM - Release" />
+			<Option target="emerge - Release" />
+			<Option target="emergePower - Release" />
+			<Option target="emergeSysMon - Release" />
+			<Option target="emergeMediaCtrl - Release" />
+			<Option target="reg2xml - Release" />
+			<Option target="emergeHelloWorld - Release" />
+			<Option target="emergeLib - Debug" />
+			<Option target="emergeAppletEngine - Debug" />
+			<Option target="emergeDesktop - Debug" />
+			<Option target="emergeCore - Debug" />
+			<Option target="emergeCommand - Debug" />
+			<Option target="emergeTray - Debug" />
+			<Option target="emergeTasks - Debug" />
+		</Unit>
 		<Extensions>
 			<code_completion />
 			<envvars />
