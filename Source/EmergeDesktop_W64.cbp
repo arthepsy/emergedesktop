@@ -146,6 +146,7 @@
 				<Linker>
 					<Add option="-s" />
 					<Add library="emergeLib" />
+					<Add library="emergeBaseClasses" />
 					<Add library="shell32" />
 					<Add library="shlwapi" />
 					<Add library="ole32" />
@@ -448,9 +449,29 @@
 					<Add directory=".\bin64" />
 				</Linker>
 			</Target>
+			<Target title="emergeIcons - Release">
+				<Option output="bin64\emergeIcons" prefix_auto="1" extension_auto="1" />
+				<Option object_output=".objs64\Release" />
+				<Option type="3" />
+				<Option compiler="gnu_gcc_compiler_for_mingw64" />
+				<Option createDefFile="1" />
+				<Option createStaticLib="1" />
+				<Compiler>
+					<Add option="-O2" />
+					<Add option="-DEMERGELIB_EXPORTS" />
+					<Add option="-DTIXML_USE_STL" />
+				</Compiler>
+				<ResourceCompiler>
+					<Add directory=".\emergeLib" />
+				</ResourceCompiler>
+				<Linker>
+					<Add option="-s" />
+					<Add option="-Wl,--enable-auto-image-base" />
+				</Linker>
+			</Target>
 		</Build>
 		<VirtualTargets>
-			<Add alias="All - Release" targets="emergeLib - Release;emergeGraphics - Release;emergeAppletEngine - Release;emergeSchemeEngine - Release;emergeBaseClasses - Release;emergeCore - Release;emergeCommand - Release;emergeDesktop - Release;emergeHotkeys - Release;emergeLauncher - Release;emergeTasks - Release;emergeTray - Release;emergeVWM - Release;emerge - Release;emergePower - Release;emergeSysMon - Release;reg2xml - Release;" />
+			<Add alias="All - Release" targets="emergeLib - Release;emergeGraphics - Release;emergeAppletEngine - Release;emergeSchemeEngine - Release;emergeBaseClasses - Release;emergeCore - Release;emergeCommand - Release;emergeDesktop - Release;emergeHotkeys - Release;emergeLauncher - Release;emergeTasks - Release;emergeTray - Release;emergeVWM - Release;emerge - Release;emergePower - Release;reg2xml - Release;emergeSysMon - Release;" />
 		</VirtualTargets>
 		<Compiler>
 			<Add option="-pedantic" />
@@ -614,6 +635,12 @@
 			<Option target="emergeCore - Release" />
 		</Unit>
 		<Unit filename="emergeCore\MessageControl.h">
+			<Option target="emergeCore - Release" />
+		</Unit>
+		<Unit filename="emergeCore\Settings.cpp">
+			<Option target="emergeCore - Release" />
+		</Unit>
+		<Unit filename="emergeCore\Settings.h">
 			<Option target="emergeCore - Release" />
 		</Unit>
 		<Unit filename="emergeCore\Shell.cpp">
@@ -843,6 +870,13 @@
 		<Unit filename="emergeHotkeys\resource.h">
 			<Option target="emergeHotkeys - Release" />
 		</Unit>
+		<Unit filename="emergeIcons\emergeIcons.rc">
+			<Option compilerVar="WINDRES" />
+			<Option target="emergeIcons - Release" />
+		</Unit>
+		<Unit filename="emergeIcons\resource.h">
+			<Option target="emergeIcons - Release" />
+		</Unit>
 		<Unit filename="emergeLauncher\Applet.cpp">
 			<Option target="emergeLauncher - Release" />
 		</Unit>
@@ -914,7 +948,7 @@
 			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
 		<Unit filename="emergeLib\emergeLib.doxy">
-			<Option target="emergeLib - Release" />
+			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
 		<Unit filename="emergeLib\emergeLib.h">
 			<Option target="emergeLib - Release" />
