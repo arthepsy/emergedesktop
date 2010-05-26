@@ -605,7 +605,8 @@
 		</Compiler>
 		<Linker>
 			<Add option="-shared-libgcc" />
-			<Add library="stdc++_s" />
+			<Add option="-Wl,--enable-auto-import" />
+			<Add library="stdc++.dll" />
 		</Linker>
 		<ExtraCommands>
 			<Add before='[[ local hgfile = _T(&quot;hgversion.h&quot;); local hgcmd = _T(&quot;cmd /c hg summary | grep parent | sed -f hgversion.sed &gt; hgversion.h&quot;); if ( !IO.FileExists(hgfile) ) { IO.Execute(hgcmd); } ]]' />
