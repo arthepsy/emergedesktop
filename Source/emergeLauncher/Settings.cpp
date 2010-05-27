@@ -104,7 +104,7 @@ void Settings::PopulateItems()
   // Populate default items
   if (!found)
     {
-      itemList.push_back(std::tr1::shared_ptr<Item>(new Item(2, L"RightDeskMenu", L"%AppletDir%\\emergeCore.exe,0", L"", L"")));
+      itemList.push_back(std::tr1::shared_ptr<Item>(new Item(2, L"RightDeskMenu", L"%AppletDir%\\emergeCore.exe,0", L"Start Menu", L"")));
       itemList.back()->SetIcon(GetIconSize(), GetDirectionOrientation());
       itemList.push_back(std::tr1::shared_ptr<Item>(new Item(0, L"Double", L"", L"", L"")));
       itemList.back()->SetIcon(GetIconSize(), GetDirectionOrientation());
