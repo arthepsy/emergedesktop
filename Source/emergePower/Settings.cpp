@@ -63,8 +63,6 @@ void Settings::ResetDefaults()
   BaseSettings::ResetDefaults();
   wcscpy(fontString, (WCHAR*)TEXT("Tahoma-12"));
   updateInterval = 60;
-  x = 208;
-  y = 104;
 }
 
 void Settings::SetFont(LOGFONT *logFont)

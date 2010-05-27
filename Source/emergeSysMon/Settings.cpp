@@ -56,8 +56,7 @@ void Settings::ResetDefaults()
   wcscpy(MemGradientMethod, (WCHAR*)TEXT("Vertical"));
   MemGradientFrom = RGB(255, 0, 0);
   MemGradientTo = RGB(113, 255, 113);
-  x = 104;
-  y = 104;
+  x = 100;
 }
 
 void Settings::DoReadSettings(IOHelper& helper)
