@@ -2,114 +2,73 @@
 <html>
     <head>
         <title>emergeLauncher</title>
-        <link rel = StyleSheet type = "text/css" HREF = "emerge.css">
+        <link rel = StyleSheet type = "text/css" HREF = "../emerge.css">
     </head>
 <body>
   <table bgcolor="#7f907f" cellpadding="5" cellspacing="0" width="100%">
     <tr>
       <td>
-        <font color="white"><b>About</b></font>
-      </td>
+        <font color="white"><b>About</b></font>      </td>
     </tr>
   </table>
 <p>
-emergeLauncher provides a &quot;Quick Launch&quot; applet for Emerge Desktop.
-</p><p>
-  <table bgcolor="#7f907f" cellpadding="5" cellspacing="0" width="100%">
+emergeLauncher provides a &quot;Quick Launch&quot; applet for Emerge Desktop.  It displays icons of applications in a movable, resizeable window.</p>
+<table bgcolor="#7f907f" cellpadding="5" cellspacing="0" width="100%">
     <tr>
       <td>
-        <font color="white"><b>Configuration</b></font>
-      </td>
+        <font color="white"><b>Configuration</b></font>      </td>
     </tr>
-  </table>
-</p>
-
-<p>emergeLauncher is configured by holding down the 'Ctrl' key and right clicking on the emergeLauncher window. This will display the configuration menu:</p>
-
-<img alt="" src="ConfigMenu.png">
-
-<p>The About option displays the module's author and version and the current scheme's path and filename.<br>
-Load Scheme allows the user to browse and select a <a href="Schemes.html">Scheme File</a>.<br>
-Edit Current Scheme displays the <a href="Schemes.html">Emerge Desktop Scheme Editor</a>.<br>
-Reload Current Scheme allows to reload the current scheme after editing.<br>
-The Exit option closes the module. It can be restarted by running the executable file emergeLauncher.exe</p>
-
-<p>Selecting the 'Configure' menu entry will display emergeLauncher's configuration dialog:</p>
-
-<img alt="" src="ConfigLauncher.png">
-
-<p>SnapMove toggles if the window should snap to the edge of other applets or the edges of the screen when moving.</p>
-
-<p>SnapSize toggles if the window should snap to the edge of other applets or the edges of the screen when sizing.</p>
-
-<p>Autosize toggles if the window should automatically adjust it's size to the number of icons present. If unselected then the user should set the size (see Usage below).</p>
-
-<p>Dynamic Positioning toggles if the window should automatically change it's position when the desktop resolution changes.</p>
-
-<p>Click Through toggles if the user can click through the applets.</p>
-
-<p>Icon Size can be selected between 16x16, 32x32 or 48x48 pixel icons. Due to system limitations, 48x48 pixel icons can not be used under Windows 2000.</p>
-
-<p>Icon Spacing defines the spacing in pixels between adjacent icons</p>
-
-<p>Click Through toggles if the user can click through the applets. If Click Through is activated, the user can choose between two modes: Full (the whole applet is &quot;transparent&quot; to mouse input) or Background (only the background area is &quot;transparent&quot; but the user can click on the icons in emergeTray, emergeTasks, emergeLauncher, the text in emergeCommand and the miniature windows in emergeVWM). <b>Important notes</b>: 1) Full Click Through works for any level of opacity, from opaque to fully transparent; 2) Background Click Through automatically sets the background to transparent but does not change the scheme, this is a known limitation; 3) To manipulate an applet set to Full Click Through the user must press the Shift key: Shift+Control+LeftClick to move the applet, Shift+Control+RightClick to get the Config menu and Shift+Alt to resize the applet.</p>
-
-<p>ZPosition defines the relative position of the window in the Z-axis i.e. from the screen to the user and can be set to Always on Top, Always on Bottom or Normal (behaves as a regular program window)</p>
-
-<p>Orientation defines if the icons are set as a column (Vertical) or as a row (Horizontal). Independently of the the Orientation, the icons can have three options for Horizontal or Vertical Alignment. Horizontal Aligment can be set to: align to the Left of the applet (i.e. new items are added to the right), Center (i.e. expand in both directions in relation to the horizontal center) or to the Right. Vertical Aligment can be set to: Top of the applet, vertical Center or Bottom.</p>
-
-<p>If emergeLauncher is not set to Autosize, when icons reach an edge they will grow (i.e. start a new row  or column) according to the Horizontal and Vertical Alignments selected. Wrapping for the Center option is the same as for Top or Left, i.e. new lines are added under or the the right of a full column or row,</p>
-
-<p>To Add <img style="width: 24px; height: 23px;" alt="" src="Add.png"> a new launcher item, the user should choose between an internal Command from the drop list or select an Executable and Working Directory (if appropriate) by using the Browse <img style="width: 24px; height: 23px;" alt="" src="Browse.png"> button. Additionally the user can choose an external Icon and type some text to appear as a Tip when the mouse is over the icon. The user should then click on Save <img style="width: 24px; height: 23px;" alt="" src="Save.png"> or Clear <img style="width: 24px; height: 23px;" alt="" src="Clear.png"> to start again.</p>
-
-<p><b>Important Note:</b> empty spaces can be added to the emergeLauncher by adding a Separator item. Alternatively an user selected icon can be assigned to each Separator item.</p>
-
-<p>By default the icon used is the first icon of the executable. To select a different icon the user should click the Browse <img style="width: 24px; height: 23px;" alt="" src="Browse.png"> button. The user can select a different icon (if the executable has more than one) or add an external icon. By default when adding an icon to a command which does not contain an icon (e.g. most internal commands) emergeLauncher will display the windows icon library SHELL32.DLL located in %SystemRoot%\system32\. Alternatively the user can use any library or executable that contains icons or icon files (.ico)</p> 
-
-<img style="width: 296px; height: 350px;" alt="" src="ChangeIcon.png">
-
-<p>The Launcher items displayed in the list box can be Modified <img style="width: 24px; height: 23px;" alt="" src="Modify.png"> or Deleted <img style="width: 24px; height: 23px;" alt="" src="Delete.png"> by selecting the item from the list. If at any time the user adds, deletes or modifies incorrectly any Launcher button, he can undo changes by pressing the Cancel button. This will close the Configure box without saving any modifications since the dialog was opened. Pressing the OK button will save the current settings and close the configuration dialog</p>
-
-<p>Please notice: Icons are only updated after pressing OK or Cancel, i.e. when the emergeLauncher Configuration dialog is closed.</p>
-
-<p>emergeLauncher settings are stored in <i>HKEY_CURRENT_USER\Software\Emerge Desktop\emergeLauncher</i> and consist of the following subkeys:</p>
-<ul>
-  <li><i>Settings</i> - all emergeLauncher related settings.  Currently the options are:<ul>
-    <li><i>X</i> - The position of the window on the x-axis (Default 0)</li>
-    <li><i>Y</i> - The position of the window on the y-axis (Default 0)</li>
-    <li><i>ZPosition</i> - The position of the window on the z-axis (window order - Default &quot;normal&quot;)</li>
-    <li><i>Height</i> - The height of the window (Default 100)</li>
-    <li><i>Width</i> - The width of the window (Default 100)</li>
-    <li><i>ClickThrough</i> - True(1)/False(0) (Default False) Enables/disables the ability to click through the applets.</li>
-    <li><i>VerticalDirection</i> - The vertical direction for the icons (up or down - Default &quot;down&quot;)</li>
-    <li><i>HorizontalDirection</i> - The horizontal direction for the icons (left or right - Default &quot;right&quot;)</li>
-    <li><i>DirectionOrientation</i> - Specify the direction the icons should take (vertical or horizontal - Default &quot;horizontal&quot;)</li>
-    <li><i>AutoSize</i> - Allows emergeLauncher to automatically adjust size to the existing number of application buttons (Default 0)</li>
-    <li><i>Scheme</i> - Path and filename of the scheme used (Default none)</li>
-    <li><i>IconSize</i> - Display size of the icons. Can be set to 16, 32 or 48 pixels (Default 16)</li>
-    <li><i>IconSpacing</i> - Space in pixels between icons (Default 1)</li>	
-    <li><i>SnapMove</i> - snap to the edge of other applets and the side of the desktop when moving (Default 1)</li>
-    <li><i>SnapSize</i> - snap to the edge of other applets and the side of the desktop when sizing (Default 1)</li>
-    <li><i>Icon1</i> - The icon for the first button</li>
-    <li><i>Command1</i> - The application that will execute with the first button</li>
-    <li><i>Tip1</i> - The tooltip for the first button</li>
-    <li>...</li>
-    <li><i>IconN</i> - The icon for the Nth button</li>
-    <li><i>CommandN</i> - The application that will execute with the Nth button</li>
-    <li><i>TipN</i> - The tooltip for the Nth button</li>
-    <li><i>DynamicPositioning</i> - Dynamic reposition emergeTray when the desktop resolution changes (Default 1)</li>
-  </ul>
-</ul><br><p>
-  <table bgcolor="#7f907f" cellpadding="5" cellspacing="0" width="100%">
+</table>
+<p>emergeLauncher is configured by pressing the Ctrl key and right-clicking on the emergeLauncher window. This opens the configuration menu:</p>
+<p><img src="ConfigMenu.png" width="157" height="118"></p>
+<p style="margin-bottom: 0;"><strong>About</strong> displays the module's author and version and the current scheme's path and filename.<br>
+<strong>Load Scheme</strong> allows the user to browse and select a <a href="Schemes.html">Scheme File</a>.</p>
+<p style="margin-top: 0; margin-bottom: 0;"><strong>Reload Current Scheme</strong> allows to reload the current scheme after editing.</p>
+<p style="margin-top: 0;"><strong>Configure</strong> displays the emergeLauncher configuration dialog box.<br>
+  <strong>Exit</strong> closes the module. It can be restarted by highlighting it and clicking on the Start <img src="Start.png" width="24" height="23"> button in the Launch Applet dialog box (see <a href="emergeCore.htm">emergeCore</a>).</p>
+<p style="margin-bottom: 0;">&nbsp;</p>
+<p style="margin-top: 0;">After selecting <strong>Configure</strong>, the configuration dialog box opens. The first tab is <strong>General</strong>:</p>
+<p><img src="LaunchConfig1.png" width="448" height="461"></p>
+<p><strong>SnapMove</strong> makes the window snap to the edges of other applets' windows or the edges of the screen when moving it.</p>
+<p><strong>SnapSize</strong> makes the window snap to the edges of other applets' windows or the edges of the screen when changing its size.</p>
+<p><strong>Click Through</strong> allows clicking &quot;through&quot; the window (i.e. allows clicking on whatever is behind it).</p>
+<p><strong>Click Through</strong> has two modes: <strong>Full</strong> (the whole window is &quot;transparent&quot; to mouse input), or <strong>Background</strong> (only the background area is &quot;transparent&quot; but the user can click on the icons in emergeTray, emergeTasks, emergeLauncher, the text in emergeCommand, emergePower, the active mini-window in emergeVWM, the graphs in emergeSysMon). </p>
+<p><u>Important notes</u>: 1) <strong>Full Click Through </strong>works for any level of opacity, from opaque to fully transparent; 2) <strong>Background Click Through </strong>automatically sets the background to transparent but does not change the scheme, this is a known limitation; 3) To manipulate an applet set on <strong>Full Click Through, </strong>the user must press the Shift key: Shift+Ctrl+LeftClick to move the applet, Shift+Ctrl+RightClick to get the configuration menu and Shift+Alt to resize the applet.</p>
+<p><strong>Icon Spacing</strong> defines the spacing in pixels between adjacent icons.</p>
+<p><strong>Icon Size</strong> gives the choice of 16x16, 32x32 or 48x48 pixel icons. Due to system limitations, 48x48 pixel icons can not be used under Windows 2000.</p>
+<p>The configuration dialog box's second tab is <strong>Launch Items</strong>:</p>
+<p><img src="LaunchConfig2.png" width="446" height="459"></p>
+<p>To Add  <img src="Add.png" width="24" height="23"> a new item, the user first chooses from the <strong>Type</strong> drop list between <strong>Executable, Internal Commands, Separator</strong> or <strong>Special Folder</strong>.</p>
+<p>Depending on the <strong>Type </strong>of item selected, the window underneath  offers opening a browsing window <img src="BrowseFile.png" width="26" height="25" style="width: 24px; height: 23px;"> (for <strong>Executable)</strong>,  Commands, with list in window <a href="internal.htm">here</a> (for <strong>Internal Commands</strong>), a choice of four Styles (for <strong>Separator</strong>), or  My Computer, My Documents, My Network Places, Control Panel, and Recycle Bin (for <strong>Special Folders</strong>). </p>
+<p>Prepending an <strong>Executable</strong>  with &quot;@&quot; (e.g. &quot;@%ProgramFiles%\Mozilla Firefox\firefox.exe&quot;) allows the execution of the command from an administrator account after selecting the administrator&rsquo;s user name (or typing an other existing user name) and entering the password in the Run As dialog box.</p>
+<p>The other windows underneath are to select a <strong>Working Directory</strong>  (when appropriate), using the Browse <img src="Browse.png" width="24" height="23" style="width: 24px; height: 23px;"> button, an external <strong>Icon</strong>,  and the option to type a text to appear as a <strong>Tip</strong> when the mouse is over the icon. </p>
+<p>The user then clicks on Save <img src="Save.png" width="24" height="23" style="width: 24px; height: 23px;"> (or Discard <img src="Discard.png" width="24" height="23" style="width: 24px; height: 23px;"> to start over). Pressing the <strong>OK</strong> button saves the current settings and closes the configuration dialog box.</p>
+<p style="margin-bottom: 0;">The items in the <strong>Applications</strong> window can be modified <img src="Edit.png" width="24" height="23" style="width: 24px; height: 23px;"> or deleted <img src="Delete.png" width="24" height="23" style="width: 24px; height: 23px;"> after hightlighting them.  </p>
+<p style="margin-top: 0;">After the user adds, deletes or modifies incorrectly an item, she can undo changes by clicking the <strong>Cancel</strong> button. A dialog box will open asking for confirmation to close the configuration dialog box without saving the changes made. </p>
+<p style="margin-bottom: 0;">&nbsp;</p>
+<p style="margin-top: 0;">Notes on the <strong>Icon</strong> window: By default, the icon used is the first icon of the executable. To select a different icon, the user clicks the Browse <img src="BrowseFile.png" width="26" height="25" style="width: 24px; height: 23px;"> button, and can select a different icon (if the executable has more than one), or add an external icon:</p>
+<p><img src="ChangeIcon.png" width="296" height="350"></p>
+<p>By default when adding an icon to a command which does not contain an icon (e.g. most internal commands) emergeLauncher will display the windows icon library SHELL32.DLL located in %SystemRoot%\system32\. Alternatively the user can use any library or executable that contains icons or icon files (.ico))</p>
+<p>Note that the icons are updated in the emergeLauncher configuration dialog box only after pressing <strong>OK</strong> or <strong>Cancel</strong>.</p>
+<p>The configuration  dialog box's third tab is <strong>Position</strong>:</p>
+<p><img src="LaunchConfig3.png" width="449" height="460"></p>
+<p><strong>Anchor Point</strong> gives the choice of anchoring the window to the monitor's <strong>Top Left, Top Center, Top Right, Middle Left, Middle Center, Middle Right, Bottom Left, Bottom Center, or Bottom Right</strong>.</p>
+<p><strong>ZPosition</strong> defines the relative position of the window in the Z axis (i.e. from the screen to the user) and can be set to always on the <strong>Top</strong>, <strong>Normal</strong> (behaves as a regular program window), or always at the <strong>Bottom</strong>.</p>
+<p><strong>Orientation</strong> defines if the icons are set as a column (<strong>Vertical</strong>) or as a row (<strong>Horizontal</strong>). </p>
+<p>Independently of the the Orientation, the icons can have three options for <strong>Horizontal </strong>or <strong>Vertical Alignment</strong>:</p>
+<p><strong>Horizontal Aligment</strong> can be set to: align on the <strong>Left</strong> of the applet (i.e. new items are added to the right), <strong>Center</strong> (i.e. expand in both directions in relation to the horizontal center), or on the <strong>Right</strong>.</p>
+<p><strong>Vertical Aligment </strong>can be set to: <strong>Top</strong> of the applet, vertical <strong>Center</strong>, or <strong>Bottom</strong>.</p>
+<p>If <strong>Autosize</strong> is not selected, when icons reach an edge, they will add a new row  or column to the window, depending on <strong>Vertical</strong> or <strong>Horizontal</strong> <strong>Orientation</strong>.</p>
+<p>For the configuration dialog box's fourth tab, see the <a href="Schemes.html"><strong>Scheme Editor</strong></a>.</p>
+<table bgcolor="#7f907f" cellpadding="5" cellspacing="0" width="100%">
     <tr>
       <td>
-        <font color="white"><b>Usage</b></font>
-      </td>
+        <font color="white"><b>Usage</b></font>      </td>
     </tr>
-  </table>
-</p><p>
-Left clicking on the application icon as defined in the configuration will launch the application.
-</p>
-<p>Holding down 'CTRL' while left clicking on the window will allow it to be dragged around the desktop. When the window nears the screen edge, it will snap to it, also, it will not allow itself to be dragged off screen. By default, the new position is stored in the X and Y settings in the registry so that they will be remembered on next start.</p>
-<p>Holding down 'ALT' while left clicking on the border of the emergeLauncher window will allow it to be resized provided you don't have autosize enabled and the border is not set to 0.</p>
-</body></html>
+</table>
+<p>Left-clicking on the application icon launches the application.</p>
+<p>To move the window, the user must press the Ctrl key, left-click on the window, and drag it to another location. </p>
+<p>To resize the window (provided that <strong>Autosize</strong> is not selected), the user must press the Alt key, left-click on one edge of the window, and drag it to a new size.</p>
+<p><span class="style4" style="margin-top: 0; margin-bottom: 0;">The window position and size are stored in the applet's xml file, which is located  in the User Profile folder under &quot;\Application Data\Emerge Desktop\themes&quot;, in a subfolder with the same name as the current Theme. See <a href="ThemeManager.htm">Theme Manager</a> for more details.</span></p>
+</body>
+</html>

@@ -2,94 +2,71 @@
 <html>
     <head>
         <title>emergeVWM</title>
-        <link rel = StyleSheet type = "text/css" HREF = "emerge.css">
+        <link rel = StyleSheet type = "text/css" HREF = "../emerge.css">
     </head>
 <body>
 <table bgcolor="#7f907f" cellpadding="5" cellspacing="0" width="100%">
 <tr>
    <td>
-    <font color="white"><b>About</b></font>
-   </td>
+    <font color="white"><b>About</b></font>   </td>
   </tr>
 </table>
 
-<p>emergeVWM is the 'Virtual Window Manager' applet for Emerge Desktop. It displays an 'desktop grid' as defined in the configuration as well as mini window for each running task in a resizeable / movable window.</p>
-
+<p>emergeVWM is  Emerge Desktop's &quot;Virtual Window Manager&quot; applet. It allows the user to switch monitor views between different virtual &quot;desktops&quot;, and displays a grid of corresponding mini-windows   in a movable and resizeable window.</p>
 <table bgcolor="#7f907f" cellpadding="5" cellspacing="0" width="100%">
 <tr>
    <td>
-    <font color="white"><b>Configuration</b></font>
-   </td>
+    <font color="white"><b>Configuration</b></font>   </td>
   </tr>
 </table>
 
-<p>emergeVWM is configured by holding down the 'Ctrl' key and right clicking on the VWM window (by default appears as a grey square located on the top left corner of the screen showing a 2x2 grid). This will popup the config menu</p>
+<p>emergeVWM is configured by pressing the Ctrl key and right-clicking on the emergeVWM window. This opens the configuration menu:</p>
+<p><img src="ConfigMenu.png" width="157" height="118"></p>
+<p style="margin-bottom: 0;"><strong>About</strong> displays the module's author and version and the current scheme's path and filename.<br>
+    <strong>Load Scheme</strong> allows the user to browse and select a <a href="Schemes.html">Scheme File</a>.</p>
+<p style="margin-top: 0; margin-bottom: 0;"><strong>Reload Current Scheme</strong> allows to reload the current scheme after editing.</p>
+<p style="margin-top: 0;"><strong>Configure</strong> displays the emergeLauncher configuration dialog box.<br>
+  <strong>Exit</strong> closes the module. It can be restarted by highlighting it and clicking on the Start <img src="Start.png" width="24" height="23"> button in the Launch Applet dialog box (see <a href="emergeCore.htm">emergeCore</a>).</p>
+<p>After selecting <strong>Configure</strong>, the configuration dialog box opens. The first tab is <strong>General</strong>:</p>
+<p><img src="VWMConfig1.png" width="446" height="459"></p>
+<p><strong>SnapMove</strong> makes the window snap to the edges of other applets' windows or the edges of the screen when moving it.</p>
+<p><strong>SnapSize</strong> makes the window snap to the edges of other applets' windows or the edges of the screen when changing its size.</p>
+<p><strong>Click Through</strong> allows clicking &quot;through&quot; the window (i.e. allows clicking on whatever is behind it).</p>
+<p><strong>Click Through</strong> has two modes: <strong>Full</strong> (the whole window is &quot;transparent&quot; to mouse input), or <strong>Background</strong> (only the background area is &quot;transparent&quot; but the user can click on the icons in emergeTray, emergeTasks, emergeLauncher, the text in emergeCommand, emergePower, the active mini-window in emergeVWM, the graphs in emergeSysMon). </p>
+<p><u>Important notes</u>: 1) <strong>Full Click Through </strong>works for any level of opacity, from opaque to fully transparent; 2) <strong>Background Click Through </strong>automatically sets the background to transparent but does not change the scheme, this is a known limitation; 3) To manipulate an applet set on <strong>Full Click Through, </strong>the user must press the Shift key: Shift+Ctrl+LeftClick to move the applet, Shift+Ctrl+RightClick to get the configuration menu and Shift+Alt to resize the applet.</p>
+<p>The number of Virtual <strong>Desktops</strong> (or Windows) is defined by the number of <strong>Rows</strong> and <strong>Columns</strong> defined. The total number of virtual desktops is given by the number of rows times the number of columns (e.g. if the user sets both to 3, she will have 9 Virtual Desktops)</p>
+<p>The configuration dialog box's second tab is <strong>Sticky Items</strong>:</p>
+<p><img src="VWMConfig2.png" width="446" height="459"></p>
+<p style="margin-bottom: 0;"><strong>Sticky Applications </strong>are programs which have been set to be displayed in each Virtual Desktop.</p>
+<p style="margin-top: 0;">Note that in the VWM window, they show only on the active one. </p>
+<p><strong>Hide Sticky Applications </strong>hides the items in the <strong>Sticky Applications</strong> window from view in the VWM window, as the user may not find necessary to see these always-present items in the VWM window. </p>
+<p style="margin-bottom: 0;">To Add <img src="Add.png" width="24" height="23"> a new <strong>Sticky Application</strong>, the user Browses&nbsp;to an <strong>Application</strong> file <img src="BrowseFile.png" width="26" height="25" style="width: 24px; height: 23px;"> , or just types in that window the name of the executable (e.g. Calc for the Calculator). </p>
+<p style="margin-top: 0;">The user then clicks on Save <img src="Save.png" width="24" height="23" style="width: 24px; height: 23px;"> (or Discard <img src="Discard.png" width="24" height="23" style="width: 24px; height: 23px;"> to start over). Pressing the <strong>OK</strong> button saves the current settings and closes the configuration dialog box.</p>
+<p style="margin-bottom: 0;"><strong>Sticky Applications </strong>can be deleted <img src="Delete.png" width="24" height="23" style="width: 24px; height: 23px;"> after hightlighting them. </p>
+<p class="style3" style="margin-top: 0;">After the user adds, deletes or modifies incorrectly an item, she can undo changes by clicking the <strong>Cancel</strong> button. A dialog box opens asking for confirmation to close the configuration dialog box without saving the changes made.</p>
+<p>The configuration  dialog box's third tab is <strong>Position</strong>:</p>
+<p><img src="VWMConfig3.png" width="446" height="459"></p>
+<p><strong>Anchor Point</strong> gives the choice of anchoring the window to the monitor's <strong>Top Left, Top Center, Top Right, Middle Left, Middle Center, Middle Right, Bottom Left, Bottom Center, or Bottom Right</strong>.</p>
 
-<img alt="" src="ConfigMenu.png">
-
-<p>The About option displays the module's author and version and the current scheme's path and filename.<br>
-Load Scheme allows the user to browse and select a <a href="Schemes.html">Scheme File</a>.<br>
-Edit Current Scheme calls the <a href="Schemes.html">Emerge Desktop Scheme Editor</a> with the current scheme loaded.<br>
-Reload Current Scheme allows to reload the current scheme without opening the Scheme Editor.<br>
-The Exit option closes the module. It can be restarted by running the executable file emergeVWM.exe.
-</p>
-<p>
-The Configure option displays the emergeVWM Configuration dialog box
-</p>
-<img alt="" src="ConfigVWM.png">
-
-<p>SnapMove toggles if the window should snap to the edge of other applets or the edges of the screen when moving.</p>
-
-<p>SnapSize toggles if the window should snap to the edge of other applets or the edges of the screen when sizing.</p>
-
-<p>Dynamic Positioning toggles if the window should automatically change it's position when the desktop resolution changes.</p>
-
-<p>Click Through toggles if the user can click through the applets. If Click Through is activated, the user can choose between two modes: Full (the whole applet is &quot;transparent&quot; to mouse input) or Background (only the background area is &quot;transparent&quot; but the user can click on the icons in emergeTray, emergeTasks, emergeLauncher, the text in emergeCommand and the miniature windows in emergeVWM). <b>Important notes</b>: 1) Full Click Through works for any level of opacity, from opaque to fully transparent; 2) Background Click Through automatically sets the background to transparent but does not change the scheme, this is a known limitation; 3) To manipulate an applet set to Full Click Through the user must press the Shift key: Shift+Control+LeftClick to move the applet, Shift+Control+RightClick to get the Config menu and Shift+Alt to resize the applet.</p>
-
-<p>The number of Virtual Desktops (or Windows) is defined by the number of Rows and Columns defined. The total number of virtual desktops is given by the number of rows times the number of columns (e.g. if the user sets both to 3, he will have 9 Virtual Desktops)</p>
-
-<p>ZPosition defines the relative position of the window in the Z-axis i.e. from the screen to the user and can be set to Always on Top, Always on Bottom or Normal (behaves as a regular program window)</p>
-
-<p>Sticky applications is a list of programs that are displayed in the active Virtual Desktop, i.e. if the user changes to another VW these programs will show in the same position on the Desktop currently selected. Simplifying it means that the program &quot;follows&quot; the user as he changes from one VW to another.</p>
-
-<p>The list consists of the name of the executables, which can be selected by browsing to file's location or simply by typing the name of the executable (e.g. Calc for the Calculator)</p>
-
-<p>The list items can be Added <img style="width: 24px; height: 23px;" alt="" src="Add.png"> by browsing <img style="width: 24px; height: 23px;" alt="" src="Browse.png"> to the executable to be added. The item is added to list when the Save <img style="width: 24px; height: 23px;" alt="" src="Save.png"> button is pressed or discarded by pressing the Clear <img style="width: 24px; height: 23px;" alt="" src="Clear.png"> button. Items can be Deleted <img style="width: 24px; height: 23px;" alt="" src="Delete.png"> from the list and are saved in the registry only after pressing OK. If at any time the user adds or deletes incorrectly any executable from the list, he can undo changes by pressing the Cancel button. This will close the Configure box without saving any modifications since the dialog was opened.</p>
-
-<p>emergeVWM settings are stored in <i>HKEY_CURRENT_USER\Software\Emerge Desktop\emergeVWM</i> and consist of the following subkeys:</p>
-<ul>
-  <li><i>Settings</i> - all emergeVWM related settings.  Currently the options are:
-  <ul>
-    <li><i>ClickThrough</i> - True(1)/False(0) (Default False) Enables/disables the ability to click through the applets.</li>
-    <li><i>DesktopColumns</i> - The number of desktops going across (Default 2)</li>
-    <li><i>DesktopRows</i> - The number of desktops going down (Default 2)</li>
-    <li><i>Height</i> - The height of the window (Default 100)</li>
-    <li><i>Scheme</i> - Path and filename of the scheme used (Default none)
-    <li><i>SnapMove</i> - snap to the edge of other applets and the side of the desktop when moving (Default 1)</li>
-    <li><i>SnapSize</i> - snap to the edge of other applets and the side of the desktop when sizing (Default 1)</li>
-    <li><i>Width</i> - The width of the window (Default 100)</li>
-    <li><i>X</i> - The position of the window on the x-axis (Default 0)</li>
-    <li><i>Y</i> - The position of the window on the y-axis (Default 0)</li>
-    <li><i>ZPosition</i> - The position of the window on the z-axis (window order - Default &quot;normal&quot;)</li>
-    <li><i>DynamicPositioning</i> - Dynamic reposition emergeTray when the desktop resolution changes (Default 1)</li>
-  </ul>
-  <li><i>Sticky</i> - stores a list strings containing the full or partial window titles of windows that are always to remain on the active desktop. The values are of type String the name is up to the user (the order is dependent on the name used) and the data is the name of the executable (with or without extension).</li>
-</ul>
-<p></p><table bgcolor="#7f907f" cellpadding="5" cellspacing="0" width="100%">
+<p><strong>ZPosition</strong> defines the relative position of the window in the Z axis (i.e. from the screen to the user) and can be set to always on the <strong>Top</strong>, <strong>Normal</strong> (behaves as a regular program window), or always at the <strong>Bottom</strong>.</p>
+<p>Note that for multi-monitor setups, each emergeVWM desktop shows all the monitors in each mini window.</p>
+<table bgcolor="#7f907f" cellpadding="5" cellspacing="0" width="100%">
 <tr>
    <td>
-    <font color="white"><b>Usage</b></font>
-   </td>
+    <font color="white"><b>Usage</b></font>   </td>
   </tr>
 </table>
 
-<p>Left clicking on a 'desktop' will switch to the specific 'desktop'. Selecting a task from emergeTasks or via Alt-Tab will switch to the 'desktop' on which the task resides, restore with window (if minimized) and move the window to the foreground. Moving windows between 'desktops' is controlled by left clicking on a window in emergeVWM and dragging it to the desired 'desktop'.</p>
+<p style="margin-bottom: 0;">Left-clicking on a &quot;desktop&quot; (i.e. Virtual Window) in the VWM window will switch the monitor view to that desktop. </p>
+<p style="margin-top: 0;">Selecting a task from emergeTasks or via Alt-Tab switches to the desktop where the task resides, restores the task (if minimized), and moves the window to the foreground. </p>
+<p>Moving an application between desktops can be done by left-clicking it in the VWM window and dragging it to the desired desktop.</p>
+<p>Alternatively, the user can set hotkeys or type in the emergeCommand window to move from one desktop to an other. The <a href="internal.htm">Internal Commands</a> available for this purpose are: VWM_1, VWM_2, VWM_3, VWM_4, VWM_5, VWM_6, VWM_7, VWM_8, VWM_9, VWMLeft, VWMRight, VWMUp and VWMDown. </p>
+<p>The user can also gather all currently running tasks on the active desktop by executing the command VWMGather.</p>
+<p>An other way to have an application reside on a specific desktop is to start it while on that desktop.</p>
+<p>Double left clicking on the VWM window opens up the Display Properties dialog box.</p>
 
-<p>Alternatively the user can set hotkeys or type (only in emergeCommand) to move from one VW to another. The <a href="Internal.html">Internal Commands</a> available for this purpose are: VWMLeft, VWMRight, VWMUp and VWMDown. The user can also gather all currently running tasks into the active VW by executing the command VWMGather.</p>
-
-<p>Left clicking on the edge of the window while holding down the 'Alt' key will allow for resizing the window. Simply drag the mouse, and the window will resize itself accordingly. The new size of the window is stored in the Width and Height settings in the registry, so it's new size will be remembered on the next start of emergeVWM.</p>
-
-<p>Double left clicking on the main window will display the 'Display Properties' dialog.</p>
-
-<p>Holding down 'Ctrl' while left clicking on the edge of the window will allow it to be dragged around the desktop. When the window nears the screen edge, it will snap to it, also, it will not allow itself to be dragged off screen. Similar to the resizing, the new position is stored in the X and Y settings in the registry so that they will be remembered on next start.</p>
-</body></html>
+<p>To move the window, the user must press the Ctrl key, left-click on the window, and drag it to another location. </p>
+<p>To resize the window, the user must press the Alt key, left-click on one edge of the window, and drag it to a new size.</p>
+<p><span class="style4" style="margin-top: 0; margin-bottom: 0;">The window position and size are stored in the applet's xml file, which is located  in the User Profile folder under &quot;\Application Data\Emerge Desktop\themes&quot;, in a subfolder with the same name as the current Theme. See <a href="ThemeManager.htm">Theme Manager</a> for more details.</span></p>
+</body>
+</html>

@@ -3,55 +3,72 @@
     <head>
         <title>Internal Commands and Variables</title>
         <link rel = StyleSheet type = "text/css" HREF = "emerge.css">
-    </head>
+</head>
 <body>
 <table bgcolor="#7f907f" cellpadding="5" cellspacing="0" width="100%">
   <tr>
    <td>
-    <font color="white"><b>Internal Commands and Variables</b></font>
-   </td>
+    <font color="white"><b>Internal Commands</b></font></td>
   </tr>
 </table>
-<p>The following is a list of Internal Commands supported by Emerge Desktop:</p>
+<p>Internal Commands supported by Emerge Desktop:</p>
 <ul>
 <li><i>RightDeskMenu</i> - Display the desktop right click menu at the current cursor position</li>
 <li><i>MidDeskMenu</i> - Display the desktop middle click menu at the current cursor position</li>
 <li><i>Quit</i> - Display the Emerge Desktop Quit dialog</li>
 <li><i>Run</i> - Display the Windows Run dialog</li>
 <li><i>Shutdown</i> - Display the Windows Shutdown dialog</li>
-<li><i>Lock</i> - Locks the workstation or switches to another user profile</li>
+<li><i>Lock</i> - Lock the workstation or switches to another user profile</li>
 <li><i>Hide</i> - Hide all the currently loaded Emerge Desktop applets</li>
 <li><i>Show</i> - Show all the currently loaded Emerge Desktop applets</li>
+<li><i>VWM_1</i> - Move to the virtual desktop # 1</li>
+<li><i>VWM_2</i> - Move to the virtual desktop # 2</li>
+<li><i>VWM_3</i> - Move to the virtual desktop # 3 (if available), order is left to right in rows,  then down to next row</li>
+<li><i>VWM_4</i> - Move to the virtual desktop # 4 (if available), order is left to right in rows,  then down to next row</li>
+<li><i>VWM_5</i> - Move to the virtual desktop # 5 (if available), order is left to right in rows,  then down to next row</li>
+<li><i>VWM_6</i> - Move to the virtual desktop # 6 (if available), order is left to right in rows,  then down to next row</li>
+<li><i>VWM_7</i> - Move to the virtual desktop # 7 (if available), order is left to right in rows,  then down to next row</li>
+<li><i>VWM_8</i> - Move to the virtual desktop # 8 (if available), order is left to right in rows,  then down to next row</li>
+<li><i>VWM_9</i> - Move to the virtual desktop # 9 (if available), order is left to right in rows,  then down to next row</li>
 <li><i>VWMUp</i> - Move to the virtual desktop above the current desktop (if available)</li>
 <li><i>VWMDown</i> - Move to the virtual desktop below the current desktop (if available)</li>
 <li><i>VWMLeft</i> - Move to the virtual desktop to the left the current desktop (if available)</li>
 <li><i>VWMRight</i> - Move to the virtual desktop to the right the current desktop (if available)</li>
 <li><i>VWMGather</i> - Gather all the windows to the current desktop</li>
 <li><i>EmptyBin</i> - Empty the Recycle Bin</li>
-<li><i>Logoff</i> - Logs off the current user</li>
-<li><i>Reboot</i> - Reboots the system</li>
-<li><i>Halt</i> - Halts the system</li>
-<li><i>Suspend</i> - Suspends the system</li>
-<li><i>Hibernate</i> - Hibernates the system</li>
-<li><i>Disconnect</i> - Allows the user to 'disconnect' from a terminal server session without logging off</li>
-<li><i>ShowDesktop</i> - Minimizes all the application windows</li>
-<li><i>VolumeUp</i> - Increases the sound volume</li>
-<li><i>VolumeDown</i> - Decreases the sound volume</li>
-<li><i>VolumeMute</i> - Toggles volume mute</li>
+<li><i>Logoff</i> - Log off the current user</li>
+<li><i>Reboot</i> - Reboot the system</li>
+<li><i>Halt</i> - Halt the system</li>
+<li><i>Suspend</i> - Suspend the system</li>
+<li><i>Hibernate</i> - Hibernate the system</li>
+<li><i>Disconnect</i> - Allow the user to 'disconnect' from a terminal server session without logging off</li>
+<li><i>ShowDesktop</i> - Toggle all the application windows minimization/restoration </li>
+<li><i>VolumeUp</i> - Increase the sound volume</li>
+<li><i>VolumeDown</i> - Decrease the sound volume</li>
+<li><i>VolumeMute</i> - Toggle the volume mute</li>
 <li><i>DesktopSettings</i> - Display the Desktop Settings</li>
-<li><i>DesktopMenuEditor</i> - Display the Menu Editor</li>
 <li><i>CoreLaunchEditor</i> - Display the Launch Editor</li>
 <li><i>CoreShellChanger</i> - Display the Shell Changer</li>
-<li><i>Separator</i> - Adds an empty (do nothing) item to emergeLauncher</li>
+<li><i>CoreAbout</i> - Display the About dialog</li>
+<li><i>Homepage</i> - Open the default browser on the project's homepage http://emergedesktop.org (if the user is connected to the Internet)</li>
+<li><i>Tutorial</i> - Open the default browser on the project's tutorial http://sites.google.com/site/emergedesktop/Home/getting-started/the-basics (if the user is connected to the Internet)</li>
 </ul>
-<p>The following is a list of Internal Variables supported by Emerge Desktop:</p>
+<table bgcolor="#7f907f" cellpadding="5" cellspacing="0" width="100%">
+  <tr>
+    <td><font color="white"><b>Environmental Variables</b></font> </td>
+  </tr>
+</table>
+<p> Environmental Variables supported by Emerge Desktop:</p>
 <ul>
-<li><i>%Desktop%</i> - Current user's Desktop folder
-<li><i>%CommonDesktop%</i> - All User's Desktop folder
-<li><i>%Documents%</i> - Current user's "My Documents" folder
-<li><i>%CommonDocuments%</i> - All User's "My Documents" folder
-<li><i>%StartMenu%</i> - Current user's "Start Menu" folder
-<li><i>%CommonStartMenu%</i> - All User's "Start Menu" folder
+<li><i>%AppletDir%</i> - Emerge Desktop binaries folder
+<li><i>%EmergeDir%</i> - Current User's Emerge Desk</span>top settings folder
+<li><i>%ThemeDir%</i> - Current theme folder
+<li><i>%Desktop%</i> - Current User's Desktop folder</li>
+<li><i>%CommonDesktop%</i> - All Users' Desktop folder
+<li><i>%Documents%</i> - Current User's "My Documents" folder
+<li><i>%CommonDocuments%</i> - All Users' "My Documents" folder
+<li><i>%StartMenu%</i> - Current User's "Start Menu" folder
+<li><i>%CommonStartMenu%</i> - All Users' "Start Menu" folder
 </ul>
-
-</body></html>
+</body>
+</html>

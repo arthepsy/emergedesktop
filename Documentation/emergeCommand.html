@@ -3,70 +3,58 @@
     <head>
         <title>emergeCommand</title>
         <link rel = StyleSheet type = "text/css" HREF = "emerge.css">
-    </head>
+</head>
 <body>
 <table bgcolor="#7f907f" cellpadding="5" cellspacing="0" width="100%">
 <tr><td><font color="white"><b>About</b></font></td></tr></table>
 
-<p>emergeCommand is a clock / command line launcher applet for Emerge Desktop. By default it displays the date and time in a configurable format. When the left mouse button is clicked on the text, it allows for the typing in of a command to execute.</p>
-
+<p style="margin-bottom: 0;">emergeCommand is a clock / command line launcher applet for Emerge Desktop. By default it displays the date and time in a configurable format.</p>
+<p style="margin-top: 0;">When the left mouse button is clicked on the text, it allows for the typing in of a command to execute.</p>
 <table bgcolor="#7f907f" cellpadding="5" cellspacing="0" width="100%">
 <tr><td><font color="white"><b>Configuration</b></font></td></tr></table>
 
-<p>emergeCommand is configured by holding down 'Ctrl' while right clicking on the command window (by default appears as a grey square located on the top left corner of the screen with date and time in black). This will display the configuration menu</p>
-<img src="ConfigMenu.png">
-<p>The About option displays the module's author and version and the current scheme's path and filename.<br>
-Load Scheme allows the user to browse and select a <a href="Schemes.html">Scheme File</a>.<br>
-Edit Current Scheme displays the <a href="Schemes.html">Emerge Desktop Scheme Editor</a>.<br>
-Reload Current Scheme allows to reload the current scheme after editing.<br>
-The Exit option closes the module. It can be restarted by running the executable file emergeCommand.exe</p>
-<p>The Configure option displays the emergeCommand Configuration dialog box</p>
-<img alt="" src="ConfigCommand.png">
-<p>SnapMove toggles if the window should snap to the edge of other applets or the edges of the screen when moving.</p>
-<p>SnapSize toggles if the window should snap to the edge of other applets or the edges of the screen when sizing.</p>
-<p>Click Through toggles if the user can click through the applets. If Click Through is activated, the user can choose between two modes: Full (the whole applet is &quot;transparent&quot; to mouse input) or Background (only the background area is &quot;transparent&quot; but the user can click on the icons in emergeTray, emergeTasks, emergeLauncher, the text in emergeCommand and the miniature windows in emergeVWM). <b>Important notes</b>: 1) Full Click Through works for any level of opacity, from opaque to fully transparent; 2) Background Click Through automatically sets the background to transparent but does not change the scheme, this is a known limitation; 3) To manipulate an applet set to Full Click Through the user must press the Shift key: Shift+Control+LeftClick to move the applet, Shift+Control+RightClick to get the Config menu and Shift+Alt to resize the applet.</p>
-<p>Dynamic Positioning toggles if the window should automatically change it's position when the desktop resolution changes.</p>
-
-<p>Time format allows to select the date and time format according to the options described in <a href="TimeDate.html">Time / Date Format Variables</a>. Alternatively it can show a user defined text or nothing at all.</p>
-<p>Tooltip format allows to select the date and time format to use for the tooltip according to the options described in <a href="TimeDate.html">Time / Date Format Variables</a>. Alternatively it can show a user defined text or nothing at all. The tooltip is displayed when the cursor hovers over the emergeCommand window. </p>
-<p>Font shows the Font Dialog which allows to select Font, Font style and size of the font displayed both in the command and clock windows.</p>
-<img style="width: 437px; height: 344px;" alt="" src="Font.png">
-<p>ZPosition defines the relative position of the window in the Z-axis i.e. from the screen to the user and can be set to Always on Top, Always on Bottom or Normal (behaves as a regular program window)</p>
-
-<p>Text alignment allows to set the alignment of the clock and command input separately. Text can be aligned in the Horizontal to the Left, Centered in the applet or to the Right. Text can be aligned in the Vertical to the Top of the applet, Center or Bottom.</p>
-
-<p>emergeCommand settings are stored in <i>HKEY_CURRENT_USER\Software\Emerge Desktop\emergeCommand</i> and consist of the following subkeys:
-</p><ul>
-<li><i>History</i> - a list of the last 9 commands entered</li>
-<li><i>Settings</i> - all emergeCommand related settings. Currently the options are:</li>
-<li><ul>
-<li><i>X</i> - The position of the window on the x-axis (Default 0)</li>
-<li><i>Y</i> - The position of the window on the y-axis (Default 0)</li>
-<li><i>ZPosition</i> - The position of the window on the z-axis (window order - Default
-&quot;normal&quot;)</li>
-<li><i>Height</i> - The height of the window (Default 100)</li>
-<li><i>Width</i> - The width of the window (Default 100)</li>
-<li><i>ClickThrough</i> - True(1)/False(0) (Default False) Enables/disables the ability to click through the applets.</li>
-<li><i>ClockTextAlign</i> - The horizontal alignment of the clock text (Default Left)</li>
-<li><i>ClockVerticalAlign</i> - The vertical alignment of the clock text (Default Top)</li>
-<li><i>CommandTextAlign</i> - The horizontal alignment of the command line text (Default Left)</li>
-<li><i>CommandVerticalAlign</i> - The vertical alignment of the command line text (Default Top)</li>
-<li><i>Font</i> - The font name and size for the clock and command (Default Tahoma Size 12)</li>
-<li><i>Scheme</i> - Path and filename of the scheme used (Default none)</li>
-<li><i>SnapMove</i> - snap to the edge of other applets and the side of the desktop when moving (Default 1)</li>
-<li><i>SnapSize</i> - snap to the edge of other applets and the side of the desktop when sizing (Default 1)</li>
-<li><i>TimeFormat</i> - The format to use for displaying the date and time (Default &quot;%A%_%x%_%X&quot;). Valid variables are described in <a href="TimeDate.html">Time / Date Format Variables</a></li>
-<li><i>TipFormat</i> - The format to use for the tooltip displaying the date and time (Default &quot;%#c&quot;). Valid variables are described in <a href="TimeDate.html">Time / Date Format Variables</a></li>
-<li><i>DynamicPositioning</i> - Dynamic reposition emergeTray when the desktop resolution changes (Default 1)</li>
-</ul></ul>
+<p>emergeCommand is configured by pressing the Ctrl key and right-clicking on the command window. This opens the configuration menu:</p>
+<p><img src="AboutCommandH.png" width="160" height="122"></p>
+<p style="margin-bottom: 0;"><strong>About</strong> displays the module's version, the current scheme's path and filename and author.<br>
+  <strong>Load Scheme</strong> allows the user to browse and select a <a href="Schemes.html">Scheme File</a>.<br>
+  <strong>Reload Current Scheme</strong> allows to reload the current scheme after editing.<br>
+<strong>Configure</strong> displays the emergeCommand configuration dialog box.</p>
+<p style="margin-top: 0;"><strong>Exit</strong> closes the module. It can be restarted by highlighting it and clicking on the Start <img src="Start.png" width="24" height="23"> button in the Launch Applet dialog box (see <a href="emergeCore.htm">emergeCore</a>).</p>
+<p>After selecting <strong>Configure</strong>, the configuration dialog box opens. The first tab is <strong>General</strong>:</p>
+<p><img src="eCommandConfigH.png" width="446" height="459"></p>
+<p><strong>SnapMove</strong> makes the window snap to the edges of other applets' windows or the edges of the screen when moving it.</p>
+<p><strong>SnapSize</strong> makes the window snap to the edges of other applets' windows or the edges of the screen when changing its size.</p>
+<p><strong>Click Through</strong> allows clicking &quot;through&quot; the window (i.e. allows clicking on whatever is behind it).</p>
+<p><strong>Click Through</strong> has two modes: <strong>Full</strong> (the whole window is &quot;transparent&quot; to mouse input), or <strong>Background</strong> (only the background area is &quot;transparent&quot; but the user can click on the icons in emergeTray, emergeTasks, emergeLauncher, the text in emergeCommand, emergePower, the active mini-window in emergeVWM, the graphs in emergeSysMon). </p>
+<p><u>Important notes</u>: 1) <strong>Full Click Through </strong>works for any level of opacity, from opaque to fully transparent; 2) <strong>Background Click Through </strong>automatically sets the background to transparent but does not change the scheme, this is a known limitation; 3) To manipulate an applet set on <strong>Full Click Through, </strong>the user must press the Shift key: Shift+Ctrl+LeftClick to move the applet, Shift+Ctrl+RightClick to get the configuration menu and Shift+Alt to resize the applet.</p>
+<p><strong>Time Format</strong> allows to select the date and time format according to the options described in <a href="TimeDate.htm">Time / Date Format Variables</a>. Alternatively it can show a user defined text or nothing at all.</p>
+<p><strong>Tooltip Format</strong> allows to select the date and time format  for the tooltip according to the options described in <a href="TimeDate.htm">Time / Date Format Variables</a>. Alternatively it can show a user defined text or nothing at all. The tooltip is displayed when the cursor hovers over the emergeCommand window. </p>
+<p><strong>Font</strong> brings up the font dialog box, which allows to select <strong>Font</strong>,<strong> Font style</strong> and <strong>Size</strong> of the font displayed both in the command and clock windows:</p>
+<p><img src="eCommandFontH.png" width="437" height="351"></p>
+<p><strong>AutoComplete</strong> completes previously typed commands as the user types, so that a command previously entered doesn't need to be completely retyped.</p>
+<p>The configuration dialog box's second tab is <strong>Position</strong>:</p>
+<p><img src="eCommandConfig2H.png" width="447" height="460"></p>
+<p><strong>Anchor Point</strong> gives the choice of anchoring the window to the monitor's <strong>Top Left, Top Center, Top Right, Middle Left, Middle Center, Middle Right, Bottom Left</strong>,<strong> Bottom Center</strong>, or <strong>Bottom Right</strong>.</p>
+<p><strong>ZPosition</strong> defines the relative position of the window in the Z axis (i.e. from the screen to the user) and can be set to always on the <strong>Top</strong>, <strong>Normal</strong> (behaves as a regular program window), or always at the <strong>Bottom</strong>.</p>
+<p><strong>Clock Alignment</strong> sets the  clock alignment  horizontally on the <strong>Left</strong>, in the <strong>Center</strong>, or on the <strong>Right</strong>, and vertically on the <strong>Top</strong>, in the <strong>Center</strong>, or at the <strong>Bottom</strong>.</p>
+<p><strong>Command Alignment</strong> sets the  command alignment  horizontally on the <strong>Left</strong>, in the <strong>Center</strong>, or on the <strong>Right</strong>, and vertically on the <strong>Top</strong>, in the <strong>Center</strong>, or at the <strong>Bottom</strong>.</p>
+<p>For the configuration dialog box's third tab, see <a href="Schemes.html"><strong>Scheme Editor</strong></a>.</p>
 <table bgcolor="#7f907f" cellpadding="5" cellspacing="0" width="100%">
 <tr><td><font color="white"><b>Usage</b></font></td></tr></table>
 
-<p>Left clicking on the window will display a cursor which allows for the entering of a command or path. Pressing enter executes the command, or if a path is entered, an Explorer window will open on the path specified. Additionally, you can specify special folders including &quot;My Computer&quot;, &quot;My Documents&quot;, &quot;My Network Places&quot;, &quot;Control Panel&quot; or &quot;Recycle Bin&quot;. All Emerge Desktop's <a href="Internal.html">Internal Commands</a> are also supported.</p>
-<p>emergeCommand also allows the execution of aliases. These are simplifications of long command lines. Aliases are declared in the cmd.txt file in the files folder (see <a href="Directory.html">Directory Structure</a>).<br>
-e.g. .ie c:\program files\internet explorer\iexplore.exe (please notice that the alias must be separated from the path by a Tab and not by spaces)<br>
-To execute an alias in emergecommand it must be prepended with a '.' e.g. using the previous example, typing .ie in the emerge command box will launch Internet Explorer.</p>
-<p>The up and down arrow keys cycle through the command history. Pressing escape breaks out of the command history.</p>
-<p>Left clicking on the edge of the window while holding down the 'Alt' key will allow for resizing the window. Simply drag the mouse, and the window will resize itself accordingly. By default, the new size of the window is stored in the Width and Height settings in the registry, so it's new size will be remembered on the next start of emergeCommand.</p>
-<p>Holding down 'Ctrl' while left clicking allows for dragging of the window around the desktop. If the 'Ctrl' left click is allowed at that section of the applet, the cursor will change to a 'move' cursor. When the window nears the screen edge, it will snap to it, also, it will not allow itself to be dragged off screen. Similar to the resizing, by default, the new position is stored in the X and Y settings in the registry so that they will be remembered on next start.</p>
-</body></html>
+<p style="margin-bottom: 0;">Left-clicking on the emergeCommand window will display a cursor which allows the typing of a command or path. Pressing Enter executes the command, or, if a path is entered, an Explorer window opens at the specified path.</p>
+<p style="margin-top: 0;">You can also specify the Special Folders <strong>My Computer</strong>, <strong>My Documents</strong>, <strong>My Network Places</strong>, <strong>Control Panel</strong>, or <strong>Recycle Bin</strong>, or any of the Emerge Desktop's <a href="internal.htm">Internal Commands</a>.</p>
+<p>When prepended with &quot;@&quot;, a command specifying an executable allows the execution of the command from an administrator account after selecting the administrator&rsquo;s user name (or typing an other existing user name) and entering the password in the Run As dialog box.</p>
+<p style="margin-bottom: 0;">emergeCommand also allows the execution of aliases, which are simplifications of long command lines.</p>
+<p style="margin-top: 0; margin-bottom: 0;">Aliases are declared in the cmd.txt file, which is opened by right-clicking on the desktop, clicking on <strong>Settings</strong>, and <strong>Edit Aliases</strong>.</p>
+<p style="margin-top: 0; margin-bottom: 0;">(This file is located in the User Profile folder under &quot;\Application Data\Emerge Desktop\files&quot;. See also <a href="Directory.html">Directory Structure</a>).<br>
+</p>
+<p style="margin-top: 0;">The command line protocol is: <strong>.[alias text][tab][actual command]</strong></p>
+<p>e.g. entering in the cmd.txt file: &quot;.ie c:\program files\internet explorer\iexplore.exe&quot; (without the quotation marks) opens Internet Explorer with the simple command &quot;.ie&quot; in the emergeCommand window, <em>after</em> the cmd.txt file has been saved and closed.</p>
+<p>Note that a period (.) must prepend the alias text <em>and</em> the command, and that the alias must be separated from the  path by a Tab and not by spaces.</p>
+<p>In the emergeCommand window, the up and down arrow keys cycle through the command history.</p>
+<p>To move the window, the user must press the Ctrl key, left-click on the window, and drag it to another location. </p>
+<p>To resize the window, the user must press the Alt key, left-click on one edge of the window, and drag it to a new size.</p>
+<p><span class="style4" style="margin-top: 0; margin-bottom: 0;">The window position and size are stored in the applet's xml file, which is located  in the User Profile folder under &quot;\Application Data\Emerge Desktop\files&quot;, in a subfolder with the same name as the current Theme. See <a href="ThemeManager.htm">Theme Manager</a> for more details.</span></p>
+</body>
+</html>
