@@ -62,6 +62,14 @@
 			<param name="Local" value="emergeLauncher.html">
 			</OBJECT>
 		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="emergePower">
+			<param name="Local" value="emergePower.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="emergeSysMon">
+			<param name="Local" value="emergeSysMon.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
 			<param name="Name" value="emergeVWM">
 			<param name="Local" value="emergeVWM.html">
 			</OBJECT>
@@ -86,6 +94,10 @@
 	<LI> <OBJECT type="text/sitemap">
 		<param name="Name" value="Schemes">
 		<param name="Local" value="Schemes.html">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="Theme Manager">
+		<param name="Local" value="ThemeManager.html">
 		</OBJECT>
 	<LI> <OBJECT type="text/sitemap">
 		<param name="Name" value="Time / Date Format Variables and Codes">
