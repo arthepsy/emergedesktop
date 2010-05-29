@@ -1,0 +1,68 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+    <head>
+        <title>emergeTray</title>
+        <link rel = StyleSheet type = "text/css" HREF = "../emerge.css">
+    </head>
+<body>
+<table bgcolor="#7f907f" cellpadding="5" cellspacing="0" width="100%">
+    <tr>
+      <td> <font color="white"><b>About</b></font> </td>
+    </tr>
+</table>
+<p>
+emergeTray is the 'system tray' applet of Emerge Desktop. It displays the system icons in a movable,  resizeable window.</p>
+<table bgcolor="#7f907f" cellpadding="5" cellspacing="0" width="100%">
+    <tr>
+      <td> <font color="white"><b>Configuration</b></font> </td>
+    </tr>
+</table>
+<p>emergeTray is configured by pressing the Ctrl key and right-clicking on the tray window.<span style="margin-top: 0; margin-bottom: 0;"> This opens the configuration menu:</span></p>
+
+<p><img src="ConfigMenu.png" width="157" height="118"></p>
+<p style="margin-bottom: 0;"><strong>About</strong> displays the module's author and version and the current scheme's path and filename.<br>
+  <strong>Load Scheme</strong> allows the user to browse and select a <a href="Schemes.html">Scheme File</a>.</p>
+<p style="margin-top: 0; margin-bottom: 0;"><strong>Reload Current Scheme</strong> allows to reload the current scheme after editing.</p>
+<p style="margin-top: 0;"><strong>Configure</strong> displays the emergeLauncher configuration dialog box.<br>
+  <strong>Exit</strong> closes the module. It can be restarted by highlighting it and clicking on the Start <img src="Start.png" width="24" height="23"> button in the Launch Applet dialog box (see <a href="emergeCore.htm">emergeCore</a>).</p>
+<p>After selecting <strong>Configure</strong>, the configuration dialog box opens. The first tab is <strong>General</strong>:</p>
+<p><img src="TrayConfig1.png" width="449" height="461"></p>
+<p><strong>SnapMove</strong> makes the window snap to the edges of other applets' windows or the edges of the screen when moving it.</p>
+<p><strong>SnapSize</strong> makes the window snap to the edges of other applets' windows or the edges of the screen when changing its size.</p>
+<p><strong>Click Through</strong> allows clicking &quot;through&quot; the window (i.e. allows clicking on whatever is behind it).</p>
+<p><strong>Click Through</strong> has two modes: <strong>Full</strong> (the whole window is &quot;transparent&quot; to mouse input), or <strong>Background</strong> (only the background area is &quot;transparent&quot; but the user can click on the icons in emergeTray, emergeTasks, emergeLauncher, the text in emergeCommand, emergePower, the active mini-window in emergeVWM, the graphs in emergeSysMon). </p>
+<p><u>Important notes</u>: 1) <strong>Full Click Through </strong>works for any level of opacity, from opaque to fully transparent; 2) <strong>Background Click Through </strong>automatically sets the background to transparent but does not change the scheme, this is a known limitation; 3) To manipulate an applet set on <strong>Full Click Through, </strong>the user must press the Shift key: Shift+Ctrl+LeftClick to move the applet, Shift+Ctrl+RightClick to get the configuration menu and Shift+Alt to resize the applet.</p>
+<p><strong>Icon Spacing</strong> defines the spacing in pixels between adjacent icons.</p>
+<p>The  configuration dialog box's second tab is <strong>Hidden Icons</strong>:</p>
+<p><img src="TrayConfig2.png" width="446" height="459"></p>
+<p><strong>Show Icons on Hover</strong> shows the hidden icons when the cursor is over the tray.</p>
+<p>The <strong>Hidden Icons</strong> window displays the list of hidden icons as selected by the user.</p>
+<p>To Add <img src="Add.png" width="24" height="23" style="width: 24px; height: 23px;"> a new hidden icon, the user must type the text (or part of the text) showed in  that icon's tooltip (i.e. the text in the yellow box which appears when the cursor is over the icon). </p>
+<p>The user then clicks on Save <img src="Save.png" width="24" height="23" style="width: 24px; height: 23px;"> (or Discard <img src="Discard.png" width="24" height="23" style="width: 24px; height: 23px;"> to start over). Pressing the <strong>OK</strong> button saves the current settings and closes the configuration dialog box.</p>
+<p style="margin-bottom: 0;">An item displayed in the <strong>Hidden Icons </strong>window can be Deleted <img src="Delete.png" width="24" height="23" style="width: 24px; height: 23px;"> after highlighting it in the list. </p>
+<p style="margin-top: 0;"> After the user adds, deletes or modifies incorrectly an item, she can undo changes by clicking the <strong>Cancel</strong> button. A dialog box will open asking for confirmation to close the configuration dialog box without saving the changes made.</p>
+<p><u>Important Note:</u> Items can be added to the Hidden Icons list without opening the emergeTray configuration dialog box by pressing the Alt key and left-clicking on the item to be hidden.</p>
+<p>The configuration  dialog box's third tab is <strong>Position</strong>:</p>
+<p><img src="TrayConfig3.png" width="446" height="459"></p>
+<p><strong>Anchor Point</strong> gives the choice of anchoring the window to the monitor's <strong>Top Left, Top Center, Top Right, Middle Left, Middle Center, Middle Right, Bottom Left, Bottom Center, or Bottom Right</strong>.</p>
+
+<p><strong>ZPosition</strong> defines the relative position of the window in the Z axis (i.e. from the screen to the user) and can be set to always on the <strong>Top</strong>, <strong>Normal</strong> (behaves as a regular program window), or always at the <strong>Bottom</strong>.</p>
+<p><strong>Orientation</strong> defines if the icons are set as a column (<strong>Vertical</strong>) or as a row (<strong>Horizontal</strong>). </p>
+<p>Independently of the the Orientation, the icons can have three options for <strong>Horizontal </strong>or <strong>Vertical Alignment</strong>:</p>
+<p><strong>Horizontal Aligment</strong> can be set to: align on the <strong>Left</strong> of the applet (i.e. new items are added to the right), <strong>Center</strong> (i.e. expand in both directions in relation to the horizontal center), or on the <strong>Right</strong>.</p>
+<p><strong>Vertical Aligment </strong>can be set to: <strong>Top</strong> of the applet, vertical <strong>Center</strong>, or <strong>Bottom</strong>.</p>
+<p>If <strong>Autosize</strong> is not selected, when icons reach an edge, they will add a new row  or column to the window, depending on <strong>Vertical</strong> or <strong>Horizontal</strong> <strong>Orientation</strong>.</p>
+<p>For the configuration dialog box's fourth tab, see the <a href="Schemes.html"><strong>Scheme Editor</strong></a>.</p>
+<table bgcolor="#7f907f" cellpadding="5" cellspacing="0" width="100%">
+    <tr>
+      <td><font color="white"><b>Usage</b></font> </td>
+    </tr>
+</table>
+<p>Clicking on a tray icon will perform the action defined by the icon for that specific click. For example, left-clicking on the Volume icon will bring up the volume slider. Double left-clicking on the Volume icon displays the sound control window. Right-clicking on the Volume icon displays a menu.</p>
+
+<p>To move the window, the user must press the Ctrl key, left-click on the window, and drag it to another location. </p>
+
+<p>To resize the window (provided that <strong>Autosize</strong> is not selected), the user must press the Alt key, left-click on one edge of the window, and drag it to a new size.</p>
+<p><span class="style4" style="margin-top: 0; margin-bottom: 0;">The window position and size are stored in the applet's xml file, which is located  in the User Profile folder under &quot;\Application Data\Emerge Desktop\themes&quot;, in a subfolder with the same name as the current Theme. See <a href="ThemeManager.htm">Theme Manager</a> for more details.</span></p>
+</body>
+</html>

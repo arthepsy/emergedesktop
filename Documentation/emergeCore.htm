@@ -1,0 +1,42 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+    <head>
+        <title>emergeCore</title>
+        <link rel = StyleSheet type = "text/css" HREF = "emerge.css">
+    </head>
+<body> <table bgcolor="#7f907f" cellpadding="5" cellspacing="0" width="100%">
+<tr><td><font color="white"><b>About</b></font></td></tr></table>
+
+<p>emergeCore, as the name indicates, is the core component of Emerge Desktop. It is the messaging interface between all the other Emerge Desktop applets.</p>
+<p>It also launches the startup programs and the Microsoft DDE Server.</p>
+<table bgcolor="#7f907f" cellpadding="5" cellspacing="0" width="100%"><tr><td><font color="white"><b>Configuration</b></font></td> </tr> </table>
+<p>Three major components of Emerge Desktop are dependent on emergeCore:</p>
+<p>(1) the execution (i.e. &quot;loading&quot;) of the applets, which is configured in the <strong>Launch Applets</strong> configuration dialog box, </p>
+<p>(2) the <strong>Shell Changer</strong>, which allows to set Emerge Desktop (or any other alternate shell) as the shell for the Current User, or to switch to Windows Explorer, and</p>
+<p>(3) the <a href="ThemeManager.htm">Theme Manager</a>.</p>
+<p>To display the <strong>Launch Applets</strong> configuration dialog box, the user must right-click  on the desktop, select <strong>Settings</strong>, and <strong>Edit Launch Applets</strong>:</p>
+<p><img src="LaunchApplets.png" width="426" height="390"></p>
+<p>(alternatively the user can type <i>CoreLaunchEditor</i> in the emergeCommand command window)</p>
+<p>To Add <img src="Add.png" width="24" height="23" style="width: 24px; height: 23px;"> a new applet to emergeCore, the user must Browse <img src="BrowseFile.png" width="26" height="25" style="width: 24px; height: 23px;"> to the applet's executable,  Save <img src="Save.png" width="24" height="23" style="width: 24px; height: 23px;">  the item (or
+Discard <img src="Discard.png" width="24" height="23" style="width: 24px; height: 23px;"> to start over), highlight it in the <strong>Applet</strong> list, and  Start <img src="Start.png" width="24" height="23"> , which switches the applet's <strong>State</strong> from <strong>Unloaded</strong> to <strong>Loaded</strong> (i.e. executes the applet).</p>
+<p style="margin-bottom: 0;"> To stop an applet (i.e. go<strong> </strong>from <strong>Loaded</strong> to <strong>Unloaded </strong>state), the user must highlight it in the <strong>Applet</strong> list and click on  Stop <img src="Stop.png" width="24" height="23"> .</p>
+<p style="margin-top: 0;">To delete an applet (which only removes it from the <strong>Applet</strong> list), the user must click on Delete <img src="Delete.png" width="24" height="23" style="width: 24px; height: 23px;"> .<br>
+The Up <img src="Up.png" width="24" height="23" style="width: 24px; height: 23px;"> and Down <img src="Down.png" width="24" height="23" style="width: 24px; height: 23px;"> buttons are used to change the loading order of the applets.</p>
+<p>The Info <img src="Info.png" width="24" height="23"> button displays the highlighted applet's name, version and authors.</p>
+<p>The Gather <img src="Gather.png" width="24" height="23"> button moves the highlighted applet's window (if it has one) next to the Launch Applets dialog box for when it can't be located on the desktop.</p>
+<p class="style3"> Pressing the <strong>OK </strong>button saves the current settings and closes the configuration dialog box.</p>
+<p>After the user adds, deletes or modifies incorrectly an item, she can undo changes by clicking the <strong>Cancel</strong> button. A dialog box will open asking for confirmation to close the configuration dialog box without saving the changes made. </p>
+<p>To display the <strong>Desktop Shell</strong> dialog box, <span style="margin-top: 0; margin-bottom: 0;">the user must right-click  on the desktop, select <strong>Settings</strong>, and </span><strong> Change Desktop Shell</strong>:</p>
+<p><img src="DesktopShell.png" width="293" height="203"></p>
+<p> (Alternatively the user can use the shortcut &quot;Emerge Desktop Shell Changer&quot; in the Emerge Desktop program group in the Start menu (which can be accessed both when Windows Explorer or Emerge Desktop is the shell). Also, the user can type <i>CoreShellChanger</i> in the emergeCommand command window.)</p>
+<p style="margin-bottom: 0;">Emerge Desktop and Windows Explorer are listed in the Shell drop list (and cannot be removed from it). </p>
+<p style="margin-top: 0;">The user can Add <img src="Add.png" width="24" height="23" style="width: 24px; height: 23px;"> other shells to the list by Browsing <img src="BrowseFile.png" width="26" height="25" style="width: 24px; height: 23px;"> to the file, defining a <strong>Name</strong>, and then clicking on Save <img src="Save.png" width="24" height="23" style="width: 24px; height: 23px;"> to save the item (or Discard <img src="Discard.png" width="24" height="23" style="width: 24px; height: 23px;"> to start over).<br>
+An added shell can be modified  or deleted by selecting it from the drop list and pressing the Modify   <img src="Edit.png" width="24" height="23" style="width: 24px; height: 23px;"> or Delete <img src="Delete.png" width="24" height="23" style="width: 24px; height: 23px;"> button.</p>
+<p>If <strong>Show Startup Errors</strong> is checked, missing startup items generate an error message.</p>
+<p>To switch from one shell to another, the user must select a new shell from the drop list, and click on the <strong>OK</strong> button. After rebooting or loging off and back on, Windows will load the new shell.</p>
+<table bgcolor="#7f907f" cellpadding="5" cellspacing="0" width="100%"><tr><td>
+<font color="white"><b>Usage</b></font>
+</td> </tr></table>
+<p>emergeCore also supports command line switches (see <a href="Switches.html">Emerge Desktop Command Line Switches</a>).</p>
+</body>
+</html>

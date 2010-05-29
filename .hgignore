@@ -17,6 +17,7 @@ hgversion.h
 *.save
 *.depend
 *.out
+*.chm
 
 # switch to regexp syntax.
 #syntax: regexp
