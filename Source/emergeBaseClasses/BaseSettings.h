@@ -116,6 +116,7 @@ public:
   void ClearModified();
   bool GetModified();
   bool CopyTheme();
+  bool CopyScheme();
 
 protected:
   virtual void DoReadSettings(IOHelper& helper);

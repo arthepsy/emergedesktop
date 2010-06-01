@@ -106,7 +106,7 @@ bool BaseSettings::CopyTheme()
   newThemePath = TEXT("%ThemeDir%");
 
   if (ELFileOp(appletWnd, FO_COPY, oldThemePath, newThemePath))
-    return true;
+    return CopyScheme();
 
   return false;
 }
@@ -569,6 +569,26 @@ bool BaseSettings::SetSchemeFile(const WCHAR *schemeFile)
       wcscpy(this->schemeFile, schemeFile);
       SetModified();
     }
+  return true;
+}
+
+bool BaseSettings::CopyScheme()
+{
+  std::wstring workingScheme = schemeFile, destScheme;
+
+  if (workingScheme.find(L"\\Schemes\\") == std::wstring::npos)
+    {
+      destScheme = L"%ThemeDir%\\Schemes";
+
+      if (ELFileOp(NULL, FO_COPY, workingScheme, destScheme))
+        {
+          destScheme += workingScheme.substr(workingScheme.rfind(L"\\"));
+          wcscpy(schemeFile, destScheme.c_str());
+        }
+      else
+        return false;
+    }
+
   return true;
 }
 
