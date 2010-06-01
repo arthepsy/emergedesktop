@@ -105,10 +105,9 @@ bool BaseSettings::CopyTheme()
   oldThemePath += TEXT("\\*");
   newThemePath = TEXT("%ThemeDir%");
 
-  if (ELFileOp(appletWnd, FO_COPY, oldThemePath, newThemePath))
-    return CopyScheme();
+  ELFileOp(appletWnd, FO_COPY, oldThemePath, newThemePath);
 
-  return false;
+  return CopyScheme();
 }
 
 bool BaseSettings::WriteSettings()
