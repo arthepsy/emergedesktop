@@ -59,7 +59,7 @@ void Settings::ResetDefaults()
   rows = 2;
   columns = 2;
   hideSticky = false;
-  x = 200;
+  x = 216;
 }
 
 bool Settings::GetHideSticky()
