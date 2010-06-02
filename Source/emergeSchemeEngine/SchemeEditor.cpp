@@ -793,6 +793,12 @@ bool SchemeEditor::DoSaveScheme(HWND hwndDlg, WCHAR *fileName)
 {
   WCHAR methodString[MAX_LINE_LENGTH];
 
+  if (wcslen(fileName) == 0)
+    {
+      DoSaveAs(hwndDlg);
+      wcscpy(fileName, ESEGetScheme());
+    }
+
   guiInfo.alphaActive = GetDlgItemInt(hwndDlg, IDC_ACTIVEALPHA, NULL, FALSE);
   guiInfo.alphaInactive = GetDlgItemInt(hwndDlg, IDC_INACTIVEALPHA, NULL, FALSE);
   guiInfo.alphaMenu = GetDlgItemInt(hwndDlg, IDC_MENUALPHA, NULL, FALSE);
