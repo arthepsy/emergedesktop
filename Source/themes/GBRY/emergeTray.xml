@@ -1,0 +1,23 @@
+<?xml version="1.0" ?>
+<Settings>
+    <X>-72</X>
+    <Y>-1</Y>
+    <Width>156</Width>
+    <Height>32</Height>
+    <ZPosition>Top</ZPosition>
+    <HorizontalDirection>Left</HorizontalDirection>
+    <VerticalDirection>Up</VerticalDirection>
+    <DirectionOrientation>horizontal</DirectionOrientation>
+    <AutoSize>false</AutoSize>
+    <IconSize>16</IconSize>
+    <IconSpacing>3</IconSpacing>
+    <Scheme>%ThemeDir%\Schemes\tray.eds</Scheme>
+    <SnapMove>true</SnapMove>
+    <SnapSize>true</SnapSize>
+    <DynamicPositioning>true</DynamicPositioning>
+    <ClickThrough>0</ClickThrough>
+    <Resolution>0,0,800,1280</Resolution>
+    <Monitor>0</Monitor>
+    <UnhideIcons>true</UnhideIcons>
+    <AnchorPoint>BottomRight</AnchorPoint>
+</Settings>

@@ -1,0 +1,26 @@
+<?xml version="1.0" ?>
+<Settings>
+    <X>285</X>
+    <Y>-40</Y>
+    <Width>271</Width>
+    <Height>32</Height>
+    <ZPosition>Top</ZPosition>
+    <HorizontalDirection>right</HorizontalDirection>
+    <VerticalDirection>Up</VerticalDirection>
+    <DirectionOrientation>horizontal</DirectionOrientation>
+    <AutoSize>false</AutoSize>
+    <IconSize>32</IconSize>
+    <IconSpacing>7</IconSpacing>
+    <Scheme>%ThemeDir%\Schemes\tasks.eds</Scheme>
+    <SnapMove>true</SnapMove>
+    <SnapSize>true</SnapSize>
+    <DynamicPositioning>true</DynamicPositioning>
+    <ClickThrough>0</ClickThrough>
+    <Resolution>0,0,800,1280</Resolution>
+    <Monitor>0</Monitor>
+    <HighLightActive>false</HighLightActive>
+    <FlashCount>0</FlashCount>
+    <EnableFlash>true</EnableFlash>
+    <FlashInterval>1000</FlashInterval>
+    <AnchorPoint>BottomLeft</AnchorPoint>
+</Settings>

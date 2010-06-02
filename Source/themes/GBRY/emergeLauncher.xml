@@ -1,0 +1,80 @@
+<?xml version="1.0" ?>
+<Settings>
+    <X>0</X>
+    <Y>-40</Y>
+    <Width>281</Width>
+    <Height>33</Height>
+    <ZPosition>Top</ZPosition>
+    <HorizontalDirection>right</HorizontalDirection>
+    <VerticalDirection>down</VerticalDirection>
+    <DirectionOrientation>Horizontal</DirectionOrientation>
+    <AutoSize>true</AutoSize>
+    <IconSize>32</IconSize>
+    <IconSpacing>3</IconSpacing>
+    <Scheme>%ThemeDir%\Schemes\launcher.eds</Scheme>
+    <SnapMove>true</SnapMove>
+    <SnapSize>true</SnapSize>
+    <DynamicPositioning>true</DynamicPositioning>
+    <ClickThrough>0</ClickThrough>
+    <Resolution>0,0,800,1280</Resolution>
+    <Monitor>0</Monitor>
+    <Launch>
+        <item>
+            <Type>2</Type>
+            <Command>RightDeskMenu</Command>
+            <Icon>%AppletDir%\emergeCore.exe,0</Icon>
+            <Tip>Start Menu</Tip>
+            <WorkingDir />
+        </item>
+        <item>
+            <Type>0</Type>
+            <Command>Double</Command>
+            <Icon />
+            <Tip />
+            <WorkingDir />
+        </item>
+        <item>
+            <Type>2</Type>
+            <Command>Homepage</Command>
+            <Icon>%ProgramFiles%\Internet Explorer\IEXPLORE.EXE,0</Icon>
+            <Tip>Open Emerge Desktop&apos;s Homepage</Tip>
+            <WorkingDir />
+        </item>
+        <item>
+            <Type>2</Type>
+            <Command>ShowDesktop</Command>
+            <Icon>%WinDir%\system32\shell32.dll,34</Icon>
+            <Tip>Show Desktop</Tip>
+            <WorkingDir />
+        </item>
+        <item>
+            <Type>4</Type>
+            <Command>CSIDL_PERSONAL</Command>
+            <Icon />
+            <Tip>My Documents</Tip>
+            <WorkingDir />
+        </item>
+        <item>
+            <Type>1</Type>
+            <Command>%AppletDir%\documentation\Emerge Desktop.chm</Command>
+            <Icon>%SystemRoot%\system32\shell32.dll,23</Icon>
+            <Tip>Emerge Desktop help file</Tip>
+            <WorkingDir />
+        </item>
+        <item>
+            <Type>2</Type>
+            <Command>Tutorial</Command>
+            <Icon>%SystemRoot%\system32\shell32.dll,13</Icon>
+            <Tip>Emerge Desktop Online Tutorial</Tip>
+            <WorkingDir />
+        </item>
+        <item>
+            <Type>0</Type>
+            <Command>Single</Command>
+            <Icon></Icon>
+            <Tip></Tip>
+            <WorkingDir></WorkingDir>
+        </item>
+    </Launch>
+    <AnchorPoint>BottomLeft</AnchorPoint>
+</Settings>

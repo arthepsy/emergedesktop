@@ -1,0 +1,18 @@
+<?xml version="1.0" ?>
+<Launch>
+    <item>
+        <Command>%AppletDir%\emergeTasks.exe</Command>
+    </item>
+    <item>
+        <Command>%AppletDir%\emergeTray.exe</Command>
+    </item>
+    <item>
+        <Command>%AppletDir%\emergeDesktop.exe</Command>
+    </item>
+    <item>
+        <Command>%AppletDir%\emergeCommand.exe</Command>
+    </item>
+    <item>
+        <Command>%AppletDir%\emergeLauncher.exe</Command>
+    </item>
+</Launch>

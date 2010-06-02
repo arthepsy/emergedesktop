@@ -1,0 +1,10 @@
+<?xml version="1.0" ?>
+<Settings>
+    <TopBorder>0</TopBorder>
+    <BottomBorder>44</BottomBorder>
+    <LeftBorder>0</LeftBorder>
+    <RightBorder>0</RightBorder>
+    <MenuAlpha>100</MenuAlpha>
+    <MenuIcons>true</MenuIcons>
+    <BorderPrimary>true</BorderPrimary>
+</Settings>
