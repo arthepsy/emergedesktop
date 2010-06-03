@@ -89,7 +89,6 @@ Section "emergeCore" SecemergeCore
 SectionIn RO
 SetOutPath "$INSTDIR"
 File "..\Source\bin\emergeCore.exe"
-File "..\Source\bin\reg2xml.exe"
 SetOutPath "$INSTDIR\scripts"
 IfFileExists "$INSTDIR\scripts\hide.pl" +2
 File "..\Source\scripts\hide.pl"
@@ -187,6 +186,11 @@ SubSection "Utilities" SecUtilities
 Section "emerge" Secemerge
 SetOutPath "$INSTDIR"
 File "..\Source\bin\emerge.exe"
+SectionEnd
+
+Section "reg2xml" Secreg2xml
+SetOutPath "$INSTDIR"
+File "..\Source\bin\reg2xml.exe"
 SectionEnd
 
 SubSectionEnd
@@ -312,6 +316,7 @@ SectionEnd
 
 !insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
 !insertmacro MUI_DESCRIPTION_TEXT ${Secemerge} "emerge is a command line utility that can be used to execute Emerge Desktop Internal Commands by other non-Emerge Desktop applications."
+!insertmacro MUI_DESCRIPTION_TEXT ${Secreg2xml} "reg2xml is a utility that can be used to convert Emerge Desktop registry settings into XML settings."
 !insertmacro MUI_DESCRIPTION_TEXT ${SecemergeCore} "emergeCore is the core of Emerge Desktop.  It is required for setting Emerge Desktop as the default shell."
 !insertmacro MUI_DESCRIPTION_TEXT ${SecemergeCommand} "Provides a clock as well as method of entering commands to be executed"
 !insertmacro MUI_DESCRIPTION_TEXT ${SecemergeHotkeys} "'Hotkey' application laucher as well as interfacing to Emerge Desktop itself"
@@ -341,6 +346,8 @@ Call CheckWindowsVersion
 StrCpy ${EMERGERUNNING} "0"
 Push $R0
 FindWindow $R0 "emergeCoreClass"
+IntCmp $R0 0 +1 +2
+FindWindow $R0 "EmergeDesktopCore"
 IntCmp $R0 0 +5
 Pop $R0
 StrCpy ${EMERGERUNNING} "1"
@@ -411,28 +418,40 @@ Pop $R0
 FunctionEnd
 
 Function CloseCore
+  Push $R1
+  System::Call "user32::RegisterWindowMessage(t 'EmergeDispatch') isR1"
   Push $R0
 LOOP:
   FindWindow $R0 "emergeCoreClass"
-  IntCmp $R0 0 +5
+  IntCmp $R0 0 +1 +2
+  FindWindow $R0 "EmergeDesktopCore"
+  IntCmp $R0 0 +6
     SendMessage $R0 1028 1 100
     SendMessage $R0 2028 1 100
+    SendMessage $R0 $R1 1 100
     Sleep 100
     Goto LOOP
   Pop $R0
+  Pop $R1
 FunctionEnd
 
 Function un.CloseCore
+  Push $R1
+  System::Call "user32::RegisterWindowMessage(t 'EmergeDispatch') isR1"
   Push $R0
 LOOP:
   FindWindow $R0 "emergeCoreClass"
-  IntCmp $R0 0 +6
+  IntCmp $R0 0 +1 +2
+  FindWindow $R0 "EmergeDesktopCore"
+  IntCmp $R0 0 +7
   SetRebootFlag true
         SendMessage $R0 1028 1 100
         SendMessage $R0 2028 1 100
+        SendMessage $R0 $R1 1 100
         Sleep 100
         Goto LOOP
   Pop $R0
+  Pop $R1
 FunctionEnd
 
 Function nsDialogOptions
