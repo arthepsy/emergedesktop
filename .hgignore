@@ -18,6 +18,7 @@ hgversion.h
 *.depend
 *.out
 *.chm
+*.exe
 
 # switch to regexp syntax.
 #syntax: regexp
