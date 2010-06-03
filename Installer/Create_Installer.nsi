@@ -7,7 +7,7 @@
 ; -------------------------------------------------------------------
 ; help >>> General NAME and Versioning
 ; -------------------------------------------------------------------
-Name "Emerge Desktop 4.2"
+Name "Emerge Desktop 5.0"
 !define FIELD1 $R1
 !define FIELD2 $R2
 !define FIELD3 $R3
@@ -59,12 +59,12 @@ UninstPage custom un.nsDialogOptions un.nsDialogOptionsLeave
 ; -------------------------------------------------------------------
 Icon "emerge.ico"
 UninstallIcon "unemerge.ico"
-OutFile "EmergeDesktop-4.2.exe"
+OutFile "EmergeDesktop-5.0.exe"
 
 ; -------------------------------------------------------------------
 ; help >>> Branding the installer makes it nice an unique... ;)
 ; -------------------------------------------------------------------
-BrandingText "©2004 - 2008 Emerge Desktop Development Team"
+BrandingText "©2004 - 2010 Emerge Desktop Development Team"
 
 ; -------------------------------------------------------------------
 ; help >>> NSIS 2.0 modern ui with XP style please...
@@ -89,6 +89,7 @@ Section "emergeCore" SecemergeCore
 SectionIn RO
 SetOutPath "$INSTDIR"
 File "..\Source\bin\emergeCore.exe"
+File "..\Source\bin\reg2xml.exe"
 SetOutPath "$INSTDIR\scripts"
 IfFileExists "$INSTDIR\scripts\hide.pl" +2
 File "..\Source\scripts\hide.pl"
@@ -193,20 +194,19 @@ SubSectionEnd
 Section "-Libraries"
 SetOutPath "$INSTDIR"
 File "..\Source\bin\emergeLib.dll"
+File "..\Source\bin\libgcc_s_dw2-1.dll"
+File "..\Source\bin\libstdc++-6.dll"
+File "..\Source\bin\emergeIcons.dll"
 File "..\Source\bin\emergeGraphics.dll"
 File "..\Source\bin\emergeAppletEngine.dll"
 File "..\Source\bin\emergeSchemeEngine.dll"
 File "..\Source\bin\emergeBaseClasses.dll"
 SectionEnd
 
-Section "-Schemes"
-CreateDirectory "$PROFILE\Emerge Desktop\schemes"
-SetOutPath "$PROFILE\Emerge Desktop\schemes"
-IfFileExists "$PROFILE\Emerge Desktop\schemes\Default.eds" +2
-File "..\Source\schemes\Default.eds"
-SetOutPath "$INSTDIR\schemes"
-IfFileExists "$INSTDIR\schemes\Default.eds" +2
-File "..\Source\schemes\Default.eds"
+Section "-Themes"
+CreateDirectory "$PROFILE\Emerge Desktop\themes\GBRY"
+SetOutPath "$PROFILE\Emerge Desktop\themes\GBRY"
+File /r "..\Source\themes\GBRY\*"
 SectionEnd
 
 ; -------------------------------------------------------------------
@@ -262,11 +262,11 @@ Section Uninstall
   ${EndIf}
 
 ; -------------------------------------------------------------------
-; help >>> remove schemes, if desired
+; help >>> remove themes, if desired
 ; -------------------------------------------------------------------
   ${If} ${FIELD4} == ${BST_UNCHECKED}
-    Delete "$PROFILE\Emerge Desktop\schemes\*"
-    RMDir "$PROFILE\Emerge Desktop\schemes"
+    Delete "$PROFILE\Emerge Desktop\themes\*"
+    RMDir "$PROFILE\Emerge Desktop\themes"
   ${EndIf}
 
 ; -------------------------------------------------------------------
@@ -286,6 +286,7 @@ Section Uninstall
   Delete "$INSTDIR\documentation\Emerge Desktop.chm"
   RMDir "$INSTDIR\documentation"
   Delete "$INSTDIR\emerge.exe"
+  Delete "$INSTDIR\reg2xml.exe"
   Delete "$INSTDIR\emergeCommand.exe"
   Delete "$INSTDIR\emergeDesktop.exe"
   Delete "$INSTDIR\emergeHotkeys.exe"
@@ -297,6 +298,9 @@ Section Uninstall
   Delete "$INSTDIR\emergePower.exe"
   Delete "$INSTDIR\emergeSysMon.exe"
   Delete "$INSTDIR\emergeLib.dll"
+  Delete "$INSTDIR\libgcc_s_dw2-1.dll"
+  Delete "$INSTDIR\libstdc++-6.dll"
+  Delete "$INSTDIR\emergeIcons.dll"
   Delete "$INSTDIR\emergeAppletEngine.dll"
   Delete "$INSTDIR\emergeSchemeEngine.dll"
   Delete "$INSTDIR\emergeGraphics.dll"
@@ -469,7 +473,7 @@ Function un.nsDialogOptions
   ${NSD_CreateCheckBox} 0 70u 100% 12u "Save Configuration"
   Pop $CheckBox1
 
-  ${NSD_CreateLabel} 0 90u 100% 20u "The uninstaller by default also removes all scripts, files and schemes.  If you would like to save your scripts, files or schemes for later use, please check the appropriate box below:"
+  ${NSD_CreateLabel} 0 90u 100% 20u "The uninstaller by default also removes all scripts, files and themes.  If you would like to save your scripts, files or themes for later use, please check the appropriate box below:"
   Pop $Label3
 
   ${NSD_CreateCheckBox} 0 115u 100u 12u "Save Scripts"
@@ -478,7 +482,7 @@ Function un.nsDialogOptions
   ${NSD_CreateCheckBox} 100u 115u 100u 12u "Save Files"
   Pop $CheckBox3
 
-  ${NSD_CreateCheckBox} 200u 115u 100u 12u "Save Schemes"
+  ${NSD_CreateCheckBox} 200u 115u 100u 12u "Save Themes"
   Pop $CheckBox4
 
   nsDialogs::Show
