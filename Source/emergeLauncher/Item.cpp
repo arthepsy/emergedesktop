@@ -33,7 +33,10 @@ Item::Item(int type, LPCTSTR app, LPCTSTR icon, LPCTSTR tip, LPCTSTR workingDir)
 {
   this->type = type;
   wcscpy(this->app, app);
-  wcscpy(this->tip, tip);
+  if (type == IT_SEPARATOR)
+    wcscpy(this->tip, TEXT(""));
+  else
+    wcscpy(this->tip, tip);
   wcscpy(iconPath, icon);
   wcscpy(this->workingDir, workingDir);
   convertIcon = false;
