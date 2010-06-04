@@ -89,7 +89,6 @@ Section "emergeCore" SecemergeCore
 SectionIn RO
 SetOutPath "$INSTDIR"
 File "..\Source\bin64\emergeCore.exe"
-File "..\Source\bin64\reg2xml.exe"
 SetOutPath "$INSTDIR\scripts"
 IfFileExists "$INSTDIR\scripts\hide.pl" +2
 File "..\Source\scripts\hide.pl"
@@ -146,9 +145,9 @@ SubSection "Additional Applets" SecAdditionalApplets
 Section "emergeCommand" SecemergeCommand
 SetOutPath "$INSTDIR"
 File "..\Source\bin64\emergeCommand.exe"
-CreateDirectory "$PROFILE\Emerge Desktop\files"
-IfFileExists "$PROFILE\Emerge Desktop\files\cmd.txt" +3
-SetOutPath "$PROFILE\Emerge Desktop\files"
+CreateDirectory "$APPDATA\Emerge Desktop\files"
+IfFileExists "$APPDATA\Emerge Desktop\files\cmd.txt" +3
+SetOutPath "$APPDATA\Emerge Desktop\files"
 File "..\Source\files\cmd.txt"
 IfFileExists "$INSTDIR\files\cmd.txt" +3
 SetOutPath "$INSTDIR\files"
@@ -189,6 +188,11 @@ SetOutPath "$INSTDIR"
 File "..\Source\bin64\emerge.exe"
 SectionEnd
 
+Section "reg2xml" Secreg2xml
+SetOutPath "$INSTDIR"
+File "..\Source\bin\reg2xml.exe"
+SectionEnd
+
 SubSectionEnd
 
 Section "-Libraries"
@@ -204,8 +208,8 @@ File "..\Source\bin64\emergeBaseClasses.dll"
 SectionEnd
 
 Section "-Themes"
-CreateDirectory "$PROFILE\Emerge Desktop\themes\GBRY"
-SetOutPath "$PROFILE\Emerge Desktop\themes\GBRY"
+CreateDirectory "$APPDATA\Emerge Desktop\themes\GBRY"
+SetOutPath "$APPDATA\Emerge Desktop\themes\GBRY"
 File /r "..\Source\themes\GBRY\*"
 SectionEnd
 
@@ -249,24 +253,25 @@ Section Uninstall
 ; help >>> remove scripts, if desired
 ; -------------------------------------------------------------------
   ${If} ${FIELD2} == ${BST_UNCHECKED}
-    Delete "$PROFILE\Emerge Desktop\scripts\*"
-    RMDir "$PROFILE\Emerge Desktop\scripts"
+    Delete "$APPDATA\Emerge Desktop\scripts\*"
+    RMDir "$APPDATA\Emerge Desktop\scripts"
   ${EndIf}
 
 ; -------------------------------------------------------------------
 ; help >>> remove files, if desired
 ; -------------------------------------------------------------------
   ${If} ${FIELD3} == ${BST_UNCHECKED}
-    Delete "$PROFILE\Emerge Desktop\files\*"
-    RMDir "$PROFILE\Emerge Desktop\files"
+    Delete "$APPDATA\Emerge Desktop\files\*"
+    RMDir "$APPDATA\Emerge Desktop\files"
   ${EndIf}
 
 ; -------------------------------------------------------------------
 ; help >>> remove themes, if desired
 ; -------------------------------------------------------------------
   ${If} ${FIELD4} == ${BST_UNCHECKED}
-    Delete "$PROFILE\Emerge Desktop\themes\*"
-    RMDir "$PROFILE\Emerge Desktop\themes"
+    Delete "$APPDATA\Emerge Desktop\themes\*"
+    RMDir "$APPDATA\Emerge Desktop\themes"
+    Delete "$APPDATA\Emerge Desktop\theme.xml"
   ${EndIf}
 
 ; -------------------------------------------------------------------
@@ -307,11 +312,13 @@ Section Uninstall
   Delete "$INSTDIR\emergeBaseClasses.dll"
   Delete "$INSTDIR\uninst.exe"
   RMDir "$INSTDIR"
+  RMDir "$APPDATA\Emerge Desktop"
   DeleteRegKey HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Emerge Desktop"
 SectionEnd
 
 !insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
 !insertmacro MUI_DESCRIPTION_TEXT ${Secemerge} "emerge is a command line utility that can be used to execute Emerge Desktop Internal Commands by other non-Emerge Desktop applications."
+!insertmacro MUI_DESCRIPTION_TEXT ${Secreg2xml} "reg2xml is a utility that can be used to convert Emerge Desktop registry settings into XML settings."
 !insertmacro MUI_DESCRIPTION_TEXT ${SecemergeCore} "emergeCore is the core of Emerge Desktop.  It is required for setting Emerge Desktop as the default shell."
 !insertmacro MUI_DESCRIPTION_TEXT ${SecemergeCommand} "Provides a clock as well as method of entering commands to be executed"
 !insertmacro MUI_DESCRIPTION_TEXT ${SecemergeHotkeys} "'Hotkey' application laucher as well as interfacing to Emerge Desktop itself"

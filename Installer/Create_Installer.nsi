@@ -145,9 +145,9 @@ SubSection "Additional Applets" SecAdditionalApplets
 Section "emergeCommand" SecemergeCommand
 SetOutPath "$INSTDIR"
 File "..\Source\bin\emergeCommand.exe"
-CreateDirectory "$PROFILE\Emerge Desktop\files"
-IfFileExists "$PROFILE\Emerge Desktop\files\cmd.txt" +3
-SetOutPath "$PROFILE\Emerge Desktop\files"
+CreateDirectory "$APPDATA\Emerge Desktop\files"
+IfFileExists "$APPDATA\Emerge Desktop\files\cmd.txt" +3
+SetOutPath "$APPDATA\Emerge Desktop\files"
 File "..\Source\files\cmd.txt"
 IfFileExists "$INSTDIR\files\cmd.txt" +3
 SetOutPath "$INSTDIR\files"
@@ -208,8 +208,8 @@ File "..\Source\bin\emergeBaseClasses.dll"
 SectionEnd
 
 Section "-Themes"
-CreateDirectory "$PROFILE\Emerge Desktop\themes\GBRY"
-SetOutPath "$PROFILE\Emerge Desktop\themes\GBRY"
+CreateDirectory "$APPDATA\Emerge Desktop\themes\GBRY"
+SetOutPath "$APPDATA\Emerge Desktop\themes\GBRY"
 File /r "..\Source\themes\GBRY\*"
 SectionEnd
 
@@ -253,24 +253,25 @@ Section Uninstall
 ; help >>> remove scripts, if desired
 ; -------------------------------------------------------------------
   ${If} ${FIELD2} == ${BST_UNCHECKED}
-    Delete "$PROFILE\Emerge Desktop\scripts\*"
-    RMDir "$PROFILE\Emerge Desktop\scripts"
+    Delete "$APPDATA\Emerge Desktop\scripts\*"
+    RMDir "$APPDATA\Emerge Desktop\scripts"
   ${EndIf}
 
 ; -------------------------------------------------------------------
 ; help >>> remove files, if desired
 ; -------------------------------------------------------------------
   ${If} ${FIELD3} == ${BST_UNCHECKED}
-    Delete "$PROFILE\Emerge Desktop\files\*"
-    RMDir "$PROFILE\Emerge Desktop\files"
+    Delete "$APPDATA\Emerge Desktop\files\*"
+    RMDir "$APPDATA\Emerge Desktop\files"
   ${EndIf}
 
 ; -------------------------------------------------------------------
 ; help >>> remove themes, if desired
 ; -------------------------------------------------------------------
   ${If} ${FIELD4} == ${BST_UNCHECKED}
-    Delete "$PROFILE\Emerge Desktop\themes\*"
-    RMDir "$PROFILE\Emerge Desktop\themes"
+    Delete "$APPDATA\Emerge Desktop\themes\*"
+    RMDir "$APPDATA\Emerge Desktop\themes"
+    Delete "$APPDATA\Emerge Desktop\theme.xml"
   ${EndIf}
 
 ; -------------------------------------------------------------------
@@ -311,6 +312,7 @@ Section Uninstall
   Delete "$INSTDIR\emergeBaseClasses.dll"
   Delete "$INSTDIR\uninst.exe"
   RMDir "$INSTDIR"
+  RMDir "$APPDATA\Emerge Desktop"
   DeleteRegKey HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Emerge Desktop"
 SectionEnd
 
