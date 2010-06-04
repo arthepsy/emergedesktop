@@ -269,8 +269,7 @@ Section Uninstall
 ; help >>> remove themes, if desired
 ; -------------------------------------------------------------------
   ${If} ${FIELD4} == ${BST_UNCHECKED}
-    Delete "$APPDATA\Emerge Desktop\themes\*"
-    RMDir "$APPDATA\Emerge Desktop\themes"
+    RMDir /r "$APPDATA\Emerge Desktop\themes"
     Delete "$APPDATA\Emerge Desktop\theme.xml"
   ${EndIf}
 
