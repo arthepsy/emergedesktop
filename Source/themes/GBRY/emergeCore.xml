@@ -15,4 +15,7 @@
     <item>
         <Command>%AppletDir%\emergeLauncher.exe</Command>
     </item>
+    <item>
+        <Command>%AppletDir%\emergeHotkeys.exe</Command>
+    </item>
 </Launch>
