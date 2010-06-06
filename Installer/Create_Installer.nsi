@@ -89,16 +89,16 @@ Section "emergeCore" SecemergeCore
 SectionIn RO
 SetOutPath "$INSTDIR"
 File "..\Source\bin\emergeCore.exe"
-SetOutPath "$INSTDIR\scripts"
-IfFileExists "$INSTDIR\scripts\hide.pl" +2
+SetOutPath "$APPDATA\Emerge Desktop\scripts"
+IfFileExists "$APPDATA\Emerge Desktop\scripts\hide.pl" +2
 File "..\Source\scripts\hide.pl"
-IfFileExists "$INSTDIR\scripts\Perl_HowTo.txt" +2
+IfFileExists "$APPDATA\Emerge Desktop\scripts\Perl_HowTo.txt" +2
 File "..\Source\scripts\Perl_HowTo.txt"
-IfFileExists "$INSTDIR\scripts\hide.pyw" +2
+IfFileExists "$APPDATA\Emerge Desktop\scripts\hide.pyw" +2
 File "..\Source\scripts\hide.pyw"
-IfFileExists "$INSTDIR\scripts\Python_HowTo.txt" +2
+IfFileExists "$APPDATA\Emerge Desktop\scripts\Python_HowTo.txt" +2
 File "..\Source\scripts\Python_HowTo.txt"
-IfFileExists "$INSTDIR\scripts\hide.rb" +2
+IfFileExists "$APPDATA\Emerge Desktop\scripts\hide.rb" +2
 File "..\Source\scripts\hide.rb"
 Push $R0
 ${If} ${FIELD1} == ${BST_CHECKED}
@@ -148,9 +148,6 @@ File "..\Source\bin\emergeCommand.exe"
 CreateDirectory "$APPDATA\Emerge Desktop\files"
 IfFileExists "$APPDATA\Emerge Desktop\files\cmd.txt" +3
 SetOutPath "$APPDATA\Emerge Desktop\files"
-File "..\Source\files\cmd.txt"
-IfFileExists "$INSTDIR\files\cmd.txt" +3
-SetOutPath "$INSTDIR\files"
 File "..\Source\files\cmd.txt"
 SectionEnd
 
