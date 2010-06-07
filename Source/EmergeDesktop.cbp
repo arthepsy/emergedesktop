@@ -596,6 +596,27 @@
 					<Add directory=".\bin" />
 				</Linker>
 			</Target>
+			<Target title="emergeHotkeys - Debug">
+				<Option platforms="Windows;" />
+				<Option output="bin\emergeHotkeys" prefix_auto="1" extension_auto="1" />
+				<Option object_output=".objs\Release" />
+				<Option external_deps="bin\emergeAppletEngine.dll;bin\emergeLib.dll;" />
+				<Option type="0" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-g" />
+				</Compiler>
+				<ResourceCompiler>
+					<Add directory=".\emergeHotkeys" />
+				</ResourceCompiler>
+				<Linker>
+					<Add library="emergeAppletEngine" />
+					<Add library="emergeBaseClasses" />
+					<Add library="emergeLib" />
+					<Add library="comctl32" />
+					<Add directory=".\bin" />
+				</Linker>
+			</Target>
 		</Build>
 		<VirtualTargets>
 			<Add alias="All - Release" targets="emergeLib - Release;emergeGraphics - Release;emergeAppletEngine - Release;emergeSchemeEngine - Release;emergeBaseClasses - Release;emergeCore - Release;emergeCommand - Release;emergeDesktop - Release;emergeHotkeys - Release;emergeLauncher - Release;emergeTasks - Release;emergeTray - Release;emergeVWM - Release;emerge - Release;emergePower - Release;emergeSysMon - Release;reg2xml - Release;emergeIcons - Release;" />
@@ -1042,40 +1063,52 @@
 		</Unit>
 		<Unit filename="emergeHotkeys\Actions.cpp">
 			<Option target="emergeHotkeys - Release" />
+			<Option target="emergeHotkeys - Debug" />
 		</Unit>
 		<Unit filename="emergeHotkeys\Actions.h">
 			<Option target="emergeHotkeys - Release" />
+			<Option target="emergeHotkeys - Debug" />
 		</Unit>
 		<Unit filename="emergeHotkeys\Applet.cpp">
 			<Option target="emergeHotkeys - Release" />
+			<Option target="emergeHotkeys - Debug" />
 		</Unit>
 		<Unit filename="emergeHotkeys\Applet.h">
 			<Option target="emergeHotkeys - Release" />
+			<Option target="emergeHotkeys - Debug" />
 		</Unit>
 		<Unit filename="emergeHotkeys\HotkeyCombo.cpp">
 			<Option target="emergeHotkeys - Release" />
+			<Option target="emergeHotkeys - Debug" />
 		</Unit>
 		<Unit filename="emergeHotkeys\HotkeyCombo.h">
 			<Option target="emergeHotkeys - Release" />
+			<Option target="emergeHotkeys - Debug" />
 		</Unit>
 		<Unit filename="emergeHotkeys\Settings.cpp">
 			<Option target="emergeHotkeys - Release" />
+			<Option target="emergeHotkeys - Debug" />
 		</Unit>
 		<Unit filename="emergeHotkeys\Settings.h">
 			<Option target="emergeHotkeys - Release" />
+			<Option target="emergeHotkeys - Debug" />
 		</Unit>
 		<Unit filename="emergeHotkeys\emergeHotkeys.exe.manifest">
 			<Option target="emergeHotkeys - Release" />
+			<Option target="emergeHotkeys - Debug" />
 		</Unit>
 		<Unit filename="emergeHotkeys\emergeHotkeys.rc">
 			<Option compilerVar="WINDRES" />
 			<Option target="emergeHotkeys - Release" />
+			<Option target="emergeHotkeys - Debug" />
 		</Unit>
 		<Unit filename="emergeHotkeys\main.cpp">
 			<Option target="emergeHotkeys - Release" />
+			<Option target="emergeHotkeys - Debug" />
 		</Unit>
 		<Unit filename="emergeHotkeys\resource.h">
 			<Option target="emergeHotkeys - Release" />
+			<Option target="emergeHotkeys - Debug" />
 		</Unit>
 		<Unit filename="emergeIcons\emergeIcons.rc">
 			<Option compilerVar="WINDRES" />
@@ -1562,6 +1595,7 @@
 			<Option target="emergeCommand - Debug" />
 			<Option target="emergeTray - Debug" />
 			<Option target="emergeTasks - Debug" />
+			<Option target="emergeHotkeys - Debug" />
 		</Unit>
 		<Unit filename="reg2xml\AppletSettings.cpp">
 			<Option target="reg2xml - Release" />
@@ -1693,6 +1727,7 @@
 			<Option target="emergeCommand - Debug" />
 			<Option target="emergeTray - Debug" />
 			<Option target="emergeTasks - Debug" />
+			<Option target="emergeHotkeys - Debug" />
 		</Unit>
 		<Extensions>
 			<code_completion />
