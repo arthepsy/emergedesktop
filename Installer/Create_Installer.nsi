@@ -208,6 +208,8 @@ Section "-Themes"
 CreateDirectory "$APPDATA\Emerge Desktop\themes\GBRY"
 SetOutPath "$APPDATA\Emerge Desktop\themes\GBRY"
 File /r "..\Source\themes\GBRY\*"
+SetOutPath "$APPDATA\Emerge Desktop"
+File "..\Source\themes\theme.xml"
 SectionEnd
 
 ; -------------------------------------------------------------------
