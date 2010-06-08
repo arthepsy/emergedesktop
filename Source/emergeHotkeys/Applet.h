@@ -28,13 +28,15 @@
 class Applet
 {
 private:
+  static HWND mainWnd;
+  static HHOOK keyHook;
+  static UINT virtualKey;
+  static UINT keyID;
   std::tr1::shared_ptr<Settings> pSettings;
   std::tr1::shared_ptr<Actions> pActions;
   HINSTANCE mainInst;
-  HWND mainWnd;
   HMENU mainMenu;
   UINT hotkeyCount;
-  UINT lwinID, rwinID;
 
 public:
   Applet(HINSTANCE hInstance);
@@ -43,7 +45,9 @@ public:
   void ExecuteAction(UINT index);
   LRESULT DoTimer(UINT index);
   LRESULT DoCopyData(COPYDATASTRUCT *cds);
+  LRESULT KeyboardProc(int nCode, WPARAM wParam, LPARAM lParam);
   static LRESULT CALLBACK WindowProcedure (HWND, UINT, WPARAM, LPARAM);
+  static LRESULT CALLBACK LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM lParam);
 };
 
 #endif

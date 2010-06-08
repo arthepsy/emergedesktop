@@ -22,11 +22,14 @@
 
 #define VK_WIN 0x5B
 
+HHOOK Applet::keyHook = NULL;
+HWND Applet::mainWnd = NULL;
+UINT Applet::keyID = 0;
+UINT Applet::virtualKey = 0;
+
 Applet::Applet(HINSTANCE hInstance)
 {
   mainInst = hInstance;
-  lwinID = 0;
-  rwinID = 0;
 }
 
 UINT Applet::Initialize()
@@ -151,6 +154,28 @@ LRESULT Applet::DoCopyData(COPYDATASTRUCT *cds)
   return 0;
 }
 
+LRESULT CALLBACK Applet::LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM lParam)
+{
+  if (nCode < 0)
+    return CallNextHookEx(keyHook, nCode, wParam, lParam);
+
+  PKBDLLHOOKSTRUCT pkbHookStruct = (PKBDLLHOOKSTRUCT)lParam;
+
+  if (wParam == WM_KEYUP)
+    {
+      if (pkbHookStruct->vkCode != virtualKey)
+        {
+          if (keyID != 0)
+            {
+              KillTimer(mainWnd, keyID);
+              keyID = 0;
+            }
+        }
+    }
+
+  return CallNextHookEx(keyHook, nCode, wParam, lParam);
+}
+
 LRESULT Applet::DoTimer(UINT index)
 {
   HotkeyCombo *hc = NULL;
@@ -165,50 +190,27 @@ LRESULT Applet::DoTimer(UINT index)
         return 0;
       hc = pSettings->GetHotkeyListItem(item);
       key = hc->GetHotkeyKey();
-      if (key == VK_LWIN)
+      if ((key == VK_LWIN) || (key = VK_RWIN))
         {
-          if ((lwinID != 0) && (lwinID != index))
+          virtualKey = key;
+          if (keyID != index)
             {
-              KillTimer(mainWnd, lwinID);
-              lwinID = index;
+              if (keyID != 0)
+                KillTimer(mainWnd, keyID);
+              keyID = index;
             }
-          else if (lwinID != index)
-            lwinID = index;
-        }
-      else if (key == VK_RWIN)
-        {
-          if ((rwinID != 0) && (rwinID != index))
-            {
-              KillTimer(mainWnd, rwinID);
-              rwinID = index;
-            }
-          else if (rwinID != index)
-            rwinID = index;
+          keyHook = SetWindowsHookEx(WH_KEYBOARD_LL, LowLevelKeyboardProc, mainInst, 0);
         }
     }
+
   if (!ELIsKeyDown(key))
     {
-      if (hc)
-        {
-          if (hc->GetHotkeyModifiers() & MOD_WIN)
-            {
-              if ((key != VK_LWIN) && (key != VK_RWIN))
-                {
-                  if (lwinID)
-                    {
-                      KillTimer(mainWnd, lwinID);
-                      lwinID = 0;
-                    }
-                  if (rwinID)
-                    {
-                      KillTimer(mainWnd, rwinID);
-                      rwinID = 0;
-                    }
-                }
-            }
-        }
       KillTimer(mainWnd, index);
       ExecuteAction(index);
+      if (keyHook)
+        UnhookWindowsHookEx(keyHook);
+      keyID = 0;
+      virtualKey = 0;
     }
 
   return 0;
