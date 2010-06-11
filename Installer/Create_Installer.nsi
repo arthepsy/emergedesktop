@@ -421,7 +421,7 @@ Function CloseCore
   Push $R1
   System::Call "user32::RegisterWindowMessage(t 'EmergeDispatch') isR1"
   Push $R0
-LOOP:
+LOOP1:
   FindWindow $R0 "emergeCoreClass"
   IntCmp $R0 0 +1 +2
   FindWindow $R0 "EmergeDesktopCore"
@@ -430,7 +430,13 @@ LOOP:
     SendMessage $R0 2028 1 100
     SendMessage $R0 $R1 1 100
     Sleep 100
-    Goto LOOP
+    Goto LOOP1
+LOOP2:
+  FindWindow $R0 "EmergeDesktopApplet"
+  IntCmp $R0 0 +4
+    SendMessage $R0 130 0 0
+    Sleep 100
+    Goto LOOP2
   Pop $R0
   Pop $R1
 FunctionEnd
@@ -439,7 +445,7 @@ Function un.CloseCore
   Push $R1
   System::Call "user32::RegisterWindowMessage(t 'EmergeDispatch') isR1"
   Push $R0
-LOOP:
+LOOP1:
   FindWindow $R0 "emergeCoreClass"
   IntCmp $R0 0 +1 +2
   FindWindow $R0 "EmergeDesktopCore"
@@ -449,7 +455,13 @@ LOOP:
         SendMessage $R0 2028 1 100
         SendMessage $R0 $R1 1 100
         Sleep 100
-        Goto LOOP
+        Goto LOOP1
+LOOP2:
+  FindWindow $R0 "EmergeDesktopApplet"
+  IntCmp $R0 0 +4
+    SendMessage $R0 130 0 0
+    Sleep 100
+    Goto LOOP2
   Pop $R0
   Pop $R1
 FunctionEnd
