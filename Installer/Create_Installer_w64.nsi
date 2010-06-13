@@ -233,6 +233,8 @@ Section "Start Menu Shortcuts" SecShortcuts
 ; -------------------------------------------------------------------
   CreateShortCut "$SMPROGRAMS\Emerge Desktop\Emerge Desktop Documentation.lnk" "$INSTDIR\documentation\Emerge Desktop.chm" "" "$INSTDIR\documentation\Emerge Desktop.chm" 0
   CreateShortCut "$SMPROGRAMS\Emerge Desktop\Emerge Desktop Shell Changer.lnk" "$INSTDIR\emergeCore.exe" "/shellchanger" "$INSTDIR\emergeCore.exe" 0
+  IfFileExists "$INSTDIR\reg2xml.exe" +1 +2
+  CreateShortCut "$SMPROGRAMS\Emerge Desktop\Registry to XML converter.lnk" "$INSTDIR\reg2xml.exe" "" "$INSTDIR\emergeCore.exe" 0
   CreateShortCut "$SMPROGRAMS\Emerge Desktop\Uninstall.lnk" "$INSTDIR\uninst.exe" "" "$INSTDIR\uninst.exe" 0
 SectionEnd
 
