@@ -481,6 +481,8 @@ Function nsDialogOptions
 
   ${NSD_CreateCheckBox} 0 40u 100% 12u "Set Emerge Desktop as the default shell for the current user"
   Pop $CheckBox1
+  StrCmp ${EMERGERUNNING} "1" +1 +2
+  EnableWindow $CheckBox1 0
 
   nsDialogs::Show
 FunctionEnd
