@@ -1,0 +1,26 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+  <title>Working modes</title>
+  <link rel = StyleSheet type = "text/css" HREF = "emerge.css">
+  </head>
+<body>
+<table bgcolor="#7f907f" cellpadding="5" cellspacing="0" width="100%">
+<tr>
+   <td class="style4">
+     <font color="white"><b>Working modes</b></font> </td>
+  </tr>
+</table>
+<p class="style4">
+Emerge Desktop can be run in 3 distinct modes:</p>
+<ul class="style4">
+
+<li><i><b>Installed</b></i> - The location of the executables is selected using the Windows installer. A program group is created in the Start Menu folder and all user files are created in %AppData%\Emerge Desktop\</li><br>
+
+<li><i><b>Not Installed</b></i> - The user unpacks the binaries (exe and dll files) to any folder on any drive. The user needs to run the command "emergeCore.exe&nbsp;/shellchanger" on the folder selected to set Emerge Desktop as shell. No program group is created in the Start Menu folder. All user files are created in %AppData%\Emerge Desktop\</li><br>
+
+<li><i><b>Portable</b></i> - The user unpacks the binaries (exe and dll files) to any folder on any drive. The user needs to run the command "emergeCore.exe&nbsp;/shellchanger" on the folder selected to set Emerge Desktop as shell. No program group is created in the Start Menu folder. All user files are created in %AppData%\Emerge Desktop\. By moving all the files (in particular theme.xml) in %AppData%\Emerge Desktop\ to the folder containing the binaries, Emerge Desktop becomes a fully portable shell which can be run even from an external drive or USB pen</li>
+</ul>
+
+(<b>Warning for portable mode:</b> if the drive letter for the external drive changes you could become temporarily shell-less. This is only for advanced users!)
+
+</body></html>

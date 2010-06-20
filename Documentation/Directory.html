@@ -6,39 +6,70 @@
     </head>
 <body>
 <table bgcolor="#7f907f" cellpadding="5" cellspacing="0" width="100%"> <tr><td><font color="white"><b>Directory Structure</b></font></td></tr></table>
-<p class="style1" style="margin-bottom: 0;">&nbsp;</p>
-<p class="style1" style="margin-top: 0;"><u>NEEDS EDITING BY SOMEONE ELSE! (I CAN'T) - B.</u></p>
-<p style="margin-bottom: 0;">&nbsp;</p>
-<p style="margin-top: 0;">In order for Emerge Desktop to operate properly, the following directory structure must be used:</p>
-<pre>..\Emerge Desktop
+<p>In order for Emerge Desktop to operate properly, the following directory structure must be used:</p>
+<pre>Emerge Desktop 
 |
 |------ documentation
-| |
-| |------ Emerge Desktop.chm
-|
-|------ files
-| |
-| |------ cmd.txt (alias list for <a href="emergeCommand.html">emergeCommand</a>)
-|
-|------ scripts
-| |
-| |------ (scripts files in Perl, Python and Ruby that can be used to control Emerge Desktop)
-|
-|
-|------ schemes
-| |
-| |------ (.eds scheme files for customizing applets)
+|   |
+|   |------ Emerge Desktop.chm
 |
 |------ emergeAppletEngine.dll
 |------ emergeBaseClasses.dll
 |------ emergeCore.exe
 |------ emergeDesktop.exe
 |------ emergeGraphics.dll
+|------ emergeIcons.dll
 |------ emergeLib.dll
 |------ emergeSchemeEngine.dll
 |------ emergeTasks.exe
 |------ emergeTray.exe
+|------ libgcc_s_dw2-1.dll
+|------ libstdc++-6.dll
 |------ all other Emerge Desktop applets
 </pre>
+
+<p>All settings (by default) are stored in %AppData%\Emerge Desktop\ under the following structure:</p>
+
+<pre>Emerge Desktop
+|------ files
+|   |
+|   |------ cmd.txt (alias list for <a href="emergeCommand.htm">emergeCommand</a>)
+|   |
+|   |------ (.xml files with user settings, namely emergeCommand history, emergeCore other shells,
+|           emergeDesktop menu items, all emergeHotkey commands, emergeTray hide list and 
+|           emergeVWM sticky list)
+|
+|------ scripts
+|   |
+|   |------ (scripts files in Perl, Python and Ruby that can be used to control Emerge Desktop)
+|
+|------ themes
+|   |
+|   |------ GBRY
+|   |   |
+|   |   |------ schemes
+|   |   |   |
+|   |   |   |------ (.eds scheme files for customizing applets)
+|   |   |
+|   |   |------ (.xml files with applet settings)
+|   |
+|   |------ Other themes
+|       |
+|       |------ schemes
+|       |   |
+|       |   |------ (.eds scheme files for customizing applets)|   |   |
+|       |
+|       |------ media
+|       |   |
+|       |   |------ (optional folder, ideal location for external icons, wallpaper, fonts)
+|       |
+|       |------ (.xml files with applet settings)
+
+|
+|------ theme.xml (This file just stores the name of the current Theme)
+</pre><br>
+
+<p>Although the structure must follow this organization, the location of the folders can be modified in order to allow Emerge Desktop to run in different <a href="WorkingModes.htm">Modes</a></p>
+
 </body>
 </html>

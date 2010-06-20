@@ -25,7 +25,6 @@ emergeLauncher.html
 Directory.html
 Internal.html
 Schemes.html
-Switches.html
 TimeDate.html
 FAQs.html
 whatsnew.html
@@ -33,6 +32,8 @@ emerge.html
 emergePower.html
 emergeSysMon.html
 ThemeManager.html
+WorkingModes.html
+reg2xml.html
 
 [INFOTYPES]
 

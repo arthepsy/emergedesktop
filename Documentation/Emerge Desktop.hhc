@@ -82,14 +82,18 @@
 			<param name="Name" value="emerge">
 			<param name="Local" value="emerge.html">
 			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="reg2xml">
+			<param name="Local" value="reg2xml.html">
+			</OBJECT>
 	</UL>
-	<LI> <OBJECT type="text/sitemap">
-		<param name="Name" value="Command Line Switches">
-		<param name="Local" value="Switches.html">
-		</OBJECT>
 	<LI> <OBJECT type="text/sitemap">
 		<param name="Name" value="Internal Commands and Variables">
 		<param name="Local" value="Internal.html">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="Working Modes">
+		<param name="Local" value="WorkingModes.html">
 		</OBJECT>
 	<LI> <OBJECT type="text/sitemap">
 		<param name="Name" value="Schemes">
