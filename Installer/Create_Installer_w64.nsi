@@ -3,6 +3,7 @@
 ; -------------------------------------------------------------------
 !include LogicLib.nsh
 !include MUI2.nsh
+!include x64.nsh
 
 ; -------------------------------------------------------------------
 ; help >>> General NAME and Versioning
@@ -344,6 +345,10 @@ SectionEnd
 ;
 ; Read the install opions and versify the user has Windows 2000 or above
 Function .onInit
+${IfNot} ${RunningX64}
+  MessageBox MB_OK|MB_SETFOREGROUND|MB_ICONSTOP "This installer is meant for machines running a 64-bit OS."
+  Abort
+${EndIf}
 Call CheckWindowsVersion
 StrCpy ${EMERGERUNNING} "0"
 Push $R0
