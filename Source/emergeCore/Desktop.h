@@ -55,7 +55,6 @@ public:
   ~Desktop();
   bool Initialize();
   void ShowMenu(UINT menu);
-  void SetWorkArea();
   void DoWindowPosChanging(LPWINDOWPOS winPos);
   void ToggleDesktop();
 };
