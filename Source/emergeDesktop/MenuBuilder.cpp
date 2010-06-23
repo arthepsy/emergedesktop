@@ -1844,6 +1844,17 @@ BOOL CALLBACK MenuBuilder::SetMonitorArea(HMONITOR hMonitor, HDC hdcMonitor UNUS
 void MenuBuilder::SetWorkArea()
 {
   HDC hdc = GetDC(NULL);
-  EnumDisplayMonitors(hdc, NULL, SetMonitorArea, reinterpret_cast<LPARAM>(pSettings.get()));
+  if (GetSystemMetrics(SM_CMONITORS) < 2)
+    {
+      RECT areaRect;
+      areaRect.top = 0;
+      areaRect.left = 0;
+      areaRect.bottom = GetSystemMetrics(SM_CYSCREEN);
+      areaRect.right = GetSystemMetrics(SM_CXSCREEN);
+      pSettings->GetDesktopRect(&areaRect);
+      SystemParametersInfo(SPI_SETWORKAREA, 0, &areaRect, SPIF_SENDCHANGE);
+    }
+  else
+    EnumDisplayMonitors(hdc, NULL, SetMonitorArea, reinterpret_cast<LPARAM>(pSettings.get()));
   ReleaseDC(NULL, hdc);
 }
