@@ -10,7 +10,7 @@ VERSION = 4.1
 PACKAGE = EmergeDesktop
 BIN_DIR = bin
 SHELL_BREAK = &
-DOCUMENTATION = ./Documentation/*.chm
+DOCUMENTATION = Documentation/*.chm
 BIN_LIST = ./$(BIN_DIR)/*.exe ./$(BIN_DIR)/*.dll
 SVN_FILE = hgversion.h
 ifeq ($(MINGW64), 1)
@@ -67,20 +67,21 @@ dist: src bin
 
 .PHONY: src
 src:
-	$(call remove_file,$(PACKAGE)-$(VERSION)-src.zip)
+	$(call remove_file,$(PACKAGE)-$(VERSION)-src.7z)
 	7z a $(PACKAGE)-$(VERSION)-src.7z * -xr@excludes.lst
 
 .PHONY: bin
 bin:
-	$(call remove_file,$(PACKAGE)-$(VERSION).zip)
+	$(call remove_file,$(PACKAGE)-$(VERSION).7z)
 	7z a $(PACKAGE)-$(VERSION).7z $(BIN_LIST)
+	cd ..; 7z a Source/$(PACKAGE)-$(VERSION).7z $(DOCUMENTATION)
 
 .PHONY: tarsrc
 tarsrc:
-	$(call remove_file,$(PACKAGE)-$(VERSION)-src.zip)
+	$(call remove_file,$(PACKAGE)-$(VERSION)-src.tar.xz)
 	tar -Jcvf $(PACKAGE)-$(VERSION)-src.tar.xz --exclude-from=excludes.lst *
 
 .PHONY: tarbin
 tarbin:
-	$(call remove_file,$(PACKAGE)-$(VERSION).zip)
+	$(call remove_file,$(PACKAGE)-$(VERSION).tar.xz)
 	tar -Jcvf $(PACKAGE)-$(VERSION).tar.xz --transform='s,./$(BIN_DIR)/,,S' $(BIN_LIST)
