@@ -169,12 +169,12 @@ SectionEnd
 
 Section "emergePower" SecemergePower
 SetOutPath "$INSTDIR"
-File "..\Source\bin\emergePower.exe"
+File "..\Source\bin64\emergePower.exe"
 SectionEnd
 
 Section "emergeSysMon" SecemergeSysMon
 SetOutPath "$INSTDIR"
-File "..\Source\bin\emergeSysMon.exe"
+File "..\Source\bin64\emergeSysMon.exe"
 SectionEnd
 
 SubSectionEnd
