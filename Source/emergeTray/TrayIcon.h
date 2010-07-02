@@ -55,6 +55,7 @@ public:
   UINT GetID();
   UINT GetCallback();
   WCHAR *GetTip();
+  WCHAR *GetInfo();
   UINT GetFlags();
   RECT *GetRect();
   bool GetHidden();
@@ -64,6 +65,7 @@ public:
   bool SetIcon(HICON icon);
   bool SetCallback(UINT callbackMessage);
   bool SetTip(WCHAR *tip);
+  bool SetInfo(WCHAR *tip);
   void SetFlags(UINT flags);
   void SetRect(RECT rect);
   void SetHidden(bool hidden);
@@ -78,7 +80,7 @@ private:
   UINT id;
   UINT callbackMessage;
   UINT iconVersion;
-  WCHAR tip[TIP_SIZE];
+  WCHAR tip[TIP_SIZE], info[TIP_SIZE];
   UINT flags;
   RECT rect;
   bool hidden;

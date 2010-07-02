@@ -1,3 +1,4 @@
+// vim: tags+=../emergeLib/tags
 //---
 //
 //  This file is part of Emerge Desktop.
@@ -46,6 +47,7 @@ TrayIcon::TrayIcon(HINSTANCE appInstance, HWND wnd, UINT id, HWND mainWnd, HWND 
   origIconSource = NULL;
   callbackMessage = 0;
   wcscpy(tip, TEXT("\0"));
+  wcscpy(info, TEXT("\0"));
   flags = 0;
   rect.left = 0;
   rect.right = 0;
@@ -151,6 +153,16 @@ WCHAR *TrayIcon::GetTip()
   return tip;
 }
 
+// Function:	GetInfo
+// Requires:	Nothing
+// Returns:	WCHAR*
+// Purpose:	Retrieves the icon's info
+//-----
+WCHAR *TrayIcon::GetInfo()
+{
+  return info;
+}
+
 //-----
 // Function:	GetFlags
 // Requires:	Nothing
@@ -209,17 +221,17 @@ void TrayIcon::SetIconVersion(UINT iconVersion)
 bool TrayIcon::SetIcon(HICON icon)
 {
   if (origIconSource != icon)
-  {
-    if (origIcon)
-      DestroyIcon(origIcon);
+    {
+      if (origIcon)
+        DestroyIcon(origIcon);
 
-	origIconSource = icon;
-    origIcon = CopyIcon(icon);
-    convertIcon = true;
+      origIconSource = icon;
+      origIcon = CopyIcon(icon);
+      convertIcon = true;
 
-	// changed
-	return true;
-  }
+      // changed
+      return true;
+    }
 
   return false;
 }
@@ -233,11 +245,11 @@ bool TrayIcon::SetIcon(HICON icon)
 bool TrayIcon::SetCallback(UINT callbackMessage)
 {
   if ((*this).callbackMessage != callbackMessage)
-  {
-    (*this).callbackMessage = callbackMessage;
+    {
+      (*this).callbackMessage = callbackMessage;
 
-	return true;
-  }
+      return true;
+    }
 
   return false;
 }
@@ -255,8 +267,28 @@ bool TrayIcon::SetTip(WCHAR *tip)
       wcscpy((*this).tip, tip);
       UpdateTip();
 
-	  // changed
-	  return true;
+      // changed
+      return true;
+    }
+
+  return false;
+}
+
+// Function:	SetInfo
+// Requires:	WCHAR *info - new info text
+// Returns:	true if info was updated, false otherwise
+// Purpose:	Replaces the existing info text
+//-----
+bool TrayIcon::SetInfo(WCHAR *info)
+{
+  if (wcscmp((*this).info, info) != 0)
+    {
+      wcscpy((*this).info, info);
+
+      ELMessageBox(GetDesktopWindow(), info, TEXT("emergeTray"), ELMB_OK);
+
+      // changed
+      return true;
     }
 
   return false;
