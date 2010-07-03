@@ -25,6 +25,22 @@
 #undef _WIN32_IE
 #define _WIN32_IE 0x0600
 
+#ifndef NIN_BALLOONSHOW
+#define NIN_BALLOONSHOW WM_USER+2
+#endif
+
+#ifndef NIN_BALLOONHIDE
+#define NIN_BALLOONHIDE WM_USER+3
+#endif
+
+#ifndef NIN_BALLOONTIMEOUT
+#define NIN_BALLOONTIMEOUT WM_USER+4
+#endif
+
+#ifndef NIN_BALLOONUSERCLICK
+#define NIN_BALLOONUSERCLICK WM_USER+5
+#endif
+
 //-----
 //
 // Note: for MSVC users, put the AggressiveOptimize.h header file (available from
@@ -56,7 +72,9 @@ public:
   UINT GetCallback();
   WCHAR *GetTip();
   WCHAR *GetInfo();
+  WCHAR *GetInfoTitle();
   UINT GetFlags();
+  DWORD GetInfoFlags();
   RECT *GetRect();
   bool GetHidden();
   bool GetShared();
@@ -65,8 +83,10 @@ public:
   bool SetIcon(HICON icon);
   bool SetCallback(UINT callbackMessage);
   bool SetTip(WCHAR *tip);
-  bool SetInfo(WCHAR *tip);
+  bool SetInfo(WCHAR *info);
+  bool SetInfoTitle(WCHAR *infoTitle);
   void SetFlags(UINT flags);
+  void SetInfoFlags(DWORD infoFlags);
   void SetRect(RECT rect);
   void SetHidden(bool hidden);
   void SetShared(bool shared);
@@ -86,6 +106,8 @@ private:
   bool hidden;
   bool shared;
   bool convertIcon;
+  DWORD infoFlags;
+  WCHAR infoTitle[TIP_SIZE];
 
   // Holds refrence to original icon handler
   // (since we do not create this icon we should not destroy it either)

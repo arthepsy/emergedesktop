@@ -652,8 +652,10 @@ LRESULT Applet::SetTrayIconVersion(HWND hwnd, UINT uID, UINT iconVersion)
 // Returns:	LRESULT
 // Purpose:	Updated the existing valid icon with the new data
 //----  --------------------------------------------------------------------------------------------------------
-LRESULT Applet::ModifyTrayIcon(HWND hwnd, UINT uID, UINT uFlags, UINT uCallbackMessage, HICON icon, LPTSTR newTip,
-                               LPTSTR newInfo, bool hidden, bool shared)
+LRESULT Applet::ModifyTrayIcon(HWND hwnd, UINT uID, UINT uFlags, UINT uCallbackMessage,
+                               HICON icon, LPTSTR newTip, LPTSTR newInfo,
+                               LPTSTR newInfoTitle, DWORD newInfoFlags, bool hidden,
+                               bool shared)
 {
   CleanTray();
 
@@ -700,6 +702,8 @@ LRESULT Applet::ModifyTrayIcon(HWND hwnd, UINT uID, UINT uFlags, UINT uCallbackM
 
   if ((uFlags & NIF_INFO) == NIF_INFO)
     {
+      pTrayIcon->SetInfoFlags(newInfoFlags);
+      pTrayIcon->SetInfoTitle(newInfoTitle);
       if (pTrayIcon->SetInfo(newInfo))
         {
           pTrayIcon->SetFlags(pTrayIcon->GetFlags() | NIF_INFO);
@@ -749,8 +753,9 @@ LRESULT Applet::ModifyTrayIcon(HWND hwnd, UINT uID, UINT uFlags, UINT uCallbackM
 // Returns:	LRESULT
 // Purpose:	Adds a valid icon to the valid icon array
 //----  --------------------------------------------------------------------------------------------------------
-LRESULT Applet::AddTrayIcon(HWND hwnd, UINT uID, UINT uFlags, UINT uCallbackMessage, HICON icon, LPTSTR szTip, LPTSTR szInfo,
-                            bool hidden, bool shared)
+LRESULT Applet::AddTrayIcon(HWND hwnd, UINT uID, UINT uFlags, UINT uCallbackMessage,
+                            HICON icon, LPTSTR szTip, LPTSTR szInfo, LPTSTR szInfoTitle,
+                            DWORD dwInfoFlags, bool hidden, bool shared)
 {
   CleanTray();
 
@@ -766,7 +771,11 @@ LRESULT Applet::AddTrayIcon(HWND hwnd, UINT uID, UINT uFlags, UINT uCallbackMess
     pTrayIcon->SetCallback(uCallbackMessage);
 
   if ((uFlags & NIF_INFO) == NIF_INFO)
+  {
+    pTrayIcon->SetInfoFlags(dwInfoFlags);
+    pTrayIcon->SetInfoTitle(szInfoTitle);
     pTrayIcon->SetInfo(szInfo);
+  }
 
   if ((uFlags & NIF_TIP) == NIF_TIP)
     pTrayIcon->SetTip(szTip);
@@ -1188,9 +1197,10 @@ LRESULT Applet::TrayIconEvent(COPYDATASTRUCT *cpData)
 {
   bool hidden = false, shared = false;
   std::wstring wideString;
-  WCHAR iconTip[TIP_SIZE], iconInfo[TIP_SIZE];
+  WCHAR iconTip[TIP_SIZE], iconInfo[TIP_SIZE], infoTitle[TIP_SIZE];
   ZeroMemory(iconTip, TIP_SIZE);
   ZeroMemory(iconInfo, TIP_SIZE);
+  ZeroMemory(infoTitle, TIP_SIZE);
   NID_5W *iconData5W;
   NID_5A *iconData5A;
   NID_4W *iconData4W;
@@ -1202,7 +1212,7 @@ LRESULT Applet::TrayIconEvent(COPYDATASTRUCT *cpData)
   UINT iconVersion = 0, uID = 0, uCallbackMessage = 0, uFlags = 0;
   HICON icon = NULL;
   HWND hwnd = NULL;
-  DWORD message = 0;
+  DWORD message = 0, infoFlags = 0;
 
   DWORD iconDataSize = 0;
   void* iconData = NULL;
@@ -1239,6 +1249,9 @@ LRESULT Applet::TrayIconEvent(COPYDATASTRUCT *cpData)
         {
           wcscpy(iconInfo, iconData5W->szInfo);
           iconInfo[TIP_SIZE - 1] = '0';
+          wcscpy(infoTitle, iconData5W->szInfoTitle);
+          infoTitle[TIP_SIZE - 1] = '0';
+          infoFlags = iconData5W->dwInfoFlags;
         }
 
       if ((uFlags & NIF_TIP) == NIF_TIP)
@@ -1273,6 +1286,9 @@ LRESULT Applet::TrayIconEvent(COPYDATASTRUCT *cpData)
         {
           wideString = ELstringTowstring(iconData5A->szInfo);
           wcsncpy(iconInfo, wideString.c_str(), TIP_SIZE);
+          wideString = ELstringTowstring(iconData5A->szInfoTitle);
+          wcsncpy(infoTitle, wideString.c_str(), TIP_SIZE);
+          infoFlags = iconData5A->dwInfoFlags;
         }
 
       if ((uFlags & NIF_TIP) == NIF_TIP)
@@ -1340,8 +1356,11 @@ LRESULT Applet::TrayIconEvent(COPYDATASTRUCT *cpData)
 
           if ((uFlags & NIF_INFO) == NIF_INFO)
             {
-              wcscpy(iconTip, iconData5W32->szInfo);
+              wcscpy(iconInfo, iconData5W32->szInfo);
               iconInfo[TIP_SIZE - 1] = '0';
+              wcscpy(infoTitle, iconData5W32->szInfoTitle);
+              infoTitle[TIP_SIZE - 1] = '0';
+              infoFlags = iconData5W32->dwInfoFlags;
             }
 
           if ((uFlags & NIF_TIP) == NIF_TIP)
@@ -1376,6 +1395,9 @@ LRESULT Applet::TrayIconEvent(COPYDATASTRUCT *cpData)
             {
               wideString = ELstringTowstring(iconData5A32->szInfo);
               wcsncpy(iconInfo, wideString.c_str(), TIP_SIZE);
+              wideString = ELstringTowstring(iconData5A32->szInfoTitle);
+              wcsncpy(infoTitle, wideString.c_str(), TIP_SIZE);
+              infoFlags = iconData5A32->dwInfoFlags;
             }
 
           if ((uFlags & NIF_TIP) == NIF_TIP)
@@ -1434,11 +1456,13 @@ LRESULT Applet::TrayIconEvent(COPYDATASTRUCT *cpData)
       // Since icons don't always send the appropriate message,
       // do a little checking
     case NIM_ADD:
-      return AddTrayIcon(hwnd, uID, uFlags, uCallbackMessage, icon, iconTip, iconInfo, hidden, shared);
+      return AddTrayIcon(hwnd, uID, uFlags, uCallbackMessage, icon, iconTip,
+                         iconInfo, infoTitle, infoFlags, hidden, shared);
     case NIM_SETVERSION:
       return SetTrayIconVersion(hwnd, uID, iconVersion);
     case NIM_MODIFY:
-      return ModifyTrayIcon(hwnd, uID, uFlags, uCallbackMessage, icon, iconTip, iconInfo, hidden, shared);
+      return ModifyTrayIcon(hwnd, uID, uFlags, uCallbackMessage, icon, iconTip,
+                            iconInfo, infoTitle, infoFlags, hidden, shared);
     case NIM_DELETE:
       return RemoveTrayIcon(hwnd, uID);
     }

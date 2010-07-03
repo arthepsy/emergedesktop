@@ -495,11 +495,15 @@ public:
   bool RemoveAppBar(AppBar *pAppBar);
   bool RemoveTrayIconListItem(TrayIcon *pTrayIcon);
   LRESULT RemoveTrayIcon(HWND hwnd, UINT uID);
-  LRESULT ModifyTrayIcon(HWND hwnd, UINT uID, UINT uFlags, UINT uCallbackMessage, HICON icon, LPTSTR newTip, LPTSTR newInfo,
-                         bool hidden, bool shared);
+  LRESULT ModifyTrayIcon(HWND hwnd, UINT uID, UINT uFlags, UINT uCallbackMessage,
+                         HICON icon, LPTSTR newTip, LPTSTR newInfo,
+                         LPTSTR newInfoTitle, DWORD newInfoFlags, bool hidden,
+                         bool shared);
   LRESULT SetTrayIconVersion(HWND hwnd, UINT uID, UINT iconVersion);
-  LRESULT AddTrayIcon(HWND hwnd, UINT uID, UINT uFlags, UINT uCallbackMessage, HICON icon, LPTSTR szTip, LPTSTR szInfo,
-                      bool hidden, bool shared);
+  LRESULT AddTrayIcon(HWND hwnd, UINT uID, UINT uFlags, UINT uCallbackMessage,
+                      HICON icon, LPTSTR szTip, LPTSTR szInfo,
+                      LPTSTR szInfoTitle, DWORD dwInfoFlags, bool hidden,
+                      bool shared);
   bool TrayMouseEvent(UINT message, LPARAM lParam);
   LRESULT TrayIconEvent(COPYDATASTRUCT *cpData);
   LRESULT AppBarEvent(COPYDATASTRUCT *cpData);

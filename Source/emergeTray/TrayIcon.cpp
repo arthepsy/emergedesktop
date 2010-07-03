@@ -48,7 +48,9 @@ TrayIcon::TrayIcon(HINSTANCE appInstance, HWND wnd, UINT id, HWND mainWnd, HWND 
   callbackMessage = 0;
   wcscpy(tip, TEXT("\0"));
   wcscpy(info, TEXT("\0"));
+  wcscpy(infoTitle, TEXT("\0"));
   flags = 0;
+  infoFlags = 0;
   rect.left = 0;
   rect.right = 0;
   rect.top = 0;
@@ -163,6 +165,11 @@ WCHAR *TrayIcon::GetInfo()
   return info;
 }
 
+WCHAR *TrayIcon::GetInfoTitle()
+{
+  return infoTitle;
+}
+
 //-----
 // Function:	GetFlags
 // Requires:	Nothing
@@ -172,6 +179,11 @@ WCHAR *TrayIcon::GetInfo()
 UINT TrayIcon::GetFlags()
 {
   return flags;
+}
+
+DWORD TrayIcon::GetInfoFlags()
+{
+  return infoFlags;
 }
 
 //-----
@@ -281,11 +293,35 @@ bool TrayIcon::SetTip(WCHAR *tip)
 //-----
 bool TrayIcon::SetInfo(WCHAR *info)
 {
+  POINT cursorPT;
+  GetCursorPos(&cursorPT);
+
   if (wcscmp((*this).info, info) != 0)
     {
       wcscpy((*this).info, info);
 
-      ELMessageBox(GetDesktopWindow(), info, TEXT("emergeTray"), ELMB_OK);
+      SendNotifyMessage(wnd, callbackMessage, MAKEWPARAM(cursorPT.x, cursorPT.y),
+                        NIN_BALLOONSHOW);
+      ELMessageBox(GetDesktopWindow(), info, infoTitle, ELMB_OK);
+      SendNotifyMessage(wnd, callbackMessage, MAKEWPARAM(cursorPT.x, cursorPT.y),
+                        //MAKELPARAM(NIN_BALLOONUSERCLICK, id));
+                        NIN_BALLOONUSERCLICK);
+
+      // changed
+      return true;
+    }
+
+  return false;
+}
+
+bool TrayIcon::SetInfoTitle(WCHAR *infoTitle)
+{
+  POINT cursorPT;
+  GetCursorPos(&cursorPT);
+
+  if (wcscmp((*this).infoTitle, infoTitle) != 0)
+    {
+      wcscpy((*this).infoTitle, infoTitle);
 
       // changed
       return true;
@@ -303,6 +339,11 @@ bool TrayIcon::SetInfo(WCHAR *info)
 void TrayIcon::SetFlags(UINT flags)
 {
   (*this).flags = flags;
+}
+
+void TrayIcon::SetInfoFlags(DWORD infoFlags)
+{
+  (*this).infoFlags = infoFlags;
 }
 
 //-----
