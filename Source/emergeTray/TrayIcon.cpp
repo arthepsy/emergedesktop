@@ -296,22 +296,20 @@ bool TrayIcon::SetInfo(WCHAR *info)
   POINT cursorPT;
   GetCursorPos(&cursorPT);
 
-  if (wcscmp((*this).info, info) != 0)
+  wcscpy((*this).info, info);
+
+  SendNotifyMessage(wnd, callbackMessage, WPARAM(id), LPARAM(NIN_BALLOONSHOW));
+  if (ELMessageBox(NULL, info, infoTitle, ELMB_YESNO) == IDYES)
     {
-      wcscpy((*this).info, info);
-
-      SendNotifyMessage(wnd, callbackMessage, MAKEWPARAM(cursorPT.x, cursorPT.y),
-                        NIN_BALLOONSHOW);
-      ELMessageBox(GetDesktopWindow(), info, infoTitle, ELMB_OK);
-      SendNotifyMessage(wnd, callbackMessage, MAKEWPARAM(cursorPT.x, cursorPT.y),
-                        //MAKELPARAM(NIN_BALLOONUSERCLICK, id));
-                        NIN_BALLOONUSERCLICK);
-
-      // changed
-      return true;
+      SendNotifyMessage(wnd, callbackMessage, WPARAM(id), LPARAM(NIN_BALLOONUSERCLICK));
+    }
+  else
+    {
+      SendNotifyMessage(wnd, callbackMessage, WPARAM(id), LPARAM(NIN_BALLOONTIMEOUT));
     }
 
-  return false;
+  // changed
+  return true;
 }
 
 bool TrayIcon::SetInfoTitle(WCHAR *infoTitle)
