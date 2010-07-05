@@ -193,7 +193,7 @@ LRESULT CALLBACK Applet::WindowProcedure (HWND hwnd, UINT message, WPARAM wParam
 }
 
 Applet::Applet(HINSTANCE hInstance)
-:BaseApplet(hInstance, myName, true)
+  :BaseApplet(hInstance, myName, true)
 {
   mainInst = hInstance;
 
@@ -436,9 +436,9 @@ void Applet::StartSSO(CLSID clsid)
     {
       // Start ShellServiceObject
       reinterpret_cast <IOleCommandTarget*> (lpVoid)->Exec(&CGID_ShellServiceObject,
-                                                           OLECMDID_NEW,
-                                                           OLECMDEXECOPT_DODEFAULT,
-                                                           NULL, NULL);
+          OLECMDID_NEW,
+          OLECMDEXECOPT_DODEFAULT,
+          NULL, NULL);
       ssoIconList.push_back(reinterpret_cast <IOleCommandTarget*>(lpVoid));
     }
 }
@@ -771,11 +771,11 @@ LRESULT Applet::AddTrayIcon(HWND hwnd, UINT uID, UINT uFlags, UINT uCallbackMess
     pTrayIcon->SetCallback(uCallbackMessage);
 
   if ((uFlags & NIF_INFO) == NIF_INFO)
-  {
-    pTrayIcon->SetInfoFlags(dwInfoFlags);
-    pTrayIcon->SetInfoTitle(szInfoTitle);
-    pTrayIcon->SetInfo(szInfo);
-  }
+    {
+      pTrayIcon->SetInfoFlags(dwInfoFlags);
+      pTrayIcon->SetInfoTitle(szInfoTitle);
+      pTrayIcon->SetInfo(szInfo);
+    }
 
   if ((uFlags & NIF_TIP) == NIF_TIP)
     pTrayIcon->SetTip(szTip);
@@ -886,62 +886,43 @@ bool Applet::TrayMouseEvent(UINT message, LPARAM lParam)
                       }*/
 
           //std::wstring debug;
-          switch ((*iter)->GetIconVersion())
+          switch (message)
             {
-            case NOTIFYICON_VERSION_4:
-                {
-                  switch (message)
-                    {
-                    case WM_RBUTTONUP:
-                      SendNotifyMessage((*iter)->GetWnd(), (*iter)->GetCallback(), MAKEWPARAM(cursorPT.x, cursorPT.y),
-                                        MAKELPARAM(message, (*iter)->GetID()));
-                      message = WM_CONTEXTMENU;
-                      break;
-                      /*                case WM_MOUSEMOVE:
-                                        if (activeIcon == NULL)
-                                        {
-                                        message = NIN_POPUPOPEN;
-                                        activeIcon = (*iter);
-                                        }
-                                        break;*/
+              /*                case WM_MOUSEMOVE:
+                                if (activeIcon == NULL)
+                                {
+                                message = NIN_POPUPOPEN;
+                                activeIcon = (*iter);
+                                }
+                                break;*/
 
-                      /*if (ELVersionInfo() >= 7.0)
-                        {
-                        case WM_LBUTTONDOWN:
-                        debug = TEXT("LBUTTONDOWN");
-                        ELWriteDebug(debug);
-                        return 0;
-                        case WM_LBUTTONUP:
-                        debug = TEXT("LBUTTONUP");
-                        ELWriteDebug(debug);
-                        SendNotifyMessage((*iter)->GetWnd(), (*iter)->GetCallback(), MAKEWPARAM(cursorPT.x, cursorPT.y),
-                        MAKELPARAM(NIN_POPUPCLOSE, (*iter)->GetID()));
-                        SendNotifyMessage((*iter)->GetWnd(), (*iter)->GetCallback(), MAKEWPARAM(cursorPT.x, cursorPT.y),
-                        MAKELPARAM(WM_LBUTTONDOWN, (*iter)->GetID()));
-                        SendNotifyMessage((*iter)->GetWnd(), (*iter)->GetCallback(), MAKEWPARAM(cursorPT.x, cursorPT.y),
-                        MAKELPARAM(message, (*iter)->GetID()));
-                        return 0;
-                        case WM_LBUTTONDBLCLK:
-                        debug = TEXT("LBUTTONDBLCLK");
-                        ELWriteDebug(debug);
-                        return 0;
-                        }*/
-                    }
-
-                  SendNotifyMessage((*iter)->GetWnd(), (*iter)->GetCallback(), MAKEWPARAM(cursorPT.x, cursorPT.y),
-                                    MAKELPARAM(message, (*iter)->GetID()));
-                }
-              break;
-            case NOTIFYICON_VERSION:
-              if (((*iter)->GetIconVersion() == NOTIFYICON_VERSION) && (message == WM_RBUTTONUP))
+              /*if (ELVersionInfo() >= 7.0)
                 {
-                  SendNotifyMessage((*iter)->GetWnd(), (*iter)->GetCallback(), WPARAM((*iter)->GetID()), LPARAM(message));
-                  message = WM_CONTEXTMENU;
-                }
+                case WM_LBUTTONDOWN:
+                debug = TEXT("LBUTTONDOWN");
+                ELWriteDebug(debug);
+                return 0;
+                case WM_LBUTTONUP:
+                debug = TEXT("LBUTTONUP");
+                ELWriteDebug(debug);
+                SendNotifyMessage((*iter)->GetWnd(), (*iter)->GetCallback(), MAKEWPARAM(cursorPT.x, cursorPT.y),
+                MAKELPARAM(NIN_POPUPCLOSE, (*iter)->GetID()));
+                SendNotifyMessage((*iter)->GetWnd(), (*iter)->GetCallback(), MAKEWPARAM(cursorPT.x, cursorPT.y),
+                MAKELPARAM(WM_LBUTTONDOWN, (*iter)->GetID()));
+                SendNotifyMessage((*iter)->GetWnd(), (*iter)->GetCallback(), MAKEWPARAM(cursorPT.x, cursorPT.y),
+                MAKELPARAM(message, (*iter)->GetID()));
+                return 0;
+                case WM_LBUTTONDBLCLK:
+                debug = TEXT("LBUTTONDBLCLK");
+                ELWriteDebug(debug);
+                return 0;
+                }*/
+            case WM_RBUTTONUP:
+              (*iter)->SendMessage(message);
+              message = WM_CONTEXTMENU;
             default:
-              SendNotifyMessage((*iter)->GetWnd(), (*iter)->GetCallback(), WPARAM((*iter)->GetID()), LPARAM(message));
+              (*iter)->SendMessage(message);
             }
-
           return 0;
         }
     }

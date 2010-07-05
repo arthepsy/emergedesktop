@@ -58,10 +58,6 @@
 #define NIF_SHOWTIP 0x80
 #endif
 
-#ifndef NOTIFYICON_VERSION_4
-#define NOTIFYICON_VERSION_4  4
-#endif
-
 #ifndef ABM_SETSTATE
 #define ABM_SETSTATE  10
 #endif

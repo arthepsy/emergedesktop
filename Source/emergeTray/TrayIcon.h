@@ -41,6 +41,10 @@
 #define NIN_BALLOONUSERCLICK WM_USER+5
 #endif
 
+#ifndef NOTIFYICON_VERSION_4
+#define NOTIFYICON_VERSION_4  4
+#endif
+
 //-----
 //
 // Note: for MSVC users, put the AggressiveOptimize.h header file (available from
@@ -92,6 +96,7 @@ public:
   void SetShared(bool shared);
   void CreateNewIcon(HDC backgroundDC, BYTE foregroundAlpha);
   void UpdateIcon();
+  BOOL SendMessage(LPARAM lParam);
 
 private:
   HWND wnd, mainWnd, toolWnd;

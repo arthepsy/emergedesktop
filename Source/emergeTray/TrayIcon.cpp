@@ -298,18 +298,28 @@ bool TrayIcon::SetInfo(WCHAR *info)
 
   wcscpy((*this).info, info);
 
-  SendNotifyMessage(wnd, callbackMessage, WPARAM(id), LPARAM(NIN_BALLOONSHOW));
+  SendMessage(LPARAM(NIN_BALLOONSHOW));
   if (ELMessageBox(NULL, info, infoTitle, ELMB_YESNO) == IDYES)
-    {
-      SendNotifyMessage(wnd, callbackMessage, WPARAM(id), LPARAM(NIN_BALLOONUSERCLICK));
-    }
+      SendMessage(LPARAM(NIN_BALLOONUSERCLICK));
   else
-    {
-      SendNotifyMessage(wnd, callbackMessage, WPARAM(id), LPARAM(NIN_BALLOONTIMEOUT));
-    }
+      SendMessage(LPARAM(NIN_BALLOONTIMEOUT));
 
   // changed
   return true;
+}
+
+BOOL TrayIcon::SendMessage(LPARAM lParam)
+{
+  if (iconVersion == NOTIFYICON_VERSION_4)
+    {
+      POINT cursorPos;
+      GetCursorPos(&cursorPos);
+
+      return SendNotifyMessage(wnd, callbackMessage, MAKEWPARAM(cursorPos.x, cursorPos.y),
+                               MAKELPARAM(lParam, id));
+    }
+  else
+    return SendNotifyMessage(wnd, callbackMessage, WPARAM(id), lParam);
 }
 
 bool TrayIcon::SetInfoTitle(WCHAR *infoTitle)
@@ -409,7 +419,7 @@ void TrayIcon::UpdateTip()
   ti.uId = id + (ULONG_PTR)wnd;
 
   // Check to see if the tooltip exists
-  exists = SendMessage(toolWnd, TTM_GETTOOLINFO, 0,(LPARAM) (LPTOOLINFO) &ti) ? true : false;
+  exists = ::SendMessage(toolWnd, TTM_GETTOOLINFO, 0,(LPARAM) (LPTOOLINFO) &ti) ? true : false;
 
   //  complete the rest of the TOOLINFO structure
   ti.hinst =  appInstance;
@@ -418,9 +428,9 @@ void TrayIcon::UpdateTip()
 
   // If it exists, modify the tooltip, if not add it
   if (exists)
-    SendMessage(toolWnd, TTM_SETTOOLINFO, 0, (LPARAM)(LPTOOLINFO)&ti);
+    ::SendMessage(toolWnd, TTM_SETTOOLINFO, 0, (LPARAM)(LPTOOLINFO)&ti);
   else
-    SendMessage(toolWnd, TTM_ADDTOOL, 0, (LPARAM)(LPTOOLINFO)&ti);
+    ::SendMessage(toolWnd, TTM_ADDTOOL, 0, (LPARAM)(LPTOOLINFO)&ti);
 }
 
 //-----
@@ -443,9 +453,9 @@ void TrayIcon::DeleteTip()
   ti.uId = id + (ULONG_PTR)wnd;
 
   // Check to see if the tooltip exists
-  exists = SendMessage(toolWnd, TTM_GETTOOLINFO, 0,(LPARAM) (LPTOOLINFO) &ti) ? true : false;
+  exists = ::SendMessage(toolWnd, TTM_GETTOOLINFO, 0,(LPARAM) (LPTOOLINFO) &ti) ? true : false;
 
   if (exists)
-    SendMessage(toolWnd, TTM_DELTOOL, 0, (LPARAM)(LPTOOLINFO)&ti);
+    ::SendMessage(toolWnd, TTM_DELTOOL, 0, (LPARAM)(LPTOOLINFO)&ti);
 }
 
