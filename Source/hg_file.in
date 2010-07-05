@@ -1,2 +1,2 @@
 $(HG_FILE):
-	hg summary | grep parent | sed -f $(HG_SED) > $(HG_FILE)
+	hg tip --template "#define BUILD_VERSION {rev}" > $(HG_FILE)
