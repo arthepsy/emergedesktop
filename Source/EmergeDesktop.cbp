@@ -638,7 +638,7 @@
 			<Add library="stdc++.dll" />
 		</Linker>
 		<ExtraCommands>
-			<Add before='[[ local hgfile = _T(&quot;hgversion.h&quot;); local hgcmd = _T(&quot;cmd /c hg summary | grep parent | sed -f hgversion.sed &gt; hgversion.h&quot;); if ( !IO.FileExists(hgfile) ) { IO.Execute(hgcmd); } ]]' />
+			<Add before='[[ local hgfile = _T(&quot;hgversion.h&quot;); local hgcmd = _T(&quot;cmd /c hg tip --template \&quot;#define BUILD_VERSION {rev}\&quot; &gt; hgversion.h&quot;); if ( !IO.FileExists(hgfile) ) { IO.Execute(hgcmd); } ]]' />
 		</ExtraCommands>
 		<Unit filename="emergeAppletEngine\emergeAppletEngine.h">
 			<Option target="emergeAppletEngine - Release" />
