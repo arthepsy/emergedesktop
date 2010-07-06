@@ -2,7 +2,7 @@
 //---
 //
 //  This file is part of Emerge Desktop.
-//  Copyright (C) 2004-2007  The Emerge Desktop Development Team
+//  Copyright (C) 2004-2010  The Emerge Desktop Development Team
 //
 //  Emerge Desktop is free software; you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -293,12 +293,16 @@ bool TrayIcon::SetTip(WCHAR *tip)
 //-----
 bool TrayIcon::SetInfo(WCHAR *info)
 {
-  POINT cursorPT;
-  GetCursorPos(&cursorPT);
+  POINT balloonPt;
+  Balloon balloon(appInstance);
 
   wcscpy((*this).info, info);
+  balloonPt.x = rect.left;
+  balloonPt.y = rect.top;
 
   SendMessage(LPARAM(NIN_BALLOONSHOW));
+  if (ClientToScreen(mainWnd, &balloonPt) && balloon.Initialize())
+    balloon.Show(balloonPt);
   if (ELMessageBox(NULL, info, infoTitle, ELMB_YESNO) == IDYES)
       SendMessage(LPARAM(NIN_BALLOONUSERCLICK));
   else
@@ -315,7 +319,7 @@ BOOL TrayIcon::SendMessage(LPARAM lParam)
       POINT cursorPos;
       GetCursorPos(&cursorPos);
 
-      return SendNotifyMessage(wnd, callbackMessage, MAKEWPARAM(cursorPos.x, cursorPos.y),
+      return SendNotifyMessage(wnd, callbackMessage, MAKEWPARAM(rect.left, rect.top),
                                MAKELPARAM(lParam, id));
     }
   else

@@ -917,6 +917,24 @@ bool Applet::TrayMouseEvent(UINT message, LPARAM lParam)
                 ELWriteDebug(debug);
                 return 0;
                 }*/
+
+          // Second attempt at NIN_POPOPEN:
+            /*case WM_MOUSEMOVE:
+              if ((ELVersionInfo() >= 6.0) && (((*iter)->GetFlags() & NIF_INFO) == NIF_INFO))
+                {
+                  if (activeIcon != NULL)
+                    {
+                      if( activeIcon->GetWnd() != (*iter)->GetWnd())
+                        {
+                          activeIcon->SendMessage(NIN_POPUPCLOSE);
+                          activeIcon = (*iter).get();
+                        }
+                    }
+                  message = NIN_POPUPOPEN;
+                }
+              (*iter)->SendMessage(message);
+              break;*/
+
             case WM_RBUTTONUP:
               (*iter)->SendMessage(message);
               message = WM_CONTEXTMENU;

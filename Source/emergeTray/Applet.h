@@ -463,7 +463,7 @@ private:
   static LRESULT CALLBACK TrayProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
   void StartSSO(CLSID clsid);
   bool IsIconVisible(TrayIcon *pTrayIcon);
-  //    TrayIcon *activeIcon;
+  TrayIcon *activeIcon;
   bool SetAutoHideEdge(UINT edge);
   bool ClearAutoHideEdge(UINT edge);
   bool autoHideLeft, autoHideRight, autoHideTop, autoHideBottom;
