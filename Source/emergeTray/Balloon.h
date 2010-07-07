@@ -22,19 +22,33 @@
 #define __ETR_BALLOON_H
 
 #include "../emergeLib/emergeLib.h"
+#include "../emergeAppletEngine/emergeAppletEngine.h"
+
+#define BALLOON_TIMER_ID 1
+
+class TrayIcon;
 
 class Balloon
 {
 public:
-  Balloon(HINSTANCE hInstance);
+  Balloon(HINSTANCE hInstance, TrayIcon *pTrayIcon);
   ~Balloon();
   bool Initialize();
   bool Show(POINT showPt);
+  LRESULT DoLButtonDown();
+  LRESULT DoTimer();
+  void SetInfo(WCHAR *info);
+  void SetInfoTitle(WCHAR *info);
+  void SetInfoFlags(DWORD infoFlags);
 
 private:
   static LRESULT CALLBACK BalloonProcedure (HWND, UINT, WPARAM, LPARAM);
   HINSTANCE mainInst;
   HWND balloonWnd;
+  TrayIcon *pTrayIcon;
+  DWORD infoFlags;
+  WCHAR info[TIP_SIZE];
+  WCHAR infoTitle[TIP_SIZE];
 };
 
 #endif

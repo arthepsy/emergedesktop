@@ -23,7 +23,6 @@
 
 #include "../emergeLib/emergeLib.h"
 #include "../emergeBaseClasses/BaseSettings.h"
-#include "TrayIcon.h"
 
 #include <string>
 #include <vector>

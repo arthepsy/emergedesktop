@@ -76,10 +76,7 @@ public:
   UINT GetID();
   UINT GetCallback();
   WCHAR *GetTip();
-  WCHAR *GetInfo();
-  WCHAR *GetInfoTitle();
   UINT GetFlags();
-  DWORD GetInfoFlags();
   RECT *GetRect();
   bool GetHidden();
   bool GetShared();
@@ -88,16 +85,14 @@ public:
   bool SetIcon(HICON icon);
   bool SetCallback(UINT callbackMessage);
   bool SetTip(WCHAR *tip);
-  bool SetInfo(WCHAR *info);
-  bool SetInfoTitle(WCHAR *infoTitle);
   void SetFlags(UINT flags);
-  void SetInfoFlags(DWORD infoFlags);
   void SetRect(RECT rect);
   void SetHidden(bool hidden);
   void SetShared(bool shared);
   void CreateNewIcon(HDC backgroundDC, BYTE foregroundAlpha);
   void UpdateIcon();
   BOOL SendMessage(LPARAM lParam);
+  bool ShowBalloon(WCHAR *infoTitle, WCHAR *info, DWORD infoFlags);
 
 private:
   HWND wnd, mainWnd, toolWnd;
@@ -106,14 +101,13 @@ private:
   UINT id;
   UINT callbackMessage;
   UINT iconVersion;
-  WCHAR tip[TIP_SIZE], info[TIP_SIZE];
+  WCHAR tip[TIP_SIZE];
   UINT flags;
   RECT rect;
   bool hidden;
   bool shared;
   bool convertIcon;
-  DWORD infoFlags;
-  WCHAR infoTitle[TIP_SIZE];
+  std::tr1::shared_ptr<Balloon> pBalloon;
 
   // Holds refrence to original icon handler
   // (since we do not create this icon we should not destroy it either)

@@ -19,58 +19,102 @@
 //
 //---
 
+#include "TrayIcon.h"
 #include "Balloon.h"
 
 WCHAR balloonName[] = TEXT("emergeTrayBalloon");
 
 LRESULT CALLBACK Balloon::BalloonProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-  CREATESTRUCT *cs;
-  static Balloon *pBalloon = NULL;
+  Balloon *pBalloon = NULL;
 
   if (message == WM_CREATE)
     {
-      cs = (CREATESTRUCT*)lParam;
-      pBalloon = reinterpret_cast<Balloon*>(cs->lpCreateParams);
+      pBalloon = reinterpret_cast<Balloon*>(((CREATESTRUCT*)lParam)->lpCreateParams);
+      SetWindowLongPtr(hwnd,GWLP_USERDATA,(LONG_PTR)pBalloon);
       return DefWindowProc(hwnd, message, wParam, lParam);
     }
+  else
+    pBalloon = reinterpret_cast<Balloon*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
+
+  if (pBalloon == NULL)
+    return DefWindowProc(hwnd, message, wParam, lParam);
 
   switch (message)
-  {
+    {
     case WM_LBUTTONDOWN:
-      DestroyWindow(hwnd);
-      break;
-  }
+      return pBalloon->DoLButtonDown();
+    case WM_RBUTTONDOWN:
+    case WM_TIMER:
+      return pBalloon->DoTimer();
+    }
 
   return DefWindowProc(hwnd, message, wParam, lParam);
 }
 
-Balloon::Balloon(HINSTANCE hInstance)
+Balloon::Balloon(HINSTANCE hInstance, TrayIcon *pTrayIcon)
 {
   mainInst = hInstance;
+  this->pTrayIcon = pTrayIcon;
 }
 
 Balloon::~Balloon()
 {
 }
 
+LRESULT Balloon::DoLButtonDown()
+{
+  ShowWindow(balloonWnd, SW_HIDE);
+  pTrayIcon->SendMessage(NIN_BALLOONUSERCLICK);
+  KillTimer(balloonWnd, BALLOON_TIMER_ID);
+  return 0;
+}
+
+LRESULT Balloon::DoTimer()
+{
+  ShowWindow(balloonWnd, SW_HIDE);
+  pTrayIcon->SendMessage(NIN_BALLOONTIMEOUT);
+  KillTimer(balloonWnd, BALLOON_TIMER_ID);
+  return 0;
+}
+
+void Balloon::SetInfo(WCHAR *info)
+{
+  wcscpy(this->info, info);
+}
+
+void Balloon::SetInfoTitle(WCHAR *infoTitle)
+{
+  wcscpy(this->infoTitle, infoTitle);
+  SetWindowText(balloonWnd, infoTitle);
+}
+
+void Balloon::SetInfoFlags(DWORD infoFlags)
+{
+  this->infoFlags = infoFlags;
+}
+
 bool Balloon::Initialize()
 {
   WNDCLASSEX wincl;
-  ZeroMemory(&wincl, sizeof(WNDCLASSEX));
 
-  // Register the window class
-  wincl.hInstance = mainInst;
-  wincl.lpszClassName = balloonName;
-  wincl.lpfnWndProc = BalloonProcedure;
-  wincl.cbSize = sizeof (WNDCLASSEX);
-  wincl.hIcon = LoadIcon (NULL, IDI_APPLICATION);
-  wincl.hIconSm = LoadIcon (NULL, IDI_APPLICATION);
-  wincl.hCursor = LoadCursor (NULL, IDC_ARROW);
-  wincl.hbrBackground = GetSysColorBrush(COLOR_WINDOW);
+  if (!GetClassInfoEx(mainInst, balloonName, &wincl))
+    {
+      ZeroMemory(&wincl, sizeof(WNDCLASSEX));
 
-  if (!RegisterClassEx (&wincl))
-    return false;
+      // Register the window class
+      wincl.hInstance = mainInst;
+      wincl.lpszClassName = balloonName;
+      wincl.lpfnWndProc = BalloonProcedure;
+      wincl.cbSize = sizeof (WNDCLASSEX);
+      wincl.hIcon = LoadIcon (NULL, IDI_APPLICATION);
+      wincl.hIconSm = LoadIcon (NULL, IDI_APPLICATION);
+      wincl.hCursor = LoadCursor (NULL, IDC_ARROW);
+      wincl.hbrBackground = GetSysColorBrush(COLOR_WINDOW);
+
+      if (!RegisterClassEx (&wincl))
+        return false;
+    }
 
   balloonWnd = CreateWindowEx(WS_EX_TOOLWINDOW, balloonName, NULL, WS_POPUP,
                               0, 0, 0, 0, NULL, NULL, mainInst, reinterpret_cast<LPVOID>(this));
@@ -82,5 +126,7 @@ bool Balloon::Initialize()
 
 bool Balloon::Show(POINT showPt)
 {
+  pTrayIcon->SendMessage(NIN_BALLOONSHOW);
+  SetTimer(balloonWnd, BALLOON_TIMER_ID, 5000, NULL);
   return (SetWindowPos(balloonWnd, HWND_TOP, showPt.x, showPt.y-100, 100, 100, SWP_SHOWWINDOW) == TRUE);
 }

@@ -20,6 +20,7 @@
 
 #include "Settings.h"
 #include "Applet.h"
+#include "TrayIcon.h"
 
 extern WCHAR myName[];
 

@@ -20,6 +20,7 @@
 //---
 
 #include "TrayIcon.h"
+#include "Balloon.h"
 
 //-----
 // Function:	Constructor
@@ -47,10 +48,7 @@ TrayIcon::TrayIcon(HINSTANCE appInstance, HWND wnd, UINT id, HWND mainWnd, HWND 
   origIconSource = NULL;
   callbackMessage = 0;
   wcscpy(tip, TEXT("\0"));
-  wcscpy(info, TEXT("\0"));
-  wcscpy(infoTitle, TEXT("\0"));
   flags = 0;
-  infoFlags = 0;
   rect.left = 0;
   rect.right = 0;
   rect.top = 0;
@@ -59,6 +57,9 @@ TrayIcon::TrayIcon(HINSTANCE appInstance, HWND wnd, UINT id, HWND mainWnd, HWND 
   shared = false;
 
   convertIcon = true;
+
+  pBalloon = std::tr1::shared_ptr<Balloon>(new Balloon(appInstance, this));
+  pBalloon->Initialize();
 }
 
 void TrayIcon::CreateNewIcon(HDC backgroundDC, BYTE foregroundAlpha)
@@ -155,21 +156,6 @@ WCHAR *TrayIcon::GetTip()
   return tip;
 }
 
-// Function:	GetInfo
-// Requires:	Nothing
-// Returns:	WCHAR*
-// Purpose:	Retrieves the icon's info
-//-----
-WCHAR *TrayIcon::GetInfo()
-{
-  return info;
-}
-
-WCHAR *TrayIcon::GetInfoTitle()
-{
-  return infoTitle;
-}
-
 //-----
 // Function:	GetFlags
 // Requires:	Nothing
@@ -179,11 +165,6 @@ WCHAR *TrayIcon::GetInfoTitle()
 UINT TrayIcon::GetFlags()
 {
   return flags;
-}
-
-DWORD TrayIcon::GetInfoFlags()
-{
-  return infoFlags;
 }
 
 //-----
@@ -291,22 +272,19 @@ bool TrayIcon::SetTip(WCHAR *tip)
 // Returns:	true if info was updated, false otherwise
 // Purpose:	Replaces the existing info text
 //-----
-bool TrayIcon::SetInfo(WCHAR *info)
+bool TrayIcon::ShowBalloon(WCHAR *infoTitle, WCHAR *info, DWORD infoFlags)
 {
   POINT balloonPt;
-  Balloon balloon(appInstance);
-
-  wcscpy((*this).info, info);
   balloonPt.x = rect.left;
   balloonPt.y = rect.top;
 
-  SendMessage(LPARAM(NIN_BALLOONSHOW));
-  if (ClientToScreen(mainWnd, &balloonPt) && balloon.Initialize())
-    balloon.Show(balloonPt);
-  if (ELMessageBox(NULL, info, infoTitle, ELMB_YESNO) == IDYES)
-      SendMessage(LPARAM(NIN_BALLOONUSERCLICK));
-  else
-      SendMessage(LPARAM(NIN_BALLOONTIMEOUT));
+  if (ClientToScreen(mainWnd, &balloonPt))
+  {
+    pBalloon->SetInfo(info);
+    pBalloon->SetInfoTitle(infoTitle);
+    pBalloon->SetInfoFlags(infoFlags);
+    pBalloon->Show(balloonPt);
+  }
 
   // changed
   return true;
@@ -326,22 +304,6 @@ BOOL TrayIcon::SendMessage(LPARAM lParam)
     return SendNotifyMessage(wnd, callbackMessage, WPARAM(id), lParam);
 }
 
-bool TrayIcon::SetInfoTitle(WCHAR *infoTitle)
-{
-  POINT cursorPT;
-  GetCursorPos(&cursorPT);
-
-  if (wcscmp((*this).infoTitle, infoTitle) != 0)
-    {
-      wcscpy((*this).infoTitle, infoTitle);
-
-      // changed
-      return true;
-    }
-
-  return false;
-}
-
 //-----
 // Function:	SetFlags
 // Requires:	UINT flags - new icon flags
@@ -351,11 +313,6 @@ bool TrayIcon::SetInfoTitle(WCHAR *infoTitle)
 void TrayIcon::SetFlags(UINT flags)
 {
   (*this).flags = flags;
-}
-
-void TrayIcon::SetInfoFlags(DWORD infoFlags)
-{
-  (*this).infoFlags = infoFlags;
 }
 
 //-----

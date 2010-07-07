@@ -702,13 +702,8 @@ LRESULT Applet::ModifyTrayIcon(HWND hwnd, UINT uID, UINT uFlags, UINT uCallbackM
 
   if ((uFlags & NIF_INFO) == NIF_INFO)
     {
-      pTrayIcon->SetInfoFlags(newInfoFlags);
-      pTrayIcon->SetInfoTitle(newInfoTitle);
-      if (pTrayIcon->SetInfo(newInfo))
-        {
-          pTrayIcon->SetFlags(pTrayIcon->GetFlags() | NIF_INFO);
-          changed = true;
-        }
+      pTrayIcon->ShowBalloon(newInfoTitle, newInfo, newInfoFlags);
+      pTrayIcon->SetFlags(pTrayIcon->GetFlags() | NIF_INFO);
     }
 
   if ((uFlags & NIF_TIP) == NIF_TIP)
@@ -771,11 +766,7 @@ LRESULT Applet::AddTrayIcon(HWND hwnd, UINT uID, UINT uFlags, UINT uCallbackMess
     pTrayIcon->SetCallback(uCallbackMessage);
 
   if ((uFlags & NIF_INFO) == NIF_INFO)
-    {
-      pTrayIcon->SetInfoFlags(dwInfoFlags);
-      pTrayIcon->SetInfoTitle(szInfoTitle);
-      pTrayIcon->SetInfo(szInfo);
-    }
+    pTrayIcon->ShowBalloon(szInfoTitle, szInfo, dwInfoFlags);
 
   if ((uFlags & NIF_TIP) == NIF_TIP)
     pTrayIcon->SetTip(szTip);
@@ -918,22 +909,22 @@ bool Applet::TrayMouseEvent(UINT message, LPARAM lParam)
                 return 0;
                 }*/
 
-          // Second attempt at NIN_POPOPEN:
-            /*case WM_MOUSEMOVE:
-              if ((ELVersionInfo() >= 6.0) && (((*iter)->GetFlags() & NIF_INFO) == NIF_INFO))
-                {
-                  if (activeIcon != NULL)
-                    {
-                      if( activeIcon->GetWnd() != (*iter)->GetWnd())
-                        {
-                          activeIcon->SendMessage(NIN_POPUPCLOSE);
-                          activeIcon = (*iter).get();
-                        }
-                    }
-                  message = NIN_POPUPOPEN;
-                }
-              (*iter)->SendMessage(message);
-              break;*/
+              // Second attempt at NIN_POPOPEN:
+              /*case WM_MOUSEMOVE:
+                if ((ELVersionInfo() >= 6.0) && (((*iter)->GetFlags() & NIF_INFO) == NIF_INFO))
+                  {
+                    if (activeIcon != NULL)
+                      {
+                        if( activeIcon->GetWnd() != (*iter)->GetWnd())
+                          {
+                            activeIcon->SendMessage(NIN_POPUPCLOSE);
+                            activeIcon = (*iter).get();
+                          }
+                      }
+                    message = NIN_POPUPOPEN;
+                  }
+                (*iter)->SendMessage(message);
+                break;*/
 
             case WM_RBUTTONUP:
               (*iter)->SendMessage(message);
