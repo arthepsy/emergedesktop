@@ -47,6 +47,8 @@ LRESULT CALLBACK Balloon::BalloonProcedure (HWND hwnd, UINT message, WPARAM wPar
     case WM_RBUTTONDOWN:
     case WM_TIMER:
       return pBalloon->DoTimer();
+    case WM_PAINT:
+      return pBalloon->DoPaint();
     }
 
   return DefWindowProc(hwnd, message, wParam, lParam);
@@ -60,6 +62,35 @@ Balloon::Balloon(HINSTANCE hInstance, TrayIcon *pTrayIcon)
 
 Balloon::~Balloon()
 {
+}
+
+LRESULT Balloon::DoPaint()
+{
+  PAINTSTRUCT ps;
+  RECT balloonRect, titleRect;
+  HBRUSH bgBrush = GetSysColorBrush(COLOR_WINDOW), frameBrush = CreateSolidBrush(RGB(0,0,0));
+
+  HDC hdc = BeginPaint(balloonWnd, &ps);
+
+  if (hdc == NULL)
+    return 1;
+
+  GetClientRect(balloonWnd, &balloonRect);
+
+  FillRect(hdc, &balloonRect, bgBrush);
+  FrameRect(hdc, &balloonRect, frameBrush);
+
+  InflateRect(&balloonRect, -4, -4);
+  CopyRect(&titleRect, &balloonRect);
+  titleRect.bottom = 20;
+  DrawText(hdc, infoTitle, -1, &titleRect, DT_SINGLELINE);
+
+  balloonRect.top = titleRect.bottom + 10;
+  DrawText(hdc, info, -1, &balloonRect, DT_WORDBREAK);
+
+  EndPaint(balloonWnd, &ps);
+
+  return 0;
 }
 
 LRESULT Balloon::DoLButtonDown()
@@ -86,7 +117,6 @@ void Balloon::SetInfo(WCHAR *info)
 void Balloon::SetInfoTitle(WCHAR *infoTitle)
 {
   wcscpy(this->infoTitle, infoTitle);
-  SetWindowText(balloonWnd, infoTitle);
 }
 
 void Balloon::SetInfoFlags(DWORD infoFlags)
@@ -110,7 +140,6 @@ bool Balloon::Initialize()
       wincl.hIcon = LoadIcon (NULL, IDI_APPLICATION);
       wincl.hIconSm = LoadIcon (NULL, IDI_APPLICATION);
       wincl.hCursor = LoadCursor (NULL, IDC_ARROW);
-      wincl.hbrBackground = GetSysColorBrush(COLOR_WINDOW);
 
       if (!RegisterClassEx (&wincl))
         return false;
@@ -127,6 +156,6 @@ bool Balloon::Initialize()
 bool Balloon::Show(POINT showPt)
 {
   pTrayIcon->SendMessage(NIN_BALLOONSHOW);
-  SetTimer(balloonWnd, BALLOON_TIMER_ID, 5000, NULL);
-  return (SetWindowPos(balloonWnd, HWND_TOP, showPt.x, showPt.y-100, 100, 100, SWP_SHOWWINDOW) == TRUE);
+  SetTimer(balloonWnd, BALLOON_TIMER_ID, 10000, NULL);
+  return (SetWindowPos(balloonWnd, HWND_TOPMOST, showPt.x - (250/2), showPt.y-100, 250, 100, SWP_SHOWWINDOW) == TRUE);
 }

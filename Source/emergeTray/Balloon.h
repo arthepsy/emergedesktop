@@ -37,6 +37,7 @@ public:
   bool Show(POINT showPt);
   LRESULT DoLButtonDown();
   LRESULT DoTimer();
+  LRESULT DoPaint();
   void SetInfo(WCHAR *info);
   void SetInfoTitle(WCHAR *info);
   void SetInfoFlags(DWORD infoFlags);
