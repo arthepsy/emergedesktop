@@ -179,20 +179,26 @@ bool Balloon::SetInfoFlags(DWORD infoFlags)
     {
       if (icon == NULL)
         offset = 37;
+      else
+        DestroyIcon(icon);
       icon = LoadIcon(NULL, IDI_INFORMATION);
     }
 
   if ((infoFlags & NIIF_WARNING) == NIIF_WARNING)
     {
       if (icon == NULL)
-        offset = 32;
+        offset = 37;
+      else
+        DestroyIcon(icon);
       icon = LoadIcon(NULL, IDI_WARNING);
     }
 
   if ((infoFlags & NIIF_ERROR) == NIIF_ERROR)
     {
       if (icon == NULL)
-        offset = 32;
+        offset = 37;
+      else
+        DestroyIcon(icon);
       icon = LoadIcon(NULL, IDI_ERROR);
     }
 
