@@ -50,6 +50,7 @@ public:
   ~Balloon();
   bool Initialize();
   bool Show(POINT showPt);
+  bool Hide();
   LRESULT DoLButtonDown();
   LRESULT DoTimer();
   LRESULT DoPaint();

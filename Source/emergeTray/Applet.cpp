@@ -609,6 +609,7 @@ LRESULT Applet::RemoveTrayIcon(HWND hwnd, UINT uID)
       }*/
 
   pTrayIcon->DeleteTip();
+  pTrayIcon->HideBalloon();
   RemoveTrayIconListItem(pTrayIcon);
 
   if (!hidden)

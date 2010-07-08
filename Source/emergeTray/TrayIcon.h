@@ -92,7 +92,8 @@ public:
   void CreateNewIcon(HDC backgroundDC, BYTE foregroundAlpha);
   void UpdateIcon();
   BOOL SendMessage(LPARAM lParam);
-  bool ShowBalloon(WCHAR *infoTitle, WCHAR *info, DWORD infoFlags, HICON icon);
+  void ShowBalloon(WCHAR *infoTitle, WCHAR *info, DWORD infoFlags, HICON icon);
+  void HideBalloon();
 
 private:
   HWND wnd, mainWnd, toolWnd;

@@ -275,3 +275,16 @@ bool Balloon::Show(POINT showPt)
 
   return (SetWindowPos(balloonWnd, HWND_TOPMOST, x, y, 250, 100, SWP_SHOWWINDOW) == TRUE);
 }
+
+bool Balloon::Hide()
+{
+  if (IsWindowVisible(balloonWnd))
+    {
+      pTrayIcon->SendMessage(NIN_BALLOONHIDE);
+      ShowWindow(balloonWnd, SW_HIDE);
+
+      return true;
+    }
+
+  return false;
+}
