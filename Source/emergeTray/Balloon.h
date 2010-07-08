@@ -21,6 +21,14 @@
 #ifndef __ETR_BALLOON_H
 #define __ETR_BALLOON_H
 
+// Define required for the Window Transparency
+#undef _WIN32_WINNT
+#define _WIN32_WINNT 0x0501
+
+// Define required for menu animation
+#undef WINVER
+#define WINVER 0x0501
+
 #include "../emergeLib/emergeLib.h"
 #include "../emergeAppletEngine/emergeAppletEngine.h"
 

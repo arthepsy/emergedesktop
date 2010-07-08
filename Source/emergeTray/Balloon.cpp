@@ -19,8 +19,8 @@
 //
 //---
 
-#include "TrayIcon.h"
 #include "Balloon.h"
+#include "TrayIcon.h"
 
 WCHAR balloonName[] = TEXT("emergeTrayBalloon");
 
@@ -155,7 +155,27 @@ bool Balloon::Initialize()
 
 bool Balloon::Show(POINT showPt)
 {
+  int x, y, xoffset;
+  HMONITOR balloonMonitor = MonitorFromWindow(balloonWnd, MONITOR_DEFAULTTONULL);
+  MONITORINFO balloonMonitorInfo;
+  balloonMonitorInfo.cbSize = sizeof(MONITORINFO);
+
+  if (!GetMonitorInfo(balloonMonitor, &balloonMonitorInfo))
+    return false;
+
+  y = showPt.y - 100;
+  if (y < balloonMonitorInfo.rcMonitor.top)
+    y = showPt.y + ICON_SIZE;
+
+  x = showPt.x - (250 / 2);
+  xoffset = balloonMonitorInfo.rcMonitor.right - (x + 250);
+  if (xoffset < 0)
+    x += xoffset;
+  if (x < balloonMonitorInfo.rcMonitor.left)
+    x = balloonMonitorInfo.rcMonitor.left;
+
   pTrayIcon->SendMessage(NIN_BALLOONSHOW);
   SetTimer(balloonWnd, BALLOON_TIMER_ID, 10000, NULL);
-  return (SetWindowPos(balloonWnd, HWND_TOPMOST, showPt.x - (250/2), showPt.y-100, 250, 100, SWP_SHOWWINDOW) == TRUE);
+
+  return (SetWindowPos(balloonWnd, HWND_TOPMOST, x, y, 250, 100, SWP_SHOWWINDOW) == TRUE);
 }
