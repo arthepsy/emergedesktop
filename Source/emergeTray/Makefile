@@ -1,5 +1,6 @@
 LIBS += -luuid \
 				-lole32 \
+				-lgdi32 \
 				-lcomctl32 \
 				-lemergeLib \
 				-lemergeGraphics \
