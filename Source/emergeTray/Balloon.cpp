@@ -58,16 +58,24 @@ Balloon::Balloon(HINSTANCE hInstance, TrayIcon *pTrayIcon)
 {
   mainInst = hInstance;
   this->pTrayIcon = pTrayIcon;
+
+  wcscpy(info, TEXT("\0"));
+  wcscpy(infoTitle, TEXT("\0"));
+  infoFlags = 0;
+  ZeroMemory(&titleRect, sizeof(RECT));
+  ZeroMemory(&infoRect, sizeof(RECT));
+  icon = NULL;
 }
 
 Balloon::~Balloon()
 {
+  DestroyIcon(icon);
 }
 
 LRESULT Balloon::DoPaint()
 {
   PAINTSTRUCT ps;
-  RECT balloonRect, titleRect;
+  RECT balloonRect;
   HBRUSH bgBrush = GetSysColorBrush(COLOR_WINDOW), frameBrush = CreateSolidBrush(RGB(0,0,0));
 
   HDC hdc = BeginPaint(balloonWnd, &ps);
@@ -80,15 +88,15 @@ LRESULT Balloon::DoPaint()
   FillRect(hdc, &balloonRect, bgBrush);
   FrameRect(hdc, &balloonRect, frameBrush);
 
-  InflateRect(&balloonRect, -4, -4);
-  CopyRect(&titleRect, &balloonRect);
-  titleRect.bottom = 20;
+  if (icon)
+    DrawIconEx(hdc, 5, 5, icon, 32, 32, 0, NULL, DI_NORMAL);
   DrawText(hdc, infoTitle, -1, &titleRect, DT_SINGLELINE);
-
-  balloonRect.top = titleRect.bottom + 10;
-  DrawText(hdc, info, -1, &balloonRect, DT_WORDBREAK);
+  DrawText(hdc, info, -1, &infoRect, DT_WORDBREAK);
 
   EndPaint(balloonWnd, &ps);
+
+  DeleteObject(bgBrush);
+  DeleteObject(frameBrush);
 
   return 0;
 }
@@ -109,19 +117,92 @@ LRESULT Balloon::DoTimer()
   return 0;
 }
 
-void Balloon::SetInfo(WCHAR *info)
+bool Balloon::SetInfo(WCHAR *info)
 {
+  if (_wcsicmp(this->info, info) == 0)
+    return false;
+
   wcscpy(this->info, info);
+
+  infoRect.top = 30;
+  infoRect.left = 5;
+  infoRect.bottom = infoRect.top + 70;
+  infoRect.right = infoRect.left + 220;
+
+  if (IsWindowVisible(balloonWnd))
+    InvalidateRect(balloonWnd, &infoRect, TRUE);
+
+  return true;
 }
 
-void Balloon::SetInfoTitle(WCHAR *infoTitle)
+bool Balloon::SetInfoTitle(WCHAR *infoTitle)
 {
+  if (_wcsicmp(this->infoTitle, infoTitle) == 0)
+    return false;
+
   wcscpy(this->infoTitle, infoTitle);
+
+  std::wstring debug = this->infoTitle;
+  ELWriteDebug(debug);
+
+  titleRect.top = 5;
+  titleRect.left = 5;
+  titleRect.bottom = titleRect.top + 20;
+  titleRect.right = titleRect.left + 220;
+
+  if (IsWindowVisible(balloonWnd))
+    InvalidateRect(balloonWnd, &titleRect, TRUE);
+
+  return true;
 }
 
-void Balloon::SetInfoFlags(DWORD infoFlags)
+bool Balloon::SetInfoFlags(DWORD infoFlags)
 {
+  int offset = 0;
+
+  if (this->infoFlags == infoFlags)
+    return false;
+
   this->infoFlags = infoFlags;
+
+  if ((infoFlags & NIIF_NONE) == NIIF_NONE)
+    {
+      if (icon)
+        {
+          DestroyIcon(icon);
+          icon = NULL;
+          offset = -37;
+        }
+    }
+
+  if ((infoFlags & NIIF_INFO) == NIIF_INFO)
+    {
+      if (icon == NULL)
+        offset = 37;
+      icon = LoadIcon(NULL, IDI_INFORMATION);
+    }
+
+  if ((infoFlags & NIIF_WARNING) == NIIF_WARNING)
+    {
+      if (icon == NULL)
+        offset = 32;
+      icon = LoadIcon(NULL, IDI_WARNING);
+    }
+
+  if ((infoFlags & NIIF_ERROR) == NIIF_ERROR)
+    {
+      if (icon == NULL)
+        offset = 32;
+      icon = LoadIcon(NULL, IDI_ERROR);
+    }
+
+  if (offset != 0)
+  {
+    OffsetRect(&titleRect, offset, 0);
+    OffsetRect(&infoRect, offset, 0);
+  }
+
+  return true;
 }
 
 bool Balloon::Initialize()

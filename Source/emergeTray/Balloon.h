@@ -29,6 +29,9 @@
 #undef WINVER
 #define WINVER 0x0501
 
+#undef _WIN32_IE
+#define _WIN32_IE 0x0501
+
 #include "../emergeLib/emergeLib.h"
 #include "../emergeAppletEngine/emergeAppletEngine.h"
 
@@ -46,9 +49,9 @@ public:
   LRESULT DoLButtonDown();
   LRESULT DoTimer();
   LRESULT DoPaint();
-  void SetInfo(WCHAR *info);
-  void SetInfoTitle(WCHAR *info);
-  void SetInfoFlags(DWORD infoFlags);
+  bool SetInfo(WCHAR *info);
+  bool SetInfoTitle(WCHAR *info);
+  bool SetInfoFlags(DWORD infoFlags);
 
 private:
   static LRESULT CALLBACK BalloonProcedure (HWND, UINT, WPARAM, LPARAM);
@@ -58,6 +61,8 @@ private:
   DWORD infoFlags;
   WCHAR info[TIP_SIZE];
   WCHAR infoTitle[TIP_SIZE];
+  RECT titleRect, infoRect;
+  HICON icon;
 };
 
 #endif
