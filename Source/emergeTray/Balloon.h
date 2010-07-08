@@ -37,6 +37,10 @@
 
 #define BALLOON_TIMER_ID 1
 
+#ifndef NIIF_USER
+#define NIIF_USER 0x4
+#endif
+
 class TrayIcon;
 
 class Balloon
@@ -51,7 +55,7 @@ public:
   LRESULT DoPaint();
   bool SetInfo(WCHAR *info);
   bool SetInfoTitle(WCHAR *info);
-  bool SetInfoFlags(DWORD infoFlags);
+  bool SetInfoFlags(DWORD infoFlags, HICON infoIcon);
 
 private:
   static LRESULT CALLBACK BalloonProcedure (HWND, UINT, WPARAM, LPARAM);

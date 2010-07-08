@@ -156,7 +156,7 @@ bool Balloon::SetInfoTitle(WCHAR *infoTitle)
   return true;
 }
 
-bool Balloon::SetInfoFlags(DWORD infoFlags)
+bool Balloon::SetInfoFlags(DWORD infoFlags, HICON infoIcon)
 {
   int offset = 0;
 
@@ -200,6 +200,15 @@ bool Balloon::SetInfoFlags(DWORD infoFlags)
       else
         DestroyIcon(icon);
       icon = LoadIcon(NULL, IDI_ERROR);
+    }
+
+  if ((infoFlags & NIIF_USER) == NIIF_USER)
+    {
+      if (icon == NULL)
+        offset = 37;
+      else
+        DestroyIcon(icon);
+      icon = infoIcon;
     }
 
   if (offset != 0)

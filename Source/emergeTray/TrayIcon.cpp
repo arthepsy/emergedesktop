@@ -272,7 +272,7 @@ bool TrayIcon::SetTip(WCHAR *tip)
 // Returns:	true if info was updated, false otherwise
 // Purpose:	Replaces the existing info text
 //-----
-bool TrayIcon::ShowBalloon(WCHAR *infoTitle, WCHAR *info, DWORD infoFlags)
+bool TrayIcon::ShowBalloon(WCHAR *infoTitle, WCHAR *info, DWORD infoFlags, HICON icon)
 {
   POINT balloonPt;
   balloonPt.x = rect.left;
@@ -282,7 +282,7 @@ bool TrayIcon::ShowBalloon(WCHAR *infoTitle, WCHAR *info, DWORD infoFlags)
   {
     pBalloon->SetInfo(info);
     pBalloon->SetInfoTitle(infoTitle);
-    pBalloon->SetInfoFlags(infoFlags);
+    pBalloon->SetInfoFlags(infoFlags, icon);
     pBalloon->Show(balloonPt);
   }
 

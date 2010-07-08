@@ -702,7 +702,7 @@ LRESULT Applet::ModifyTrayIcon(HWND hwnd, UINT uID, UINT uFlags, UINT uCallbackM
 
   if ((uFlags & NIF_INFO) == NIF_INFO)
     {
-      pTrayIcon->ShowBalloon(newInfoTitle, newInfo, newInfoFlags);
+      pTrayIcon->ShowBalloon(newInfoTitle, newInfo, newInfoFlags, icon);
       pTrayIcon->SetFlags(pTrayIcon->GetFlags() | NIF_INFO);
     }
 
@@ -766,7 +766,7 @@ LRESULT Applet::AddTrayIcon(HWND hwnd, UINT uID, UINT uFlags, UINT uCallbackMess
     pTrayIcon->SetCallback(uCallbackMessage);
 
   if ((uFlags & NIF_INFO) == NIF_INFO)
-    pTrayIcon->ShowBalloon(szInfoTitle, szInfo, dwInfoFlags);
+    pTrayIcon->ShowBalloon(szInfoTitle, szInfo, dwInfoFlags, icon);
 
   if ((uFlags & NIF_TIP) == NIF_TIP)
     pTrayIcon->SetTip(szTip);
