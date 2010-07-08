@@ -203,10 +203,10 @@ bool Balloon::SetInfoFlags(DWORD infoFlags)
     }
 
   if (offset != 0)
-  {
-    OffsetRect(&titleRect, offset, 0);
-    OffsetRect(&infoRect, offset, 0);
-  }
+    {
+      OffsetRect(&titleRect, offset, 0);
+      OffsetRect(&infoRect, offset, 0);
+    }
 
   return true;
 }
