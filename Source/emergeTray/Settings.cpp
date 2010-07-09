@@ -36,12 +36,26 @@ void Settings::DoReadSettings(IOHelper& helper)
 {
   BaseSettings::DoReadSettings(helper);
   helper.ReadBool(TEXT("UnhideIcons"), unhideIcons, true);
+  helper.ReadString(TEXT("InfoFont"), infoFontString, TEXT("Tahoma-10"));
+  helper.ReadString(TEXT("InfoTitleFont"), infoTitleFontString, TEXT("Tahoma-12"));
+}
+
+void Settings::DoInitialize()
+{
+  BaseSettings::DoInitialize();
+
+  EGStringToFont(infoFontString, infoLogFont);
+  EGStringToFont(infoTitleFontString, infoTitleLogFont);
 }
 
 void Settings::DoWriteSettings(IOHelper& helper)
 {
   BaseSettings::DoWriteSettings(helper);
   helper.WriteBool(TEXT("UnhideIcons"), unhideIcons);
+  EGFontToString(infoLogFont, infoFontString);
+  helper.WriteString(TEXT("InfoFont"), infoFontString);
+  EGFontToString(infoTitleLogFont, infoTitleFontString);
+  helper.WriteString(TEXT("InfoTitleFont"), infoTitleFontString);
 }
 
 void Settings::ResetDefaults()
@@ -72,11 +86,49 @@ bool Settings::GetUnhideIcons()
   return unhideIcons;
 }
 
+LOGFONT *Settings::GetInfoFont()
+{
+  return &infoLogFont;
+}
+
+LOGFONT *Settings::GetInfoTitleFont()
+{
+  return &infoTitleLogFont;
+}
+
 bool Settings::SetUnhideIcons(bool unhideIcons)
 {
   if (this->unhideIcons != unhideIcons)
     {
       this->unhideIcons = unhideIcons;
+      SetModified();
+    }
+  return true;
+}
+
+bool Settings::SetInfoFont(LOGFONT *infoLogFont)
+{
+  WCHAR tmp[MAX_LINE_LENGTH];
+  EGFontToString(*infoLogFont, tmp);
+
+  if (!EGEqualLogFont(this->infoLogFont, *infoLogFont))
+    {
+      wcscpy(infoFontString, tmp);
+      CopyMemory(&this->infoLogFont, infoLogFont, sizeof(LOGFONT));
+      SetModified();
+    }
+  return true;
+}
+
+bool Settings::SetInfoTitleFont(LOGFONT *infoTitleLogFont)
+{
+  WCHAR tmp[MAX_LINE_LENGTH];
+  EGFontToString(*infoTitleLogFont, tmp);
+
+  if (!EGEqualLogFont(this->infoTitleLogFont, *infoTitleLogFont))
+    {
+      wcscpy(infoTitleFontString, tmp);
+      CopyMemory(&this->infoTitleLogFont, infoTitleLogFont, sizeof(LOGFONT));
       SetModified();
     }
   return true;

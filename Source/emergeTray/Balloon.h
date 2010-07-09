@@ -34,6 +34,7 @@
 
 #include "../emergeLib/emergeLib.h"
 #include "../emergeAppletEngine/emergeAppletEngine.h"
+#include "Settings.h"
 
 #define BALLOON_TIMER_ID 1
 
@@ -46,7 +47,7 @@ class TrayIcon;
 class Balloon
 {
 public:
-  Balloon(HINSTANCE hInstance, TrayIcon *pTrayIcon);
+  Balloon(HINSTANCE hInstance, TrayIcon *pTrayIcon, Settings *pSettings);
   ~Balloon();
   bool Initialize();
   bool Show(POINT showPt);
@@ -68,6 +69,7 @@ private:
   WCHAR infoTitle[TIP_SIZE];
   RECT titleRect, infoRect;
   HICON icon;
+  Settings *pSettings;
 };
 
 #endif

@@ -761,7 +761,7 @@ LRESULT Applet::AddTrayIcon(HWND hwnd, UINT uID, UINT uFlags, UINT uCallbackMess
   if (pTrayIcon)
     return 0;
 
-  pTrayIcon = new TrayIcon(mainInst, hwnd, uID, mainWnd, toolWnd);
+  pTrayIcon = new TrayIcon(mainInst, hwnd, uID, mainWnd, toolWnd, pSettings.get());
 
   if ((uFlags & NIF_MESSAGE) == NIF_MESSAGE)
     pTrayIcon->SetCallback(uCallbackMessage);

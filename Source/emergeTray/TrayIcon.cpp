@@ -35,7 +35,7 @@
 // Returns:	Nothing
 // Purpose:	Creates TrayIcon Class Object
 //-----
-TrayIcon::TrayIcon(HINSTANCE appInstance, HWND wnd, UINT id, HWND mainWnd, HWND toolWnd)
+TrayIcon::TrayIcon(HINSTANCE appInstance, HWND wnd, UINT id, HWND mainWnd, HWND toolWnd, Settings *pSettings)
 {
   this->appInstance = appInstance;
   this->wnd = wnd;
@@ -58,7 +58,7 @@ TrayIcon::TrayIcon(HINSTANCE appInstance, HWND wnd, UINT id, HWND mainWnd, HWND 
 
   convertIcon = true;
 
-  pBalloon = std::tr1::shared_ptr<Balloon>(new Balloon(appInstance, this));
+  pBalloon = std::tr1::shared_ptr<Balloon>(new Balloon(appInstance, this, pSettings));
   pBalloon->Initialize();
 }
 

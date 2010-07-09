@@ -66,7 +66,7 @@
 class TrayIcon
 {
 public:
-  TrayIcon(HINSTANCE appInstance, HWND wnd, UINT id, HWND mainWnd, HWND toolWnd);
+  TrayIcon(HINSTANCE appInstance, HWND wnd, UINT id, HWND mainWnd, HWND toolWnd, Settings *pSettings);
   ~TrayIcon();
 
   void UpdateTip();
@@ -109,6 +109,7 @@ private:
   bool shared;
   bool convertIcon;
   std::tr1::shared_ptr<Balloon> pBalloon;
+  Settings *pSettings;
 
   // Holds refrence to original icon handler
   // (since we do not create this icon we should not destroy it either)

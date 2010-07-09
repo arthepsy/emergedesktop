@@ -21,6 +21,7 @@
 
 #include "Balloon.h"
 #include "TrayIcon.h"
+#include <windowsx.h>
 
 WCHAR balloonName[] = TEXT("emergeTrayBalloon");
 
@@ -54,10 +55,11 @@ LRESULT CALLBACK Balloon::BalloonProcedure (HWND hwnd, UINT message, WPARAM wPar
   return DefWindowProc(hwnd, message, wParam, lParam);
 }
 
-Balloon::Balloon(HINSTANCE hInstance, TrayIcon *pTrayIcon)
+Balloon::Balloon(HINSTANCE hInstance, TrayIcon *pTrayIcon, Settings *pSettings)
 {
   mainInst = hInstance;
   this->pTrayIcon = pTrayIcon;
+  this->pSettings = pSettings;
 
   wcscpy(info, TEXT("\0"));
   wcscpy(infoTitle, TEXT("\0"));
@@ -77,6 +79,8 @@ LRESULT Balloon::DoPaint()
   PAINTSTRUCT ps;
   RECT balloonRect;
   HBRUSH bgBrush = GetSysColorBrush(COLOR_WINDOW), frameBrush = CreateSolidBrush(RGB(0,0,0));
+  HFONT infoFont = CreateFontIndirect(pSettings->GetInfoFont());
+  HFONT infoTitleFont = CreateFontIndirect(pSettings->GetInfoFont());
 
   HDC hdc = BeginPaint(balloonWnd, &ps);
 
@@ -90,13 +94,18 @@ LRESULT Balloon::DoPaint()
 
   if (icon)
     DrawIconEx(hdc, 5, 5, icon, 32, 32, 0, NULL, DI_NORMAL);
+
+  DeleteObject(SelectFont(hdc, infoTitleFont));
   DrawText(hdc, infoTitle, -1, &titleRect, DT_SINGLELINE);
+  DeleteObject(SelectFont(hdc, infoFont));
   DrawText(hdc, info, -1, &infoRect, DT_WORDBREAK);
 
   EndPaint(balloonWnd, &ps);
 
   DeleteObject(bgBrush);
   DeleteObject(frameBrush);
+  DeleteObject(infoFont);
+  DeleteObject(infoTitleFont);
 
   return 0;
 }
@@ -122,6 +131,8 @@ bool Balloon::SetInfo(WCHAR *info)
   if (_wcsicmp(this->info, info) == 0)
     return false;
 
+  HFONT infoFont = CreateFontIndirect(pSettings->GetInfoFont());
+
   wcscpy(this->info, info);
 
   infoRect.top = 30;
@@ -132,7 +143,9 @@ bool Balloon::SetInfo(WCHAR *info)
     infoRect.right = titleRect.right;
 
   HDC hdc = CreateCompatibleDC(NULL);
+  DeleteObject(SelectFont(hdc, infoFont));
   DrawTextEx(hdc, info, wcslen(info), &infoRect, DT_CALCRECT | DT_WORDBREAK, NULL);
+  DeleteObject(infoFont);
   DeleteDC(hdc);
 
   if (IsWindowVisible(balloonWnd))
@@ -146,6 +159,8 @@ bool Balloon::SetInfoTitle(WCHAR *infoTitle)
   if (_wcsicmp(this->infoTitle, infoTitle) == 0)
     return false;
 
+  HFONT infoTitleFont = CreateFontIndirect(pSettings->GetInfoFont());
+
   wcscpy(this->infoTitle, infoTitle);
 
   titleRect.top = 5;
@@ -154,7 +169,9 @@ bool Balloon::SetInfoTitle(WCHAR *infoTitle)
   titleRect.right = titleRect.left;
 
   HDC hdc = CreateCompatibleDC(NULL);
+  DeleteObject(SelectFont(hdc, infoTitleFont));
   DrawTextEx(hdc, infoTitle, wcslen(infoTitle), &titleRect, DT_CALCRECT | DT_SINGLELINE, NULL);
+  DeleteObject(infoTitleFont);
   DeleteDC(hdc);
 
   if (IsWindowVisible(balloonWnd))

@@ -41,17 +41,25 @@ public:
   void AddHideListItem(WCHAR *item);
   void WriteHideList();
   void BuildHideList();
+  LOGFONT *GetInfoFont();
+  LOGFONT *GetInfoTitleFont();
+  bool SetInfoFont(LOGFONT *infoLogFont);
+  bool SetInfoTitleFont(LOGFONT *infoTitleLogFont);
 
 protected:
   virtual void DoReadSettings(IOHelper& helper);
   virtual void DoWriteSettings(IOHelper& helper);
   virtual void ResetDefaults();
+  virtual void DoInitialize();
 
 private:
   LPARAM lParam;
   std::vector<std::wstring> hideList;
   std::wstring xmlFile;
   bool unhideIcons;
+  LOGFONT infoLogFont, infoTitleLogFont;
+  WCHAR infoFontString[MAX_LINE_LENGTH];
+  WCHAR infoTitleFontString[MAX_LINE_LENGTH];
 };
 
 #endif
