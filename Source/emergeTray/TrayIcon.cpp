@@ -280,8 +280,8 @@ void TrayIcon::ShowBalloon(WCHAR *infoTitle, WCHAR *info, DWORD infoFlags, HICON
 
   if (ClientToScreen(mainWnd, &balloonPt))
   {
-    pBalloon->SetInfo(info);
     pBalloon->SetInfoTitle(infoTitle);
+    pBalloon->SetInfo(info);
     pBalloon->SetInfoFlags(infoFlags, icon);
     pBalloon->Show(balloonPt);
   }

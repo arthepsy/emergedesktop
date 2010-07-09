@@ -125,9 +125,15 @@ bool Balloon::SetInfo(WCHAR *info)
   wcscpy(this->info, info);
 
   infoRect.top = 30;
-  infoRect.left = 5;
-  infoRect.bottom = infoRect.top + 70;
+  infoRect.left = titleRect.left;
+  infoRect.bottom = infoRect.top;
   infoRect.right = infoRect.left + 220;
+  if (titleRect.right > infoRect.right)
+    infoRect.right = titleRect.right;
+
+  HDC hdc = CreateCompatibleDC(NULL);
+  DrawTextEx(hdc, info, wcslen(info), &infoRect, DT_CALCRECT | DT_WORDBREAK, NULL);
+  DeleteDC(hdc);
 
   if (IsWindowVisible(balloonWnd))
     InvalidateRect(balloonWnd, &infoRect, TRUE);
@@ -142,13 +148,14 @@ bool Balloon::SetInfoTitle(WCHAR *infoTitle)
 
   wcscpy(this->infoTitle, infoTitle);
 
-  std::wstring debug = this->infoTitle;
-  ELWriteDebug(debug);
-
   titleRect.top = 5;
   titleRect.left = 5;
-  titleRect.bottom = titleRect.top + 20;
-  titleRect.right = titleRect.left + 220;
+  titleRect.bottom = titleRect.top;
+  titleRect.right = titleRect.left;
+
+  HDC hdc = CreateCompatibleDC(NULL);
+  DrawTextEx(hdc, infoTitle, wcslen(infoTitle), &titleRect, DT_CALCRECT | DT_SINGLELINE, NULL);
+  DeleteDC(hdc);
 
   if (IsWindowVisible(balloonWnd))
     InvalidateRect(balloonWnd, &titleRect, TRUE);
@@ -251,7 +258,7 @@ bool Balloon::Initialize()
 
 bool Balloon::Show(POINT showPt)
 {
-  int x, y, xoffset;
+  int x, y, xoffset, width, height;
   HMONITOR balloonMonitor = MonitorFromWindow(balloonWnd, MONITOR_DEFAULTTONULL);
   MONITORINFO balloonMonitorInfo;
   balloonMonitorInfo.cbSize = sizeof(MONITORINFO);
@@ -259,12 +266,17 @@ bool Balloon::Show(POINT showPt)
   if (!GetMonitorInfo(balloonMonitor, &balloonMonitorInfo))
     return false;
 
-  y = showPt.y - 100;
+  width = infoRect.right + 5;
+  height = infoRect.bottom + 5;
+  if (height < 37)
+    height = 37;
+
+  y = showPt.y - height;
   if (y < balloonMonitorInfo.rcMonitor.top)
     y = showPt.y + ICON_SIZE;
 
-  x = showPt.x - (250 / 2);
-  xoffset = balloonMonitorInfo.rcMonitor.right - (x + 250);
+  x = showPt.x - (width / 2);
+  xoffset = balloonMonitorInfo.rcMonitor.right - (x + width);
   if (xoffset < 0)
     x += xoffset;
   if (x < balloonMonitorInfo.rcMonitor.left)
@@ -273,7 +285,7 @@ bool Balloon::Show(POINT showPt)
   pTrayIcon->SendMessage(NIN_BALLOONSHOW);
   SetTimer(balloonWnd, BALLOON_TIMER_ID, 10000, NULL);
 
-  return (SetWindowPos(balloonWnd, HWND_TOPMOST, x, y, 250, 100, SWP_SHOWWINDOW) == TRUE);
+  return (SetWindowPos(balloonWnd, HWND_TOPMOST, x, y, width, height, SWP_SHOWWINDOW) == TRUE);
 }
 
 bool Balloon::Hide()
