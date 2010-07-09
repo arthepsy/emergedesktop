@@ -1181,6 +1181,12 @@
 		<Unit filename="emergeTray\Applet.h">
 			<Option target="emergeTray - Release" />
 		</Unit>
+		<Unit filename="emergeTray\Balloon.cpp">
+			<Option target="emergeTray - Release" />
+		</Unit>
+		<Unit filename="emergeTray\Balloon.h">
+			<Option target="emergeTray - Release" />
+		</Unit>
 		<Unit filename="emergeTray\Config.cpp">
 			<Option target="emergeTray - Release" />
 		</Unit>
