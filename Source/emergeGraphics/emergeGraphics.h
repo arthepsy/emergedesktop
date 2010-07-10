@@ -81,8 +81,6 @@ typedef struct _FORMATINFO
   UINT horizontalAlignment;
   HFONT font;
   COLORREF color;
-  UINT lines;
-  UINT fontHeight;
   UINT verticalAlignment;
 }
 FORMATINFO, *LPFORMATINFO;
@@ -146,5 +144,6 @@ DLL_EXPORT bool EGGetIconDialogue(HWND hwnd, WCHAR *iconPath, int iconIndex);
 DLL_EXPORT void EGFontToString(const LOGFONT& font, WCHAR *str);
 DLL_EXPORT void EGStringToFont(const WCHAR *str, LOGFONT& font);
 DLL_EXPORT bool EGEqualLogFont(const LOGFONT& source, const LOGFONT& target);
+DLL_EXPORT bool EGGetTextRect(WCHAR *text, HFONT font, RECT *rect, UINT flags);
 
 #endif

@@ -391,8 +391,6 @@ void Applet::DrawTextAndAdjustRect(HDC hdc, int percent, RECT& rect)
   formatInfo.verticalAlignment = EGDAT_VCENTER;
   formatInfo.font = mainFont;
   formatInfo.color = guiInfo.colorFont;
-  formatInfo.lines = 1;
-  formatInfo.fontHeight = pSettings->GetFont()->lfHeight;
 
   clientInfo.hdc = hdc;
   CopyRect(&clientInfo.rt, &textRect);

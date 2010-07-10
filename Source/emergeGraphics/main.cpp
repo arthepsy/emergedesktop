@@ -887,6 +887,18 @@ HICON EGGetSystemIcon(UINT iconIndex, UINT iconSize)
   return icon;
 }
 
+bool EGGetTextRect(WCHAR *text, HFONT font, RECT *rect, UINT flags)
+{
+  int ret = 0;
+  HDC hdc = CreateCompatibleDC(NULL);
+
+  DeleteObject(SelectObject(hdc, font));
+  ret = DrawTextEx(hdc, text, wcslen(text), rect, DT_CALCRECT | flags, NULL);
+  DeleteDC(hdc);
+
+  return (ret != 0);
+}
+
 bool EGDrawAlphaText(BYTE alpha, CLIENTINFO clientInfo, FORMATINFO formatInfo, WCHAR *commandText)
 {
   HDC maskdc, fillDC;
@@ -900,7 +912,7 @@ bool EGDrawAlphaText(BYTE alpha, CLIENTINFO clientInfo, FORMATINFO formatInfo, W
   UINT32 pixel;
   BLENDFUNCTION bf;
   BOOL ret;
-  RECT maskRect;
+  RECT maskRect, textRect;
   double alphaDelta = 0.0;
 
   bf.BlendOp = AC_SRC_OVER;
@@ -911,8 +923,12 @@ bool EGDrawAlphaText(BYTE alpha, CLIENTINFO clientInfo, FORMATINFO formatInfo, W
   int width = clientInfo.rt.right - clientInfo.rt.left;
   int height = clientInfo.rt.bottom - clientInfo.rt.top;
 
-  // TODO (ironhead#5#): Switch to the text calculations used in MsgBox?
-  int displayHeight = formatInfo.fontHeight * formatInfo.lines;
+  ZeroMemory(&textRect, sizeof(RECT));
+  if (!EGGetTextRect(commandText, formatInfo.font, &textRect, 0))
+    return false;
+  int displayHeight = textRect.bottom;
+  if (displayHeight == 0)
+    return false;
 
   maskRect.left = 0;
   maskRect.top = 0;

@@ -226,8 +226,6 @@ LRESULT Applet::PaintContent(HDC hdc, RECT clientrt)
     formatInfo.verticalAlignment = EGDAT_TOP;
   formatInfo.font = mainFont;
   formatInfo.color = guiInfo.colorFont;
-  formatInfo.lines = pSettings->GetDisplayLines();
-  formatInfo.fontHeight = pSettings->GetFont()->lfHeight;
 
   clientInfo.hdc = hdc;
   CopyRect(&clientInfo.rt, &clientrt);

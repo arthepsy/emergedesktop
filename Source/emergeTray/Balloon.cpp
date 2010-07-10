@@ -1,4 +1,4 @@
-// vim: tags+=../emergeLib/tags
+// vim: tags+=../emergeLib/tags,../emergeGraphics/tags
 //---
 //
 //  This file is part of Emerge Desktop.
@@ -21,7 +21,6 @@
 
 #include "Balloon.h"
 #include "TrayIcon.h"
-#include <windowsx.h>
 
 WCHAR balloonName[] = TEXT("emergeTrayBalloon");
 
@@ -95,9 +94,9 @@ LRESULT Balloon::DoPaint()
   if (icon)
     DrawIconEx(hdc, 5, 5, icon, 32, 32, 0, NULL, DI_NORMAL);
 
-  DeleteObject(SelectFont(hdc, infoTitleFont));
+  DeleteObject(SelectObject(hdc, infoTitleFont));
   DrawText(hdc, infoTitle, -1, &titleRect, DT_SINGLELINE);
-  DeleteObject(SelectFont(hdc, infoFont));
+  DeleteObject(SelectObject(hdc, infoFont));
   DrawText(hdc, info, -1, &infoRect, DT_WORDBREAK);
 
   EndPaint(balloonWnd, &ps);
@@ -142,16 +141,15 @@ bool Balloon::SetInfo(WCHAR *info)
   if (titleRect.right > infoRect.right)
     infoRect.right = titleRect.right;
 
-  HDC hdc = CreateCompatibleDC(NULL);
-  DeleteObject(SelectFont(hdc, infoFont));
-  DrawTextEx(hdc, info, wcslen(info), &infoRect, DT_CALCRECT | DT_WORDBREAK, NULL);
-  DeleteObject(infoFont);
-  DeleteDC(hdc);
+  if (EGGetTextRect(info, infoFont, &infoRect, DT_WORDBREAK))
+    {
+      if (IsWindowVisible(balloonWnd))
+        InvalidateRect(balloonWnd, &infoRect, TRUE);
 
-  if (IsWindowVisible(balloonWnd))
-    InvalidateRect(balloonWnd, &infoRect, TRUE);
+      return true;
+    }
 
-  return true;
+  return false;
 }
 
 bool Balloon::SetInfoTitle(WCHAR *infoTitle)
@@ -168,16 +166,15 @@ bool Balloon::SetInfoTitle(WCHAR *infoTitle)
   titleRect.bottom = titleRect.top;
   titleRect.right = titleRect.left;
 
-  HDC hdc = CreateCompatibleDC(NULL);
-  DeleteObject(SelectFont(hdc, infoTitleFont));
-  DrawTextEx(hdc, infoTitle, wcslen(infoTitle), &titleRect, DT_CALCRECT | DT_SINGLELINE, NULL);
-  DeleteObject(infoTitleFont);
-  DeleteDC(hdc);
+  if (EGGetTextRect(infoTitle, infoTitleFont, &titleRect, DT_SINGLELINE))
+    {
+      if (IsWindowVisible(balloonWnd))
+        InvalidateRect(balloonWnd, &titleRect, TRUE);
 
-  if (IsWindowVisible(balloonWnd))
-    InvalidateRect(balloonWnd, &titleRect, TRUE);
+      return true;
+    }
 
-  return true;
+  return false;
 }
 
 bool Balloon::SetInfoFlags(DWORD infoFlags, HICON infoIcon)
@@ -317,3 +314,57 @@ bool Balloon::Hide()
 
   return false;
 }
+
+/*void Balloon::DrawAlphaBlend()
+{
+  HDC hdc, backgroundDC;
+  RECT clientrt, contentrt;
+  POINT srcPt;
+  SIZE wndSz;
+  BLENDFUNCTION bf;
+  int dragBorder = guiInfo.dragBorder + guiInfo.bevelWidth + guiInfo.padding;
+
+  CLIENTINFO clientInfo;
+  FORMATINFO formatInfo;
+  formatInfo.horizontalAlignment = EGDAT_LEFT;
+  formatInfo.verticalAlignment = EGDAT_TOP;
+  formatInfo.font = mainFont;
+  formatInfo.color = pSettings->GetFontColour();
+
+  clientInfo.hdc = hdc;
+  CopyRect(&clientInfo.rt, &textRect);
+  clientInfo.bgAlpha = guiInfo.alphaBackground;
+
+  if (!GetClientRect(mainWnd, &clientrt))
+    return;
+
+  hdc = EGBeginPaint(mainWnd);
+  CopyRect(&contentrt, &clientrt);
+  EGFrameRect(backgroundDC, &contentrc, 100, pSettings->GetBorderColour(), 1);
+  InflateRect(&contentrt, -1, -1);
+  EGGradientFillRect(backgroundDC, &contentrt, pSettings->GetAlpha(), pSettings->GetGradientFrom(), pSettings->GetGradientTo(),
+                     pSettings->GetBevel(), pSettings->GetGradientMethod());
+  EGDrawAlphaText(100, clientInfo, formatInfo, infoTitle);
+  EGDrawAlphaText(100, clientInfo, formatInfo, info);
+
+  BitBlt(hdc, clientrt.left, clientrt.top, clientrt.right - clientrt.left, clientrt.bottom - clientrt.top,
+         backgroundDC, 0, 0, SRCCOPY);
+
+  bf.BlendOp = AC_SRC_OVER;
+  bf.BlendFlags = 0;
+  bf.AlphaFormat = AC_SRC_ALPHA;  // use source alpha
+  bf.SourceConstantAlpha = guiInfo.alphaActive;
+
+  wndSz.cx = clientrt.right;
+  wndSz.cy = clientrt.bottom;
+  srcPt.x = 0;
+  srcPt.y = 0;
+
+  UpdateLayeredWindow(balloonWnd, NULL, NULL, &wndSz, hdc, &srcPt, 0, &bf, ULW_ALPHA);
+
+  // do cleanup
+  EGEndPaint();
+  DeleteDC(hdc);
+  DeleteDC(backgroundDC);
+}*/
+

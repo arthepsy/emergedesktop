@@ -33,6 +33,7 @@
 #define _WIN32_IE 0x0501
 
 #include "../emergeLib/emergeLib.h"
+#include "../emergeGraphics/emergeGraphics.h"
 #include "../emergeAppletEngine/emergeAppletEngine.h"
 #include "Settings.h"
 
