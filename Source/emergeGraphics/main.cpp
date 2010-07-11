@@ -837,7 +837,6 @@ bool EGDrawAlphaText(BYTE alpha, CLIENTINFO clientInfo, FORMATINFO formatInfo, W
   int x,y, verticalOffset;
   UINT drawFlags, fontSmoothing = 0;
   UCHAR alphaValue;
-  DRAWTEXTPARAMS dtp;
   UINT32 pixel;
   BLENDFUNCTION bf;
   BOOL ret;
@@ -896,11 +895,6 @@ bool EGDrawAlphaText(BYTE alpha, CLIENTINFO clientInfo, FORMATINFO formatInfo, W
   bmi.bmiHeader.biBitCount = 32;
   bmi.bmiHeader.biCompression = BI_RGB;
 
-  dtp.cbSize = sizeof(DRAWTEXTPARAMS);
-  dtp.iTabLength = 8;
-  dtp.iLeftMargin = 2;
-  dtp.iRightMargin = 2;
-
   drawFlags = formatInfo.flags | DT_NOPREFIX;
 
   if (formatInfo.horizontalAlignment == EGDAT_HCENTER)
@@ -914,7 +908,7 @@ bool EGDrawAlphaText(BYTE alpha, CLIENTINFO clientInfo, FORMATINFO formatInfo, W
   SetTextColor(maskdc, RGB(255, 255, 255));
   SelectObject(maskdc, formatInfo.font);
 
-  DrawTextEx(maskdc, commandText, (int)wcslen(commandText), &maskRect, drawFlags , &dtp);
+  DrawTextEx(maskdc, commandText, (int)wcslen(commandText), &maskRect, drawFlags , NULL);
 
   if (GetDIBits(fillDC, fillBMP, 0, displayHeight, NULL, &bmi, DIB_RGB_COLORS) == 0)
     {
