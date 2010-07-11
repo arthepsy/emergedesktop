@@ -50,7 +50,7 @@ Task::Task(HWND task, HICON icon, HINSTANCE mainInstance)
   convertIcon = true;
 }
 
-void Task::CreateNewIcon(HDC backgroundDC, BYTE foregroundAlpha)
+void Task::CreateNewIcon(BYTE foregroundAlpha)
 {
   HICON tmpIcon = NULL;
 
@@ -58,7 +58,7 @@ void Task::CreateNewIcon(HDC backgroundDC, BYTE foregroundAlpha)
     {
       convertIcon = false;
 
-      tmpIcon = EGConvertIcon(origIcon, rect, backgroundDC, foregroundAlpha);
+      tmpIcon = EGConvertIcon(origIcon, foregroundAlpha);
       if (tmpIcon != NULL)
         {
           if (newIcon != NULL)

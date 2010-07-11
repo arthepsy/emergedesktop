@@ -82,6 +82,7 @@ typedef struct _FORMATINFO
   HFONT font;
   COLORREF color;
   UINT verticalAlignment;
+  UINT flags;
 }
 FORMATINFO, *LPFORMATINFO;
 
@@ -123,7 +124,7 @@ typedef struct _GUIINFO
 GUIINFO, *LPGUIINFO;
 
 // Declaration of functions to import
-DLL_EXPORT HICON EGConvertIcon(HICON sourceIcon, RECT iconRect, HDC backgroundDC, BYTE foregroundAlpha);
+DLL_EXPORT HICON EGConvertIcon(HICON sourceIcon, BYTE foregroundAlpha);
 DLL_EXPORT HBRUSH EGCreateBrush(BYTE alpha, COLORREF colour);
 DLL_EXPORT HPEN EGCreatePen(DWORD style, DWORD width, BYTE alpha, COLORREF colour);
 DLL_EXPORT HBITMAP EGCreateBitmap(BYTE alpha, COLORREF colour, RECT wndRect);

@@ -86,7 +86,7 @@ BYTE EGGetMinAlpha(BYTE alphaBase, BYTE alphaDelta)
 // Returns:     HICON
 // Purpose:     Converts the sourceIcon to a true 32-bit icon (if it isn't already)
 //----  --------------------------------------------------------------------------------------------------------
-HICON EGConvertIcon(HICON sourceIcon, RECT iconRect, HDC backgroundDC, BYTE foregroundAlpha)
+HICON EGConvertIcon(HICON sourceIcon, BYTE foregroundAlpha)
 {
   if (sourceIcon == NULL)
     return NULL;
@@ -100,11 +100,11 @@ HICON EGConvertIcon(HICON sourceIcon, RECT iconRect, HDC backgroundDC, BYTE fore
   BITMAP bmp, mask;
   BITMAPINFO bmi;
   BYTE *bmpBits;
-  VOID *targetBits, *bgBits;
+  VOID *targetBits;
   UINT32 x, y;
-  HDC maskDC, bmpDC, targetDC, bgDC;
+  HDC maskDC, bmpDC, targetDC;
   HICON targetIcon;
-  HBITMAP hbitmap, bgBitmap;
+  HBITMAP hbitmap;
   bool foundPixel = false, hasAlpha = false;
 
   if (!GetIconInfo(sourceIcon, &iconInfo))
@@ -167,63 +167,6 @@ HICON EGConvertIcon(HICON sourceIcon, RECT iconRect, HDC backgroundDC, BYTE fore
     }
   SelectObject(targetDC, hbitmap);
 
-  bgDC = CreateCompatibleDC(backgroundDC);
-  bgBitmap = CreateCompatibleBitmap(backgroundDC, bmp.bmWidth, bmp.bmHeight);
-  if (bgBitmap == NULL)
-    {
-      GlobalFree((HGLOBAL)bmpBits);
-      DeleteObject(hbitmap);
-      DeleteObject(iconInfo.hbmColor);
-      DeleteObject(iconInfo.hbmMask);
-      DeleteDC(bgDC);
-      DeleteDC(bmpDC);
-      DeleteDC(targetDC);
-      return NULL;
-    }
-  SelectObject(bgDC, bgBitmap);
-
-  StretchBlt(bgDC, 0, 0, bmp.bmWidth, bmp.bmHeight,
-             backgroundDC, iconRect.left, iconRect.top, iconRect.right - iconRect.left, iconRect.bottom - iconRect.top,
-             SRCCOPY);
-  if (GetDIBits(bgDC, bgBitmap, 0, bmp.bmHeight, NULL, &bmi, DIB_RGB_COLORS) == 0)
-    {
-      GlobalFree((HGLOBAL)bmpBits);
-      DeleteObject(hbitmap);
-      DeleteObject(bgBitmap);
-      DeleteObject(iconInfo.hbmColor);
-      DeleteObject(iconInfo.hbmMask);
-      DeleteDC(bgDC);
-      DeleteDC(bmpDC);
-      DeleteDC(targetDC);
-      return NULL;
-    }
-  bgBits = (BYTE*)GlobalAlloc(GMEM_FIXED, bmi.bmiHeader.biSizeImage);
-  if (bgBits == NULL)
-    {
-      GlobalFree((HGLOBAL)bmpBits);
-      DeleteObject(hbitmap);
-      DeleteObject(bgBitmap);
-      DeleteObject(iconInfo.hbmColor);
-      DeleteObject(iconInfo.hbmMask);
-      DeleteDC(bgDC);
-      DeleteDC(bmpDC);
-      DeleteDC(targetDC);
-      return NULL;
-    }
-  if (GetDIBits(bgDC, bgBitmap, 0, bmp.bmHeight, bgBits, &bmi, DIB_RGB_COLORS) == 0)
-    {
-      GlobalFree((HGLOBAL)bmpBits);
-      GlobalFree((HGLOBAL)bgBits);
-      DeleteObject(hbitmap);
-      DeleteObject(bgBitmap);
-      DeleteObject(iconInfo.hbmColor);
-      DeleteObject(iconInfo.hbmMask);
-      DeleteDC(bgDC);
-      DeleteDC(bmpDC);
-      DeleteDC(targetDC);
-      return NULL;
-    }
-
   maskDC = CreateCompatibleDC(NULL);
   SelectObject(maskDC, iconInfo.hbmMask);
 
@@ -254,31 +197,20 @@ HICON EGConvertIcon(HICON sourceIcon, RECT iconRect, HDC backgroundDC, BYTE fore
               pixel = ((UINT32*)bmpBits)[x + y * mask.bmWidth] << 4;
               pixel = pixel >> 4;
 
-              if (ELVersionInfo() != 5.0)
+              if (hasAlpha)
                 {
-                  if (hasAlpha)
-                    {
-                      pixelAlpha = ((UINT32*)bmpBits)[x + y * mask.bmWidth] >> 24;
-                      pixelFactor = (double)pixelAlpha / alphaFactor;
-                      pixelAlpha = (BYTE)pixelFactor;
-                    }
-                  else
-                    pixelAlpha = foregroundAlpha;
+                  pixelAlpha = ((UINT32*)bmpBits)[x + y * mask.bmWidth] >> 24;
+                  pixelFactor = (double)pixelAlpha / alphaFactor;
+                  pixelAlpha = (BYTE)pixelFactor;
                 }
+              else
+                pixelAlpha = foregroundAlpha;
 
               ((UINT32*)targetBits)[x + y * mask.bmWidth] = pixel;
               ((UINT32*)targetBits)[x + y * mask.bmWidth] |= (pixelAlpha << 24);
             }
           else
-            {
-              ((UINT32*)targetBits)[x + y * mask.bmWidth] = 0x00000000;
-
-              if (ELVersionInfo() == 5.0)
-                {
-                  ((UINT32*)targetBits)[x + y * mask.bmWidth] =
-                    ((UINT32*)bgBits)[x + y * mask.bmWidth];
-                }
-            }
+            ((UINT32*)targetBits)[x + y * mask.bmWidth] = 0x00000000;
         }
     }
 
@@ -291,14 +223,11 @@ HICON EGConvertIcon(HICON sourceIcon, RECT iconRect, HDC backgroundDC, BYTE fore
     targetIcon = NULL;
 
   GlobalFree((HGLOBAL)bmpBits);
-  GlobalFree((HGLOBAL)bgBits);
   DeleteObject(iconInfo.hbmMask);
   DeleteObject(hbitmap);
-  DeleteObject(bgBitmap);
   DeleteDC(maskDC);
   DeleteDC(bmpDC);
   DeleteDC(targetDC);
-  DeleteDC(bgDC);
 
   return targetIcon;
 }
@@ -924,7 +853,8 @@ bool EGDrawAlphaText(BYTE alpha, CLIENTINFO clientInfo, FORMATINFO formatInfo, W
   int height = clientInfo.rt.bottom - clientInfo.rt.top;
 
   ZeroMemory(&textRect, sizeof(RECT));
-  if (!EGGetTextRect(commandText, formatInfo.font, &textRect, 0))
+  textRect.right = clientInfo.rt.right;
+  if (!EGGetTextRect(commandText, formatInfo.font, &textRect, formatInfo.flags))
     return false;
   int displayHeight = textRect.bottom;
   if (displayHeight == 0)
@@ -971,7 +901,7 @@ bool EGDrawAlphaText(BYTE alpha, CLIENTINFO clientInfo, FORMATINFO formatInfo, W
   dtp.iLeftMargin = 2;
   dtp.iRightMargin = 2;
 
-  drawFlags = DT_NOPREFIX;
+  drawFlags = formatInfo.flags | DT_NOPREFIX;
 
   if (formatInfo.horizontalAlignment == EGDAT_HCENTER)
     drawFlags |= DT_CENTER;

@@ -163,7 +163,7 @@ bool Applet::PaintItem(HDC hdc, UINT index, int x, int y, RECT rect)
 {
   pSettings->GetItem(index)->SetRect(rect);
   UpdateTip(index);
-  pSettings->GetItem(index)->CreateNewIcon(hdc, guiInfo.alphaForeground);
+  pSettings->GetItem(index)->CreateNewIcon(guiInfo.alphaForeground);
 
   // Draw the indexcon
   DrawIconEx(hdc, x, y,

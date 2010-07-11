@@ -215,14 +215,14 @@ bool Applet::PaintItem(HDC hdc, UINT index, int x, int y, RECT rect)
   SendMessageTimeout((*iter)->GetWnd(), WM_GETTEXT, MAX_LINE_LENGTH, reinterpret_cast<LPARAM>(windowTitle), SMTO_ABORTIFHUNG, 100, &response);
   if (response != 0)
     (*iter)->UpdateTip(mainWnd, toolWnd, windowTitle);
-  (*iter)->CreateNewIcon(hdc, guiInfo.alphaForeground);
+  (*iter)->CreateNewIcon(guiInfo.alphaForeground);
 
   if ((*iter)->GetVisible())
     {
       if (((*iter)->GetWnd() == activeWnd) && pSettings->GetHiliteActive())
         {
           InflateRect(&rect, 1, 1);
-          EGFrameRect(hdc, &rect, guiInfo.alphaSelected, guiInfo.colorSelected, 1);
+          EGFillRect(hdc, &rect, guiInfo.alphaSelected, guiInfo.colorSelected);
         }
 
       // Draw the icon

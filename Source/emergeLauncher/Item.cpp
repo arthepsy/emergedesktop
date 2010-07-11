@@ -47,14 +47,14 @@ Item::Item(int type, LPCTSTR app, LPCTSTR icon, LPCTSTR tip, LPCTSTR workingDir)
   rect.bottom = 0;
 }
 
-void Item::CreateNewIcon(HDC backgroundDC, BYTE foregroundAlpha)
+void Item::CreateNewIcon(BYTE foregroundAlpha)
 {
   HICON tmpIcon = NULL;
   if (convertIcon)
     {
       convertIcon = false;
 
-      tmpIcon = EGConvertIcon(origIcon, rect, backgroundDC, foregroundAlpha);
+      tmpIcon = EGConvertIcon(origIcon, foregroundAlpha);
       if (tmpIcon != NULL)
         {
           if (newIcon != NULL)
