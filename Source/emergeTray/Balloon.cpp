@@ -47,8 +47,6 @@ LRESULT CALLBACK Balloon::BalloonProcedure (HWND hwnd, UINT message, WPARAM wPar
     case WM_RBUTTONDOWN:
     case WM_TIMER:
       return pBalloon->DoTimer();
-    case WM_PAINT:
-      return pBalloon->DoPaint();
     }
 
   return DefWindowProc(hwnd, message, wParam, lParam);
@@ -63,6 +61,7 @@ Balloon::Balloon(HINSTANCE hInstance, TrayIcon *pTrayIcon, Settings *pSettings)
   wcscpy(info, TEXT("\0"));
   wcscpy(infoTitle, TEXT("\0"));
   infoFlags = 0;
+  iconSize = 16;
   ZeroMemory(&titleRect, sizeof(RECT));
   ZeroMemory(&infoRect, sizeof(RECT));
   icon = NULL;
@@ -71,42 +70,6 @@ Balloon::Balloon(HINSTANCE hInstance, TrayIcon *pTrayIcon, Settings *pSettings)
 Balloon::~Balloon()
 {
   DestroyIcon(icon);
-}
-
-LRESULT Balloon::DoPaint()
-{
-  PAINTSTRUCT ps;
-  RECT balloonRect;
-  HBRUSH bgBrush = GetSysColorBrush(COLOR_WINDOW), frameBrush = CreateSolidBrush(RGB(0,0,0));
-  HFONT infoFont = CreateFontIndirect(pSettings->GetInfoFont());
-  HFONT infoTitleFont = CreateFontIndirect(pSettings->GetInfoFont());
-
-  HDC hdc = BeginPaint(balloonWnd, &ps);
-
-  if (hdc == NULL)
-    return 1;
-
-  GetClientRect(balloonWnd, &balloonRect);
-
-  FillRect(hdc, &balloonRect, bgBrush);
-  FrameRect(hdc, &balloonRect, frameBrush);
-
-  if (icon)
-    DrawIconEx(hdc, 5, 5, icon, 32, 32, 0, NULL, DI_NORMAL);
-
-  DeleteObject(SelectObject(hdc, infoTitleFont));
-  DrawText(hdc, infoTitle, -1, &titleRect, DT_SINGLELINE);
-  DeleteObject(SelectObject(hdc, infoFont));
-  DrawText(hdc, info, -1, &infoRect, DT_WORDBREAK);
-
-  EndPaint(balloonWnd, &ps);
-
-  DeleteObject(bgBrush);
-  DeleteObject(frameBrush);
-  DeleteObject(infoFont);
-  DeleteObject(infoTitleFont);
-
-  return 0;
 }
 
 LRESULT Balloon::DoLButtonDown()
@@ -134,7 +97,10 @@ bool Balloon::SetInfo(WCHAR *info)
 
   wcscpy(this->info, info);
 
-  infoRect.top = 30;
+  infoRect.top = iconSize;
+  if (titleRect.bottom > iconSize)
+    infoRect.top = titleRect.bottom;
+  infoRect.top += 5;
   infoRect.left = titleRect.left;
   infoRect.bottom = infoRect.top;
   infoRect.right = infoRect.left + 220;
@@ -144,7 +110,7 @@ bool Balloon::SetInfo(WCHAR *info)
   if (EGGetTextRect(info, infoFont, &infoRect, DT_WORDBREAK))
     {
       if (IsWindowVisible(balloonWnd))
-        InvalidateRect(balloonWnd, &infoRect, TRUE);
+        DrawAlphaBlend();
 
       return true;
     }
@@ -157,7 +123,7 @@ bool Balloon::SetInfoTitle(WCHAR *infoTitle)
   if (_wcsicmp(this->infoTitle, infoTitle) == 0)
     return false;
 
-  HFONT infoTitleFont = CreateFontIndirect(pSettings->GetInfoFont());
+  HFONT infoTitleFont = CreateFontIndirect(pSettings->GetInfoTitleFont());
 
   wcscpy(this->infoTitle, infoTitle);
 
@@ -169,7 +135,7 @@ bool Balloon::SetInfoTitle(WCHAR *infoTitle)
   if (EGGetTextRect(infoTitle, infoTitleFont, &titleRect, DT_SINGLELINE))
     {
       if (IsWindowVisible(balloonWnd))
-        InvalidateRect(balloonWnd, &titleRect, TRUE);
+        DrawAlphaBlend();
 
       return true;
     }
@@ -180,11 +146,17 @@ bool Balloon::SetInfoTitle(WCHAR *infoTitle)
 bool Balloon::SetInfoFlags(DWORD infoFlags, HICON infoIcon)
 {
   int offset = 0;
+  HICON tmpIcon = NULL;
 
   if (this->infoFlags == infoFlags)
     return false;
 
   this->infoFlags = infoFlags;
+
+  if ((infoFlags & NIIF_LARGE_ICON) == NIIF_LARGE_ICON)
+    iconSize = 32;
+  else
+    iconSize = 16;
 
   if ((infoFlags & NIIF_NONE) == NIIF_NONE)
     {
@@ -192,50 +164,44 @@ bool Balloon::SetInfoFlags(DWORD infoFlags, HICON infoIcon)
         {
           DestroyIcon(icon);
           icon = NULL;
-          offset = -37;
+          offset = -(iconSize + 5);
         }
     }
 
   if ((infoFlags & NIIF_INFO) == NIIF_INFO)
     {
       if (icon == NULL)
-        offset = 37;
-      else
-        DestroyIcon(icon);
-      icon = LoadIcon(NULL, IDI_INFORMATION);
+        offset = iconSize + 5;
+      tmpIcon = (HICON)LoadImage(NULL, MAKEINTRESOURCE(OIC_INFORMATION), IMAGE_ICON, iconSize, iconSize, LR_SHARED);
     }
-
-  if ((infoFlags & NIIF_WARNING) == NIIF_WARNING)
+  else if ((infoFlags & NIIF_WARNING) == NIIF_WARNING)
     {
       if (icon == NULL)
-        offset = 37;
-      else
-        DestroyIcon(icon);
-      icon = LoadIcon(NULL, IDI_WARNING);
+        offset = iconSize + 5;
+      tmpIcon = (HICON)LoadImage(NULL, MAKEINTRESOURCE(OIC_WARNING), IMAGE_ICON, iconSize, iconSize, LR_SHARED);
     }
-
-  if ((infoFlags & NIIF_ERROR) == NIIF_ERROR)
+  else if ((infoFlags & NIIF_ERROR) == NIIF_ERROR)
     {
       if (icon == NULL)
-        offset = 37;
-      else
-        DestroyIcon(icon);
-      icon = LoadIcon(NULL, IDI_ERROR);
+        offset = iconSize + 5;
+      tmpIcon = (HICON)LoadImage(NULL, MAKEINTRESOURCE(OIC_ERROR), IMAGE_ICON, iconSize, iconSize, LR_SHARED);
     }
-
-  if ((infoFlags & NIIF_USER) == NIIF_USER)
+  else if ((infoFlags & NIIF_USER) == NIIF_USER)
     {
       if (icon == NULL)
-        offset = 37;
-      else
-        DestroyIcon(icon);
-      icon = infoIcon;
+        offset = iconSize + 5;
+      tmpIcon = infoIcon;
     }
 
   if (offset != 0)
+    OffsetRect(&titleRect, offset, 0);
+
+  if (tmpIcon)
     {
-      OffsetRect(&titleRect, offset, 0);
-      OffsetRect(&infoRect, offset, 0);
+      if (icon)
+        DestroyIcon(icon);
+      icon = EGConvertIcon(tmpIcon, 255);
+      DestroyIcon(tmpIcon);
     }
 
   return true;
@@ -262,7 +228,7 @@ bool Balloon::Initialize()
         return false;
     }
 
-  balloonWnd = CreateWindowEx(WS_EX_TOOLWINDOW, balloonName, NULL, WS_POPUP,
+  balloonWnd = CreateWindowEx(WS_EX_TOOLWINDOW|WS_EX_LAYERED, balloonName, NULL, WS_POPUP,
                               0, 0, 0, 0, NULL, NULL, mainInst, reinterpret_cast<LPVOID>(this));
   if (!balloonWnd)
     return false;
@@ -280,10 +246,11 @@ bool Balloon::Show(POINT showPt)
   if (!GetMonitorInfo(balloonMonitor, &balloonMonitorInfo))
     return false;
 
-  width = infoRect.right + 5;
+  width = infoRect.right;
+  if (titleRect.right > infoRect.right)
+    width = titleRect.right;
+  width += 5;
   height = infoRect.bottom + 5;
-  if (height < 37)
-    height = 37;
 
   y = showPt.y - height;
   if (y < balloonMonitorInfo.rcMonitor.top)
@@ -299,7 +266,10 @@ bool Balloon::Show(POINT showPt)
   pTrayIcon->SendMessage(NIN_BALLOONSHOW);
   SetTimer(balloonWnd, BALLOON_TIMER_ID, 10000, NULL);
 
-  return (SetWindowPos(balloonWnd, HWND_TOPMOST, x, y, width, height, SWP_SHOWWINDOW) == TRUE);
+  if (SetWindowPos(balloonWnd, HWND_TOPMOST, x, y, width, height, SWP_SHOWWINDOW))
+    return DrawAlphaBlend();
+
+  return false;
 }
 
 bool Balloon::Hide()
@@ -315,45 +285,50 @@ bool Balloon::Hide()
   return false;
 }
 
-/*void Balloon::DrawAlphaBlend()
+bool Balloon::DrawAlphaBlend()
 {
-  HDC hdc, backgroundDC;
   RECT clientrt, contentrt;
+  HDC hdc;
   POINT srcPt;
   SIZE wndSz;
   BLENDFUNCTION bf;
-  int dragBorder = guiInfo.dragBorder + guiInfo.bevelWidth + guiInfo.padding;
-
   CLIENTINFO clientInfo;
   FORMATINFO formatInfo;
+
+  if (!GetClientRect(balloonWnd, &clientrt))
+    return false;
+
+  hdc = EGBeginPaint(balloonWnd);
+  CopyRect(&contentrt, &clientrt);
+  EGFrameRect(hdc, &contentrt, 255, pSettings->GetBorderColor(), 1);
+  InflateRect(&contentrt, -1, -1);
+  EGGradientFillRect(hdc, &contentrt, pSettings->GetAlpha(), pSettings->GetGradientFrom(),
+                     pSettings->GetGradientTo(), pSettings->GetBevel(), pSettings->GetGradientMethod());
+
   formatInfo.horizontalAlignment = EGDAT_LEFT;
   formatInfo.verticalAlignment = EGDAT_TOP;
-  formatInfo.font = mainFont;
-  formatInfo.color = pSettings->GetFontColour();
-
+  formatInfo.font = CreateFontIndirect(pSettings->GetInfoFont());
+  formatInfo.color = pSettings->GetTextColor();
+  formatInfo.flags = DT_WORDBREAK;
   clientInfo.hdc = hdc;
-  CopyRect(&clientInfo.rt, &textRect);
-  clientInfo.bgAlpha = guiInfo.alphaBackground;
+  CopyRect(&clientInfo.rt, &infoRect);
+  clientInfo.bgAlpha = pSettings->GetAlpha();
+  EGDrawAlphaText(255, clientInfo, formatInfo, info);
+  DeleteObject(formatInfo.font);
 
-  if (!GetClientRect(mainWnd, &clientrt))
-    return;
+  formatInfo.font = CreateFontIndirect(pSettings->GetInfoTitleFont());
+  formatInfo.flags = DT_SINGLELINE;
+  CopyRect(&clientInfo.rt, &titleRect);
+  EGDrawAlphaText(255, clientInfo, formatInfo, infoTitle);
+  DeleteObject(formatInfo.font);
 
-  hdc = EGBeginPaint(mainWnd);
-  CopyRect(&contentrt, &clientrt);
-  EGFrameRect(backgroundDC, &contentrc, 100, pSettings->GetBorderColour(), 1);
-  InflateRect(&contentrt, -1, -1);
-  EGGradientFillRect(backgroundDC, &contentrt, pSettings->GetAlpha(), pSettings->GetGradientFrom(), pSettings->GetGradientTo(),
-                     pSettings->GetBevel(), pSettings->GetGradientMethod());
-  EGDrawAlphaText(100, clientInfo, formatInfo, infoTitle);
-  EGDrawAlphaText(100, clientInfo, formatInfo, info);
-
-  BitBlt(hdc, clientrt.left, clientrt.top, clientrt.right - clientrt.left, clientrt.bottom - clientrt.top,
-         backgroundDC, 0, 0, SRCCOPY);
+  if (icon)
+    DrawIconEx(hdc, 5, 5, icon, iconSize, iconSize, 0, NULL, DI_NORMAL);
 
   bf.BlendOp = AC_SRC_OVER;
   bf.BlendFlags = 0;
   bf.AlphaFormat = AC_SRC_ALPHA;  // use source alpha
-  bf.SourceConstantAlpha = guiInfo.alphaActive;
+  bf.SourceConstantAlpha = 255;
 
   wndSz.cx = clientrt.right;
   wndSz.cy = clientrt.bottom;
@@ -365,6 +340,7 @@ bool Balloon::Hide()
   // do cleanup
   EGEndPaint();
   DeleteDC(hdc);
-  DeleteDC(backgroundDC);
-}*/
+
+  return true;
+}
 

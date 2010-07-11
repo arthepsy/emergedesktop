@@ -37,7 +37,15 @@ void Settings::DoReadSettings(IOHelper& helper)
   BaseSettings::DoReadSettings(helper);
   helper.ReadBool(TEXT("UnhideIcons"), unhideIcons, true);
   helper.ReadString(TEXT("InfoFont"), infoFontString, TEXT("Tahoma-10"));
-  helper.ReadString(TEXT("InfoTitleFont"), infoTitleFontString, TEXT("Tahoma-12"));
+  helper.ReadString(TEXT("InfoTitleFont"), infoTitleFontString, TEXT("Tahoma-Bold-12"));
+  helper.ReadColor(TEXT("BorderColor"), borderColour, RGB(0, 0, 0));
+  helper.ReadColor(TEXT("TextColor"), textColour, RGB(0, 0, 0));
+  helper.ReadColor(TEXT("GradientFrom"), gradientFrom, RGB(255, 255, 255));
+  helper.ReadColor(TEXT("GradientTo"), gradientTo, RGB(255, 255, 128));
+  helper.ReadInt(TEXT("Alpha"), alpha, 100);
+  alpha = (alpha * 255) / 100;
+  helper.ReadInt(TEXT("Bevel"), bevel, 0);
+  helper.ReadString(TEXT("GradientMethod"), gradientMethod, TEXT("Vertical"));
 }
 
 void Settings::DoInitialize()
@@ -56,12 +64,30 @@ void Settings::DoWriteSettings(IOHelper& helper)
   helper.WriteString(TEXT("InfoFont"), infoFontString);
   EGFontToString(infoTitleLogFont, infoTitleFontString);
   helper.WriteString(TEXT("InfoTitleFont"), infoTitleFontString);
+  helper.WriteColor(TEXT("BorderColor"), borderColour);
+  helper.WriteColor(TEXT("TextColor"), textColour);
+  helper.WriteColor(TEXT("GradientFrom"), gradientFrom);
+  helper.WriteColor(TEXT("GradientTo"), gradientTo);
+  helper.WriteInt(TEXT("Alpha"), alpha);
+  helper.WriteInt(TEXT("Bevel"), bevel);
+  helper.WriteString(TEXT("GradientMethod"), gradientMethod);
 }
 
 void Settings::ResetDefaults()
 {
   BaseSettings::ResetDefaults();
+
   unhideIcons = true;
+  wcscpy(infoFontString, TEXT("Tahoma-10"));
+  wcscpy(infoTitleFontString, TEXT("Tahoma-Bold-12"));
+  borderColour = RGB(0, 0, 0);
+  textColour =  RGB(0, 0, 0);
+  gradientFrom = RGB(255, 255, 255);
+  gradientTo =  RGB(255, 255, 128);
+  alpha =  100;
+  bevel = 0;
+  wcscpy(gradientMethod, TEXT("Vertical"));
+
   x = -72;
   y = -1;
   width = 156;
@@ -89,6 +115,41 @@ bool Settings::GetUnhideIcons()
 LOGFONT *Settings::GetInfoFont()
 {
   return &infoLogFont;
+}
+
+COLORREF Settings::GetTextColor()
+{
+  return textColour;
+}
+
+COLORREF Settings::GetBorderColor()
+{
+  return borderColour;
+}
+
+COLORREF Settings::GetGradientFrom()
+{
+  return gradientFrom;
+}
+
+COLORREF Settings::GetGradientTo()
+{
+  return gradientTo;
+}
+
+int Settings::GetAlpha()
+{
+  return alpha;
+}
+
+int Settings::GetBevel()
+{
+  return bevel;
+}
+
+WCHAR *Settings::GetGradientMethod()
+{
+  return gradientMethod;
 }
 
 LOGFONT *Settings::GetInfoTitleFont()

@@ -45,6 +45,13 @@ public:
   LOGFONT *GetInfoTitleFont();
   bool SetInfoFont(LOGFONT *infoLogFont);
   bool SetInfoTitleFont(LOGFONT *infoTitleLogFont);
+  COLORREF GetTextColor();
+  COLORREF GetBorderColor();
+  COLORREF GetGradientFrom();
+  COLORREF GetGradientTo();
+  int GetAlpha();
+  int GetBevel();
+  WCHAR *GetGradientMethod();
 
 protected:
   virtual void DoReadSettings(IOHelper& helper);
@@ -58,8 +65,9 @@ private:
   std::wstring xmlFile;
   bool unhideIcons;
   LOGFONT infoLogFont, infoTitleLogFont;
-  WCHAR infoFontString[MAX_LINE_LENGTH];
-  WCHAR infoTitleFontString[MAX_LINE_LENGTH];
+  WCHAR infoFontString[MAX_LINE_LENGTH], infoTitleFontString[MAX_LINE_LENGTH], gradientMethod[MAX_LINE_LENGTH];
+  COLORREF borderColour, textColour, gradientTo, gradientFrom;
+  int alpha, bevel;
 };
 
 #endif

@@ -43,6 +43,10 @@
 #define NIIF_USER 0x4
 #endif
 
+#ifndef NIIF_LARGE_ICON
+#define NIIF_LARGE_ICON 0x20
+#endif
+
 class TrayIcon;
 
 class Balloon
@@ -55,10 +59,10 @@ public:
   bool Hide();
   LRESULT DoLButtonDown();
   LRESULT DoTimer();
-  LRESULT DoPaint();
   bool SetInfo(WCHAR *info);
   bool SetInfoTitle(WCHAR *info);
   bool SetInfoFlags(DWORD infoFlags, HICON infoIcon);
+  bool DrawAlphaBlend();
 
 private:
   static LRESULT CALLBACK BalloonProcedure (HWND, UINT, WPARAM, LPARAM);
@@ -71,6 +75,7 @@ private:
   RECT titleRect, infoRect;
   HICON icon;
   Settings *pSettings;
+  int iconSize;
 };
 
 #endif

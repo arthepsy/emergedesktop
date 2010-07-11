@@ -298,7 +298,7 @@ bool Applet::PaintItem(HDC hdc, UINT index, int x, int y, RECT rect)
   pTrayIcon->UpdateTip();
 
   // Convert the icon
-  pTrayIcon->CreateNewIcon(hdc, guiInfo.alphaForeground);
+  pTrayIcon->CreateNewIcon(guiInfo.alphaForeground);
 
   // Draw the icon
   DrawIconEx(hdc, x, y, pTrayIcon->GetIcon(),

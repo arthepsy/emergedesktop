@@ -62,7 +62,7 @@ TrayIcon::TrayIcon(HINSTANCE appInstance, HWND wnd, UINT id, HWND mainWnd, HWND 
   pBalloon->Initialize();
 }
 
-void TrayIcon::CreateNewIcon(HDC backgroundDC, BYTE foregroundAlpha)
+void TrayIcon::CreateNewIcon(BYTE foregroundAlpha)
 {
   HICON tmpIcon = NULL;
 
@@ -73,7 +73,7 @@ void TrayIcon::CreateNewIcon(HDC backgroundDC, BYTE foregroundAlpha)
     {
       convertIcon = false;
 
-      tmpIcon = EGConvertIcon(origIcon, rect, backgroundDC, foregroundAlpha);
+      tmpIcon = EGConvertIcon(origIcon, foregroundAlpha);
       if (tmpIcon != NULL)
         {
           if (newIcon != NULL)
