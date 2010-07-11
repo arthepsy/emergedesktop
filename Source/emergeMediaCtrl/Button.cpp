@@ -99,8 +99,7 @@ void Button::Paint(HDC hdc)
       CopyRect(&clientInfo.rt, &r);
       formatInfo.font = mainFont;
       formatInfo.color = guiInfo.colorFont;
-      formatInfo.lines = 1;
-      formatInfo.fontHeight = pSettings->GetFont()->lfHeight;
+      formatInfo.flags = 0;
       if (iterated)
         {
           if (_wcsicmp(pSettings->GetHorizontalDirection(), TEXT("center")) == 0)

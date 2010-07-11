@@ -231,6 +231,7 @@ void Applet::DrawStatusChar(HDC& hdc, WCHAR *text, RECT &clientrt)
 
   formatInfo.font = mainFont;
   formatInfo.color = guiInfo.colorFont;
+  formatInfo.flags = 0;
   if (_wcsicmp(pSettings->GetHorizontalAlign(), TEXT("center")) == 0)
     formatInfo.horizontalAlignment = EGDAT_HCENTER;
   else if (_wcsicmp(pSettings->GetHorizontalAlign(), TEXT("right")) == 0)
