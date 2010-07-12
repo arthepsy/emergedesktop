@@ -57,6 +57,8 @@ public:
   int GetType();
   WCHAR *GetIconPath();
   WCHAR *GetWorkingDir();
+  bool GetActive();
+  void SetActive(bool active);
 
 private:
   WCHAR app[MAX_PATH], iconPath[MAX_PATH];
@@ -64,7 +66,7 @@ private:
   WCHAR tip[TIP_SIZE];
   WCHAR workingDir[MAX_LINE_LENGTH];
   RECT rect;
-  bool convertIcon;
+  bool convertIcon, active;
   int type;
 };
 

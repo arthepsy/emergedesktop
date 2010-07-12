@@ -88,6 +88,16 @@ HICON Item::GetIcon()
   return newIcon;
 }
 
+bool Item::GetActive()
+{
+  return active;
+}
+
+void Item::SetActive(bool active)
+{
+  this->active = active;
+}
+
 //----  --------------------------------------------------------------------------------------------------------
 // Function:	GetRect
 // Requires:	Nothing

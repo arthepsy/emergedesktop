@@ -49,11 +49,11 @@ private:
   std::tr1::shared_ptr<Config> pConfig;
   std::tr1::shared_ptr<Settings> pSettings;
   HWND activeWnd;
-  HBRUSH activeBrush;
   int iconSize;
   void UpdateIcons();
   static LRESULT CALLBACK WindowProcedure (HWND, UINT, WPARAM, LPARAM);
   static BOOL CALLBACK EnumFullScreenWindows(HWND hwnd, LPARAM lParam);
+  static VOID CALLBACK ActiveTimerProc(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime);
 
 public:
   Applet(HINSTANCE hInstance);
@@ -69,6 +69,7 @@ public:
   void UpdateTip(UINT index);
   void DeleteTip(UINT index);
   size_t GetIconCount();
+  void ClearActive(UINT index);
 };
 
 #endif

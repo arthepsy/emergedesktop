@@ -1,4 +1,4 @@
-// vim: tags+=../emergeLib/tags
+// vim: tags+=../emergeLib/tags,../emergeGraphics/tags
 //----  --------------------------------------------------------------------------------------------------------
 //
 //  This file is part of Emerge Desktop.
@@ -35,15 +35,16 @@ WCHAR myName[] = TEXT("emergeLauncher");
 LRESULT CALLBACK Applet::WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
   COPYDATASTRUCT *cpData;
-  CREATESTRUCT *cs;
   static Applet *pApplet = NULL;
 
   if (message == WM_CREATE)
     {
-      cs = (CREATESTRUCT*)lParam;
-      pApplet = reinterpret_cast<Applet*>(cs->lpCreateParams);
+      pApplet = reinterpret_cast<Applet*>(((CREATESTRUCT*)lParam)->lpCreateParams);
+      SetWindowLongPtr(hwnd,GWLP_USERDATA,(LONG_PTR)pApplet);
       return DefWindowProc(hwnd, message, wParam, lParam);
     }
+  else
+    pApplet = reinterpret_cast<Applet*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
 
   if (pApplet == NULL)
     return DefWindowProc(hwnd, message, wParam, lParam);
@@ -128,10 +129,9 @@ LRESULT CALLBACK Applet::WindowProcedure (HWND hwnd, UINT message, WPARAM wParam
 }
 
 Applet::Applet(HINSTANCE hInstance)
-  :BaseApplet(hInstance, myName, true)
+:BaseApplet(hInstance, myName, true)
 {
   activeWnd = NULL;
-  activeBrush = NULL;
   iconSize = 16;
 }
 
@@ -165,6 +165,10 @@ bool Applet::PaintItem(HDC hdc, UINT index, int x, int y, RECT rect)
   UpdateTip(index);
   pSettings->GetItem(index)->CreateNewIcon(guiInfo.alphaForeground);
 
+  InflateRect(&rect, 1, 1);
+  if (pSettings->GetItem(index)->GetActive())
+    EGFillRect(hdc, &rect, guiInfo.alphaSelected, guiInfo.colorSelected);
+
   // Draw the indexcon
   DrawIconEx(hdc, x, y,
              pSettings->GetItem(index)->GetIcon(), pSettings->GetIconSize(),
@@ -197,6 +201,11 @@ LRESULT Applet::ItemMouseEvent(UINT message, LPARAM lParam)
           if ((message == WM_LBUTTONDOWN) ||
               (message == WM_LBUTTONDBLCLK))
             {
+              pSettings->GetItem(i)->SetActive(true);
+              UINT timerID = i + 1000;
+              SetTimer(mainWnd, timerID, 1000, (TIMERPROC)ActiveTimerProc);
+              DrawAlphaBlend();
+
               switch (pSettings->GetItem(i)->GetType())
                 {
                 case IT_EXECUTABLE:
@@ -218,6 +227,19 @@ LRESULT Applet::ItemMouseEvent(UINT message, LPARAM lParam)
   return 1;
 }
 
+VOID CALLBACK Applet::ActiveTimerProc(HWND hwnd, UINT uMsg UNUSED, UINT_PTR idEvent, DWORD dwTime UNUSED)
+{
+  Applet *pApplet = reinterpret_cast<Applet*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
+  pApplet->ClearActive(idEvent - 1000);
+  KillTimer(hwnd, idEvent);
+}
+
+void Applet::ClearActive(UINT index)
+{
+  pSettings->GetItem(index)->SetActive(false);
+  DrawAlphaBlend();
+}
+
 void Applet::ShowConfig()
 {
   Config config(mainInst, mainWnd, pSettings);
@@ -233,10 +255,6 @@ LRESULT Applet::DoSizing(HWND hwnd, UINT edge, LPRECT rect)
 
 void Applet::AppletUpdate()
 {
-  if (activeBrush)
-    DeleteObject(activeBrush);
-  activeBrush = EGCreateBrush(0xff, guiInfo.colorSelected);
-
   for (UINT i = 0; i < pSettings->GetItemListSize(); i++)
     DeleteTip(i);
 
