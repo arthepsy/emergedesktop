@@ -134,13 +134,13 @@ LRESULT CALLBACK Desktop::DesktopProcedure (HWND hwnd, UINT message, WPARAM wPar
       break;
 
     case WM_PAINT:
-    {
-      PAINTSTRUCT ps;
-      HDC hdc = BeginPaint(hwnd, &ps);
-      PaintDesktop(hdc);
-      EndPaint(hwnd, &ps);
-    }
-    break;
+        {
+          PAINTSTRUCT ps;
+          HDC hdc = BeginPaint(hwnd, &ps);
+          PaintDesktop(hdc);
+          EndPaint(hwnd, &ps);
+        }
+      break;
 
     case WM_RBUTTONDOWN:
       pDesktop->ShowMenu(CORE_RIGHTMENU);
@@ -155,13 +155,14 @@ LRESULT CALLBACK Desktop::DesktopProcedure (HWND hwnd, UINT message, WPARAM wPar
       break;
 
     case WM_DISPLAYCHANGE:
-    {
-      SetWindowPos(hwnd, HWND_BOTTOM,
-                   GetSystemMetrics(SM_XVIRTUALSCREEN), GetSystemMetrics(SM_YVIRTUALSCREEN),
-                   GetSystemMetrics(SM_CXVIRTUALSCREEN), GetSystemMetrics(SM_CYVIRTUALSCREEN),
-                   SWP_SHOWWINDOW);
-    }
-    break;
+        {
+          SetWindowPos(hwnd, HWND_BOTTOM,
+                       GetSystemMetrics(SM_XVIRTUALSCREEN), GetSystemMetrics(SM_YVIRTUALSCREEN),
+                       GetSystemMetrics(SM_CXVIRTUALSCREEN), GetSystemMetrics(SM_CYVIRTUALSCREEN),
+                       SWP_SHOWWINDOW);
+          pDesktop->SetBackgroundImage();
+        }
+      break;
 
     case WM_WINDOWPOSCHANGING:
       pDesktop->DoWindowPosChanging((LPWINDOWPOS)lParam);

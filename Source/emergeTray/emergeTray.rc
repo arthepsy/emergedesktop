@@ -26,6 +26,7 @@
 #include "../hgversion.h"
 #include "ConfigPage.dlg"
 #include "IconHidePage.dlg"
+#include "BalloonPage.dlg"
 
 VS_VERSION_INFO VERSIONINFO
 FILEVERSION COMMA_VERSION

@@ -30,6 +30,7 @@
 #include "../emergeSchemeEngine/SchemeEditor.h"
 #include "ConfigPage.h"
 #include "IconHidePage.h"
+#include "BalloonPage.h"
 
 #ifdef __GNUC__
 #include <tr1/memory>
@@ -51,6 +52,7 @@ private:
   std::tr1::shared_ptr<SchemeEditor> pSchemeEditor;
   std::tr1::shared_ptr<ConfigPage> pConfigPage;
   std::tr1::shared_ptr<IconHidePage> pIconHidePage;
+  std::tr1::shared_ptr<BalloonPage> pBalloonPage;
   std::tr1::shared_ptr<Settings> pSettings;
   HINSTANCE hInstance;
   HWND mainWnd;

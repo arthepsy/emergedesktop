@@ -43,7 +43,6 @@ void Settings::DoReadSettings(IOHelper& helper)
   helper.ReadColor(TEXT("GradientFrom"), gradientFrom, RGB(255, 255, 255));
   helper.ReadColor(TEXT("GradientTo"), gradientTo, RGB(255, 255, 128));
   helper.ReadInt(TEXT("Alpha"), alpha, 100);
-  helper.ReadInt(TEXT("Bevel"), bevel, 0);
   helper.ReadString(TEXT("GradientMethod"), gradientMethod, TEXT("Vertical"));
 }
 
@@ -68,7 +67,6 @@ void Settings::DoWriteSettings(IOHelper& helper)
   helper.WriteColor(TEXT("GradientFrom"), gradientFrom);
   helper.WriteColor(TEXT("GradientTo"), gradientTo);
   helper.WriteInt(TEXT("Alpha"), alpha);
-  helper.WriteInt(TEXT("Bevel"), bevel);
   helper.WriteString(TEXT("GradientMethod"), gradientMethod);
 }
 
@@ -84,7 +82,6 @@ void Settings::ResetDefaults()
   gradientFrom = RGB(255, 255, 255);
   gradientTo =  RGB(255, 255, 128);
   alpha =  100;
-  bevel = 0;
   wcscpy(gradientMethod, TEXT("Vertical"));
 
   x = -72;
@@ -138,12 +135,7 @@ COLORREF Settings::GetGradientTo()
 
 int Settings::GetAlpha()
 {
-  return ((alpha * 255) / 100);
-}
-
-int Settings::GetBevel()
-{
-  return bevel;
+  return alpha;
 }
 
 WCHAR *Settings::GetGradientMethod()
@@ -151,9 +143,59 @@ WCHAR *Settings::GetGradientMethod()
   return gradientMethod;
 }
 
+bool Settings::SetGradientMethod(WCHAR *gradientMethod)
+{
+  if (_wcsicmp(this->gradientMethod, gradientMethod) != 0)
+    {
+      wcscpy(this->gradientMethod, gradientMethod);
+      SetModified();
+    }
+  return true;
+}
+
 LOGFONT *Settings::GetInfoTitleFont()
 {
   return &infoTitleLogFont;
+}
+
+bool Settings::SetGradientFrom(COLORREF gradientFrom)
+{
+  if (this->gradientFrom != gradientFrom)
+    {
+      this->gradientFrom = gradientFrom;
+      SetModified();
+    }
+  return true;
+}
+
+bool Settings::SetGradientTo(COLORREF gradientTo)
+{
+  if (this->gradientTo != gradientTo)
+    {
+      this->gradientTo = gradientTo;
+      SetModified();
+    }
+  return true;
+}
+
+bool Settings::SetTextColor(COLORREF textColour)
+{
+  if (this->textColour != textColour)
+    {
+      this->textColour = textColour;
+      SetModified();
+    }
+  return true;
+}
+
+bool Settings::SetBorderColor(COLORREF borderColour)
+{
+  if (this->borderColour != borderColour)
+    {
+      this->borderColour = borderColour;
+      SetModified();
+    }
+  return true;
 }
 
 bool Settings::SetUnhideIcons(bool unhideIcons)
@@ -161,6 +203,16 @@ bool Settings::SetUnhideIcons(bool unhideIcons)
   if (this->unhideIcons != unhideIcons)
     {
       this->unhideIcons = unhideIcons;
+      SetModified();
+    }
+  return true;
+}
+
+bool Settings::SetAlpha(int alpha)
+{
+  if (this->alpha != alpha)
+    {
+      this->alpha = alpha;
       SetModified();
     }
   return true;

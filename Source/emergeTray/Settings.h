@@ -46,12 +46,17 @@ public:
   bool SetInfoFont(LOGFONT *infoLogFont);
   bool SetInfoTitleFont(LOGFONT *infoTitleLogFont);
   COLORREF GetTextColor();
+  bool SetTextColor(COLORREF textColor);
   COLORREF GetBorderColor();
+  bool SetBorderColor(COLORREF borderColor);
   COLORREF GetGradientFrom();
+  bool SetGradientFrom(COLORREF gradientFrom);
+  bool SetGradientTo(COLORREF gradientTo);
   COLORREF GetGradientTo();
   int GetAlpha();
-  int GetBevel();
+  bool SetAlpha(int alpha);
   WCHAR *GetGradientMethod();
+  bool SetGradientMethod(WCHAR *gradientMethod);
 
 protected:
   virtual void DoReadSettings(IOHelper& helper);
@@ -67,7 +72,7 @@ private:
   LOGFONT infoLogFont, infoTitleLogFont;
   WCHAR infoFontString[MAX_LINE_LENGTH], infoTitleFontString[MAX_LINE_LENGTH], gradientMethod[MAX_LINE_LENGTH];
   COLORREF borderColour, textColour, gradientTo, gradientFrom;
-  int alpha, bevel;
+  int alpha;
 };
 
 #endif

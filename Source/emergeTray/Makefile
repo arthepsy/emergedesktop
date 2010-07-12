@@ -2,6 +2,7 @@ LIBS += -luuid \
 				-lole32 \
 				-lgdi32 \
 				-lcomctl32 \
+				-lcomdlg32 \
 				-lemergeLib \
 				-lemergeGraphics \
 				-lemergeSchemeEngine \

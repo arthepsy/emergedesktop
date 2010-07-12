@@ -34,6 +34,7 @@
 #define IDD_CONFIG        100
 #define IDD_CONFIG_PAGE   101
 #define IDD_ICONHIDE_PAGE 102
+#define IDD_BALLOON_PAGE  103
 
 #define IDC_AUTOSIZE            200
 #define IDC_ACTIVETASK          201
@@ -68,4 +69,14 @@
 #define IDC_ICONSPACING       701
 #define IDC_ICONSPACINGUPDOWN 702
 
-#define IDI_DEFAULT         800
+#define IDC_TITLEFONTBUTTON     800
+#define IDC_INFOFONTBUTTON      801
+#define IDC_GRADIENTMETHOD      802
+#define IDC_GRADIENTFROMCOLOUR  803
+#define IDC_GRADIENTTOCOLOUR    804
+#define IDC_SLIDER              805
+#define IDC_ALPHA               806
+#define IDC_INFOTEXTCOLOUR      807
+#define IDC_INFOBORDERCOLOUR    808
+
+#define IDI_DEFAULT         1000

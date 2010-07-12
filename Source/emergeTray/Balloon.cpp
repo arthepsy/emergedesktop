@@ -294,6 +294,7 @@ bool Balloon::DrawAlphaBlend()
   BLENDFUNCTION bf;
   CLIENTINFO clientInfo;
   FORMATINFO formatInfo;
+  int alpha = (pSettings->GetAlpha() * 255) / 100;
 
   if (!GetClientRect(balloonWnd, &clientrt))
     return false;
@@ -302,8 +303,8 @@ bool Balloon::DrawAlphaBlend()
   CopyRect(&contentrt, &clientrt);
   EGFrameRect(hdc, &contentrt, 255, pSettings->GetBorderColor(), 1);
   InflateRect(&contentrt, -1, -1);
-  EGGradientFillRect(hdc, &contentrt, pSettings->GetAlpha(), pSettings->GetGradientFrom(),
-                     pSettings->GetGradientTo(), pSettings->GetBevel(), pSettings->GetGradientMethod());
+  EGGradientFillRect(hdc, &contentrt, alpha, pSettings->GetGradientFrom(),
+                     pSettings->GetGradientTo(), 0, pSettings->GetGradientMethod());
 
   formatInfo.horizontalAlignment = EGDAT_LEFT;
   formatInfo.verticalAlignment = EGDAT_TOP;
@@ -312,7 +313,7 @@ bool Balloon::DrawAlphaBlend()
   formatInfo.flags = DT_WORDBREAK;
   clientInfo.hdc = hdc;
   CopyRect(&clientInfo.rt, &infoRect);
-  clientInfo.bgAlpha = pSettings->GetAlpha();
+  clientInfo.bgAlpha = alpha;
   EGDrawAlphaText(255, clientInfo, formatInfo, info);
   DeleteObject(formatInfo.font);
 

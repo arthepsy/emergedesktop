@@ -48,6 +48,7 @@ Config::Config(HINSTANCE hInstance, HWND mainWnd, std::tr1::shared_ptr<Settings>
   pPositionPage = std::tr1::shared_ptr<BasePositionPage>
                   (new BasePositionPage(pSettings, BPP_ZORDER|BPP_HORIZONTAL|BPP_ORIENTATION|BPP_VERTICAL));
   pSchemeEditor = std::tr1::shared_ptr<SchemeEditor>(new SchemeEditor(mainWnd));
+  pBalloonPage = std::tr1::shared_ptr<BalloonPage>(new BalloonPage(pSettings));
 }
 
 Config::~Config()
@@ -62,7 +63,7 @@ int Config::Show()
 INT_PTR Config::DoInitDialog(HWND hwndDlg)
 {
   int ret;
-  PROPSHEETPAGE psp[4];
+  PROPSHEETPAGE psp[5];
   PROPSHEETHEADER psh;
 
   ELStealFocus(hwndDlg);
@@ -88,22 +89,31 @@ INT_PTR Config::DoInitDialog(HWND hwndDlg)
 
   psp[2].dwSize = sizeof(PROPSHEETPAGE);
   psp[2].dwFlags = PSP_USETITLE;
-  psp[2].hInstance = GetModuleHandle(TEXT("emergeBaseClasses.dll"));
-  psp[2].pszTemplate = pPositionPage->GetTemplate();
-  psp[2].pfnDlgProc = pPositionPage->BasePositionPageDlgProc;
-  psp[2].pszTitle = TEXT("Position");
-  psp[2].lParam = reinterpret_cast<LPARAM>(pPositionPage.get());
+  psp[2].hInstance = hInstance;
+  psp[2].pszTemplate = MAKEINTRESOURCE(IDD_BALLOON_PAGE);
+  psp[2].pfnDlgProc = pBalloonPage->BalloonPageDlgProc;
+  psp[2].pszTitle = TEXT("Balloon tips");
+  psp[2].lParam = reinterpret_cast<LPARAM>(pBalloonPage.get());
   psp[2].pfnCallback = NULL;
 
-  pSchemeEditor->Edit(pSettings->GetSchemeFile());
   psp[3].dwSize = sizeof(PROPSHEETPAGE);
   psp[3].dwFlags = PSP_USETITLE;
-  psp[3].hInstance = GetModuleHandle(TEXT("emergeSchemeEngine.dll"));
-  psp[3].pszTemplate = pSchemeEditor->GetTemplate();
-  psp[3].pfnDlgProc = pSchemeEditor->SchemeEditorDlgProc;
-  psp[3].pszTitle = TEXT("Scheme Editor");
-  psp[3].lParam = reinterpret_cast<LPARAM>(pSchemeEditor.get());
+  psp[3].hInstance = GetModuleHandle(TEXT("emergeBaseClasses.dll"));
+  psp[3].pszTemplate = pPositionPage->GetTemplate();
+  psp[3].pfnDlgProc = pPositionPage->BasePositionPageDlgProc;
+  psp[3].pszTitle = TEXT("Position");
+  psp[3].lParam = reinterpret_cast<LPARAM>(pPositionPage.get());
   psp[3].pfnCallback = NULL;
+
+  pSchemeEditor->Edit(pSettings->GetSchemeFile());
+  psp[4].dwSize = sizeof(PROPSHEETPAGE);
+  psp[4].dwFlags = PSP_USETITLE;
+  psp[4].hInstance = GetModuleHandle(TEXT("emergeSchemeEngine.dll"));
+  psp[4].pszTemplate = pSchemeEditor->GetTemplate();
+  psp[4].pfnDlgProc = pSchemeEditor->SchemeEditorDlgProc;
+  psp[4].pszTitle = TEXT("Scheme Editor");
+  psp[4].lParam = reinterpret_cast<LPARAM>(pSchemeEditor.get());
+  psp[4].pfnCallback = NULL;
 
   psh.dwSize = sizeof(PROPSHEETHEADER);
   psh.dwFlags = PSH_PROPSHEETPAGE | PSH_NOAPPLYNOW | PSH_NOCONTEXTHELP;
