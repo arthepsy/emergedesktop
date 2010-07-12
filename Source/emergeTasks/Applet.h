@@ -48,11 +48,7 @@
 #include "../emergeAppletEngine/emergeAppletEngine.h"
 #include "../emergeBaseClasses/BaseApplet.h"
 
-static const UINT EMERGE_TRAY = RegisterWindowMessage(TEXT("EmergeTray"));
-
 #define MODIFY_POLL_TIME  100
-#define TRAY_MODIFY       1
-#define TRAY_FLASH        2
 
 typedef std::tr1::shared_ptr<Task> TaskPtr;
 typedef std::vector<TaskPtr> TaskVector;
@@ -83,7 +79,6 @@ public:
   LRESULT DoTimer(UINT_PTR timerID);
   LRESULT DoSizing(HWND hwnd, UINT edge, LPRECT rect);
   LRESULT DoEmergeNotify(UINT messageClass, UINT message);
-  LRESULT DoEmergeTray(UINT messageClass, UINT timerID);
   LRESULT DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
   LRESULT TaskMouseEvent(UINT message, LPARAM lParam);
   LRESULT AddTask(HWND task);
@@ -100,6 +95,8 @@ public:
   void ShowConfig();
   bool PaintItem(HDC hdc, UINT index, int x, int y, RECT rect);
   size_t GetIconCount();
+  void DoTaskModify(UINT id);
+  void DoTaskFlash(UINT id);
 };
 
 #endif

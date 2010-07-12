@@ -35,15 +35,16 @@ WCHAR myName[] = TEXT("emergeTasks");
 LRESULT CALLBACK Applet::WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
   COPYDATASTRUCT *cpData;
-  CREATESTRUCT *cs;
   static Applet *pApplet = NULL;
 
   if (message == WM_CREATE)
     {
-      cs = (CREATESTRUCT*)lParam;
-      pApplet = reinterpret_cast<Applet*>(cs->lpCreateParams);
+      pApplet = reinterpret_cast<Applet*>(((CREATESTRUCT*)lParam)->lpCreateParams);
+      SetWindowLongPtr(hwnd,GWLP_USERDATA,(LONG_PTR)pApplet);
       return DefWindowProc(hwnd, message, wParam, lParam);
     }
+  else
+    pApplet = reinterpret_cast<Applet*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
 
   if (pApplet == NULL)
     return DefWindowProc(hwnd, message, wParam, lParam);
@@ -128,7 +129,7 @@ LRESULT CALLBACK Applet::WindowProcedure (HWND hwnd, UINT message, WPARAM wParam
 }
 
 Applet::Applet(HINSTANCE hInstance)
-  :BaseApplet(hInstance, myName, true)
+:BaseApplet(hInstance, myName, true)
 {
   activeWnd = NULL;
 }
@@ -587,72 +588,81 @@ LRESULT Applet::DoEmergeNotify(UINT messageClass, UINT message)
   return BaseApplet::DoEmergeNotify(messageClass, message);
 }
 
-LRESULT Applet::DoEmergeTray(UINT message, UINT timerID)
+void Applet::DoTaskModify(UINT id)
+{
+  std::map<HWND, UINT>::iterator mapIter;
+
+  mapIter = modifyMap.begin();
+  while (mapIter != modifyMap.end())
+    {
+      if (mapIter->second == id)
+        {
+          ModifyTask(mapIter->first);
+          KillTimer(mainWnd, mapIter->second);
+          modifyMap.erase(mapIter);
+
+          return;
+        }
+      mapIter++;
+    }
+}
+
+void Applet::DoTaskFlash(UINT id)
 {
   std::map<HWND, UINT>::iterator mapIter;
   TaskVector::iterator iter;
   UINT flashCount = (UINT)pSettings->GetFlashCount();
   bool refresh = true;
+  HWND foregroundWnd = GetForegroundWindow();
 
-  if (message == TRAY_MODIFY)
+  mapIter = flashMap.begin();
+  while (mapIter != flashMap.end())
     {
-      mapIter = modifyMap.begin();
-      while (mapIter != modifyMap.end())
+      if (mapIter->second == id)
         {
-          if (mapIter->second == timerID)
+          iter = FindTask(mapIter->first);
+          if (iter != taskList.end())
             {
-              ModifyTask(mapIter->first);
-              KillTimer(mainWnd, mapIter->second);
-              modifyMap.erase(mapIter);
-
-              return 0;
-            }
-          mapIter++;
-        }
-    }
-
-  if (message == TRAY_FLASH)
-    {
-      mapIter = flashMap.begin();
-      while (mapIter != flashMap.end())
-        {
-          if (mapIter->second == timerID)
-            {
-              iter = FindTask(mapIter->first);
-              if (iter != taskList.end())
+              // If the task is the foreground window, clear flashing
+              if ((*iter)->GetWnd() == foregroundWnd)
                 {
-                  if (flashCount != 0)
-                    {
-                      if ((*iter)->GetFlashCount() < (flashCount * 2 - 1))
-                        (*iter)->SetFlashCount((*iter)->GetFlashCount() + 1);
-                      else
-                        refresh = false;
-                    }
-
-                  if (refresh)
-                    {
-                      (*iter)->ToggleVisible();
-                      DrawAlphaBlend();
-                    }
-
-                  return 0;
+                  SetFlash((*iter)->GetWnd(), false);
+                  return;
                 }
-            }
-          mapIter++;
-        }
-    }
 
-  return 1;
+              if (flashCount != 0)
+                {
+                  if ((*iter)->GetFlashCount() < (flashCount * 2 - 1))
+                    (*iter)->SetFlashCount((*iter)->GetFlashCount() + 1);
+                  else
+                    refresh = false;
+                }
+
+              if (refresh)
+                {
+                  (*iter)->ToggleVisible();
+                  DrawAlphaBlend();
+                }
+
+              return;
+            }
+        }
+      mapIter++;
+    }
 }
 
 VOID CALLBACK Applet::ModifyTimerProc(HWND hwnd, UINT uMsg UNUSED, UINT_PTR idEvent, DWORD dwTime UNUSED)
 {
-  PostMessage(hwnd, EMERGE_TRAY, TRAY_MODIFY, (LPARAM)idEvent);
+  Applet *pApplet = reinterpret_cast<Applet*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
+
+  pApplet->DoTaskModify(idEvent);
 }
 
 VOID CALLBACK Applet::FlashTimerProc(HWND hwnd, UINT uMsg UNUSED, UINT_PTR idEvent, DWORD dwTime UNUSED)
 {
-  PostMessage(hwnd, EMERGE_TRAY, TRAY_FLASH, (LPARAM)idEvent);
+  Applet *pApplet = reinterpret_cast<Applet*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
+
+  pApplet->DoTaskFlash(idEvent);
 }
 
 LRESULT Applet::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
@@ -702,9 +712,6 @@ LRESULT Applet::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 
   if (message == EMERGE_NOTIFY)
     return DoEmergeNotify(shellMessage, (UINT)lParam);
-
-  if (message == EMERGE_TRAY)
-    return DoEmergeTray(shellMessage, (UINT)lParam);
 
   return BaseApplet::DoDefault(hwnd, message, wParam, lParam);
 }
