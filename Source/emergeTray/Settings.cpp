@@ -43,7 +43,6 @@ void Settings::DoReadSettings(IOHelper& helper)
   helper.ReadColor(TEXT("GradientFrom"), gradientFrom, RGB(255, 255, 255));
   helper.ReadColor(TEXT("GradientTo"), gradientTo, RGB(255, 255, 128));
   helper.ReadInt(TEXT("Alpha"), alpha, 100);
-  alpha = (alpha * 255) / 100;
   helper.ReadInt(TEXT("Bevel"), bevel, 0);
   helper.ReadString(TEXT("GradientMethod"), gradientMethod, TEXT("Vertical"));
 }
@@ -139,7 +138,7 @@ COLORREF Settings::GetGradientTo()
 
 int Settings::GetAlpha()
 {
-  return alpha;
+  return ((alpha * 255) / 100);
 }
 
 int Settings::GetBevel()
