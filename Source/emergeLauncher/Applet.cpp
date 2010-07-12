@@ -203,7 +203,7 @@ LRESULT Applet::ItemMouseEvent(UINT message, LPARAM lParam)
             {
               pSettings->GetItem(i)->SetActive(true);
               UINT timerID = i + 1000;
-              SetTimer(mainWnd, timerID, 1000, (TIMERPROC)ActiveTimerProc);
+              SetTimer(mainWnd, timerID, ACTIVE_DELAY_TIME, (TIMERPROC)ActiveTimerProc);
               DrawAlphaBlend();
 
               switch (pSettings->GetItem(i)->GetType())

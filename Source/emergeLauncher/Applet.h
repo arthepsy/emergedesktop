@@ -36,6 +36,8 @@
 #define MOUSE_TIMER 0
 #define MOUSE_POLL_TIME 250
 
+#define ACTIVE_DELAY_TIME 500
+
 #include "Settings.h"
 #include <vector>
 #include <process.h>
