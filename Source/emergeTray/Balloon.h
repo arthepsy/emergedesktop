@@ -32,6 +32,8 @@
 #undef _WIN32_IE
 #define _WIN32_IE 0x0501
 
+#define OEMRESOURCE 1
+
 #include "../emergeLib/emergeLib.h"
 #include "../emergeGraphics/emergeGraphics.h"
 #include "../emergeAppletEngine/emergeAppletEngine.h"
