@@ -101,7 +101,7 @@ bool Balloon::SetInfo(WCHAR *info)
   if (titleRect.bottom > iconSize)
     infoRect.top = titleRect.bottom;
   infoRect.top += 5;
-  infoRect.left = titleRect.left;
+  infoRect.left = 5;
   infoRect.bottom = infoRect.top;
   infoRect.right = infoRect.left + 220;
   if (titleRect.right > infoRect.right)
@@ -158,7 +158,7 @@ bool Balloon::SetInfoFlags(DWORD infoFlags, HICON infoIcon)
   else
     iconSize = 16;
 
-  if ((infoFlags & NIIF_NONE) == NIIF_NONE)
+  if (infoFlags == NIIF_NONE)
     {
       if (icon)
         {
@@ -167,8 +167,7 @@ bool Balloon::SetInfoFlags(DWORD infoFlags, HICON infoIcon)
           offset = -(iconSize + 5);
         }
     }
-
-  if ((infoFlags & NIIF_INFO) == NIIF_INFO)
+  else if ((infoFlags & NIIF_INFO) == NIIF_INFO)
     {
       if (icon == NULL)
         offset = iconSize + 5;
