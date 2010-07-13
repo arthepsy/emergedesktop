@@ -1701,6 +1701,7 @@ void MenuBuilder::BuildSettingsMenu(MenuMap::iterator iter)
   AddSettingsItem(iter, (WCHAR*)TEXT("\0"), BSM_SEPARATOR);
   AddSettingsItem(iter, (WCHAR*)TEXT("Configure"), BSM_CONFIGURE);
   AddSettingsItem(iter, (WCHAR*)TEXT("Change Desktop Shell"), BSM_SHELL);
+  AddSettingsItem(iter, (WCHAR*)TEXT("Quit Emerge Desktop"), BSM_QUIT);
   AddSettingsItem(iter, (WCHAR*)TEXT("\0"), BSM_SEPARATOR);
   AddSettingsItem(iter, (WCHAR*)TEXT("Edit Launch Applets"), BSM_LAUNCH);
   AddSettingsItem(iter, (WCHAR*)TEXT("Edit Aliases"), BSM_ALIAS);
@@ -1767,13 +1768,13 @@ void MenuBuilder::ExecuteSettingsMenuItem(UINT index)
   Config config(mainInst, pSettings);
   HANDLE cmdFile;
 
-  switch (index)
+  switch (++index)
     {
       int res;
-    case 0:
+    case BSM_ABOUT:
       ELExecuteInternal((WCHAR*)TEXT("CoreAbout"));
       break;
-    case 1:
+    case BSM_CONFIGURE:
       res = config.Show();
       if (res == IDOK)
         {
@@ -1781,13 +1782,13 @@ void MenuBuilder::ExecuteSettingsMenuItem(UINT index)
           UpdateMenuHook();
         }
       break;
-    case 2:
+    case BSM_LAUNCH:
       ELExecuteInternal((WCHAR*)TEXT("CoreLaunchEditor"));
       break;
-    case 4:
+    case BSM_SHELL:
       ELExecuteInternal((WCHAR*)TEXT("CoreShellChanger"));
       break;
-    case 5:
+    case BSM_ALIAS:
       aliasFile = TEXT("%EmergeDir%\\files\\");
       if (!PathIsDirectory(aliasFile.c_str()))
         ELCreateDirectory(aliasFile);
@@ -1807,8 +1808,11 @@ void MenuBuilder::ExecuteSettingsMenuItem(UINT index)
         }
       ELExecute((WCHAR*)aliasFile.c_str());
       break;
-    case 6:
+    case BSM_SELECTTHEME:
       ELExecuteInternal((WCHAR*)TEXT("CoreThemeSelector"));
+      break;
+    case BSM_QUIT:
+      ELQuit(true);
       break;
     }
 }

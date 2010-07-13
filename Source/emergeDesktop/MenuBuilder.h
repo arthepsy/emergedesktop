@@ -69,6 +69,7 @@
 #define BSM_ALIAS        0x06
 #define BSM_SELECTTHEME  0x07
 #define BSM_SAVETHEME    0x08
+#define BSM_QUIT         0x09
 
 typedef std::map< HMENU,std::tr1::shared_ptr<MenuListItem> > MenuMap;
 
