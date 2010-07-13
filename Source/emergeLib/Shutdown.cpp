@@ -102,7 +102,6 @@ BOOL Shutdown::DoInitDialog(HWND hwndDlg)
     }
   WTSFreeMemory(pData);
 #endif
-  SendDlgItemMessage(hwndDlg, IDC_METHOD, CB_ADDSTRING, 0, (LPARAM)TEXT("Quit Emerge Desktop"));
 
   SendDlgItemMessage(hwndDlg, IDC_METHOD, CB_SETCURSEL, (WPARAM)0, 0);
 
@@ -155,9 +154,6 @@ bool Shutdown::DoShutdown(HWND hwndDlg)
           method = EMERGE_DISCONNECT;
           break;
         }
-    case 6:
-      ELQuit(false);
-      return true;
     default:
       return false;
     }
