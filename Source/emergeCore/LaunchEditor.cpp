@@ -694,7 +694,7 @@ bool LaunchEditor::PopulateList(HWND listWnd)
     {
       InsertListViewItem(listWnd, 0, TEXT("emergeTasks.exe"));
       InsertListViewItem(listWnd, 1, TEXT("emergeTray.exe"));
-      InsertListViewItem(listWnd, 2, TEXT("emergeDesktop.exe"));
+      InsertListViewItem(listWnd, 2, TEXT("emergeWorkspace.exe"));
       InsertListViewItem(listWnd, 3, TEXT("emergeCommand.exe"));
       InsertListViewItem(listWnd, 4, TEXT("emergeLauncher.exe"));
       InsertListViewItem(listWnd, 5, TEXT("emergeHotkeys.exe"));

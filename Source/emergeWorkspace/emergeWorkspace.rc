@@ -42,12 +42,12 @@ BEGIN
 BLOCK "000004B0"
 BEGIN
 VALUE "CompanyName", "The Emerge Desktop Development Team"
-VALUE "FileDescription", "emergeDesktop - desktop applet for Emerge Desktop"
+VALUE "FileDescription", "emergeWorkspace - desktop applet for Emerge Desktop"
 VALUE "FileVersion", POINT_VERSION
-VALUE "InternalName", "emergeDesktop"
+VALUE "InternalName", "emergeWorkspace"
 VALUE "LegalCopyright", "Copyright (C) 2004-2010"
-VALUE "OriginalFilename", "emergeDesktop.exe"
-VALUE "ProductName", "emergeDesktop"
+VALUE "OriginalFilename", "emergeWorkspace.exe"
+VALUE "ProductName", "emergeWorkspace"
 VALUE "ProductVersion", POINT_VERSION
 END
 END
@@ -58,7 +58,7 @@ END
 END
 
 #ifdef __GNUC__
-CREATEPROCESS_MANIFEST_RESOURCE_ID RT_MANIFEST "emergeDesktop.exe.manifest"
+CREATEPROCESS_MANIFEST_RESOURCE_ID RT_MANIFEST "emergeWorkspace.exe.manifest"
 #endif
 
 IDI_DEFAULT	ICON	"../emergeIcons/emerge.ico"

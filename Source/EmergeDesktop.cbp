@@ -177,9 +177,9 @@
 					<Add directory=".\bin" />
 				</Linker>
 			</Target>
-			<Target title="emergeDesktop - Release">
+			<Target title="emergeWorkspace - Release">
 				<Option platforms="Windows;" />
-				<Option output="bin\emergeDesktop" prefix_auto="1" extension_auto="1" />
+				<Option output="bin\emergeWorkspace" prefix_auto="1" extension_auto="1" />
 				<Option object_output=".objs\Release" />
 				<Option external_deps="bin\emergeLib.dll;bin\emergeAppletEngine.dll;bin\emergeGraphics.dll;" />
 				<Option type="0" />
@@ -478,9 +478,9 @@
 					<Add directory=".\bin" />
 				</Linker>
 			</Target>
-			<Target title="emergeDesktop - Debug">
+			<Target title="emergeWorkspace - Debug">
 				<Option platforms="Windows;" />
-				<Option output="bin\emergeDesktop" prefix_auto="1" extension_auto="1" />
+				<Option output="bin\emergeWorkspace" prefix_auto="1" extension_auto="1" />
 				<Option object_output=".objs\Debug" />
 				<Option external_deps="bin\emergeLib.dll;bin\emergeAppletEngine.dll;bin\emergeGraphics.dll;" />
 				<Option type="0" />
@@ -619,7 +619,7 @@
 			</Target>
 		</Build>
 		<VirtualTargets>
-			<Add alias="All - Release" targets="emergeLib - Release;emergeGraphics - Release;emergeAppletEngine - Release;emergeStyleEngine - Release;emergeBaseClasses - Release;emergeCore - Release;emergeCommand - Release;emergeDesktop - Release;emergeHotkeys - Release;emergeLauncher - Release;emergeTasks - Release;emergeTray - Release;emergeVWM - Release;emerge - Release;emergePower - Release;emergeSysMon - Release;reg2xml - Release;emergeIcons - Release;" />
+			<Add alias="All - Release" targets="emergeLib - Release;emergeGraphics - Release;emergeAppletEngine - Release;emergeStyleEngine - Release;emergeBaseClasses - Release;emergeCore - Release;emergeCommand - Release;emergeWorkspace - Release;emergeHotkeys - Release;emergeLauncher - Release;emergeTasks - Release;emergeTray - Release;emergeVWM - Release;emerge - Release;emergePower - Release;emergeSysMon - Release;reg2xml - Release;emergeIcons - Release;" />
 		</VirtualTargets>
 		<Compiler>
 			<Add option="-march=i586" />
@@ -879,119 +879,6 @@
 		<Unit filename="emergeCore\resource.h">
 			<Option target="emergeCore - Release" />
 			<Option target="emergeCore - Debug" />
-		</Unit>
-		<Unit filename="emergeDesktop\Config.cpp">
-			<Option target="emergeDesktop - Release" />
-			<Option target="emergeDesktop - Debug" />
-		</Unit>
-		<Unit filename="emergeDesktop\Config.h">
-			<Option target="emergeDesktop - Release" />
-			<Option target="emergeDesktop - Debug" />
-		</Unit>
-		<Unit filename="emergeDesktop\ConfigPage.cpp">
-			<Option target="emergeDesktop - Release" />
-			<Option target="emergeDesktop - Debug" />
-		</Unit>
-		<Unit filename="emergeDesktop\ConfigPage.dlg">
-			<Option target="emergeDesktop - Release" />
-			<Option target="emergeDesktop - Debug" />
-		</Unit>
-		<Unit filename="emergeDesktop\ConfigPage.h">
-			<Option target="emergeDesktop - Release" />
-			<Option target="emergeDesktop - Debug" />
-		</Unit>
-		<Unit filename="emergeDesktop\CustomDataObject.cpp">
-			<Option target="emergeDesktop - Release" />
-			<Option target="emergeDesktop - Debug" />
-		</Unit>
-		<Unit filename="emergeDesktop\CustomDataObject.h">
-			<Option target="emergeDesktop - Release" />
-			<Option target="emergeDesktop - Debug" />
-		</Unit>
-		<Unit filename="emergeDesktop\CustomDropSource.cpp">
-			<Option target="emergeDesktop - Release" />
-			<Option target="emergeDesktop - Debug" />
-		</Unit>
-		<Unit filename="emergeDesktop\CustomDropSource.h">
-			<Option target="emergeDesktop - Release" />
-			<Option target="emergeDesktop - Debug" />
-		</Unit>
-		<Unit filename="emergeDesktop\CustomDropTarget.cpp">
-			<Option target="emergeDesktop - Release" />
-			<Option target="emergeDesktop - Debug" />
-		</Unit>
-		<Unit filename="emergeDesktop\CustomDropTarget.h">
-			<Option target="emergeDesktop - Release" />
-			<Option target="emergeDesktop - Debug" />
-		</Unit>
-		<Unit filename="emergeDesktop\ItemEditor.cpp">
-			<Option target="emergeDesktop - Release" />
-			<Option target="emergeDesktop - Debug" />
-		</Unit>
-		<Unit filename="emergeDesktop\ItemEditor.h">
-			<Option target="emergeDesktop - Release" />
-			<Option target="emergeDesktop - Debug" />
-		</Unit>
-		<Unit filename="emergeDesktop\MenuBuilder.cpp">
-			<Option target="emergeDesktop - Release" />
-			<Option target="emergeDesktop - Debug" />
-		</Unit>
-		<Unit filename="emergeDesktop\MenuBuilder.h">
-			<Option target="emergeDesktop - Release" />
-			<Option target="emergeDesktop - Debug" />
-		</Unit>
-		<Unit filename="emergeDesktop\MenuEditor.cpp">
-			<Option target="emergeDesktop - Release" />
-			<Option target="emergeDesktop - Debug" />
-		</Unit>
-		<Unit filename="emergeDesktop\MenuEditor.dlg">
-			<Option target="emergeDesktop - Release" />
-			<Option target="emergeDesktop - Debug" />
-		</Unit>
-		<Unit filename="emergeDesktop\MenuEditor.h">
-			<Option target="emergeDesktop - Release" />
-			<Option target="emergeDesktop - Debug" />
-		</Unit>
-		<Unit filename="emergeDesktop\MenuItem.cpp">
-			<Option target="emergeDesktop - Release" />
-			<Option target="emergeDesktop - Debug" />
-		</Unit>
-		<Unit filename="emergeDesktop\MenuItem.h">
-			<Option target="emergeDesktop - Release" />
-			<Option target="emergeDesktop - Debug" />
-		</Unit>
-		<Unit filename="emergeDesktop\MenuListItem.cpp">
-			<Option target="emergeDesktop - Release" />
-			<Option target="emergeDesktop - Debug" />
-		</Unit>
-		<Unit filename="emergeDesktop\MenuListItem.h">
-			<Option target="emergeDesktop - Release" />
-			<Option target="emergeDesktop - Debug" />
-		</Unit>
-		<Unit filename="emergeDesktop\Settings.cpp">
-			<Option target="emergeDesktop - Release" />
-			<Option target="emergeDesktop - Debug" />
-		</Unit>
-		<Unit filename="emergeDesktop\Settings.h">
-			<Option target="emergeDesktop - Release" />
-			<Option target="emergeDesktop - Debug" />
-		</Unit>
-		<Unit filename="emergeDesktop\emergeDesktop.exe.manifest">
-			<Option target="emergeDesktop - Release" />
-			<Option target="emergeDesktop - Debug" />
-		</Unit>
-		<Unit filename="emergeDesktop\emergeDesktop.rc">
-			<Option compilerVar="WINDRES" />
-			<Option target="emergeDesktop - Release" />
-			<Option target="emergeDesktop - Debug" />
-		</Unit>
-		<Unit filename="emergeDesktop\main.cpp">
-			<Option target="emergeDesktop - Release" />
-			<Option target="emergeDesktop - Debug" />
-		</Unit>
-		<Unit filename="emergeDesktop\resource.h">
-			<Option target="emergeDesktop - Release" />
-			<Option target="emergeDesktop - Debug" />
 		</Unit>
 		<Unit filename="emergeGraphics\BImage.cpp">
 			<Option target="emergeGraphics - Release" />
@@ -1574,6 +1461,115 @@
 		<Unit filename="emergeVWM\resource.h">
 			<Option target="emergeVWM - Release" />
 		</Unit>
+		<Unit filename="emergeWorkspace\Config.cpp">
+			<Option target="emergeWorkspace - Release" />
+			<Option target="emergeWorkspace - Debug" />
+		</Unit>
+		<Unit filename="emergeWorkspace\Config.h">
+			<Option target="emergeWorkspace - Release" />
+			<Option target="emergeWorkspace - Debug" />
+		</Unit>
+		<Unit filename="emergeWorkspace\ConfigPage.cpp">
+			<Option target="emergeWorkspace - Release" />
+			<Option target="emergeWorkspace - Debug" />
+		</Unit>
+		<Unit filename="emergeWorkspace\ConfigPage.dlg">
+			<Option target="emergeWorkspace - Release" />
+			<Option target="emergeWorkspace - Debug" />
+		</Unit>
+		<Unit filename="emergeWorkspace\ConfigPage.h">
+			<Option target="emergeWorkspace - Release" />
+			<Option target="emergeWorkspace - Debug" />
+		</Unit>
+		<Unit filename="emergeWorkspace\CustomDataObject.cpp">
+			<Option target="emergeWorkspace - Release" />
+			<Option target="emergeWorkspace - Debug" />
+		</Unit>
+		<Unit filename="emergeWorkspace\CustomDataObject.h">
+			<Option target="emergeWorkspace - Release" />
+			<Option target="emergeWorkspace - Debug" />
+		</Unit>
+		<Unit filename="emergeWorkspace\CustomDropSource.cpp">
+			<Option target="emergeWorkspace - Release" />
+			<Option target="emergeWorkspace - Debug" />
+		</Unit>
+		<Unit filename="emergeWorkspace\CustomDropSource.h">
+			<Option target="emergeWorkspace - Release" />
+			<Option target="emergeWorkspace - Debug" />
+		</Unit>
+		<Unit filename="emergeWorkspace\CustomDropTarget.cpp">
+			<Option target="emergeWorkspace - Release" />
+			<Option target="emergeWorkspace - Debug" />
+		</Unit>
+		<Unit filename="emergeWorkspace\CustomDropTarget.h">
+			<Option target="emergeWorkspace - Release" />
+			<Option target="emergeWorkspace - Debug" />
+		</Unit>
+		<Unit filename="emergeWorkspace\ItemEditor.cpp">
+			<Option target="emergeWorkspace - Release" />
+			<Option target="emergeWorkspace - Debug" />
+		</Unit>
+		<Unit filename="emergeWorkspace\ItemEditor.h">
+			<Option target="emergeWorkspace - Release" />
+			<Option target="emergeWorkspace - Debug" />
+		</Unit>
+		<Unit filename="emergeWorkspace\MenuBuilder.cpp">
+			<Option target="emergeWorkspace - Release" />
+			<Option target="emergeWorkspace - Debug" />
+		</Unit>
+		<Unit filename="emergeWorkspace\MenuBuilder.h">
+			<Option target="emergeWorkspace - Release" />
+			<Option target="emergeWorkspace - Debug" />
+		</Unit>
+		<Unit filename="emergeWorkspace\MenuEditor.cpp">
+			<Option target="emergeWorkspace - Release" />
+			<Option target="emergeWorkspace - Debug" />
+		</Unit>
+		<Unit filename="emergeWorkspace\MenuEditor.dlg">
+			<Option target="emergeWorkspace - Release" />
+			<Option target="emergeWorkspace - Debug" />
+		</Unit>
+		<Unit filename="emergeWorkspace\MenuEditor.h">
+			<Option target="emergeWorkspace - Release" />
+			<Option target="emergeWorkspace - Debug" />
+		</Unit>
+		<Unit filename="emergeWorkspace\MenuItem.cpp">
+			<Option target="emergeWorkspace - Release" />
+			<Option target="emergeWorkspace - Debug" />
+		</Unit>
+		<Unit filename="emergeWorkspace\MenuItem.h">
+			<Option target="emergeWorkspace - Release" />
+			<Option target="emergeWorkspace - Debug" />
+		</Unit>
+		<Unit filename="emergeWorkspace\MenuListItem.cpp">
+			<Option target="emergeWorkspace - Release" />
+			<Option target="emergeWorkspace - Debug" />
+		</Unit>
+		<Unit filename="emergeWorkspace\MenuListItem.h">
+			<Option target="emergeWorkspace - Release" />
+			<Option target="emergeWorkspace - Debug" />
+		</Unit>
+		<Unit filename="emergeWorkspace\Settings.cpp">
+			<Option target="emergeWorkspace - Release" />
+			<Option target="emergeWorkspace - Debug" />
+		</Unit>
+		<Unit filename="emergeWorkspace\Settings.h">
+			<Option target="emergeWorkspace - Release" />
+			<Option target="emergeWorkspace - Debug" />
+		</Unit>
+		<Unit filename="emergeWorkspace\emergeWorkspace.rc">
+			<Option compilerVar="WINDRES" />
+			<Option target="emergeWorkspace - Release" />
+			<Option target="emergeWorkspace - Debug" />
+		</Unit>
+		<Unit filename="emergeWorkspace\main.cpp">
+			<Option target="emergeWorkspace - Release" />
+			<Option target="emergeWorkspace - Debug" />
+		</Unit>
+		<Unit filename="emergeWorkspace\resource.h">
+			<Option target="emergeWorkspace - Release" />
+			<Option target="emergeWorkspace - Debug" />
+		</Unit>
 		<Unit filename="emerge\emerge.exe.manifest">
 			<Option target="emerge - Release" />
 		</Unit>
@@ -1592,7 +1588,7 @@
 			<Option target="emergeBaseClasses - Release" />
 			<Option target="emergeCore - Release" />
 			<Option target="emergeCommand - Release" />
-			<Option target="emergeDesktop - Release" />
+			<Option target="emergeWorkspace - Release" />
 			<Option target="emergeHotkeys - Release" />
 			<Option target="emergeLauncher - Release" />
 			<Option target="emergeTasks - Release" />
@@ -1606,7 +1602,7 @@
 			<Option target="emergeHelloWorld - Release" />
 			<Option target="emergeLib - Debug" />
 			<Option target="emergeAppletEngine - Debug" />
-			<Option target="emergeDesktop - Debug" />
+			<Option target="emergeWorkspace - Debug" />
 			<Option target="emergeCore - Debug" />
 			<Option target="emergeCommand - Debug" />
 			<Option target="emergeTray - Debug" />
@@ -1724,7 +1720,7 @@
 			<Option target="emergeBaseClasses - Release" />
 			<Option target="emergeCore - Release" />
 			<Option target="emergeCommand - Release" />
-			<Option target="emergeDesktop - Release" />
+			<Option target="emergeWorkspace - Release" />
 			<Option target="emergeHotkeys - Release" />
 			<Option target="emergeLauncher - Release" />
 			<Option target="emergeTasks - Release" />
@@ -1738,7 +1734,7 @@
 			<Option target="emergeHelloWorld - Release" />
 			<Option target="emergeLib - Debug" />
 			<Option target="emergeAppletEngine - Debug" />
-			<Option target="emergeDesktop - Debug" />
+			<Option target="emergeWorkspace - Debug" />
 			<Option target="emergeCore - Debug" />
 			<Option target="emergeCommand - Debug" />
 			<Option target="emergeTray - Debug" />

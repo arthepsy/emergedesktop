@@ -3700,7 +3700,7 @@ std::wstring ELToLower(std::wstring workingString)
   return workingString;
 }
 
-UINT ELStringReplace(WCHAR *original, WCHAR *pattern, WCHAR *replacement, bool ignoreCase)
+UINT ELStringReplace(WCHAR *original, const WCHAR *pattern, const WCHAR *replacement, bool ignoreCase)
 {
   std::wstring workingOrig = original, workingRepl = replacement;
   std::wstring lowerOrig = original, lowerPat = pattern;

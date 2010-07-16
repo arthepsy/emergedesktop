@@ -10,7 +10,7 @@ LIBS += -lshell32 \
 				-lwinmm \
 				-lcomdlg32
 
-TARGET = emergeDesktop
+TARGET = emergeWorkspace
 SUFFIX = .exe
 
 include ../functions.in

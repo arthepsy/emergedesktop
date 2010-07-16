@@ -4,7 +4,7 @@
 include functions.in
 
 LIBS = emergeLib emergeGraphics emergeAppletEngine emergeStyleEngine emergeBaseClasses emergeIcons
-APPLETS = emergeCore emergeDesktop emergeHotkeys emergeTasks emergeCommand emergeLauncher \
+APPLETS = emergeCore emergeWorkspace emergeHotkeys emergeTasks emergeCommand emergeLauncher \
 					emergeVWM emergeTray emerge emergePower emergeSysMon reg2xml
 VERSION = 4.1
 PACKAGE = EmergeDesktop

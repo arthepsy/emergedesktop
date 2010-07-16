@@ -207,6 +207,7 @@ bool Core::RunLaunchItems()
                   if (ELReadXMLStringValue(first, TEXT("Command"), data, TEXT("")))
                     {
                       found = true;
+                      ELStringReplace(data, TEXT("emergeDesktop"), TEXT("emergeWorkspace"), true);
                       ELExecute(data);
                     }
 
@@ -216,7 +217,10 @@ bool Core::RunLaunchItems()
                       first = sibling;
 
                       if (ELReadXMLStringValue(first, TEXT("Command"), data, TEXT("")))
-                        ELExecute(data);
+                        {
+                          ELStringReplace(data, TEXT("emergeDesktop"), TEXT("emergeWorkspace"), true);
+                          ELExecute(data);
+                        }
 
                       sibling = ELGetSiblingXMLElement(first);
                     }
@@ -241,7 +245,7 @@ bool Core::RunLaunchItems()
         ELExecute(path);
 
       wcscpy(path, installDir);
-      wcscat(path, TEXT("emergeDesktop.exe"));
+      wcscat(path, TEXT("emergeWorkspace.exe"));
       if (ELPathFileExists(path))
         ELExecute(path);
 
@@ -565,7 +569,7 @@ bool Core::CheckLaunchList()
     {
       CheckLaunchItem(&launchMap, TEXT("emergeTasks.exe"));
       CheckLaunchItem(&launchMap, TEXT("emergeTray.exe"));
-      CheckLaunchItem(&launchMap, TEXT("emergeDesktop.exe"));
+      CheckLaunchItem(&launchMap, TEXT("emergeWorkspace.exe"));
       CheckLaunchItem(&launchMap, TEXT("emergeCommand.exe"));
       CheckLaunchItem(&launchMap, TEXT("emergeLauncher.exe"));
       CheckLaunchItem(&launchMap, TEXT("emergeHotkeys.exe"));

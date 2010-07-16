@@ -340,7 +340,7 @@ DLL_EXPORT bool ELForceForeground(HWND hwnd);
 DLL_EXPORT HWND ELGetDesktopWindow();
 DLL_EXPORT bool ELAdjustVolume(UINT command);
 //DLL_EXPORT bool ELControlBrowser(UINT command);
-DLL_EXPORT UINT ELStringReplace(WCHAR *original, WCHAR *pattern, WCHAR *replacement, bool ignoreCase);
+DLL_EXPORT UINT ELStringReplace(WCHAR *original, const WCHAR *pattern, const WCHAR *replacement, bool ignoreCase);
 DLL_EXPORT BOOL ELIsWow64();
 DLL_EXPORT std::wstring ELExpandVars(std::wstring value);
 DLL_EXPORT bool ELUnExpandVars(LPTSTR value);
