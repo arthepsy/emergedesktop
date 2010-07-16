@@ -375,9 +375,9 @@ DLL_EXPORT bool ELFileTypeCommand(WCHAR *document, WCHAR *docArgs, WCHAR *comman
 DLL_EXPORT bool ELCreateDirectory(std::wstring directory);
 DLL_EXPORT void ELGetThemeInfo(LPTHEMEINFO themeInfo);
 DLL_EXPORT TiXmlDocument *ELGetXMLConfig(TiXmlElement *element);
-DLL_EXPORT bool ELConvertThemePath(WCHAR *schemeFile, DWORD flags);
-DLL_EXPORT bool ELConvertUserPath(WCHAR *schemeFile, DWORD flags);
-DLL_EXPORT bool ELConvertAppletPath(WCHAR *schemeFile, DWORD flags);
+DLL_EXPORT bool ELConvertThemePath(WCHAR *styleFile, DWORD flags);
+DLL_EXPORT bool ELConvertUserPath(WCHAR *styleFile, DWORD flags);
+DLL_EXPORT bool ELConvertAppletPath(WCHAR *styleFile, DWORD flags);
 DLL_EXPORT int ELGetAppletMonitor(HWND hwnd);
 DLL_EXPORT RECT ELGetMonitorRect(int monitor);
 //DLL_EXPORT bool ELIsKeyDown(UINT virtualKey);

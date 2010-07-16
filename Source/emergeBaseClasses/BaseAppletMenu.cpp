@@ -20,7 +20,7 @@
 //----  --------------------------------------------------------------------------------------------------------
 
 #include "BaseAppletMenu.h"
-#include "../emergeSchemeEngine/emergeSchemeEngine.h"
+#include "../emergeStyleEngine/emergeStyleEngine.h"
 #include <stdio.h>
 #include <shlwapi.h>
 
@@ -106,22 +106,22 @@ void BaseAppletMenu::BuildMenu()
 {
   AppendMenu(appletMenu, MF_STRING, EBC_ABOUT, TEXT("About"));
   AppendMenu(appletMenu, MF_SEPARATOR, 0, NULL);
-  AppendMenu(appletMenu, MF_STRING, EBC_LOADSCHEME, TEXT("Load Scheme"));
-  AppendMenu(appletMenu, MF_STRING, EBC_RELOADSCHEME, TEXT("Reload Current Scheme"));
+  AppendMenu(appletMenu, MF_STRING, EBC_LOADSTYLE, TEXT("Load Style"));
+  AppendMenu(appletMenu, MF_STRING, EBC_RELOADSTYLE, TEXT("Reload Current Style"));
   AppendMenu(appletMenu, MF_SEPARATOR, 0, NULL);
   AppendMenu(appletMenu, MF_STRING, EBC_CONFIGURE, TEXT("Configure"));
   AppendMenu(appletMenu, MF_SEPARATOR, 0, NULL);
   AppendMenu(appletMenu, MF_STRING, EBC_EXIT, TEXT("Exit"));
 }
 
-DWORD BaseAppletMenu::ActivateMenu(int x, int y, WCHAR *schemeFile)
+DWORD BaseAppletMenu::ActivateMenu(int x, int y, WCHAR *styleFile)
 {
   UINT ret = TrackPopupMenuEx(appletMenu, TPM_RETURNCMD, x, y, mainWnd, NULL);
   WCHAR file[MAX_PATH];
   OPENFILENAME ofn;
-  std::wstring themePath = TEXT("%ThemeDir%"), schemePath = ESEGetScheme();
+  std::wstring themePath = TEXT("%ThemeDir%"), stylePath = ESEGetStyle();
   themePath = ELExpandVars(themePath);
-  schemePath = ELExpandVars(schemePath);
+  stylePath = ELExpandVars(stylePath);
 
   switch (ret)
     {
@@ -131,10 +131,10 @@ DWORD BaseAppletMenu::ActivateMenu(int x, int y, WCHAR *schemeFile)
 
       if (ELAppletVersionInfo(mainWnd, &versionInfo))
         {
-          swprintf(tmp, TEXT("%s\n\nVersion: %s\n\nCurrent Scheme: %s\n\nAuthor: %s"),
+          swprintf(tmp, TEXT("%s\n\nVersion: %s\n\nCurrent Style: %s\n\nAuthor: %s"),
                    versionInfo.Description,
                    versionInfo.Version,
-                   schemePath.c_str(),
+                   stylePath.c_str(),
                    versionInfo.Author);
 
           ELMessageBox(GetDesktopWindow(), tmp, appletName, ELMB_ICONQUESTION|ELMB_OK|ELMB_MODAL);
@@ -147,27 +147,27 @@ DWORD BaseAppletMenu::ActivateMenu(int x, int y, WCHAR *schemeFile)
       PostQuitMessage(0);
       break;
 
-    case EBC_LOADSCHEME:
+    case EBC_LOADSTYLE:
       ZeroMemory(file, MAX_PATH);
       ZeroMemory(&ofn, sizeof(ofn));
 
       ofn.lStructSize = sizeof(ofn);
       ofn.hwndOwner = mainWnd;
-      ofn.lpstrFilter = TEXT("Scheme (*.eds)\0*.eds\0");
+      ofn.lpstrFilter = TEXT("Style (*.eds)\0*.eds\0");
       ofn.lpstrFile = file;
       ofn.nMaxFile = MAX_PATH;
-      schemePath = themePath + TEXT("\\Schemes");
-      if (PathIsDirectory(schemePath.c_str()))
-        themePath = schemePath;
+      stylePath = themePath + TEXT("\\Styles");
+      if (PathIsDirectory(stylePath.c_str()))
+        themePath = stylePath;
       ofn.lpstrInitialDir = themePath.c_str();
-      ofn.lpstrTitle = TEXT("Load Scheme");
+      ofn.lpstrTitle = TEXT("Load Style");
       ofn.lpstrDefExt = NULL;
       ofn.Flags = OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST | OFN_EXPLORER | OFN_DONTADDTORECENT | OFN_NOCHANGEDIR | OFN_NODEREFERENCELINKS;
 
       if (GetOpenFileName(&ofn))
         {
           ELUnExpandVars(file);
-          wcscpy(schemeFile, file);
+          wcscpy(styleFile, file);
           break;
         }
       else

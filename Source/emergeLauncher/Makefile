@@ -6,7 +6,7 @@ LIBS += -lshell32 \
 				-luuid \
 				-lcomdlg32 \
 				-lgdi32 \
-				-lemergeSchemeEngine \
+				-lemergeStyleEngine \
 				-lemergeBaseClasses
 
 TARGET = emergeLauncher

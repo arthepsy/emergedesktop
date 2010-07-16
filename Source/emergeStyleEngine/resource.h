@@ -50,11 +50,11 @@
 #define IDC_STATIC26            1026
 #define IDC_STATIC27            1027
 
-#define IDD_SCHEMEEDITOR        100
+#define IDD_STYLEEDITOR        100
 #define IDC_PREVIEW             101
 #define IDC_SAVEAS              102
 #define IDC_LOAD                103
-#define IDC_SCHEMENAME          104
+#define IDC_STYLENAME          104
 #define IDC_DEFAULTS            105
 
 #define IDC_ACTIVESLIDER        200

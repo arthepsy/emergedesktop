@@ -6,7 +6,7 @@ LIBS += -lemergeLib \
 				-lcomdlg32 \
 				-lemergeGraphics \
 				-lemergeAppletEngine \
-				-lemergeSchemeEngine \
+				-lemergeStyleEngine \
 				-lemergeBaseClasses
 
 TARGET = emergeHelloWorld

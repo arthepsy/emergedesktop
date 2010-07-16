@@ -47,7 +47,7 @@ Config::Config(HINSTANCE hInstance, HWND mainWnd, std::tr1::shared_ptr<Settings>
   pIconHidePage = std::tr1::shared_ptr<IconHidePage>(new IconHidePage(hInstance, pSettings));
   pPositionPage = std::tr1::shared_ptr<BasePositionPage>
                   (new BasePositionPage(pSettings, BPP_ZORDER|BPP_HORIZONTAL|BPP_ORIENTATION|BPP_VERTICAL));
-  pSchemeEditor = std::tr1::shared_ptr<SchemeEditor>(new SchemeEditor(mainWnd));
+  pStyleEditor = std::tr1::shared_ptr<StyleEditor>(new StyleEditor(mainWnd));
   pBalloonPage = std::tr1::shared_ptr<BalloonPage>(new BalloonPage(pSettings));
 }
 
@@ -105,14 +105,14 @@ INT_PTR Config::DoInitDialog(HWND hwndDlg)
   psp[3].lParam = reinterpret_cast<LPARAM>(pPositionPage.get());
   psp[3].pfnCallback = NULL;
 
-  pSchemeEditor->Edit(pSettings->GetSchemeFile());
+  pStyleEditor->Edit(pSettings->GetStyleFile());
   psp[4].dwSize = sizeof(PROPSHEETPAGE);
   psp[4].dwFlags = PSP_USETITLE;
-  psp[4].hInstance = GetModuleHandle(TEXT("emergeSchemeEngine.dll"));
-  psp[4].pszTemplate = pSchemeEditor->GetTemplate();
-  psp[4].pfnDlgProc = pSchemeEditor->SchemeEditorDlgProc;
-  psp[4].pszTitle = TEXT("Scheme Editor");
-  psp[4].lParam = reinterpret_cast<LPARAM>(pSchemeEditor.get());
+  psp[4].hInstance = GetModuleHandle(TEXT("emergeStyleEngine.dll"));
+  psp[4].pszTemplate = pStyleEditor->GetTemplate();
+  psp[4].pfnDlgProc = pStyleEditor->StyleEditorDlgProc;
+  psp[4].pszTitle = TEXT("Style Editor");
+  psp[4].lParam = reinterpret_cast<LPARAM>(pStyleEditor.get());
   psp[4].pfnCallback = NULL;
 
   psh.dwSize = sizeof(PROPSHEETHEADER);
@@ -130,7 +130,7 @@ INT_PTR Config::DoInitDialog(HWND hwndDlg)
 
   if (ret >= 1)
     {
-      pSettings->SetSchemeFile(ESEGetScheme());
+      pSettings->SetStyleFile(ESEGetStyle());
       pSettings->WriteSettings();
       EndDialog(hwndDlg, IDOK);
     }

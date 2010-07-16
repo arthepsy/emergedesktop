@@ -117,7 +117,7 @@ bool PathTokenCheck(WCHAR *path);
 std::tr1::shared_ptr<TiXmlDocument> OpenXMLConfig(std::string filename, bool create);
 BOOL CALLBACK AppletMonitorEnum(HMONITOR hMonitor, HDC hdcMonitor, LPRECT lprcMonitor, LPARAM dwData);
 BOOL CALLBACK MonitorRectEnum(HMONITOR hMonitor, HDC hdcMonitor, LPRECT lprcMonitor, LPARAM dwData);
-bool ConvertPath(WCHAR *schemeFile, DWORD flags, DWORD path);
+bool ConvertPath(WCHAR *styleFile, DWORD flags, DWORD path);
 BOOL CALLBACK ThemeEnum(HWND hwnd, LPARAM lParam);
 
 typedef struct _APPLETMONITORINFO
@@ -3941,29 +3941,29 @@ bool ELPlaySound(const WCHAR *sound)
   return PlaySound(sound, NULL, soundFlags) == TRUE;
 }
 
-bool ELConvertUserPath(WCHAR *schemeFile, DWORD flags)
+bool ELConvertUserPath(WCHAR *styleFile, DWORD flags)
 {
-  return ConvertPath(schemeFile, flags, CP_USER);
+  return ConvertPath(styleFile, flags, CP_USER);
 }
 
-bool ELConvertThemePath(WCHAR *schemeFile, DWORD flags)
+bool ELConvertThemePath(WCHAR *styleFile, DWORD flags)
 {
-  return ConvertPath(schemeFile, flags, CP_THEME);
+  return ConvertPath(styleFile, flags, CP_THEME);
 }
 
-bool ELConvertAppletPath(WCHAR *schemeFile, DWORD flags)
+bool ELConvertAppletPath(WCHAR *styleFile, DWORD flags)
 {
-  return ConvertPath(schemeFile, flags, CP_APPLET);
+  return ConvertPath(styleFile, flags, CP_APPLET);
 }
 
-bool ConvertPath(WCHAR *schemeFile, DWORD flags, DWORD path)
+bool ConvertPath(WCHAR *styleFile, DWORD flags, DWORD path)
 {
   WCHAR tmpPath[MAX_PATH];
   UINT j = 0;
   bool converted = false;
   std::wstring themePath;
 
-  if (wcslen(schemeFile) == 0)
+  if (wcslen(styleFile) == 0)
     return converted;
 
   if (path == CP_USER)
@@ -3976,18 +3976,18 @@ bool ConvertPath(WCHAR *schemeFile, DWORD flags, DWORD path)
   switch (flags)
     {
     case CTP_FULL:
-      if (ELPathIsRelative(schemeFile))
+      if (ELPathIsRelative(styleFile))
         {
-          themePath += schemeFile;
+          themePath += styleFile;
 
-          wcscpy(schemeFile, themePath.c_str());
+          wcscpy(styleFile, themePath.c_str());
           converted = true;
         }
       break;
     case CTP_RELATIVE:
-      if (!ELPathIsRelative(schemeFile))
+      if (!ELPathIsRelative(styleFile))
         {
-          if (PathRelativePathTo(tmpPath, themePath.c_str(), FILE_ATTRIBUTE_DIRECTORY, schemeFile, FILE_ATTRIBUTE_NORMAL))
+          if (PathRelativePathTo(tmpPath, themePath.c_str(), FILE_ATTRIBUTE_DIRECTORY, styleFile, FILE_ATTRIBUTE_NORMAL))
             {
               // If the file is stored in the current directory, the PathRelativePathTo
               // prepends the string with '\' making windows think the file is in the root
@@ -3997,10 +3997,10 @@ bool ConvertPath(WCHAR *schemeFile, DWORD flags, DWORD path)
                   if ((i == 0) && (tmpPath[i] == '\\'))
                     continue;
 
-                  schemeFile[j] = tmpPath[i];
+                  styleFile[j] = tmpPath[i];
                   j++;
                 }
-              schemeFile[j] = '\0';
+              styleFile[j] = '\0';
               converted = true;
             }
         }

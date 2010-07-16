@@ -38,8 +38,8 @@
 #endif
 
 #define EBC_ABOUT         100
-#define EBC_LOADSCHEME    200
-#define EBC_RELOADSCHEME  202
+#define EBC_LOADSTYLE     200
+#define EBC_RELOADSTYLE   202
 #define EBC_CONFIGURE     400
 #define EBC_EXIT          500
 
@@ -50,7 +50,7 @@ public:
   ~BaseAppletMenu();
   void Initialize();
   void BuildMenu();
-  DWORD ActivateMenu(int x, int y, WCHAR *schemeFile);
+  DWORD ActivateMenu(int x, int y, WCHAR *styleFile);
   void UpdateHook(DWORD menuAlpha);
 
 private:

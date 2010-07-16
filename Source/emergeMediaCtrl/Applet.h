@@ -36,7 +36,7 @@
 #include <vector>
 #include <string>
 #include <process.h>
-#include "../emergeSchemeEngine/emergeSchemeEngine.h"
+#include "../emergeStyleEngine/emergeStyleEngine.h"
 #include "../emergeAppletEngine/emergeAppletEngine.h"
 #include "../emergeBaseClasses/BaseApplet.h"
 #include "Button.h"

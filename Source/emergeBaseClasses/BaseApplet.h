@@ -29,7 +29,7 @@
 
 #include "../emergeLib/emergeLib.h"
 #include "../emergeGraphics/emergeGraphics.h"
-#include "../emergeSchemeEngine/emergeSchemeEngine.h"
+#include "../emergeStyleEngine/emergeStyleEngine.h"
 #include "BaseSettings.h"
 #include "BaseAppletMenu.h"
 
@@ -79,7 +79,7 @@ public:
   LRESULT DoSysCommand(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
   LRESULT DoHitTest(LPARAM lParam);
   LRESULT DoCopyData(COPYDATASTRUCT *cds);
-  void UpdateGUI(WCHAR *schemeFile = NULL);
+  void UpdateGUI(WCHAR *styleFile = NULL);
   void AdjustRect(RECT *wndRect);
   bool ClickThrough();
   std::tr1::shared_ptr<BaseSettings> pBaseSettings;

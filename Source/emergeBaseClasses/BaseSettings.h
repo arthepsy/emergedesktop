@@ -32,7 +32,7 @@
 #endif
 
 #include "../emergeLib/emergeLib.h"
-#include "../emergeSchemeEngine/emergeSchemeEngine.h"
+#include "../emergeStyleEngine/emergeStyleEngine.h"
 #include <shlwapi.h>
 
 class DLL_EXPORT BaseSettings
@@ -90,7 +90,7 @@ public:
   bool GetSnapMove();
   bool GetSnapSize();
   bool GetDynamicPositioning();
-  WCHAR *GetSchemeFile();
+  WCHAR *GetStyleFile();
   int GetClickThrough();
   bool SetPosition();
   bool SetSize(int width, int height);
@@ -103,7 +103,7 @@ public:
   bool SetSnapMove(bool snapMove);
   bool SetSnapSize(bool snapSize);
   bool SetDynamicPositioning(bool dynamicPositioning);
-  bool SetSchemeFile(const WCHAR *schemeFile);
+  bool SetStyleFile(const WCHAR *styleFile);
   bool SetIconSize(int iconSize);
   bool SetIconSpacing(int iconSpacing);
   RECT *GetResolution();
@@ -116,7 +116,7 @@ public:
   void ClearModified();
   bool GetModified();
   bool CopyTheme();
-  bool CopyScheme();
+  bool CopyStyle();
 
 protected:
   virtual void DoReadSettings(IOHelper& helper);
@@ -136,7 +136,7 @@ private:
   WCHAR keyString[MAX_LINE_LENGTH];
   WCHAR appletName[MAX_LINE_LENGTH];
   bool allowAutoSize;
-  WCHAR schemeFile[MAX_PATH];
+  WCHAR styleFile[MAX_PATH];
   bool modifiedFlag;
   std::wstring oldTheme, defaultTheme, GBRYTheme;
 };

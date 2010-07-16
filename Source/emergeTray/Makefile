@@ -5,7 +5,7 @@ LIBS += -luuid \
 				-lcomdlg32 \
 				-lemergeLib \
 				-lemergeGraphics \
-				-lemergeSchemeEngine \
+				-lemergeStyleEngine \
 				-lemergeBaseClasses
 
 TARGET = emergeTray

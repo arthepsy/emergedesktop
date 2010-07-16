@@ -55,19 +55,19 @@ bool AppletSettings::ConvertReg()
 
 void AppletSettings::ConvertSettings(IOHelper &keyHelper, IOHelper &xmlHelper)
 {
-  WCHAR schemeFile[MAX_PATH], origScheme[MAX_PATH];
-  std::wstring themeScheme = TEXT("%ThemeDir%\\Schemes\\");
+  WCHAR styleFile[MAX_PATH], origStyle[MAX_PATH];
+  std::wstring themeStyle = TEXT("%ThemeDir%\\Styles\\");
   DoReadSettings(keyHelper);
-  wcscpy(origScheme, GetSchemeFile());
-  if (ELPathFileExists(origScheme))
+  wcscpy(origStyle, GetStyleFile());
+  if (ELPathFileExists(origStyle))
     {
-      if (!PathIsDirectory(themeScheme.c_str()))
-        ELCreateDirectory(themeScheme);
-      wcscpy(schemeFile, PathFindFileName(origScheme));
-      themeScheme += schemeFile;
-      SetSchemeFile(themeScheme.c_str());
-      themeScheme = ELExpandVars(themeScheme);
-      CopyFile(origScheme, themeScheme.c_str(), TRUE);
+      if (!PathIsDirectory(themeStyle.c_str()))
+        ELCreateDirectory(themeStyle);
+      wcscpy(styleFile, PathFindFileName(origStyle));
+      themeStyle += styleFile;
+      SetStyleFile(themeStyle.c_str());
+      themeStyle = ELExpandVars(themeStyle);
+      CopyFile(origStyle, themeStyle.c_str(), TRUE);
     }
   DoWriteSettings(xmlHelper);
 }

@@ -3,7 +3,7 @@ LIBS += -lshell32 \
 				-lemergeLib \
 				-lemergeGraphics \
 				-lemergeAppletEngine \
-				-lemergeSchemeEngine \
+				-lemergeStyleEngine \
 				-lemergeBaseClasses
 
 TARGET = emergeTasks

@@ -18,10 +18,10 @@
 //
 //----  --------------------------------------------------------------------------------------------------------
 
-#ifndef __EMERGESCHEMEENGINE_H
-#define __EMERGESCHEMEENGINE_H
+#ifndef __EMERGESTYLEENGINE_H
+#define __EMERGESTYLEENGINE_H
 
-#ifdef EMERGESCHEMEENGINE_EXPORTS
+#ifdef EMERGESTYLEENGINE_EXPORTS
 #undef DLL_EXPORT
 #define DLL_EXPORT  __declspec(dllexport)
 #else
@@ -35,12 +35,12 @@
 #include "../emergeGraphics/emergeGraphics.h"
 
 // Declaration of functions to import
-DLL_EXPORT WCHAR *ESEGetScheme();
-DLL_EXPORT void ESESetScheme(WCHAR *schemeFile);
-DLL_EXPORT bool ESEWriteScheme(WCHAR *schemeFile, LPGUIINFO guiInfo, HWND hwnd);
-DLL_EXPORT void ESEReadScheme(WCHAR *schemeFile, LPGUIINFO guiInfo);
-DLL_EXPORT void ESELoadScheme(WCHAR *schemeFile, LPGUIINFO guiInfo);
-DLL_EXPORT bool ESEEqualScheme(LPGUIINFO sourceInfo, LPGUIINFO targetInfo);
+DLL_EXPORT WCHAR *ESEGetStyle();
+DLL_EXPORT void ESESetStyle(WCHAR *styleFile);
+DLL_EXPORT bool ESEWriteStyle(WCHAR *styleFile, LPGUIINFO guiInfo, HWND hwnd);
+DLL_EXPORT void ESEReadStyle(WCHAR *styleFile, LPGUIINFO guiInfo);
+DLL_EXPORT void ESELoadStyle(WCHAR *styleFile, LPGUIINFO guiInfo);
+DLL_EXPORT bool ESEEqualStyle(LPGUIINFO sourceInfo, LPGUIINFO targetInfo);
 DLL_EXPORT HDC ESEPaintBackground(RECT clientRect, LPGUIINFO guiInfo, bool active);
 
 #endif

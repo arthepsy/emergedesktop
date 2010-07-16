@@ -1,4 +1,4 @@
-LIBS += -lemergeLib -lole32 -lgdi32 -lcomdlg32 -lemergeSchemeEngine -lemergeAppletEngine -lemergeGraphics -lshlwapi
+LIBS += -lemergeLib -lole32 -lgdi32 -lcomdlg32 -lemergeStyleEngine -lemergeAppletEngine -lemergeGraphics -lshlwapi
 
 TARGET = emergeBaseClasses
 SUFFIX = .dll

@@ -6,7 +6,7 @@ LIBS += -lshell32 \
 				-lemergeGraphics \
 				-lemergeAppletEngine \
 				-lemergeBaseClasses \
-				-lemergeSchemeEngine
+				-lemergeStyleEngine
 
 TARGET = emergeSysMon
 SUFFIX = .exe

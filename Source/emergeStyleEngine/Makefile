@@ -1,8 +1,8 @@
 LIBS += -lversion -lmsimg32 -lshlwapi -lgdi32 -lcomdlg32 -lemergeLib -lemergeGraphics
 
-TARGET = emergeSchemeEngine
+TARGET = emergeStyleEngine
 SUFFIX = .dll
-EXPORTS = -DEMERGESCHEMEENGINE_EXPORTS
+EXPORTS = -DEMERGESTYLEENGINE_EXPORTS
 
 include ../functions.in
 include ../globals.in

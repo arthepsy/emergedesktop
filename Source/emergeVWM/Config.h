@@ -27,7 +27,7 @@
 #include "Settings.h"
 #include "resource.h"
 #include "../emergeBaseClasses/BasePositionPage.h"
-#include "../emergeSchemeEngine/SchemeEditor.h"
+#include "../emergeStyleEngine/StyleEditor.h"
 #include "ConfigPage.h"
 #include "StickyPage.h"
 
@@ -48,7 +48,7 @@ public:
 
 private:
   std::tr1::shared_ptr<BasePositionPage> pPositionPage;
-  std::tr1::shared_ptr<SchemeEditor> pSchemeEditor;
+  std::tr1::shared_ptr<StyleEditor> pStyleEditor;
   std::tr1::shared_ptr<ConfigPage> pConfigPage;
   std::tr1::shared_ptr<StickyPage> pStickyPage;
   std::tr1::shared_ptr<Settings> pSettings;

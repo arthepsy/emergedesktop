@@ -40,12 +40,12 @@ BEGIN
         BLOCK "000004B0"
         BEGIN
             VALUE "CompanyName", "The Emerge Desktop Development Team"
-            VALUE "FileDescription", "emergeSchemeEngine - Emerge Desktop graphics library"
+            VALUE "FileDescription", "emergeStyleEngine - Emerge Desktop graphics library"
             VALUE "FileVersion", POINT_VERSION
-            VALUE "InternalName", "emergeSchemeEngine"
+            VALUE "InternalName", "emergeStyleEngine"
             VALUE "LegalCopyright", "Copyright (C) 2004-2010"
-            VALUE "OriginalFilename", "emergeSchemeEngine.dll"
-            VALUE "ProductName", "emergeSchemeEngine"
+            VALUE "OriginalFilename", "emergeStyleEngine.dll"
+            VALUE "ProductName", "emergeStyleEngine"
             VALUE "ProductVersion", POINT_VERSION
         END
     END
@@ -55,15 +55,15 @@ BEGIN
     END
 END
 
-IDD_SCHEMEEDITOR DIALOGEX 0,0,CONFIG_WIDTH,CONFIG_HEIGHT
+IDD_STYLEEDITOR DIALOGEX 0,0,CONFIG_WIDTH,CONFIG_HEIGHT
 STYLE WS_POPUP | WS_VISIBLE | WS_CAPTION
-CAPTION "Emerge Desktop Scheme Editor"
+CAPTION "Emerge Desktop Style Editor"
 FONT 8, "MS Shell Dlg"
 BEGIN
   PUSHBUTTON  "Load",IDC_LOAD,5,5,60,14
   PUSHBUTTON  "Save As",IDC_SAVEAS,70,5,60,14
-  LTEXT "Current Scheme:",IDC_STATIC1,140,8,60,8
-  LTEXT "",IDC_SCHEMENAME,200,8,100,8
+  LTEXT "Current Style:",IDC_STATIC1,140,8,60,8
+  LTEXT "",IDC_STYLENAME,200,8,100,8
 
 	CONTROL		"MenuTree",IDC_PANELTREE,"SysTreeView32",
     TVS_HASBUTTONS|TVS_HASLINES|TVS_LINESATROOT|TVS_SHOWSELALWAYS|WS_BORDER|WS_TABSTOP,5,25,80,150

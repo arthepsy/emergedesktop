@@ -1,4 +1,4 @@
-// vim:tags+=../emergeLib/tags,../emergeAppletEngine/tags,../emergeGraphics/tags,../emergeSchemeEngine/tags
+// vim:tags+=../emergeLib/tags,../emergeAppletEngine/tags,../emergeGraphics/tags,../emergeStyleEngine/tags
 //----  --------------------------------------------------------------------------------------------------------
 //
 //  This file is part of Emerge Desktop.
@@ -166,16 +166,16 @@ LRESULT BaseApplet::DoExitSizeMove(HWND hwnd)
   return 0;
 }
 
-void BaseApplet::UpdateGUI(WCHAR *schemeFile)
+void BaseApplet::UpdateGUI(WCHAR *styleFile)
 {
   int dragBorder;
   HWND hWndInsertAfter;
   RECT wndRect;
 
   pBaseSettings->ReadSettings();
-  if (schemeFile == NULL)
-    schemeFile = pBaseSettings->GetSchemeFile();
-  ESELoadScheme(schemeFile, &guiInfo);
+  if (styleFile == NULL)
+    styleFile = pBaseSettings->GetStyleFile();
+  ESELoadStyle(styleFile, &guiInfo);
 
   if (pBaseSettings->GetClickThrough() == 2)
     guiInfo.alphaBackground = 0;
@@ -723,18 +723,18 @@ LRESULT BaseApplet::DoTimer(UINT_PTR timerID)
 LRESULT BaseApplet::DoNCRButtonUp()
 {
   POINT pt;
-  WCHAR schemeFile[MAX_LINE_LENGTH];
+  WCHAR styleFile[MAX_LINE_LENGTH];
 
   GetCursorPos(&pt);
-  switch (pBaseAppletMenu->ActivateMenu(pt.x, pt.y, schemeFile))
+  switch (pBaseAppletMenu->ActivateMenu(pt.x, pt.y, styleFile))
     {
-    case EBC_LOADSCHEME:
-      pBaseSettings->SetSchemeFile(schemeFile);
+    case EBC_LOADSTYLE:
+      pBaseSettings->SetStyleFile(styleFile);
       pBaseSettings->WriteSettings();
       UpdateGUI();
       break;
 
-    case EBC_RELOADSCHEME:
+    case EBC_RELOADSTYLE:
       UpdateGUI();
       break;
 
@@ -777,7 +777,7 @@ LRESULT BaseApplet::DoEmergeNotify(UINT messageClass, UINT message)
 
         case CORE_REFRESH:
           ZeroMemory(&oldrt, sizeof(RECT));
-          UpdateGUI(ESEGetScheme());
+          UpdateGUI(ESEGetStyle());
           break;
 
         case CORE_REPOSITION:

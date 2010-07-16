@@ -4,7 +4,7 @@ LIBS += -lshell32 \
 				-lgdi32 \
 				-lemergeLib \
 				-lemergeGraphics \
-				-lemergeSchemeEngine \
+				-lemergeStyleEngine \
 				-lemergeAppletEngine \
 				-lemergeBaseClasses
 

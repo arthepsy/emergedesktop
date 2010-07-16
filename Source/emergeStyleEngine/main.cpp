@@ -28,35 +28,35 @@
 #undef WINVER
 #define WINVER 0x0501
 
-#include "emergeSchemeEngine.h"
+#include "emergeStyleEngine.h"
 //#include "BImage.h"
 #include "../emergeLib/emergeLib.h"
-#include "SchemeEditor.h"
+#include "StyleEditor.h"
 
 // Globals
-WCHAR scheme[MAX_PATH];
+WCHAR style[MAX_PATH];
 HBRUSH bgBrush = NULL;
 
 // Globals
-SchemeEditor *pSchemeEditor;
+StyleEditor *pStyleEditor;
 
 //----  --------------------------------------------------------------------------------------------------------
-// Function:    ESEGetScheme
+// Function:    ESEGetStyle
 // Requires:    Nothing
 // Returns:     WCHAR*
-// Purpose:     Retrieves the current scheme
+// Purpose:     Retrieves the current style
 //----  --------------------------------------------------------------------------------------------------------
-WCHAR *ESEGetScheme()
+WCHAR *ESEGetStyle()
 {
-  return scheme;
+  return style;
 }
 
-void ESESetScheme(WCHAR *schemeFile)
+void ESESetStyle(WCHAR *styleFile)
 {
-  wcscpy(scheme, schemeFile);
+  wcscpy(style, styleFile);
 }
 
-bool ESEEqualScheme(LPGUIINFO sourceInfo, LPGUIINFO targetInfo)
+bool ESEEqualStyle(LPGUIINFO sourceInfo, LPGUIINFO targetInfo)
 {
   if (sourceInfo->alphaActive != targetInfo->alphaActive)
     return false;
@@ -127,20 +127,20 @@ bool ESEEqualScheme(LPGUIINFO sourceInfo, LPGUIINFO targetInfo)
   return true;
 }
 
-bool ESEWriteScheme(WCHAR *schemeFile, LPGUIINFO guiInfo, HWND hwnd)
+bool ESEWriteStyle(WCHAR *styleFile, LPGUIINFO guiInfo, HWND hwnd)
 {
   GUIINFO origGuiInfo;
-  std::wstring workingScheme = schemeFile;
+  std::wstring workingStyle = styleFile;
   std::wstring theme = ELGetThemeName();
-  workingScheme = ELExpandVars(workingScheme);
+  workingStyle = ELExpandVars(workingStyle);
 
-  ESEReadScheme(schemeFile, &origGuiInfo);
-  if (ESEEqualScheme(&origGuiInfo, guiInfo))
+  ESEReadStyle(styleFile, &origGuiInfo);
+  if (ESEEqualStyle(&origGuiInfo, guiInfo))
     return true;
 
-  if (workingScheme.empty())
+  if (workingStyle.empty())
     {
-      ELMessageBox(hwnd, L"Scheme name cannot be empty", L"Scheme Editor", ELMB_MODAL|ELMB_ICONERROR|ELMB_OK);
+      ELMessageBox(hwnd, L"Style name cannot be empty", L"Style Editor", ELMB_MODAL|ELMB_ICONERROR|ELMB_OK);
       return false;
     }
 
@@ -159,89 +159,89 @@ bool ESEWriteScheme(WCHAR *schemeFile, LPGUIINFO guiInfo, HWND hwnd)
               errorMessage = L"Cannot create \'";
               errorMessage += newThemePath;
               errorMessage += L"\'.";
-              ELMessageBox(hwnd, errorMessage.c_str(), L"Scheme Editor", ELMB_MODAL|ELMB_ICONERROR|ELMB_OK);
+              ELMessageBox(hwnd, errorMessage.c_str(), L"Style Editor", ELMB_MODAL|ELMB_ICONERROR|ELMB_OK);
               return false;
             }
 
-          workingScheme = ESEGetScheme();
-          workingScheme = ELExpandVars(workingScheme);
+          workingStyle = ESEGetStyle();
+          workingStyle = ELExpandVars(workingStyle);
         }
       else
         {
           errorMessage = L"Failed to create modified theme.";
-          ELMessageBox(hwnd, errorMessage.c_str(), L"Scheme Editor", ELMB_MODAL|ELMB_ICONERROR|ELMB_OK);
+          ELMessageBox(hwnd, errorMessage.c_str(), L"Style Editor", ELMB_MODAL|ELMB_ICONERROR|ELMB_OK);
           return false;
         }
     }
 
-  ELWriteFileInt(workingScheme.c_str(), (WCHAR*)TEXT("alpha.active:"), (int)guiInfo->alphaActive);
-  ELWriteFileInt(workingScheme.c_str(), (WCHAR*)TEXT("alpha.inactive:"), (int)guiInfo->alphaInactive);
-  ELWriteFileInt(workingScheme.c_str(), (WCHAR*)TEXT("alpha.background:"), (int)guiInfo->alphaBackground);
-  ELWriteFileInt(workingScheme.c_str(), (WCHAR*)TEXT("alpha.menu:"), (int)guiInfo->alphaMenu);
-  ELWriteFileInt(workingScheme.c_str(), (WCHAR*)TEXT("alpha.foreground:"), (int)guiInfo->alphaForeground);
-  ELWriteFileInt(workingScheme.c_str(), (WCHAR*)TEXT("alpha.frame:"), (int)guiInfo->alphaFrame);
-  ELWriteFileInt(workingScheme.c_str(), (WCHAR*)TEXT("alpha.selected:"), (int)guiInfo->alphaSelected);
-  ELWriteFileInt(workingScheme.c_str(), (WCHAR*)TEXT("alpha.border:"), (int)guiInfo->alphaBorder);
-  ELWriteFileInt(workingScheme.c_str(), (WCHAR*)TEXT("alpha.text:"), (int)guiInfo->alphaText);
-  ELWriteFileColor(workingScheme.c_str(), (WCHAR*)TEXT("color.background:"), guiInfo->colorBackground);
-  ELWriteFileColor(workingScheme.c_str(), (WCHAR*)TEXT("color.selected:"), guiInfo->colorSelected);
-  ELWriteFileColor(workingScheme.c_str(), (WCHAR*)TEXT("color.foreground:"), guiInfo->colorForeground);
-  ELWriteFileColor(workingScheme.c_str(), (WCHAR*)TEXT("color.frame:"), guiInfo->colorFrame);
-  ELWriteFileColor(workingScheme.c_str(), (WCHAR*)TEXT("color.font:"), guiInfo->colorFont);
-  ELWriteFileColor(workingScheme.c_str(), (WCHAR*)TEXT("color.border:"), guiInfo->colorBorder);
-  ELWriteFileBool(workingScheme.c_str(), (WCHAR*)TEXT("window.shadow:"), guiInfo->windowShadow);
-  ELWriteFileInt(workingScheme.c_str(), (WCHAR*)TEXT("window.dragborder:"), (int)guiInfo->dragBorder);
-  ELWriteFileInt(workingScheme.c_str(), (WCHAR*)TEXT("window.bevelWidth:"), (int)guiInfo->bevelWidth);
-  ELWriteFileInt(workingScheme.c_str(), (WCHAR*)TEXT("window.padding:"), (int)guiInfo->padding);
-  ELWriteFileColor(workingScheme.c_str(), (WCHAR*)TEXT("gradient.colorFrom:"), guiInfo->gradientFrom);
-  ELWriteFileColor(workingScheme.c_str(), (WCHAR*)TEXT("gradient.colorTo:"), guiInfo->gradientTo);
-  ELWriteFileString(workingScheme.c_str(), (WCHAR*)TEXT("gradient.method:"), guiInfo->gradientMethod);
+  ELWriteFileInt(workingStyle.c_str(), (WCHAR*)TEXT("alpha.active:"), (int)guiInfo->alphaActive);
+  ELWriteFileInt(workingStyle.c_str(), (WCHAR*)TEXT("alpha.inactive:"), (int)guiInfo->alphaInactive);
+  ELWriteFileInt(workingStyle.c_str(), (WCHAR*)TEXT("alpha.background:"), (int)guiInfo->alphaBackground);
+  ELWriteFileInt(workingStyle.c_str(), (WCHAR*)TEXT("alpha.menu:"), (int)guiInfo->alphaMenu);
+  ELWriteFileInt(workingStyle.c_str(), (WCHAR*)TEXT("alpha.foreground:"), (int)guiInfo->alphaForeground);
+  ELWriteFileInt(workingStyle.c_str(), (WCHAR*)TEXT("alpha.frame:"), (int)guiInfo->alphaFrame);
+  ELWriteFileInt(workingStyle.c_str(), (WCHAR*)TEXT("alpha.selected:"), (int)guiInfo->alphaSelected);
+  ELWriteFileInt(workingStyle.c_str(), (WCHAR*)TEXT("alpha.border:"), (int)guiInfo->alphaBorder);
+  ELWriteFileInt(workingStyle.c_str(), (WCHAR*)TEXT("alpha.text:"), (int)guiInfo->alphaText);
+  ELWriteFileColor(workingStyle.c_str(), (WCHAR*)TEXT("color.background:"), guiInfo->colorBackground);
+  ELWriteFileColor(workingStyle.c_str(), (WCHAR*)TEXT("color.selected:"), guiInfo->colorSelected);
+  ELWriteFileColor(workingStyle.c_str(), (WCHAR*)TEXT("color.foreground:"), guiInfo->colorForeground);
+  ELWriteFileColor(workingStyle.c_str(), (WCHAR*)TEXT("color.frame:"), guiInfo->colorFrame);
+  ELWriteFileColor(workingStyle.c_str(), (WCHAR*)TEXT("color.font:"), guiInfo->colorFont);
+  ELWriteFileColor(workingStyle.c_str(), (WCHAR*)TEXT("color.border:"), guiInfo->colorBorder);
+  ELWriteFileBool(workingStyle.c_str(), (WCHAR*)TEXT("window.shadow:"), guiInfo->windowShadow);
+  ELWriteFileInt(workingStyle.c_str(), (WCHAR*)TEXT("window.dragborder:"), (int)guiInfo->dragBorder);
+  ELWriteFileInt(workingStyle.c_str(), (WCHAR*)TEXT("window.bevelWidth:"), (int)guiInfo->bevelWidth);
+  ELWriteFileInt(workingStyle.c_str(), (WCHAR*)TEXT("window.padding:"), (int)guiInfo->padding);
+  ELWriteFileColor(workingStyle.c_str(), (WCHAR*)TEXT("gradient.colorFrom:"), guiInfo->gradientFrom);
+  ELWriteFileColor(workingStyle.c_str(), (WCHAR*)TEXT("gradient.colorTo:"), guiInfo->gradientTo);
+  ELWriteFileString(workingStyle.c_str(), (WCHAR*)TEXT("gradient.method:"), guiInfo->gradientMethod);
 
   return true;
 }
 
-void ESEReadScheme(WCHAR *schemeFile, LPGUIINFO guiInfo)
+void ESEReadStyle(WCHAR *styleFile, LPGUIINFO guiInfo)
 {
-  std::wstring workingScheme = schemeFile;
-  workingScheme = ELExpandVars(workingScheme);
+  std::wstring workingStyle = styleFile;
+  workingStyle = ELExpandVars(workingStyle);
 
-  ELReadFileByte(workingScheme.c_str(), (WCHAR*)TEXT("alpha.active:"), &guiInfo->alphaActive, 100);
-  ELReadFileByte(workingScheme.c_str(), (WCHAR*)TEXT("alpha.inactive:"), &guiInfo->alphaInactive, 100);
-  ELReadFileByte(workingScheme.c_str(), (WCHAR*)TEXT("alpha.background:"), &guiInfo->alphaBackground, 100);
-  ELReadFileByte(workingScheme.c_str(), (WCHAR*)TEXT("alpha.menu:"), &guiInfo->alphaMenu, 100);
-  ELReadFileByte(workingScheme.c_str(), (WCHAR*)TEXT("alpha.foreground:"), &guiInfo->alphaForeground, 100);
-  ELReadFileByte(workingScheme.c_str(), (WCHAR*)TEXT("alpha.frame:"), &guiInfo->alphaFrame, 100);
-  ELReadFileByte(workingScheme.c_str(), (WCHAR*)TEXT("alpha.selected:"), &guiInfo->alphaSelected, 100);
-  ELReadFileByte(workingScheme.c_str(), (WCHAR*)TEXT("alpha.border:"), &guiInfo->alphaBorder, 100);
-  ELReadFileByte(workingScheme.c_str(), (WCHAR*)TEXT("alpha.text:"), &guiInfo->alphaText, 100);
-  ELReadFileColor(workingScheme.c_str(), (WCHAR*)TEXT("color.background:"), &guiInfo->colorBackground,
+  ELReadFileByte(workingStyle.c_str(), (WCHAR*)TEXT("alpha.active:"), &guiInfo->alphaActive, 100);
+  ELReadFileByte(workingStyle.c_str(), (WCHAR*)TEXT("alpha.inactive:"), &guiInfo->alphaInactive, 100);
+  ELReadFileByte(workingStyle.c_str(), (WCHAR*)TEXT("alpha.background:"), &guiInfo->alphaBackground, 100);
+  ELReadFileByte(workingStyle.c_str(), (WCHAR*)TEXT("alpha.menu:"), &guiInfo->alphaMenu, 100);
+  ELReadFileByte(workingStyle.c_str(), (WCHAR*)TEXT("alpha.foreground:"), &guiInfo->alphaForeground, 100);
+  ELReadFileByte(workingStyle.c_str(), (WCHAR*)TEXT("alpha.frame:"), &guiInfo->alphaFrame, 100);
+  ELReadFileByte(workingStyle.c_str(), (WCHAR*)TEXT("alpha.selected:"), &guiInfo->alphaSelected, 100);
+  ELReadFileByte(workingStyle.c_str(), (WCHAR*)TEXT("alpha.border:"), &guiInfo->alphaBorder, 100);
+  ELReadFileByte(workingStyle.c_str(), (WCHAR*)TEXT("alpha.text:"), &guiInfo->alphaText, 100);
+  ELReadFileColor(workingStyle.c_str(), (WCHAR*)TEXT("color.background:"), &guiInfo->colorBackground,
                   RGB(212,208,200));
-  ELReadFileColor(workingScheme.c_str(), (WCHAR*)TEXT("color.selected:"), &guiInfo->colorSelected,
+  ELReadFileColor(workingStyle.c_str(), (WCHAR*)TEXT("color.selected:"), &guiInfo->colorSelected,
                   RGB(10,36,106));
-  ELReadFileColor(workingScheme.c_str(), (WCHAR*)TEXT("color.foreground:"), &guiInfo->colorForeground,
+  ELReadFileColor(workingStyle.c_str(), (WCHAR*)TEXT("color.foreground:"), &guiInfo->colorForeground,
                   RGB(255,255,255));
-  ELReadFileColor(workingScheme.c_str(), (WCHAR*)TEXT("color.frame:"), &guiInfo->colorFrame,
+  ELReadFileColor(workingStyle.c_str(), (WCHAR*)TEXT("color.frame:"), &guiInfo->colorFrame,
                   RGB(10,36,106));
-  ELReadFileColor(workingScheme.c_str(), (WCHAR*)TEXT("color.font:"), &guiInfo->colorFont,
+  ELReadFileColor(workingStyle.c_str(), (WCHAR*)TEXT("color.font:"), &guiInfo->colorFont,
                   RGB(255,255,255));
-  ELReadFileColor(workingScheme.c_str(), (WCHAR*)TEXT("color.border:"), &guiInfo->colorBorder, RGB(0, 0, 0));
-  ELReadFileBool(workingScheme.c_str(), (WCHAR*)TEXT("window.shadow:"), &guiInfo->windowShadow, false);
-  ELReadFileInt(workingScheme.c_str(), (WCHAR*)TEXT("window.dragborder:"), &guiInfo->dragBorder, 0);
-  ELReadFileInt(workingScheme.c_str(), (WCHAR*)TEXT("window.bevelWidth:"), &guiInfo->bevelWidth, 0);
-  ELReadFileInt(workingScheme.c_str(), (WCHAR*)TEXT("window.padding:"), &guiInfo->padding, 4);
-  ELReadFileColor(workingScheme.c_str(), (WCHAR*)TEXT("gradient.colorFrom:"), &guiInfo->gradientFrom,
+  ELReadFileColor(workingStyle.c_str(), (WCHAR*)TEXT("color.border:"), &guiInfo->colorBorder, RGB(0, 0, 0));
+  ELReadFileBool(workingStyle.c_str(), (WCHAR*)TEXT("window.shadow:"), &guiInfo->windowShadow, false);
+  ELReadFileInt(workingStyle.c_str(), (WCHAR*)TEXT("window.dragborder:"), &guiInfo->dragBorder, 0);
+  ELReadFileInt(workingStyle.c_str(), (WCHAR*)TEXT("window.bevelWidth:"), &guiInfo->bevelWidth, 0);
+  ELReadFileInt(workingStyle.c_str(), (WCHAR*)TEXT("window.padding:"), &guiInfo->padding, 4);
+  ELReadFileColor(workingStyle.c_str(), (WCHAR*)TEXT("gradient.colorFrom:"), &guiInfo->gradientFrom,
                   RGB(255,255,255));
-  ELReadFileColor(workingScheme.c_str(), (WCHAR*)TEXT("gradient.colorTo:"), &guiInfo->gradientTo,
+  ELReadFileColor(workingStyle.c_str(), (WCHAR*)TEXT("gradient.colorTo:"), &guiInfo->gradientTo,
                   RGB(0,0,0));
-  ELReadFileString(workingScheme.c_str(), (WCHAR*)TEXT("gradient.method:"), guiInfo->gradientMethod, (WCHAR*)TEXT("VerticalFlat"));
+  ELReadFileString(workingStyle.c_str(), (WCHAR*)TEXT("gradient.method:"), guiInfo->gradientMethod, (WCHAR*)TEXT("VerticalFlat"));
 }
 
-void ESELoadScheme(WCHAR *schemeFile, LPGUIINFO guiInfo)
+void ESELoadStyle(WCHAR *styleFile, LPGUIINFO guiInfo)
 {
   int tmpAlpha;
 
-  ESESetScheme(schemeFile);
-  ESEReadScheme(scheme, guiInfo);
+  ESESetStyle(styleFile);
+  ESEReadStyle(style, guiInfo);
 
   if (guiInfo->alphaMenu < 20)
     guiInfo->alphaMenu = 20;

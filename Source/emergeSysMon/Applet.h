@@ -33,7 +33,7 @@
 #undef _WIN32_IE
 #define _WIN32_IE 0x0600
 
-#include "../emergeSchemeEngine/emergeSchemeEngine.h"
+#include "../emergeStyleEngine/emergeStyleEngine.h"
 #include "../emergeAppletEngine/emergeAppletEngine.h"
 #include "../emergeBaseClasses/BaseApplet.h"
 #include <vector>

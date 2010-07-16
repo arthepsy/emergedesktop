@@ -459,23 +459,23 @@ LRESULT Core::DoWTSSessionChange(UINT message)
 void Core::About()
 {
   WCHAR tmp[MAX_LINE_LENGTH];
-  VERSIONINFO coreInfo, libInfo, graphicsInfo, schemeInfo, baseInfo, engineInfo;
+  VERSIONINFO coreInfo, libInfo, graphicsInfo, styleInfo, baseInfo, engineInfo;
 
   ELAppletFileVersion((WCHAR*)TEXT("emergeLib.dll"), &libInfo);
   ELAppletFileVersion((WCHAR*)TEXT("emergeGraphics.dll"), &graphicsInfo);
-  ELAppletFileVersion((WCHAR*)TEXT("emergeSchemeEngine.dll"), &schemeInfo);
+  ELAppletFileVersion((WCHAR*)TEXT("emergeStyleEngine.dll"), &styleInfo);
   ELAppletFileVersion((WCHAR*)TEXT("emergeBaseClasses.dll"), &baseInfo);
   ELAppletFileVersion((WCHAR*)TEXT("emergeAppletEngine.dll"), &engineInfo);
 
   if (ELAppletVersionInfo(mainWnd, &coreInfo))
     {
-      swprintf(tmp, TEXT("%s\n\nVersion:\t\t\t%s\n\nemergeLib:\t\t%s\nemergeGraphics:\t%s\nemergeSchemeEngine:\t%s\n")
+      swprintf(tmp, TEXT("%s\n\nVersion:\t\t\t%s\n\nemergeLib:\t\t%s\nemergeGraphics:\t%s\nemergeStyleEngine:\t%s\n")
                TEXT("emergeBaseClasses:\t%s\nemergeAppletEngine:\t%s\n\nAuthor: %s"),
                coreInfo.Description,
                coreInfo.Version,
                libInfo.Version,
                graphicsInfo.Version,
-               schemeInfo.Version,
+               styleInfo.Version,
                baseInfo.Version,
                engineInfo.Version,
                coreInfo.Author);

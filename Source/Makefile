@@ -3,7 +3,7 @@
 
 include functions.in
 
-LIBS = emergeLib emergeGraphics emergeAppletEngine emergeSchemeEngine emergeBaseClasses emergeIcons
+LIBS = emergeLib emergeGraphics emergeAppletEngine emergeStyleEngine emergeBaseClasses emergeIcons
 APPLETS = emergeCore emergeDesktop emergeHotkeys emergeTasks emergeCommand emergeLauncher \
 					emergeVWM emergeTray emerge emergePower emergeSysMon reg2xml
 VERSION = 4.1
@@ -54,12 +54,12 @@ emergeGraphics: emergeLib
 emergeAppletEngine: emergeLib
 	$(MAKE) -C $@ $(MAKECMDGOALS)
 
-.PHONY: emergeSchemeEngine
-emergeSchemeEngine: emergeGraphics
+.PHONY: emergeStyleEngine
+emergeStyleEngine: emergeGraphics
 	$(MAKE) -C $@ $(MAKECMDGOALS)
 
 .PHONY: emergeBaseClasses
-emergeBaseClasses: emergeSchemeEngine emergeAppletEngine
+emergeBaseClasses: emergeStyleEngine emergeAppletEngine
 	$(MAKE) -C $@ $(MAKECMDGOALS)
 
 .PHONY: dist

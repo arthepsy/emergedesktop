@@ -19,39 +19,39 @@
 //
 //----  --------------------------------------------------------------------------------------------------------
 
-#include "SchemeEditor.h"
+#include "StyleEditor.h"
 
 static COLORREF custColours[16];
 
-INT_PTR CALLBACK SchemeEditor::SchemeEditorDlgProc(HWND hwndDlg, UINT message, WPARAM wParam, LPARAM lParam)
+INT_PTR CALLBACK StyleEditor::StyleEditorDlgProc(HWND hwndDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
-  static SchemeEditor *pSchemeEditor = NULL;
+  static StyleEditor *pStyleEditor = NULL;
   PROPSHEETPAGE *psp;
 
   switch (message)
     {
     case WM_INITDIALOG:
       psp = (PROPSHEETPAGE*)lParam;
-      pSchemeEditor = reinterpret_cast<SchemeEditor*>(psp->lParam);
-      if (!pSchemeEditor)
+      pStyleEditor = reinterpret_cast<StyleEditor*>(psp->lParam);
+      if (!pStyleEditor)
         break;
-      return pSchemeEditor->DoInitDialog(hwndDlg, true);
+      return pStyleEditor->DoInitDialog(hwndDlg, true);
 
     case WM_COMMAND:
-      if (!pSchemeEditor)
+      if (!pStyleEditor)
         break;
-      return pSchemeEditor->DoCommand(hwndDlg, wParam, lParam);
+      return pStyleEditor->DoCommand(hwndDlg, wParam, lParam);
 
     case WM_NOTIFY:
-      if (!pSchemeEditor)
+      if (!pStyleEditor)
         break;
-      return pSchemeEditor->DoNotify(hwndDlg, lParam);
+      return pStyleEditor->DoNotify(hwndDlg, lParam);
     }
 
   return FALSE;
 }
 
-SchemeEditor::SchemeEditor(HWND mainWnd)
+StyleEditor::StyleEditor(HWND mainWnd)
 {
   this->mainWnd = mainWnd;
 
@@ -67,7 +67,7 @@ SchemeEditor::SchemeEditor(HWND mainWnd)
   colourRect.right = colourRect.bottom = 16;
 }
 
-SchemeEditor::~SchemeEditor()
+StyleEditor::~StyleEditor()
 {
   if (hbmColourBackground)
     DeleteObject(hbmColourBackground);
@@ -91,13 +91,13 @@ SchemeEditor::~SchemeEditor()
   DeleteFile(tmpFile);
 }
 
-int SchemeEditor::Edit(WCHAR *schemeName)
+int StyleEditor::Edit(WCHAR *styleName)
 {
-  wcsncpy(scheme, schemeName, MAX_PATH);
-  wcsncpy(origScheme, scheme, MAX_PATH);
+  wcsncpy(style, styleName, MAX_PATH);
+  wcsncpy(origStyle, style, MAX_PATH);
 
-  ESEReadScheme(scheme, &guiInfo);
-  ESEReadScheme((WCHAR*)TEXT(""), &defaultGuiInfo);
+  ESEReadStyle(style, &guiInfo);
+  ESEReadStyle((WCHAR*)TEXT(""), &defaultGuiInfo);
 
   origGuiInfo = guiInfo;
 
@@ -113,12 +113,12 @@ int SchemeEditor::Edit(WCHAR *schemeName)
   return 1;
 }
 
-LPCTSTR SchemeEditor::GetTemplate()
+LPCTSTR StyleEditor::GetTemplate()
 {
-  return MAKEINTRESOURCE(IDD_SCHEMEEDITOR);
+  return MAKEINTRESOURCE(IDD_STYLEEDITOR);
 }
 
-void SchemeEditor::BuildPanelMap(HWND hwndDlg)
+void StyleEditor::BuildPanelMap(HWND hwndDlg)
 {
   std::map< HTREEITEM, std::tr1::shared_ptr<PanelSet> >::iterator iter;
 
@@ -208,7 +208,7 @@ void SchemeEditor::BuildPanelMap(HWND hwndDlg)
     }
 }
 
-void SchemeEditor::ClearPanelMap()
+void StyleEditor::ClearPanelMap()
 {
   while (!panelMap.empty())
     panelMap.erase(panelMap.begin());
@@ -216,7 +216,7 @@ void SchemeEditor::ClearPanelMap()
   panelMap.clear();
 }
 
-void SchemeEditor::ShowPanel(HTREEITEM panel)
+void StyleEditor::ShowPanel(HTREEITEM panel)
 {
   std::map< HTREEITEM, std::tr1::shared_ptr<PanelSet> >::iterator iter;
   PanelSet::iterator iter2;
@@ -242,14 +242,14 @@ void SchemeEditor::ShowPanel(HTREEITEM panel)
     }
 }
 
-BOOL SchemeEditor::DoInitDialog(HWND hwndDlg, bool updatePos)
+BOOL StyleEditor::DoInitDialog(HWND hwndDlg, bool updatePos)
 {
   RECT rect;
   WCHAR *lower;
 
   HWND okWnd = GetDlgItem(hwndDlg, IDOK);
   HWND treeWnd = GetDlgItem(hwndDlg, IDC_PANELTREE);
-  EnableWindow(okWnd, (wcslen(scheme) != 0));
+  EnableWindow(okWnd, (wcslen(style) != 0));
 
   BuildPanelMap(hwndDlg);
 
@@ -263,7 +263,7 @@ BOOL SchemeEditor::DoInitDialog(HWND hwndDlg, bool updatePos)
       ELStealFocus(hwndDlg);
     }
 
-  SetDlgItemText(hwndDlg, IDC_SCHEMENAME, PathFindFileName(scheme));
+  SetDlgItemText(hwndDlg, IDC_STYLENAME, PathFindFileName(style));
 
   SendDlgItemMessage(hwndDlg, IDC_PADDINGUPDOWN, UDM_SETRANGE, (WPARAM)0, (LPARAM)100);
   SendDlgItemMessage(hwndDlg, IDC_BEVELUPDOWN, UDM_SETRANGE, (WPARAM)0, (LPARAM)100);
@@ -434,7 +434,7 @@ BOOL SchemeEditor::DoInitDialog(HWND hwndDlg, bool updatePos)
   return TRUE;
 }
 
-BOOL SchemeEditor::DoCommand(HWND hwndDlg, WPARAM wParam, LPARAM lParam UNUSED)
+BOOL StyleEditor::DoCommand(HWND hwndDlg, WPARAM wParam, LPARAM lParam UNUSED)
 {
   bool update = false;
 
@@ -442,7 +442,7 @@ BOOL SchemeEditor::DoCommand(HWND hwndDlg, WPARAM wParam, LPARAM lParam UNUSED)
     {
     case IDC_SAVEAS:
       DoSaveAs(hwndDlg);
-      if (DoSaveScheme(hwndDlg, scheme))
+      if (DoSaveStyle(hwndDlg, style))
         DoInitDialog(hwndDlg, false);
       return TRUE;
     case IDC_LOAD:
@@ -612,8 +612,8 @@ BOOL SchemeEditor::DoCommand(HWND hwndDlg, WPARAM wParam, LPARAM lParam UNUSED)
         }
       return FALSE;
     case IDC_PREVIEW:
-      ESESetScheme(tmpFile);
-      if (DoSaveScheme(hwndDlg, tmpFile))
+      ESESetStyle(tmpFile);
+      if (DoSaveStyle(hwndDlg, tmpFile))
         PostMessage(mainWnd, EMERGE_NOTIFY, EMERGE_CORE, CORE_REFRESH);
       return TRUE;
     }
@@ -621,7 +621,7 @@ BOOL SchemeEditor::DoCommand(HWND hwndDlg, WPARAM wParam, LPARAM lParam UNUSED)
   return FALSE;
 }
 
-BOOL SchemeEditor::DoSwitch(HWND hwndDlg)
+BOOL StyleEditor::DoSwitch(HWND hwndDlg)
 {
   COLORREF colourTmp = colourFrom;
   colourFrom = colourTo;
@@ -643,7 +643,7 @@ BOOL SchemeEditor::DoSwitch(HWND hwndDlg)
   return TRUE;
 }
 
-BOOL SchemeEditor::DoLoad(HWND hwndDlg)
+BOOL StyleEditor::DoLoad(HWND hwndDlg)
 {
   OPENFILENAME ofn;
   WCHAR file[MAX_PATH], extension[MAX_PATH];
@@ -657,20 +657,20 @@ BOOL SchemeEditor::DoLoad(HWND hwndDlg)
 
   ofn.lStructSize = sizeof(ofn);
   ofn.hwndOwner = hwndDlg;
-  ofn.lpstrFilter = TEXT("Scheme (*.eds)\0*.eds\0");
+  ofn.lpstrFilter = TEXT("Style (*.eds)\0*.eds\0");
   ofn.lpstrFile = file;
   ofn.nMaxFile = MAX_PATH;
   ofn.lpstrInitialDir = workingPath.c_str();
-  ofn.lpstrTitle = TEXT("Load Scheme");
+  ofn.lpstrTitle = TEXT("Load Style");
   ofn.lpstrDefExt = extension;
   ofn.Flags = OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST | OFN_EXPLORER | OFN_DONTADDTORECENT | OFN_NOCHANGEDIR | OFN_NODEREFERENCELINKS;
 
   if (GetOpenFileName(&ofn))
     {
       ELUnExpandVars(file);
-      wcsncpy(scheme, file, MAX_PATH);
+      wcsncpy(style, file, MAX_PATH);
 
-      ESEReadScheme(scheme, &guiInfo);
+      ESEReadStyle(style, &guiInfo);
 
       colourBackground = guiInfo.colorBackground;
       colourForeground = guiInfo.colorForeground;
@@ -683,7 +683,7 @@ BOOL SchemeEditor::DoLoad(HWND hwndDlg)
 
       DoInitDialog(hwndDlg, false);
 
-      ESESetScheme(scheme);
+      ESESetStyle(style);
 
       PostMessage(mainWnd, EMERGE_NOTIFY, EMERGE_CORE, CORE_REFRESH);
 
@@ -693,7 +693,7 @@ BOOL SchemeEditor::DoLoad(HWND hwndDlg)
   return FALSE;
 }
 
-BOOL SchemeEditor::DoDefaults(HWND hwndDlg)
+BOOL StyleEditor::DoDefaults(HWND hwndDlg)
 {
   guiInfo = defaultGuiInfo;
 
@@ -711,7 +711,7 @@ BOOL SchemeEditor::DoDefaults(HWND hwndDlg)
   return TRUE;
 }
 
-void SchemeEditor::DoSaveAs(HWND hwndDlg)
+void StyleEditor::DoSaveAs(HWND hwndDlg)
 {
   OPENFILENAME ofn;
   HWND okWnd = GetDlgItem(hwndDlg, IDOK);
@@ -736,12 +736,12 @@ void SchemeEditor::DoSaveAs(HWND hwndDlg)
   wcscpy(extension, TEXT("eds"));
   ofn.lStructSize = sizeof(ofn);
   ofn.hwndOwner = hwndDlg;
-  ofn.lpstrFilter = TEXT("Scheme (*.eds)\0*.eds\0");
+  ofn.lpstrFilter = TEXT("Style (*.eds)\0*.eds\0");
   ofn.lpstrFile = file;
   ofn.nMaxFile = MAX_PATH;
-  ofn.lpstrTitle = TEXT("Save Scheme As");
+  ofn.lpstrTitle = TEXT("Save Style As");
   ofn.lpstrDefExt = extension;
-  newThemePath += TEXT("\\Schemes");
+  newThemePath += TEXT("\\Styles");
   if (!PathIsDirectory(newThemePath.c_str()))
     ELCreateDirectory(newThemePath);
   newThemePath = ELExpandVars(newThemePath);
@@ -752,15 +752,15 @@ void SchemeEditor::DoSaveAs(HWND hwndDlg)
     {
       EnableWindow(okWnd, (wcslen(file) != 0));
       ELUnExpandVars(file);
-      wcsncpy(scheme, file, MAX_PATH);
-      ESESetScheme(scheme);
+      wcsncpy(style, file, MAX_PATH);
+      ESESetStyle(style);
     }
   else
     {
       if (!oldThemePath.empty())
         {
-          size_t schemedir = newThemePath.find_last_of(TEXT("\\"));
-          ELFileOp(mainWnd, FO_DELETE, newThemePath.substr(0, schemedir));
+          size_t styledir = newThemePath.find_last_of(TEXT("\\"));
+          ELFileOp(mainWnd, FO_DELETE, newThemePath.substr(0, styledir));
           size_t copystar = oldThemePath.find_last_of(TEXT("\\"));
           oldThemePath = ELExpandVars(oldThemePath.substr(0, copystar));
           ELSetTheme(oldThemePath);
@@ -768,7 +768,7 @@ void SchemeEditor::DoSaveAs(HWND hwndDlg)
     }
 }
 
-BOOL SchemeEditor::DoColourChooser(COLORREF *colour, HWND hwndDlg)
+BOOL StyleEditor::DoColourChooser(COLORREF *colour, HWND hwndDlg)
 {
   CHOOSECOLOR chooseColour;
   COLORREF tmpColour = *colour;
@@ -789,14 +789,14 @@ BOOL SchemeEditor::DoColourChooser(COLORREF *colour, HWND hwndDlg)
   return res;
 }
 
-bool SchemeEditor::DoSaveScheme(HWND hwndDlg, WCHAR *fileName)
+bool StyleEditor::DoSaveStyle(HWND hwndDlg, WCHAR *fileName)
 {
   WCHAR methodString[MAX_LINE_LENGTH];
 
   if (wcslen(fileName) == 0)
     {
       DoSaveAs(hwndDlg);
-      wcscpy(fileName, ESEGetScheme());
+      wcscpy(fileName, ESEGetStyle());
     }
 
   guiInfo.alphaActive = GetDlgItemInt(hwndDlg, IDC_ACTIVEALPHA, NULL, FALSE);
@@ -842,10 +842,10 @@ bool SchemeEditor::DoSaveScheme(HWND hwndDlg, WCHAR *fileName)
 
   wcscpy(guiInfo.gradientMethod, methodString);
 
-  return ESEWriteScheme(fileName, &guiInfo, hwndDlg);
+  return ESEWriteStyle(fileName, &guiInfo, hwndDlg);
 }
 
-BOOL SchemeEditor::DoNotify(HWND hwndDlg, LPARAM lParam)
+BOOL StyleEditor::DoNotify(HWND hwndDlg, LPARAM lParam)
 {
   HWND activeSliderWnd = GetDlgItem(hwndDlg, IDC_ACTIVESLIDER);
   HWND inactiveSliderWnd = GetDlgItem(hwndDlg, IDC_INACTIVESLIDER);
@@ -864,9 +864,9 @@ BOOL SchemeEditor::DoNotify(HWND hwndDlg, LPARAM lParam)
   switch (nmhdr->code)
     {
     case PSN_APPLY:
-      if (DoSaveScheme(hwndDlg, scheme))
+      if (DoSaveStyle(hwndDlg, style))
         {
-          ESESetScheme(scheme);
+          ESESetStyle(style);
           SetWindowLongPtr(hwndDlg, DWLP_MSGRESULT, PSNRET_NOERROR);
         }
       else
@@ -882,7 +882,7 @@ BOOL SchemeEditor::DoNotify(HWND hwndDlg, LPARAM lParam)
       return 1;
 
     case PSN_RESET:
-      ESESetScheme(origScheme);
+      ESESetStyle(origStyle);
       return 1;
 
     case TVN_SELCHANGING:

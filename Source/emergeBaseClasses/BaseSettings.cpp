@@ -73,8 +73,8 @@ void BaseSettings::ReadSettings()
               IOHelper helper(section);
               DoReadSettings(helper);
               ClearModified();
-              if (ELPathIsRelative(schemeFile))
-                ELConvertThemePath(schemeFile, CTP_FULL);
+              if (ELPathIsRelative(styleFile))
+                ELConvertThemePath(styleFile, CTP_FULL);
             }
         }
     }
@@ -107,7 +107,7 @@ bool BaseSettings::CopyTheme()
 
   ELFileOp(appletWnd, FO_COPY, oldThemePath, newThemePath);
 
-  return CopyScheme();
+  return CopyStyle();
 }
 
 bool BaseSettings::WriteSettings()
@@ -163,7 +163,8 @@ void BaseSettings::DoReadSettings(IOHelper& helper)
   helper.ReadBool(TEXT("AutoSize"), autoSize, false);
   helper.ReadInt(TEXT("IconSize"), iconSize, 16);
   helper.ReadInt(TEXT("IconSpacing"), iconSpacing, 1);
-  helper.ReadString(TEXT("Scheme"), schemeFile, TEXT("\0"));
+  if (!helper.ReadString(TEXT("Style"), styleFile, TEXT("\0")))
+    helper.ReadString(TEXT("Scheme"), styleFile, TEXT("\0"));
   helper.ReadBool(TEXT("SnapMove"), snapMove, true);
   helper.ReadBool(TEXT("SnapSize"), snapSize, true);
   helper.ReadBool(TEXT("DynamicPositioning"), dynamicPositioning, true);
@@ -184,7 +185,7 @@ void BaseSettings::DoWriteSettings(IOHelper& helper)
   helper.WriteBool(TEXT("AutoSize"), autoSize);
   helper.WriteInt(TEXT("IconSize"), iconSize);
   helper.WriteInt(TEXT("IconSpacing"), iconSpacing);
-  helper.WriteString(TEXT("Scheme"), schemeFile);
+  helper.WriteString(TEXT("Style"), styleFile);
   helper.WriteBool(TEXT("SnapMove"), snapMove);
   helper.WriteBool(TEXT("SnapSize"), snapSize);
   helper.WriteBool(TEXT("DynamicPositioning"), dynamicPositioning);
@@ -211,7 +212,7 @@ void BaseSettings::ResetDefaults()
   autoSize = false;
   iconSize = 16;
   iconSpacing = 1;
-  wcscpy(schemeFile, (WCHAR*)TEXT("\0"));
+  wcscpy(styleFile, (WCHAR*)TEXT("\0"));
   snapMove = true;
   snapSize = true;
   dynamicPositioning = true;
@@ -455,9 +456,9 @@ bool BaseSettings::GetSnapSize()
   return snapSize;
 }
 
-WCHAR *BaseSettings::GetSchemeFile()
+WCHAR *BaseSettings::GetStyleFile()
 {
-  return schemeFile;
+  return styleFile;
 }
 
 bool BaseSettings::SetZPosition(WCHAR *zPosition)
@@ -561,28 +562,28 @@ bool BaseSettings::SetSnapSize(bool snapSize)
   return true;
 }
 
-bool BaseSettings::SetSchemeFile(const WCHAR *schemeFile)
+bool BaseSettings::SetStyleFile(const WCHAR *styleFile)
 {
-  if (_wcsicmp(this->schemeFile, schemeFile) != 0)
+  if (_wcsicmp(this->styleFile, styleFile) != 0)
     {
-      wcscpy(this->schemeFile, schemeFile);
+      wcscpy(this->styleFile, styleFile);
       SetModified();
     }
   return true;
 }
 
-bool BaseSettings::CopyScheme()
+bool BaseSettings::CopyStyle()
 {
-  std::wstring workingScheme = schemeFile, destScheme;
+  std::wstring workingStyle = styleFile, destStyle;
 
-  if (workingScheme.find(L"\\Schemes\\") == std::wstring::npos)
+  if (workingStyle.find(L"\\Styles\\") == std::wstring::npos)
     {
-      destScheme = L"%ThemeDir%\\Schemes";
+      destStyle = L"%ThemeDir%\\Styles";
 
-      if (ELFileOp(NULL, FO_COPY, workingScheme, destScheme))
+      if (ELFileOp(NULL, FO_COPY, workingStyle, destStyle))
         {
-          destScheme += workingScheme.substr(workingScheme.rfind(L"\\"));
-          wcscpy(schemeFile, destScheme.c_str());
+          destStyle += workingStyle.substr(workingStyle.rfind(L"\\"));
+          wcscpy(styleFile, destStyle.c_str());
         }
       else
         return false;
