@@ -90,9 +90,6 @@ LRESULT Balloon::DoTimer()
 
 bool Balloon::SetInfo(WCHAR *info)
 {
-  if (_wcsicmp(this->info, info) == 0)
-    return false;
-
   HFONT infoFont = CreateFontIndirect(pSettings->GetInfoFont());
 
   wcscpy(this->info, info);
@@ -107,45 +104,27 @@ bool Balloon::SetInfo(WCHAR *info)
   if (titleRect.right > infoRect.right)
     infoRect.right = titleRect.right;
 
-  if (EGGetTextRect(info, infoFont, &infoRect, DT_WORDBREAK))
-    {
-      if (IsWindowVisible(balloonWnd))
-        DrawAlphaBlend();
-
-      return true;
-    }
-
-  return false;
+  return EGGetTextRect(info, infoFont, &infoRect, DT_WORDBREAK);
 }
 
 bool Balloon::SetInfoTitle(WCHAR *infoTitle)
 {
-  if (_wcsicmp(this->infoTitle, infoTitle) == 0)
-    return false;
-
   HFONT infoTitleFont = CreateFontIndirect(pSettings->GetInfoTitleFont());
 
   wcscpy(this->infoTitle, infoTitle);
 
   titleRect.top = 5;
   titleRect.left = 5;
+  if (icon)
+    titleRect.left += iconSize + 5;
   titleRect.bottom = titleRect.top;
   titleRect.right = titleRect.left;
 
-  if (EGGetTextRect(infoTitle, infoTitleFont, &titleRect, DT_SINGLELINE))
-    {
-      if (IsWindowVisible(balloonWnd))
-        DrawAlphaBlend();
-
-      return true;
-    }
-
-  return false;
+  return EGGetTextRect(infoTitle, infoTitleFont, &titleRect, DT_SINGLELINE);
 }
 
 bool Balloon::SetInfoFlags(DWORD infoFlags, HICON infoIcon)
 {
-  int offset = 0;
   HICON tmpIcon = NULL;
 
   if (this->infoFlags == infoFlags)
@@ -164,36 +143,16 @@ bool Balloon::SetInfoFlags(DWORD infoFlags, HICON infoIcon)
         {
           DestroyIcon(icon);
           icon = NULL;
-          offset = -(iconSize + 5);
         }
     }
   else if ((infoFlags & NIIF_INFO) == NIIF_INFO)
-    {
-      if (icon == NULL)
-        offset = iconSize + 5;
-      tmpIcon = (HICON)LoadImage(NULL, MAKEINTRESOURCE(OIC_INFORMATION), IMAGE_ICON, iconSize, iconSize, LR_SHARED);
-    }
+    tmpIcon = (HICON)LoadImage(NULL, MAKEINTRESOURCE(OIC_INFORMATION), IMAGE_ICON, iconSize, iconSize, LR_SHARED);
   else if ((infoFlags & NIIF_WARNING) == NIIF_WARNING)
-    {
-      if (icon == NULL)
-        offset = iconSize + 5;
-      tmpIcon = (HICON)LoadImage(NULL, MAKEINTRESOURCE(OIC_WARNING), IMAGE_ICON, iconSize, iconSize, LR_SHARED);
-    }
+    tmpIcon = (HICON)LoadImage(NULL, MAKEINTRESOURCE(OIC_WARNING), IMAGE_ICON, iconSize, iconSize, LR_SHARED);
   else if ((infoFlags & NIIF_ERROR) == NIIF_ERROR)
-    {
-      if (icon == NULL)
-        offset = iconSize + 5;
-      tmpIcon = (HICON)LoadImage(NULL, MAKEINTRESOURCE(OIC_ERROR), IMAGE_ICON, iconSize, iconSize, LR_SHARED);
-    }
+    tmpIcon = (HICON)LoadImage(NULL, MAKEINTRESOURCE(OIC_ERROR), IMAGE_ICON, iconSize, iconSize, LR_SHARED);
   else if ((infoFlags & NIIF_USER) == NIIF_USER)
-    {
-      if (icon == NULL)
-        offset = iconSize + 5;
-      tmpIcon = infoIcon;
-    }
-
-  if (offset != 0)
-    OffsetRect(&titleRect, offset, 0);
+    tmpIcon = infoIcon;
 
   if (tmpIcon)
     {
