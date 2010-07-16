@@ -80,8 +80,8 @@
 					<Add directory=".\bin64" />
 				</Linker>
 			</Target>
-			<Target title="emergeSchemeEngine - Release">
-				<Option output="bin64\emergeSchemeEngine" prefix_auto="1" extension_auto="1" />
+			<Target title="emergeStyleEngine - Release">
+				<Option output="bin64\emergeStyleEngine" prefix_auto="1" extension_auto="1" />
 				<Option object_output=".objs64\Release" />
 				<Option type="3" />
 				<Option compiler="gnu_gcc_compiler_for_mingw64" />
@@ -89,7 +89,7 @@
 				<Option createStaticLib="1" />
 				<Compiler>
 					<Add option="-O2" />
-					<Add option="-DEMERGESCHEMEENGINE_EXPORTS" />
+					<Add option="-DEMERGESTYLEENGINE_EXPORTS" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -121,7 +121,7 @@
 					<Add option="-Wl,--export-all-symbols" />
 					<Add library="emergeGraphics" />
 					<Add library="emergeLib" />
-					<Add library="emergeSchemeEngine" />
+					<Add library="emergeStyleEngine" />
 					<Add library="emergeAppletEngine" />
 					<Add library="gdi32" />
 					<Add library="msimg32" />
@@ -170,7 +170,7 @@
 				</ResourceCompiler>
 				<Linker>
 					<Add option="-s" />
-					<Add library="emergeSchemeEngine" />
+					<Add library="emergeStyleEngine" />
 					<Add library="emergeLib" />
 					<Add library="emergeAppletEngine" />
 					<Add library="emergeGraphics" />
@@ -241,7 +241,7 @@
 				</ResourceCompiler>
 				<Linker>
 					<Add option="-s" />
-					<Add library="emergeSchemeEngine" />
+					<Add library="emergeStyleEngine" />
 					<Add library="emergeLib" />
 					<Add library="emergeGraphics" />
 					<Add library="emergeAppletEngine" />
@@ -266,7 +266,7 @@
 				<Linker>
 					<Add option="-s" />
 					<Add library="emergeLib" />
-					<Add library="emergeSchemeEngine" />
+					<Add library="emergeStyleEngine" />
 					<Add library="emergeAppletEngine" />
 					<Add library="emergeGraphics" />
 					<Add library="emergeBaseClasses" />
@@ -288,7 +288,7 @@
 				</ResourceCompiler>
 				<Linker>
 					<Add option="-s" />
-					<Add library="emergeSchemeEngine" />
+					<Add library="emergeStyleEngine" />
 					<Add library="emergeLib" />
 					<Add library="emergeAppletEngine" />
 					<Add library="emergeGraphics" />
@@ -313,7 +313,7 @@
 				</ResourceCompiler>
 				<Linker>
 					<Add option="-s" />
-					<Add library="emergeSchemeEngine" />
+					<Add library="emergeStyleEngine" />
 					<Add library="emergeLib" />
 					<Add library="emergeAppletEngine" />
 					<Add library="emergeGraphics" />
@@ -353,7 +353,7 @@
 				<Linker>
 					<Add option="-s" />
 					<Add library="emergeLib" />
-					<Add library="emergeSchemeEngine" />
+					<Add library="emergeStyleEngine" />
 					<Add library="emergeAppletEngine" />
 					<Add library="emergeGraphics" />
 					<Add library="emergeBaseClasses" />
@@ -377,7 +377,7 @@
 					<Add option="-s" />
 					<Add library="comctl32" />
 					<Add library="emergeLib" />
-					<Add library="emergeSchemeEngine" />
+					<Add library="emergeStyleEngine" />
 					<Add library="emergeAppletEngine" />
 					<Add library="emergeGraphics" />
 					<Add library="emergeBaseClasses" />
@@ -399,7 +399,7 @@
 				<Linker>
 					<Add option="-s" />
 					<Add library="emergeLib" />
-					<Add library="emergeSchemeEngine" />
+					<Add library="emergeStyleEngine" />
 					<Add library="emergeAppletEngine" />
 					<Add library="emergeGraphics" />
 					<Add library="emergeBaseClasses" />
@@ -438,7 +438,7 @@
 				</ResourceCompiler>
 				<Linker>
 					<Add option="-s" />
-					<Add library="emergeSchemeEngine" />
+					<Add library="emergeStyleEngine" />
 					<Add library="emergeLib" />
 					<Add library="emergeAppletEngine" />
 					<Add library="emergeGraphics" />
@@ -471,7 +471,7 @@
 			</Target>
 		</Build>
 		<VirtualTargets>
-			<Add alias="All - Release" targets="emergeLib - Release;emergeGraphics - Release;emergeAppletEngine - Release;emergeSchemeEngine - Release;emergeBaseClasses - Release;emergeCore - Release;emergeCommand - Release;emergeDesktop - Release;emergeHotkeys - Release;emergeLauncher - Release;emergeTasks - Release;emergeTray - Release;emergeVWM - Release;emerge - Release;emergePower - Release;reg2xml - Release;emergeSysMon - Release;" />
+			<Add alias="All - Release" targets="emergeLib - Release;emergeGraphics - Release;emergeAppletEngine - Release;emergeStyleEngine - Release;emergeBaseClasses - Release;emergeCore - Release;emergeCommand - Release;emergeDesktop - Release;emergeHotkeys - Release;emergeLauncher - Release;emergeTasks - Release;emergeTray - Release;emergeVWM - Release;emerge - Release;emergePower - Release;reg2xml - Release;emergeSysMon - Release;" />
 		</VirtualTargets>
 		<Compiler>
 			<Add option="-pedantic" />
@@ -1046,24 +1046,24 @@
 		<Unit filename="emergePower\resource.h">
 			<Option target="emergePower - Release" />
 		</Unit>
-		<Unit filename="emergeSchemeEngine\SchemeEditor.cpp">
-			<Option target="emergeSchemeEngine - Release" />
+		<Unit filename="emergeStyleEngine\StyleEditor.cpp">
+			<Option target="emergeStyleEngine - Release" />
 		</Unit>
-		<Unit filename="emergeSchemeEngine\SchemeEditor.h">
-			<Option target="emergeSchemeEngine - Release" />
+		<Unit filename="emergeStyleEngine\StyleEditor.h">
+			<Option target="emergeStyleEngine - Release" />
 		</Unit>
-		<Unit filename="emergeSchemeEngine\emergeSchemeEngine.h">
-			<Option target="emergeSchemeEngine - Release" />
+		<Unit filename="emergeStyleEngine\emergeStyleEngine.h">
+			<Option target="emergeStyleEngine - Release" />
 		</Unit>
-		<Unit filename="emergeSchemeEngine\emergeSchemeEngine.rc">
+		<Unit filename="emergeStyleEngine\emergeStyleEngine.rc">
 			<Option compilerVar="WINDRES" />
-			<Option target="emergeSchemeEngine - Release" />
+			<Option target="emergeStyleEngine - Release" />
 		</Unit>
-		<Unit filename="emergeSchemeEngine\main.cpp">
-			<Option target="emergeSchemeEngine - Release" />
+		<Unit filename="emergeStyleEngine\main.cpp">
+			<Option target="emergeStyleEngine - Release" />
 		</Unit>
-		<Unit filename="emergeSchemeEngine\resource.h">
-			<Option target="emergeSchemeEngine - Release" />
+		<Unit filename="emergeStyleEngine\resource.h">
+			<Option target="emergeStyleEngine - Release" />
 		</Unit>
 		<Unit filename="emergeSysMon\Applet.cpp">
 			<Option target="emergeSysMon - Release" />
@@ -1185,6 +1185,12 @@
 			<Option target="emergeTray - Release" />
 		</Unit>
 		<Unit filename="emergeTray\Balloon.h">
+			<Option target="emergeTray - Release" />
+		</Unit>
+		<Unit filename="emergeTray\BalloonPage.cpp">
+			<Option target="emergeTray - Release" />
+		</Unit>
+		<Unit filename="emergeTray\BalloonPage.h">
 			<Option target="emergeTray - Release" />
 		</Unit>
 		<Unit filename="emergeTray\Config.cpp">
