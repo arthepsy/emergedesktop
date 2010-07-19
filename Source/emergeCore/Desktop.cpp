@@ -155,13 +155,10 @@ LRESULT CALLBACK Desktop::DesktopProcedure (HWND hwnd, UINT message, WPARAM wPar
       break;
 
     case WM_DISPLAYCHANGE:
-        {
-          SetWindowPos(hwnd, HWND_BOTTOM,
-                       GetSystemMetrics(SM_XVIRTUALSCREEN), GetSystemMetrics(SM_YVIRTUALSCREEN),
-                       GetSystemMetrics(SM_CXVIRTUALSCREEN), GetSystemMetrics(SM_CYVIRTUALSCREEN),
-                       SWP_SHOWWINDOW);
-          pDesktop->SetBackgroundImage();
-        }
+      SetWindowPos(hwnd, HWND_BOTTOM,
+                   GetSystemMetrics(SM_XVIRTUALSCREEN), GetSystemMetrics(SM_YVIRTUALSCREEN),
+                   GetSystemMetrics(SM_CXVIRTUALSCREEN), GetSystemMetrics(SM_CYVIRTUALSCREEN),
+                   SWP_SHOWWINDOW);
       break;
 
     case WM_WINDOWPOSCHANGING:
