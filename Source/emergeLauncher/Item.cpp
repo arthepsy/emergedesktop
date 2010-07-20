@@ -40,6 +40,7 @@ Item::Item(int type, LPCTSTR app, LPCTSTR icon, LPCTSTR tip, LPCTSTR workingDir)
   wcscpy(iconPath, icon);
   wcscpy(this->workingDir, workingDir);
   convertIcon = false;
+  active = false;
 
   rect.left = 0;
   rect.right = 0;
@@ -95,7 +96,10 @@ bool Item::GetActive()
 
 void Item::SetActive(bool active)
 {
-  this->active = active;
+  if (type == IT_SEPARATOR)
+    this->active = false;
+  else
+    this->active = active;
 }
 
 //----  --------------------------------------------------------------------------------------------------------
