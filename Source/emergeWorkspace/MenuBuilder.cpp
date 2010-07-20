@@ -1160,188 +1160,186 @@ void MenuBuilder::BuildFileMenuFromString(MenuMap::iterator iter, WCHAR *parsedV
   fileHandle = FindFirstFile(searchPath, &findData);
   if (fileHandle == INVALID_HANDLE_VALUE)
     return;
-  else
+
+  do
     {
-      do
+      // Skip hidden files
+      if (wcscmp(findData.cFileName, TEXT(".")) == 0 ||
+          wcscmp(findData.cFileName, TEXT("..")) == 0 ||
+          (findData.dwFileAttributes & FILE_ATTRIBUTE_HIDDEN))
+        continue;
+
+      wcscpy(tmp, workingValue.c_str());
+      if (tmp[wcslen(tmp) - 1] != '\\')
+        wcscat(tmp, TEXT("\\"));
+      wcscat(tmp, findData.cFileName);
+
+      if (wcsstr(tmp, TEXT("target.lnk")) != NULL)
         {
-          // Skip hidden files
-          if (wcscmp(findData.cFileName, TEXT(".")) == 0 ||
-              wcscmp(findData.cFileName, TEXT("..")) == 0 ||
-              (findData.dwFileAttributes & FILE_ATTRIBUTE_HIDDEN))
-            continue;
+          SHORTCUTINFO shortcutInfo;
+          shortcutInfo.flags = SI_PATH;
 
-          wcscpy(tmp, workingValue.c_str());
-          if (tmp[wcslen(tmp) - 1] != '\\')
-            wcscat(tmp, TEXT("\\"));
-          wcscat(tmp, findData.cFileName);
-
-          if (wcsstr(tmp, TEXT("target.lnk")) != NULL)
+          if (ELParseShortcut(tmp, &shortcutInfo))
             {
-              SHORTCUTINFO shortcutInfo;
-              shortcutInfo.flags = SI_PATH;
-
-              if (ELParseShortcut(tmp, &shortcutInfo))
+              if (PathIsDirectory(shortcutInfo.Path))
                 {
-                  if (PathIsDirectory(shortcutInfo.Path))
-                    {
-                      iter->second->SetValue(shortcutInfo.Path);
-                      BuildFileMenu(iter);
-                      break;
-                    }
+                  iter->second->SetValue(shortcutInfo.Path);
+                  BuildFileMenu(iter);
+                  break;
                 }
             }
+        }
 
-          // Process a subdirectory
-          if (findData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+      // Process a subdirectory
+      if (findData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+        {
+          UINT folderPos, itemID;
+          ULONG_PTR itemData;
+          MenuItem *menuItem;
+          std::tr1::shared_ptr<MenuListItem> mli;
+
+          if (!GetPos(iter, findData.cFileName, true, &folderPos, &itemID, &itemData))
             {
-              UINT folderPos, itemID;
-              ULONG_PTR itemData;
-              MenuItem *menuItem;
-              std::tr1::shared_ptr<MenuListItem> mli;
-
-              if (!GetPos(iter, findData.cFileName, true, &folderPos, &itemID, &itemData))
-                {
-                  menuItem = new MenuItem(NULL, 101, tmp, NULL, NULL);
-                  MENUITEMINFO itemInfo;
-
-                  itemInfo.fMask = MIIM_STRING | MIIM_ID | MIIM_SUBMENU | MIIM_DATA;
-
-                  if (pSettings->GetMenuIcons())
-                    {
-                      menuItem->SetIcon();
-                      itemInfo.fMask |= MIIM_BITMAP;
-                      itemInfo.hbmpItem = HBMMENU_CALLBACK;
-                    }
-
-                  mli = std::tr1::shared_ptr<MenuListItem>(new MenuListItem(NULL, 101, tmp, NULL));
-                  HMENU subMenu = CreatePopupMenu();
-
-                  wcscpy(tmp, findData.cFileName);
-
-                  itemInfo.cbSize = sizeof(MENUITEMINFO);
-                  itemInfo.dwTypeData = tmp;
-                  itemInfo.hSubMenu = subMenu;
-
-                  NoPrefixString(tmp);
-                  menuItem->SetName(tmp);
-                  mli->SetName(tmp);
-
-                  itemInfo.wID = GetMenuItemCount(iter->first) + 1;
-                  itemInfo.dwItemData = (ULONG_PTR)subMenu;
-
-                  iter->second->AddMenuItem(menuItem);
-                  InsertMenuItem(iter->first, folderPos, TRUE, &itemInfo);
-
-                  iter2 = menuMap.find(iter->first);
-                  if (iter2 != menuMap.end())
-                    menuMap.insert(std::pair< HMENU, std::tr1::shared_ptr<MenuListItem> >(subMenu, mli));
-                }
-              else
-                {
-                  WCHAR path[MAX_LINE_LENGTH];
-                  iter2 = menuMap.find((HMENU)itemData);
-
-                  menuItem = iter->second->GetMenuItem(itemID - 1);
-                  mli = iter2->second;
-
-                  wcscpy(path, menuItem->GetValue());
-                  wcscat(path, TEXT("|"));
-                  wcscat(path, tmp);
-
-                  menuItem->SetValue(path);
-                  mli->SetValue(path);
-                }
-            }
-          // Executable
-          else
-            {
+              menuItem = new MenuItem(NULL, 101, tmp, NULL, NULL);
               MENUITEMINFO itemInfo;
-              UINT filePos, itemID;
-              ULONG_PTR itemData;
-              WCHAR entry[MAX_LINE_LENGTH], extension[MAX_PATH];
-              MenuItem *menuItem;
-              wcscpy(extension, PathFindExtension(tmp));
-              bool isShortcut = (_wcsicmp(extension, TEXT(".lnk")) == 0) ||
-                (_wcsicmp(extension, TEXT(".pif")) == 0) ||
-                (_wcsicmp(extension, TEXT(".scf")) == 0) ||
-                (_wcsicmp(extension, TEXT(".pnagent")) == 0) ||
-                (_wcsicmp(extension, TEXT(".url")) == 0);
 
-              wcscpy(entry, tmp);
-              wcscpy(tmp, findData.cFileName);
-              if (isShortcut)
-                PathRemoveExtension(tmp);
-
-              if (GetPos(iter, tmp, false, &filePos, &itemID, &itemData))
-                {
-                  SHORTCUTINFO entryInfo, targetInfo;
-                  entryInfo.flags = SI_PATH;
-                  targetInfo.flags = SI_PATH;
-                  WCHAR targetURL[MAX_LINE_LENGTH], entryURL[MAX_LINE_LENGTH];
-
-                  menuItem = iter->second->GetMenuItem(itemID - 1);
-                  lwrEntry = _wcslwr(_wcsdup(entry));
-                  lwrValue = _wcslwr(_wcsdup(menuItem->GetValue()));
-
-                  if (ELParseShortcut(entry, &entryInfo))
-                    {
-                      if (ELParseShortcut(menuItem->GetValue(), &targetInfo))
-                        {
-                          if (_wcsicmp(entryInfo.Path, targetInfo.Path) == 0)
-                            {
-                              free(lwrEntry);
-                              free(lwrValue);
-                              continue;
-                            }
-                        }
-                    }
-                  else if ((wcsstr(lwrEntry, TEXT(".url")) != NULL) &&
-                           (wcsstr(lwrValue, TEXT(".url")) != NULL))
-                    {
-                      if (ELReadFileString(entry, (WCHAR*)TEXT("URL"), entryURL, (WCHAR*)TEXT("")) &&
-                          ELReadFileString(menuItem->GetValue(), (WCHAR*)TEXT("URL"), targetURL, (WCHAR*)TEXT("")))
-                        {
-                          if (_wcsicmp(entryURL, targetURL) == 0)
-                            {
-                              free(lwrValue);
-                              free(lwrValue);
-                              continue;
-                            }
-                        }
-                    }
-
-                  free(lwrValue);
-                  free(lwrValue);
-                }
-
-              menuItem = new MenuItem(NULL, 1, entry, NULL, NULL);
-
-              itemInfo.fMask = MIIM_STRING | MIIM_ID;
+              itemInfo.fMask = MIIM_STRING | MIIM_ID | MIIM_SUBMENU | MIIM_DATA;
 
               if (pSettings->GetMenuIcons())
                 {
                   menuItem->SetIcon();
-                  itemInfo.hbmpItem = HBMMENU_CALLBACK;
                   itemInfo.fMask |= MIIM_BITMAP;
+                  itemInfo.hbmpItem = HBMMENU_CALLBACK;
                 }
 
-              NoPrefixString(tmp);
-              menuItem->SetName(tmp);
+              mli = std::tr1::shared_ptr<MenuListItem>(new MenuListItem(NULL, 101, tmp, NULL));
+              HMENU subMenu = CreatePopupMenu();
+
+              wcscpy(tmp, findData.cFileName);
 
               itemInfo.cbSize = sizeof(MENUITEMINFO);
               itemInfo.dwTypeData = tmp;
+              itemInfo.hSubMenu = subMenu;
+
+              NoPrefixString(tmp);
+              menuItem->SetName(tmp);
+              mli->SetName(tmp);
 
               itemInfo.wID = GetMenuItemCount(iter->first) + 1;
+              itemInfo.dwItemData = (ULONG_PTR)subMenu;
 
               iter->second->AddMenuItem(menuItem);
+              InsertMenuItem(iter->first, folderPos, TRUE, &itemInfo);
 
-              InsertMenuItem(iter->first, filePos, TRUE, &itemInfo);
+              iter2 = menuMap.find(iter->first);
+              if (iter2 != menuMap.end())
+                menuMap.insert(std::pair< HMENU, std::tr1::shared_ptr<MenuListItem> >(subMenu, mli));
+            }
+          else
+            {
+              WCHAR path[MAX_LINE_LENGTH];
+              iter2 = menuMap.find((HMENU)itemData);
+
+              menuItem = iter->second->GetMenuItem(itemID - 1);
+              mli = iter2->second;
+
+              wcscpy(path, menuItem->GetValue());
+              wcscat(path, TEXT("|"));
+              wcscat(path, tmp);
+
+              menuItem->SetValue(path);
+              mli->SetValue(path);
             }
         }
-      while (FindNextFile(fileHandle, &findData));
+      // Executable
+      else
+        {
+          MENUITEMINFO itemInfo;
+          UINT filePos, itemID;
+          ULONG_PTR itemData;
+          WCHAR entry[MAX_LINE_LENGTH], extension[MAX_PATH];
+          MenuItem *menuItem;
+          wcscpy(extension, PathFindExtension(tmp));
+          bool isShortcut = (_wcsicmp(extension, TEXT(".lnk")) == 0) ||
+            (_wcsicmp(extension, TEXT(".pif")) == 0) ||
+            (_wcsicmp(extension, TEXT(".scf")) == 0) ||
+            (_wcsicmp(extension, TEXT(".pnagent")) == 0) ||
+            (_wcsicmp(extension, TEXT(".url")) == 0);
 
-      FindClose(fileHandle);
+          wcscpy(entry, tmp);
+          wcscpy(tmp, findData.cFileName);
+          if (isShortcut)
+            PathRemoveExtension(tmp);
+
+          if (GetPos(iter, tmp, false, &filePos, &itemID, &itemData))
+            {
+              SHORTCUTINFO entryInfo, targetInfo;
+              entryInfo.flags = SI_PATH;
+              targetInfo.flags = SI_PATH;
+              WCHAR targetURL[MAX_LINE_LENGTH], entryURL[MAX_LINE_LENGTH];
+
+              menuItem = iter->second->GetMenuItem(itemID - 1);
+              lwrEntry = _wcslwr(_wcsdup(entry));
+              lwrValue = _wcslwr(_wcsdup(menuItem->GetValue()));
+
+              if (ELParseShortcut(entry, &entryInfo))
+                {
+                  if (ELParseShortcut(menuItem->GetValue(), &targetInfo))
+                    {
+                      if (_wcsicmp(entryInfo.Path, targetInfo.Path) == 0)
+                        {
+                          free(lwrEntry);
+                          free(lwrValue);
+                          continue;
+                        }
+                    }
+                }
+              else if ((wcsstr(lwrEntry, TEXT(".url")) != NULL) &&
+                       (wcsstr(lwrValue, TEXT(".url")) != NULL))
+                {
+                  if (ELReadFileString(entry, (WCHAR*)TEXT("URL"), entryURL, (WCHAR*)TEXT("")) &&
+                      ELReadFileString(menuItem->GetValue(), (WCHAR*)TEXT("URL"), targetURL, (WCHAR*)TEXT("")))
+                    {
+                      if (_wcsicmp(entryURL, targetURL) == 0)
+                        {
+                          free(lwrValue);
+                          free(lwrValue);
+                          continue;
+                        }
+                    }
+                }
+
+              free(lwrValue);
+              free(lwrValue);
+            }
+
+          menuItem = new MenuItem(NULL, 1, entry, NULL, NULL);
+
+          itemInfo.fMask = MIIM_STRING | MIIM_ID;
+
+          if (pSettings->GetMenuIcons())
+            {
+              menuItem->SetIcon();
+              itemInfo.hbmpItem = HBMMENU_CALLBACK;
+              itemInfo.fMask |= MIIM_BITMAP;
+            }
+
+          NoPrefixString(tmp);
+          menuItem->SetName(tmp);
+
+          itemInfo.cbSize = sizeof(MENUITEMINFO);
+          itemInfo.dwTypeData = tmp;
+
+          itemInfo.wID = GetMenuItemCount(iter->first) + 1;
+
+          iter->second->AddMenuItem(menuItem);
+
+          InsertMenuItem(iter->first, filePos, TRUE, &itemInfo);
+        }
     }
+  while (FindNextFile(fileHandle, &findData));
+
+  FindClose(fileHandle);
 }
 
 void MenuBuilder::BuildFileMenu(MenuMap::iterator iter)
