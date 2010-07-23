@@ -204,6 +204,10 @@ bool Balloon::Show(POINT showPt)
   if (!GetMonitorInfo(balloonMonitor, &balloonMonitorInfo))
     return false;
 
+  // If the string length of info or infoTitle is 0, do not display a balloon.
+  if ((wcslen(info) == 0) || (wcslen(infoTitle) == 0))
+    return false;
+
   width = infoRect.right;
   if (titleRect.right > infoRect.right)
     width = titleRect.right;
