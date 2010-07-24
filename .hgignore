@@ -20,6 +20,7 @@ hgversion.h
 *.chm
 *.exe
 *.session
+*.o
 
 # switch to regexp syntax.
 #syntax: regexp
