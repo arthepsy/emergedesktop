@@ -1,4 +1,4 @@
-LIBS += -lshlwapi -lole32 -luuid -lversion -lpsapi -lwinmm -lpowrprof -lgdi32
+LIBS += -lshlwapi -lole32 -luuid -lversion -lpsapi -lwinmm -lpowrprof -lgdi32 -lzip32z64
 ifneq ($(MINGW64), 1)
 		LIBS += -lwtsapi32
 endif

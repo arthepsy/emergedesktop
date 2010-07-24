@@ -1,4 +1,3 @@
-
 /*!
   @file emergeLib.h
   @brief export header for emergeLib

@@ -1,0 +1,33 @@
+On Windows open this file in WordPad.
+
+Contents of the "windll/examples/vc6" directory
+
+This directory contains MSVS C project examples for using the new
+Zip 3.1 zip32z64.dll dynamic and zip32z64.lib static libraries.  See
+the comments in the source files for details.
+
+This code has not yet been updated to use the latest Zip 3.1 DLL
+interface.  This should be done in the next beta.
+
+The Zip 3.1 zip32z64 library is not backward compatible with either the
+Zip 2.32 or the Zip 3.0 libraries.  This was necessary to finally clean
+up the dll interface to make it more consistent and intuitive (hopefully)
+and to add in hooks for later backward compatible expansion.  This library
+also has an updated version reporting feature that can be used to verify
+compatibility and confirm supported features at run time.  See the example
+code in this directory for how to use these new features.
+
+It should be simple to convert a program using the old zip32 library to
+Zip 3.1 zip32z64 but the program may need some changes.  For a zip32
+compatible replacement use the dll and lib compiled from Zip 2.32 (released
+separately).
+
+Note that the files may be saved in unix format with carriage returns
+stripped.  These must be restored before the project can be successfully
+used.  This can be done by using the -a option to unzip.  Another way to
+do this is to open each file in WordPad, select and cut a line, paste
+the line back, and save the file.  This will force WordPad to change the
+line ends in the entire file.  Newer versions of WordPad may not do this.
+
+Ed Gordon
+19 June 2010

@@ -55,6 +55,7 @@ topic alone.
 
 #include "Shutdown.h"
 #include "MsgBox.h"
+#include "zip.h"
 #include <shellapi.h>
 #include <shlwapi.h>
 #include <stdio.h>
@@ -1143,6 +1144,17 @@ bool ELExecuteInternal(LPTSTR command)
     }
   else if (_wcsicmp(command, TEXT("CoreThemeSelector")) == 0)
     {
+      std::wstring theme, themeDir;
+      std::string narrowTheme, narrowThemeDir;
+      theme = L"%ThemeDir%";
+      themeDir = L"%EmergeDir%\\themes";
+      theme = ELExpandVars(theme);
+      themeDir = ELExpandVars(themeDir);
+      ELWriteDebug(theme);
+      ELWriteDebug(themeDir);
+      narrowTheme = ELwstringTostring(theme);
+      narrowThemeDir = ELwstringTostring(themeDir);
+      MakeZip((char*)"c:/downloads/test.zip", (char*)narrowThemeDir.c_str(), (char*)narrowTheme.c_str());
       ELSwitchToThisWindow(ELGetCoreWindow());
       PostMessage(ELGetCoreWindow(), EMERGE_DISPATCH, (WPARAM)EMERGE_CORE, (LPARAM)CORE_THEMESELECT);
       return true;

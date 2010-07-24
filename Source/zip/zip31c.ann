@@ -1,0 +1,37 @@
+Zip 3.1c
+
+We have posted Zip Beta 3.1c, June 19th 2010.  This is a beta
+release and considerable additional work is planned before Zip 3.1
+is released.  See the file WhatsNew for details and send in your
+feature suggestions and bug reports.
+
+Quick list of major changes in Zip 3.1c:
+
+- Additional EBCDIC updates.
+- z/OS and MVS updates, including large file support.
+- MVS and z/OS makefile updates.
+- Update EXPENTRY entries for DLL.
+- Various bug fixes.
+- New options -dt (--display_time), -de (--display_est_to_go), and -dr
+  (--display_rate).
+- Fedora stack markings patch to prevent stack from being executable.
+- Minor VMS fixes for user-specified version handling, annoying
+  %SET-E-PRONOTCHG messages when SET PROT failed during "zip -m"
+  directory deletions, and handling of exit codes.
+- Additional version information reported.
+- Minor Apple fixes.
+- DLL interface updates, adding returned feature list, ability to set
+  compression method, DLL version backward compatibility indication,
+  separate Exclude Before and Include Before date specifications to
+  allow date range to be set, DLL UTF-8 option check bug fix, and
+  other cleanups.
+- Add bzip2 support to Windows DLL and LIB MSVS 6 projects.
+- Update VB and partially update C DLL examples.
+- If logfile is specified as "-", send log output to stdout.
+- Fix -dg output.
+- Allow negating -j as replacement for -p, which is now deprecated.
+
+As always, see the Zip manual page and the extended help in Zip
+for details on what Zip has and how to use all features.
+
+Enjoy!

@@ -1,0 +1,181 @@
+Build/Make zip for z/OS
+
+
+This readme details the building and use of Info-ZIP Zip on z/OS.
+See the readme files for CMS and MVS for information on those
+systems.
+
+
+Introduction
+------------
+
+z/OS is the successor to OS/390 on IBM mainframes, introduced circa
+2000. It has the same hybrid mix of MVS and XPG4 Unix features, and
+the same special build considerations as OS/390.
+
+The Unix side of z/OS has variously been known as MVS Open
+Edition (MVS-OE), Open MVS (OMVS), and Unix System Services (USS).
+It has a Unix style file system called HFS (Hierarchical File System)
+which is quite different from the old style MVS file system.
+
+z/OS also has a new Unix filesystem, ZFS, which must not in any
+way be confused with Solaris' ZFS.  The two are not remotely related.
+For the purposes of building and running Info-ZIP, ZFS and HFS can
+be used interchangeably.
+
+z/OS has an annoying similarity to Solaris, in that the kernel
+still identifies itself as OS/390 instead of z/OS (like Solaris
+identifies itself as SunOS). The difference, of course, is that
+z/OS really *is* descended from OS/390.
+
+
+Unpacking
+---------
+
+To build/make the zip module/program for z/OS transfer the zip archive
+to your z/OS USS environment, e.g. via FTP.
+
+Unpack the archive and convert to EBCDIC with pax
+ 
+  pax -r -ofrom=ISO8859-1,to=IBM-1047 -f ../zip31.tar
+
+If you use a gzip'ed tar archive, unzip the tar archive with gzip
+before you upload the tar archive to the Z/OS host, in general gzip
+is not available for z/OS.
+
+On the other hand, use unzip
+
+  unzip -a zip31.zip 
+
+to convert the files to the EBCDIC format, if you install unzip first.
+
+Switch to the directory/folder zip31, this directory/folder contain
+all the shipped zip source files.
+
+Check some files, the files should contain EBCDIC not ASCII text.
+
+
+Building
+--------
+
+You can build zip either as a conventional Unix program or as an
+MVS-style program.  In either case, you use the z/OS Unix environment
+to build it. Therefore, your userid must have a RACF OMVS Segment
+and a Home directory defined.  To get into the Unix shell environment,
+you would typically choose the "OM" option from the ISPF main menu.
+(If you know 3 other ways to get there, you need no further instruction
+here.)
+
+The IBM-supplied version of make has historically had problems
+building zip.  These instructions presume that you are using GNU make,
+and that it is installed under the name "gmake".
+
+Your z/OS system most likely has an older version of zip and unzip
+installed, so after uploading the source archive, you would unzip it
+as
+
+        unzip -a [zip31].zip
+
+This will create a top level source directory with a name like, e.g.,
+zip31 which we will refer to as [ZIP_ROOT].  The -a flag is necessary
+to convert from ASCII to EBCDIC for your z/OS environment.
+
+An alternative method would be to unzip the sources as you normally
+would on a workstation and upload them via FTP, if you can't find unzip
+on your z/OS system.
+
+[The above two sections include some duplication.  I left it in so that
+you all can resolve what you want included in this file. - Ed]
+
+
+Unix Version (z/OS USS or Unix environment)
+-------------------------------------------
+
+To build zip as a conventional Unix program, change to the top
+level source directory, and enter the command
+
+        gmake -f unix/Makefile ZOS
+
+If you prefer to use make, you can try
+ 
+        make -f unix/Makefile ZOS 
+
+This version is strictly a Unix-style program, and operates on
+HFS or ZFS files.  It does not understand MVS-style file systems.
+
+The zip binary and all the related binaries (zipcloak, zipnote,
+zipsplit) will be built in the top level source directory
+([ZIP_ROOT]).  Copy them into the binary directory from which you
+would like them to be executed (most likely somewhere on PATH).
+
+Do not try to run [g]make install.  See note below.
+
+[Above I've tried to merge the inputs from Bob and Lutz.  Please
+change as needed.  - Ed]
+
+
+MVS Version (z/OS Native environment)
+-------------------------------------
+
+To build zip as a conventional MVS program, change to the cmsmvs
+subdirectory (e.g., [ZIP_ROOT]/cmsmvs) and do the following:
+
+        mkdir ../mvs
+        gmake -f mvs.mki
+
+You may also be able to use the standard make:
+
+        mkdir ../mvs
+        make -f mvs.mki
+
+This will install the resulting zip load module as the following
+PDS member.
+
+        [userid].INFOZIP.LOAD(ZIP)
+
+Copy it from there to the load library of your choice.  Most likely,
+you will want to copy the module to an appropriate dataset in the
+Linklib concatenation.  APF or LPA authorization is not necessary.
+
+You can also build this version in your Unix filesystem with the
+following target:
+
+        gmake -f mvs.mki hfs
+
+This will create a zip executable in [ZIP_ROOT]/mvs directory.
+
+
+General Notes
+-------------
+
+The users who are using zip need an RACF OMVS Segment and the
+given Home Path must be available.  A useful OMVS Segment is
+necessary for the USS and the Native environment.
+
+The [ZIP_ROOT]/cmsmvs/mvs.mki makefile builds all object and executable
+files in the [ZIP_ROOT]/mvs directory.  The [ZIP_ROOT]/unix/Makefile
+makefile builds everything in the top level source directory [ZIP_ROOT].
+Therefore the 2 builds never interfere with each other.
+
+The z/OS version of man can't handle groff/troff formatted man pages.
+Therefore there are no usable man pages - don't try to run
+"[g]make install" when building the Unix version.  (The text only
+versions of the man pages, such as zip.txt, come with zip and are still
+available.)
+
+bzip2 support is not currently available for either the Unix or MVS
+version.
+
+Read the README.OS390 file in the unix subdirectory for additional
+information on the Unix build.
+
+I have not had a chance to test the 3.1 changes on a CMS build, as I
+don't currently have access to a z/VM system.
+
+Bob Woodside
+2009/07/06
+
+
+Above modified by Ed Gordon, including adding the top note and
+integrating material from Lutz.
+2009/7/12

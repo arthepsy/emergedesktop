@@ -1,0 +1,23 @@
+On Windows open this file in WordPad.
+
+Contents of the "windll/examples/vbz64_30" directory
+
+This directory contains a Visual Basic project example for using the
+zip32z64.dll library (Zip 3.0 with Zip64 enabled).  See the comments in
+the form and project files for details.
+
+This project is for the Zip 3.0 version of the zip32z64.dll library
+and is not compatible with previous VB examples using the zip32.dll
+interface or the new interface for the Zip 3.1 dll.  See the readme
+in the VBz64 directory for more information about the current dll and
+example.  To use this example, you have to get the old Zip 3.0 dll.
+
+Note that the files may be saved in unix format with carriage returns
+stripped.  These must be restored before the project can be successfully
+used.  This can be done by using the -a option to unzip.  Another way to
+do this is to open each file in WordPad, select and cut a line, paste
+the line back, and save the file.  This will force WordPad to change the
+line ends in the entire file.  Newer versions of WordPad may not do this.
+
+Ed Gordon
+5/22/2010

@@ -1,4 +1,5 @@
 LDFLAGS += -shared
+CXXFLAGS += $(EXPORTS)
 CFLAGS += $(EXPORTS)
 IMPLIB = $(BIN_DIR)/lib$(TARGET).a
 TARGET_ARGS = -Wl,--out-implib,$(IMPLIB) -Wl,--enable-auto-image-base
