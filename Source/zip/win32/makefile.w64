@@ -52,9 +52,8 @@ LOC = $(LOCAL_ZIP)
 .PHONY: FORCE
 
 # ------------ GNU C ------------
-DLLWRAP=dllwrap
-CC=gcc
-CXX=g++
+DLLWRAP=x86_64-w64-mingw32-dllwrap
+CC=x86_64-w64-mingw32-gcc
 CFLG_OPT=-Wall -O3 $(TUNE_CPU)
 CFLAGS=$(CFLG_OPT) -DWIN32 -DFORCE_WIN32_OVER_UNIX $(IZCRCOPT)
 ifndef USEZLIB
@@ -75,12 +74,12 @@ ASDEFS=-DUSE_ZLIB
 endif
 ASFLAGS=-c $(ASDEFS) $(LOC)
 
-RC=windres
+RC=x86_64-w64-mingw32-windres
 
 LD=$(CC)
 LDFLAGS=-o$@ -s
 ifndef USEZLIB
-LIBS=-luser32 -ladvapi32
+LIBS=-luser32 -ladvapi32 -lwmsvcrt
 else
 LIBS=-L. -lz -luser32 -ladvapi32
 endif
