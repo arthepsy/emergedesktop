@@ -18,9 +18,7 @@
 				<Compiler>
 					<Add option="-march=i586" />
 					<Add option="-O2" />
-					<Add option="-Wfatal-errors" />
-					<Add option="-Wextra" />
-					<Add option="-Wall" />
+					<Add option="-w" />
 					<Add option="-DWIN32" />
 					<Add option="-DFORCE_WIN32_OVER_UNIX" />
 					<Add option="-DIZ_CRCOPTIM_UNFOLDTBL" />
