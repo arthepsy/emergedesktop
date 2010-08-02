@@ -1,0 +1,6 @@
+LIBRARY "ZIP32Z64"
+EXPORTS
+ZpArchive
+ZpVersion
+ZpInit
+

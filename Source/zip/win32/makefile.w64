@@ -165,8 +165,7 @@ OBJD  = $(OBJDLL) $(OBJD1) $(OBJD2) $(OBJDS)
 
 ZIP_H = zip.h ziperr.h tailor.h $(OSDEP_H)
 WINDLL_H = windll/windll.h windll/structs.h api.h
-#DLLDEF = windll/windll32.def
-DLLDEF = windll/windllmingw.def
+DLLDEF = windll/windllw64.def
 
 ZIPS = zip.exe zipnote.exe zipsplit.exe zipcloak.exe
 
