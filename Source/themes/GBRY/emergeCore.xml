@@ -7,7 +7,7 @@
         <Command>%AppletDir%\emergeTray.exe</Command>
     </item>
     <item>
-        <Command>%AppletDir%\emergeDesktop.exe</Command>
+        <Command>%AppletDir%\emergeWorkspace.exe</Command>
     </item>
     <item>
         <Command>%AppletDir%\emergeCommand.exe</Command>

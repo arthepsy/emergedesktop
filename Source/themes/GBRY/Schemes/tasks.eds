@@ -18,5 +18,5 @@ window.dragborder:	0
 window.bevelWidth:	0
 window.padding:	4
 gradient.colorFrom:	255,255,255
-gradient.colorTo:	0,0,128
-gradient.method:	SolidFlat
+gradient.colorTo:	0,128,255
+gradient.method:	VerticalFlat

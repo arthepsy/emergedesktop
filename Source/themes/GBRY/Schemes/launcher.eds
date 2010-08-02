@@ -7,7 +7,7 @@ alpha.frame:	100
 alpha.selected:	100
 alpha.border:	100
 alpha.text:	100
-color.background:	212,208,200
+color.background:	232,232,232
 color.selected:	10,36,106
 color.foreground:	255,255,255
 color.frame:	10,36,106
@@ -18,5 +18,5 @@ window.dragborder:	0
 window.bevelWidth:	0
 window.padding:	4
 gradient.colorFrom:	255,255,255
-gradient.colorTo:	0,128,0
-gradient.method:	VerticalFlat
+gradient.colorTo:	192,192,192
+gradient.method:	SolidFlat
