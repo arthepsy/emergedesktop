@@ -591,20 +591,27 @@ void Core::CheckLaunchItem(LaunchMap *launchMap, const WCHAR *item)
 {
   LaunchMap::iterator iter;
   std::wstring program = TEXT("%AppletDir%\\");
+  WCHAR *workingItem = _wcsdup(item);
 
-  if (ELPathIsRelative(item))
-    program += item;
+  ELStringReplace(workingItem, TEXT("emergeDesktop.exe"), TEXT("emergeWorkspace.exe"), true);
+
+  if (ELPathIsRelative(workingItem))
+    program += workingItem;
   else
-    program = item;
+    program = workingItem;
 
   program = ELExpandVars(program);
   program = ELToLower(program);
+
+  ELWriteDebug(program);
 
   iter = launchMap->find(program);
   if (iter == launchMap->end())
     ELExecute((WCHAR*)program.c_str());
   else
-    launchMap->erase(iter);
+    launchMap->erase(program.c_str());
+
+  free(workingItem);
 }
 
 BOOL Core::LaunchMapEnum(HWND hwnd, LPARAM lParam)
