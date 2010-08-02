@@ -1380,6 +1380,10 @@
 			<Option target="emergeTray - Release" />
 			<Option target="emergeTray - Debug" />
 		</Unit>
+		<Unit filename="emergeTray\BalloonPage.dlg">
+			<Option target="emergeTray - Release" />
+			<Option target="emergeTray - Debug" />
+		</Unit>
 		<Unit filename="emergeTray\BalloonPage.h">
 			<Option target="emergeTray - Release" />
 			<Option target="emergeTray - Debug" />
