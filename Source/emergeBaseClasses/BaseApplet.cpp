@@ -171,6 +171,7 @@ void BaseApplet::UpdateGUI(WCHAR *styleFile)
   int dragBorder;
   HWND hWndInsertAfter;
   RECT wndRect;
+  UINT SWPFlags = SWP_FRAMECHANGED;
 
   pBaseSettings->ReadSettings();
   if (styleFile == NULL)
@@ -196,6 +197,8 @@ void BaseApplet::UpdateGUI(WCHAR *styleFile)
       wndRect.left = pBaseSettings->GetX();
       wndRect.right = wndRect.left;
       AdjustRect(&wndRect);
+      if (GetVisibleIconCount() > 0)
+        SWPFlags |= SWP_SHOWWINDOW;
     }
   else
     {
@@ -215,12 +218,14 @@ void BaseApplet::UpdateGUI(WCHAR *styleFile)
 
       wndRect.bottom = wndRect.top + pBaseSettings->GetHeight() + (2 * dragBorder);
       wndRect.right = wndRect.left + pBaseSettings->GetWidth() + (2 * dragBorder);
+
+      SWPFlags |= SWP_SHOWWINDOW;
     }
 
   // Set focus to mainWnd to fix the 'top' z-order issue
   ELStealFocus(mainWnd);
   SetWindowPos(mainWnd, hWndInsertAfter, wndRect.left, wndRect.top,
-               wndRect.right - wndRect.left, wndRect.bottom - wndRect.top, SWP_FRAMECHANGED|SWP_SHOWWINDOW);
+               wndRect.right - wndRect.left, wndRect.bottom - wndRect.top, SWPFlags);
 
   if (pBaseAppletMenu)
     pBaseAppletMenu->UpdateHook(guiInfo.alphaMenu);
@@ -407,6 +412,9 @@ void BaseApplet::DrawAlphaBlend()
   SIZE wndSz;
   BLENDFUNCTION bf;
   int dragBorder = guiInfo.dragBorder + guiInfo.bevelWidth + guiInfo.padding;
+
+  if (!IsWindowVisible(mainWnd))
+    return;
 
   if (!GetClientRect(mainWnd, &clientrt))
     return;

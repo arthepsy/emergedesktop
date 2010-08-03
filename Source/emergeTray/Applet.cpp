@@ -592,6 +592,7 @@ LRESULT Applet::RemoveTrayIcon(HWND hwnd, UINT uID)
 {
   TrayIcon *pTrayIcon = FindTrayIcon(hwnd, uID);
   RECT wndRect;
+  UINT SWPFlags = SWP_NOZORDER | SWP_NOACTIVATE;
 
   if (!pTrayIcon)
     return 0;
@@ -619,9 +620,11 @@ LRESULT Applet::RemoveTrayIcon(HWND hwnd, UINT uID)
           if (GetWindowRect(mainWnd, &wndRect))
             {
               AdjustRect(&wndRect);
+              if (GetVisibleIconCount() == 0)
+                SWPFlags |= SWP_HIDEWINDOW;
               SetWindowPos(mainWnd, NULL, wndRect.left, wndRect.top,
                            wndRect.right - wndRect.left, wndRect.bottom - wndRect.top,
-                           SWP_NOZORDER | SWP_NOACTIVATE);
+                           SWPFlags);
             }
         }
 
@@ -757,6 +760,7 @@ LRESULT Applet::AddTrayIcon(HWND hwnd, UINT uID, UINT uFlags, UINT uCallbackMess
 
   TrayIcon *pTrayIcon = FindTrayIcon(hwnd, uID);
   RECT wndRect;
+  UINT SWPFlags = SWP_NOZORDER | SWP_NOACTIVATE;
 
   if (pTrayIcon)
     return 0;
@@ -784,6 +788,9 @@ LRESULT Applet::AddTrayIcon(HWND hwnd, UINT uID, UINT uFlags, UINT uCallbackMess
   if ((uFlags & NIF_ICON) == NIF_ICON)
     pTrayIcon->SetIcon(icon);
 
+  if (GetVisibleIconCount() == 0)
+    SWPFlags |= SWP_SHOWWINDOW;
+
   trayIconList.push_back( std::tr1::shared_ptr<TrayIcon>(pTrayIcon) );
 
   SortIcons();
@@ -797,7 +804,7 @@ LRESULT Applet::AddTrayIcon(HWND hwnd, UINT uID, UINT uFlags, UINT uCallbackMess
               AdjustRect(&wndRect);
               SetWindowPos(mainWnd, NULL, wndRect.left, wndRect.top,
                            wndRect.right - wndRect.left, wndRect.bottom - wndRect.top,
-                           SWP_NOZORDER | SWP_NOACTIVATE);
+                           SWPFlags);
             }
         }
 

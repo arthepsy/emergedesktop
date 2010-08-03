@@ -245,12 +245,13 @@ LRESULT Applet::AddTask(HWND task)
   TaskVector::iterator iter = FindTask(task);
   HICON icon;
   RECT wndRect;
+  UINT SWPFlags = SWP_NOZORDER | SWP_NOACTIVATE;
 
   if (iter != taskList.end())
     return 1;
 
-  if (!IsWindowVisible(task))
-    return 1;
+  if (GetVisibleIconCount() == 0)
+    SWPFlags |= SWP_SHOWWINDOW;
 
   if (pSettings->GetIconSize() == 32)
     icon = EGGetWindowIcon(task, false, true);
@@ -271,7 +272,7 @@ LRESULT Applet::AddTask(HWND task)
           SetWindowPos(mainWnd, NULL, wndRect.left, wndRect.top,
                        wndRect.right - wndRect.left,
                        wndRect.bottom - wndRect.top,
-                       SWP_NOZORDER | SWP_NOACTIVATE);
+                       SWPFlags);
         }
     }
 
@@ -315,6 +316,7 @@ LRESULT Applet::RemoveTask(HWND task)
 {
   TaskVector::iterator iter = FindTask(task);
   RECT wndRect;
+  UINT SWPFlags = SWP_NOZORDER | SWP_NOACTIVATE;
 
   if (iter == taskList.end())
     return 1;
@@ -330,10 +332,12 @@ LRESULT Applet::RemoveTask(HWND task)
         {
           AdjustRect(&wndRect);
           UpdateIcons();
+          if (GetVisibleIconCount() == 0)
+            SWPFlags |= SWP_HIDEWINDOW;
           SetWindowPos(mainWnd, NULL, wndRect.left, wndRect.top,
                        wndRect.right - wndRect.left,
                        wndRect.bottom - wndRect.top,
-                       SWP_NOZORDER | SWP_NOACTIVATE);
+                       SWPFlags);
         }
     }
 
