@@ -129,7 +129,7 @@ LRESULT CALLBACK Applet::WindowProcedure (HWND hwnd, UINT message, WPARAM wParam
 }
 
 Applet::Applet(HINSTANCE hInstance)
-:BaseApplet(hInstance, myName, true)
+  :BaseApplet(hInstance, myName, true)
 {
   activeWnd = NULL;
 }
@@ -250,9 +250,6 @@ LRESULT Applet::AddTask(HWND task)
   if (iter != taskList.end())
     return 1;
 
-  if (GetVisibleIconCount() == 0)
-    SWPFlags |= SWP_SHOWWINDOW;
-
   if (pSettings->GetIconSize() == 32)
     icon = EGGetWindowIcon(task, false, true);
   else
@@ -269,6 +266,8 @@ LRESULT Applet::AddTask(HWND task)
         {
           AdjustRect(&wndRect);
           UpdateIcons();
+          if (GetVisibleIconCount() > 0)
+            SWPFlags |= SWP_SHOWWINDOW;
           SetWindowPos(mainWnd, NULL, wndRect.left, wndRect.top,
                        wndRect.right - wndRect.left,
                        wndRect.bottom - wndRect.top,

@@ -788,9 +788,6 @@ LRESULT Applet::AddTrayIcon(HWND hwnd, UINT uID, UINT uFlags, UINT uCallbackMess
   if ((uFlags & NIF_ICON) == NIF_ICON)
     pTrayIcon->SetIcon(icon);
 
-  if (GetVisibleIconCount() == 0)
-    SWPFlags |= SWP_SHOWWINDOW;
-
   trayIconList.push_back( std::tr1::shared_ptr<TrayIcon>(pTrayIcon) );
 
   SortIcons();
@@ -802,6 +799,8 @@ LRESULT Applet::AddTrayIcon(HWND hwnd, UINT uID, UINT uFlags, UINT uCallbackMess
           if (GetWindowRect(mainWnd, &wndRect))
             {
               AdjustRect(&wndRect);
+              if (GetVisibleIconCount() > 0)
+                SWPFlags |= SWP_SHOWWINDOW;
               SetWindowPos(mainWnd, NULL, wndRect.left, wndRect.top,
                            wndRect.right - wndRect.left, wndRect.bottom - wndRect.top,
                            SWPFlags);
