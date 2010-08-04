@@ -858,12 +858,12 @@ std::string ELwstringTostring(std::wstring inString, UINT codePage)
   std::string returnString;
 
   size_t tmpStringLength = WideCharToMultiByte(codePage, 0, wideString.c_str(), wideString.length(), NULL, 0,
-                                               NULL, NULL);
+                           NULL, NULL);
   if (tmpStringLength != 0)
     {
       LPSTR tmpString = new char[tmpStringLength + 1];
       size_t writtenBytes = WideCharToMultiByte(codePage, 0, wideString.c_str(), wideString.length(), tmpString,
-                                                tmpStringLength, NULL, NULL);
+                            tmpStringLength, NULL, NULL);
       if (writtenBytes != 0)
         {
           if (writtenBytes <= tmpStringLength)
@@ -885,7 +885,7 @@ std::wstring ELstringTowstring(std::string inString, UINT codePage)
     {
       LPWSTR tmpString = new WCHAR[tmpStringLength + 1];
       size_t writtenBytes = MultiByteToWideChar(codePage, 0, narrowString.c_str(), narrowString.length(), tmpString,
-                                                tmpStringLength);
+                            tmpStringLength);
       if (writtenBytes != 0)
         {
           if (writtenBytes <= tmpStringLength)
@@ -1144,17 +1144,6 @@ bool ELExecuteInternal(LPTSTR command)
     }
   else if (_wcsicmp(command, TEXT("CoreThemeSelector")) == 0)
     {
-      std::wstring theme, themeDir;
-      std::string narrowTheme, narrowThemeDir;
-      theme = L"%ThemeDir%";
-      themeDir = L"%EmergeDir%\\themes";
-      theme = ELExpandVars(theme);
-      themeDir = ELExpandVars(themeDir);
-      ELWriteDebug(theme);
-      ELWriteDebug(themeDir);
-      narrowTheme = ELwstringTostring(theme);
-      narrowThemeDir = ELwstringTostring(themeDir);
-      MakeZip((char*)"c:/downloads/test.zip", (char*)narrowThemeDir.c_str(), (char*)narrowTheme.c_str());
       ELSwitchToThisWindow(ELGetCoreWindow());
       PostMessage(ELGetCoreWindow(), EMERGE_DISPATCH, (WPARAM)EMERGE_CORE, (LPARAM)CORE_THEMESELECT);
       return true;
@@ -1197,6 +1186,25 @@ bool ELExecuteInternal(LPTSTR command)
       }*/
 
   return false;
+}
+
+int ELMakeZip(std::wstring zipFile, std::wstring zipRoot, std::wstring zipPath)
+{
+  std::wstring forwardSlash = TEXT("\\"), backSlash = TEXT("/");
+  std::string narrowZipFile, narrowZipRoot, narrowZipPath;
+
+  zipFile = ELExpandVars(zipFile);
+  zipRoot = ELExpandVars(zipRoot);
+  zipPath = ELExpandVars(zipPath);
+
+  // switch to UNIX path separators since zip lib requires it
+  zipFile = ELwstringReplace(zipFile, forwardSlash, backSlash, false);
+
+  narrowZipFile = ELwstringTostring(zipFile);
+  narrowZipRoot = ELwstringTostring(zipRoot);
+  narrowZipPath = ELwstringTostring(zipPath);
+
+  return MakeZip((char*)narrowZipFile.c_str(), (char*)narrowZipRoot.c_str(), (char*)narrowZipPath.c_str());
 }
 
 void stripQuotes(LPTSTR source)
@@ -3712,6 +3720,29 @@ std::wstring ELToLower(std::wstring workingString)
   return workingString;
 }
 
+std::wstring ELwstringReplace(std::wstring original, std::wstring pattern, std::wstring replacement, bool ignoreCase)
+{
+  std::wstring lowerOrig = original, lowerPat = pattern;
+  size_t i = 0;
+
+  if (ignoreCase)
+    {
+      std::transform(lowerOrig.begin(), lowerOrig.end(), lowerOrig.begin(), (int(*)(int)) std::tolower);
+      std::transform(lowerPat.begin(), lowerPat.end(), lowerPat.begin(), (int(*)(int)) std::tolower);
+    }
+
+  i = lowerOrig.find(lowerPat, i);
+  while (i != std::wstring::npos)
+    {
+      original.replace(i, pattern.length(), replacement);
+      lowerOrig.replace(i, lowerPat.length(), replacement);
+      i += replacement.length();
+      i = lowerOrig.find(lowerPat, i);
+    }
+
+  return original;
+}
+
 UINT ELStringReplace(WCHAR *original, const WCHAR *pattern, const WCHAR *replacement, bool ignoreCase)
 {
   std::wstring workingOrig = original, workingRepl = replacement;
@@ -4133,7 +4164,7 @@ std::wstring ELwcsftime(const WCHAR *format, const struct tm *timeptr)
     {
       tmpString.resize(tmpStringLength + 1);
       size_t writtenBytes = MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, tmpDest, strlen(tmpDest), &tmpString.front(),
-                                                tmpStringLength);
+                            tmpStringLength);
       if (writtenBytes != 0)
         {
           if (writtenBytes <= tmpStringLength)

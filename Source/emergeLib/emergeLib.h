@@ -340,6 +340,7 @@ DLL_EXPORT HWND ELGetDesktopWindow();
 DLL_EXPORT bool ELAdjustVolume(UINT command);
 //DLL_EXPORT bool ELControlBrowser(UINT command);
 DLL_EXPORT UINT ELStringReplace(WCHAR *original, const WCHAR *pattern, const WCHAR *replacement, bool ignoreCase);
+DLL_EXPORT std::wstring ELwstringReplace(std::wstring original, std::wstring pattern, std::wstring replacement, bool ignoreCase);
 DLL_EXPORT BOOL ELIsWow64();
 DLL_EXPORT std::wstring ELExpandVars(std::wstring value);
 DLL_EXPORT bool ELUnExpandVars(LPTSTR value);
@@ -429,5 +430,6 @@ DLL_EXPORT LPITEMIDLIST ELILClone(LPITEMIDLIST pidl);
 DLL_EXPORT LPITEMIDLIST ELILFindLastID(LPITEMIDLIST pidl);
 DLL_EXPORT BOOL ELILRemoveLastID(LPITEMIDLIST pidl);
 DLL_EXPORT std::wstring ELGetProcessIDApp(DWORD processID, bool fullName);
+DLL_EXPORT int ELMakeZip(std::wstring zipFile, std::wstring zipRoot, std::wstring zipPath);
 
 #endif
