@@ -72,4 +72,5 @@ IDI_DOUBLEVSEPARATOR  ICON  "DoubleVSeparator.ico"
 IDI_DOUBLEHSEPARATOR  ICON  "DoubleHSeparator.ico"
 IDI_FILE              ICON  "file.ico"
 IDI_QUIT              ICON  "unemerge.ico"
-
+IDI_EXPORT            ICON  "export.ico"
+IDI_IMPORT            ICON  "import.ico"

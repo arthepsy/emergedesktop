@@ -40,4 +40,5 @@
 #define IDI_DOUBLEHSEPARATOR    17
 #define IDI_FILE                18
 #define IDI_QUIT                19
-
+#define IDI_EXPORT              20
+#define IDI_IMPORT              21

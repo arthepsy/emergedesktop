@@ -47,7 +47,7 @@ private:
   std::tr1::shared_ptr<ThemeSaver> pThemeSaver;
   HINSTANCE hInstance;
   HWND mainWnd, toolWnd;
-  HICON saveasIcon, saveIcon, delIcon;
+  HICON saveasIcon, saveIcon, delIcon, exportIcon, importIcon;
   void PopulateThemes(HWND themeWnd, WCHAR *currentTheme);
   bool SaveTheme(HWND hwndDlg);
   void DoSaveAs(HWND hwndDlg);

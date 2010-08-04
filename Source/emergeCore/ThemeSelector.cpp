@@ -48,6 +48,8 @@ ThemeSelector::ThemeSelector(HINSTANCE hInstance, HWND mainWnd)
   ExtractIconEx(TEXT("emergeIcons.dll"), 10, NULL, &saveasIcon, 1);
   ExtractIconEx(TEXT("emergeIcons.dll"), 9, NULL, &saveIcon, 1);
   ExtractIconEx(TEXT("emergeIcons.dll"), 3, NULL, &delIcon, 1);
+  ExtractIconEx(TEXT("emergeIcons.dll"), 20, NULL, &exportIcon, 1);
+  ExtractIconEx(TEXT("emergeIcons.dll"), 21, NULL, &importIcon, 1);
 
   InitCommonControls();
 
@@ -79,6 +81,10 @@ ThemeSelector::~ThemeSelector()
     DestroyIcon(saveIcon);
   if (delIcon)
     DestroyIcon(delIcon);
+  if (exportIcon)
+    DestroyIcon(exportIcon);
+  if (importIcon)
+    DestroyIcon(importIcon);
 
   DestroyWindow(toolWnd);
 }
@@ -101,6 +107,8 @@ BOOL ThemeSelector::DoInitDialog(HWND hwndDlg)
   HWND saveasWnd = GetDlgItem(hwndDlg, IDC_SAVEAS);
   HWND saveWnd = GetDlgItem(hwndDlg, IDC_SAVETHEME);
   HWND delWnd = GetDlgItem(hwndDlg, IDC_DELTHEME);
+  HWND importWnd = GetDlgItem(hwndDlg, IDC_IMPORTTHEME);
+  HWND exportWnd = GetDlgItem(hwndDlg, IDC_EXPORTTHEME);
 
   x = (GetSystemMetrics(SM_CXSCREEN) / 2) - ((rect.right - rect.left) / 2);
   y = (GetSystemMetrics(SM_CYSCREEN) / 2) - ((rect.bottom - rect.top) / 2);
@@ -113,6 +121,10 @@ BOOL ThemeSelector::DoInitDialog(HWND hwndDlg)
     SendMessage(saveWnd, BM_SETIMAGE, IMAGE_ICON, (LPARAM)saveIcon);
   if (delIcon)
     SendMessage(delWnd, BM_SETIMAGE, IMAGE_ICON, (LPARAM)delIcon);
+  if (exportIcon)
+    SendMessage(exportWnd, BM_SETIMAGE, IMAGE_ICON, (LPARAM)exportIcon);
+  if (importIcon)
+    SendMessage(importWnd, BM_SETIMAGE, IMAGE_ICON, (LPARAM)importIcon);
 
   ti.cbSize = TTTOOLINFOW_V2_SIZE;
   ti.uFlags = TTF_SUBCLASS;
@@ -131,6 +143,16 @@ BOOL ThemeSelector::DoInitDialog(HWND hwndDlg)
   ti.uId = (ULONG_PTR)delWnd;
   ti.lpszText = (WCHAR*)TEXT("Delete Theme");
   GetClientRect(delWnd, &ti.rect);
+  SendMessage(toolWnd, TTM_ADDTOOL, 0, (LPARAM)(LPTOOLINFO)&ti);
+  ti.hwnd = importWnd;
+  ti.uId = (ULONG_PTR)importWnd;
+  ti.lpszText = (WCHAR*)TEXT("Import Theme");
+  GetClientRect(importWnd, &ti.rect);
+  SendMessage(toolWnd, TTM_ADDTOOL, 0, (LPARAM)(LPTOOLINFO)&ti);
+  ti.hwnd = exportWnd;
+  ti.uId = (ULONG_PTR)exportWnd;
+  ti.lpszText = (WCHAR*)TEXT("Export Theme");
+  GetClientRect(exportWnd, &ti.rect);
   SendMessage(toolWnd, TTM_ADDTOOL, 0, (LPARAM)(LPTOOLINFO)&ti);
 
   bool isModifiedTheme = ELIsModifiedTheme(ELGetThemeName().c_str());
@@ -346,6 +368,7 @@ BOOL ThemeSelector::DoThemeCheck(HWND hwndDlg)
   HWND themeWnd = GetDlgItem(hwndDlg, IDC_THEMEITEM);
   HWND saveWnd = GetDlgItem(hwndDlg, IDC_SAVETHEME);
   HWND delWnd = GetDlgItem(hwndDlg, IDC_DELTHEME);
+  HWND exportWnd = GetDlgItem(hwndDlg, IDC_EXPORTTHEME);
   WCHAR theme[MAX_PATH], errorText[MAX_LINE_LENGTH];
   std::wstring themePath = TEXT("%ThemeDir%");
   themePath = ELExpandVars(themePath);
@@ -353,6 +376,7 @@ BOOL ThemeSelector::DoThemeCheck(HWND hwndDlg)
   GetWindowText(themeWnd, theme, MAX_PATH);
   EnableWindow(delWnd, (_wcsicmp(theme, TEXT("Default")) != 0));
   EnableWindow(saveWnd, (ELIsModifiedTheme(theme) && (_wcsicmp(theme, TEXT("Default (Modified)")) != 0)));
+  EnableWindow(exportWnd, (_wcsicmp(theme, TEXT("Default")) != 0));
 
   if (ELIsModifiedTheme(ELGetThemeName().c_str()) && PathIsDirectory(themePath.c_str()))
     {
