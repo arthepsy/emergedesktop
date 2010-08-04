@@ -603,8 +603,6 @@ void Core::CheckLaunchItem(LaunchMap *launchMap, const WCHAR *item)
   program = ELExpandVars(program);
   program = ELToLower(program);
 
-  ELWriteDebug(program);
-
   iter = launchMap->find(program);
   if (iter == launchMap->end())
     ELExecute((WCHAR*)program.c_str());

@@ -53,6 +53,7 @@ private:
   void DoSaveAs(HWND hwndDlg);
   void DoDelTheme(HWND hwndDlg);
   void DoSave(HWND hwndDlg);
+  void DoExport(HWND hwndDlg);
   static BOOL CALLBACK ThemeSelectorDlgProc(HWND hwndDlg, UINT message, WPARAM wParam, LPARAM lParam);
   BOOL DoThemeCheck(HWND hwndDlg);
 };

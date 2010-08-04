@@ -52,16 +52,16 @@ ThemeSelector::ThemeSelector(HINSTANCE hInstance, HWND mainWnd)
   InitCommonControls();
 
   toolWnd = CreateWindowEx(
-                           0,
-                           TOOLTIPS_CLASS,
-                           NULL,
-                           TTS_ALWAYSTIP|WS_POPUP|TTS_NOPREFIX,
-                           CW_USEDEFAULT, CW_USEDEFAULT,
-                           CW_USEDEFAULT, CW_USEDEFAULT,
-                           NULL,
-                           NULL,
-                           hInstance,
-                           NULL);
+              0,
+              TOOLTIPS_CLASS,
+              NULL,
+              TTS_ALWAYSTIP|WS_POPUP|TTS_NOPREFIX,
+              CW_USEDEFAULT, CW_USEDEFAULT,
+              CW_USEDEFAULT, CW_USEDEFAULT,
+              NULL,
+              NULL,
+              hInstance,
+              NULL);
 
   if (toolWnd)
     {
@@ -225,9 +225,54 @@ BOOL ThemeSelector::DoThemeCommand(HWND hwndDlg, WPARAM wParam, LPARAM lParam UN
     case IDC_SAVETHEME:
       DoSave(hwndDlg);
       return TRUE;
+    case IDC_EXPORTTHEME:
+      DoExport(hwndDlg);
+      return TRUE;
     }
 
   return FALSE;
+}
+
+void ThemeSelector::DoExport(HWND hwndDlg)
+{
+  HWND themeWnd = GetDlgItem(hwndDlg, IDC_THEMEITEM);
+  WCHAR theme[MAX_PATH], tmp[MAX_PATH];
+  BROWSEINFO bi;
+  std::wstring themePath, target, themeRoot = TEXT("%EmergeDir%\\themes");
+
+  if (GetWindowText(themeWnd, theme, MAX_PATH) != 0)
+    {
+      themePath = themeRoot + TEXT("\\") + theme;
+      target += theme;
+      target += TEXT(".zip");
+
+      ZeroMemory(&bi, sizeof(BROWSEINFO));
+      bi.hwndOwner = hwndDlg;
+      bi.ulFlags = BIF_NEWDIALOGSTYLE;
+      bi.lpszTitle = TEXT("Export folder:");
+
+      LPITEMIDLIST pItemIDList = SHBrowseForFolder(&bi);
+
+      if (pItemIDList != NULL)
+        {
+          if (SHGetPathFromIDList(pItemIDList, tmp))
+            {
+              IMalloc* pMalloc = NULL;
+              if (SUCCEEDED(SHGetMalloc(&pMalloc)))
+                {
+                  pMalloc->Free(pItemIDList);
+                  pMalloc->Release();
+                }
+
+              target = tmp;
+              target += TEXT("\\");
+              target += theme;
+              target += TEXT(".zip");
+              ELMakeZip(target, themeRoot, themePath);
+            }
+        }
+
+    }
 }
 
 void ThemeSelector::DoSave(HWND hwndDlg)

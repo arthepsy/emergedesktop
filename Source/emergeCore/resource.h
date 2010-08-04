@@ -61,5 +61,7 @@
 #define IDC_SAVEAS      701
 #define IDC_SAVETHEME   702
 #define IDC_DELTHEME    703
+#define IDC_EXPORTTHEME 704
+#define IDC_IMPORTTHEME 705
 
 #define IDI_DEFAULT		  1000
