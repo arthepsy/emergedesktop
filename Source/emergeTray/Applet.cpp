@@ -515,6 +515,7 @@ void Applet::CleanTray()
   RECT wndRect;
   bool hidden, removed = false;
   TrayIcon *pTrayIcon;
+  UINT SWPFlags = SWP_NOZORDER | SWP_NOACTIVATE;
 
   if (trayIconList.empty())
     return;
@@ -539,10 +540,12 @@ void Applet::CleanTray()
                   if (GetWindowRect(mainWnd, &wndRect))
                     {
                       AdjustRect(&wndRect);
+                      if (GetVisibleIconCount() == 0)
+                        SWPFlags |= SWP_HIDEWINDOW;
                       SetWindowPos(mainWnd, NULL, wndRect.left, wndRect.top,
                                    wndRect.right - wndRect.left,
                                    wndRect.bottom - wndRect.top,
-                                   SWP_NOZORDER | SWP_NOACTIVATE);
+                                   SWPFlags);
                     }
                 }
 
@@ -667,6 +670,7 @@ LRESULT Applet::ModifyTrayIcon(HWND hwnd, UINT uID, UINT uFlags, UINT uCallbackM
   bool changed = false;
   TrayIcon *pTrayIcon = FindTrayIcon(hwnd, uID);
   RECT wndRect;
+  UINT SWPFlags = SWP_NOZORDER | SWP_NOACTIVATE;
 
   if (!pTrayIcon)
     return 0;
@@ -730,10 +734,12 @@ LRESULT Applet::ModifyTrayIcon(HWND hwnd, UINT uID, UINT uFlags, UINT uCallbackM
           if (GetWindowRect(mainWnd, &wndRect))
             {
               AdjustRect(&wndRect);
+              if (GetVisibleIconCount() > 0)
+                SWPFlags |= SWP_SHOWWINDOW;
               SetWindowPos(mainWnd, NULL, wndRect.left, wndRect.top,
                            wndRect.right - wndRect.left,
                            wndRect.bottom - wndRect.top,
-                           SWP_NOZORDER | SWP_NOACTIVATE);
+                           SWPFlags);
             }
         }
     }

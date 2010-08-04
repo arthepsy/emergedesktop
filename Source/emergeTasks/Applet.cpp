@@ -356,6 +356,7 @@ bool Applet::CleanTasks()
   RECT wndRect;
   bool refresh = false;
   TaskVector::iterator iter = taskList.begin();
+  UINT SWPFlags = SWP_NOZORDER | SWP_NOACTIVATE;
 
   // Go through each of the elements in the trayIcons array
   while (iter != taskList.end())
@@ -382,10 +383,12 @@ bool Applet::CleanTasks()
         {
           AdjustRect(&wndRect);
           UpdateIcons();
+          if (GetVisibleIconCount() == 0)
+            SWPFlags |= SWP_HIDEWINDOW;
           SetWindowPos(mainWnd, NULL, wndRect.left, wndRect.top,
                        wndRect.right - wndRect.left,
                        wndRect.bottom - wndRect.top,
-                       SWP_NOZORDER | SWP_NOACTIVATE);
+                       SWPFlags);
         }
     }
 
