@@ -35,6 +35,32 @@
 					<Add after="x86_64-w64-mingw32-dlltool --dllname zip32z64.dll --def zip/windll/windllw64.def --output-lib bin64/libzip32z64.dll.a" />
 				</ExtraCommands>
 			</Target>
+			<Target title="unzip - Release">
+				<Option output="bin64\unzip32" prefix_auto="1" extension_auto="1" />
+				<Option object_output=".objs64\Release" />
+				<Option type="3" />
+				<Option compiler="gnu_gcc_compiler_for_mingw64" />
+				<Option projectCompilerOptionsRelation="1" />
+				<Option projectLinkerOptionsRelation="1" />
+				<Compiler>
+					<Add option="-O2" />
+					<Add option="-w" />
+					<Add option="-DWIN32" />
+					<Add option="-DFORCE_WIN32_OVER_UNIX" />
+					<Add option="-DIZ_CRCOPTIM_UNFOLDTBL" />
+					<Add option="-DDLL" />
+					<Add option="-DWINDLL" />
+				</Compiler>
+				<ResourceCompiler>
+					<Add directory=".\emergeLib" />
+				</ResourceCompiler>
+				<Linker>
+					<Add option="-s" />
+				</Linker>
+				<ExtraCommands>
+					<Add after="x86_64-w64-mingw32-dlltool --dllname unzip32.dll --def unzip/windll/windllw64.def --output-lib bin64/libunzip32.dll.a" />
+				</ExtraCommands>
+			</Target>
 			<Target title="emergeLib - Release">
 				<Option output="bin64\emergeLib" prefix_auto="1" extension_auto="1" />
 				<Option object_output=".objs64\Release" />
@@ -502,7 +528,7 @@
 			</Target>
 		</Build>
 		<VirtualTargets>
-			<Add alias="All - Release" targets="zip - Release;emergeLib - Release;emergeGraphics - Release;emergeAppletEngine - Release;emergeStyleEngine - Release;emergeBaseClasses - Release;emergeCore - Release;emergeCommand - Release;emergeWorkspace - Release;emergeHotkeys - Release;emergeLauncher - Release;emergeTasks - Release;emergeTray - Release;emergeVWM - Release;emerge - Release;emergePower - Release;emergeSysMon - Release;reg2xml - Release;" />
+			<Add alias="All - Release" targets="zip - Release;unzip - Release;emergeLib - Release;emergeGraphics - Release;emergeAppletEngine - Release;emergeStyleEngine - Release;emergeBaseClasses - Release;emergeCore - Release;emergeCommand - Release;emergeWorkspace - Release;emergeHotkeys - Release;emergeLauncher - Release;emergeTasks - Release;emergeTray - Release;emergeVWM - Release;emerge - Release;emergePower - Release;emergeSysMon - Release;reg2xml - Release;" />
 		</VirtualTargets>
 		<Compiler>
 			<Add option="-Wfatal-errors" />
@@ -1450,6 +1476,107 @@
 		</Unit>
 		<Unit filename="tinyxml\tinyxmlparser.cpp">
 			<Option target="emergeLib - Release" />
+		</Unit>
+		<Unit filename="unzip\api.c">
+			<Option compilerVar="CC" />
+			<Option target="unzip - Release" />
+		</Unit>
+		<Unit filename="unzip\crc32.c">
+			<Option compilerVar="CC" />
+			<Option target="unzip - Release" />
+		</Unit>
+		<Unit filename="unzip\crc32.h">
+			<Option target="unzip - Release" />
+		</Unit>
+		<Unit filename="unzip\crypt.c">
+			<Option compilerVar="CC" />
+			<Option target="unzip - Release" />
+		</Unit>
+		<Unit filename="unzip\crypt.h">
+			<Option target="unzip - Release" />
+		</Unit>
+		<Unit filename="unzip\explode.c">
+			<Option compilerVar="CC" />
+			<Option target="unzip - Release" />
+		</Unit>
+		<Unit filename="unzip\extract.c">
+			<Option compilerVar="CC" />
+			<Option target="unzip - Release" />
+		</Unit>
+		<Unit filename="unzip\fileio.c">
+			<Option compilerVar="CC" />
+			<Option target="unzip - Release" />
+		</Unit>
+		<Unit filename="unzip\globals.c">
+			<Option compilerVar="CC" />
+			<Option target="unzip - Release" />
+		</Unit>
+		<Unit filename="unzip\globals.h">
+			<Option target="unzip - Release" />
+		</Unit>
+		<Unit filename="unzip\inflate.c">
+			<Option compilerVar="CC" />
+			<Option target="unzip - Release" />
+		</Unit>
+		<Unit filename="unzip\inflate.h">
+			<Option target="unzip - Release" />
+		</Unit>
+		<Unit filename="unzip\list.c">
+			<Option compilerVar="CC" />
+			<Option target="unzip - Release" />
+		</Unit>
+		<Unit filename="unzip\match.c">
+			<Option compilerVar="CC" />
+			<Option target="unzip - Release" />
+		</Unit>
+		<Unit filename="unzip\process.c">
+			<Option compilerVar="CC" />
+			<Option target="unzip - Release" />
+		</Unit>
+		<Unit filename="unzip\ubz2err.c">
+			<Option compilerVar="CC" />
+			<Option target="unzip - Release" />
+		</Unit>
+		<Unit filename="unzip\unreduce.c">
+			<Option compilerVar="CC" />
+			<Option target="unzip - Release" />
+		</Unit>
+		<Unit filename="unzip\unshrink.c">
+			<Option compilerVar="CC" />
+			<Option target="unzip - Release" />
+		</Unit>
+		<Unit filename="unzip\win32\nt.c">
+			<Option compilerVar="CC" />
+			<Option target="unzip - Release" />
+		</Unit>
+		<Unit filename="unzip\win32\nt.h">
+			<Option target="unzip - Release" />
+		</Unit>
+		<Unit filename="unzip\win32\win32.c">
+			<Option compilerVar="CC" />
+			<Option target="unzip - Release" />
+		</Unit>
+		<Unit filename="unzip\win32\win32i64.c">
+			<Option compilerVar="CC" />
+			<Option target="unzip - Release" />
+		</Unit>
+		<Unit filename="unzip\windll\structs.h">
+			<Option target="unzip - Release" />
+		</Unit>
+		<Unit filename="unzip\windll\windll.c">
+			<Option compilerVar="CC" />
+			<Option target="unzip - Release" />
+		</Unit>
+		<Unit filename="unzip\windll\windll.h">
+			<Option target="unzip - Release" />
+		</Unit>
+		<Unit filename="unzip\windll\windll.rc">
+			<Option compilerVar="WINDRES" />
+			<Option target="unzip - Release" />
+		</Unit>
+		<Unit filename="unzip\zipinfo.c">
+			<Option compilerVar="CC" />
+			<Option target="unzip - Release" />
 		</Unit>
 		<Unit filename="version.h">
 			<Option target="emergeLib - Release" />
