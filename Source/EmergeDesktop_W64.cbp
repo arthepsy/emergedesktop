@@ -30,7 +30,6 @@
 				<Linker>
 					<Add option="-s" />
 					<Add option="-Wl,--enable-stdcall-fixup" />
-					<Add library="wmsvcrt" />
 				</Linker>
 				<ExtraCommands>
 					<Add after="x86_64-w64-mingw32-dlltool --dllname zip32z64.dll --def zip/windll/windllw64.def --output-lib bin64/libzip32z64.dll.a" />
@@ -1527,6 +1526,9 @@
 			<Option target="zip - Release" />
 		</Unit>
 		<Unit filename="zip\win32\nt.h">
+			<Option target="zip - Release" />
+		</Unit>
+		<Unit filename="zip\win32\osdep.h">
 			<Option target="zip - Release" />
 		</Unit>
 		<Unit filename="zip\win32\win32.c">

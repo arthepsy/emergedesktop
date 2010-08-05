@@ -1841,6 +1841,9 @@
 		<Unit filename="zip\win32\nt.h">
 			<Option target="zip - Release" />
 		</Unit>
+		<Unit filename="zip\win32\osdep.h">
+			<Option target="zip - Release" />
+		</Unit>
 		<Unit filename="zip\win32\win32.c">
 			<Option compilerVar="CC" />
 			<Option target="zip - Release" />
