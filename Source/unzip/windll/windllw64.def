@@ -1,0 +1,18 @@
+LIBRARY UNZIP32
+
+;DESCRIPTION 'Windows Info-ZIP UnZip32 DLL by Mike White'
+
+
+EXPORTS
+Wiz_SingleEntryUnzip
+Wiz_SingleEntryUnzpList
+UzpVersion
+Wiz_Init
+Wiz_SetOpts
+Wiz_Unzip
+Wiz_Validate
+Wiz_NoPrinting
+UzpVersion2
+Wiz_UnzipToMemory
+Wiz_Grep
+UzpFreeMemBuffer
