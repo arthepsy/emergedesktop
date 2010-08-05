@@ -92,12 +92,12 @@
 
 /* callback that DLL caller can use to get progress reports */
 # ifdef WINDLL
-#   ifndef NO_ENABLE_DLL_PROGRESS 
+#   ifndef NO_ENABLE_DLL_PROGRESS
 #     define ENABLE_DLL_PROGRESS
 #   endif
 # endif
 
- 
+
  /* Large File Support
  *
  *  If this is set it is assumed that the port
@@ -456,10 +456,10 @@
 #endif
 
 #ifdef _MBCS
-#  if (!defined(__EMX__) && !defined(__MINGW32__) && !defined(__CYGWIN__))
+//#  if (!defined(__EMX__) && !defined(__MINGW32__) && !defined(__CYGWIN__))
 #    include <stdlib.h>
 #    include <mbstring.h>
-#  endif
+//#  endif
 #  if (defined(__MINGW32__) && !defined(MB_CUR_MAX))
 #    ifdef __MSVCRT__
        IZ_IMP extern int *__p___mb_cur_max(void);
