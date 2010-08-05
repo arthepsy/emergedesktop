@@ -455,7 +455,7 @@ HRESULT AddContextMenu(WCHAR *file)
   if (!PathIsDirectory(file))
     {
       AppendMenu(fileMenu, MF_SEPARATOR, 0x8000, NULL);
-      AppendMenu(fileMenu, MF_STRING, 0x8001, TEXT("Open Directory"));
+      AppendMenu(fileMenu, MF_STRING, 0x8001, TEXT("Open Folder"));
     }
 
   contextMap.insert(std::pair<HMENU, CONTEXTINFO>(fileMenu, contextInfo));
