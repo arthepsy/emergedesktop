@@ -3,7 +3,7 @@
 
 include functions.in
 
-LIBS = emergeLib emergeGraphics emergeAppletEngine emergeStyleEngine emergeBaseClasses emergeIcons
+LIBS = zip emergeLib emergeGraphics emergeAppletEngine emergeStyleEngine emergeBaseClasses emergeIcons
 APPLETS = emergeCore emergeWorkspace emergeHotkeys emergeTasks emergeCommand emergeLauncher \
 					emergeVWM emergeTray emerge emergePower emergeSysMon reg2xml
 VERSION = 4.1
@@ -38,8 +38,12 @@ makedep: all
 $(APPLETS): $(LIBS)
 	$(MAKE) -C $@ $(MAKECMDGOALS)
 
+.PHONY: zip
+zip:
+	$(MAKE) -C $@ $(MAKECMDGOALS)
+
 .PHONY: emergeLib
-emergeLib:
+emergeLib: zip
 	$(MAKE) -C $@ $(MAKECMDGOALS)
 
 .PHONY: emergeIcons

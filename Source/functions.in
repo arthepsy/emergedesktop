@@ -3,6 +3,8 @@ CYGWIN =
 remove_file = if exist $(subst /,\,$1) del $(subst /,\,$1)
 remove_files = del /q $(subst /,\,$1)
 make_dir = if not exist $(subst /,\,$1) mkdir $(subst /,\,$1)
+move_file = if exist $(subst /,\,$1) move /y $(subst /,\,$1) $(subst, /,\,$2)
+move_files = move /y $(subst /,\,$1) $(subst /,\,$2)
 
 ifeq ($(PLATFORM),%WINDIR%)
 		CYGWIN = true
@@ -13,5 +15,7 @@ ifdef CYGWIN
 		remove_file = if [ -f $1 ]; then rm -f $1; fi
 		remove_files = rm -f $1
 		make_dir = if [ ! -d $1 ]; then mkdir -p $1; fi
+		move_file = if [ -f $1 ]; then mv -f $1 $2; fi
+		move_files = mv -f $1 $2
 endif
 

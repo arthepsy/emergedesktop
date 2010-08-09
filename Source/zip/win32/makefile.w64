@@ -54,7 +54,7 @@ LOC = $(LOCAL_ZIP)
 # ------------ GNU C ------------
 DLLWRAP=x86_64-w64-mingw32-dllwrap
 CC=x86_64-w64-mingw32-gcc
-CFLG_OPT=-Wall -O3 $(TUNE_CPU)
+CFLG_OPT=-w -O2
 CFLAGS=$(CFLG_OPT) -DWIN32 -DFORCE_WIN32_OVER_UNIX $(IZCRCOPT)
 ifndef USEZLIB
 CCFLAGS=$(CFLAGS) $(ASMFLG) $(LOC)
@@ -325,7 +325,7 @@ zipsplit.exe: $(OBJS)
 zip32z64.dll: $(DLLDEF) $(OBJD) $(LIBBZIP2)
 	$(DLLWRAP) --driver-name $(CC) -Wl,--enable-stdcall-fixup \
 	 --def $(DLLDEF)  $(LDFLAGS) $(OBJD) $(LD_BZ2LIB) $(LIBS) \
-	 --output-lib libzip32z64.a
+	 --output-lib libzip32z64.dll.a
 
 example.exe: example.o
 	$(LD) $(LDFLAGS) $^ -lversion $(LIBS)
