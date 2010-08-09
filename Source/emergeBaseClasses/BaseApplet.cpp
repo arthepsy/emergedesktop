@@ -197,7 +197,7 @@ void BaseApplet::UpdateGUI(WCHAR *styleFile)
       wndRect.left = pBaseSettings->GetX();
       wndRect.right = wndRect.left;
       AdjustRect(&wndRect);
-      if (GetVisibleIconCount() > 0)
+      if ((GetVisibleIconCount() > 0) && !appletHidden)
         SWPFlags |= SWP_SHOWWINDOW;
     }
   else
@@ -219,7 +219,8 @@ void BaseApplet::UpdateGUI(WCHAR *styleFile)
       wndRect.bottom = wndRect.top + pBaseSettings->GetHeight() + (2 * dragBorder);
       wndRect.right = wndRect.left + pBaseSettings->GetWidth() + (2 * dragBorder);
 
-      SWPFlags |= SWP_SHOWWINDOW;
+      if (!appletHidden)
+        SWPFlags |= SWP_SHOWWINDOW;
     }
 
   // Set focus to mainWnd to fix the 'top' z-order issue

@@ -266,7 +266,7 @@ LRESULT Applet::AddTask(HWND task)
         {
           AdjustRect(&wndRect);
           UpdateIcons();
-          if (GetVisibleIconCount() > 0)
+          if ((GetVisibleIconCount() > 0) && !appletHidden)
             SWPFlags |= SWP_SHOWWINDOW;
           SetWindowPos(mainWnd, NULL, wndRect.left, wndRect.top,
                        wndRect.right - wndRect.left,
