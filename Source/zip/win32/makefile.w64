@@ -79,7 +79,7 @@ RC=x86_64-w64-mingw32-windres
 LD=$(CC)
 LDFLAGS=-o$@ -s
 ifndef USEZLIB
-LIBS=-luser32 -ladvapi32 -lwmsvcrt
+LIBS=-luser32 -ladvapi32
 else
 LIBS=-L. -lz -luser32 -ladvapi32
 endif
@@ -179,7 +179,7 @@ ZIPS = zip.exe zipnote.exe zipsplit.exe zipcloak.exe
 # targets
 
 zips:   $(ZIPS)
-dll:    zip32z64.dll
+dll:    ../bin64/zip32z64.dll
 dllsample: example.exe
 all:    zips dll dllsample
 
@@ -322,10 +322,10 @@ zipnote.exe: $(OBJN)
 zipsplit.exe: $(OBJS)
 	$(LD) $(LDFLAGS) $(OBJS)
 
-zip32z64.dll: $(DLLDEF) $(OBJD) $(LIBBZIP2)
+../bin64/zip32z64.dll: $(DLLDEF) $(OBJD) $(LIBBZIP2)
 	$(DLLWRAP) --driver-name $(CC) -Wl,--enable-stdcall-fixup \
 	 --def $(DLLDEF)  $(LDFLAGS) $(OBJD) $(LD_BZ2LIB) $(LIBS) \
-	 --output-lib libzip32z64.dll.a
+	 --output-lib ../bin64/libzip32z64.dll.a
 
 example.exe: example.o
 	$(LD) $(LDFLAGS) $^ -lversion $(LIBS)
@@ -346,4 +346,6 @@ FORCE:
 
 clean:
 	-$(MAKE) -C $(IZ_BZIP2) CC="$(CC)" RM="$(RM)" clean
-	rm -f *.o $(ZIPS)
+	$(RM) *.o $(ZIPS)
+	$(RM) ../bin64/zip32z64.dll
+	$(RM) ../bin64/libzip32z64.dll.a

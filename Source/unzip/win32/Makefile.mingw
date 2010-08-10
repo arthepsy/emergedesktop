@@ -255,7 +255,7 @@ WINDLL_IMP_H = windll/decs.h windll/structs.h
 
 # Default target is all the executables
 unzips: unzip$(EXE) funzip$(EXE) unzipsfx$(EXE)
-dll:    unzip32.dll
+dll:    ../bin/unzip32.dll
 dllsample: uzexampl$(EXE)
 guisfx: SFXWiz32$(EXE)
 lib:    libunzip32.a
@@ -270,9 +270,9 @@ unzipsfx$(EXE): $(OBJX) $(LIBBZIP2X)
 funzip$(EXE): $(OBJF)
 	$(LD) $(LDFLAGS) $(LDVER) $(OBJF) $(LDLIBS)
 
-unzip32.dll: $(DLLDEF) $(OBJD) $(LIBBZIP2)
+../bin/unzip32.dll: $(DLLDEF) $(OBJD) $(LIBBZIP2)
 	$(DLLWRAP) --driver-name $(CC) --def $(DLLDEF) $(LDFLAGS) $(LDVER) $(OBJD) \
-			$(LD_BZ2LIB) $(LDLIBS) --output-lib libunzip32.dll.a
+			$(LD_BZ2LIB) $(LDLIBS) --output-lib ../bin/libunzip32.dll.a
 
 libunzsfx32.a: $(OBLX)
 	$(AR) -rus $@ $(OBLX)
@@ -569,5 +569,5 @@ clean:
 	-$(subst /,\,$(MAKE)) -C $(IZ_BZIP2) -f Makebz2.iz RM="$(RM)" clean
 	-$(RM) *$(OBJ)
 	-$(RM) unzip$(EXE) funzip$(EXE) unzipsfx$(EXE)
-	-$(RM) unzip32.dll uzexampl$(EXE) SFXWiz32$(EXE)
-	-$(RM) libunzip32.a libunzsfx32.a
+	-$(RM) ../bin/unzip32.dll uzexampl$(EXE) SFXWiz32$(EXE)
+	-$(RM) ../bin/libunzip32.dll.a libunzsfx32.a

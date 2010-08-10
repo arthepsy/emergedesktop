@@ -180,7 +180,7 @@ ZIPS = zip.exe zipnote.exe zipsplit.exe zipcloak.exe
 # targets
 
 zips:   $(ZIPS)
-dll:    zip32z64.dll
+dll:    ../bin/zip32z64.dll
 dllsample: example.exe
 all:    zips dll dllsample
 
@@ -323,10 +323,10 @@ zipnote.exe: $(OBJN)
 zipsplit.exe: $(OBJS)
 	$(LD) $(LDFLAGS) $(OBJS)
 
-zip32z64.dll: $(DLLDEF) $(OBJD) $(LIBBZIP2)
+../bin/zip32z64.dll: $(DLLDEF) $(OBJD) $(LIBBZIP2)
 	$(DLLWRAP) --driver-name $(CC) -Wl,--enable-stdcall-fixup \
 	 --def $(DLLDEF)  $(LDFLAGS) $(OBJD) $(LD_BZ2LIB) $(LIBS) \
-	 --output-lib libzip32z64.dll.a
+	 --output-lib ../bin/libzip32z64.dll.a
 
 example.exe: example.o
 	$(LD) $(LDFLAGS) $^ -lversion $(LIBS)
@@ -347,4 +347,6 @@ FORCE:
 
 clean:
 	-$(MAKE) -C $(IZ_BZIP2) CC="$(CC)" RM="$(RM)" clean
-	rm -f *.o $(ZIPS)
+	$(RM) *.o $(ZIPS)
+	$(RM) ../bin/zip32z64.dll
+	$(RM) ../bin/libzip32z64.dll.a
