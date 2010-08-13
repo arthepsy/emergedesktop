@@ -1218,9 +1218,6 @@ int ELExtractZip(std::wstring zipFile, std::wstring unzipPath)
   // switch to UNIX path separators since unzip lib requires it
   zipFile = ELwstringReplace(zipFile, forwardSlash, backSlash, false);
 
-  ELWriteDebug(zipFile);
-  ELWriteDebug(unzipPath);
-
   narrowZipFile = ELwstringTostring(zipFile);
   narrowUnzipPath = ELwstringTostring(unzipPath);
 
