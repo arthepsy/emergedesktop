@@ -161,14 +161,15 @@ static const UINT EMERGE_MESSAGE = RegisterWindowMessage(TEXT("EmergeMessage"));
 
 #define ELCB_BACK       0
 
-#define ELMB_ICONWARNING  0x00
-#define ELMB_ICONQUESTION 0x01
-#define ELMB_ICONERROR    0x02
-
-#define ELMB_OK           0x0100
-#define ELMB_YESNO        0x0200
-
-#define ELMB_MODAL        0x010000
+typedef enum _ELMBFLAGS {
+  ELMB_ICONINFORMATION = 0x00,
+  ELMB_ICONWARNING,
+  ELMB_ICONQUESTION,
+  ELMB_ICONERROR,
+  ELMB_OK = 0x0100,
+  ELMB_YESNO = 0x0200,
+  ELMB_MODAL = 0x010000
+} ELMBFLAGS;
 
 /*!
   @def COMMAND_RUN

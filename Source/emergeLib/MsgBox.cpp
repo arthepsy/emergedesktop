@@ -65,6 +65,10 @@ MsgBox::MsgBox(HINSTANCE hInstance, HWND mainWnd, const WCHAR *messageText, cons
       msgIcon = LoadIcon(NULL, IDI_ERROR);
       sound = (WCHAR*)SND_ALIAS_SYSTEMHAND;
       break;
+    default:
+      msgIcon = LoadIcon(NULL, IDI_INFORMATION);
+      sound = (WCHAR*)SND_ALIAS_SYSTEMDEFAULT;
+      break;
     }
 }
 
