@@ -293,6 +293,13 @@ void ThemeSelector::DoExport(HWND hwndDlg)
               target += TEXT("\\");
               target += theme;
               target += TEXT(".zip");
+              if (PathFileExists(target.c_str()))
+                {
+                  swprintf(message, TEXT("Do you want to replace '%s'?"), target.c_str());
+                  if (ELMessageBox(hwndDlg, message, TEXT("emergeCore"),
+                                   ELMB_YESNO|ELMB_ICONQUESTION) == IDNO)
+                    return;
+                }
               if (ELMakeZip(target, themeRoot, themePath) == 0)
                 swprintf(message, TEXT("Successfully exported '%s' theme to '%s'."),
                          theme, target.c_str());
@@ -308,7 +315,7 @@ void ThemeSelector::DoImport(HWND hwndDlg)
 {
   HWND themeWnd = GetDlgItem(hwndDlg, IDC_THEMEITEM);
   OPENFILENAME ofn;
-  std::wstring themePath = TEXT("%EmergeDir%\\themes"), workingZip;
+  std::wstring themesPath = TEXT("%EmergeDir%\\themes"), workingZip, themeName, themePath;
   WCHAR tmp[MAX_PATH], message[MAX_LINE_LENGTH];
 
   ZeroMemory(&ofn, sizeof(ofn));
@@ -326,7 +333,18 @@ void ThemeSelector::DoImport(HWND hwndDlg)
   if (GetOpenFileName(&ofn))
     {
       workingZip = tmp;
-      if (ELExtractZip(workingZip, themePath) == 0)
+      themeName = workingZip.substr(workingZip.rfind('\\') + 1);
+      themeName = themeName.substr(0, themeName.rfind('.'));
+      themePath = themesPath + TEXT("\\") + themeName;
+      themePath = ELExpandVars(themePath);
+      if (PathIsDirectory(themePath.c_str()))
+        {
+          swprintf(message, TEXT("Do you want to overwrite the '%s' theme?"), themeName.c_str());
+          if (ELMessageBox(hwndDlg, message, TEXT("emergeCore"),
+                           ELMB_YESNO|ELMB_ICONQUESTION) == IDNO)
+            return;
+        }
+      if (ELExtractZip(workingZip, themesPath) == 0)
         {
           swprintf(message, TEXT("Successfully imported '%s'."), workingZip.c_str());
           PopulateThemes(themeWnd, (WCHAR*)ELGetThemeName().c_str());
