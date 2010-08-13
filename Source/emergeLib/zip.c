@@ -189,14 +189,11 @@ int MakeZip(char *filename, char *root, char *path)
 
   /* Go zip 'em up */
   retcode = ZpArchive(ZpZCL, &ZpOpt);
-  if (retcode != 0)
-    printf("Error in archiving\n");
-
 
   GlobalUnlock(hFileList);
   GlobalFree(hFileList);
   FreeUpMemory();
-  return 1;
+  return retcode;
 }
 
 void FreeUpMemory(void)
