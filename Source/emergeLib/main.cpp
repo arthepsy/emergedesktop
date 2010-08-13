@@ -1207,6 +1207,26 @@ int ELMakeZip(std::wstring zipFile, std::wstring zipRoot, std::wstring zipPath)
   return MakeZip((char*)narrowZipFile.c_str(), (char*)narrowZipRoot.c_str(), (char*)narrowZipPath.c_str());
 }
 
+int ELExtractZip(std::wstring zipFile, std::wstring unzipPath)
+{
+  std::wstring forwardSlash = TEXT("\\"), backSlash = TEXT("/");
+  std::string narrowZipFile, narrowUnzipPath;
+
+  zipFile = ELExpandVars(zipFile);
+  unzipPath = ELExpandVars(unzipPath);
+
+  // switch to UNIX path separators since unzip lib requires it
+  zipFile = ELwstringReplace(zipFile, forwardSlash, backSlash, false);
+
+  ELWriteDebug(zipFile);
+  ELWriteDebug(unzipPath);
+
+  narrowZipFile = ELwstringTostring(zipFile);
+  narrowUnzipPath = ELwstringTostring(unzipPath);
+
+  return ExtractZip((char*)narrowZipFile.c_str(), (char*)narrowUnzipPath.c_str());
+}
+
 void stripQuotes(LPTSTR source)
 {
   WCHAR target[MAX_LINE_LENGTH];

@@ -26,6 +26,7 @@ extern "C" {
 #endif
 
 int MakeZip(char *filename, char *root, char *path);
+int ExtractZip(char *filename, char *path);
 
 #ifdef __cplusplus
 }

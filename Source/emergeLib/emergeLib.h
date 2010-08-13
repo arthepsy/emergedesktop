@@ -431,5 +431,6 @@ DLL_EXPORT LPITEMIDLIST ELILFindLastID(LPITEMIDLIST pidl);
 DLL_EXPORT BOOL ELILRemoveLastID(LPITEMIDLIST pidl);
 DLL_EXPORT std::wstring ELGetProcessIDApp(DWORD processID, bool fullName);
 DLL_EXPORT int ELMakeZip(std::wstring zipFile, std::wstring zipRoot, std::wstring zipPath);
+DLL_EXPORT int ELExtractZip(std::wstring zipFile, std::wstring unzipPath);
 
 #endif

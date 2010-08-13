@@ -54,16 +54,16 @@ ThemeSelector::ThemeSelector(HINSTANCE hInstance, HWND mainWnd)
   InitCommonControls();
 
   toolWnd = CreateWindowEx(
-              0,
-              TOOLTIPS_CLASS,
-              NULL,
-              TTS_ALWAYSTIP|WS_POPUP|TTS_NOPREFIX,
-              CW_USEDEFAULT, CW_USEDEFAULT,
-              CW_USEDEFAULT, CW_USEDEFAULT,
-              NULL,
-              NULL,
-              hInstance,
-              NULL);
+                           0,
+                           TOOLTIPS_CLASS,
+                           NULL,
+                           TTS_ALWAYSTIP|WS_POPUP|TTS_NOPREFIX,
+                           CW_USEDEFAULT, CW_USEDEFAULT,
+                           CW_USEDEFAULT, CW_USEDEFAULT,
+                           NULL,
+                           NULL,
+                           hInstance,
+                           NULL);
 
   if (toolWnd)
     {
@@ -250,6 +250,9 @@ BOOL ThemeSelector::DoThemeCommand(HWND hwndDlg, WPARAM wParam, LPARAM lParam UN
     case IDC_EXPORTTHEME:
       DoExport(hwndDlg);
       return TRUE;
+    case IDC_IMPORTTHEME:
+      DoImport(hwndDlg);
+      return TRUE;
     }
 
   return FALSE;
@@ -293,7 +296,33 @@ void ThemeSelector::DoExport(HWND hwndDlg)
               ELMakeZip(target, themeRoot, themePath);
             }
         }
+    }
+}
 
+void ThemeSelector::DoImport(HWND hwndDlg)
+{
+  HWND themeWnd = GetDlgItem(hwndDlg, IDC_THEMEITEM);
+  OPENFILENAME ofn;
+  std::wstring themePath = TEXT("%EmergeDir%\\themes");
+  WCHAR tmp[MAX_PATH];
+
+  ZeroMemory(&ofn, sizeof(ofn));
+  ZeroMemory(tmp, MAX_PATH);
+
+  ofn.lStructSize = sizeof(ofn);
+  ofn.hwndOwner = hwndDlg;
+  ofn.lpstrFilter = TEXT("All Files (*.zip)\0*.zip\0\0");
+  ofn.nMaxFile = MAX_PATH;
+  ofn.lpstrFile = tmp;
+  ofn.lpstrTitle = TEXT("Browse For Theme File");
+  ofn.Flags = OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST | OFN_EXPLORER |
+    OFN_DONTADDTORECENT | OFN_NOCHANGEDIR | OFN_NODEREFERENCELINKS;
+
+  if (GetOpenFileName(&ofn))
+    {
+      ELUnExpandVars(tmp);
+      ELExtractZip(tmp, themePath);
+      PopulateThemes(themeWnd, (WCHAR*)ELGetThemeName().c_str());
     }
 }
 
