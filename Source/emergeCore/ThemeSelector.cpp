@@ -54,16 +54,16 @@ ThemeSelector::ThemeSelector(HINSTANCE hInstance, HWND mainWnd)
   InitCommonControls();
 
   toolWnd = CreateWindowEx(
-                           0,
-                           TOOLTIPS_CLASS,
-                           NULL,
-                           TTS_ALWAYSTIP|WS_POPUP|TTS_NOPREFIX,
-                           CW_USEDEFAULT, CW_USEDEFAULT,
-                           CW_USEDEFAULT, CW_USEDEFAULT,
-                           NULL,
-                           NULL,
-                           hInstance,
-                           NULL);
+              0,
+              TOOLTIPS_CLASS,
+              NULL,
+              TTS_ALWAYSTIP|WS_POPUP|TTS_NOPREFIX,
+              CW_USEDEFAULT, CW_USEDEFAULT,
+              CW_USEDEFAULT, CW_USEDEFAULT,
+              NULL,
+              NULL,
+              hInstance,
+              NULL);
 
   if (toolWnd)
     {
@@ -261,7 +261,7 @@ BOOL ThemeSelector::DoThemeCommand(HWND hwndDlg, WPARAM wParam, LPARAM lParam UN
 void ThemeSelector::DoExport(HWND hwndDlg)
 {
   HWND themeWnd = GetDlgItem(hwndDlg, IDC_THEMEITEM);
-  WCHAR theme[MAX_PATH], tmp[MAX_PATH];
+  WCHAR theme[MAX_PATH], tmp[MAX_PATH], message[MAX_LINE_LENGTH];
   BROWSEINFO bi;
   std::wstring themePath, target, themeRoot = TEXT("%EmergeDir%\\themes");
 
@@ -293,7 +293,12 @@ void ThemeSelector::DoExport(HWND hwndDlg)
               target += TEXT("\\");
               target += theme;
               target += TEXT(".zip");
-              ELMakeZip(target, themeRoot, themePath);
+              if (ELMakeZip(target, themeRoot, themePath) == 0)
+                swprintf(message, TEXT("Successfully exported '%s' theme to '%s'."),
+                         theme, target.c_str());
+              else
+                swprintf(message, TEXT("Failed to export '%s'."), theme);
+              ELMessageBox(hwndDlg, message, TEXT("emergeCore"), ELMB_OK|ELMB_MODAL|ELMB_ICONINFORMATION);
             }
         }
     }
@@ -303,8 +308,8 @@ void ThemeSelector::DoImport(HWND hwndDlg)
 {
   HWND themeWnd = GetDlgItem(hwndDlg, IDC_THEMEITEM);
   OPENFILENAME ofn;
-  std::wstring themePath = TEXT("%EmergeDir%\\themes");
-  WCHAR tmp[MAX_PATH];
+  std::wstring themePath = TEXT("%EmergeDir%\\themes"), workingZip;
+  WCHAR tmp[MAX_PATH], message[MAX_LINE_LENGTH];
 
   ZeroMemory(&ofn, sizeof(ofn));
   ZeroMemory(tmp, MAX_PATH);
@@ -316,13 +321,19 @@ void ThemeSelector::DoImport(HWND hwndDlg)
   ofn.lpstrFile = tmp;
   ofn.lpstrTitle = TEXT("Browse For Theme File");
   ofn.Flags = OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST | OFN_EXPLORER |
-    OFN_DONTADDTORECENT | OFN_NOCHANGEDIR | OFN_NODEREFERENCELINKS;
+              OFN_DONTADDTORECENT | OFN_NOCHANGEDIR | OFN_NODEREFERENCELINKS;
 
   if (GetOpenFileName(&ofn))
     {
-      ELUnExpandVars(tmp);
-      ELExtractZip(tmp, themePath);
-      PopulateThemes(themeWnd, (WCHAR*)ELGetThemeName().c_str());
+      workingZip = tmp;
+      if (ELExtractZip(workingZip, themePath) == 0)
+        {
+          swprintf(message, TEXT("Successfully imported '%s'."), workingZip.c_str());
+          PopulateThemes(themeWnd, (WCHAR*)ELGetThemeName().c_str());
+        }
+      else
+        swprintf(message, TEXT("Failed to import '%s'."), workingZip.c_str());
+      ELMessageBox(hwndDlg, message, TEXT("emergeCore"), ELMB_OK|ELMB_MODAL|ELMB_ICONINFORMATION);
     }
 }
 
