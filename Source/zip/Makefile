@@ -1,7 +1,9 @@
 MAKEFILE = win32/makefile.mingw
 
-ifeq ($(MINGW64), 1)
-		MAKEFILE = win32/makefile.w64
+ifeq ($(BTYPE), 1)
+MAKEFILE = win32/makefile.w64
+else ifeq ($(BTYPE), 4)
+MAKEFILE = win32/makefile.w64
 endif
 
 dll:
@@ -9,3 +11,4 @@ dll:
 
 clean:
 	$(MAKE) -f $(MAKEFILE) clean
+

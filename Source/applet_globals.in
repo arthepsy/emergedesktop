@@ -1,4 +1,10 @@
-LIBS += -lstdc++.dll
+ifeq ($(BTYPE), 3)
+LIBS += -shared-libstdc++
+else ifeq ($(BTYPE), 4)
+LIBS += -shared-libstdc++
+else
+LIBS += -lstdc++
+endif
 
 .IGNORE: distclean
 distclean: clean

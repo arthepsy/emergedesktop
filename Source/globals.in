@@ -16,21 +16,30 @@ BUILD = Release
 HG_FILE = ../hgversion.h
 HG_SED = ../hgversion.sed
 LDFLAGS = -Wl,--subsystem,windows -shared-libgcc -Wl,--enable-auto-import
-CXXFLAGS = -W -Wall -Wextra -Werror -pedantic -D_GLIBCXX_DLL
 CXXFLAGS = -W -Wall -Werror -pedantic -D_GLIBCXX_DLL
-MINGW64 = 0
+BTYPE = 4
 
-ifeq ($(MINGW64), 2)
+ifeq ($(BTYPE), 1)
+		CXX = x86_64-w64-mingw32-g++
+		CC = x86_64-w64-mingw32-gcc
+		AR = x86_64-w64-mingw32-ar
+		WINDRES = x86_64-w64-mingw32-windres
+		BIN_DIR = ../bin64
+		OBJ_DIR = .objs64
+		DEPS_DIR = .deps64
+		LIBS += -L../bin64
+else ifeq ($(BTYPE), 2)
 		CXX = i686-w64-mingw32-g++
 		CC = i686-w64-mingw32-gcc
 		AR = i686-w64-mingw32-ar
 		WINDRES = i686-w64-mingw32-windres
 		LIBS += -L../bin
-else ifeq ($(MINGW64), 1)
-		CXX = x86_64-w64-mingw32-g++
-		CC = x86_64-w64-mingw32-gcc
-		AR = x86_64-w64-mingw32-ar
-		WINDRES = x86_64-w64-mingw32-windres
+else ifeq ($(BTYPE), 3)
+		CXX = g++ -m32
+		CC = gcc -m32
+else ifeq ($(BTYPE), 4)
+		CXX = g++ -m64
+		CC = gcc -m64
 		BIN_DIR = ../bin64
 		OBJ_DIR = .objs64
 		DEPS_DIR = .deps64

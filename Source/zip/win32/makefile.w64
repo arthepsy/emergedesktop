@@ -17,6 +17,12 @@
 #               this requires the bzip2 sources present in the bzip2 subfolder.
 #   USEZLIB=1   replace internal deflate code by externally provided zlib.
 
+include ../functions.in
+
+ifndef CYGWIN
+RM=del /f
+endif
+
 ifdef NOASM
 NOASMATCH=1
 NOASMCRC=1
@@ -52,7 +58,7 @@ LOC = $(LOCAL_ZIP)
 .PHONY: FORCE
 
 # ------------ GNU C ------------
-DLLWRAP=x86_64-w64-mingw32-dllwrap
+DLLWRAP=dllwrap
 CC=x86_64-w64-mingw32-gcc
 CFLG_OPT=-w -O2
 CFLAGS=$(CFLG_OPT) -DWIN32 -DFORCE_WIN32_OVER_UNIX $(IZCRCOPT)
@@ -74,7 +80,7 @@ ASDEFS=-DUSE_ZLIB
 endif
 ASFLAGS=-c $(ASDEFS) $(LOC)
 
-RC=x86_64-w64-mingw32-windres
+RC=windres
 
 LD=$(CC)
 LDFLAGS=-o$@ -s
@@ -344,8 +350,9 @@ $(IZ_BZIP2)/libbz2.a:
 	@echo "   bzip2 object library created."
 FORCE:
 
+.PHONY: clean
 clean:
-	-$(MAKE) -C $(IZ_BZIP2) CC="$(CC)" RM="$(RM)" clean
-	$(RM) *.o $(ZIPS)
-	$(RM) ../bin64/zip32z64.dll
-	$(RM) ../bin64/libzip32z64.dll.a
+	$(call remove_files, *.o)
+	$(call remove_files, $(ZIPS))
+	$(call remove_file, ../bin64/zip32z64.dll)
+	$(call remove_file, ../bin64/libzip32z64.dll.a)

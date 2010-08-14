@@ -104,9 +104,9 @@ LD = $(CC)
 
 AR = ar
 
-RC = x86_64-w64-mingw32-windres
+RC = windres
 
-DLLWRAP = x86_64-w64-mingw32-dllwrap
+DLLWRAP = dllwrap
 
 # Quiet
 CC_QUIET_OPT =
