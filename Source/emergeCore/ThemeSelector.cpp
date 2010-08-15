@@ -290,7 +290,8 @@ void ThemeSelector::DoExport(HWND hwndDlg)
                 }
 
               target = tmp;
-              target += TEXT("\\");
+              if (target.at(target.length() - 1) != '\\')
+                target += TEXT("\\");
               target += theme;
               target += TEXT(".zip");
               if (PathFileExists(target.c_str()))
@@ -346,7 +347,7 @@ void ThemeSelector::DoImport(HWND hwndDlg)
         }
       if (ELExtractZip(workingZip, themesPath) == 0)
         {
-          swprintf(message, TEXT("Successfully imported '%s'."), workingZip.c_str());
+          swprintf(message, TEXT("Successfully imported '%s'."), themeName.c_str());
           PopulateThemes(themeWnd, (WCHAR*)ELGetThemeName().c_str());
         }
       else
