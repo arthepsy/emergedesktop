@@ -32,7 +32,7 @@
 					<Add option="-Wl,--enable-stdcall-fixup" />
 				</Linker>
 				<ExtraCommands>
-					<Add after="x86_64-w64-mingw32-dlltool --dllname zip32z64.dll --def zip/windll/windllw64.def --output-lib bin64/libzip32z64.dll.a" />
+					<Add after="dlltool --dllname zip32z64.dll --def zip/windll/windllw64.def --output-lib bin64/libzip32z64.dll.a" />
 				</ExtraCommands>
 			</Target>
 			<Target title="unzip - Release">
@@ -58,7 +58,7 @@
 					<Add option="-s" />
 				</Linker>
 				<ExtraCommands>
-					<Add after="x86_64-w64-mingw32-dlltool --dllname unzip32.dll --def unzip/windll/windllw64.def --output-lib bin64/libunzip32.dll.a" />
+					<Add after="dlltool --dllname unzip32.dll --def unzip/windll/windllw64.def --output-lib bin64/libunzip32.dll.a" />
 				</ExtraCommands>
 			</Target>
 			<Target title="emergeLib - Release">
