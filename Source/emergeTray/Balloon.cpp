@@ -265,8 +265,11 @@ bool Balloon::DrawAlphaBlend()
   CopyRect(&contentrt, &clientrt);
   EGFrameRect(hdc, &contentrt, 255, pSettings->GetBorderColor(), 1);
   InflateRect(&contentrt, -1, -1);
-  EGGradientFillRect(hdc, &contentrt, alpha, pSettings->GetGradientFrom(),
-                     pSettings->GetGradientTo(), 0, pSettings->GetGradientMethod());
+  if (wcsicmp(pSettings->GetGradientMethod(), TEXT("Solid")) == 0)
+    EGFillRect(hdc, &clientrt, alpha, pSettings->GetGradientFrom());
+  else
+    EGGradientFillRect(hdc, &contentrt, alpha, pSettings->GetGradientFrom(),
+                       pSettings->GetGradientTo(), 0, pSettings->GetGradientMethod());
 
   formatInfo.horizontalAlignment = EGDAT_LEFT;
   formatInfo.verticalAlignment = EGDAT_TOP;
