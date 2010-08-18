@@ -300,6 +300,8 @@ void ThemeSelector::DoExport(HWND hwndDlg)
                   if (ELMessageBox(hwndDlg, message, TEXT("emergeCore"),
                                    ELMB_YESNO|ELMB_ICONQUESTION) == IDNO)
                     return;
+                  else
+                    ELFileOp(hwndDlg, FO_DELETE, target);
                 }
               if (ELMakeZip(target, themeRoot, themePath) == 0)
                 swprintf(message, TEXT("Successfully exported '%s' theme to '%s'."),
