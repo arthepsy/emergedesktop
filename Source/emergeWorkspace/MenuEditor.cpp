@@ -285,8 +285,7 @@ void MenuEditor::PopulateCommands(HWND commandWnd)
   SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("VolumeUp"));
   SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("VolumeDown"));
   SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("VolumeMute"));
-  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("DesktopSettings"));
-  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("DesktopMenuEditor"));
+  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("WorkspaceSettings"));
   SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("CoreLaunchEditor"));
   SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("CoreShellChanger"));
   SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("CoreAbout"));

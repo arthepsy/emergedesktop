@@ -642,8 +642,7 @@ void LaunchPage::PopulateComboBoxes(HWND hwndDlg)
   SendMessage(internalWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("VolumeUp"));
   SendMessage(internalWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("VolumeDown"));
   SendMessage(internalWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("VolumeMute"));
-  SendMessage(internalWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("DesktopSettings"));
-  SendMessage(internalWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("DesktopMenuEditor"));
+  SendMessage(internalWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("WorkspaceSettings"));
   SendMessage(internalWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("CoreLaunchEditor"));
   SendMessage(internalWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("CoreShellChanger"));
   SendMessage(internalWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Homepage"));

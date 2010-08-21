@@ -1124,7 +1124,7 @@ bool ELExecuteInternal(LPTSTR command)
       PostMessage(ELGetCoreWindow(), EMERGE_DISPATCH, (WPARAM)EMERGE_CORE, (LPARAM)CORE_DESKTOP);
       return true;
     }
-  else if (_wcsicmp(command, TEXT("DesktopSettings")) == 0)
+  else if (_wcsicmp(command, TEXT("WorkspaceSettings")) == 0)
     {
       ELSwitchToThisWindow(ELGetCoreWindow());
       PostMessage(ELGetCoreWindow(), EMERGE_DISPATCH, (WPARAM)EMERGE_CORE, (LPARAM)CORE_SETTINGS);
