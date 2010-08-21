@@ -93,7 +93,7 @@ MenuEditor::MenuEditor(HINSTANCE hInstance)
 
   dialogVisible = false;
 
-  xmlFile = TEXT("%EmergeDir%\\files\\emergeDesktop.xml");
+  xmlFile = TEXT("%EmergeDir%\\files\\emergeWorkspace.xml");
 }
 
 MenuEditor::~MenuEditor()
@@ -407,7 +407,7 @@ bool MenuEditor::CheckSaveCount(HWND hwndDlg)
     {
       if (ELMessageBox(hwndDlg,
                        (WCHAR*)TEXT("All current modifications will be lost.\n\nDo you wish to continue?"),
-                       (WCHAR*)TEXT("emergeDesktop"),
+                       (WCHAR*)TEXT("emergeWorkspace"),
                        ELMB_YESNO|ELMB_ICONQUESTION|ELMB_MODAL) == IDYES)
         return true;
       else
@@ -433,7 +433,7 @@ bool MenuEditor::CheckFields(HWND hwndDlg)
     {
       if (ELMessageBox(hwndDlg,
                        (WCHAR*)TEXT("The current menu item will be lost.\n\nDo you wish to continue?"),
-                       (WCHAR*)TEXT("emergeDesktop"),
+                       (WCHAR*)TEXT("emergeWorkspace"),
                        ELMB_YESNO|ELMB_ICONQUESTION|ELMB_MODAL) == IDYES)
         return true;
       else
@@ -490,7 +490,7 @@ bool MenuEditor::UpdateMenu(HWND hwndDlg)
         {
           if (ELMessageBox(hwndDlg,
                            (WCHAR*)TEXT("Do you wish to save this item?"),
-                           (WCHAR*)TEXT("emergeDesktop"),
+                           (WCHAR*)TEXT("emergeWorkspace"),
                            ELMB_YESNO|ELMB_ICONQUESTION|ELMB_MODAL) == IDYES)
             DoSaveItem(hwndDlg);
         }
@@ -567,6 +567,8 @@ bool MenuEditor::WriteMenu(HWND treeWnd, HTREEITEM parent, WCHAR *menu)
   std::tr1::shared_ptr<TiXmlDocument> configXML;
   TiXmlElement *section, *menuRoot;
   bool readXML = false;
+
+  xmlFile = TEXT("%EmergeDir%\\files\\emergeWorkspace.xml");
 
   configXML = ELOpenXMLConfig(xmlFile, true);
   if (configXML)
@@ -1224,7 +1226,7 @@ bool MenuEditor::DoSaveItem(HWND hwndDlg)
         }
       else if (IsWindowEnabled(nameWnd))
         {
-          ELMessageBox(hwndDlg, (WCHAR*)TEXT("Name cannot be empty"), (WCHAR*)TEXT("emergeDesktop"),
+          ELMessageBox(hwndDlg, (WCHAR*)TEXT("Name cannot be empty"), (WCHAR*)TEXT("emergeWorkspace"),
                        ELMB_OK|ELMB_ICONERROR|ELMB_MODAL);
           return false;
         }

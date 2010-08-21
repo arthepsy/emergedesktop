@@ -39,7 +39,7 @@ int WINAPI WinMain (HINSTANCE hInstance,
   HANDLE hMutex = NULL;
 
   // Check to see if iTray is already running, if so exit
-  hMutex = CreateMutex(NULL, false, TEXT("emergeDesktop"));
+  hMutex = CreateMutex(NULL, false, TEXT("emergeWorkspace"));
   if (GetLastError() == ERROR_ALREADY_EXISTS)
     {
       CloseHandle(hMutex);

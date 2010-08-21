@@ -681,7 +681,7 @@ bool ItemEditor::DoSaveItem(HWND hwndDlg)
       GetDlgItemText(hwndDlg, IDC_ITEMNAME, name, MAX_LINE_LENGTH);
       if (wcslen(name) == 0)
         {
-          ELMessageBox(hwndDlg, (WCHAR*)TEXT("Name cannot be empty"), (WCHAR*)TEXT("emergeDesktop"),
+          ELMessageBox(hwndDlg, (WCHAR*)TEXT("Name cannot be empty"), (WCHAR*)TEXT("emergeWorkspace"),
                        ELMB_OK|ELMB_ICONERROR|ELMB_MODAL);
           return false;
         }

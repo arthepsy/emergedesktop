@@ -39,7 +39,7 @@ bool MenuBuilder::Initialize()
 
   if (FAILED(OleInitialize(NULL)))
     {
-      ELMessageBox(GetDesktopWindow(), (WCHAR*)TEXT("COM initialization failed"), (WCHAR*)TEXT("emergeDesktop"),
+      ELMessageBox(GetDesktopWindow(), (WCHAR*)TEXT("COM initialization failed"), (WCHAR*)TEXT("emergeWorkspace"),
                    ELMB_OK|ELMB_ICONERROR|ELMB_MODAL);
       return registered;
     }
@@ -67,7 +67,7 @@ bool MenuBuilder::Initialize()
     {
       ELMessageBox(GetDesktopWindow(),
                    (WCHAR*)TEXT("Failed to create desktop window"),
-                   (WCHAR*)TEXT("emergeDesktop"),
+                   (WCHAR*)TEXT("emergeWorkspace"),
                    ELMB_OK|ELMB_ICONERROR|ELMB_MODAL);
       return false;
     }
@@ -79,7 +79,7 @@ bool MenuBuilder::Initialize()
   SystemParametersInfo(SPI_SETMENUANIMATION, 0, (PVOID)false, SPIF_SENDCHANGE);
 
   pSettings = std::tr1::shared_ptr<Settings>(new Settings());
-  pSettings->Init(menuWnd, (WCHAR*)TEXT("emergeDesktop"));
+  pSettings->Init(menuWnd, (WCHAR*)TEXT("emergeWorkspace"));
   pSettings->ReadSettings();
   pMenuEditor = std::tr1::shared_ptr<MenuEditor>(new MenuEditor(mainInst));
   pItemEditor = std::tr1::shared_ptr<ItemEditor>(new ItemEditor(mainInst, menuWnd));
@@ -1463,10 +1463,17 @@ LRESULT MenuBuilder::DoButtonDown(UINT button)
   MENUINFO menuInfo;
   std::tr1::shared_ptr<TiXmlDocument> configXML;
   TiXmlElement *section = NULL, *menu = NULL;
-  std::wstring xmlFile = TEXT("%EmergeDir%\\files\\");
-  if (!PathIsDirectory(xmlFile.c_str()))
-    ELCreateDirectory(xmlFile);
-  xmlFile += TEXT("emergeDesktop.xml");
+  std::wstring xmlPath = TEXT("%EmergeDir%\\files\\");
+  xmlPath = ELExpandVars(xmlPath);
+  if (!PathIsDirectory(xmlPath.c_str()))
+    ELCreateDirectory(xmlPath);
+  std::wstring xmlFile = xmlPath + TEXT("emergeWorkspace.xml");
+  if (!PathFileExists(xmlFile.c_str()))
+  {
+    std::wstring oldXmlFile = xmlPath + TEXT("emergeDesktop.xml");
+    if (PathFileExists(oldXmlFile.c_str()))
+      ELFileOp(menuWnd, FO_RENAME, oldXmlFile, xmlFile);
+  }
 
   menuInfo.cbSize = sizeof(menuInfo);
   menuInfo.fMask = MIM_STYLE;
@@ -1584,7 +1591,7 @@ LRESULT MenuBuilder::ExecuteMenuItem(UINT itemID)
       break;
     case 101:
       if (!ELExecute(menuItem->GetValue()))
-        ELMessageBox(GetDesktopWindow(), error, (WCHAR*)TEXT("emergeDesktop"), ELMB_ICONWARNING|ELMB_OK);
+        ELMessageBox(GetDesktopWindow(), error, (WCHAR*)TEXT("emergeWorkspace"), ELMB_ICONWARNING|ELMB_OK);
       break;
     case 102:
       ELSwitchToThisWindow((HWND)_wtoi(menuItem->GetValue()));
@@ -1757,7 +1764,7 @@ void MenuBuilder::ExecuteXMLMenuItem(UINT type, WCHAR *value, WCHAR *workingDir)
     }
 
   if (!ret)
-    ELMessageBox(GetDesktopWindow(), error, (WCHAR*)TEXT("emergeDesktop"), ELMB_ICONWARNING|ELMB_OK);
+    ELMessageBox(GetDesktopWindow(), error, (WCHAR*)TEXT("emergeWorkspace"), ELMB_ICONWARNING|ELMB_OK);
 }
 
 void MenuBuilder::ExecuteSettingsMenuItem(UINT index)

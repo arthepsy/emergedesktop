@@ -53,7 +53,7 @@ Config::~Config()
 int Config::Show()
 {
   int ret = 0;
-  HANDLE hMutex = CreateMutex(NULL, false, TEXT("emergeDesktop Config"));
+  HANDLE hMutex = CreateMutex(NULL, false, TEXT("emergeWorkspace Config"));
   if (GetLastError() == ERROR_ALREADY_EXISTS)
     {
       CloseHandle(hMutex);
@@ -98,7 +98,7 @@ INT_PTR Config::DoInitDialog(HWND hwndDlg)
   psh.dwFlags = PSH_PROPSHEETPAGE | PSH_NOAPPLYNOW | PSH_NOCONTEXTHELP;
   psh.hwndParent = hwndDlg;
   psh.hInstance = hInstance;
-  psh.pszCaption = TEXT("emergeDesktop Configuration");
+  psh.pszCaption = TEXT("emergeWorkspace Configuration");
   psh.nPages = sizeof(psp) /
                sizeof(PROPSHEETPAGE);
   psh.nStartPage = 0;
