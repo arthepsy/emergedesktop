@@ -138,6 +138,7 @@ public:
   void ClearAllMenus();
   HWND GetWnd();
   void SetWorkArea();
+  void RenameConfigFile();
 };
 
 #endif

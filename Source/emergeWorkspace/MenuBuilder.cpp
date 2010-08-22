@@ -79,15 +79,7 @@ bool MenuBuilder::Initialize()
   SystemParametersInfo(SPI_SETMENUANIMATION, 0, (PVOID)false, SPIF_SENDCHANGE);
 
   pSettings = std::tr1::shared_ptr<Settings>(new Settings());
-  std::wstring oldXMLFile = TEXT("%ThemeDir%\\emergeDesktop.xml");
-  oldXMLFile = ELExpandVars(oldXMLFile);
-  std::wstring xmlFile = TEXT("%ThemeDir%\\emergeWorkspace.xml");
-  xmlFile = ELExpandVars(xmlFile);
-  if (!PathFileExists(xmlFile.c_str()))
-    {
-      if (PathFileExists(oldXMLFile.c_str()))
-        ELFileOp(menuWnd, FO_RENAME, oldXMLFile, xmlFile);
-    }
+  RenameConfigFile();
   pSettings->Init(menuWnd, (WCHAR*)TEXT("emergeWorkspace"));
   pSettings->ReadSettings();
   pMenuEditor = std::tr1::shared_ptr<MenuEditor>(new MenuEditor(mainInst));
@@ -114,6 +106,19 @@ bool MenuBuilder::Initialize()
   //    return false;
 
   return true;
+}
+
+void MenuBuilder::RenameConfigFile()
+{
+  std::wstring oldXMLFile = TEXT("%ThemeDir%\\emergeDesktop.xml");
+  oldXMLFile = ELExpandVars(oldXMLFile);
+  std::wstring xmlFile = TEXT("%ThemeDir%\\emergeWorkspace.xml");
+  xmlFile = ELExpandVars(xmlFile);
+  if (!PathFileExists(xmlFile.c_str()))
+    {
+      if (PathFileExists(oldXMLFile.c_str()))
+        ELFileOp(menuWnd, FO_RENAME, oldXMLFile, xmlFile);
+    }
 }
 
 MenuBuilder::~MenuBuilder()
@@ -257,6 +262,7 @@ LRESULT MenuBuilder::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lP
           break;
 
         case CORE_RECONFIGURE:
+          RenameConfigFile();
           pSettings->ReadSettings();
           UpdateMenuHook();
           SetWorkArea();
