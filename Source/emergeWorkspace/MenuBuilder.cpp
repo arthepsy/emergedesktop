@@ -79,6 +79,15 @@ bool MenuBuilder::Initialize()
   SystemParametersInfo(SPI_SETMENUANIMATION, 0, (PVOID)false, SPIF_SENDCHANGE);
 
   pSettings = std::tr1::shared_ptr<Settings>(new Settings());
+  std::wstring oldXMLFile = TEXT("%ThemeDir%\\emergeDesktop.xml");
+  oldXMLFile = ELExpandVars(oldXMLFile);
+  std::wstring xmlFile = TEXT("%ThemeDir%\\emergeWorkspace.xml");
+  xmlFile = ELExpandVars(xmlFile);
+  if (!PathFileExists(xmlFile.c_str()))
+    {
+      if (PathFileExists(oldXMLFile.c_str()))
+        ELFileOp(menuWnd, FO_RENAME, oldXMLFile, xmlFile);
+    }
   pSettings->Init(menuWnd, (WCHAR*)TEXT("emergeWorkspace"));
   pSettings->ReadSettings();
   pMenuEditor = std::tr1::shared_ptr<MenuEditor>(new MenuEditor(mainInst));
@@ -224,15 +233,15 @@ LRESULT MenuBuilder::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lP
       switch (lParam)
         {
         case CORE_SETTINGS:
+        {
+          Config config(mainInst, pSettings);
+          if (config.Show() == IDOK)
             {
-              Config config(mainInst, pSettings);
-              if (config.Show() == IDOK)
-                {
-                  UpdateMenuHook();
-                  SetWorkArea();
-                }
+              UpdateMenuHook();
+              SetWorkArea();
             }
-          break;
+        }
+        break;
 
         case CORE_RIGHTMENU:
           return DoButtonDown(WM_RBUTTONDOWN);
@@ -426,29 +435,29 @@ LRESULT MenuBuilder::DoContextMenu(POINT pt)
         SendMessage(menuWnd, WM_CANCELMODE, 0, 0);
       break;
     case 102:
+    {
+      HWND task = (HWND)_wtoi(value);
+      res = EAEDisplayMenu(menuWnd, task);
+      switch (res)
         {
-          HWND task = (HWND)_wtoi(value);
-          res = EAEDisplayMenu(menuWnd, task);
-          switch (res)
-            {
-            case SC_CLOSE:
-              DeleteMenu(iter->first, index, MF_BYPOSITION);
-              break;
-            case SC_SIZE:
-            case SC_MOVE:
-            case SC_MAXIMIZE:
-            case SC_RESTORE:
-              ELSwitchToThisWindow(task);
-              SendMessage(menuWnd, WM_CANCELMODE, 0, 0);
-              break;
-            }
-          if (res)
-            PostMessage(task, WM_SYSCOMMAND, (WPARAM)res, MAKELPARAM(pt.x, pt.y));
+        case SC_CLOSE:
+          DeleteMenu(iter->first, index, MF_BYPOSITION);
+          break;
+        case SC_SIZE:
+        case SC_MOVE:
+        case SC_MAXIMIZE:
+        case SC_RESTORE:
+          ELSwitchToThisWindow(task);
+          SendMessage(menuWnd, WM_CANCELMODE, 0, 0);
+          break;
         }
-      break;
-      /*    case 103:
-            ExecuteSettingsMenuItem(itemID);
-            break;*/
+      if (res)
+        PostMessage(task, WM_SYSCOMMAND, (WPARAM)res, MAKELPARAM(pt.x, pt.y));
+    }
+    break;
+    /*    case 103:
+          ExecuteSettingsMenuItem(itemID);
+          break;*/
     }
 
   return 1;
@@ -639,20 +648,20 @@ LRESULT CALLBACK MenuBuilder::HookCallWndProc(int nCode, WPARAM wParam, LPARAM l
       switch (cwps.message)
         {
         case WM_CREATE:
+        {
+          WCHAR szClass[128];
+          GetClassName(cwps.hwnd, szClass, 127);
+          if (_wcsicmp(szClass, TEXT("#32768"))==0)
             {
-              WCHAR szClass[128];
-              GetClassName(cwps.hwnd, szClass, 127);
-              if (_wcsicmp(szClass, TEXT("#32768"))==0)
-                {
-                  SetWindowLongPtr(cwps.hwnd,
-                                   GWL_EXSTYLE,
-                                   GetWindowLongPtr(cwps.hwnd, GWL_EXSTYLE) | WS_EX_LAYERED);
-                  SetLayeredWindowAttributes(cwps.hwnd,
-                                             0,
-                                             (BYTE)((255 * globalMenuAlpha) / 100), LWA_ALPHA);
-                }
+              SetWindowLongPtr(cwps.hwnd,
+                               GWL_EXSTYLE,
+                               GetWindowLongPtr(cwps.hwnd, GWL_EXSTYLE) | WS_EX_LAYERED);
+              SetLayeredWindowAttributes(cwps.hwnd,
+                                         0,
+                                         (BYTE)((255 * globalMenuAlpha) / 100), LWA_ALPHA);
             }
-          break;
+        }
+        break;
         }
     }
 
@@ -1261,10 +1270,10 @@ void MenuBuilder::BuildFileMenuFromString(MenuMap::iterator iter, WCHAR *parsedV
           MenuItem *menuItem;
           wcscpy(extension, PathFindExtension(tmp));
           bool isShortcut = (_wcsicmp(extension, TEXT(".lnk")) == 0) ||
-            (_wcsicmp(extension, TEXT(".pif")) == 0) ||
-            (_wcsicmp(extension, TEXT(".scf")) == 0) ||
-            (_wcsicmp(extension, TEXT(".pnagent")) == 0) ||
-            (_wcsicmp(extension, TEXT(".url")) == 0);
+                            (_wcsicmp(extension, TEXT(".pif")) == 0) ||
+                            (_wcsicmp(extension, TEXT(".scf")) == 0) ||
+                            (_wcsicmp(extension, TEXT(".pnagent")) == 0) ||
+                            (_wcsicmp(extension, TEXT(".url")) == 0);
 
           wcscpy(entry, tmp);
           wcscpy(tmp, findData.cFileName);
@@ -1469,11 +1478,11 @@ LRESULT MenuBuilder::DoButtonDown(UINT button)
     ELCreateDirectory(xmlPath);
   std::wstring xmlFile = xmlPath + TEXT("emergeWorkspace.xml");
   if (!PathFileExists(xmlFile.c_str()))
-  {
-    std::wstring oldXmlFile = xmlPath + TEXT("emergeDesktop.xml");
-    if (PathFileExists(oldXmlFile.c_str()))
-      ELFileOp(menuWnd, FO_RENAME, oldXmlFile, xmlFile);
-  }
+    {
+      std::wstring oldXmlFile = xmlPath + TEXT("emergeDesktop.xml");
+      if (PathFileExists(oldXmlFile.c_str()))
+        ELFileOp(menuWnd, FO_RENAME, oldXmlFile, xmlFile);
+    }
 
   menuInfo.cbSize = sizeof(menuInfo);
   menuInfo.fMask = MIM_STYLE;

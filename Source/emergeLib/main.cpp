@@ -920,9 +920,6 @@ bool ELFileOp(HWND appletWnd, UINT function, std::wstring source, std::wstring d
     {
       toString = (WCHAR*)GlobalAlloc(GPTR, sizeof(WCHAR) * (destination.length() + 2));
       wcscpy(toString, destination.c_str());
-      // Create the destination directory, if not the copy will fail.
-      if (!PathIsDirectory(destination.c_str()))
-        ELCreateDirectory(destination);
       fileOpStruct.pTo = toString;
     }
 

@@ -374,6 +374,9 @@ void ThemeSelector::DoSave(HWND hwndDlg)
   destTheme = TEXT("%EmergeDir%\\themes\\");
   destTheme += theme;
 
+  if (!PathIsDirectory(destTheme.c_str()))
+    ELCreateDirectory(destTheme);
+
   if (ELFileOp(hwndDlg, FO_COPY, copySource, destTheme))
     {
       ELFileOp(hwndDlg, FO_DELETE, sourceTheme);

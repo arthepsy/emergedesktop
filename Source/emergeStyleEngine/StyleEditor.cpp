@@ -730,6 +730,9 @@ void StyleEditor::DoSaveAs(HWND hwndDlg)
       oldThemePath = TEXT("%EmergeDir%\\themes\\") + oldTheme;
       oldThemePath += TEXT("\\*");
 
+      if (!PathIsDirectory(newThemePath.c_str()))
+        ELCreateDirectory(newThemePath);
+
       ELFileOp(mainWnd, FO_COPY, oldThemePath, newThemePath);
     }
 

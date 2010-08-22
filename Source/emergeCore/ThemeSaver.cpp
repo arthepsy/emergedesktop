@@ -123,6 +123,8 @@ bool ThemeSaver::SaveTheme(HWND hwndDlg)
                        ELMB_MODAL | ELMB_YESNO | ELMB_ICONERROR) == IDNO)
         return false;
     }
+  else
+    ELCreateDirectory(copyDest);
 
   if (ELFileOp(hwndDlg, FO_COPY, copySource, copyDest))
     {
