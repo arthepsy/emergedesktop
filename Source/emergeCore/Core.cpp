@@ -186,7 +186,7 @@ Core::~Core()
 
 bool Core::RunLaunchItems()
 {
-  bool found = false;
+  bool found = false, writeXML = false;
   WCHAR path[MAX_PATH], data[MAX_LINE_LENGTH], installDir[MAX_PATH];
   std::tr1::shared_ptr<TiXmlDocument> configXML;
   TiXmlElement *first, *sibling, *section;
@@ -207,7 +207,11 @@ bool Core::RunLaunchItems()
                   if (ELReadXMLStringValue(first, TEXT("Command"), data, TEXT("")))
                     {
                       found = true;
-                      ELStringReplace(data, TEXT("emergeDesktop"), TEXT("emergeWorkspace"), true);
+                      if (ELStringReplace(data, TEXT("emergeDesktop"), TEXT("emergeWorkspace"), true) != 0)
+                        {
+                          writeXML = true;
+                          ELWriteXMLStringValue(first, TEXT("Command"), data);
+                        }
                       ELExecute(data);
                     }
 
@@ -218,7 +222,11 @@ bool Core::RunLaunchItems()
 
                       if (ELReadXMLStringValue(first, TEXT("Command"), data, TEXT("")))
                         {
-                          ELStringReplace(data, TEXT("emergeDesktop"), TEXT("emergeWorkspace"), true);
+                          if (ELStringReplace(data, TEXT("emergeDesktop"), TEXT("emergeWorkspace"), true) != 0)
+                            {
+                              writeXML = true;
+                              ELWriteXMLStringValue(first, TEXT("Command"), data);
+                            }
                           ELExecute(data);
                         }
 
@@ -226,6 +234,9 @@ bool Core::RunLaunchItems()
                     }
                 }
             }
+
+          if (writeXML)
+            ELWriteXMLConfig(configXML.get());
         }
     }
 
@@ -538,7 +549,7 @@ bool Core::CheckLaunchList()
   std::tr1::shared_ptr<TiXmlDocument> configXML;
   TiXmlElement *first, *tmp, *section;
   WCHAR data[MAX_LINE_LENGTH];
-  bool found = false;
+  bool found = false, writeXML = false;
 
   EnumWindows(LaunchMapEnum, (LPARAM)&launchMap);
 
@@ -556,6 +567,11 @@ bool Core::CheckLaunchList()
               if (ELReadXMLStringValue(first, TEXT("Command"), data, TEXT("")))
                 {
                   found = true;
+                  if (ELStringReplace(data, TEXT("emergeDesktop"), TEXT("emergeWorkspace"), true) != 0)
+                    {
+                      writeXML = true;
+                      ELWriteXMLStringValue(first, TEXT("Command"), data);
+                    }
                   CheckLaunchItem(&launchMap, data);
                 }
 
@@ -563,6 +579,9 @@ bool Core::CheckLaunchList()
               first = ELGetSiblingXMLElement(tmp);
             }
         }
+
+      if (writeXML)
+        ELWriteXMLConfig(configXML.get());
     }
 
   if (!found)
@@ -592,8 +611,6 @@ void Core::CheckLaunchItem(LaunchMap *launchMap, const WCHAR *item)
   LaunchMap::iterator iter;
   std::wstring program = TEXT("%AppletDir%\\");
   WCHAR *workingItem = _wcsdup(item);
-
-  ELStringReplace(workingItem, TEXT("emergeDesktop.exe"), TEXT("emergeWorkspace.exe"), true);
 
   if (ELPathIsRelative(workingItem))
     program += workingItem;
