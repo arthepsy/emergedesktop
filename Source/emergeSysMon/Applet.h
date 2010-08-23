@@ -40,12 +40,16 @@
 #include <process.h>
 #include <psapi.h>
 #include <commctrl.h>
+#ifdef __MINGW32__
+#include <w32api.h>
+#endif
 
 #define TIP_SIZE 256
 
 #define MODIFY_POLL_TIME  100
 
 #ifndef _W64
+#if (__W32API_MAJOR_VERSION == 3 && __W32API_MINOR_VERSION < 15)
 typedef struct _PERFORMANCE_INFORMATION
 {
   DWORD  cb;
@@ -63,6 +67,7 @@ typedef struct _PERFORMANCE_INFORMATION
   DWORD  ProcessCount;
   DWORD  ThreadCount;
 } PERFORMANCE_INFORMATION, *PPERFORMANCE_INFORMATION;
+#endif
 
 typedef struct _ENUM_PAGE_FILE_INFORMATION
 {
