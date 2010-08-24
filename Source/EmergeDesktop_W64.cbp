@@ -527,6 +527,30 @@
 					<Add option="-Wl,--enable-auto-image-base" />
 				</Linker>
 			</Target>
+			<Target title="emergeTray - Debug">
+				<Option output="bin64\emergeTray" prefix_auto="1" extension_auto="1" />
+				<Option object_output=".objs64\Debug" />
+				<Option external_deps="bin\emergeAppletEngine.dll;bin\emergeBaseClasses.dll;bin\emergeGraphics.dll;bin\emergeLib.dll;bin\emergeSchemeEngine.dll;" />
+				<Option type="0" />
+				<Option compiler="gnu_gcc_compiler_for_mingw64" />
+				<Compiler>
+					<Add option="-g" />
+				</Compiler>
+				<ResourceCompiler>
+					<Add directory=".\emergeTray" />
+				</ResourceCompiler>
+				<Linker>
+					<Add library="emergeStyleEngine" />
+					<Add library="emergeLib" />
+					<Add library="emergeAppletEngine" />
+					<Add library="emergeGraphics" />
+					<Add library="emergeBaseClasses" />
+					<Add library="comctl32" />
+					<Add library="uuid" />
+					<Add library="ole32" />
+					<Add directory=".\bin64" />
+				</Linker>
+			</Target>
 		</Build>
 		<VirtualTargets>
 			<Add alias="All - Release" targets="zip - Release;unzip - Release;emergeLib - Release;emergeGraphics - Release;emergeAppletEngine - Release;emergeStyleEngine - Release;emergeBaseClasses - Release;emergeCore - Release;emergeCommand - Release;emergeWorkspace - Release;emergeHotkeys - Release;emergeLauncher - Release;emergeTasks - Release;emergeTray - Release;emergeVWM - Release;emerge - Release;emergePower - Release;emergeSysMon - Release;reg2xml - Release;" />
@@ -1154,76 +1178,100 @@
 		</Unit>
 		<Unit filename="emergeTray\AppBar.cpp">
 			<Option target="emergeTray - Release" />
+			<Option target="emergeTray - Debug" />
 		</Unit>
 		<Unit filename="emergeTray\AppBar.h">
 			<Option target="emergeTray - Release" />
+			<Option target="emergeTray - Debug" />
 		</Unit>
 		<Unit filename="emergeTray\Applet.cpp">
 			<Option target="emergeTray - Release" />
+			<Option target="emergeTray - Debug" />
 		</Unit>
 		<Unit filename="emergeTray\Applet.h">
 			<Option target="emergeTray - Release" />
+			<Option target="emergeTray - Debug" />
 		</Unit>
 		<Unit filename="emergeTray\Balloon.cpp">
 			<Option target="emergeTray - Release" />
+			<Option target="emergeTray - Debug" />
 		</Unit>
 		<Unit filename="emergeTray\Balloon.h">
 			<Option target="emergeTray - Release" />
+			<Option target="emergeTray - Debug" />
 		</Unit>
 		<Unit filename="emergeTray\BalloonPage.cpp">
 			<Option target="emergeTray - Release" />
+			<Option target="emergeTray - Debug" />
 		</Unit>
 		<Unit filename="emergeTray\BalloonPage.h">
 			<Option target="emergeTray - Release" />
+			<Option target="emergeTray - Debug" />
 		</Unit>
 		<Unit filename="emergeTray\Config.cpp">
 			<Option target="emergeTray - Release" />
+			<Option target="emergeTray - Debug" />
 		</Unit>
 		<Unit filename="emergeTray\Config.h">
 			<Option target="emergeTray - Release" />
+			<Option target="emergeTray - Debug" />
 		</Unit>
 		<Unit filename="emergeTray\ConfigPage.cpp">
 			<Option target="emergeTray - Release" />
+			<Option target="emergeTray - Debug" />
 		</Unit>
 		<Unit filename="emergeTray\ConfigPage.dlg">
 			<Option target="emergeTray - Release" />
+			<Option target="emergeTray - Debug" />
 		</Unit>
 		<Unit filename="emergeTray\ConfigPage.h">
 			<Option target="emergeTray - Release" />
+			<Option target="emergeTray - Debug" />
 		</Unit>
 		<Unit filename="emergeTray\IconHidePage.cpp">
 			<Option target="emergeTray - Release" />
+			<Option target="emergeTray - Debug" />
 		</Unit>
 		<Unit filename="emergeTray\IconHidePage.dlg">
 			<Option target="emergeTray - Release" />
+			<Option target="emergeTray - Debug" />
 		</Unit>
 		<Unit filename="emergeTray\IconHidePage.h">
 			<Option target="emergeTray - Release" />
+			<Option target="emergeTray - Debug" />
 		</Unit>
 		<Unit filename="emergeTray\Settings.cpp">
 			<Option target="emergeTray - Release" />
+			<Option target="emergeTray - Debug" />
 		</Unit>
 		<Unit filename="emergeTray\Settings.h">
 			<Option target="emergeTray - Release" />
+			<Option target="emergeTray - Debug" />
 		</Unit>
 		<Unit filename="emergeTray\TrayIcon.cpp">
 			<Option target="emergeTray - Release" />
+			<Option target="emergeTray - Debug" />
 		</Unit>
 		<Unit filename="emergeTray\TrayIcon.h">
 			<Option target="emergeTray - Release" />
+			<Option target="emergeTray - Debug" />
 		</Unit>
 		<Unit filename="emergeTray\emergeTray.exe.manifest">
 			<Option target="emergeTray - Release" />
+			<Option target="emergeTray - Debug" />
 		</Unit>
 		<Unit filename="emergeTray\emergeTray.rc">
 			<Option compilerVar="WINDRES" />
 			<Option target="emergeTray - Release" />
+			<Option target="emergeTray - Debug" />
 		</Unit>
 		<Unit filename="emergeTray\main.cpp">
 			<Option target="emergeTray - Release" />
+			<Option target="emergeTray - Debug" />
 		</Unit>
 		<Unit filename="emergeTray\resource.h">
 			<Option target="emergeTray - Release" />
+			<Option target="emergeTray - Debug" />
 		</Unit>
 		<Unit filename="emergeVWM\Applet.cpp">
 			<Option target="emergeVWM - Release" />
@@ -1393,6 +1441,7 @@
 			<Option target="reg2xml - Release" />
 			<Option target="emergeHelloWorld - Release" />
 			<Option target="emergeIcons - Release" />
+			<Option target="emergeTray - Debug" />
 		</Unit>
 		<Unit filename="reg2xml\AppletSettings.cpp">
 			<Option target="reg2xml - Release" />
@@ -1604,6 +1653,7 @@
 			<Option target="reg2xml - Release" />
 			<Option target="emergeHelloWorld - Release" />
 			<Option target="emergeIcons - Release" />
+			<Option target="emergeTray - Debug" />
 		</Unit>
 		<Unit filename="zip\api.c">
 			<Option compilerVar="CC" />
