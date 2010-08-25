@@ -17,7 +17,6 @@ Name "Emerge Desktop 5.1"
 
 Var Dialog
 Var Label1
-Var Label2
 Var Label3
 Var CheckBox1
 Var CheckBox2
@@ -122,10 +121,11 @@ SectionEnd
 
 SubSection "Core Applets" SecCoreApplets
 
-Section "emergeDesktop" SecemergeDesktop
+Section "emergeWorkspace" SecemergeWorkspace
 SectionIn RO
 SetOutPath "$INSTDIR"
-File "..\Source\bin\emergeDesktop.exe"
+File "..\Source\bin\emergeWorkspace.exe"
+Delete "$INSTDIR\emergeDesktop.exe"
 SectionEnd
 
 Section "emergeTasks" SecemergeTasks
@@ -200,8 +200,11 @@ File "..\Source\bin\libstdc++-6.dll"
 File "..\Source\bin\emergeIcons.dll"
 File "..\Source\bin\emergeGraphics.dll"
 File "..\Source\bin\emergeAppletEngine.dll"
-File "..\Source\bin\emergeSchemeEngine.dll"
+File "..\Source\bin\emergeStyleEngine.dll"
 File "..\Source\bin\emergeBaseClasses.dll"
+File "..\Source\bin\unzip32.dll"
+File "..\Source\bin\zip32z64.dll"
+Delete "$INSTDIR\emergeSchemeEngine.dll"
 SectionEnd
 
 Section "-Themes"
@@ -275,13 +278,6 @@ Section Uninstall
   ${EndIf}
 
 ; -------------------------------------------------------------------
-; help >>> remove registry entries, if desired
-; -------------------------------------------------------------------
-  ${If} ${FIELD1} == ${BST_UNCHECKED}
-    DeleteRegKey HKCU "SOFTWARE\Emerge Desktop"
-  ${EndIf}
-
-; -------------------------------------------------------------------
 ; help >>> uninstall Emerge Desktop
 ; -------------------------------------------------------------------
   Call un.CloseCore
@@ -293,7 +289,7 @@ Section Uninstall
   Delete "$INSTDIR\emerge.exe"
   Delete "$INSTDIR\reg2xml.exe"
   Delete "$INSTDIR\emergeCommand.exe"
-  Delete "$INSTDIR\emergeDesktop.exe"
+  Delete "$INSTDIR\emergeWorkspace.exe"
   Delete "$INSTDIR\emergeHotkeys.exe"
   Delete "$INSTDIR\emergeLauncher.exe"
   Delete "$INSTDIR\emergeTasks.exe"
@@ -307,13 +303,16 @@ Section Uninstall
   Delete "$INSTDIR\libstdc++-6.dll"
   Delete "$INSTDIR\emergeIcons.dll"
   Delete "$INSTDIR\emergeAppletEngine.dll"
-  Delete "$INSTDIR\emergeSchemeEngine.dll"
+  Delete "$INSTDIR\emergeStyleEngine.dll"
   Delete "$INSTDIR\emergeGraphics.dll"
   Delete "$INSTDIR\emergeBaseClasses.dll"
+  Delete "$INSTDIR\unzip32.dll"
+  Delete "$INSTDIR\zip32z64.dll"
   Delete "$INSTDIR\uninst.exe"
   RMDir "$INSTDIR"
   RMDir "$APPDATA\Emerge Desktop"
   DeleteRegKey HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Emerge Desktop"
+  DeleteRegKey HKCU "SOFTWARE\Emerge Desktop"
 SectionEnd
 
 !insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
@@ -333,7 +332,7 @@ SectionEnd
 !insertmacro MUI_DESCRIPTION_TEXT ${SecAdditionalApplets} "Additional Emerge Desktop applets"
 !insertmacro MUI_DESCRIPTION_TEXT ${SecUtilities} "Utilities to assist in using Emerge Desktop"
 !insertmacro MUI_DESCRIPTION_TEXT ${SecemergeLauncher} "Application Launcher"
-!insertmacro MUI_DESCRIPTION_TEXT ${SecemergeDesktop} "Provides the desktop menus"
+!insertmacro MUI_DESCRIPTION_TEXT ${SecemergeWorkspace} "Provides the desktop menus"
 !insertmacro MUI_FUNCTION_DESCRIPTION_END
 
 ; -------------------------------------------------------------------
@@ -502,22 +501,16 @@ Function un.nsDialogOptions
   ${NSD_CreateLabel} 0 5u 100% 25u "The uninstallation process will remove both the Emerge Desktop core as well as all the applets.  It will also restore the default Windows desktop."
   Pop $Label1
 
-  ${NSD_CreateLabel} 0 35u 100% 25u "By default the uninstaller will remove all the Emerge Desktop configuration information.  If you would like to save your configuration information for a future installation, please check the box below:"
-  Pop $Label2
-
-  ${NSD_CreateCheckBox} 0 70u 100% 12u "Save Configuration"
-  Pop $CheckBox1
-
-  ${NSD_CreateLabel} 0 90u 100% 20u "The uninstaller by default also removes all scripts, files and themes.  If you would like to save your scripts, files or themes for later use, please check the appropriate box below:"
+  ${NSD_CreateLabel} 0 35u 100% 25u "The uninstaller by default also removes all scripts, files (including configuration files) and themes.  If you would like to save your scripts, files or themes for later use, please check the appropriate box below:"
   Pop $Label3
 
-  ${NSD_CreateCheckBox} 0 115u 100u 12u "Save Scripts"
+  ${NSD_CreateCheckBox} 0 70u 100u 12u "Save Scripts"
   Pop $CheckBox2
 
-  ${NSD_CreateCheckBox} 100u 115u 100u 12u "Save Files"
+  ${NSD_CreateCheckBox} 100u 70u 100u 12u "Save Files"
   Pop $CheckBox3
 
-  ${NSD_CreateCheckBox} 200u 115u 100u 12u "Save Themes"
+  ${NSD_CreateCheckBox} 200u 70u 100u 12u "Save Themes"
   Pop $CheckBox4
 
   nsDialogs::Show
