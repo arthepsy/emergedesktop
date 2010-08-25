@@ -2,7 +2,7 @@
 <html>
     <head>
         <title>Directory Structure</title>
-        <link rel = StyleSheet type = "text/css" HREF = "emerge.css">
+        <link rel = StyleSheet type = "text/css" HREF = "../emerge.css">
     </head>
 <body>
 <table bgcolor="#7f907f" cellpadding="5" cellspacing="0" width="100%"> <tr><td><font color="white"><b>Directory Structure</b></font></td></tr></table>
@@ -16,15 +16,17 @@
 |------ emergeAppletEngine.dll
 |------ emergeBaseClasses.dll
 |------ emergeCore.exe
-|------ emergeDesktop.exe
+|------ emergeWorkspace.exe
 |------ emergeGraphics.dll
 |------ emergeIcons.dll
 |------ emergeLib.dll
-|------ emergeSchemeEngine.dll
+|------ emergeStyleEngine.dll
 |------ emergeTasks.exe
 |------ emergeTray.exe
 |------ libgcc_s_dw2-1.dll
 |------ libstdc++-6.dll
+|------ unzip32.dll
+|------ zip32z64.dll
 |------ all other Emerge Desktop applets
 </pre>
 
@@ -36,7 +38,7 @@
 |   |------ cmd.txt (alias list for <a href="emergeCommand.html">emergeCommand</a>)
 |   |
 |   |------ (.xml files with user settings, namely emergeCommand history, emergeCore other shells,
-|           emergeDesktop menu items, all emergeHotkey commands, emergeTray hide list and 
+|           emergeWorkspace menu items, all emergeHotkey commands, emergeTray hide list and 
 |           emergeVWM sticky list)
 |
 |------ scripts
@@ -47,17 +49,17 @@
 |   |
 |   |------ GBRY
 |   |   |
-|   |   |------ schemes
+|   |   |------ Styles
 |   |   |   |
-|   |   |   |------ (.eds scheme files for customizing applets)
+|   |   |   |------ (.eds style files for customizing applets)
 |   |   |
 |   |   |------ (.xml files with applet settings)
 |   |
 |   |------ Other themes
 |       |
-|       |------ schemes
+|       |------ Styles
 |       |   |
-|       |   |------ (.eds scheme files for customizing applets)|   |   |
+|       |   |------ (.eds style files for customizing applets)|   |   |
 |       |
 |       |------ media
 |       |   |
@@ -67,7 +69,8 @@
 
 |
 |------ theme.xml (This file just stores the name of the current Theme)
-</pre><br>
+</pre>
+<br>
 
 <p>Although the structure must follow this organization, the location of the folders can be modified in order to allow Emerge Desktop to run in different <a href="WorkingModes.html">Modes</a></p>
 

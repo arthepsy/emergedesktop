@@ -33,16 +33,16 @@
 		</OBJECT>
 	<UL>
 		<LI> <OBJECT type="text/sitemap">
-			<param name="Name" value="emergeDesktop">
-			<param name="Local" value="emergeDesktop.html">
-			</OBJECT>
-		<LI> <OBJECT type="text/sitemap">
 			<param name="Name" value="emergeTasks">
 			<param name="Local" value="emergeTasks.html">
 			</OBJECT>
 		<LI> <OBJECT type="text/sitemap">
 			<param name="Name" value="emergeTray">
 			<param name="Local" value="emergeTray.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="emergeWorkspace">
+			<param name="Local" value="emergeWorkspace.html">
 			</OBJECT>
 	</UL>
 	<LI> <OBJECT type="text/sitemap">

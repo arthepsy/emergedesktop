@@ -20,7 +20,6 @@ index.html
 emergeTasks.html
 emergeTray.html
 emergeVWM.html
-emergeDesktop.html
 emergeLauncher.html
 Directory.html
 Internal.html
@@ -34,6 +33,7 @@ emergeSysMon.html
 ThemeManager.html
 WorkingModes.html
 reg2xml.html
+emergeWorkspace.html
 
 [INFOTYPES]
 
