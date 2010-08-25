@@ -11,7 +11,7 @@
     <AutoSize>false</AutoSize>
     <IconSize>16</IconSize>
     <IconSpacing>3</IconSpacing>
-    <Scheme>%ThemeDir%\Schemes\tray.eds</Scheme>
+    <Scheme>%ThemeDir%\Styles\tray.eds</Scheme>
     <SnapMove>true</SnapMove>
     <SnapSize>true</SnapSize>
     <DynamicPositioning>true</DynamicPositioning>
