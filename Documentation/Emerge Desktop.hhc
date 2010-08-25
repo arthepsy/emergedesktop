@@ -96,8 +96,8 @@
 		<param name="Local" value="WorkingModes.html">
 		</OBJECT>
 	<LI> <OBJECT type="text/sitemap">
-		<param name="Name" value="Schemes">
-		<param name="Local" value="Schemes.html">
+		<param name="Name" value="Styles">
+		<param name="Local" value="Styles.html">
 		</OBJECT>
 	<LI> <OBJECT type="text/sitemap">
 		<param name="Name" value="Theme Manager">
