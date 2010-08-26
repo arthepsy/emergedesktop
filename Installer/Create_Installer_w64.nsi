@@ -352,7 +352,7 @@ Call CheckWindowsVersion
 StrCpy ${EMERGERUNNING} "0"
 Push $R0
 FindWindow $R0 "emergeCoreClass"
-IntCmp $R0 0 +1 +2
+IntCmp $R0 0 +1 +2 +2
 FindWindow $R0 "EmergeDesktopCore"
 IntCmp $R0 0 +5
 Pop $R0
@@ -429,7 +429,7 @@ Function CloseCore
   Push $R0
 LOOP1:
   FindWindow $R0 "emergeCoreClass"
-  IntCmp $R0 0 +1 +2
+  IntCmp $R0 0 +1 +2 +2
   FindWindow $R0 "EmergeDesktopCore"
   IntCmp $R0 0 +6
     SendMessage $R0 1028 1 100
@@ -453,7 +453,7 @@ Function un.CloseCore
   Push $R0
 LOOP1:
   FindWindow $R0 "emergeCoreClass"
-  IntCmp $R0 0 +1 +2
+  IntCmp $R0 0 +1 +2 +2
   FindWindow $R0 "EmergeDesktopCore"
   IntCmp $R0 0 +7
   SetRebootFlag true
