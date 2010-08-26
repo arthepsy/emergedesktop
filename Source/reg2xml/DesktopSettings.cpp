@@ -25,7 +25,7 @@ DesktopSettings::DesktopSettings(HKEY key)
   :AppletSettings(key)
 {
   this->key = key;
-  appletName = TEXT("emergeDesktop.xml");
+  appletName = TEXT("emergeWorkspace.xml");
 }
 
 void DesktopSettings::ConvertSettings(IOHelper &keyHelper, IOHelper &xmlHelper)
@@ -62,7 +62,7 @@ bool DesktopSettings::ConvertMenus()
 
   if (!PathIsDirectory(ELExpandVars(userFile).c_str()))
     ELCreateDirectory(userFile);
-  userFile += TEXT("emergeDesktop.xml");
+  userFile += TEXT("emergeWorkspace.xml");
   xmlConfig = ELOpenXMLConfig(userFile, true);
 
   if (xmlConfig)
