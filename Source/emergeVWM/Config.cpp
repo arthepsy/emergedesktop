@@ -87,7 +87,7 @@ INT_PTR Config::DoInitDialog(HWND hwndDlg)
 
   psp[2].dwSize = sizeof(PROPSHEETPAGE);
   psp[2].dwFlags = PSP_USETITLE;
-  psp[2].hInstance = GetModuleHandle(TEXT("emergeBaseClasses.dll"));
+  psp[2].hInstance = ELGetEmergeLibrary(TEXT("emergeBaseClasses.dll"));
   psp[2].pszTemplate = pPositionPage->GetTemplate();
   psp[2].pfnDlgProc = pPositionPage->BasePositionPageDlgProc;
   psp[2].pszTitle = TEXT("Position");
@@ -97,7 +97,7 @@ INT_PTR Config::DoInitDialog(HWND hwndDlg)
   pStyleEditor->Edit(pSettings->GetStyleFile());
   psp[3].dwSize = sizeof(PROPSHEETPAGE);
   psp[3].dwFlags = PSP_USETITLE;
-  psp[3].hInstance = GetModuleHandle(TEXT("emergeStyleEngine.dll"));
+  psp[3].hInstance = ELGetEmergeLibrary(TEXT("emergeStyleEngine.dll"));
   psp[3].pszTemplate = pStyleEditor->GetTemplate();
   psp[3].pfnDlgProc = pStyleEditor->StyleEditorDlgProc;
   psp[3].pszTitle = TEXT("Style Editor");

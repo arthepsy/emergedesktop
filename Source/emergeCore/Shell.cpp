@@ -91,7 +91,7 @@ void Shell::RegisterShell(HWND hwnd, bool enable)
   if (enable)
     {
       if (ELRegisterShellHook(hwnd, RSH_REGISTER))
-        if (ELRegisterShellHook(hwnd, RSH_TASKMGR))
+        if (ELRegisterShellHook(hwnd, RSH_PROGMAN))
           ShellMessage = RegisterWindowMessage(TEXT("SHELLHOOK"));
     }
   else

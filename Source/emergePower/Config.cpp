@@ -87,7 +87,7 @@ INT_PTR Config::DoInitDialog(HWND hwndDlg)
   pStyleEditor->Edit(pSettings->GetStyleFile());
   psp[2].dwSize = sizeof(PROPSHEETPAGE);
   psp[2].dwFlags = PSP_USETITLE;
-  psp[2].hInstance = GetModuleHandle(TEXT("emergeStyleEngine.dll"));
+  psp[2].hInstance = ELGetEmergeLibrary(TEXT("emergeStyleEngine.dll"));
   psp[2].pszTemplate = pStyleEditor->GetTemplate();
   psp[2].pfnDlgProc = pStyleEditor->StyleEditorDlgProc;
   psp[2].pszTitle = TEXT("Style Editor");

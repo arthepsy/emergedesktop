@@ -153,6 +153,7 @@ static const UINT EMERGE_MESSAGE = RegisterWindowMessage(TEXT("EmergeMessage"));
 
 #define RSH_UNREGISTER  0
 #define RSH_REGISTER    1
+#define RSH_PROGMAN     2
 #define RSH_TASKMGR     3
 
 #define ELAV_MUTE       0
@@ -433,5 +434,8 @@ DLL_EXPORT BOOL ELILRemoveLastID(LPITEMIDLIST pidl);
 DLL_EXPORT std::wstring ELGetProcessIDApp(DWORD processID, bool fullName);
 DLL_EXPORT int ELMakeZip(std::wstring zipFile, std::wstring zipRoot, std::wstring zipPath);
 DLL_EXPORT int ELExtractZip(std::wstring zipFile, std::wstring unzipPath);
+DLL_EXPORT HMODULE ELGetSystemLibrary(const WCHAR *lib);
+DLL_EXPORT HMODULE ELGetEmergeLibrary(const WCHAR *lib);
+DLL_EXPORT HMODULE ELLoadSystemLibrary(const WCHAR *lib);
 
 #endif

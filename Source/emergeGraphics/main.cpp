@@ -643,7 +643,7 @@ bool EGGetIconDialogue(HWND hwnd, WCHAR *iconPath, int iconIndex)
   std::wstring tmpPath = iconPath;
 
   if (MSPickIcon == NULL)
-    MSPickIcon = (fnPickIcon)GetProcAddress(GetModuleHandle(TEXT("shell32.dll")), (LPCSTR)62);
+    MSPickIcon = (fnPickIcon)GetProcAddress(ELGetSystemLibrary(TEXT("shell32.dll")), (LPCSTR)62);
 
   if (MSPickIcon == NULL)
     return false;
@@ -773,7 +773,7 @@ HICON EGExtractIcon(const WCHAR *iconLocation, int iconIndex, int iconSize)
   UINT iconID;
 
   if (MSPrivateExtractIcons == NULL)
-    MSPrivateExtractIcons = (fnPrivateExtractIcons)GetProcAddress(GetModuleHandle(TEXT("user32.dll")), "PrivateExtractIconsW");
+    MSPrivateExtractIcons = (fnPrivateExtractIcons)GetProcAddress(ELGetSystemLibrary(TEXT("user32.dll")), "PrivateExtractIconsW");
   if (MSPrivateExtractIcons != NULL)
     MSPrivateExtractIcons(iconLocation, iconIndex, iconSize, iconSize, &icon, &iconID, 1, 0);
 

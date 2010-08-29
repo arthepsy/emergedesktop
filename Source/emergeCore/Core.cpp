@@ -144,7 +144,7 @@ bool Core::Initialize(WCHAR *commandLine)
   pThemeSelector = std::tr1::shared_ptr<ThemeSelector>(new ThemeSelector(mainInst, mainWnd));
 
   HMODULE wtslib = NULL;
-  wtslib = LoadLibrary(TEXT("wtsapi32.dll"));
+  wtslib = ELLoadSystemLibrary(TEXT("wtsapi32.dll"));
   if (wtslib)
     {
       lpfnWTSRegisterSessionNotification wtsrsn = (lpfnWTSRegisterSessionNotification)
@@ -162,7 +162,7 @@ Core::~Core()
   if (registered)
     {
       HMODULE wtslib = NULL;
-      wtslib = LoadLibrary(TEXT("wtsapi32.dll"));
+      wtslib = ELLoadSystemLibrary(TEXT("wtsapi32.dll"));
       if (wtslib)
         {
           lpfnWTSUnRegisterSessionNotification wtsursn = (lpfnWTSUnRegisterSessionNotification)

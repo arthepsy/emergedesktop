@@ -585,7 +585,7 @@ void Applet::GetMemUsage(int& commitCharge, int& physical, int& pagefile, int& u
   // find API function
   if(!GetPerformanceInfo)
     {
-      GetPerformanceInfo = (GetPerformanceInfoFunc)GetProcAddress(LoadLibrary(L"psapi.dll"), "GetPerformanceInfo");
+      GetPerformanceInfo = (GetPerformanceInfoFunc)GetProcAddress(ELLoadSystemLibrary(L"psapi.dll"), "GetPerformanceInfo");
       if(!GetPerformanceInfo)
         {
           ELMessageBox(GetDesktopWindow(), (WCHAR*)TEXT("Cannot find system information function!"),
@@ -598,7 +598,7 @@ void Applet::GetMemUsage(int& commitCharge, int& physical, int& pagefile, int& u
   // find API function
   if(!EnumPageFiles)
     {
-      EnumPageFiles = (EnumPageFilesFunc)GetProcAddress(LoadLibrary(L"psapi.dll"), "EnumPageFilesW");
+      EnumPageFiles = (EnumPageFilesFunc)GetProcAddress(ELLoadSystemLibrary(L"psapi.dll"), "EnumPageFilesW");
       if(!EnumPageFiles)
         {
           ELMessageBox(GetDesktopWindow(), (WCHAR*)TEXT("Cannot find system information function!"),
@@ -649,7 +649,7 @@ void Applet::GetCPUUsages(std::vector<BYTE>& usages)
   // find API function
   if(!NtQuerySystemInformation)
     {
-      NtQuerySystemInformation = (NtQuerySystemInformationFunc)GetProcAddress(LoadLibrary(L"ntdll.dll"), "NtQuerySystemInformation");
+      NtQuerySystemInformation = (NtQuerySystemInformationFunc)GetProcAddress(ELLoadSystemLibrary(L"ntdll.dll"), "NtQuerySystemInformation");
       if(!NtQuerySystemInformation)
         {
           ELMessageBox(GetDesktopWindow(), (WCHAR*)TEXT("Cannot find system information function!"),
