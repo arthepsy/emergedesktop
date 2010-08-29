@@ -553,7 +553,7 @@
 			</Target>
 		</Build>
 		<VirtualTargets>
-			<Add alias="All - Release" targets="zip - Release;unzip - Release;emergeLib - Release;emergeGraphics - Release;emergeAppletEngine - Release;emergeStyleEngine - Release;emergeBaseClasses - Release;emergeCore - Release;emergeCommand - Release;emergeWorkspace - Release;emergeHotkeys - Release;emergeLauncher - Release;emergeTasks - Release;emergeTray - Release;emergeVWM - Release;emerge - Release;emergePower - Release;emergeSysMon - Release;reg2xml - Release;" />
+			<Add alias="All - Release" targets="zip - Release;unzip - Release;emergeLib - Release;emergeGraphics - Release;emergeAppletEngine - Release;emergeStyleEngine - Release;emergeBaseClasses - Release;emergeCore - Release;emergeCommand - Release;emergeWorkspace - Release;emergeHotkeys - Release;emergeLauncher - Release;emergeTasks - Release;emergeTray - Release;emergeVWM - Release;emerge - Release;emergePower - Release;emergeSysMon - Release;reg2xml - Release;emergeIcons - Release;" />
 		</VirtualTargets>
 		<Compiler>
 			<Add option="-Wfatal-errors" />
