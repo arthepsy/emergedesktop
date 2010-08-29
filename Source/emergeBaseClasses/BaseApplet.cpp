@@ -893,6 +893,9 @@ LRESULT BaseApplet::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
               DoEmergeNotify(EMERGE_CORE, CORE_SHOW);
             }
           return 1;
+
+        default:
+          return 0;
         }
     }
 
