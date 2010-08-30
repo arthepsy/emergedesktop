@@ -14,7 +14,7 @@ DOCUMENTATION = Documentation/*.chm
 BIN_LIST = ./$(BIN_DIR)/*.exe ./$(BIN_DIR)/*.dll
 SVN_FILE = hgversion.h
 BTYPE = 4
-ifeq ($(BTYPE), 2)
+ifeq ($(BTYPE), 1)
 		PACKAGE = EmergeDesktop64
 		BIN_DIR = bin64
 else ifeq ($(BTYPE), 4)
