@@ -14,3 +14,8 @@ dll:
 clean:
 	$(MAKE) -f $(MAKEFILE) clean
 
+makedir:
+
+makedep:
+
+
