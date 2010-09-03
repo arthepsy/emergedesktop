@@ -9,7 +9,8 @@ LIBS += -lshell32 \
 				-luuid \
 				-lwinmm \
 				-lcomdlg32 \
-				-lpsapi
+				-lpsapi \
+				-ladvapi32
 
 include ../functions.in
 include ../globals.in

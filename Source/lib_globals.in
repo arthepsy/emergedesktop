@@ -5,13 +5,7 @@ IMPLIB = $(BIN_DIR)/lib$(TARGET).dll.a
 DEFLIB = $(BIN_DIR)/lib$(TARGET).dll.def
 TARGET_ARGS = -Wl,--out-implib,$(IMPLIB) -Wl,--enable-auto-image-base -Wl,--output-def,$(DEFLIB)
 
-ifeq ($(BTYPE), 3)
-LIBS += -shared-libstdc++
-else ifeq ($(BTYPE), 4)
-LIBS += -shared-libstdc++
-else
 LIBS += -lstdc++
-endif
 
 .IGNORE: distclean
 distclean: clean

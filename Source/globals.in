@@ -1,9 +1,9 @@
-CXX = mingw32-g++
-CC = mingw32-gcc
+CXX = g++
+CC = gcc
 AR = ar
-WINDRES = windres
-WINDRESOPS = -E -xc-header -DRC_INVOKED
-WINDRESFLAGS = -O COFF
+RC = windres
+RCOPS = -E -xc-header -DRC_INVOKED
+RCFLAGS = -O COFF
 BIN_DIR = ../bin
 OBJ_DIR = .objs
 DEPS_DIR = .deps
@@ -17,33 +17,12 @@ HG_FILE = ../hgversion.h
 HG_SED = ../hgversion.sed
 LDFLAGS = -Wl,--subsystem,windows -shared-libgcc -Wl,--enable-auto-import
 CXXFLAGS = -W -Wall -Werror -pedantic -D_GLIBCXX_DLL
-BTYPE = 4
 
-ifeq ($(BTYPE), 1)
-		CXX = x86_64-w64-mingw32-g++
-		CC = x86_64-w64-mingw32-gcc
-		AR = x86_64-w64-mingw32-ar
-		WINDRES = x86_64-w64-mingw32-windres
+ifeq ($(ARCH), 64)
 		BIN_DIR = ../bin64
 		OBJ_DIR = .objs64
 		DEPS_DIR = .deps64
-		LIBS += -L../bin64
-else ifeq ($(BTYPE), 2)
-		CXX = i686-w64-mingw32-g++
-		CC = i686-w64-mingw32-gcc
-		AR = i686-w64-mingw32-ar
-		WINDRES = i686-w64-mingw32-windres
-		LIBS += -L../bin
-else ifeq ($(BTYPE), 3)
-		CXX = g++ -m32
-		CC = gcc -m32
-else ifeq ($(BTYPE), 4)
-		CXX = g++ -m64
-		CC = gcc -m64
-		BIN_DIR = ../bin64
-		OBJ_DIR = .objs64
-		DEPS_DIR = .deps64
-		LIBS += -L../bin64
+		LIBS += -ladvapi32 -L../bin64
 else
 		LIBS += -L../bin
 endif
@@ -99,13 +78,13 @@ makedep: $(DEPS)
 	$(CC) -MM -MF $@ -MT ../$(OBJ_DIR)/$(BUILD)/$(TARGET)/$(*F).o $<
 
 ../$(DEPS_DIR)/$(TARGET)/%.d: %.rc $(HG_FILE)
-	$(CXX) $(WINDRESOPS) -MM -MF $@ -MT ../$(OBJ_DIR)/$(BUILD)/$(TARGET)/$(*F).o $<
+	$(CXX) $(RCOPS) -MM -MF $@ -MT ../$(OBJ_DIR)/$(BUILD)/$(TARGET)/$(*F).o $<
 
 ../$(DEPS_DIR)/tinyxml/%.d: $(TINYCXXPS)
 	$(CXX) -MM -MF $@ -MT ../$(OBJ_DIR)/$(BUILD)/$(TARGET)/$(*F).o $<
 
 ../$(OBJ_DIR)/$(BUILD)/$(TARGET)/%.o: %.rc $(HG_FILE)
-	$(WINDRES) --preprocessor="$(CXX) $(WINDRESOPS)" $(WINDRESFLAGS) -i $< -o $@
+	$(RC) --preprocessor="$(CXX) $(RCOPS)" $(RCFLAGS) -i $< -o $@
 
 ../$(OBJ_DIR)/$(BUILD)/tinyxml/%.o: ../tinyxml/%.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@

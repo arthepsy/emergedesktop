@@ -59,7 +59,7 @@ LOC = $(LOCAL_ZIP)
 
 # ------------ GNU C ------------
 DLLWRAP=dllwrap
-CC=x86_64-w64-mingw32-gcc
+CC=gcc
 CFLG_OPT=-w -O2
 CFLAGS=$(CFLG_OPT) -DWIN32 -DFORCE_WIN32_OVER_UNIX $(IZCRCOPT)
 ifndef USEZLIB

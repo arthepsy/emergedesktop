@@ -1,4 +1,14 @@
-LIBS += -lshlwapi -lole32 -luuid -lversion -lpsapi -lwinmm -lpowrprof -lgdi32 -lzip32z64 -lunzip32
+LIBS += -lshlwapi \
+				-lole32 \
+				-luuid \
+				-lversion \
+				-lpsapi \
+				-lwinmm \
+				-lpowrprof \
+				-lgdi32 \
+				-lzip32z64 \
+				-lunzip32 \
+				-ladvapi32
 ifneq ($(BTYPE), 4)
 LIBS += -lwtsapi32
 endif

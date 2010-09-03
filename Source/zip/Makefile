@@ -1,10 +1,7 @@
 MAKEFILE = win32/makefile.mingw
 RC = windres
 
-ifeq ($(BTYPE), 1)
-MAKEFILE = win32/makefile.w64
-RC = x86_64-w64-mingw32-windres
-else ifeq ($(BTYPE), 4)
+ifeq ($(ARCH), 64)
 MAKEFILE = win32/makefile.w64
 endif
 

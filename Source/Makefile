@@ -13,11 +13,7 @@ SHELL_BREAK = &
 DOCUMENTATION = Documentation/*.chm
 BIN_LIST = ./$(BIN_DIR)/*.exe ./$(BIN_DIR)/*.dll
 SVN_FILE = hgversion.h
-BTYPE = 4
-ifeq ($(BTYPE), 1)
-		PACKAGE = EmergeDesktop64
-		BIN_DIR = bin64
-else ifeq ($(BTYPE), 4)
+ifeq ($(ARCH), 64)
 		PACKAGE = EmergeDesktop64
 		BIN_DIR = bin64
 endif
@@ -40,39 +36,39 @@ makedep: all
 
 .PHONY: $(APPLETS)
 $(APPLETS): $(LIBS)
-	$(MAKE) -C $@ BTYPE=$(BTYPE) $(MAKECMDGOALS)
+	$(MAKE) -C $@ ARCH=$(ARCH) $(MAKECMDGOALS)
 
 .PHONY: zip
 zip:
-	$(MAKE) -C $@ BTYPE=$(BTYPE) $(MAKECMDGOALS)
+	$(MAKE) -C $@ ARCH=$(ARCH) $(MAKECMDGOALS)
 
 .PHONY: unzip
 unzip:
-	$(MAKE) -C $@ BTYPE=$(BTYPE) $(MAKECMDGOALS)
+	$(MAKE) -C $@ ARCH=$(ARCH) $(MAKECMDGOALS)
 
 .PHONY: emergeLib
 emergeLib: zip unzip
-	$(MAKE) -C $@ BTYPE=$(BTYPE) $(MAKECMDGOALS)
+	$(MAKE) -C $@ ARCH=$(ARCH) $(MAKECMDGOALS)
 
 .PHONY: emergeIcons
 emergeIcons: emergeLib
-	$(MAKE) -C $@ BTYPE=$(BTYPE) $(MAKECMDGOALS)
+	$(MAKE) -C $@ ARCH=$(ARCH) $(MAKECMDGOALS)
 
 .PHONY: emergeGraphics
 emergeGraphics: emergeLib
-	$(MAKE) -C $@ BTYPE=$(BTYPE) $(MAKECMDGOALS)
+	$(MAKE) -C $@ ARCH=$(ARCH) $(MAKECMDGOALS)
 
 .PHONY: emergeAppletEngine
 emergeAppletEngine: emergeLib
-	$(MAKE) -C $@ BTYPE=$(BTYPE) $(MAKECMDGOALS)
+	$(MAKE) -C $@ ARCH=$(ARCH) $(MAKECMDGOALS)
 
 .PHONY: emergeStyleEngine
 emergeStyleEngine: emergeGraphics
-	$(MAKE) -C $@ BTYPE=$(BTYPE) $(MAKECMDGOALS)
+	$(MAKE) -C $@ ARCH=$(ARCH) $(MAKECMDGOALS)
 
 .PHONY: emergeBaseClasses
 emergeBaseClasses: emergeStyleEngine emergeAppletEngine
-	$(MAKE) -C $@ BTYPE=$(BTYPE) $(MAKECMDGOALS)
+	$(MAKE) -C $@ ARCH=$(ARCH) $(MAKECMDGOALS)
 
 .PHONY: dist
 dist: src bin
