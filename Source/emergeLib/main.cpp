@@ -56,13 +56,16 @@ topic alone.
 #include "Shutdown.h"
 #include "MsgBox.h"
 #include "zip.h"
+#include <mapinls.h>
 #include <shellapi.h>
 #include <shlwapi.h>
 #include <stdio.h>
 #include <string>
 #include <shlobj.h>
 #include <psapi.h>
+#ifndef _W64
 #include <WtsApi32.h>
+#endif
 #include <mmsystem.h>
 #include <time.h>
 #include <fstream>

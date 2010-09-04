@@ -29,7 +29,9 @@
 
 #include "emergeLib.h"
 #include "resource.h"
+#ifndef _W64
 #include <WtsApi32.h>
+#endif
 
 class Shutdown
 {
