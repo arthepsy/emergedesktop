@@ -90,6 +90,7 @@ LRESULT Balloon::DoTimer()
 
 bool Balloon::SetInfo(WCHAR *info)
 {
+  bool ret = false;
   HFONT infoFont = CreateFontIndirect(pSettings->GetInfoFont());
 
   wcscpy(this->info, info);
@@ -104,11 +105,16 @@ bool Balloon::SetInfo(WCHAR *info)
   if (titleRect.right > infoRect.right)
     infoRect.right = titleRect.right;
 
-  return EGGetTextRect(info, infoFont, &infoRect, DT_WORDBREAK);
+  ret = EGGetTextRect(info, infoFont, &infoRect, DT_WORDBREAK);
+
+  DeleteObject(infoFont);
+
+  return ret;
 }
 
 bool Balloon::SetInfoTitle(WCHAR *infoTitle)
 {
+  bool ret = false;
   HFONT infoTitleFont = CreateFontIndirect(pSettings->GetInfoTitleFont());
 
   wcscpy(this->infoTitle, infoTitle);
@@ -120,7 +126,11 @@ bool Balloon::SetInfoTitle(WCHAR *infoTitle)
   titleRect.bottom = titleRect.top;
   titleRect.right = titleRect.left;
 
-  return EGGetTextRect(infoTitle, infoTitleFont, &titleRect, DT_SINGLELINE);
+  ret = EGGetTextRect(infoTitle, infoTitleFont, &titleRect, DT_SINGLELINE);
+
+  DeleteObject(infoTitleFont);
+
+  return ret;
 }
 
 bool Balloon::SetInfoFlags(DWORD infoFlags, HICON infoIcon)
