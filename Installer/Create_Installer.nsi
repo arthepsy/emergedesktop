@@ -7,7 +7,7 @@
 ; -------------------------------------------------------------------
 ; help >>> General NAME and Versioning
 ; -------------------------------------------------------------------
-Name "Emerge Desktop 5.2"
+Name "Emerge Desktop 5.2.2"
 !define FIELD1 $R1
 !define FIELD2 $R2
 !define FIELD3 $R3
@@ -58,7 +58,7 @@ UninstPage custom un.nsDialogOptions un.nsDialogOptionsLeave
 ; -------------------------------------------------------------------
 Icon "emerge.ico"
 UninstallIcon "unemerge.ico"
-OutFile "EmergeDesktop-5.2.exe"
+OutFile "EmergeDesktop-5.2.2.exe"
 
 ; -------------------------------------------------------------------
 ; help >>> Branding the installer makes it nice an unique... ;)
