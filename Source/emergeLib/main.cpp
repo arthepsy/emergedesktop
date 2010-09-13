@@ -56,7 +56,9 @@ topic alone.
 #include "Shutdown.h"
 #include "MsgBox.h"
 #include "zip.h"
+#ifdef _W64
 #include <mapinls.h>
+#endif
 #include <shellapi.h>
 #include <shlwapi.h>
 #include <stdio.h>
