@@ -38,13 +38,13 @@
 
 #include <vector>
 #include <process.h>
-#include "TrayIcon.h"
 #include "AppBar.h"
 #include <docobj.h>
 #include <shlguid.h>
 #include "../emergeBaseClasses/BaseApplet.h"
 #include "Settings.h"
 #include "Config.h"
+#include "TrayIcon.h"
 
 #ifndef NIN_POPUPOPEN
 #define NIN_POPUPOPEN WM_USER+6

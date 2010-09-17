@@ -19,8 +19,8 @@
 //
 //---
 
-#include "TrayIcon.h"
 #include "Balloon.h"
+#include "TrayIcon.h"
 
 //-----
 // Function:	Constructor
