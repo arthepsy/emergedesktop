@@ -29,6 +29,10 @@
 #undef WINVER
 #define WINVER 0x0501
 
+/**< Required to support NIF_INFO */
+#undef _WIN32_IE
+#define _WIN32_IE 0x0700
+
 #define MOUSE_TIMER 0
 #define MOUSE_POLL_TIME 250
 
