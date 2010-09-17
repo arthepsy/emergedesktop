@@ -295,6 +295,9 @@ void Task::DisplayMenu(HWND callingWnd)
   POINT pt;
   GetCursorPos(&pt);
 
+  /**< Bring the task window to the foreground like Explorer does. */
+  ELSwitchToThisWindow(wnd);
+
   res = EAEDisplayMenu(callingWnd, wnd);
   switch (res)
     {
