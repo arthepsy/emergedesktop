@@ -4208,33 +4208,6 @@ void ELStripModified(WCHAR *theme)
   theme[modifiedOffset] = '\0';
 }
 
-std::wstring ELwcsftime(const WCHAR *format, const struct tm *timeptr)
-{
-  std::string narrowFormat= ELwstringTostring(format);
-  char tmpDest[MAX_LINE_LENGTH];
-  std::wstring timeString;
-  std::vector<WCHAR> tmpString;
-
-  strftime(tmpDest, MAX_LINE_LENGTH, narrowFormat.c_str(), timeptr);
-
-  size_t tmpStringLength = MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, tmpDest, strlen(tmpDest), NULL, 0);
-  if (tmpStringLength != 0)
-    {
-      tmpString.resize(tmpStringLength + 1);
-      size_t writtenBytes = MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, tmpDest, strlen(tmpDest), &tmpString.front(),
-                            tmpStringLength);
-      if (writtenBytes != 0)
-        {
-          if (writtenBytes <= tmpStringLength)
-            tmpString[writtenBytes] = '\0';
-          timeString = &tmpString.front();
-        }
-      tmpString.clear();
-    }
-
-  return timeString;
-}
-
 BOOL ELPathIsRelative(LPCTSTR lpszPath)
 {
   std::wstring tmpPath = lpszPath;

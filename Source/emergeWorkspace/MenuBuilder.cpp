@@ -832,10 +832,11 @@ void MenuBuilder::BuildXMLMenu(MenuMap::iterator iter)
               struct tm *stVal;
 
               // Grab the current time
+              _tzset();
               time(&tVal);
               stVal = localtime(&tVal);
 
-              wcscpy(datetimeString, (WCHAR*)ELwcsftime(value, stVal).c_str());
+              wcsftime(datetimeString, MAX_LINE_LENGTH, value, stVal);
 
               itemInfo.fMask = MIIM_STRING|MIIM_ID;
               itemInfo.cbSize = sizeof(MENUITEMINFO);

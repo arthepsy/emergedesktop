@@ -394,7 +394,6 @@ inline bool ELIsModifiedTheme(std::wstring theme)
 DLL_EXPORT bool ELPathFileExists(const WCHAR *file);
 DLL_EXPORT bool ELSetModifiedTheme(std::wstring theme);
 DLL_EXPORT void ELStripModified(WCHAR *theme);
-DLL_EXPORT std::wstring ELwcsftime(const WCHAR *format, const struct tm *timeptr);
 DLL_EXPORT BOOL ELPathIsRelative(LPCTSTR lpszPath);
 template <class T>
 inline std::wstring towstring(const T& t)
