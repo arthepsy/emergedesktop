@@ -34,6 +34,8 @@ WCHAR szClassName[ ] = TEXT("Shell_CommandWnd");
 //----  --------------------------------------------------------------------------------------------------------
 LRESULT Applet::DoTimer(UINT idEvent)
 {
+  WCHAR tmp[MAX_LINE_LENGTH];
+
   if (idEvent == MOUSE_TIMER)
     return BaseApplet::DoTimer(idEvent);
 
@@ -43,13 +45,16 @@ LRESULT Applet::DoTimer(UINT idEvent)
       time_t tVal;
       struct tm *stVal;
 
-      // Grab the current time
-      time(&tVal);
-      stVal = localtime(&tVal);
+      _tzset(); /**< Grab the current timezone information for localtime to do it's job correctly */
+      time(&tVal); /**< Grab the raw time */
+      stVal = localtime(&tVal); /**< Format the rawtime to localtime */
 
       // Format the time
-      SetCommandText((WCHAR*)ELwcsftime(pSettings->GetDisplayTimeFormat(), stVal).c_str());
-      UpdateTip((WCHAR*)ELwcsftime(pSettings->GetDisplayTipFormat(), stVal).c_str());
+      wcsftime(tmp, MAX_LINE_LENGTH, pSettings->GetDisplayTimeFormat(), stVal);
+      SetCommandText(tmp);
+
+      wcsftime(tmp, MAX_LINE_LENGTH, pSettings->GetDisplayTipFormat(), stVal);
+      UpdateTip(tmp);
 
       if (IsWindowVisible(mainWnd))
         DrawAlphaBlend();
