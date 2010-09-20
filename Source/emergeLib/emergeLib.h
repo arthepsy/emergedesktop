@@ -436,5 +436,6 @@ DLL_EXPORT int ELExtractZip(std::wstring zipFile, std::wstring unzipPath);
 DLL_EXPORT HMODULE ELGetSystemLibrary(const WCHAR *lib);
 DLL_EXPORT HMODULE ELGetEmergeLibrary(const WCHAR *lib);
 DLL_EXPORT HMODULE ELLoadSystemLibrary(const WCHAR *lib);
+DLL_EXPORT size_t ELwcsftime(WCHAR *strDest, size_t maxsize, WCHAR *format, const struct tm *timeptr);
 
 #endif

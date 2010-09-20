@@ -836,7 +836,7 @@ void MenuBuilder::BuildXMLMenu(MenuMap::iterator iter)
               time(&tVal);
               stVal = localtime(&tVal);
 
-              wcsftime(datetimeString, MAX_LINE_LENGTH, value, stVal);
+              ELwcsftime(datetimeString, MAX_LINE_LENGTH, value, stVal);
 
               itemInfo.fMask = MIIM_STRING|MIIM_ID;
               itemInfo.cbSize = sizeof(MENUITEMINFO);

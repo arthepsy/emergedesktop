@@ -50,10 +50,10 @@ LRESULT Applet::DoTimer(UINT idEvent)
       stVal = localtime(&tVal); /**< Format the rawtime to localtime */
 
       // Format the time
-      wcsftime(tmp, MAX_LINE_LENGTH, pSettings->GetDisplayTimeFormat(), stVal);
+      ELwcsftime(tmp, MAX_LINE_LENGTH, pSettings->GetDisplayTimeFormat(), stVal);
       SetCommandText(tmp);
 
-      wcsftime(tmp, MAX_LINE_LENGTH, pSettings->GetDisplayTipFormat(), stVal);
+      ELwcsftime(tmp, MAX_LINE_LENGTH, pSettings->GetDisplayTipFormat(), stVal);
       UpdateTip(tmp);
 
       if (IsWindowVisible(mainWnd))

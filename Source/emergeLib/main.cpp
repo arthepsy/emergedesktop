@@ -4197,6 +4197,100 @@ bool ELSetModifiedTheme(std::wstring theme)
   return ret;
 }
 
+/** \brief Augments wcsftime to support '%u' and '%V' as defined by glibc.
+ *
+ * \note ELwcsftime is based on the pseudo code found here: http://www.personal.ecu.edu/mccartyr/ISOwdALG.txt
+ *
+ * \param strDest - destination string
+ * \param maxsize - the size of destination string
+ * \param format - format string
+ * \param timptr - pointer to the current time in a 'tm' struct
+ * \return the new size of strDest
+ *
+ */
+size_t ELwcsftime(WCHAR *strDest, size_t maxsize, WCHAR *format, const struct tm *timeptr)
+{
+  int year = timeptr->tm_year + 1900;
+  int previousYear = year - 1;
+  int month = timeptr->tm_mon + 1;
+  int day = timeptr->tm_mday;
+  int yy, c, g, jan1Weekday;
+  int monthDay[12] = {0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334};
+  int dayOfYear, weekday, h, yearNumber, weekNumber, i;
+  bool isLeapYear = false, previousIsLeapYear = false;
+  WCHAR stringDay[2], stringWeek[3];
+
+  /**< Determine if the current year is a leap year */
+  if (((year % 4 == 0) && (year % 100 != 0)) || (year % 400 == 0))
+    isLeapYear = true;
+
+  /**< Determine if the previous year is a leap year */
+  if (((previousYear % 4 == 0) && (previousYear % 100 != 0)) || (previousYear % 400 == 0))
+    previousIsLeapYear = true;
+
+  /**< Determine the dayOfYear for the current date */
+  dayOfYear = day + monthDay[month - 1];
+  if (isLeapYear && (month > 2))
+    dayOfYear++;
+
+  /**< Determine jan1Weekday for the current year (Monday = 1, Sunday = 7) */
+  yy = previousYear % 100;
+  c = previousYear - yy;
+  g = yy + (yy / 4);
+  jan1Weekday = 1 + (((((c / 100) % 4) * 5) + g) % 7);
+
+  /**< Determine the current weekday (Monday = 1, Sunday = 7) */
+  h = dayOfYear + (jan1Weekday - 1);
+  weekday = 1 + ((h - 1) % 7);
+
+  /**< Determine the current date falls in previous year, week numbers 52 or 53 */
+  if ((dayOfYear <= (8 - jan1Weekday)) && (jan1Weekday > 4))
+    {
+      yearNumber = previousYear;
+      if ((jan1Weekday == 5) || ((jan1Weekday == 6) && previousIsLeapYear))
+        weekNumber = 53;
+      else
+        weekNumber = 52;
+    }
+  else
+    yearNumber = year;
+
+  /**< Determine if the current date falls in the previous year, week number 1 */
+  if (yearNumber == year)
+    {
+      if (isLeapYear)
+        i = 366;
+      else
+        i = 365;
+
+      if ((i - dayOfYear) < (4 - weekday))
+        {
+          yearNumber = year + 1;
+          weekNumber = 1;
+        }
+    }
+
+  /**< Determine if the current date falls in the current year, week numbers 1 through 53 */
+  if (yearNumber == year)
+    {
+      i = dayOfYear + (7 - weekday) + (jan1Weekday - 1);
+      weekNumber = i / 7;
+      if (jan1Weekday > 4)
+        weekNumber--;
+    }
+
+  /**< Convert weekday and weekNumber into strings */
+  wsprintf(stringDay, TEXT("%d"), weekday);
+  wsprintf(stringWeek, TEXT("%d"), weekNumber);
+
+  /**< Replace and occurances of '%u' and '%V' appropriately */
+  ELStringReplace(format, (WCHAR*)TEXT("%u"), stringDay, false);
+  ELStringReplace(format, (WCHAR*)TEXT("%V"), stringWeek, false);
+
+  /**< Finally, pass the updated format string to the MSVC supplied wcsftime */
+  return wcsftime(strDest, maxsize, format, timeptr);
+}
+
 void ELStripModified(WCHAR *theme)
 {
   WCHAR *modified = (WCHAR*)TEXT(" (Modified)");
