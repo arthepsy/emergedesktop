@@ -7,7 +7,7 @@
 ; -------------------------------------------------------------------
 ; help >>> General NAME and Versioning
 ; -------------------------------------------------------------------
-Name "Emerge Desktop 5.2.2"
+Name "Emerge Desktop 5.2.3"
 !define FIELD1 $R1
 !define FIELD2 $R2
 !define FIELD3 $R3
@@ -58,7 +58,7 @@ UninstPage custom un.nsDialogOptions un.nsDialogOptionsLeave
 ; -------------------------------------------------------------------
 Icon "emerge.ico"
 UninstallIcon "unemerge.ico"
-OutFile "EmergeDesktop-5.2.2.exe"
+OutFile "EmergeDesktop-5.2.3.exe"
 
 ; -------------------------------------------------------------------
 ; help >>> Branding the installer makes it nice an unique... ;)
@@ -355,6 +355,10 @@ StrCpy ${EMERGERUNNING} "1"
 MessageBox MB_OKCANCEL|MB_SETFOREGROUND|MB_ICONQUESTION "Emerge Desktop is currently running.  Would you like the$\r$\n installer to quit Emerge Desktop so the install can continue?" IDCANCEL +1 IDOK +2
 Abort
 Call CloseCore
+ReadRegStr $INSTDIR HKCU "Software\Microsoft\Windows NT\CurrentVersion\Winlogon" "Shell"
+Push $INSTDIR
+Call GetPath
+Pop $INSTDIR
 FunctionEnd
 
 ;Function un.onUninstSuccess
@@ -372,25 +376,53 @@ WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninst
 WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\Emerge Desktop" "UninstallString" "$INSTDIR\uninst.exe"
 WriteUnInstaller "$INSTDIR\uninst.exe"
 IfRebootFlag +2
-call RestartCore
+call RestartShell
 FunctionEnd
 
 Function .onCustomAbort
-call RestartCore
+call RestartShell
 FunctionEnd
 
 Function .onInstFailed
-call RestartCore
+call RestartShell
 FunctionEnd
 
-Function RestartCore
-IfFileExists "$INSTDIR\emergeCore.exe" +4
-MessageBox MB_OK "The installer could not find emergeCore.  The installer will now start Windows Explorer."
-Exec "exporer.exe"
-Goto +4
-StrCmp ${EMERGERUNNING} "1" +1 +3
-MessageBox MB_OK "The installer will now restart Emerge Desktop.  Please note that it is possible not all tray icons will reappear."
-Exec "$INSTDIR\emergeCore.exe"
+Function GetPath
+; This function takes a file name and returns the base name (no extension)
+; Input is from the top of the stack
+; Usage example:
+; push (file name)
+; call GetPath
+; pop (file name)
+
+Exch $1  ; Initial value
+Push $2  ; Pointer variable
+Push $3  ; single character (temp)
+StrLen $2 $1
+StartBaseLoop:
+  IntOp $2 $2 - 1
+  StrCpy $3 $1 1 $2
+  strCmp $3 "\" ExitCopy
+  StrCmp $3 "" ExitBaseLoop
+  Goto StartBaseLoop
+ExitCopy:
+StrCpy $1 $1 $2
+ExitBaseLoop:
+Pop $3
+Pop $2
+Exch $1
+FunctionEnd
+
+Function RestartShell
+Push $1
+ReadRegStr $1 HKCU "Software\Microsoft\Windows NT\CurrentVersion\Winlogon" "Shell"
+IfFileExists "$1" StartShell
+ReadRegStr $1 HKLM "Software\Microsoft\Windows NT\CurrentVersion\Winlogon" "Shell"
+IfFileExists "$1" StartShell
+StrCpy $1 "explorer.exe"
+StartShell:
+Exec $1
+Pop $1
 FunctionEnd
 
 ; CheckWindowsVersion
@@ -402,19 +434,21 @@ FunctionEnd
 Function CheckWindowsVersion
 Push $R0
 ReadRegStr $R0 HKLM "SOFTWARE\Microsoft\Windows NT\CurrentVersion" CurrentVersion
-StrCmp $R0 "" 0 lbl_winnt
+StrCmp $R0 "" 0 WINNT
 ; we are not NT.
-Goto lbl_error
+Goto ERROR
 
-lbl_winnt:
-StrCmp $R0 '3' lbl_error
-StrCmp $R0 '4' lbl_error
-Goto lbl_done
+WINNT:
+StrCmp $R0 '3' ERROR
+StrCmp $R0 '4' ERROR
+StrCmp $R0 '5' ERROR
+Goto DONE
 
-lbl_error:
-MessageBox MB_OK|MB_ICONEXCLAMATION "Emerge Desktop Requires Windows 2000 or higher"
+ERROR:
+MessageBox MB_OK|MB_ICONEXCLAMATION "Emerge Desktop Requires Windows XP or higher"
 Abort
-lbl_done:
+
+DONE:
 Pop $R0
 FunctionEnd
 
@@ -480,7 +514,8 @@ Function nsDialogOptions
 
   ${NSD_CreateCheckBox} 0 40u 100% 12u "Set Emerge Desktop as the default shell for the current user"
   Pop $CheckBox1
-  StrCmp ${EMERGERUNNING} "1" +1 +2
+  StrCmp ${EMERGERUNNING} "1" +1 +3
+  ${NSD_Check} $CheckBox1
   EnableWindow $CheckBox1 0
 
   nsDialogs::Show
