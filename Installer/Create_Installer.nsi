@@ -359,6 +359,8 @@ ReadRegStr $INSTDIR HKCU "Software\Microsoft\Windows NT\CurrentVersion\Winlogon"
 Push $INSTDIR
 Call GetPath
 Pop $INSTDIR
+StrCmp $INSTDIR "" +1 +2
+StrCpy $INSTDIR "$PROGRAMFILES\Emerge Desktop"
 FunctionEnd
 
 ;Function un.onUninstSuccess
@@ -416,10 +418,13 @@ FunctionEnd
 Function RestartShell
 Push $1
 ReadRegStr $1 HKCU "Software\Microsoft\Windows NT\CurrentVersion\Winlogon" "Shell"
-IfFileExists "$1" StartShell
+IfFileExists "$1" EmergeWarning
 ReadRegStr $1 HKLM "Software\Microsoft\Windows NT\CurrentVersion\Winlogon" "Shell"
-IfFileExists "$1" StartShell
+IfFileExists "$1" EmergeWarning
 StrCpy $1 "explorer.exe"
+Goto StartShell
+EmergeWarning:
+MessageBox MB_OK "The installer will now restart Emerge Desktop.  Please note that it is possible not all tray icons will reappear."
 StartShell:
 Exec $1
 Pop $1
