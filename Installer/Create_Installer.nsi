@@ -13,6 +13,7 @@ Name "Emerge Desktop 5.2.3"
 !define FIELD3 $R3
 !define FIELD4 $R4
 !define EMERGERUNNING $R8
+!define BINDIR "..\Source\bin"
 !define MUI_CUSTOMFUNCTION_ABORT ".onCustomAbort"
 
 Var Dialog
@@ -87,7 +88,7 @@ InstallDir "$PROGRAMFILES\Emerge Desktop"
 Section "emergeCore" SecemergeCore
 SectionIn RO
 SetOutPath "$INSTDIR"
-File "..\Source\bin\emergeCore.exe"
+File "${BINDIR}\emergeCore.exe"
 SetOutPath "$APPDATA\Emerge Desktop\scripts"
 IfFileExists "$APPDATA\Emerge Desktop\scripts\hide.pl" +2
 File "..\Source\scripts\hide.pl"
@@ -124,18 +125,18 @@ SubSection "Core Applets" SecCoreApplets
 Section "emergeWorkspace" SecemergeWorkspace
 SectionIn RO
 SetOutPath "$INSTDIR"
-File "..\Source\bin\emergeWorkspace.exe"
+File "${BINDIR}\emergeWorkspace.exe"
 Delete "$INSTDIR\emergeDesktop.exe"
 SectionEnd
 
 Section "emergeTasks" SecemergeTasks
 SetOutPath "$INSTDIR"
-File "..\Source\bin\emergeTasks.exe"
+File "${BINDIR}\emergeTasks.exe"
 SectionEnd
 
 Section "emergeTray" SecemergeTray
 SetOutPath "$INSTDIR"
-File "..\Source\bin\emergeTray.exe"
+File "${BINDIR}\emergeTray.exe"
 SectionEnd
 
 SubSectionEnd
@@ -144,7 +145,7 @@ SubSection "Additional Applets" SecAdditionalApplets
 
 Section "emergeCommand" SecemergeCommand
 SetOutPath "$INSTDIR"
-File "..\Source\bin\emergeCommand.exe"
+File "${BINDIR}\emergeCommand.exe"
 CreateDirectory "$APPDATA\Emerge Desktop\files"
 IfFileExists "$APPDATA\Emerge Desktop\files\cmd.txt" +3
 SetOutPath "$APPDATA\Emerge Desktop\files"
@@ -153,27 +154,27 @@ SectionEnd
 
 Section "emergeHotkeys" SecemergeHotkeys
 SetOutPath "$INSTDIR"
-File "..\Source\bin\emergeHotkeys.exe"
+File "${BINDIR}\emergeHotkeys.exe"
 SectionEnd
 
 Section "emergeLauncher" SecemergeLauncher
 SetOutPath "$INSTDIR"
-File "..\Source\bin\emergeLauncher.exe"
+File "${BINDIR}\emergeLauncher.exe"
 SectionEnd
 
 Section "emergeVWM" SecemergeVWM
 SetOutPath "$INSTDIR"
-File "..\Source\bin\emergeVWM.exe"
+File "${BINDIR}\emergeVWM.exe"
 SectionEnd
 
 Section "emergePower" SecemergePower
 SetOutPath "$INSTDIR"
-File "..\Source\bin\emergePower.exe"
+File "${BINDIR}\emergePower.exe"
 SectionEnd
 
 Section "emergeSysMon" SecemergeSysMon
 SetOutPath "$INSTDIR"
-File "..\Source\bin\emergeSysMon.exe"
+File "${BINDIR}\emergeSysMon.exe"
 SectionEnd
 
 SubSectionEnd
@@ -182,28 +183,28 @@ SubSection "Utilities" SecUtilities
 
 Section "emerge" Secemerge
 SetOutPath "$INSTDIR"
-File "..\Source\bin\emerge.exe"
+File "${BINDIR}\emerge.exe"
 SectionEnd
 
 Section "reg2xml" Secreg2xml
 SetOutPath "$INSTDIR"
-File "..\Source\bin\reg2xml.exe"
+File "${BINDIR}\reg2xml.exe"
 SectionEnd
 
 SubSectionEnd
 
 Section "-Libraries"
 SetOutPath "$INSTDIR"
-File "..\Source\bin\emergeLib.dll"
-File "..\Source\bin\libgcc_s_dw2-1.dll"
-File "..\Source\bin\libstdc++-6.dll"
-File "..\Source\bin\emergeIcons.dll"
-File "..\Source\bin\emergeGraphics.dll"
-File "..\Source\bin\emergeAppletEngine.dll"
-File "..\Source\bin\emergeStyleEngine.dll"
-File "..\Source\bin\emergeBaseClasses.dll"
-File "..\Source\bin\unzip32.dll"
-File "..\Source\bin\zip32z64.dll"
+File "${BINDIR}\emergeLib.dll"
+File "${BINDIR}\libgcc_s_dw2-1.dll"
+File "${BINDIR}\libstdc++-6.dll"
+File "${BINDIR}\emergeIcons.dll"
+File "${BINDIR}\emergeGraphics.dll"
+File "${BINDIR}\emergeAppletEngine.dll"
+File "${BINDIR}\emergeStyleEngine.dll"
+File "${BINDIR}\emergeBaseClasses.dll"
+File "${BINDIR}\unzip32.dll"
+File "${BINDIR}\zip32z64.dll"
 Delete "$INSTDIR\emergeSchemeEngine.dll"
 SectionEnd
 
@@ -349,18 +350,22 @@ Push $R0
 FindWindow $R0 "emergeCoreClass"
 IntCmp $R0 0 +1 +2 +2
 FindWindow $R0 "EmergeDesktopCore"
-IntCmp $R0 0 +5
+IntCmp $R0 0 SKIP_INSTDIR
 Pop $R0
 StrCpy ${EMERGERUNNING} "1"
 MessageBox MB_OKCANCEL|MB_SETFOREGROUND|MB_ICONQUESTION "Emerge Desktop is currently running.  Would you like the$\r$\n installer to quit Emerge Desktop so the install can continue?" IDCANCEL +1 IDOK +2
 Abort
 Call CloseCore
-ReadRegStr $INSTDIR HKCU "Software\Microsoft\Windows NT\CurrentVersion\Winlogon" "Shell"
-Push $INSTDIR
+Push $1
+ReadRegStr $1 HKCU "Software\Microsoft\Windows NT\CurrentVersion\Winlogon" "Shell"
+Push $1
+Call GetInQuotes
 Call GetPath
 Pop $INSTDIR
 StrCmp $INSTDIR "" +1 +2
 StrCpy $INSTDIR "$PROGRAMFILES\Emerge Desktop"
+Pop $1
+SKIP_INSTDIR:
 FunctionEnd
 
 ;Function un.onUninstSuccess
@@ -387,6 +392,45 @@ FunctionEnd
 
 Function .onInstFailed
 call RestartShell
+FunctionEnd
+
+
+Function GetInQuotes
+Exch $R0
+Push $R1
+Push $R2
+Push $R3
+Push $R4
+
+StrCpy $R4 $R0
+
+StrCpy $R2 -1
+IntOp $R2 $R2 + 1
+StrCpy $R3 $R0 1 $R2
+StrCmp $R3 "" 0 +3
+StrCpy $R0 $R4
+Goto GetInQuotesDone
+StrCmp $R3 '"' 0 -5
+
+IntOp $R2 $R2 + 1
+StrCpy $R0 $R0 "" $R2
+
+StrCpy $R2 0
+IntOp $R2 $R2 + 1
+StrCpy $R3 $R0 1 $R2
+StrCmp $R3 "" 0 +3
+StrCpy $R0 $R4
+Goto GetInQuotesDone
+StrCmp $R3 '"' 0 -5
+
+StrCpy $R0 $R0 $R2
+
+GetInQuotesDone:
+Pop $R4
+Pop $R3
+Pop $R2
+Pop $R1
+Exch $R0
 FunctionEnd
 
 Function GetPath
@@ -417,16 +461,24 @@ FunctionEnd
 
 Function RestartShell
 Push $1
+Push $2
 ReadRegStr $1 HKCU "Software\Microsoft\Windows NT\CurrentVersion\Winlogon" "Shell"
-IfFileExists "$1" EmergeWarning
+StrCpy $2 $1
+Push $2
+Call GetInQuotes
+Pop $2
+IfFileExists "$2" StartShell
 ReadRegStr $1 HKLM "Software\Microsoft\Windows NT\CurrentVersion\Winlogon" "Shell"
-IfFileExists "$1" EmergeWarning
+StrCpy $2 $1
+Push $2
+Call GetInQuotes
+Pop $2
+IfFileExists "$2" StartShell
 StrCpy $1 "explorer.exe"
-Goto StartShell
-EmergeWarning:
-MessageBox MB_OK "The installer will now restart Emerge Desktop.  Please note that it is possible not all tray icons will reappear."
 StartShell:
+MessageBox MB_OK "The installer will now restart the desktop shell.  Please note that it is possible not all tray icons will reappear."
 Exec $1
+Pop $2
 Pop $1
 FunctionEnd
 
