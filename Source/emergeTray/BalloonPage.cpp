@@ -175,8 +175,8 @@ BOOL BalloonPage::DoCommand(HWND hwndDlg, WPARAM wParam, LPARAM lParam UNUSED)
           if (buttonInfoFont)
             DeleteObject(buttonInfoFont);
           buttonInfoFont = CreateFontIndirect(&newInfoFont);
-          SendDlgItemMessage(hwndDlg, IDC_TITLEFONTBUTTON, WM_SETFONT, (WPARAM)buttonInfoFont, (LPARAM)TRUE);
-          SetDlgItemText(hwndDlg, IDC_TITLEFONTBUTTON, newInfoFont.lfFaceName);
+          SendDlgItemMessage(hwndDlg, IDC_INFOFONTBUTTON, WM_SETFONT, (WPARAM)buttonInfoFont, (LPARAM)TRUE);
+          SetDlgItemText(hwndDlg, IDC_INFOFONTBUTTON, newInfoFont.lfFaceName);
 
           return TRUE;
         }
