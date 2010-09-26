@@ -339,6 +339,13 @@ SectionEnd
 !insertmacro MUI_FUNCTION_DESCRIPTION_END
 
 ; -------------------------------------------------------------------
+; help >>> Language Strings
+; -------------------------------------------------------------------
+
+LangString PAGE_TITLE ${LANG_ENGLISH} "Desktop Shell"
+LangString PAGE_SUBTITLE ${LANG_ENGLISH} "Set the desktop shell"
+
+; -------------------------------------------------------------------
 ; help >>> Functions
 ; -------------------------------------------------------------------
 
@@ -565,6 +572,8 @@ LOOP2:
 FunctionEnd
 
 Function nsDialogOptions
+  !insertmacro MUI_HEADER_TEXT $(PAGE_TITLE) $(PAGE_SUBTITLE)
+
   nsDialogs::Create /NOUNLOAD 1018
   Pop $Dialog
 
