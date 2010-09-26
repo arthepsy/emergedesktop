@@ -18,6 +18,7 @@ Name "Emerge Desktop 5.2.3"
 
 Var Dialog
 Var Label1
+Var Label2
 Var Label3
 Var CheckBox1
 Var CheckBox2
@@ -574,6 +575,11 @@ Function nsDialogOptions
   StrCmp ${EMERGERUNNING} "1" +1 +3
   ${NSD_Check} $CheckBox1
   EnableWindow $CheckBox1 0
+
+  ${NSD_CreateLabel} 0 70u 100% 30u "Warning: Some anti-virus programs interfere with emergeCore and emergeWorkspace.  It is recommended that they be added to your 'trusted' list."
+  Pop $Label2
+  CreateFont $R2 "MS Shell Dlg" 10 700
+  SendMessage $Label2 ${WM_SETFONT} $R2 0
 
   nsDialogs::Show
 FunctionEnd
