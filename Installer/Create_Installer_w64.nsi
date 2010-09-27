@@ -590,7 +590,7 @@ Function nsDialogOptions
   ${NSD_Check} $CheckBox1
   EnableWindow $CheckBox1 0
 
-  ${NSD_CreateLabel} 0 70u 100% 30u "Warning: Some anti-virus programs interfere with emergeCore and emergeWorkspace.  It is recommended that they be added to your 'trusted' list."
+  ${NSD_CreateLabel} 0 70u 100% 30u "Warning: Some anti-virus / firewall / anti-spyware programs interfere with emergeCore and emergeWorkspace.  It is recommended that they be added to your 'trusted' list before rebooting."
   Pop $Label2
   CreateFont $R2 "MS Shell Dlg" 10 700
   SendMessage $Label2 ${WM_SETFONT} $R2 0
