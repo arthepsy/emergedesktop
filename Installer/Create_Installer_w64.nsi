@@ -109,6 +109,9 @@ ${If} ${FIELD1} == ${BST_CHECKED}
   StrCmp $0 "0" +2
   SetRegView 64
   ReadRegStr $R0 HKCU "Software\Microsoft\Windows NT\CurrentVersion\Winlogon" "Shell"
+  Push $R0
+  Call GetInQuotes
+  Pop $R0
   StrCmp $R0 "$INSTDIR\emergeCore.exe" CORE_END
   IfFileExists "$INSTDIR\emergeCore.exe" 0 CORE_END
   WriteRegStr HKCU "Software\Microsoft\Windows NT\CurrentVersion\Winlogon" "Shell" "$INSTDIR\emergeCore.exe"
