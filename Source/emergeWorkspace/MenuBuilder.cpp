@@ -1318,14 +1318,14 @@ void MenuBuilder::BuildFileMenuFromString(MenuMap::iterator iter, WCHAR *parsedV
                     {
                       if (_wcsicmp(entryURL, targetURL) == 0)
                         {
-                          free(lwrValue);
+                          free(lwrEntry);
                           free(lwrValue);
                           continue;
                         }
                     }
                 }
 
-              free(lwrValue);
+              free(lwrEntry);
               free(lwrValue);
             }
 
