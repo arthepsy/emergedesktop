@@ -32,8 +32,8 @@
 #include "MessageControl.h"
 #include <deque>
 
-#define DESKTOP_TIMER         1
-#define DESKTOP_POLL_INTERVAL 100
+#define BACKGROUND_TIMER         1
+#define BACKGROUND_POLL_INTERVAL 1000
 
 class Desktop
 {
@@ -45,6 +45,8 @@ private:
   bool registered;
   UINT ShellMessage;
   bool SetBackgroundImage();
+  __time64_t modifyTime;
+  WCHAR bgImage[MAX_PATH];
   static LRESULT CALLBACK DesktopProcedure (HWND, UINT, WPARAM, LPARAM);
   static VOID CALLBACK DesktopTimerProc(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime);
   static BOOL CALLBACK SetMonitorArea(HMONITOR hMonitor, HDC hdcMonitor, LPRECT lprcMonitor, LPARAM dwData);
@@ -57,6 +59,8 @@ public:
   void ShowMenu(UINT menu);
   void DoWindowPosChanging(LPWINDOWPOS winPos);
   void ToggleDesktop();
+  LRESULT DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
+  LRESULT DoTimer(UINT_PTR timerID);
 };
 
 #endif

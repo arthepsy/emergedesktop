@@ -83,6 +83,9 @@ bool Desktop::Initialize()
 
   SetBackgroundImage();
 
+  if (ELRegisterShellHook(mainWnd, RSH_PROGMAN))
+    ShellMessage = RegisterWindowMessage(TEXT("SHELLHOOK"));
+
   return true;
 }
 
@@ -165,6 +168,9 @@ LRESULT CALLBACK Desktop::DesktopProcedure (HWND hwnd, UINT message, WPARAM wPar
       pDesktop->DoWindowPosChanging((LPWINDOWPOS)lParam);
       break;
 
+    case WM_TIMER:
+      return pDesktop->DoTimer((UINT_PTR)wParam);
+
     case WM_DESTROY:
     case WM_NCDESTROY:
       PostQuitMessage(0);
@@ -172,10 +178,37 @@ LRESULT CALLBACK Desktop::DesktopProcedure (HWND hwnd, UINT message, WPARAM wPar
 
       // If not handled just forward the message on
     default:
-      return DefWindowProc(hwnd, message, wParam, lParam);
+      return pDesktop->DoDefault(hwnd, message, wParam, lParam);
     }
 
   return 0;
+}
+
+LRESULT Desktop::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
+{
+  return DefWindowProc(hwnd, message, wParam, lParam);
+}
+
+LRESULT Desktop::DoTimer(UINT_PTR timerID)
+{
+  struct _stat64 bgstat;
+  RECT bgRect;
+
+  if (timerID == BACKGROUND_TIMER)
+    {
+      _wstat64(bgImage, &bgstat);
+
+      if (modifyTime != bgstat.st_mtime)
+        {
+          modifyTime = bgstat.st_mtime;
+          GetClientRect(mainWnd, &bgRect);
+          InvalidateRect(mainWnd, &bgRect, TRUE);
+        }
+
+      return 0;
+    }
+
+  return 1;
 }
 
 void Desktop::DoWindowPosChanging(LPWINDOWPOS winPos)
@@ -217,9 +250,11 @@ void Desktop::ShowMenu(UINT menu)
 bool Desktop::SetBackgroundImage()
 {
   HKEY key;
-  WCHAR bgImage[MAX_PATH];
   DWORD type, bgImageSize = MAX_PATH;
   bool ret = false;
+  struct _stat64 bgstat;
+
+  KillTimer(mainWnd, BACKGROUND_TIMER);
 
   if (RegOpenKeyEx(HKEY_CURRENT_USER, TEXT("Control Panel\\Desktop\\"), 0, KEY_ALL_ACCESS,
                    &key) == ERROR_SUCCESS)
@@ -227,8 +262,13 @@ bool Desktop::SetBackgroundImage()
       if (RegQueryValueEx(key, TEXT("Wallpaper"), NULL, &type, (BYTE*)bgImage, &bgImageSize) ==
           ERROR_SUCCESS)
         {
+          _wstat64(bgImage, &bgstat);
+          modifyTime = bgstat.st_mtime;
+
           SystemParametersInfo(SPI_SETDESKWALLPAPER, 0, (void*)bgImage,
                                SPIF_UPDATEINIFILE | SPIF_SENDWININICHANGE);
+          SetTimer(mainWnd, BACKGROUND_TIMER, BACKGROUND_POLL_INTERVAL, NULL);
+
           ret = true;
         }
 
