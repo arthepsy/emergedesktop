@@ -29,8 +29,12 @@
 #undef WINVER
 #define WINVER 0x0501
 
+#undef __MSVCRT_VERSION__
+#define __MSVCRT_VERSION__ 0x0601
+
 #include "MessageControl.h"
 #include <deque>
+#include <wchar.h>
 
 #define BACKGROUND_TIMER         1
 #define BACKGROUND_POLL_INTERVAL 1000

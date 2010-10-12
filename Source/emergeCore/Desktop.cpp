@@ -19,7 +19,6 @@
 //----  --------------------------------------------------------------------------------------------------------
 
 #include "Desktop.h"
-#include <deque>
 
 std::deque<HWND> hwndDeque;
 
@@ -191,7 +190,7 @@ LRESULT Desktop::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
 
 LRESULT Desktop::DoTimer(UINT_PTR timerID)
 {
-  struct _stat64 bgstat;
+  struct __stat64 bgstat;
   RECT bgRect;
 
   if (timerID == BACKGROUND_TIMER)
@@ -252,7 +251,7 @@ bool Desktop::SetBackgroundImage()
   HKEY key;
   DWORD type, bgImageSize = MAX_PATH;
   bool ret = false;
-  struct _stat64 bgstat;
+  struct __stat64 bgstat;
 
   KillTimer(mainWnd, BACKGROUND_TIMER);
 
