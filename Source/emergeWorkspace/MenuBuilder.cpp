@@ -996,7 +996,8 @@ void MenuBuilder::BuildDefaultMenu(MenuMap::iterator iter)
     {
       int type;
 
-      if (ELIsKeyDown(VK_RBUTTON))
+      WCHAR *menuRoot = iter->second->GetName();
+      if (_wcsicmp(menuRoot, TEXT("RightMenu")) == 0)
         {
           xmlItem = ELSetFirstXMLElement(section, (WCHAR*)TEXT("item"));
           type = IT_SPECIAL_FOLDER;
@@ -1107,7 +1108,7 @@ void MenuBuilder::BuildDefaultMenu(MenuMap::iterator iter)
 
           ELWriteXMLConfig(ELGetXMLConfig(xmlItem));
         }
-      else if (ELIsKeyDown(VK_MBUTTON))
+      else if (_wcsicmp(menuRoot, TEXT("MidMenu")) == 0)
         {
           xmlItem = ELSetFirstXMLElement(section, (WCHAR*)TEXT("item"));
           type = IT_TASKS_MENU;
@@ -1472,6 +1473,7 @@ bool MenuBuilder::NoPrefixString(WCHAR *source)
 
 LRESULT MenuBuilder::DoButtonDown(UINT button)
 {
+  WCHAR menuName[MAX_LINE_LENGTH];
   LRESULT ret = 1;
   POINT mousePT;
   std::tr1::shared_ptr<MenuListItem> mli;
@@ -1516,17 +1518,18 @@ LRESULT MenuBuilder::DoButtonDown(UINT button)
           switch (button)
             {
             case WM_MBUTTONDOWN:
-              menu = ELGetFirstXMLElementByName(section, (WCHAR*)TEXT("MidMenu"));
+              wcscpy(menuName, TEXT("MidMenu"));
               break;
             case WM_RBUTTONDOWN:
-              menu = ELGetFirstXMLElementByName(section, (WCHAR*)TEXT("RightMenu"));
+              wcscpy(menuName, TEXT("RightMenu"));
               break;
             }
 
+          menu = ELGetFirstXMLElementByName(section, menuName);
           if (menu)
             {
               ClearAllMenus();
-              mli = std::tr1::shared_ptr<MenuListItem>(new MenuListItem(NULL, 100, NULL, menu));
+              mli = std::tr1::shared_ptr<MenuListItem>(new MenuListItem(menuName, 100, NULL, menu));
               rootMenu = CreatePopupMenu();
               menuMap.insert(std::pair< HMENU, std::tr1::shared_ptr<MenuListItem> >(rootMenu, mli));
               iter = menuMap.begin();
