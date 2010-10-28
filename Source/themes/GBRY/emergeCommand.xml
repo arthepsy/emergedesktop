@@ -11,7 +11,7 @@
     <AutoSize>false</AutoSize>
     <IconSize>16</IconSize>
     <IconSpacing>1</IconSpacing>
-    <Scheme>%ThemeDir%\Styles\command.eds</Scheme>
+    <Style>%ThemeDir%\Styles\command.eds</Style>
     <SnapMove>true</SnapMove>
     <SnapSize>true</SnapSize>
     <DynamicPositioning>true</DynamicPositioning>

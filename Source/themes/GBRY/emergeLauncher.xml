@@ -11,7 +11,7 @@
     <AutoSize>true</AutoSize>
     <IconSize>32</IconSize>
     <IconSpacing>3</IconSpacing>
-    <Scheme>%ThemeDir%\Styles\launcher.eds</Scheme>
+    <Style>%ThemeDir%\Styles\launcher.eds</Style>
     <SnapMove>true</SnapMove>
     <SnapSize>true</SnapSize>
     <DynamicPositioning>true</DynamicPositioning>

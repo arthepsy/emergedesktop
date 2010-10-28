@@ -11,7 +11,7 @@
     <AutoSize>false</AutoSize>
     <IconSize>32</IconSize>
     <IconSpacing>7</IconSpacing>
-    <Scheme>%ThemeDir%\Styles\tasks.eds</Scheme>
+    <Style>%ThemeDir%\Styles\tasks.eds</Style>
     <SnapMove>true</SnapMove>
     <SnapSize>true</SnapSize>
     <DynamicPositioning>true</DynamicPositioning>
