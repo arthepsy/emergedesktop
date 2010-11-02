@@ -996,8 +996,8 @@ void MenuBuilder::BuildDefaultMenu(MenuMap::iterator iter)
     {
       int type;
 
-      WCHAR *menuRoot = iter->second->GetName();
-      if (_wcsicmp(menuRoot, TEXT("RightMenu")) == 0)
+      std::wstring menuRoot = iter->second->GetName();
+      if (menuRoot.compare(L"RightMenu") == 0)
         {
           xmlItem = ELSetFirstXMLElement(section, (WCHAR*)TEXT("item"));
           type = IT_SPECIAL_FOLDER;
@@ -1108,7 +1108,7 @@ void MenuBuilder::BuildDefaultMenu(MenuMap::iterator iter)
 
           ELWriteXMLConfig(ELGetXMLConfig(xmlItem));
         }
-      else if (_wcsicmp(menuRoot, TEXT("MidMenu")) == 0)
+      else if (menuRoot.compare(L"MidMenu") == 0)
         {
           xmlItem = ELSetFirstXMLElement(section, (WCHAR*)TEXT("item"));
           type = IT_TASKS_MENU;
