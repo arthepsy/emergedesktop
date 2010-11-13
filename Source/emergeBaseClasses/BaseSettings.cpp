@@ -585,7 +585,7 @@ bool BaseSettings::CopyStyle()
       if (!PathIsDirectory(destStyle.c_str()))
         ELCreateDirectory(destStyle);
 
-      if (ELFileOp(NULL, FO_COPY, workingStyle, destStyle))
+      if (ELFileOp(NULL, FO_COPY, workingStyle, destStyle) && !workingStyle.empty())
         {
           destStyle += workingStyle.substr(workingStyle.rfind(L"\\"));
           wcscpy(styleFile, destStyle.c_str());
