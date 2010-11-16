@@ -622,7 +622,7 @@ BOOL MenuBuilder::DoDrawItem(LPDRAWITEMSTRUCT lpDrawItem)
         icon = iter->second->GetMenuItem(lpDrawItem->itemID - 1)->GetIcon();
 
       if (icon != NULL)
-        DrawIconEx(lpDrawItem->hDC, 5, 1, icon, 16, 16, 0, NULL, DI_NORMAL);
+        DrawIconEx(lpDrawItem->hDC, lpDrawItem->rcItem.left, lpDrawItem->rcItem.top, icon, 16, 16, 0, NULL, DI_NORMAL);
 
       return TRUE;
     }
@@ -1478,7 +1478,6 @@ LRESULT MenuBuilder::DoButtonDown(UINT button)
   POINT mousePT;
   std::tr1::shared_ptr<MenuListItem> mli;
   MenuMap::iterator iter;
-  MENUINFO menuInfo;
   std::tr1::shared_ptr<TiXmlDocument> configXML;
   TiXmlElement *section = NULL, *menu = NULL;
   std::wstring xmlPath = TEXT("%EmergeDir%\\files\\");
@@ -1492,9 +1491,6 @@ LRESULT MenuBuilder::DoButtonDown(UINT button)
       if (PathFileExists(oldXmlFile.c_str()))
         ELFileOp(menuWnd, FO_RENAME, oldXmlFile, xmlFile);
     }
-
-  menuInfo.cbSize = sizeof(menuInfo);
-  menuInfo.fMask = MIM_STYLE;
 
   if (pMenuEditor->GetVisible())
     return 0;
@@ -1531,16 +1527,9 @@ LRESULT MenuBuilder::DoButtonDown(UINT button)
               ClearAllMenus();
               mli = std::tr1::shared_ptr<MenuListItem>(new MenuListItem(menuName, 100, NULL, menu));
               rootMenu = CreatePopupMenu();
-              menuMap.insert(std::pair< HMENU, std::tr1::shared_ptr<MenuListItem> >(rootMenu, mli));
+              menuMap.insert(std::pair< HMENU, std::tr1::
+                             shared_ptr<MenuListItem> >(rootMenu, mli));
               iter = menuMap.begin();
-
-              // Temporarily disable Drag-and-Drop until it does something useful
-              /*if (GetMenuInfo(iter->first, &menuInfo))
-                {
-                menuInfo.dwStyle |= MNS_DRAGDROP;
-                if (SetMenuInfo(iter->first, &menuInfo))
-                OutputDebugString((WCHAR*)TEXT("Set MNS_DRAGDROP"));
-                }*/
 
               UINT itemID = TrackPopupMenuEx(rootMenu, TPM_RETURNCMD|TPM_RECURSE, mousePT.x, mousePT.y, menuWnd, NULL);
               if (itemID != 0)
@@ -1578,8 +1567,11 @@ LRESULT MenuBuilder::DoInitMenu(HMENU menu)
   monitorHeight = abs(monitorInfo.rcMonitor.bottom - monitorInfo.rcMonitor.top);
 
   menuInfo.cbSize = sizeof(MENUINFO);
-  menuInfo.fMask = MIM_MAXHEIGHT;
+  menuInfo.fMask = MIM_MAXHEIGHT | MIM_STYLE;
   menuInfo.cyMax = monitorHeight;
+  // Temporarily disable Drag-and-Drop until it does something useful
+  //menuInfo.dwStyle |= MNS_DRAGDROP;
+  menuInfo.dwStyle = MNS_CHECKORBMP;
   SetMenuInfo(menu, &menuInfo);
 
   BuildMenu(iter);
