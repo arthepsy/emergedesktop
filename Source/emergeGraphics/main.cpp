@@ -1091,3 +1091,141 @@ void EGStringToFont(const WCHAR *fontString, LOGFONT& logFont)
   DeleteDC(hdc);
   free(workingFontString);
 }
+
+HBITMAP EGGetIconBitmap(HICON sourceIcon)
+{
+  if (sourceIcon == NULL)
+    return NULL;
+
+  BYTE pixelAlpha = 0xff;
+  BYTE foregroundAlpha = 0xff;
+  double alphaFactor = 255.0 / (float)foregroundAlpha;
+  double pixelFactor;
+  UINT32 pixel;
+
+  ICONINFO iconInfo;
+  BITMAP bmp, mask;
+  BITMAPINFO bmi;
+  BYTE *bmpBits;
+  VOID *targetBits;
+  UINT32 x, y;
+  HDC maskDC, bmpDC, targetDC;
+  HBITMAP hbitmap;
+  bool foundPixel = false, hasAlpha = false;
+
+  if (!GetIconInfo(sourceIcon, &iconInfo))
+    return NULL;
+  if (GetObject(iconInfo.hbmColor, sizeof(BITMAP), &bmp) == 0)
+    return NULL;
+  if (GetObject(iconInfo.hbmMask, sizeof(BITMAP), &mask) == 0)
+    {
+      DeleteObject(iconInfo.hbmColor);
+      return NULL;
+    }
+
+  bmpDC = CreateCompatibleDC(NULL);
+  SelectObject(bmpDC, iconInfo.hbmColor);
+
+  ZeroMemory(&bmi, sizeof(BITMAPINFOHEADER));
+  bmi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
+  bmi.bmiHeader.biWidth = bmp.bmWidth;
+  bmi.bmiHeader.biHeight = bmp.bmHeight;
+  bmi.bmiHeader.biPlanes = 1;
+  bmi.bmiHeader.biBitCount = 32;
+  bmi.bmiHeader.biCompression = BI_RGB;
+
+  if (GetDIBits(bmpDC, iconInfo.hbmColor, 0, bmp.bmHeight, NULL, &bmi, DIB_RGB_COLORS) == 0)
+    {
+      DeleteObject(iconInfo.hbmColor);
+      DeleteObject(iconInfo.hbmMask);
+      DeleteDC(bmpDC);
+      return NULL;
+    }
+  bmpBits = (BYTE*)GlobalAlloc(GMEM_FIXED, bmi.bmiHeader.biSizeImage);
+  if (bmpBits == NULL)
+    {
+      DeleteObject(iconInfo.hbmColor);
+      DeleteObject(iconInfo.hbmMask);
+      DeleteDC(bmpDC);
+      return NULL;
+    }
+  if (GetDIBits(bmpDC, iconInfo.hbmColor, 0, bmp.bmHeight, bmpBits, &bmi, DIB_RGB_COLORS) == 0)
+    {
+      GlobalFree((HGLOBAL)bmpBits);
+      DeleteObject(iconInfo.hbmColor);
+      DeleteObject(iconInfo.hbmMask);
+      DeleteDC(bmpDC);
+      return NULL;
+    }
+
+  bmi.bmiHeader.biSizeImage = bmp.bmWidth * bmp.bmHeight * 4;
+
+  targetDC = CreateCompatibleDC(NULL);
+  hbitmap = CreateDIBSection(targetDC, &bmi, DIB_RGB_COLORS, &targetBits, NULL, 0x0);
+  if (hbitmap == NULL)
+    {
+      GlobalFree((HGLOBAL)bmpBits);
+      DeleteObject(iconInfo.hbmColor);
+      DeleteObject(iconInfo.hbmMask);
+      DeleteDC(bmpDC);
+      DeleteDC(targetDC);
+      return NULL;
+    }
+  SelectObject(targetDC, hbitmap);
+
+  maskDC = CreateCompatibleDC(NULL);
+  SelectObject(maskDC, iconInfo.hbmMask);
+
+  if (bmp.bmBitsPixel == 32)
+    {
+      for (y = 0; y < (UINT32)mask.bmHeight; y++)
+        {
+          for (x = 0; x < (UINT32)mask.bmWidth; x++)
+            {
+              BYTE alpha = ((UINT32*)bmpBits)[x + ((mask.bmHeight - 1) - y) * mask.bmWidth] >> 24;
+              if (alpha != 0x00)
+                {
+                  hasAlpha = true;
+                  break;
+                }
+            }
+        }
+    }
+
+  for (y = 0; y < (UINT32)mask.bmHeight; y++)
+    {
+      for (x = 0; x < (UINT32)mask.bmWidth; x++)
+        {
+          if (!GetPixel(maskDC, x, (mask.bmHeight - 1) - y))
+            {
+              foundPixel = true;
+
+              pixel = ((UINT32*)bmpBits)[x + y * mask.bmWidth] << 4;
+              pixel = pixel >> 4;
+
+              if (hasAlpha)
+                {
+                  pixelAlpha = ((UINT32*)bmpBits)[x + y * mask.bmWidth] >> 24;
+                  pixelFactor = (double)pixelAlpha / alphaFactor;
+                  pixelAlpha = (BYTE)pixelFactor;
+                }
+              else
+                pixelAlpha = foregroundAlpha;
+
+              ((UINT32*)targetBits)[x + y * mask.bmWidth] = pixel;
+              ((UINT32*)targetBits)[x + y * mask.bmWidth] |= (pixelAlpha << 24);
+            }
+          else
+            ((UINT32*)targetBits)[x + y * mask.bmWidth] = 0x00000000;
+        }
+    }
+
+  DeleteObject(iconInfo.hbmColor);
+  GlobalFree((HGLOBAL)bmpBits);
+  DeleteObject(iconInfo.hbmMask);
+  DeleteDC(maskDC);
+  DeleteDC(bmpDC);
+  DeleteDC(targetDC);
+
+  return hbitmap;
+}

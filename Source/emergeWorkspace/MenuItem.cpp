@@ -126,11 +126,11 @@ void MenuItem::SetIcon()
         icon = EGGetSystemIcon(ICON_LOCK, 16);
       break;
     case IT_SPECIAL_FOLDER:
-    {
-      UINT specialFolder = ELIsSpecialFolder(value);
-      icon = EGGetSpecialFolderIcon(specialFolder, 16);
-    }
-    break;
+        {
+          UINT specialFolder = ELIsSpecialFolder(value);
+          icon = EGGetSpecialFolderIcon(specialFolder, 16);
+        }
+      break;
     case IT_FILE_MENU:
       if ((wcsstr(lwrValue, TEXT("%documents%")) != NULL) ||
           (wcsstr(lwrValue, TEXT("%commondocuments%")) != NULL))
@@ -152,7 +152,7 @@ void MenuItem::SetIcon()
       break;
     }
 
-    free(lwrValue);
+  free(lwrValue);
 }
 
 void MenuItem::SetValue(WCHAR *value)
