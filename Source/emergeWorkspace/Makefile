@@ -8,7 +8,8 @@ LIBS += -lshell32 \
 				-lemergeBaseClasses \
 				-luuid \
 				-lwinmm \
-				-lcomdlg32
+				-lcomdlg32 \
+				-lgdi32
 
 TARGET = emergeWorkspace
 SUFFIX = .exe

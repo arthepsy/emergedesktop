@@ -723,7 +723,15 @@ void MenuBuilder::ClearAllMenus()
 
 void MenuBuilder::ClearMenu(MenuMap::iterator iter)
 {
-  while (DeleteMenu(iter->first, 0, MF_BYPOSITION)) {};
+  MENUITEMINFO mii;
+  mii.cbSize = sizeof(MENUITEMINFO);
+  mii.fMask = MIIM_BITMAP;
+
+  while (GetMenuItemInfo(iter->first, 0, MF_BYPOSITION, &mii))
+    {
+      DeleteObject(mii.hbmpItem);
+      DeleteMenu(iter->first, 0, MF_BYPOSITION);
+    }
   while (iter->second->GetMenuItemCount() > 0)
     iter->second->DeleteMenuItem(0);
 }
