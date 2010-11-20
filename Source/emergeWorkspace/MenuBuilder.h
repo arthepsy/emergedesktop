@@ -116,6 +116,7 @@ private:
   bool AddMenuItem(MenuMap::iterator iter, int index);
   bool EditMenuItem(MenuMap::iterator iter, int index);
   void ElevatedExecute(MenuItem *menuItem);
+  float winVersion;
 //    CustomDropTarget *customDropTarget;
 //    IDropTarget *dropTarget;
 

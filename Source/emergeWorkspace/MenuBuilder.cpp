@@ -30,6 +30,7 @@ MenuBuilder::MenuBuilder(HINSTANCE desktopInst)
   mainInst = desktopInst;
   MButtonDown = false;
   registered = false;
+  winVersion = ELVersionInfo();
 }
 
 bool MenuBuilder::Initialize()
@@ -184,11 +185,11 @@ LRESULT CALLBACK MenuBuilder::MenuProcedure (HWND hwnd, UINT message, WPARAM wPa
     case WM_MENUSELECT:
       return pMenuBuilder->DoMenuSelect((HMENU)lParam, HIWORD(wParam), LOWORD(wParam));
 
-    /*case WM_MEASUREITEM:
+    case WM_MEASUREITEM:
       return pMenuBuilder->DoMeasureItem((LPMEASUREITEMSTRUCT)lParam);
 
     case WM_DRAWITEM:
-      return pMenuBuilder->DoDrawItem((LPDRAWITEMSTRUCT)lParam);*/
+      return pMenuBuilder->DoDrawItem((LPDRAWITEMSTRUCT)lParam);
 
     case WM_CONTEXTMENU:
       POINT pt;
@@ -238,15 +239,15 @@ LRESULT MenuBuilder::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lP
       switch (lParam)
         {
         case CORE_SETTINGS:
+        {
+          Config config(mainInst, pSettings);
+          if (config.Show() == IDOK)
             {
-              Config config(mainInst, pSettings);
-              if (config.Show() == IDOK)
-                {
-                  UpdateMenuHook();
-                  SetWorkArea();
-                }
+              UpdateMenuHook();
+              SetWorkArea();
             }
-          break;
+        }
+        break;
 
         case CORE_RIGHTMENU:
           return DoButtonDown(WM_RBUTTONDOWN);
@@ -441,29 +442,29 @@ LRESULT MenuBuilder::DoContextMenu(POINT pt)
         SendMessage(menuWnd, WM_CANCELMODE, 0, 0);
       break;
     case 102:
+    {
+      HWND task = (HWND)_wtoi(value);
+      res = EAEDisplayMenu(menuWnd, task);
+      switch (res)
         {
-          HWND task = (HWND)_wtoi(value);
-          res = EAEDisplayMenu(menuWnd, task);
-          switch (res)
-            {
-            case SC_CLOSE:
-              DeleteMenu(iter->first, index, MF_BYPOSITION);
-              break;
-            case SC_SIZE:
-            case SC_MOVE:
-            case SC_MAXIMIZE:
-            case SC_RESTORE:
-              ELSwitchToThisWindow(task);
-              SendMessage(menuWnd, WM_CANCELMODE, 0, 0);
-              break;
-            }
-          if (res)
-            PostMessage(task, WM_SYSCOMMAND, (WPARAM)res, MAKELPARAM(pt.x, pt.y));
+        case SC_CLOSE:
+          DeleteMenu(iter->first, index, MF_BYPOSITION);
+          break;
+        case SC_SIZE:
+        case SC_MOVE:
+        case SC_MAXIMIZE:
+        case SC_RESTORE:
+          ELSwitchToThisWindow(task);
+          SendMessage(menuWnd, WM_CANCELMODE, 0, 0);
+          break;
         }
-      break;
-      /*    case 103:
-            ExecuteSettingsMenuItem(itemID);
-            break;*/
+      if (res)
+        PostMessage(task, WM_SYSCOMMAND, (WPARAM)res, MAKELPARAM(pt.x, pt.y));
+    }
+    break;
+    /*    case 103:
+          ExecuteSettingsMenuItem(itemID);
+          break;*/
     }
 
   return 1;
@@ -654,20 +655,20 @@ LRESULT CALLBACK MenuBuilder::HookCallWndProc(int nCode, WPARAM wParam, LPARAM l
       switch (cwps.message)
         {
         case WM_CREATE:
+        {
+          WCHAR szClass[128];
+          GetClassName(cwps.hwnd, szClass, 127);
+          if (_wcsicmp(szClass, TEXT("#32768"))==0)
             {
-              WCHAR szClass[128];
-              GetClassName(cwps.hwnd, szClass, 127);
-              if (_wcsicmp(szClass, TEXT("#32768"))==0)
-                {
-                  SetWindowLongPtr(cwps.hwnd,
-                                   GWL_EXSTYLE,
-                                   GetWindowLongPtr(cwps.hwnd, GWL_EXSTYLE) | WS_EX_LAYERED);
-                  SetLayeredWindowAttributes(cwps.hwnd,
-                                             0,
-                                             (BYTE)((255 * globalMenuAlpha) / 100), LWA_ALPHA);
-                }
+              SetWindowLongPtr(cwps.hwnd,
+                               GWL_EXSTYLE,
+                               GetWindowLongPtr(cwps.hwnd, GWL_EXSTYLE) | WS_EX_LAYERED);
+              SetLayeredWindowAttributes(cwps.hwnd,
+                                         0,
+                                         (BYTE)((255 * globalMenuAlpha) / 100), LWA_ALPHA);
             }
-          break;
+        }
+        break;
         }
     }
 
@@ -786,8 +787,10 @@ void MenuBuilder::BuildXMLMenu(MenuMap::iterator iter)
                 {
                   menuItem->SetIcon();
                   itemInfo.fMask |= MIIM_BITMAP;
-                  //itemInfo.hbmpItem = HBMMENU_CALLBACK;
-                  itemInfo.hbmpItem = EGGetIconBitmap(menuItem->GetIcon());
+                  if (winVersion < 6.0)
+                    itemInfo.hbmpItem = HBMMENU_CALLBACK;
+                  else
+                    itemInfo.hbmpItem = EGGetIconBitmap(menuItem->GetIcon());
                 }
 
               itemInfo.wID = GetMenuItemCount(iter->first) + 1;
@@ -819,8 +822,10 @@ void MenuBuilder::BuildXMLMenu(MenuMap::iterator iter)
                     {
                       menuItem->SetIcon();
                       itemInfo.fMask |= MIIM_BITMAP;
-                      //itemInfo.hbmpItem = HBMMENU_CALLBACK;
-                      itemInfo.hbmpItem = EGGetIconBitmap(menuItem->GetIcon());
+                      if (winVersion < 6.0)
+                        itemInfo.hbmpItem = HBMMENU_CALLBACK;
+                      else
+                        itemInfo.hbmpItem = EGGetIconBitmap(menuItem->GetIcon());
                     }
 
                   itemInfo.wID = GetMenuItemCount(iter->first) + 1;
@@ -876,8 +881,10 @@ void MenuBuilder::BuildXMLMenu(MenuMap::iterator iter)
                 {
                   menuItem->SetIcon();
                   itemInfo.fMask |= MIIM_BITMAP;
-                  //itemInfo.hbmpItem = HBMMENU_CALLBACK;
-                  itemInfo.hbmpItem = EGGetIconBitmap(menuItem->GetIcon());
+                  if (winVersion < 6.0)
+                    itemInfo.hbmpItem = HBMMENU_CALLBACK;
+                  else
+                    itemInfo.hbmpItem = EGGetIconBitmap(menuItem->GetIcon());
                 }
 
               itemInfo.wID = GetMenuItemCount(iter->first) + 1;
@@ -906,8 +913,10 @@ void MenuBuilder::BuildXMLMenu(MenuMap::iterator iter)
             {
               menuItem->SetIcon();
               itemInfo.fMask |= MIIM_BITMAP;
-              //itemInfo.hbmpItem = HBMMENU_CALLBACK;
-              itemInfo.hbmpItem = EGGetIconBitmap(menuItem->GetIcon());
+              if (winVersion < 6.0)
+                itemInfo.hbmpItem = HBMMENU_CALLBACK;
+              else
+                itemInfo.hbmpItem = EGGetIconBitmap(menuItem->GetIcon());
             }
 
           itemInfo.wID = GetMenuItemCount(iter->first) + 1;
@@ -941,8 +950,10 @@ void MenuBuilder::BuildXMLMenu(MenuMap::iterator iter)
             {
               menuItem->SetIcon();
               itemInfo.fMask |= MIIM_BITMAP;
-              //itemInfo.hbmpItem = HBMMENU_CALLBACK;
-              itemInfo.hbmpItem = EGGetIconBitmap(menuItem->GetIcon());
+              if (winVersion < 6.0)
+                itemInfo.hbmpItem = HBMMENU_CALLBACK;
+              else
+                itemInfo.hbmpItem = EGGetIconBitmap(menuItem->GetIcon());
             }
 
           itemInfo.wID = GetMenuItemCount(iter->first) + 1;
@@ -974,8 +985,10 @@ void MenuBuilder::BuildXMLMenu(MenuMap::iterator iter)
             {
               menuItem->SetIcon();
               itemInfo.fMask |= MIIM_BITMAP;
-              //itemInfo.hbmpItem = HBMMENU_CALLBACK;
-              itemInfo.hbmpItem = EGGetIconBitmap(menuItem->GetIcon());
+              if (winVersion < 6.0)
+                itemInfo.hbmpItem = HBMMENU_CALLBACK;
+              else
+                itemInfo.hbmpItem = EGGetIconBitmap(menuItem->GetIcon());
             }
 
           itemInfo.wID = GetMenuItemCount(iter->first) + 1;
@@ -1240,8 +1253,10 @@ void MenuBuilder::BuildFileMenuFromString(MenuMap::iterator iter, WCHAR *parsedV
                 {
                   menuItem->SetIcon();
                   itemInfo.fMask |= MIIM_BITMAP;
-                  //itemInfo.hbmpItem = HBMMENU_CALLBACK;
-                  itemInfo.hbmpItem = EGGetIconBitmap(menuItem->GetIcon());
+                  if (winVersion < 6.0)
+                    itemInfo.hbmpItem = HBMMENU_CALLBACK;
+                  else
+                    itemInfo.hbmpItem = EGGetIconBitmap(menuItem->GetIcon());
                 }
 
               mli = std::tr1::shared_ptr<MenuListItem>(new MenuListItem(NULL, 101, tmp, NULL));
@@ -1293,10 +1308,10 @@ void MenuBuilder::BuildFileMenuFromString(MenuMap::iterator iter, WCHAR *parsedV
           MenuItem *menuItem;
           wcscpy(extension, PathFindExtension(tmp));
           bool isShortcut = (_wcsicmp(extension, TEXT(".lnk")) == 0) ||
-            (_wcsicmp(extension, TEXT(".pif")) == 0) ||
-            (_wcsicmp(extension, TEXT(".scf")) == 0) ||
-            (_wcsicmp(extension, TEXT(".pnagent")) == 0) ||
-            (_wcsicmp(extension, TEXT(".url")) == 0);
+                            (_wcsicmp(extension, TEXT(".pif")) == 0) ||
+                            (_wcsicmp(extension, TEXT(".scf")) == 0) ||
+                            (_wcsicmp(extension, TEXT(".pnagent")) == 0) ||
+                            (_wcsicmp(extension, TEXT(".url")) == 0);
 
           wcscpy(entry, tmp);
           wcscpy(tmp, findData.cFileName);
@@ -1352,9 +1367,11 @@ void MenuBuilder::BuildFileMenuFromString(MenuMap::iterator iter, WCHAR *parsedV
           if (pSettings->GetMenuIcons())
             {
               menuItem->SetIcon();
-              //itemInfo.hbmpItem = HBMMENU_CALLBACK;
-              itemInfo.hbmpItem = EGGetIconBitmap(menuItem->GetIcon());
               itemInfo.fMask |= MIIM_BITMAP;
+              if (winVersion < 6.0)
+                itemInfo.hbmpItem = HBMMENU_CALLBACK;
+              else
+                itemInfo.hbmpItem = EGGetIconBitmap(menuItem->GetIcon());
             }
 
           NoPrefixString(tmp);
@@ -1444,9 +1461,11 @@ void MenuBuilder::AddTaskItem(HWND task)
   if (pSettings->GetMenuIcons())
     {
       menuItem->SetIcon();
-      //itemInfo.hbmpItem = HBMMENU_CALLBACK;
-      itemInfo.hbmpItem = EGGetIconBitmap(menuItem->GetIcon());
       itemInfo.fMask |= MIIM_BITMAP;
+      if (winVersion < 6.0)
+        itemInfo.hbmpItem = HBMMENU_CALLBACK;
+      else
+        itemInfo.hbmpItem = EGGetIconBitmap(menuItem->GetIcon());
     }
 
   itemInfo.cbSize = sizeof(MENUITEMINFO);
@@ -1758,12 +1777,6 @@ void MenuBuilder::AddSettingsItem(MenuMap::iterator iter, WCHAR* text, UINT id)
   itemInfo.cbSize = sizeof(MENUITEMINFO);
   itemInfo.wID = id;
   itemInfo.dwTypeData = text;
-
-  /*if (pSettings->GetMenuIcons())
-    {
-      itemInfo.fMask |= MIIM_BITMAP;
-      itemInfo.hbmpItem = HBMMENU_CALLBACK;
-    }*/
 
   iter->second->AddMenuItem(menuItem);
   InsertMenuItem(iter->first, index, TRUE, &itemInfo);
