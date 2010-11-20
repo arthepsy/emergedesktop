@@ -3183,6 +3183,15 @@ bool ELReadFileColor(const WCHAR *fileName, WCHAR *item, COLORREF *target, COLOR
   @fn ELVersionInfo()
   @brief Determines the version of the Operating System
   @return Version of Operating System
+
+  @note Windows 7	              6.1
+        Windows Server 2008 R2  6.1
+        Windows Server 2008	    6.0
+        Windows Vista	          6.0
+        Windows Server 2003 R2	5.2
+        Windows Server 2003	    5.2
+        Windows XP	            5.1
+        Windows 2000	          5.0
   */
 
 float ELVersionInfo()
