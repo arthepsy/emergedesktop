@@ -36,6 +36,7 @@ void Settings::DoReadSettings(IOHelper& helper)
   helper.ReadInt(TEXT("MenuAlpha"), menuAlpha, 100);
   helper.ReadBool(TEXT("MenuIcons"), menuIcons, true);
   helper.ReadBool(TEXT("BorderPrimary"), borderPrimary, true);
+  helper.ReadBool(TEXT("AeroMenus"), aeroMenus, false);
 }
 
 void Settings::DoInitialize()
@@ -52,6 +53,7 @@ void Settings::ResetDefaults()
   menuAlpha = 100;
   menuIcons = true;
   borderPrimary = true;
+  aeroMenus = false;
 }
 
 void Settings::DoWriteSettings(IOHelper& helper)
@@ -63,6 +65,7 @@ void Settings::DoWriteSettings(IOHelper& helper)
   helper.WriteInt(TEXT("MenuAlpha"), menuAlpha);
   helper.WriteBool(TEXT("MenuIcons"), menuIcons);
   helper.WriteBool(TEXT("BorderPrimary"), borderPrimary);
+  helper.WriteBool(TEXT("AeroMenus"), borderPrimary);
 }
 
 void Settings::GetDesktopRect(RECT *rect)
@@ -83,11 +86,25 @@ bool Settings::GetMenuIcons()
   return menuIcons;
 }
 
+bool Settings::GetAeroMenus()
+{
+  return aeroMenus;
+}
+
 void Settings::SetMenuIcons(bool value)
 {
   if (menuIcons != value)
     {
       menuIcons = value;
+      SetModified();
+    }
+}
+
+void Settings::SetAeroMenus(bool value)
+{
+  if (aeroMenus != value)
+    {
+      aeroMenus = value;
       SetModified();
     }
 }

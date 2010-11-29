@@ -83,6 +83,7 @@ BOOL ConfigPage::DoInitDialog(HWND hwndDlg)
   int x, y;
 
   HWND sliderWnd = GetDlgItem(hwndDlg, IDC_SLIDER);
+  HWND aeroMenuWnd = GetDlgItem(hwndDlg, IDC_AEROMENUS);
 
   GetWindowRect(hwndDlg, &rect);
 
@@ -105,6 +106,14 @@ BOOL ConfigPage::DoInitDialog(HWND hwndDlg)
 
   if (pSettings->GetMenuIcons())
     SendDlgItemMessage(hwndDlg, IDC_MENUICONS, BM_SETCHECK, BST_CHECKED, 0);
+
+  if (ELVersionInfo() < 6.0)
+    {
+      EnableWindow(aeroMenuWnd, FALSE);
+      SendMessage(aeroMenuWnd, BM_SETCHECK, BST_UNCHECKED, 0);
+    }
+  else if (pSettings->GetAeroMenus())
+    SendDlgItemMessage(hwndDlg, IDC_AEROMENUS, BM_SETCHECK, BST_CHECKED, 0);
 
   if (pSettings->GetBorderPrimary())
     SendDlgItemMessage(hwndDlg, IDC_BORDERPRI, BM_SETCHECK, BST_CHECKED, 0);
@@ -145,6 +154,17 @@ bool ConfigPage::UpdateSettings(HWND hwndDlg)
     {
       if (pSettings->GetMenuIcons())
         pSettings->SetMenuIcons(false);
+    }
+
+  if (SendDlgItemMessage(hwndDlg, IDC_AEROMENUS, BM_GETCHECK, 0, 0) == BST_CHECKED)
+    {
+      if (!pSettings->GetAeroMenus())
+        pSettings->SetAeroMenus(true);
+    }
+  else if (SendDlgItemMessage(hwndDlg, IDC_AEROMENUS, BM_GETCHECK, 0, 0) == BST_UNCHECKED)
+    {
+      if (pSettings->GetAeroMenus())
+        pSettings->SetAeroMenus(false);
     }
 
   if (SendDlgItemMessage(hwndDlg, IDC_BORDERPRI, BM_GETCHECK, 0, 0) == BST_CHECKED)

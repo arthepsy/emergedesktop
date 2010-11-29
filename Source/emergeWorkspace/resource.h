@@ -51,6 +51,7 @@
 #define IDC_LEFTUPDOWN      309
 #define IDC_RIGHTUPDOWN     310
 #define IDC_BOTTOMUPDOWN    311
+#define IDC_AEROMENUS       312
 
 #define IDC_MENUTREE		    400
 #define IDC_ADDITEM		        401

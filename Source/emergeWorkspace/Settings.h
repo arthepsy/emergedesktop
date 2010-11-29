@@ -37,6 +37,7 @@ public:
   int GetBottomBorder();
   bool GetBorderPrimary();
   bool GetMenuIcons();
+  bool GetAeroMenus();
   void SetTopBorder(int value);
   void SetLeftBorder(int value);
   void SetRightBorder(int value);
@@ -44,6 +45,7 @@ public:
   void SetBorderPrimary(bool value);
   void SetMenuAlpha(int value);
   void SetMenuIcons(bool value);
+  void SetAeroMenus(bool value);
 
 protected:
   virtual void DoReadSettings(IOHelper& helper);
@@ -53,7 +55,7 @@ protected:
 
 private:
   int menuAlpha, topBorder, bottomBorder, leftBorder, rightBorder;
-  bool menuIcons,borderPrimary;
+  bool menuIcons,borderPrimary, aeroMenus;
 };
 
 #endif

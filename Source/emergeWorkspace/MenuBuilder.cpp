@@ -787,7 +787,7 @@ void MenuBuilder::BuildXMLMenu(MenuMap::iterator iter)
                 {
                   menuItem->SetIcon();
                   itemInfo.fMask |= MIIM_BITMAP;
-                  if (winVersion < 6.0)
+                  if ((winVersion < 6.0) || !pSettings->GetAeroMenus())
                     itemInfo.hbmpItem = HBMMENU_CALLBACK;
                   else
                     itemInfo.hbmpItem = EGGetIconBitmap(menuItem->GetIcon());
@@ -822,7 +822,7 @@ void MenuBuilder::BuildXMLMenu(MenuMap::iterator iter)
                     {
                       menuItem->SetIcon();
                       itemInfo.fMask |= MIIM_BITMAP;
-                      if (winVersion < 6.0)
+                      if ((winVersion < 6.0) || !pSettings->GetAeroMenus())
                         itemInfo.hbmpItem = HBMMENU_CALLBACK;
                       else
                         itemInfo.hbmpItem = EGGetIconBitmap(menuItem->GetIcon());
@@ -881,7 +881,7 @@ void MenuBuilder::BuildXMLMenu(MenuMap::iterator iter)
                 {
                   menuItem->SetIcon();
                   itemInfo.fMask |= MIIM_BITMAP;
-                  if (winVersion < 6.0)
+                  if ((winVersion < 6.0) || !pSettings->GetAeroMenus())
                     itemInfo.hbmpItem = HBMMENU_CALLBACK;
                   else
                     itemInfo.hbmpItem = EGGetIconBitmap(menuItem->GetIcon());
@@ -913,7 +913,7 @@ void MenuBuilder::BuildXMLMenu(MenuMap::iterator iter)
             {
               menuItem->SetIcon();
               itemInfo.fMask |= MIIM_BITMAP;
-              if (winVersion < 6.0)
+              if ((winVersion < 6.0) || !pSettings->GetAeroMenus())
                 itemInfo.hbmpItem = HBMMENU_CALLBACK;
               else
                 itemInfo.hbmpItem = EGGetIconBitmap(menuItem->GetIcon());
@@ -950,7 +950,7 @@ void MenuBuilder::BuildXMLMenu(MenuMap::iterator iter)
             {
               menuItem->SetIcon();
               itemInfo.fMask |= MIIM_BITMAP;
-              if (winVersion < 6.0)
+              if ((winVersion < 6.0) || !pSettings->GetAeroMenus())
                 itemInfo.hbmpItem = HBMMENU_CALLBACK;
               else
                 itemInfo.hbmpItem = EGGetIconBitmap(menuItem->GetIcon());
@@ -985,7 +985,7 @@ void MenuBuilder::BuildXMLMenu(MenuMap::iterator iter)
             {
               menuItem->SetIcon();
               itemInfo.fMask |= MIIM_BITMAP;
-              if (winVersion < 6.0)
+              if ((winVersion < 6.0) || !pSettings->GetAeroMenus())
                 itemInfo.hbmpItem = HBMMENU_CALLBACK;
               else
                 itemInfo.hbmpItem = EGGetIconBitmap(menuItem->GetIcon());
@@ -1253,7 +1253,7 @@ void MenuBuilder::BuildFileMenuFromString(MenuMap::iterator iter, WCHAR *parsedV
                 {
                   menuItem->SetIcon();
                   itemInfo.fMask |= MIIM_BITMAP;
-                  if (winVersion < 6.0)
+                  if ((winVersion < 6.0) || !pSettings->GetAeroMenus())
                     itemInfo.hbmpItem = HBMMENU_CALLBACK;
                   else
                     itemInfo.hbmpItem = EGGetIconBitmap(menuItem->GetIcon());
@@ -1368,7 +1368,7 @@ void MenuBuilder::BuildFileMenuFromString(MenuMap::iterator iter, WCHAR *parsedV
             {
               menuItem->SetIcon();
               itemInfo.fMask |= MIIM_BITMAP;
-              if (winVersion < 6.0)
+              if ((winVersion < 6.0) || !pSettings->GetAeroMenus())
                 itemInfo.hbmpItem = HBMMENU_CALLBACK;
               else
                 itemInfo.hbmpItem = EGGetIconBitmap(menuItem->GetIcon());
@@ -1462,7 +1462,7 @@ void MenuBuilder::AddTaskItem(HWND task)
     {
       menuItem->SetIcon();
       itemInfo.fMask |= MIIM_BITMAP;
-      if (winVersion < 6.0)
+      if ((winVersion < 6.0) || !pSettings->GetAeroMenus())
         itemInfo.hbmpItem = HBMMENU_CALLBACK;
       else
         itemInfo.hbmpItem = EGGetIconBitmap(menuItem->GetIcon());
