@@ -65,7 +65,7 @@ void Settings::DoWriteSettings(IOHelper& helper)
   helper.WriteInt(TEXT("MenuAlpha"), menuAlpha);
   helper.WriteBool(TEXT("MenuIcons"), menuIcons);
   helper.WriteBool(TEXT("BorderPrimary"), borderPrimary);
-  helper.WriteBool(TEXT("AeroMenus"), borderPrimary);
+  helper.WriteBool(TEXT("AeroMenus"), aeroMenus);
 }
 
 void Settings::GetDesktopRect(RECT *rect)
