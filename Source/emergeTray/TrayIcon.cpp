@@ -66,21 +66,23 @@ void TrayIcon::CreateNewIcon(BYTE foregroundAlpha)
 {
   HICON tmpIcon = NULL;
 
+  /**< Don't bother converting NULL icons, just set newIcon and return */
   if (origIcon == NULL)
-    return;
+    {
+      newIcon = NULL;
+      return;
+    }
 
   if (convertIcon)
     {
       convertIcon = false;
 
+      /**< Don't bail if EGConvertIcon returns a NULL icon, since in this case it may be valid (icon flashing) */
       tmpIcon = EGConvertIcon(origIcon, foregroundAlpha);
-      if (tmpIcon != NULL)
-        {
-          if (newIcon != NULL)
-            DestroyIcon(newIcon);
-          newIcon = CopyIcon(tmpIcon);
-          DestroyIcon(tmpIcon);
-        }
+      if (newIcon != NULL)
+        DestroyIcon(newIcon);
+      newIcon = CopyIcon(tmpIcon);
+      DestroyIcon(tmpIcon);
     }
 }
 
@@ -279,12 +281,12 @@ void TrayIcon::ShowBalloon(WCHAR *infoTitle, WCHAR *info, DWORD infoFlags, HICON
   balloonPt.y = rect.top;
 
   if (ClientToScreen(mainWnd, &balloonPt))
-  {
-    pBalloon->SetInfoFlags(infoFlags, icon);
-    pBalloon->SetInfoTitle(infoTitle);
-    pBalloon->SetInfo(info);
-    pBalloon->Show(balloonPt);
-  }
+    {
+      pBalloon->SetInfoFlags(infoFlags, icon);
+      pBalloon->SetInfoTitle(infoTitle);
+      pBalloon->SetInfo(info);
+      pBalloon->Show(balloonPt);
+    }
 }
 
 void TrayIcon::HideBalloon()
