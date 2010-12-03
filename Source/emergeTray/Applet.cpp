@@ -1319,6 +1319,9 @@ LRESULT Applet::TrayIconEvent(COPYDATASTRUCT *cpData)
       uCallbackMessage = iconData4W->uCallbackMessage;
       uFlags = iconData4W->uFlags;
 
+      if ((uFlags & NIF_ICON) == NIF_ICON)
+        icon = (HICON)iconData4W->hIcon;
+
       if ((uFlags & NIF_TIP) == NIF_TIP)
         {
           wcsncpy(iconTip, iconData4W->szTip, TIP_SIZE);
@@ -1332,6 +1335,9 @@ LRESULT Applet::TrayIconEvent(COPYDATASTRUCT *cpData)
       uID = iconData4A->uID;
       uCallbackMessage = iconData4A->uCallbackMessage;
       uFlags = iconData4A->uFlags;
+
+      if ((uFlags & NIF_ICON) == NIF_ICON)
+        icon = (HICON)iconData4A->hIcon;
 
       if ((uFlags & NIF_TIP) == NIF_TIP)
         {
@@ -1428,6 +1434,9 @@ LRESULT Applet::TrayIconEvent(COPYDATASTRUCT *cpData)
           uCallbackMessage = iconData4W32->uCallbackMessage;
           uFlags = iconData4W32->uFlags;
 
+          if ((uFlags & NIF_ICON) == NIF_ICON)
+            icon = (HICON)iconData4W32->hIcon;
+
           if ((uFlags & NIF_TIP) == NIF_TIP)
             {
               wcsncpy(iconTip, iconData4W32->szTip, TIP_SIZE);
@@ -1441,6 +1450,9 @@ LRESULT Applet::TrayIconEvent(COPYDATASTRUCT *cpData)
           uID = iconData4A32->uID;
           uCallbackMessage = iconData4A32->uCallbackMessage;
           uFlags = iconData4A32->uFlags;
+
+          if ((uFlags & NIF_ICON) == NIF_ICON)
+            icon = (HICON)iconData4A32->hIcon;
 
           if ((uFlags & NIF_TIP) == NIF_TIP)
             {
