@@ -136,13 +136,13 @@ LRESULT CALLBACK Desktop::DesktopProcedure (HWND hwnd, UINT message, WPARAM wPar
       break;
 
     case WM_PAINT:
-        {
-          PAINTSTRUCT ps;
-          HDC hdc = BeginPaint(hwnd, &ps);
-          PaintDesktop(hdc);
-          EndPaint(hwnd, &ps);
-        }
-      break;
+    {
+      PAINTSTRUCT ps;
+      HDC hdc = BeginPaint(hwnd, &ps);
+      PaintDesktop(hdc);
+      EndPaint(hwnd, &ps);
+    }
+    break;
 
     case WM_RBUTTONDOWN:
       pDesktop->ShowMenu(CORE_RIGHTMENU);
@@ -157,10 +157,7 @@ LRESULT CALLBACK Desktop::DesktopProcedure (HWND hwnd, UINT message, WPARAM wPar
       break;
 
     case WM_DISPLAYCHANGE:
-      SetWindowPos(hwnd, HWND_BOTTOM,
-                   GetSystemMetrics(SM_XVIRTUALSCREEN), GetSystemMetrics(SM_YVIRTUALSCREEN),
-                   GetSystemMetrics(SM_CXVIRTUALSCREEN), GetSystemMetrics(SM_CYVIRTUALSCREEN),
-                   SWP_SHOWWINDOW);
+      pDesktop->DoDisplayChange(hwnd);
       break;
 
     case WM_WINDOWPOSCHANGING:
@@ -181,6 +178,26 @@ LRESULT CALLBACK Desktop::DesktopProcedure (HWND hwnd, UINT message, WPARAM wPar
     }
 
   return 0;
+}
+
+/** \brief Handle the WM_DISPLAYCHANGE message
+ *
+ * \param HWND hwnd
+ * \return LRESULT 1
+ *
+ */
+LRESULT Desktop::DoDisplayChange(HWND hwnd)
+{
+  /**< Adjust the window position to cover the desktop */
+  SetWindowPos(hwnd, HWND_BOTTOM,
+               GetSystemMetrics(SM_XVIRTUALSCREEN), GetSystemMetrics(SM_YVIRTUALSCREEN),
+               GetSystemMetrics(SM_CXVIRTUALSCREEN), GetSystemMetrics(SM_CYVIRTUALSCREEN),
+               SWP_SHOWWINDOW);
+
+  /**< Set the background image again so that the user doesn't end up with a blank background */
+  SetBackgroundImage();
+
+  return 1;
 }
 
 LRESULT Desktop::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)

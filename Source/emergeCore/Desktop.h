@@ -65,6 +65,7 @@ public:
   void ToggleDesktop();
   LRESULT DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
   LRESULT DoTimer(UINT_PTR timerID);
+  LRESULT DoDisplayChange(HWND hwnd);
 };
 
 #endif
