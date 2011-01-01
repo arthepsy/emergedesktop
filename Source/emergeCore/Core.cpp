@@ -61,14 +61,15 @@ bool Core::Initialize(WCHAR *commandLine)
       return false;
     }
 
-  OleInitialize(NULL);
+  //OleInitialize(NULL);
+  CoInitialize(NULL);
 
   // Start the shell functions
   pShell = std::tr1::shared_ptr<Shell>(new Shell());
 
   // Start the DDE Service
-  pDDEService = std::tr1::shared_ptr<DDEService>(new DDEService());
-  pDDEService->Start();
+  //pDDEService = std::tr1::shared_ptr<DDEService>(new DDEService());
+  //pDDEService->Start();
 
   // Register the window class
   wincl.hInstance = mainInst;
@@ -171,7 +172,7 @@ Core::~Core()
             wtsursn(mainWnd);
           FreeLibrary(wtslib);
         }
-      pDDEService->Stop();
+      //pDDEService->Stop();
       pShell->RegisterShell(mainWnd, false);
       pShell->ClearSessionInformation();
 

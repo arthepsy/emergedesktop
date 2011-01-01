@@ -459,12 +459,13 @@ private:
   std::vector< std::tr1::shared_ptr<TrayIcon> > trayIconList;
   std::vector<IOleCommandTarget*> ssoIconList;
   bool movesizeinprogress;
-  HWND trayWnd, notifyWnd;
+  HWND trayWnd, notifyWnd, rebarWnd, clockWnd, taskWnd;
   bool baseClassRegistered, trayClassRegistered, notifyClassRegistered;
   RECT HoverRect;
   void UpdateIcons();
   static LRESULT CALLBACK WindowProcedure (HWND, UINT, WPARAM, LPARAM);
   static LRESULT CALLBACK TrayProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
+  static LRESULT CALLBACK TaskProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
   void StartSSO(CLSID clsid);
   bool IsIconVisible(TrayIcon *pTrayIcon);
   TrayIcon *activeIcon;
@@ -476,6 +477,7 @@ public:
   Applet(HINSTANCE hInstance);
   ~Applet();
   UINT Initialize();
+  UINT WM_SHELLHOOK;
   TrayIcon *GetTrayIconListItem(UINT index);
   size_t GetTrayIconListSize();
   LRESULT DoTimer(UINT timerID);

@@ -383,8 +383,8 @@ bool ShellChanger::DoSetShell(HWND hwndDlg)
     {
       process = 1;
       wcscpy(command, TEXT("yes"));
-      RegSetValueEx(key, TEXT("DesktopProcess"), 0, REG_DWORD, (BYTE*)&process,
-                    sizeof(DWORD));
+      //RegSetValueEx(key, TEXT("DesktopProcess"), 0, REG_DWORD, (BYTE*)&process,
+                    //sizeof(DWORD));
       RegSetValueEx(key, TEXT("BrowseNewProcess"), 0, REG_SZ, (BYTE*)command,
                     (DWORD)wcslen(command) * sizeof(command[0]));
 

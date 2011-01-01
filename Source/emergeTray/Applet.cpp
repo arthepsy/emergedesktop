@@ -34,7 +34,32 @@
 
 WCHAR szTrayName[ ] = TEXT("Shell_TrayWnd");
 WCHAR szNotifyName[ ] = TEXT("TrayNotifyWnd");
+WCHAR szReBarWindowName[ ] = TEXT("ReBarWindow32");
+WCHAR szTrayClockName[ ] = TEXT("TrayClockWClass");
+WCHAR szMSTaskSwName[ ] = TEXT("MSTaskSwWClass");
 WCHAR myName[] = TEXT("emergeTray");
+
+LRESULT CALLBACK Applet::TaskProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
+{
+  CREATESTRUCT *cs;
+  static Applet *pApplet = NULL;
+
+  if (message == WM_CREATE)
+    {
+      cs = (CREATESTRUCT*)lParam;
+      pApplet = reinterpret_cast<Applet*>(cs->lpCreateParams);
+      return DefWindowProc(hwnd, message, wParam, lParam);
+    }
+
+  if (pApplet == NULL)
+    return DefWindowProc(hwnd, message, wParam, lParam);
+
+  std::wstring debug = L"Task Message: ";
+  debug += towstring(message);
+  ELWriteDebug(debug);
+
+  return 0;
+}
 
 LRESULT CALLBACK Applet::TrayProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
@@ -229,6 +254,8 @@ UINT Applet::Initialize()
   WNDCLASSEX wincl;
   ZeroMemory(&wincl, sizeof(WNDCLASSEX));
 
+  WM_SHELLHOOK = RegisterWindowMessage(TEXT("SHELLHOOK"));
+
   pSettings = std::tr1::shared_ptr<Settings>(new Settings(reinterpret_cast<LPARAM>(this)));
   UINT ret = BaseApplet::Initialize(WindowProcedure, this, pSettings);
   if (ret == 0)
@@ -248,6 +275,20 @@ UINT Applet::Initialize()
     return 0;
 
   wincl.lpszClassName = szNotifyName;
+  wincl.lpfnWndProc = DefWindowProc;
+  if (!RegisterClassEx (&wincl))
+    return 0;
+
+  wincl.lpszClassName = szReBarWindowName;
+  if (!RegisterClassEx (&wincl))
+    return 0;
+
+  wincl.lpszClassName = szTrayClockName;
+  if (!RegisterClassEx (&wincl))
+    return 0;
+
+  wincl.lpfnWndProc = TaskProcedure;
+  wincl.lpszClassName = szMSTaskSwName;
   if (!RegisterClassEx (&wincl))
     return 0;
 
@@ -257,9 +298,27 @@ UINT Applet::Initialize()
     return 0;
 
   notifyWnd = CreateWindowEx(0, szNotifyName, NULL, WS_CHILDWINDOW,
-                             0, 0, 0, 0, trayWnd, NULL, mainInst, reinterpret_cast<LPVOID>(this));
+                             0, 0, 0, 0, trayWnd, NULL, mainInst, NULL);
   if (!notifyWnd)
     return 0;
+
+  rebarWnd = CreateWindowEx(0, szReBarWindowName, NULL, WS_CHILDWINDOW,
+                             0, 0, 0, 0, trayWnd, NULL, mainInst, NULL);
+  if (!rebarWnd)
+    return 0;
+
+  clockWnd = CreateWindowEx(0, szTrayClockName, NULL, WS_CHILDWINDOW,
+                             0, 0, 0, 0, trayWnd, NULL, mainInst, NULL);
+  if (!clockWnd)
+    return 0;
+
+  taskWnd = CreateWindowEx(0, szMSTaskSwName, NULL, WS_CHILDWINDOW,
+                             0, 0, 0, 0, rebarWnd, NULL, mainInst, reinterpret_cast<LPVOID>(this));
+  if (!taskWnd)
+    return 0;
+
+  SetProp(trayWnd, TEXT("AllowConsentToStealFocus"), (HANDLE)1);
+  SetProp(trayWnd, TEXT("TaskBandHWND"), trayWnd);
 
   movesizeinprogress = false;
 

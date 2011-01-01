@@ -22,7 +22,7 @@
 
 std::deque<HWND> hwndDeque;
 
-WCHAR desktopClass[] = TEXT("progman");
+WCHAR desktopClass[] = TEXT("EmergeDesktop_progman");
 
 BOOL CALLBACK Desktop::MinimizeWindowsEnum(HWND hwnd, LPARAM lParam)
 {
@@ -42,11 +42,61 @@ Desktop::Desktop(HINSTANCE hInstance, std::tr1::shared_ptr<MessageControl> pMess
   this->pMessageControl = pMessageControl;
   mainInst = hInstance;
   registered = false;
+	hShellDLL = hWinListDLL = NULL;
+  ShellDDEInit = NULL;
+	FileIconInit = NULL;
+	iTray = NULL;
+	m_hThread = NULL;
+}
+
+Desktop::~Desktop()
+{
+  // Send quit message to SHDesktopMessageLoop
+  if(m_dwThreadID)
+    PostThreadMessage(m_dwThreadID, WM_QUIT, 0, 0);
+
+  // Terminate thread
+  if (m_hThread)
+    {
+      if (WaitForSingleObject(m_hThread, 1000) != WAIT_OBJECT_0)
+        TerminateThread(m_hThread, 0);
+
+      CloseHandle(m_hThread);
+      m_hThread = 0;
+    }
+
+  HMODULE hWinListDLL = ELGetSystemLibrary(TEXT("ExplorerFrame.dll"));
+  if (!hWinListDLL)
+      // Use Vista/XP dll
+      hWinListDLL = ELGetSystemLibrary(TEXT("shdocvw.dll"));
+  WINLIST_TERMINATE WinList_Terminate = (WINLIST_TERMINATE)GetProcAddress(hWinListDLL, MAKEINTRESOURCEA(111));
+
+  // Terminate WinList
+  if (WinList_Terminate)
+    WinList_Terminate();
+
+  if(ShellDDEInit)
+    ShellDDEInit(false);
+  if(FileIconInit)
+    FileIconInit(false);
+
+  // Destroy the ShellDesktopTray interface
+  if (iTray)
+    delete iTray;
+
+  // Revoke the COM object
+  CoRevokeClassObject(registerCookie);
+
+  if (registered)
+    {
+      // Unregister the window class
+      UnregisterClass(desktopClass, mainInst);
+    }
 }
 
 bool Desktop::Initialize()
 {
-  WNDCLASSEX wincl;
+  /*WNDCLASSEX wincl;
   ZeroMemory(&wincl, sizeof(WNDCLASSEX));
 
   // Register the window class
@@ -83,18 +133,156 @@ bool Desktop::Initialize()
   SetBackgroundImage();
 
   if (ELRegisterShellHook(mainWnd, RSH_PROGMAN))
-    ShellMessage = RegisterWindowMessage(TEXT("SHELLHOOK"));
+    ShellMessage = RegisterWindowMessage(TEXT("SHELLHOOK"));*/
+
+  // Register the IShellDesktopTray COM Object
+  CoRegisterClassObject(IID_IShellDesktopTray, LPUNKNOWN(&explorerFactory), CLSCTX_LOCAL_SERVER, REGCLS_MULTIPLEUSE, &registerCookie);
+
+  // Create the ShellDesktopTray interface
+  iTray = CreateInstance();
+
+  // Create Desktop thread
+  m_hThread = CreateThread(NULL, 0, ThreadFunc, this, 0, &m_dwThreadID);
 
   return true;
 }
 
-Desktop::~Desktop()
+DWORD WINAPI Desktop::ThreadFunc(LPVOID pvParam)
 {
-  if (registered)
+  std::wstring debug = L"Thread Created";
+  ELWriteDebug(debug);
+
+  // Initialize COM for this thread
+  CoInitializeEx(NULL, COINIT_APARTMENTTHREADED);
+
+  Desktop pDesktop = *static_cast<Desktop*>(pvParam);
+
+  SetPriorityClass(GetCurrentProcess(), HIGH_PRIORITY_CLASS);
+
+  // Load the shell32 dll
+  pDesktop.hShellDLL = ELGetSystemLibrary(TEXT("shell32.dll"));
+  if (!pDesktop.hShellDLL)
+    return 0;
+
+  // Initialize various functions
+  pDesktop.ShellDDEInit = (SHELLDDEINIT)GetProcAddress(pDesktop.hShellDLL, (LPCSTR)188);
+  RUNINSTALLUNINSTALLSTUBS RunInstallUninstallStubs = (RUNINSTALLUNINSTALLSTUBS)GetProcAddress(pDesktop.hShellDLL, (LPCSTR)885);
+  pDesktop.FileIconInit = (FILEICONINIT)GetProcAddress(pDesktop.hShellDLL, (LPCSTR)660);
+
+  // Load RunInstallUninstallStubs function
+  // Try 7 Dll
+	pDesktop.hWinListDLL = LoadLibrary(L"ExplorerFrame.dll");
+	if (pDesktop.hWinListDLL || GetProcAddress(pDesktop.hWinListDLL, MAKEINTRESOURCEA(110)))
+	{
+		if (pDesktop.hWinListDLL)
+			FreeLibrary(pDesktop.hWinListDLL);
+
+		// Use Vista/XP dll
+		pDesktop.hWinListDLL = LoadLibrary(L"shdocvw.dll");
+		if (pDesktop.hWinListDLL && !RunInstallUninstallStubs)
+			RunInstallUninstallStubs = (RUNINSTALLUNINSTALLSTUBS)GetProcAddress(pDesktop.hWinListDLL, MAKEINTRESOURCEA(130));
+	}
+
+  debug = L"Before Mutex";
+  ELWriteDebug(debug);
+
+  // Create a mutex telling that this is the Explorer shell
+  HANDLE hIsShell = CreateMutex(NULL, false, TEXT("Local\\ExplorerIsShellMutex"));
+  WaitForSingleObject(hIsShell, INFINITE);
+
+  debug = L"After Mutex";
+  ELWriteDebug(debug);
+
+  // Initialize DDE
+  if (pDesktop.ShellDDEInit)
+    pDesktop.ShellDDEInit(true);
+
+  SetProcessShutdownParameters(3, 0);
+
+  MSG msg;
+  PeekMessageW(&msg, 0, WM_QUIT, WM_QUIT, false);
+
+  debug = L"Before Scm";
+  ELWriteDebug(debug);
+
+  // Wait for Scm to be created
+  HANDLE hGScmEvent = OpenEvent(0x100002, false, L"Global\\ScmCreatedEvent");
+  if (hGScmEvent == NULL)
+    hGScmEvent = OpenEvent(0x100000, false, L"Global\\ScmCreatedEvent");
+  if (hGScmEvent == NULL)
+    hGScmEvent = CreateEvent(NULL, true, false, L"Global\\ScmCreatedEvent");
+
+  if (hGScmEvent)
     {
-      // Unregister the window class
-      UnregisterClass(desktopClass, mainInst);
+      WaitForSingleObject(hGScmEvent, 6000);
+      CloseHandle(hGScmEvent);
     }
+
+  debug = L"After Scm";
+  ELWriteDebug(debug);
+
+  // Initialize the file icon cache
+  if (pDesktop.FileIconInit)
+    pDesktop.FileIconInit(true);
+
+  // Initialize WinList functions
+  if (pDesktop.hWinListDLL)
+    {
+      WINLIST_INIT WinList_Init = (WINLIST_INIT)GetProcAddress(pDesktop.hWinListDLL, (LPCSTR)110);
+
+      // Call WinList init
+      if (WinList_Init)
+        WinList_Init();
+    }
+
+  // Event
+  HANDLE CanRegisterEvent = CreateEvent(NULL, true, true, TEXT("Local\\_fCanRegisterWithShellService"));
+
+  if (RunInstallUninstallStubs)
+    RunInstallUninstallStubs(0);
+
+  CloseHandle(CanRegisterEvent);
+
+  debug = L"Before SHCreateDesktop";
+  ELWriteDebug(debug);
+
+  SHCREATEDESKTOP SHCreateDesktop = (SHCREATEDESKTOP)GetProcAddress(pDesktop.hShellDLL, (LPCSTR)200);
+  SHDESKTOPMESSAGELOOP SHDesktopMessageLoop = (SHDESKTOPMESSAGELOOP)GetProcAddress(pDesktop.hShellDLL, (LPCSTR)201);
+
+  if (SHCreateDesktop && SHDesktopMessageLoop)
+    {
+      // Create the desktop
+      HANDLE hDesktop = SHCreateDesktop(pDesktop.iTray);
+
+      SendMessage(GetDesktopWindow(), 0x400, 0, 0);
+
+      // Switching shell event
+      HANDLE hEv = OpenEvent(EVENT_MODIFY_STATE, false, L"Global\\msgina: ShellReadyEvent");
+      if(hEv)
+        {
+          SetEvent(hEv);
+          CloseHandle(hEv);
+        }
+      hEv = OpenEvent(EVENT_MODIFY_STATE, false, L"msgina: ShellReadyEvent");
+      if(hEv)
+        {
+          SetEvent(hEv);
+          CloseHandle(hEv);
+        }
+      hEv = OpenEvent(EVENT_MODIFY_STATE, false, L"ShellDesktopSwitchEvent");
+      if(hEv)
+        {
+          SetEvent(hEv);
+          CloseHandle(hEv);
+        }
+
+      // Run the desktop message loop
+      SHDesktopMessageLoop(hDesktop);
+    }
+
+  CoUninitialize();
+
+  return 0;
 }
 
 //----  --------------------------------------------------------------------------------------------------------
