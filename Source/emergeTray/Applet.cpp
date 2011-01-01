@@ -261,6 +261,9 @@ UINT Applet::Initialize()
   if (!notifyWnd)
     return 0;
 
+  SetProp(trayWnd, TEXT("AllowConsentToStealFocus"), (HANDLE)1);
+  SetProp(trayWnd, TEXT("TaskBandHWND"), trayWnd);
+
   movesizeinprogress = false;
 
   // Set the window transparency
