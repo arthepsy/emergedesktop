@@ -1,7 +1,7 @@
 //---
 //
 //  This file is part of Emerge Desktop.
-//  Copyright (C) 2004-2010  The Emerge Desktop Development Team
+//  Copyright (C) 2004-2011  The Emerge Desktop Development Team
 //
 //  Emerge Desktop is free software; you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -46,7 +46,7 @@ VALUE "CompanyName", "The Emerge Desktop Development Team"
 VALUE "FileDescription", "emergePower - applet for the Emerge Desktop"
 VALUE "FileVersion", POINT_VERSION
 VALUE "InternalName", "emergePower"
-VALUE "LegalCopyright", "Copyright (C) 2004-2010"
+VALUE "LegalCopyright", "Copyright (C) 2004-2011"
 VALUE "OriginalFilename", "emergePower.exe"
 VALUE "ProductName", "emergePower"
 VALUE "ProductVersion", POINT_VERSION
