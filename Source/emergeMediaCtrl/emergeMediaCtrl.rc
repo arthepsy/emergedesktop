@@ -1,7 +1,7 @@
 //---
 //
 //  This file is part of Emerge Desktop.
-//  Copyright (C) 2004-2010  The Emerge Desktop Development Team
+//  Copyright (C) 2004-2011  The Emerge Desktop Development Team
 //
 //  Emerge Desktop is free software; you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -44,7 +44,7 @@ BEGIN
             VALUE "FileDescription", "emergeMediaCtrl - applet for the Emerge Desktop"
             VALUE "FileVersion", EMERGE_MAJOR_VERSION_STR "." EMERGE_MINOR_VERSION_STR "." EMERGE_RELEASE_VERSION_STR "." SVN_VERSION_STR
             VALUE "InternalName", "emergeMediaCtrl"
-            VALUE "LegalCopyright", "Copyright (C) 2004-2010"
+            VALUE "LegalCopyright", "Copyright (C) 2004-2011"
             VALUE "OriginalFilename", "emergeMediaCtrl.exe"
             VALUE "ProductName", "emergeMediaCtrl"
             VALUE "ProductVersion", EMERGE_MAJOR_VERSION_STR "." EMERGE_MINOR_VERSION_STR "." EMERGE_RELEASE_VERSION_STR "." SVN_VERSION_STR
