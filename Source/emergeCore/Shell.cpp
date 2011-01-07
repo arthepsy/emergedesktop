@@ -29,22 +29,25 @@
 #include "Shell.h"
 
 // Function pointers
-void (__stdcall *lpShellDDEInit)(bool bInit) = NULL;
-BOOL (WINAPI *lpSetShellWindow)(HWND) = NULL;
+void (WINAPI *lpShellDDEInit)(bool) = NULL;
+int (WINAPI *lpWinList_Init)() = NULL;
+int (WINAPI *lpWinList_Terminate)() = NULL;
+void (WINAPI *lpRunInstallUninstallStubs)(int) = NULL;
+bool (WINAPI *lpFileIconInit)(BOOL) = NULL;
+//BOOL (WINAPI *lpSetShellWindow)(HWND) = NULL;
 
 // Global Variables
-HMODULE DDEdll;
-bool DDELoaded = false;
-HMODULE user32DLL;
-bool user32Loaded = false;
+HMODULE shdocvmDLL;
+bool shdocvmLoaded = false;
+HMODULE shell32DLL;
+bool shell32Loaded = false;
 std::vector<HANDLE> processList;
 
 Shell::Shell()
 {}
 
 Shell::~Shell()
-{
-}
+{}
 
 //----  --------------------------------------------------------------------------------------------------------
 // Function:	RunRegEntries
@@ -420,3 +423,93 @@ bool Shell::FirstRunCheck()
   return result;
 }
 
+void Shell::ShellServicesTerminate()
+{
+  if (lpShellDDEInit)
+    lpShellDDEInit(false);
+
+  if (lpFileIconInit)
+    lpFileIconInit(FALSE);
+
+  if (shdocvmLoaded)
+    {
+      lpWinList_Terminate = (int (WINAPI *) (void))GetProcAddress(shdocvmDLL, (LPCSTR)111);
+      if (lpWinList_Terminate)
+        lpWinList_Terminate();
+
+      FreeLibrary(shdocvmDLL);
+    }
+}
+
+void Shell::ShellServicesInit()
+{
+  shdocvmDLL = ELGetSystemLibrary(TEXT("shdocvw.dll"));
+  if (!shdocvmDLL)
+    {
+      shdocvmDLL = ELLoadSystemLibrary(TEXT("shdocvw.dll"));
+      if (shdocvmDLL)
+        shdocvmLoaded = true;
+    }
+
+  shell32DLL = ELGetSystemLibrary(TEXT("shell32.dll"));
+  if (!shell32DLL)
+    {
+      shell32DLL = ELLoadSystemLibrary(TEXT("shell32.dll"));
+      if (shell32DLL)
+        shell32Loaded = true;
+    }
+
+  SetPriorityClass(GetCurrentProcess(), HIGH_PRIORITY_CLASS);
+
+  if (shell32DLL)
+    {
+      lpShellDDEInit = (void (__stdcall *) (bool))GetProcAddress(ELGetSystemLibrary(TEXT("shell32.dll")), (LPCSTR)188);
+      lpFileIconInit = (bool (__stdcall *) (BOOL))GetProcAddress(ELGetSystemLibrary(TEXT("shell32.dll")), (LPCSTR)660);
+    }
+
+  if (shdocvmDLL)
+    {
+      //lpShellDDEInit = (void (__stdcall *) (bool))GetProcAddress(DDEdll, (LPCSTR)118);
+      lpWinList_Init = (int (WINAPI *) (void))GetProcAddress(shdocvmDLL, (LPCSTR)110);
+      lpRunInstallUninstallStubs = (void (WINAPI *)(int))GetProcAddress(shdocvmDLL, (LPCSTR)130);
+    }
+
+  // Create a mutex telling that this is the Explorer shell
+  HANDLE hIsShell = CreateMutex(NULL, false, L"Local\\ExplorerIsShellMutex");
+  WaitForSingleObject(hIsShell, INFINITE);
+
+  if (lpShellDDEInit)
+    lpShellDDEInit(true);
+
+  SetProcessShutdownParameters(3, 0);
+
+  MSG msg;
+  PeekMessageW(&msg, 0, WM_QUIT, WM_QUIT, false);
+
+  // Wait for Scm to be created
+  HANDLE hGScmEvent = OpenEvent(0x100002, false, L"Global\\ScmCreatedEvent");
+  if (hGScmEvent == NULL)
+    hGScmEvent = OpenEvent(0x100000, false, L"Global\\ScmCreatedEvent");
+  if (hGScmEvent == NULL)
+    hGScmEvent = CreateEvent(NULL, true, false, L"Global\\ScmCreatedEvent");
+
+  if (hGScmEvent)
+    {
+      WaitForSingleObject(hGScmEvent, 6000);
+      CloseHandle(hGScmEvent);
+    }
+
+  if (lpFileIconInit)
+    lpFileIconInit(TRUE);
+
+  if (lpWinList_Init)
+    lpWinList_Init();
+
+  // Event
+  HANDLE CanRegisterEvent = CreateEvent(NULL, true, true, L"Local\\_fCanRegisterWithShellService");
+
+  if (lpRunInstallUninstallStubs)
+    lpRunInstallUninstallStubs(0);
+
+  CloseHandle(CanRegisterEvent);
+}

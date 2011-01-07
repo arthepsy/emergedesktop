@@ -2,11 +2,17 @@
 
 IShellDesktopTray *CreateInstance()
 {
+  std::wstring debug = L"TShellDesktopTray::CreateInstance";
+  ELWriteDebug(debug);
+
 	return new TShellDesktopTray;
 }
 
 HRESULT TShellDesktopTray::QueryInterface(IShellDesktopTray *p UNUSED, REFIID riid, LPVOID *ppvObj)
 {
+  std::wstring debug = L"TShellDesktopTray::QueryInterface";
+  ELWriteDebug(debug);
+
 	if(!ppvObj)
 		return E_POINTER;
 
@@ -22,38 +28,56 @@ HRESULT TShellDesktopTray::QueryInterface(IShellDesktopTray *p UNUSED, REFIID ri
 	return S_OK;
 }
 
-ULONG TShellDesktopTray::AddRef(IShellDesktopTray *p UNUSED)
+STDMETHODIMP_(ULONG) TShellDesktopTray::AddRef(IShellDesktopTray *p UNUSED)
 {
+  std::wstring debug = L"TShellDesktopTray::AddRef";
+  ELWriteDebug(debug);
+
 	return 2;
 }
 
-ULONG TShellDesktopTray::Release(IShellDesktopTray *p UNUSED)
+STDMETHODIMP_(ULONG) TShellDesktopTray::Release(IShellDesktopTray *p UNUSED)
 {
+  std::wstring debug = L"TShellDesktopTray::Release";
+  ELWriteDebug(debug);
+
 	return 1;
 }
 
-int TShellDesktopTray::GetState()
+STDMETHODIMP_(ULONG) TShellDesktopTray::GetState()
 {
-	return 2;
+  std::wstring debug = L"TShellDesktopTray::GetState";
+  ELWriteDebug(debug);
+
+	return 0;
 }
 
-int TShellDesktopTray::GetTrayWindow(HWND *o)
+STDMETHODIMP TShellDesktopTray::GetTrayWindow(HWND *o)
 {
+  std::wstring debug = L"TShellDesktopTray::GetTrayWindow";
+  ELWriteDebug(debug);
+
 	// Prevent Explorer from closing the tray window (and SharpCore) when shutting down
 	*o = 0;
 	//*o = FindWindow(L"Shell_TrayWnd", NULL);
 
-	return 0;
+	return S_OK;
 }
 
-int TShellDesktopTray::RegisterDesktopWindow(HWND d UNUSED)
+STDMETHODIMP TShellDesktopTray::RegisterDesktopWindow(HWND d UNUSED)
 {
-	return 0;
+  std::wstring debug = L"TShellDesktopTray::RegisterDesktopWindow";
+  ELWriteDebug(debug);
+
+	return S_OK;
 }
 
-int TShellDesktopTray::SetVar(int p1 UNUSED, ULONG p2 UNUSED)
+STDMETHODIMP TShellDesktopTray::SetVar(int p1 UNUSED, ULONG p2 UNUSED)
 {
-	return 0;
+  std::wstring debug = L"TShellDesktopTray::SetVar";
+  ELWriteDebug(debug);
+
+	return S_OK;
 }
 
 
@@ -67,18 +91,27 @@ TShellDesktopTrayFactory::~TShellDesktopTrayFactory()
 
 }
 
-ULONG TShellDesktopTrayFactory::AddRef()
+STDMETHODIMP_(ULONG) TShellDesktopTrayFactory::AddRef()
 {
+  std::wstring debug = L"TShellDesktopTrayFactory::AddRef";
+  ELWriteDebug(debug);
+
 	return 2;
 }
 
-ULONG TShellDesktopTrayFactory::Release()
+STDMETHODIMP_(ULONG) TShellDesktopTrayFactory::Release()
 {
+  std::wstring debug = L"TShellDesktopTrayFactory::Release";
+  ELWriteDebug(debug);
+
 	return 1;
 }
 
 HRESULT TShellDesktopTrayFactory::QueryInterface(REFIID riid, void** ppv)
 {
+  std::wstring debug = L"TShellDesktopTrayFactory::QueryInterface";
+  ELWriteDebug(debug);
+
 	if(!ppv)
 		return E_POINTER;
 
@@ -94,8 +127,11 @@ HRESULT TShellDesktopTrayFactory::QueryInterface(REFIID riid, void** ppv)
 	return S_OK;
 }
 
-HRESULT TShellDesktopTrayFactory::CreateInstance(IUnknown* pOuter, REFIID riid, void** ppv)
+STDMETHODIMP TShellDesktopTrayFactory::CreateInstance(IUnknown* pOuter, REFIID riid, void** ppv)
 {
+  std::wstring debug = L"TShellDesktopTrayFactory::CreateInstance";
+  ELWriteDebug(debug);
+
 	if(!ppv)
 		return E_POINTER;
 
@@ -111,7 +147,10 @@ HRESULT TShellDesktopTrayFactory::CreateInstance(IUnknown* pOuter, REFIID riid, 
 	return hr;
 }
 
-HRESULT TShellDesktopTrayFactory::LockServer(BOOL fLock UNUSED)
+STDMETHODIMP TShellDesktopTrayFactory::LockServer(BOOL fLock UNUSED)
 {
+  std::wstring debug = L"TShellDesktopTrayFactory::LockServer";
+  ELWriteDebug(debug);
+
 	return S_OK;
 }

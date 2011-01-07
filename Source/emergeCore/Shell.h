@@ -48,6 +48,8 @@ public:
   void RegisterShell(HWND hwnd, bool enable);
   void BuildTaskList();
   void CountTask(HWND hwnd);
+  void ShellServicesInit();
+  void ShellServicesTerminate();
 
 private:
   std::vector<HWND> taskList;

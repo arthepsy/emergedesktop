@@ -61,15 +61,9 @@ bool Core::Initialize(WCHAR *commandLine)
       return false;
     }
 
-  //OleInitialize(NULL);
-  CoInitialize(NULL);
+  OleInitialize(NULL);
 
-  // Start the shell functions
   pShell = std::tr1::shared_ptr<Shell>(new Shell());
-
-  // Start the DDE Service
-  //pDDEService = std::tr1::shared_ptr<DDEService>(new DDEService());
-  //pDDEService->Start();
 
   // Register the window class
   wincl.hInstance = mainInst;
@@ -116,6 +110,9 @@ bool Core::Initialize(WCHAR *commandLine)
   registered = true;
 
   pMessageControl = std::tr1::shared_ptr<MessageControl>(new MessageControl());
+
+  // Start the shell functions
+  pShell->ShellServicesInit();
 
   // Create desktop window
   pDesktop = std::tr1::shared_ptr<Desktop>(new Desktop(mainInst, pMessageControl));
@@ -175,6 +172,7 @@ Core::~Core()
       //pDDEService->Stop();
       pShell->RegisterShell(mainWnd, false);
       pShell->ClearSessionInformation();
+      pShell->ShellServicesTerminate();
 
       OleUninitialize();
 

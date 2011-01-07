@@ -9,42 +9,43 @@ const GUID IID_IShellDesktopTray = {0x213E2DF9,0x9A14,0x4328,{0x99,0xB1,0x69,0x6
 class IShellDesktopTray
 {
 	public:
-		virtual HRESULT QueryInterface(IShellDesktopTray * p, REFIID riid, LPVOID * ppvObj)=0;
-		virtual ULONG AddRef(IShellDesktopTray * p)=0;
-		virtual ULONG Release(IShellDesktopTray * p)=0;
+		virtual HRESULT STDMETHODCALLTYPE QueryInterface(IShellDesktopTray * p, REFIID riid, LPVOID * ppvObj) PURE;
+		virtual STDMETHODIMP_(ULONG) AddRef(IShellDesktopTray * p) PURE;
+		virtual STDMETHODIMP_(ULONG) Release(IShellDesktopTray * p) PURE;
 
-		virtual int STDMETHODCALLTYPE GetState()=0;
-		virtual int STDMETHODCALLTYPE GetTrayWindow(HWND *o)=0;
-		virtual int STDMETHODCALLTYPE RegisterDesktopWindow(HWND d)=0;
-		virtual int STDMETHODCALLTYPE SetVar(int p1, ULONG p2)=0;
+		virtual STDMETHODIMP_(ULONG) GetState() PURE;
+		virtual STDMETHODIMP GetTrayWindow(HWND *o) PURE;
+		virtual STDMETHODIMP RegisterDesktopWindow(HWND d) PURE;
+		virtual STDMETHODIMP SetVar(int p1, ULONG p2) PURE;
 };
 
 class TShellDesktopTray : public IShellDesktopTray
 {
 	public:
-		HRESULT QueryInterface(IShellDesktopTray * p, REFIID riid, LPVOID * ppvObj);
-		ULONG AddRef(IShellDesktopTray * p);
-		ULONG Release(IShellDesktopTray * p);
+		HRESULT STDMETHODCALLTYPE QueryInterface(IShellDesktopTray * p, REFIID riid, LPVOID * ppvObj);
+		STDMETHODIMP_(ULONG) AddRef(IShellDesktopTray * p);
+		STDMETHODIMP_(ULONG) Release(IShellDesktopTray * p);
 
-		int __stdcall GetState();
-		int __stdcall GetTrayWindow(HWND *o);
-		int __stdcall RegisterDesktopWindow(HWND d);
-		int __stdcall SetVar(int p1, ULONG p2);
+		STDMETHODIMP_(ULONG) GetState();
+		STDMETHODIMP GetTrayWindow(HWND *o);
+		STDMETHODIMP RegisterDesktopWindow(HWND d);
+		STDMETHODIMP SetVar(int p1, ULONG p2);
 };
 
-class TShellDesktopTrayFactory : public IClassFactory {
+class TShellDesktopTrayFactory : public IClassFactory
+{
 	public:
 		TShellDesktopTrayFactory();
 		~TShellDesktopTrayFactory();
 
 		// from IUnknown
-		virtual ULONG _stdcall AddRef();
-		virtual ULONG _stdcall Release();
-		virtual HRESULT _stdcall QueryInterface(REFIID riid, void** ppv);
+		virtual STDMETHODIMP_(ULONG) AddRef();
+		virtual STDMETHODIMP_(ULONG) Release();
+		virtual HRESULT STDMETHODCALLTYPE QueryInterface(REFIID riid, void** ppv);
 
 		// from IClassFactory
-		virtual HRESULT _stdcall CreateInstance(IUnknown* pOuter, REFIID riid, void** ppv);
-		virtual HRESULT _stdcall LockServer(BOOL fLock);
+		virtual STDMETHODIMP CreateInstance(IUnknown* pOuter, REFIID riid, void** ppv);
+		virtual STDMETHODIMP LockServer(BOOL fLock);
 };
 
 IShellDesktopTray *CreateInstance();
