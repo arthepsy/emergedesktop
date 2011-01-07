@@ -1591,15 +1591,6 @@ bool ELExecute(LPTSTR application, LPTSTR workingDir, int nShow, WCHAR *verb)
   sei.nShow = nShow;
 
   return (ShellExecuteEx(&sei) == TRUE);
-
-  /*WCHAR tmpDir[MAX_PATH];
-  wcscpy(tmpDir, program);
-  PathRemoveFileSpec(tmpDir);
-
-  std::wstring debug = tmpDir;
-  ELWriteDebug(debug);
-
-  return (ShellExecute(NULL, verb, program, arguments, tmpDir, nShow) > (HINSTANCE)32);*/
 }
 
 bool ELFileTypeCommand(WCHAR *document, WCHAR *docArgs, WCHAR *commandLine)
