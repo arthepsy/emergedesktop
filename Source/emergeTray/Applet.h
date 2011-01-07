@@ -459,25 +459,27 @@ private:
   std::vector< std::tr1::shared_ptr<TrayIcon> > trayIconList;
   std::vector<IOleCommandTarget*> ssoIconList;
   bool movesizeinprogress;
-  HWND trayWnd, notifyWnd, rebarWnd, clockWnd, taskWnd;
+  HWND trayWnd, notifyWnd;
   bool baseClassRegistered, trayClassRegistered, notifyClassRegistered;
   RECT HoverRect;
   void UpdateIcons();
   static LRESULT CALLBACK WindowProcedure (HWND, UINT, WPARAM, LPARAM);
   static LRESULT CALLBACK TrayProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
-  static LRESULT CALLBACK TaskProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
   void StartSSO(CLSID clsid);
   bool IsIconVisible(TrayIcon *pTrayIcon);
   TrayIcon *activeIcon;
   bool SetAutoHideEdge(UINT edge);
   bool ClearAutoHideEdge(UINT edge);
   bool autoHideLeft, autoHideRight, autoHideTop, autoHideBottom;
+  HANDLE ActivateActCtxForDll(LPCTSTR pszDll, PULONG_PTR pulCookie);
+  HANDLE ActivateActCtxForClsid(REFCLSID rclsid, PULONG_PTR pulCookie);
+  void DeactivateActCtx(HANDLE hActCtx, ULONG_PTR* pulCookie);
+  HRESULT CLSIDToString(REFCLSID rclsid, LPTSTR ptzBuffer, size_t cchBuffer);
 
 public:
   Applet(HINSTANCE hInstance);
   ~Applet();
   UINT Initialize();
-  UINT WM_SHELLHOOK;
   TrayIcon *GetTrayIconListItem(UINT index);
   size_t GetTrayIconListSize();
   LRESULT DoTimer(UINT timerID);

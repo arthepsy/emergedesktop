@@ -34,32 +34,7 @@
 
 WCHAR szTrayName[ ] = TEXT("Shell_TrayWnd");
 WCHAR szNotifyName[ ] = TEXT("TrayNotifyWnd");
-WCHAR szReBarWindowName[ ] = TEXT("ReBarWindow32");
-WCHAR szTrayClockName[ ] = TEXT("TrayClockWClass");
-WCHAR szMSTaskSwName[ ] = TEXT("MSTaskSwWClass");
 WCHAR myName[] = TEXT("emergeTray");
-
-LRESULT CALLBACK Applet::TaskProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
-{
-  CREATESTRUCT *cs;
-  static Applet *pApplet = NULL;
-
-  if (message == WM_CREATE)
-    {
-      cs = (CREATESTRUCT*)lParam;
-      pApplet = reinterpret_cast<Applet*>(cs->lpCreateParams);
-      return DefWindowProc(hwnd, message, wParam, lParam);
-    }
-
-  if (pApplet == NULL)
-    return DefWindowProc(hwnd, message, wParam, lParam);
-
-  std::wstring debug = L"Task Message: ";
-  debug += towstring(message);
-  ELWriteDebug(debug);
-
-  return 0;
-}
 
 LRESULT CALLBACK Applet::TrayProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
@@ -254,8 +229,6 @@ UINT Applet::Initialize()
   WNDCLASSEX wincl;
   ZeroMemory(&wincl, sizeof(WNDCLASSEX));
 
-  WM_SHELLHOOK = RegisterWindowMessage(TEXT("SHELLHOOK"));
-
   pSettings = std::tr1::shared_ptr<Settings>(new Settings(reinterpret_cast<LPARAM>(this)));
   UINT ret = BaseApplet::Initialize(WindowProcedure, this, pSettings);
   if (ret == 0)
@@ -275,20 +248,6 @@ UINT Applet::Initialize()
     return 0;
 
   wincl.lpszClassName = szNotifyName;
-  wincl.lpfnWndProc = DefWindowProc;
-  if (!RegisterClassEx (&wincl))
-    return 0;
-
-  wincl.lpszClassName = szReBarWindowName;
-  if (!RegisterClassEx (&wincl))
-    return 0;
-
-  wincl.lpszClassName = szTrayClockName;
-  if (!RegisterClassEx (&wincl))
-    return 0;
-
-  wincl.lpfnWndProc = TaskProcedure;
-  wincl.lpszClassName = szMSTaskSwName;
   if (!RegisterClassEx (&wincl))
     return 0;
 
@@ -298,23 +257,8 @@ UINT Applet::Initialize()
     return 0;
 
   notifyWnd = CreateWindowEx(0, szNotifyName, NULL, WS_CHILDWINDOW,
-                             0, 0, 0, 0, trayWnd, NULL, mainInst, NULL);
+                             0, 0, 0, 0, trayWnd, NULL, mainInst, reinterpret_cast<LPVOID>(this));
   if (!notifyWnd)
-    return 0;
-
-  rebarWnd = CreateWindowEx(0, szReBarWindowName, NULL, WS_CHILDWINDOW,
-                             0, 0, 0, 0, trayWnd, NULL, mainInst, NULL);
-  if (!rebarWnd)
-    return 0;
-
-  clockWnd = CreateWindowEx(0, szTrayClockName, NULL, WS_CHILDWINDOW,
-                             0, 0, 0, 0, trayWnd, NULL, mainInst, NULL);
-  if (!clockWnd)
-    return 0;
-
-  taskWnd = CreateWindowEx(0, szMSTaskSwName, NULL, WS_CHILDWINDOW,
-                             0, 0, 0, 0, rebarWnd, NULL, mainInst, reinterpret_cast<LPVOID>(this));
-  if (!taskWnd)
     return 0;
 
   SetProp(trayWnd, TEXT("AllowConsentToStealFocus"), (HANDLE)1);
@@ -1604,5 +1548,126 @@ bool Applet::IsIconVisible(TrayIcon *pTrayIcon)
 size_t Applet::GetIconCount()
 {
   return trayIconList.size();
+}
+
+HANDLE Applet::ActivateActCtxForDll(LPCTSTR pszDll, PULONG_PTR pulCookie)
+{
+  HANDLE hContext = INVALID_HANDLE_VALUE;
+  HMODULE kernel32 = ELGetSystemLibrary(TEXT("kernel32.dll"));
+
+  typedef HANDLE (WINAPI* CreateActCtx_t)(PACTCTX pCtx);
+  typedef BOOL (WINAPI* ActivateActCtx_t)(HANDLE hCtx, ULONG_PTR* pCookie);
+
+  CreateActCtx_t fnCreateActCtx = (CreateActCtx_t)
+                                  GetProcAddress(kernel32, "CreateActCtxW");
+
+  ActivateActCtx_t fnActivateActCtx = (ActivateActCtx_t)
+                                      GetProcAddress(kernel32, "ActivateActCtx");
+
+  if (fnCreateActCtx != NULL && fnActivateActCtx != NULL)
+    {
+      ACTCTX act;
+      ZeroMemory(&act, sizeof(act));
+      act.cbSize = sizeof(act);
+      act.dwFlags = ACTCTX_FLAG_RESOURCE_NAME_VALID;
+      act.lpSource = pszDll;
+      act.lpResourceName = MAKEINTRESOURCE(123);
+
+      hContext = fnCreateActCtx(&act);
+
+      if (hContext != INVALID_HANDLE_VALUE)
+        {
+          if (!fnActivateActCtx(hContext, pulCookie))
+            {
+              DeactivateActCtx(hContext, NULL);
+              hContext = INVALID_HANDLE_VALUE;
+            }
+        }
+    }
+
+  return hContext;
+}
+
+HRESULT Applet::CLSIDToString(REFCLSID rclsid, LPTSTR ptzBuffer, size_t cchBuffer)
+{
+  LPOLESTR pOleString = NULL;
+
+  HRESULT hr = ProgIDFromCLSID(rclsid, &pOleString);
+
+  if (FAILED(hr))
+    {
+      hr = StringFromCLSID(rclsid, &pOleString);
+    }
+
+  if (SUCCEEDED(hr) && pOleString)
+    {
+      wcsncpy(ptzBuffer, pOleString, cchBuffer);
+    }
+
+  CoTaskMemFree(pOleString);
+
+  return hr;
+}
+
+HANDLE Applet::ActivateActCtxForClsid(REFCLSID rclsid, PULONG_PTR pulCookie)
+{
+  HANDLE hContext = INVALID_HANDLE_VALUE;
+  TCHAR szCLSID[39] = { 0 };
+
+  //
+  // Get the DLL that implements the COM object in question
+  //
+  if (SUCCEEDED(CLSIDToString(rclsid, szCLSID, 39)))
+    {
+      TCHAR szSubkey[MAX_PATH] = { 0 };
+
+      HRESULT hr = wsprintf(szSubkey, TEXT("CLSID\\%s\\InProcServer32"), szCLSID);
+
+      if (SUCCEEDED(hr))
+        {
+          TCHAR szDll[MAX_PATH] = { 0 };
+          DWORD cbDll = sizeof(szDll);
+
+          LONG lres = SHGetValue(
+                        HKEY_CLASSES_ROOT, szSubkey, NULL, NULL, szDll, &cbDll);
+
+          if (lres == ERROR_SUCCESS)
+            {
+              //
+              // Activate the custom manifest (if any) of that DLL
+              //
+              hContext = ActivateActCtxForDll(szDll, pulCookie);
+            }
+        }
+    }
+
+  return hContext;
+}
+
+void Applet::DeactivateActCtx(HANDLE hActCtx, ULONG_PTR* pulCookie)
+{
+  HMODULE kernel32 = ELGetSystemLibrary(TEXT("kernel32.dll"));
+
+  typedef BOOL (WINAPI* DeactivateActCtx_t)(DWORD dwFlags, ULONG_PTR ulc);
+  typedef void (WINAPI* ReleaseActCtx_t)(HANDLE hActCtx);
+
+  DeactivateActCtx_t fnDeactivateActCtx = (DeactivateActCtx_t)
+                                          GetProcAddress(kernel32, "DeactivateActCtx");
+
+  ReleaseActCtx_t fnReleaseActCtx = (ReleaseActCtx_t)
+                                    GetProcAddress(kernel32, "ReleaseActCtx");
+
+  if (fnDeactivateActCtx != NULL && fnReleaseActCtx != NULL)
+    {
+      if (hActCtx != INVALID_HANDLE_VALUE)
+        {
+          if (pulCookie != NULL)
+            {
+              fnDeactivateActCtx(0, *pulCookie);
+            }
+
+          fnReleaseActCtx(hActCtx);
+        }
+    }
 }
 
