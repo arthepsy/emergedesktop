@@ -123,6 +123,7 @@ bool Core::Initialize(WCHAR *commandLine)
 
   pShell->RegisterShell(mainWnd, true);
   pShell->BuildTaskList();
+  pShell->LoadSSO();
 
   // Load the start up entries in the registry and the startup
   // folders only if the startup items have not already been started
@@ -170,6 +171,7 @@ Core::~Core()
           FreeLibrary(wtslib);
         }
       //pDDEService->Stop();
+      pShell->UnloadSSO();
       pShell->RegisterShell(mainWnd, false);
       pShell->ClearSessionInformation();
       pShell->ShellServicesTerminate();

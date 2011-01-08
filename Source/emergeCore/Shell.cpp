@@ -513,3 +513,74 @@ void Shell::ShellServicesInit()
 
   CloseHandle(CanRegisterEvent);
 }
+
+//----  --------------------------------------------------------------------------------------------------------
+// Function:	LoadSSO
+// Required:	Nothing
+// Returns:	Nothing
+// Purpose:	Loads the 2K/XP system icons
+//----  --------------------------------------------------------------------------------------------------------
+void Shell::LoadSSO()
+{
+  HKEY key, subkey;
+  int i = 0;
+  WCHAR valueName[32];
+  WCHAR data[40];
+  DWORD valueSize;
+  DWORD dataSize;
+  CLSID clsid, trayclsid;
+  IOleCommandTarget *target = NULL;
+
+  valueSize = 32 * sizeof(WCHAR);
+  dataSize = 40 * sizeof(WCHAR);
+  i = 0;
+
+  if (RegOpenKeyEx(HKEY_LOCAL_MACHINE,
+                   TEXT("Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\ShellServiceObjects"),
+                   0, KEY_READ, &key) == ERROR_SUCCESS)
+    {
+      while (RegEnumKeyEx(key, i, data, &dataSize, NULL, NULL, NULL, NULL) == ERROR_SUCCESS)
+        {
+          if (RegOpenKeyEx(key, data, 0, KEY_READ, &subkey) == ERROR_SUCCESS)
+            {
+              if (RegQueryValueEx(subkey, TEXT("AutoStart"), NULL, NULL, NULL, NULL) == ERROR_SUCCESS)
+                {
+                  CLSIDFromString(data, &clsid);
+                  if (clsid != trayclsid)
+                    {
+                      target = ELStartSSO(clsid);
+                      if (target)
+                        ssoIconList.push_back(target);
+                    }
+                }
+
+              RegCloseKey(subkey);
+            }
+
+          valueSize = 32 * sizeof(valueName[0]);
+          dataSize = 40 * sizeof(data[0]);
+          i++;
+        }
+
+      RegCloseKey(key);
+    }
+}
+
+//----  --------------------------------------------------------------------------------------------------------
+// Function:	UnloadSSO
+// Required:	Nothing
+// Returns:	Nothing
+// Purpose:	Unload the 2K/XP system icons
+//----  --------------------------------------------------------------------------------------------------------
+void Shell::UnloadSSO()
+{
+  // Go through each element of the array and stop it...
+  while (!ssoIconList.empty())
+    {
+      if (ssoIconList.back()->Exec(&CGID_ShellServiceObject, OLECMDID_SAVE,
+                                   OLECMDEXECOPT_DODEFAULT, NULL, NULL) == S_OK)
+        ssoIconList.back()->Release();
+      ssoIconList.pop_back();
+    }
+}
+

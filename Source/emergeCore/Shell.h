@@ -50,9 +50,12 @@ public:
   void CountTask(HWND hwnd);
   void ShellServicesInit();
   void ShellServicesTerminate();
+  void UnloadSSO();
+  void LoadSSO();
 
 private:
   std::vector<HWND> taskList;
+  std::vector<IOleCommandTarget*> ssoIconList;
   UINT ShellMessage;
   bool UpdateSessionInformation(bool add, HWND task);
   static BOOL CALLBACK GetTaskCount(HWND hwnd, LPARAM lParam);
