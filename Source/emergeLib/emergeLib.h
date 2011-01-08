@@ -437,5 +437,9 @@ DLL_EXPORT HMODULE ELGetSystemLibrary(const WCHAR *lib);
 DLL_EXPORT HMODULE ELGetEmergeLibrary(const WCHAR *lib);
 DLL_EXPORT HMODULE ELLoadSystemLibrary(const WCHAR *lib);
 DLL_EXPORT size_t ELwcsftime(WCHAR *strDest, size_t maxsize, WCHAR *format, const struct tm *timeptr);
+DLL_EXPORT HANDLE ELActivateActCtxForDll(LPCTSTR pszDll, PULONG_PTR pulCookie);
+DLL_EXPORT HANDLE ELActivateActCtxForClsid(REFCLSID rclsid, PULONG_PTR pulCookie);
+DLL_EXPORT void ELDeactivateActCtx(HANDLE hActCtx, ULONG_PTR* pulCookie);
+DLL_EXPORT IOleCommandTarget *ELStartSSO(CLSID clsid);
 
 #endif

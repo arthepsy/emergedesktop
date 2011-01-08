@@ -863,12 +863,12 @@ std::string ELwstringTostring(std::wstring inString, UINT codePage)
   std::string returnString;
 
   size_t tmpStringLength = WideCharToMultiByte(codePage, 0, wideString.c_str(), wideString.length(), NULL, 0,
-                           NULL, NULL);
+                                               NULL, NULL);
   if (tmpStringLength != 0)
     {
       LPSTR tmpString = new char[tmpStringLength + 1];
       size_t writtenBytes = WideCharToMultiByte(codePage, 0, wideString.c_str(), wideString.length(), tmpString,
-                            tmpStringLength, NULL, NULL);
+                                                tmpStringLength, NULL, NULL);
       if (writtenBytes != 0)
         {
           if (writtenBytes <= tmpStringLength)
@@ -890,7 +890,7 @@ std::wstring ELstringTowstring(std::string inString, UINT codePage)
     {
       LPWSTR tmpString = new WCHAR[tmpStringLength + 1];
       size_t writtenBytes = MultiByteToWideChar(codePage, 0, narrowString.c_str(), narrowString.length(), tmpString,
-                            tmpStringLength);
+                                                tmpStringLength);
       if (writtenBytes != 0)
         {
           if (writtenBytes <= tmpStringLength)
@@ -3185,13 +3185,13 @@ bool ELReadFileColor(const WCHAR *fileName, WCHAR *item, COLORREF *target, COLOR
   @return Version of Operating System
 
   @note Windows 7	              6.1
-        Windows Server 2008 R2  6.1
-        Windows Server 2008	    6.0
-        Windows Vista	          6.0
-        Windows Server 2003 R2	5.2
-        Windows Server 2003	    5.2
-        Windows XP	            5.1
-        Windows 2000	          5.0
+  Windows Server 2008 R2  6.1
+  Windows Server 2008	    6.0
+  Windows Vista	          6.0
+  Windows Server 2003 R2	5.2
+  Windows Server 2003	    5.2
+  Windows XP	            5.1
+  Windows 2000	          5.0
   */
 
 float ELVersionInfo()
@@ -4341,4 +4341,152 @@ bool ELIsApplet(HWND hwnd)
     return true;
 
   return false;
+}
+
+HANDLE ELActivateActCtxForDll(LPCTSTR pszDll, PULONG_PTR pulCookie)
+{
+  HANDLE hContext = INVALID_HANDLE_VALUE;
+  HMODULE kernel32 = ELGetSystemLibrary(TEXT("kernel32.dll"));
+
+  typedef HANDLE (WINAPI* CreateActCtx_t)(PACTCTX pCtx);
+  typedef BOOL (WINAPI* ActivateActCtx_t)(HANDLE hCtx, ULONG_PTR* pCookie);
+
+  CreateActCtx_t fnCreateActCtx = (CreateActCtx_t)
+    GetProcAddress(kernel32, "CreateActCtxW");
+
+  ActivateActCtx_t fnActivateActCtx = (ActivateActCtx_t)
+    GetProcAddress(kernel32, "ActivateActCtx");
+
+  if (fnCreateActCtx != NULL && fnActivateActCtx != NULL)
+    {
+      ACTCTX act;
+      ZeroMemory(&act, sizeof(act));
+      act.cbSize = sizeof(act);
+      act.dwFlags = ACTCTX_FLAG_RESOURCE_NAME_VALID;
+      act.lpSource = pszDll;
+      act.lpResourceName = MAKEINTRESOURCE(123);
+
+      hContext = fnCreateActCtx(&act);
+
+      if (hContext != INVALID_HANDLE_VALUE)
+        {
+          if (!fnActivateActCtx(hContext, pulCookie))
+            {
+              ELDeactivateActCtx(hContext, NULL);
+              hContext = INVALID_HANDLE_VALUE;
+            }
+        }
+    }
+
+  return hContext;
+}
+
+HRESULT CLSIDToString(REFCLSID rclsid, LPTSTR ptzBuffer, size_t cchBuffer)
+{
+  LPOLESTR pOleString = NULL;
+
+  HRESULT hr = ProgIDFromCLSID(rclsid, &pOleString);
+
+  if (FAILED(hr))
+    {
+      hr = StringFromCLSID(rclsid, &pOleString);
+    }
+
+  if (SUCCEEDED(hr) && pOleString)
+    {
+      wcsncpy(ptzBuffer, pOleString, cchBuffer);
+    }
+
+  CoTaskMemFree(pOleString);
+
+  return hr;
+}
+
+HANDLE ELActivateActCtxForClsid(REFCLSID rclsid, PULONG_PTR pulCookie)
+{
+  HANDLE hContext = INVALID_HANDLE_VALUE;
+  TCHAR szCLSID[39] = { 0 };
+
+  //
+  // Get the DLL that implements the COM object in question
+  //
+  if (SUCCEEDED(CLSIDToString(rclsid, szCLSID, 39)))
+    {
+      TCHAR szSubkey[MAX_PATH] = { 0 };
+
+      HRESULT hr = wsprintf(szSubkey, TEXT("CLSID\\%s\\InProcServer32"), szCLSID);
+
+      if (SUCCEEDED(hr))
+        {
+          TCHAR szDll[MAX_PATH] = { 0 };
+          DWORD cbDll = sizeof(szDll);
+
+          LONG lres = SHGetValue(
+                                 HKEY_CLASSES_ROOT, szSubkey, NULL, NULL, szDll, &cbDll);
+
+          if (lres == ERROR_SUCCESS)
+            {
+              //
+              // Activate the custom manifest (if any) of that DLL
+              //
+              hContext = ELActivateActCtxForDll(szDll, pulCookie);
+            }
+        }
+    }
+
+  return hContext;
+}
+
+void ELDeactivateActCtx(HANDLE hActCtx, ULONG_PTR* pulCookie)
+{
+  HMODULE kernel32 = ELGetSystemLibrary(TEXT("kernel32.dll"));
+
+  typedef BOOL (WINAPI* DeactivateActCtx_t)(DWORD dwFlags, ULONG_PTR ulc);
+  typedef void (WINAPI* ReleaseActCtx_t)(HANDLE hActCtx);
+
+  DeactivateActCtx_t fnDeactivateActCtx = (DeactivateActCtx_t)
+    GetProcAddress(kernel32, "DeactivateActCtx");
+
+  ReleaseActCtx_t fnReleaseActCtx = (ReleaseActCtx_t)
+    GetProcAddress(kernel32, "ReleaseActCtx");
+
+  if (fnDeactivateActCtx != NULL && fnReleaseActCtx != NULL)
+    {
+      if (hActCtx != INVALID_HANDLE_VALUE)
+        {
+          if (pulCookie != NULL)
+            {
+              fnDeactivateActCtx(0, *pulCookie);
+            }
+
+          fnReleaseActCtx(hActCtx);
+        }
+    }
+}
+
+IOleCommandTarget *ELStartSSO(CLSID clsid)
+{
+  LPVOID lpVoid;
+  IOleCommandTarget *target = NULL;
+
+  // The SSO might have a custom manifest.
+  // Activate it before loading the object.
+  ULONG_PTR ulCookie;
+  HANDLE hContext = ELActivateActCtxForClsid(clsid, &ulCookie);
+
+  if (SUCCEEDED(CoCreateInstance(clsid, NULL, CLSCTX_INPROC_SERVER | CLSCTX_INPROC_HANDLER, IID_IOleCommandTarget,
+                                 &lpVoid)))
+    {
+      // Start ShellServiceObject
+      reinterpret_cast <IOleCommandTarget*> (lpVoid)->Exec(&CGID_ShellServiceObject,
+                                                           OLECMDID_NEW,
+                                                           OLECMDEXECOPT_DODEFAULT,
+                                                           NULL, NULL);
+      target = reinterpret_cast <IOleCommandTarget*>(lpVoid);
+    }
+
+  if (hContext != INVALID_HANDLE_VALUE)
+    ELDeactivateActCtx(hContext, &ulCookie);
+
+  return target;
 }
