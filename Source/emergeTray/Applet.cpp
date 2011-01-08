@@ -193,7 +193,7 @@ LRESULT CALLBACK Applet::WindowProcedure (HWND hwnd, UINT message, WPARAM wParam
 }
 
 Applet::Applet(HINSTANCE hInstance)
-  :BaseApplet(hInstance, myName, true)
+:BaseApplet(hInstance, myName, true)
 {
   mainInst = hInstance;
 
@@ -402,10 +402,13 @@ void Applet::LoadSSO()
   DWORD dataSize;
   DWORD dwDataType;
   CLSID clsid, trayclsid;
+  IOleCommandTarget *target;
 
   CLSIDFromString((WCHAR*)TEXT("{35CEC8A3-2BE6-11D2-8773-92E220524153}"), &trayclsid);
 
-  StartSSO(trayclsid);
+  target = ELStartSSO(trayclsid);
+  if (target)
+    ssoIconList.push_back(target);
 
   valueSize = 32 * sizeof(WCHAR);
   dataSize = 40 * sizeof(WCHAR);
@@ -419,7 +422,11 @@ void Applet::LoadSSO()
         {
           CLSIDFromString(data, &clsid);
           if (clsid != trayclsid)
-            StartSSO(clsid);
+            {
+              target = ELStartSSO(clsid);
+              if (target)
+                ssoIconList.push_back(target);
+            }
 
           valueSize = 32 * sizeof(valueName[0]);
           dataSize = 40 * sizeof(data[0]);
@@ -427,22 +434,6 @@ void Applet::LoadSSO()
         }
 
       RegCloseKey(key);
-    }
-}
-
-void Applet::StartSSO(CLSID clsid)
-{
-  LPVOID lpVoid;
-
-  if (SUCCEEDED(CoCreateInstance(clsid, NULL, CLSCTX_INPROC_SERVER | CLSCTX_INPROC_HANDLER, IID_IOleCommandTarget,
-                                 &lpVoid)))
-    {
-      // Start ShellServiceObject
-      reinterpret_cast <IOleCommandTarget*> (lpVoid)->Exec(&CGID_ShellServiceObject,
-          OLECMDID_NEW,
-          OLECMDEXECOPT_DODEFAULT,
-          NULL, NULL);
-      ssoIconList.push_back(reinterpret_cast <IOleCommandTarget*>(lpVoid));
     }
 }
 
@@ -464,12 +455,6 @@ void Applet::UnloadSSO()
     }
 }
 
-//----  --------------------------------------------------------------------------------------------------------
-// Function:	ShowHiddenIcons
-// Required:	BOOL cmd - Whether to show the hidden icons
-//              BOOL force - Used to force the action regardless of GetUnhideIcons()
-// Returns:	Nothing
-//----  --------------------------------------------------------------------------------------------------------
 void Applet::ShowHiddenIcons(bool cmd, bool force)
 {
   std::vector< std::tr1::shared_ptr<TrayIcon> >::iterator iter;
@@ -928,17 +913,17 @@ bool Applet::TrayMouseEvent(UINT message, LPARAM lParam)
               // Second attempt at NIN_POPOPEN:
               /*case WM_MOUSEMOVE:
                 if ((ELVersionInfo() >= 6.0) && (((*iter)->GetFlags() & NIF_INFO) == NIF_INFO))
-                  {
-                    if (activeIcon != NULL)
-                      {
-                        if( activeIcon->GetWnd() != (*iter)->GetWnd())
-                          {
-                            activeIcon->SendMessage(NIN_POPUPCLOSE);
-                            activeIcon = (*iter).get();
-                          }
-                      }
-                    message = NIN_POPUPOPEN;
-                  }
+                {
+                if (activeIcon != NULL)
+                {
+                if( activeIcon->GetWnd() != (*iter)->GetWnd())
+                {
+                activeIcon->SendMessage(NIN_POPUPCLOSE);
+                activeIcon = (*iter).get();
+                }
+                }
+                message = NIN_POPUPOPEN;
+                }
                 (*iter)->SendMessage(message);
                 break;*/
 
@@ -1548,126 +1533,5 @@ bool Applet::IsIconVisible(TrayIcon *pTrayIcon)
 size_t Applet::GetIconCount()
 {
   return trayIconList.size();
-}
-
-HANDLE Applet::ActivateActCtxForDll(LPCTSTR pszDll, PULONG_PTR pulCookie)
-{
-  HANDLE hContext = INVALID_HANDLE_VALUE;
-  HMODULE kernel32 = ELGetSystemLibrary(TEXT("kernel32.dll"));
-
-  typedef HANDLE (WINAPI* CreateActCtx_t)(PACTCTX pCtx);
-  typedef BOOL (WINAPI* ActivateActCtx_t)(HANDLE hCtx, ULONG_PTR* pCookie);
-
-  CreateActCtx_t fnCreateActCtx = (CreateActCtx_t)
-                                  GetProcAddress(kernel32, "CreateActCtxW");
-
-  ActivateActCtx_t fnActivateActCtx = (ActivateActCtx_t)
-                                      GetProcAddress(kernel32, "ActivateActCtx");
-
-  if (fnCreateActCtx != NULL && fnActivateActCtx != NULL)
-    {
-      ACTCTX act;
-      ZeroMemory(&act, sizeof(act));
-      act.cbSize = sizeof(act);
-      act.dwFlags = ACTCTX_FLAG_RESOURCE_NAME_VALID;
-      act.lpSource = pszDll;
-      act.lpResourceName = MAKEINTRESOURCE(123);
-
-      hContext = fnCreateActCtx(&act);
-
-      if (hContext != INVALID_HANDLE_VALUE)
-        {
-          if (!fnActivateActCtx(hContext, pulCookie))
-            {
-              DeactivateActCtx(hContext, NULL);
-              hContext = INVALID_HANDLE_VALUE;
-            }
-        }
-    }
-
-  return hContext;
-}
-
-HRESULT Applet::CLSIDToString(REFCLSID rclsid, LPTSTR ptzBuffer, size_t cchBuffer)
-{
-  LPOLESTR pOleString = NULL;
-
-  HRESULT hr = ProgIDFromCLSID(rclsid, &pOleString);
-
-  if (FAILED(hr))
-    {
-      hr = StringFromCLSID(rclsid, &pOleString);
-    }
-
-  if (SUCCEEDED(hr) && pOleString)
-    {
-      wcsncpy(ptzBuffer, pOleString, cchBuffer);
-    }
-
-  CoTaskMemFree(pOleString);
-
-  return hr;
-}
-
-HANDLE Applet::ActivateActCtxForClsid(REFCLSID rclsid, PULONG_PTR pulCookie)
-{
-  HANDLE hContext = INVALID_HANDLE_VALUE;
-  TCHAR szCLSID[39] = { 0 };
-
-  //
-  // Get the DLL that implements the COM object in question
-  //
-  if (SUCCEEDED(CLSIDToString(rclsid, szCLSID, 39)))
-    {
-      TCHAR szSubkey[MAX_PATH] = { 0 };
-
-      HRESULT hr = wsprintf(szSubkey, TEXT("CLSID\\%s\\InProcServer32"), szCLSID);
-
-      if (SUCCEEDED(hr))
-        {
-          TCHAR szDll[MAX_PATH] = { 0 };
-          DWORD cbDll = sizeof(szDll);
-
-          LONG lres = SHGetValue(
-                        HKEY_CLASSES_ROOT, szSubkey, NULL, NULL, szDll, &cbDll);
-
-          if (lres == ERROR_SUCCESS)
-            {
-              //
-              // Activate the custom manifest (if any) of that DLL
-              //
-              hContext = ActivateActCtxForDll(szDll, pulCookie);
-            }
-        }
-    }
-
-  return hContext;
-}
-
-void Applet::DeactivateActCtx(HANDLE hActCtx, ULONG_PTR* pulCookie)
-{
-  HMODULE kernel32 = ELGetSystemLibrary(TEXT("kernel32.dll"));
-
-  typedef BOOL (WINAPI* DeactivateActCtx_t)(DWORD dwFlags, ULONG_PTR ulc);
-  typedef void (WINAPI* ReleaseActCtx_t)(HANDLE hActCtx);
-
-  DeactivateActCtx_t fnDeactivateActCtx = (DeactivateActCtx_t)
-                                          GetProcAddress(kernel32, "DeactivateActCtx");
-
-  ReleaseActCtx_t fnReleaseActCtx = (ReleaseActCtx_t)
-                                    GetProcAddress(kernel32, "ReleaseActCtx");
-
-  if (fnDeactivateActCtx != NULL && fnReleaseActCtx != NULL)
-    {
-      if (hActCtx != INVALID_HANDLE_VALUE)
-        {
-          if (pulCookie != NULL)
-            {
-              fnDeactivateActCtx(0, *pulCookie);
-            }
-
-          fnReleaseActCtx(hActCtx);
-        }
-    }
 }
 

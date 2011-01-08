@@ -465,16 +465,11 @@ private:
   void UpdateIcons();
   static LRESULT CALLBACK WindowProcedure (HWND, UINT, WPARAM, LPARAM);
   static LRESULT CALLBACK TrayProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
-  void StartSSO(CLSID clsid);
   bool IsIconVisible(TrayIcon *pTrayIcon);
   TrayIcon *activeIcon;
   bool SetAutoHideEdge(UINT edge);
   bool ClearAutoHideEdge(UINT edge);
   bool autoHideLeft, autoHideRight, autoHideTop, autoHideBottom;
-  HANDLE ActivateActCtxForDll(LPCTSTR pszDll, PULONG_PTR pulCookie);
-  HANDLE ActivateActCtxForClsid(REFCLSID rclsid, PULONG_PTR pulCookie);
-  void DeactivateActCtx(HANDLE hActCtx, ULONG_PTR* pulCookie);
-  HRESULT CLSIDToString(REFCLSID rclsid, LPTSTR ptzBuffer, size_t cchBuffer);
 
 public:
   Applet(HINSTANCE hInstance);
