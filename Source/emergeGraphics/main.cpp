@@ -48,6 +48,12 @@ static fnPrivateExtractIcons MSPrivateExtractIcons = NULL;
 typedef UINT (WINAPI *fnPickIcon)(HWND, WCHAR*, UINT, int*);
 static fnPickIcon MSPickIcon = NULL;
 
+typedef HRESULT (WINAPI *fnDwmIsCompositionEnabled)(BOOL *);
+static fnDwmIsCompositionEnabled MSDwmIsCompositionEnabled = NULL;
+
+typedef HRESULT (WINAPI *fnDwmEnableBlurBehindWindow)(HWND, const DWM_BLURBEHIND *);
+static fnDwmEnableBlurBehindWindow MSDwmEnableBlurBehindWindow = NULL;
+
 // Globals
 HINSTANCE hInstance = NULL;
 HDC hdc = NULL;
@@ -1228,4 +1234,36 @@ HBITMAP EGGetIconBitmap(HICON sourceIcon)
   DeleteDC(targetDC);
 
   return hbitmap;
+}
+
+BOOL EGIsCompositionEnabled()
+{
+  BOOL check;
+
+  if (MSDwmIsCompositionEnabled == NULL)
+    MSDwmIsCompositionEnabled = (fnDwmIsCompositionEnabled)GetProcAddress(ELGetSystemLibrary(TEXT("dwmapi.dll")), "DwmIsCompositionEnabled");
+  if (MSDwmIsCompositionEnabled)
+    {
+      if (SUCCEEDED(MSDwmIsCompositionEnabled(&check)))
+        return check;
+    }
+
+  return FALSE;
+}
+
+HRESULT EGBlurWindow(HWND hwnd)
+{
+  HRESULT hr = E_FAIL;
+
+  DWM_BLURBEHIND bb;
+  ZeroMemory(&bb, sizeof(DWM_BLURBEHIND));
+  bb.dwFlags = DWM_BB_ENABLE;
+  bb.fEnable = true;
+
+  if (MSDwmEnableBlurBehindWindow == NULL)
+    MSDwmEnableBlurBehindWindow = (fnDwmEnableBlurBehindWindow)GetProcAddress(ELGetSystemLibrary(TEXT("dwmapi.dll")), "DwmEnableBlurBehindWindow");
+  if (MSDwmEnableBlurBehindWindow)
+    hr = MSDwmEnableBlurBehindWindow(hwnd, &bb);
+
+  return hr;
 }
