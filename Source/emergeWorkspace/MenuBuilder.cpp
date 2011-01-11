@@ -1,4 +1,4 @@
-// vim:tags+=../emergeLib/tags,../emergeAppletEngine/tags
+// vim:tags+=../emergeLib/tags,../emergeAppletEngine/tags,../emergeGraphics/tags
 
 //----  --------------------------------------------------------------------------------------------------------
 //
