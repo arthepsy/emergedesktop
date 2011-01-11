@@ -37,9 +37,11 @@ bool (WINAPI *lpFileIconInit)(BOOL) = NULL;
 //BOOL (WINAPI *lpSetShellWindow)(HWND) = NULL;
 
 // Global Variables
-HMODULE shdocvmDLL;
+HMODULE shdocvmDLL = NULL;
 bool shdocvmLoaded = false;
-HMODULE shell32DLL;
+HMODULE explorerFrameDLL = NULL;
+bool explorerFrameLoaded = false;
+HMODULE shell32DLL = NULL;
 bool shell32Loaded = false;
 std::vector<HANDLE> processList;
 
@@ -439,6 +441,12 @@ void Shell::ShellServicesTerminate()
 
       FreeLibrary(shdocvmDLL);
     }
+
+  if (shell32Loaded)
+    FreeLibrary(shell32DLL);
+
+  if (explorerFrameLoaded)
+    FreeLibrary(explorerFrameDLL);
 }
 
 void Shell::ShellServicesInit()
@@ -449,6 +457,14 @@ void Shell::ShellServicesInit()
       shdocvmDLL = ELLoadSystemLibrary(TEXT("shdocvw.dll"));
       if (shdocvmDLL)
         shdocvmLoaded = true;
+    }
+
+  explorerFrameDLL = ELGetSystemLibrary(TEXT("ExplorerFrame.dll"));
+  if (!explorerFrameDLL)
+    {
+      explorerFrameDLL = ELLoadSystemLibrary(TEXT("ExplorerFrame.dll"));
+      if (explorerFrameDLL)
+        explorerFrameLoaded = true;
     }
 
   shell32DLL = ELGetSystemLibrary(TEXT("shell32.dll"));
@@ -463,15 +479,22 @@ void Shell::ShellServicesInit()
 
   if (shell32DLL)
     {
-      lpShellDDEInit = (void (__stdcall *) (bool))GetProcAddress(ELGetSystemLibrary(TEXT("shell32.dll")), (LPCSTR)188);
-      lpFileIconInit = (bool (__stdcall *) (BOOL))GetProcAddress(ELGetSystemLibrary(TEXT("shell32.dll")), (LPCSTR)660);
+      lpShellDDEInit = (void (__stdcall *) (bool))GetProcAddress(shell32DLL, (LPCSTR)188);
+      lpFileIconInit = (bool (__stdcall *) (BOOL))GetProcAddress(shell32DLL, (LPCSTR)660);
+      lpRunInstallUninstallStubs = (void (WINAPI *)(int))GetProcAddress(shell32DLL, (LPCSTR)885);
     }
 
   if (shdocvmDLL)
     {
       //lpShellDDEInit = (void (__stdcall *) (bool))GetProcAddress(DDEdll, (LPCSTR)118);
       lpWinList_Init = (int (WINAPI *) (void))GetProcAddress(shdocvmDLL, (LPCSTR)110);
-      lpRunInstallUninstallStubs = (void (WINAPI *)(int))GetProcAddress(shdocvmDLL, (LPCSTR)130);
+      //lpRunInstallUninstallStubs = (void (WINAPI *)(int))GetProcAddress(shdocvmDLL, (LPCSTR)130);
+    }
+
+  if (explorerFrameDLL || GetProcAddress(explorerFrameDLL, (LPCSTR)110))
+    {
+      if (shdocvmDLL && !lpRunInstallUninstallStubs)
+        lpRunInstallUninstallStubs = (void (WINAPI *)(int))GetProcAddress(shdocvmDLL, (LPCSTR)130);
     }
 
   // Create a mutex telling that this is the Explorer shell
