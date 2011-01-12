@@ -1254,11 +1254,19 @@ BOOL EGIsCompositionEnabled()
 HRESULT EGBlurWindow(HWND hwnd)
 {
   HRESULT hr = E_FAIL;
-
+  RECT clientrt;
   DWM_BLURBEHIND bb;
+
+  if (!GetClientRect(hwnd, &clientrt))
+    return hr;
+
+  // If region is not set, there will be bleed over of the blur affect when
+  // resizing the window.
   ZeroMemory(&bb, sizeof(DWM_BLURBEHIND));
-  bb.dwFlags = DWM_BB_ENABLE;
+  bb.dwFlags = DWM_BB_ENABLE | DWM_BB_BLURREGION;
   bb.fEnable = true;
+  bb.hRgnBlur = CreateRectRgn(clientrt.left, clientrt.top, clientrt.right,
+                              clientrt.bottom);
 
   if (MSDwmEnableBlurBehindWindow == NULL)
     MSDwmEnableBlurBehindWindow = (fnDwmEnableBlurBehindWindow)GetProcAddress(ELGetSystemLibrary(TEXT("dwmapi.dll")), "DwmEnableBlurBehindWindow");
