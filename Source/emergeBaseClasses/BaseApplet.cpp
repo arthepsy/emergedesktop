@@ -459,7 +459,6 @@ void BaseApplet::DrawAlphaBlend()
         bf.SourceConstantAlpha = guiInfo.alphaInactive;
     }
 
-
   wndSz.cx = clientrt.right;
   wndSz.cy = clientrt.bottom;
   srcPt.x = 0;
