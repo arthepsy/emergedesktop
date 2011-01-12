@@ -149,6 +149,7 @@ typedef struct _GUIINFO
   WCHAR gradientMethod[MAX_PATH];
   int bevelWidth;
   int padding;
+  bool windowBlur;
 }
 GUIINFO, *LPGUIINFO;
 

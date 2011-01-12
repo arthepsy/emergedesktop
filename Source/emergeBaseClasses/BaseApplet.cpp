@@ -413,7 +413,7 @@ void BaseApplet::DrawAlphaBlend()
   SIZE wndSz;
   BLENDFUNCTION bf;
   int dragBorder = guiInfo.dragBorder + guiInfo.bevelWidth + guiInfo.padding;
-  bool isCompositionEnabled = EGIsCompositionEnabled();
+  bool blurWindow = EGIsCompositionEnabled() && guiInfo.windowBlur;
 
   if (!IsWindowVisible(mainWnd))
     return;
@@ -449,7 +449,7 @@ void BaseApplet::DrawAlphaBlend()
   bf.BlendOp = AC_SRC_OVER;
   bf.BlendFlags = 0;
   bf.AlphaFormat = AC_SRC_ALPHA;  // use source alpha
-  if (isCompositionEnabled)
+  if (blurWindow)
     bf.SourceConstantAlpha = 255;
   else
     {
@@ -467,7 +467,7 @@ void BaseApplet::DrawAlphaBlend()
 
   UpdateLayeredWindow(mainWnd, NULL, NULL, &wndSz, hdc, &srcPt, 0, &bf, ULW_ALPHA);
 
-  if (isCompositionEnabled)
+  if (blurWindow)
     EGBlurWindow(mainWnd);
 
   // do cleanup

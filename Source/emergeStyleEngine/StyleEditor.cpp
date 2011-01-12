@@ -196,6 +196,7 @@ void StyleEditor::BuildPanelMap(HWND hwndDlg)
       iter->second->insert(iter->second->begin(), GetDlgItem(hwndDlg, IDC_STATIC26));
       iter->second->insert(iter->second->begin(), GetDlgItem(hwndDlg, IDC_STATIC27));
       iter->second->insert(iter->second->begin(), GetDlgItem(hwndDlg, IDC_SHADOW));
+      iter->second->insert(iter->second->begin(), GetDlgItem(hwndDlg, IDC_BLUR));
       iter->second->insert(iter->second->begin(), GetDlgItem(hwndDlg, IDC_PADDING));
       iter->second->insert(iter->second->begin(), GetDlgItem(hwndDlg, IDC_PADDINGUPDOWN));
       iter->second->insert(iter->second->begin(), GetDlgItem(hwndDlg, IDC_BEVEL));
@@ -331,6 +332,9 @@ BOOL StyleEditor::DoInitDialog(HWND hwndDlg, bool updatePos)
 
   if (guiInfo.windowShadow)
     SendDlgItemMessage(hwndDlg, IDC_SHADOW, BM_SETCHECK, BST_CHECKED, 0);
+
+  if (guiInfo.windowBlur)
+    SendDlgItemMessage(hwndDlg, IDC_BLUR, BM_SETCHECK, BST_CHECKED, 0);
 
   SetDlgItemInt(hwndDlg, IDC_BEVEL, guiInfo.bevelWidth, false);
   SetDlgItemInt(hwndDlg, IDC_BORDER, guiInfo.dragBorder, false);
@@ -823,6 +827,11 @@ bool StyleEditor::DoSaveStyle(HWND hwndDlg, WCHAR *fileName)
     guiInfo.windowShadow = true;
   else if (SendDlgItemMessage(hwndDlg, IDC_SHADOW, BM_GETCHECK, 0, 0) == BST_UNCHECKED)
     guiInfo.windowShadow = false;
+
+  if (SendDlgItemMessage(hwndDlg, IDC_BLUR, BM_GETCHECK, 0, 0) == BST_CHECKED)
+    guiInfo.windowBlur = true;
+  else if (SendDlgItemMessage(hwndDlg, IDC_BLUR, BM_GETCHECK, 0, 0) == BST_UNCHECKED)
+    guiInfo.windowBlur = false;
 
   guiInfo.bevelWidth = GetDlgItemInt(hwndDlg, IDC_BEVEL, NULL, FALSE);
   guiInfo.dragBorder = GetDlgItemInt(hwndDlg, IDC_BORDER, NULL, FALSE);
