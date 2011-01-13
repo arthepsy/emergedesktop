@@ -283,12 +283,6 @@ LRESULT BaseApplet::DoWindowPosChanging(WINDOWPOS *windowPos)
       windowPos->hwndInsertAfter = ELGetDesktopWindow();
     }
 
-  if (_wcsicmp(pBaseSettings->GetZPosition(), TEXT("top")) == 0)
-    {
-      windowPos->flags &= ~SWP_NOZORDER;
-      windowPos->hwndInsertAfter = HWND_TOPMOST;
-    }
-
   return 0;
 }
 
