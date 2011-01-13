@@ -152,7 +152,10 @@ LRESULT BaseApplet::DoExitSizeMove(HWND hwnd)
   if ((currentWidth != referenceWidth) || (currentHeight != referenceHeight))
     DoSize(currentWidth, currentHeight);
 
-  if (_wcsicmp(pBaseSettings->GetZPosition(), TEXT("Top")) != 0)
+  if (_wcsicmp(pBaseSettings->GetZPosition(), TEXT("Top")) == 0)
+    SetWindowPos(mainWnd, HWND_TOPMOST, 0 , 0, 0, 0,
+                 SWP_NOSIZE|SWP_NOMOVE|SWP_NOSENDCHANGING);
+  else
     {
       SetWindowPos(mainWnd, HWND_NOTOPMOST, 0 , 0, 0, 0,
                    SWP_NOSIZE|SWP_NOMOVE|SWP_NOSENDCHANGING);
@@ -160,6 +163,7 @@ LRESULT BaseApplet::DoExitSizeMove(HWND hwnd)
         SetWindowPos(mainWnd, ELGetDesktopWindow(), 0 , 0, 0, 0,
                      SWP_NOSIZE|SWP_NOMOVE|SWP_NOSENDCHANGING);
     }
+
 
   pBaseSettings->WriteSettings();
 
