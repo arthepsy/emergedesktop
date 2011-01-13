@@ -154,6 +154,8 @@ bool Core::Initialize(WCHAR *commandLine)
       FreeLibrary(wtslib);
     }
 
+  pMessageControl->Dispatch(EMERGE_CORE, CORE_REFRESH);
+
   return true;
 }
 
