@@ -895,6 +895,7 @@ bool BaseApplet::GetFullScreen()
 LRESULT BaseApplet::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
   UINT shellMessage = (UINT)wParam;
+  UINT swpFlags = SWP_NOSIZE|SWP_NOMOVE|SWP_NOSENDCHANGING|SWP_NOACTIVATE;
 
   if (message == ShellMessage)
     {
@@ -906,6 +907,11 @@ LRESULT BaseApplet::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
           return 1;
 
         case HSHELL_WINDOWACTIVATED:
+          if (_wcsicmp(pBaseSettings->GetZPosition(), TEXT("Top")) == 0)
+            SetWindowPos(mainWnd, HWND_TOPMOST, 0 , 0, 0, 0, swpFlags);
+          else if (_wcsicmp(pBaseSettings->GetZPosition(), TEXT("Bottom")) == 0)
+            SetWindowPos(mainWnd, ELGetDesktopWindow(), 0 , 0, 0, 0, swpFlags);
+
           if (fullScreen)
             {
               KillTimer(mainWnd, FULLSCREEN_TIMER);
