@@ -104,13 +104,10 @@ LRESULT EAEHitTest(HWND hwnd, int guiBorder, bool autoSize, int x, int y)
 //----  --------------------------------------------------------------------------------------------------------
 HWND EAEUpdateGUI(HWND hwnd, bool shadow, WCHAR *zposition)
 {
-  if (ELVersionInfo() != 5.0)
-    {
-      if (shadow)
-        SetClassLongPtr(hwnd, GCL_STYLE, GetClassLongPtr(hwnd, GCL_STYLE) | CS_DROPSHADOW);
-      else
-        SetClassLongPtr(hwnd, GCL_STYLE, GetClassLongPtr(hwnd, GCL_STYLE) & ~CS_DROPSHADOW);
-    }
+  if (shadow)
+    SetClassLongPtr(hwnd, GCL_STYLE, GetClassLongPtr(hwnd, GCL_STYLE) | CS_DROPSHADOW);
+  else
+    SetClassLongPtr(hwnd, GCL_STYLE, GetClassLongPtr(hwnd, GCL_STYLE) & ~CS_DROPSHADOW);
 
   // Set window z-order
   if (_wcsicmp(zposition, TEXT("top")) == 0)
@@ -142,17 +139,17 @@ HWND EAEInitializeAppletWindow(HINSTANCE appletInstance, WNDPROC windowProcedure
 
   // The class is registered, let's create the window
   appletWindow = CreateWindowEx (
-                   WS_EX_TOOLWINDOW | WS_EX_LAYERED,
-                   appletClass,
-                   NULL,
-                   WS_POPUP,
-                   0, 0,
-                   0, 0,
-                   NULL,
-                   NULL,
-                   appletInstance,
-                   lpParam
-                 );
+                                 WS_EX_TOOLWINDOW | WS_EX_LAYERED,
+                                 appletClass,
+                                 NULL,
+                                 WS_POPUP,
+                                 0, 0,
+                                 0, 0,
+                                 NULL,
+                                 NULL,
+                                 appletInstance,
+                                 lpParam
+                                );
 
   return appletWindow;
 }
@@ -230,8 +227,8 @@ bool EAEAutoSize(AUTOSIZEINFO autoSizeInfo)
   if (autoSizeInfo.orientation == ASI_VERTICAL)
     {
       height = (2 * autoSizeInfo.dragBorder) +
-               (autoSizeInfo.visibleIconCount * autoSizeInfo.iconSpacing) +
-               (autoSizeInfo.visibleIconCount * autoSizeInfo.iconSize);
+        (autoSizeInfo.visibleIconCount * autoSizeInfo.iconSpacing) +
+        (autoSizeInfo.visibleIconCount * autoSizeInfo.iconSize);
       if (autoSizeInfo.visibleIconCount > 0)
         height -= autoSizeInfo.iconSpacing;
 
@@ -240,7 +237,7 @@ bool EAEAutoSize(AUTOSIZEINFO autoSizeInfo)
   else
     {
       width = (2 * autoSizeInfo.dragBorder) + (autoSizeInfo.visibleIconCount * autoSizeInfo.iconSpacing) +
-              (autoSizeInfo.visibleIconCount * autoSizeInfo.iconSize);
+        (autoSizeInfo.visibleIconCount * autoSizeInfo.iconSize);
       if (autoSizeInfo.visibleIconCount > 0)
         width -= autoSizeInfo.iconSpacing;
 
@@ -296,17 +293,17 @@ HWND EAEInitializeTooltipWindow(HINSTANCE appletInstance)
 
   // Create the tooltip window
   tooltipWindow = CreateWindowEx(
-                    0,
-                    TOOLTIPS_CLASS,
-                    NULL,
-                    TTS_ALWAYSTIP | WS_POPUP | TTS_NOPREFIX,
-                    CW_USEDEFAULT, CW_USEDEFAULT,
-                    CW_USEDEFAULT, CW_USEDEFAULT,
-                    NULL,
-                    NULL,
-                    appletInstance,
-                    NULL
-                  );
+                                 0,
+                                 TOOLTIPS_CLASS,
+                                 NULL,
+                                 TTS_ALWAYSTIP | WS_POPUP | TTS_NOPREFIX,
+                                 CW_USEDEFAULT, CW_USEDEFAULT,
+                                 CW_USEDEFAULT, CW_USEDEFAULT,
+                                 NULL,
+                                 NULL,
+                                 appletInstance,
+                                 NULL
+                                );
 
   // If the tooltip window was created successfully, extend it for 2K/XP icon tips
   if (tooltipWindow)
@@ -578,21 +575,21 @@ LRESULT CALLBACK MenuProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
   switch (message)
     {
     case WM_MENUSELECT:
-    {
-      HMENU menu = (HMENU)lParam;
-      if (menu)
         {
-          iter = contextMap.find(menu);
-          if (iter != contextMap.end())
+          HMENU menu = (HMENU)lParam;
+          if (menu)
             {
-              selectedMenu = (HMENU)lParam;
-              return 0;
+              iter = contextMap.find(menu);
+              if (iter != contextMap.end())
+                {
+                  selectedMenu = (HMENU)lParam;
+                  return 0;
+                }
+              else
+                return CallWindowProc(oldWndProc, hwnd, message, wParam, lParam);
             }
-          else
-            return CallWindowProc(oldWndProc, hwnd, message, wParam, lParam);
         }
-    }
-    break;
+      break;
     case WM_DRAWITEM:
     case WM_MEASUREITEM:
       if (wParam) break;
