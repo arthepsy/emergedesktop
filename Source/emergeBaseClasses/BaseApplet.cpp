@@ -175,7 +175,7 @@ void BaseApplet::UpdateGUI(WCHAR *styleFile)
   int dragBorder;
   HWND hWndInsertAfter;
   RECT wndRect;
-  UINT SWPFlags = SWP_FRAMECHANGED;
+  UINT SWPFlags = SWP_NOACTIVATE;
 
   pBaseSettings->ReadSettings();
   if (styleFile == NULL)
@@ -227,10 +227,8 @@ void BaseApplet::UpdateGUI(WCHAR *styleFile)
         SWPFlags |= SWP_SHOWWINDOW;
     }
 
-  // Set focus to mainWnd to fix the 'top' z-order issue
-  ELStealFocus(mainWnd);
   SetWindowPos(mainWnd, hWndInsertAfter, wndRect.left, wndRect.top,
-               wndRect.right - wndRect.left, wndRect.bottom - wndRect.top, SWPFlags);
+                 wndRect.right - wndRect.left, wndRect.bottom - wndRect.top, SWPFlags);
 
   if (pBaseAppletMenu)
     pBaseAppletMenu->UpdateHook(guiInfo.alphaMenu);

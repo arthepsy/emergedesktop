@@ -34,6 +34,9 @@
 #include "Desktop.h"
 #include "ThemeSelector.h"
 
+#define REFRESH_TIMER 1
+#define REFRESH_DELAY 5000
+
 typedef std::map<std::wstring, HWND> LaunchMap;
 
 class Core
@@ -66,6 +69,7 @@ public:
   LRESULT DoWTSSessionChange(UINT message);
   LRESULT DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
   LRESULT DoCopyData(COPYDATASTRUCT *cds);
+  LRESULT DoTimer(WPARAM wParam);
 };
 
 #endif
