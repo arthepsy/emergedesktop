@@ -175,7 +175,7 @@ void BaseApplet::UpdateGUI(WCHAR *styleFile)
   int dragBorder;
   HWND hWndInsertAfter;
   RECT wndRect;
-  UINT SWPFlags = SWP_NOACTIVATE;
+  UINT SWPFlags = 0;
 
   pBaseSettings->ReadSettings();
   if (styleFile == NULL)
@@ -227,8 +227,11 @@ void BaseApplet::UpdateGUI(WCHAR *styleFile)
         SWPFlags |= SWP_SHOWWINDOW;
     }
 
+  // Seems like Windows 7 has an issue setting HWND_TOPMOST unless the window
+  // is the active window
+  ELStealFocus(mainWnd);
   SetWindowPos(mainWnd, hWndInsertAfter, wndRect.left, wndRect.top,
-                 wndRect.right - wndRect.left, wndRect.bottom - wndRect.top, SWPFlags);
+               wndRect.right - wndRect.left, wndRect.bottom - wndRect.top, SWPFlags);
 
   if (pBaseAppletMenu)
     pBaseAppletMenu->UpdateHook(guiInfo.alphaMenu);
@@ -435,6 +438,9 @@ void BaseApplet::DrawAlphaBlend()
         DeleteDC(inactiveBackgroundDC);
       activeBackgroundDC = ESEPaintBackground(clientrt, &guiInfo, true);
       inactiveBackgroundDC = ESEPaintBackground(clientrt, &guiInfo, false);
+
+      if (blurWindow)
+        EGBlurWindow(mainWnd);
     }
 
   if (mouseOver)
@@ -468,9 +474,6 @@ void BaseApplet::DrawAlphaBlend()
   srcPt.y = 0;
 
   UpdateLayeredWindow(mainWnd, NULL, NULL, &wndSz, hdc, &srcPt, 0, &bf, ULW_ALPHA);
-
-  if (blurWindow)
-    EGBlurWindow(mainWnd);
 
   // do cleanup
   EGEndPaint();
