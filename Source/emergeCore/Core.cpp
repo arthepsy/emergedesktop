@@ -90,17 +90,17 @@ bool Core::Initialize(WCHAR *commandLine)
 
   // The class is registered, let's create the window
   mainWnd = CreateWindowEx (
-              WS_EX_TOOLWINDOW,
-              emergeCoreClass,
-              NULL,
-              WS_POPUP,
-              0, 0,
-              0, 0,
-              NULL,
-              NULL,
-              mainInst,
-              reinterpret_cast<LPVOID>(this)
-            );
+                            WS_EX_TOOLWINDOW,
+                            emergeCoreClass,
+                            NULL,
+                            WS_POPUP,
+                            0, 0,
+                            0, 0,
+                            NULL,
+                            NULL,
+                            mainInst,
+                            reinterpret_cast<LPVOID>(this)
+                           );
 
   // If the window failed to get created, unregister the class and quit the program
   if (!mainWnd)
@@ -135,16 +135,10 @@ bool Core::Initialize(WCHAR *commandLine)
   if (pShell->FirstRunCheck())
     {
       if (!ELIsKeyDown(VK_SHIFT))
-        {
-          pShell->RunFolderStartup(pSettings->GetShowStartupErrors());
-          SetTimer(mainWnd, REFRESH_TIMER, REFRESH_DELAY, NULL);
-        }
+        pShell->RunFolderStartup(pSettings->GetShowStartupErrors());
 
       if (!ELIsKeyDown(VK_CONTROL))
-        {
-          pShell->RunRegStartup(pSettings->GetShowStartupErrors());
-          SetTimer(mainWnd, REFRESH_TIMER, REFRESH_DELAY, NULL);
-        }
+        pShell->RunRegStartup(pSettings->GetShowStartupErrors());
     }
 
   pMessageControl->AddType(mainWnd, EMERGE_CORE);
@@ -158,7 +152,7 @@ bool Core::Initialize(WCHAR *commandLine)
   if (wtslib)
     {
       lpfnWTSRegisterSessionNotification wtsrsn = (lpfnWTSRegisterSessionNotification)
-          GetProcAddress(wtslib, "WTSRegisterSessionNotification");
+        GetProcAddress(wtslib, "WTSRegisterSessionNotification");
       if (wtsrsn)
         wtsrsn(mainWnd, NOTIFY_FOR_THIS_SESSION);
       FreeLibrary(wtslib);
@@ -176,7 +170,7 @@ Core::~Core()
       if (wtslib)
         {
           lpfnWTSUnRegisterSessionNotification wtsursn = (lpfnWTSUnRegisterSessionNotification)
-              GetProcAddress(wtslib, "WTSUnRegisterSessionNotification");
+            GetProcAddress(wtslib, "WTSUnRegisterSessionNotification");
           if (wtsursn)
             wtsursn(mainWnd);
           FreeLibrary(wtslib);
@@ -383,6 +377,7 @@ LRESULT Core::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
   if (message == EMERGE_REGISTER)
     {
       pMessageControl->AddType((HWND)wParam, (UINT)lParam);
+      SetTimer(mainWnd, REFRESH_TIMER, REFRESH_DELAY, NULL);
       return 0;
     }
 
