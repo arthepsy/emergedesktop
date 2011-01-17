@@ -135,10 +135,17 @@ bool Core::Initialize(WCHAR *commandLine)
   if (pShell->FirstRunCheck())
     {
       if (!ELIsKeyDown(VK_SHIFT))
-        pShell->RunFolderStartup(pSettings->GetShowStartupErrors());
+        {
+          pShell->RunFolderStartup(pSettings->GetShowStartupErrors());
+          SetTimer(mainWnd, REFRESH_TIMER, REFRESH_DELAY, NULL);
+        }
+
 
       if (!ELIsKeyDown(VK_CONTROL))
-        pShell->RunRegStartup(pSettings->GetShowStartupErrors());
+        {
+          pShell->RunRegStartup(pSettings->GetShowStartupErrors());
+          SetTimer(mainWnd, REFRESH_TIMER, REFRESH_DELAY, NULL);
+        }
     }
 
   pMessageControl->AddType(mainWnd, EMERGE_CORE);
