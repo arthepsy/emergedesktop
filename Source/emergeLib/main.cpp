@@ -1150,7 +1150,7 @@ bool ELExecuteInternal(LPTSTR command)
       PostMessage(ELGetCoreWindow(), EMERGE_DISPATCH, (WPARAM)EMERGE_CORE, (LPARAM)CORE_THEMESELECT);
       return true;
     }
-  else if (_wcsicmp(command, TEXT("CoreABout")) == 0)
+  else if (_wcsicmp(command, TEXT("CoreAbout")) == 0)
     {
       ELSwitchToThisWindow(ELGetCoreWindow());
       PostMessage(ELGetCoreWindow(), EMERGE_DISPATCH, (WPARAM)EMERGE_CORE, (LPARAM)CORE_ABOUT);
@@ -3865,59 +3865,11 @@ void ELClearEmergeVars()
 
 bool ELSetEmergeVars()
 {
-  WCHAR tmp[MAX_LINE_LENGTH], appletPath[MAX_PATH];
+  WCHAR appletPath[MAX_PATH];
 
   THEMEINFO themeInfo;
   ELGetThemeInfo(&themeInfo);
   ELGetCurrentPath(appletPath);
-
-  if (SHGetSpecialFolderPath(GetDesktopWindow(), tmp, CSIDL_STARTMENU, FALSE))
-    {
-      if (!SetEnvironmentVariable(TEXT("StartMenu"), tmp))
-        return false;
-    }
-  else
-    return false;
-
-  if (SHGetSpecialFolderPath(GetDesktopWindow(), tmp, CSIDL_COMMON_STARTMENU, FALSE))
-    {
-      if (!SetEnvironmentVariable(TEXT("CommonStartMenu"), tmp))
-        return false;
-    }
-  else
-    return false;
-
-  if (SHGetSpecialFolderPath(GetDesktopWindow(), tmp, CSIDL_DESKTOPDIRECTORY, FALSE))
-    {
-      if (!SetEnvironmentVariable(TEXT("Desktop"), tmp))
-        return false;
-    }
-  else
-    return false;
-
-  if (SHGetSpecialFolderPath(GetDesktopWindow(), tmp, CSIDL_COMMON_DESKTOPDIRECTORY, FALSE))
-    {
-      if (!SetEnvironmentVariable(TEXT("CommonDesktop"), tmp))
-        return false;
-    }
-  else
-    return false;
-
-  if (SHGetSpecialFolderPath(GetDesktopWindow(), tmp, CSIDL_PERSONAL, FALSE))
-    {
-      if (!SetEnvironmentVariable(TEXT("Documents"), tmp))
-        return false;
-    }
-  else
-    return false;
-
-  if (SHGetSpecialFolderPath(GetDesktopWindow(), tmp, CSIDL_COMMON_DOCUMENTS, FALSE))
-    {
-      if (!SetEnvironmentVariable(TEXT("CommonDocuments"), tmp))
-        return false;
-    }
-  else
-    return false;
 
   if (!SetEnvironmentVariable(TEXT("ThemeDir"), themeInfo.themePath))
     return false;
@@ -3929,6 +3881,84 @@ bool ELSetEmergeVars()
     return false;
 
   return true;
+}
+
+void ELSetEnvironmentVars(bool showErrors)
+{
+  WCHAR tmp[MAX_LINE_LENGTH];
+
+  bool localCheck = true;
+  if (SHGetSpecialFolderPath(GetDesktopWindow(), tmp, CSIDL_STARTMENU, FALSE))
+    {
+      if (!SetEnvironmentVariable(TEXT("StartMenu"), tmp))
+        localCheck = false;
+    }
+  else
+    localCheck = false;
+  if (showErrors && !localCheck)
+    ELMessageBox(GetDesktopWindow(), TEXT("Failed to set %%StartMenu%%"),
+                 TEXT("Emerge Desktop"), ELMB_OK|ELMB_ICONERROR);
+
+
+  localCheck = true;
+  if (SHGetSpecialFolderPath(GetDesktopWindow(), tmp, CSIDL_COMMON_STARTMENU, FALSE))
+    {
+      if (!SetEnvironmentVariable(TEXT("CommonStartMenu"), tmp))
+        localCheck = false;
+    }
+  else
+    localCheck = false;
+  if (showErrors && !localCheck)
+    ELMessageBox(GetDesktopWindow(), TEXT("Failed to set %%CommonStartMenu%%"),
+                 TEXT("Emerge Desktop"), ELMB_OK|ELMB_ICONERROR);
+
+  localCheck = true;
+  if (SHGetSpecialFolderPath(GetDesktopWindow(), tmp, CSIDL_DESKTOPDIRECTORY, FALSE))
+    {
+      if (!SetEnvironmentVariable(TEXT("Desktop"), tmp))
+        localCheck = false;
+    }
+  else
+    localCheck = false;
+  if (showErrors && !localCheck)
+    ELMessageBox(GetDesktopWindow(), TEXT("Failed to set %%Desktop%%"),
+                 TEXT("Emerge Desktop"), ELMB_OK|ELMB_ICONERROR);
+
+  localCheck = true;
+  if (SHGetSpecialFolderPath(GetDesktopWindow(), tmp, CSIDL_COMMON_DESKTOPDIRECTORY, FALSE))
+    {
+      if (!SetEnvironmentVariable(TEXT("CommonDesktop"), tmp))
+        localCheck = false;
+    }
+  else
+    localCheck = false;
+  if (showErrors && !localCheck)
+    ELMessageBox(GetDesktopWindow(), TEXT("Failed to set %%CommonDesktop%%"),
+                 TEXT("Emerge Desktop"), ELMB_OK|ELMB_ICONERROR);
+
+  localCheck = true;
+  if (SHGetSpecialFolderPath(GetDesktopWindow(), tmp, CSIDL_PERSONAL, FALSE))
+    {
+      if (!SetEnvironmentVariable(TEXT("Documents"), tmp))
+        localCheck = false;
+    }
+  else
+    localCheck = false;
+  if (showErrors && !localCheck)
+    ELMessageBox(GetDesktopWindow(), TEXT("Failed to set %%Documents%%"),
+                 TEXT("Emerge Desktop"), ELMB_OK|ELMB_ICONERROR);
+
+  localCheck = true;
+  if (SHGetSpecialFolderPath(GetDesktopWindow(), tmp, CSIDL_COMMON_DOCUMENTS, FALSE))
+    {
+      if (!SetEnvironmentVariable(TEXT("CommonDocuments"), tmp))
+        localCheck = false;
+    }
+  else
+    localCheck = false;
+  if (showErrors && !localCheck)
+    ELMessageBox(GetDesktopWindow(), TEXT("Failed to set %%CommonDocuments%%"),
+                 TEXT("Emerge Desktop"), ELMB_OK|ELMB_ICONERROR);
 }
 
 std::wstring ELExpandVars(std::wstring value)

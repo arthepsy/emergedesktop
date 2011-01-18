@@ -61,7 +61,8 @@ typedef enum _ITEMTYPE {
   IT_XML_MENU = 100,
   IT_FILE_MENU,
   IT_TASKS_MENU,
-  IT_SETTINGS_MENU
+  IT_SETTINGS_MENU,
+  IT_HELP_MENU
 } ITEMTYPE;
 
 #include <windows.h>
@@ -418,6 +419,7 @@ inline T fromwstring(const std::wstring& s)
   return t;
 }
 DLL_EXPORT bool ELSetEmergeVars();
+DLL_EXPORT void ELSetEnvironmentVars(bool showErrors);
 DLL_EXPORT void ELClearEmergeVars();
 DLL_EXPORT std::string ELwstringTostring(std::wstring wideString, UINT codePage = CP_UTF8);
 DLL_EXPORT std::wstring ELstringTowstring(std::string narrowString, UINT codePage = CP_UTF8);
