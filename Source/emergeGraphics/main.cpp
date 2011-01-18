@@ -816,6 +816,9 @@ HICON EGGetSystemIcon(UINT iconIndex, UINT iconSize)
     case ICON_LOCK:
       iconLocation = 47;
       break;
+    case ICON_QUESTION:
+      iconLocation = 23;
+      break;
     }
   icon = EGExtractIcon(source, iconLocation, iconSize);
 
