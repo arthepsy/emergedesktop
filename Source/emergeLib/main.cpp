@@ -4002,15 +4002,17 @@ bool ELUnExpandVars(LPTSTR value)
         ret = true;
     }
 
-  if (GetEnvironmentVariable(TEXT("EmergeDir"), tmp, MAX_LINE_LENGTH) != 0)
-    {
-      if (ELStringReplace(value, tmp, (WCHAR*)TEXT("%EmergeDir%"), true) > 0)
-        ret = true;
-    }
-
+  // Resolve AppletDir before EmergeDir to handle the situation where both AppletDir
+  // and EmergeDir refer to the same directory, as it can affect theme saving.
   if (GetEnvironmentVariable(TEXT("AppletDir"), tmp, MAX_LINE_LENGTH) != 0)
     {
       if (ELStringReplace(value, tmp, (WCHAR*)TEXT("%AppletDir%"), true) > 0)
+        ret = true;
+    }
+
+  if (GetEnvironmentVariable(TEXT("EmergeDir"), tmp, MAX_LINE_LENGTH) != 0)
+    {
+      if (ELStringReplace(value, tmp, (WCHAR*)TEXT("%EmergeDir%"), true) > 0)
         ret = true;
     }
 
