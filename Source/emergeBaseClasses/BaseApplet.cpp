@@ -69,6 +69,9 @@ UINT BaseApplet::Initialize(WNDPROC WindowProcedure, LPVOID lpParam, std::tr1::s
       return 0;
     }
 
+  // Set the non-critical evnvironment variables - do not popup warning messages.
+  ELSetEnvironmentVars(false);
+
   if (FAILED(OleInitialize(NULL)))
     {
       ELMessageBox(GetDesktopWindow(), (WCHAR*)TEXT("COM initialization failed"), appletName,
