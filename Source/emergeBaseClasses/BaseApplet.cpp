@@ -909,6 +909,13 @@ LRESULT BaseApplet::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
             }
           return 1;
 
+        case HSHELL_WINDOWCREATED:
+          if (_wcsicmp(pBaseSettings->GetZPosition(), TEXT("Top")) == 0)
+            SetWindowPos(mainWnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOSIZE|SWP_NOMOVE|SWP_NOACTIVATE);
+          else if (_wcsicmp(pBaseSettings->GetZPosition(), TEXT("Bottom")) == 0)
+            SetWindowPos(mainWnd, ELGetDesktopWindow(), 0, 0, 0, 0, SWP_NOSIZE|SWP_NOMOVE|SWP_NOACTIVATE);
+          return 1;
+
         default:
           return 0;
         }

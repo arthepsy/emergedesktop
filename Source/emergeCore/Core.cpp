@@ -128,24 +128,13 @@ bool Core::Initialize(WCHAR *commandLine)
 
   // Load the start up entries in the registry and the startup
   // folders only if the startup items have not already been started
-  //
-  // Additionally, 5 seconds after the startup items have been kicked off
-  // send a message to all registerd applets to refresh themselves to correct
-  // a bug in Windows where TOPMOST windows aren't actually on the top.
   if (pShell->FirstRunCheck())
     {
       if (!ELIsKeyDown(VK_SHIFT))
-        {
           pShell->RunFolderStartup(pSettings->GetShowStartupErrors());
-          SetTimer(mainWnd, REFRESH_TIMER, REFRESH_DELAY, NULL);
-        }
-
 
       if (!ELIsKeyDown(VK_CONTROL))
-        {
           pShell->RunRegStartup(pSettings->GetShowStartupErrors());
-          SetTimer(mainWnd, REFRESH_TIMER, REFRESH_DELAY, NULL);
-        }
     }
 
   pMessageControl->AddType(mainWnd, EMERGE_CORE);
@@ -338,9 +327,6 @@ LRESULT CALLBACK Core::CoreProcedure (HWND hwnd, UINT message, WPARAM wParam, LP
     case WM_WTSSESSION_CHANGE:
       return pCore->DoWTSSessionChange((UINT)wParam);
 
-    case WM_TIMER:
-      return pCore->DoTimer(wParam);
-
     case WM_DESTROY:
     case WM_NCDESTROY:
       // PostQuitMessage(1); - use with SetShellWindow
@@ -363,17 +349,6 @@ LRESULT Core::DoCopyData(COPYDATASTRUCT *cds)
     {
       SetEnvironmentVariable(TEXT("ThemeDir"), theme.c_str());
       return 1;
-    }
-
-  return 0;
-}
-
-LRESULT Core::DoTimer(WPARAM wParam)
-{
-  if (wParam == REFRESH_TIMER)
-    {
-      pMessageControl->DispatchMessage(EMERGE_CORE, CORE_REFRESH);
-      KillTimer(mainWnd, REFRESH_TIMER);
     }
 
   return 0;

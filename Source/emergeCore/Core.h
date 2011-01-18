@@ -69,7 +69,6 @@ public:
   LRESULT DoWTSSessionChange(UINT message);
   LRESULT DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
   LRESULT DoCopyData(COPYDATASTRUCT *cds);
-  LRESULT DoTimer(WPARAM wParam);
 };
 
 #endif
