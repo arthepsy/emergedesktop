@@ -244,6 +244,7 @@ BOOL MenuEditor::DoInitDialog(HWND hwndDlg)
   SendMessage(typeWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Folder Menu"));
   SendMessage(typeWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Tasks Menu"));
   SendMessage(typeWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Settings Menu"));
+  SendMessage(typeWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Help Menu"));
 
   edit = false;
 
@@ -740,6 +741,8 @@ int MenuEditor::GetTypeValue(UINT type)
       return 7;
     case IT_SETTINGS_MENU:
       return 8;
+    case IT_HELP_MENU:
+      return 9;
     }
 
   return -1;
