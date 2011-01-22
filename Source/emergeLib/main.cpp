@@ -136,6 +136,10 @@ typedef struct _APPLETMONITORINFO
 
 // Globals
 int enumCount = 0;
+static HMODULE shell32DLL = NULL;
+static HMODULE user32DLL = NULL;
+static HMODULE kernel32DLL = NULL;
+static HINSTANCE emergeLibInstance = NULL;
 
 // Globally shared data
 /*#ifdef __GNUC__
@@ -152,12 +156,15 @@ std::deque <HWND> hwndDeque;
 
 // MS Run dialog
 typedef void (__stdcall *lpfnMSRun)(HWND, HICON, LPCSTR, LPCSTR, LPCSTR, int);
+static lpfnMSRun MSRun = NULL;
 
 // MS SwitchToThisWindow
 typedef void (__stdcall *lpfnMSSwitchToThisWindow)(HWND, BOOL);
+static lpfnMSSwitchToThisWindow MSSwitchToThisWindow = NULL;
 
 // MS RegisterShellHookWindow
 typedef BOOL (WINAPI *lpfnMSRegisterShellHookWindow)(HWND hWnd, DWORD method);
+static lpfnMSRegisterShellHookWindow MSRegisterShellHookWindow = NULL;
 
 // MS IL Functions
 typedef LPITEMIDLIST (WINAPI *fnILClone)(LPCITEMIDLIST);
@@ -174,6 +181,41 @@ static lpfnILFree MSILFree = NULL;
 
 typedef BOOL (WINAPI *lpfnIsWow64Process)(HANDLE, PBOOL);
 static lpfnIsWow64Process MSIsWow64Process = NULL;
+
+extern "C" BOOL WINAPI DllMain(HINSTANCE hinstDLL UNUSED, DWORD fdwReason, LPVOID lpvReserved UNUSED)
+{
+  switch (fdwReason)
+    {
+    case DLL_PROCESS_ATTACH:
+      emergeLibInstance = hinstDLL;
+      if (shell32DLL == NULL)
+        shell32DLL = ELLoadSystemLibrary(TEXT("shell32.dll"));
+      if (user32DLL == NULL)
+        user32DLL = ELLoadSystemLibrary(TEXT("user32.dll"));
+      if (kernel32DLL == NULL)
+        kernel32DLL = ELLoadSystemLibrary(TEXT("kernel32.dll"));
+      break;
+    case DLL_PROCESS_DETACH:
+      if (shell32DLL != NULL)
+        {
+          FreeLibrary(shell32DLL);
+          shell32DLL = NULL;
+        }
+      if (user32DLL != NULL)
+        {
+          FreeLibrary(user32DLL);
+          user32DLL = NULL;
+        }
+      if (kernel32DLL != NULL)
+        {
+          FreeLibrary(kernel32DLL);
+          kernel32DLL = NULL;
+        }
+      break;
+    }
+
+  return TRUE;
+}
 
 std::tr1::shared_ptr<TiXmlDocument> OpenXMLConfig(std::string filename, bool create)
 {
@@ -863,12 +905,12 @@ std::string ELwstringTostring(std::wstring inString, UINT codePage)
   std::string returnString;
 
   size_t tmpStringLength = WideCharToMultiByte(codePage, 0, wideString.c_str(), wideString.length(), NULL, 0,
-                           NULL, NULL);
+                                               NULL, NULL);
   if (tmpStringLength != 0)
     {
       LPSTR tmpString = new char[tmpStringLength + 1];
       size_t writtenBytes = WideCharToMultiByte(codePage, 0, wideString.c_str(), wideString.length(), tmpString,
-                            tmpStringLength, NULL, NULL);
+                                                tmpStringLength, NULL, NULL);
       if (writtenBytes != 0)
         {
           if (writtenBytes <= tmpStringLength)
@@ -890,7 +932,7 @@ std::wstring ELstringTowstring(std::string inString, UINT codePage)
     {
       LPWSTR tmpString = new WCHAR[tmpStringLength + 1];
       size_t writtenBytes = MultiByteToWideChar(codePage, 0, narrowString.c_str(), narrowString.length(), tmpString,
-                            tmpStringLength);
+                                                tmpStringLength);
       if (writtenBytes != 0)
         {
           if (writtenBytes <= tmpStringLength)
@@ -1362,7 +1404,7 @@ bool GetPIDLGUID(LPITEMIDLIST pidl, WCHAR *classID)
 void ELILFree(LPITEMIDLIST pidl)
 {
   if (MSILFree == NULL)
-    MSILFree = (lpfnILFree)GetProcAddress(ELGetSystemLibrary(TEXT("shell32.dll")), (LPCSTR)155);
+    MSILFree = (lpfnILFree)GetProcAddress(shell32DLL, (LPCSTR)155);
   if (MSILFree == NULL)
     return;
 
@@ -1372,7 +1414,7 @@ void ELILFree(LPITEMIDLIST pidl)
 LPITEMIDLIST ELILClone(LPITEMIDLIST pidl)
 {
   if (MSILClone == NULL)
-    MSILClone = (fnILClone)GetProcAddress(ELGetSystemLibrary(TEXT("shell32.dll")), (LPCSTR)18);
+    MSILClone = (fnILClone)GetProcAddress(shell32DLL, (LPCSTR)18);
   if (MSILClone == NULL)
     return NULL;
 
@@ -1382,7 +1424,7 @@ LPITEMIDLIST ELILClone(LPITEMIDLIST pidl)
 LPITEMIDLIST ELILFindLastID(LPITEMIDLIST pidl)
 {
   if (MSILFindLastID == NULL)
-    MSILFindLastID = (fnILFindLastID)GetProcAddress(ELGetSystemLibrary(TEXT("shell32.dll")), (LPCSTR)16);
+    MSILFindLastID = (fnILFindLastID)GetProcAddress(shell32DLL, (LPCSTR)16);
   if (MSILFindLastID == NULL)
     return NULL;
 
@@ -1392,7 +1434,7 @@ LPITEMIDLIST ELILFindLastID(LPITEMIDLIST pidl)
 BOOL ELILRemoveLastID(LPITEMIDLIST pidl)
 {
   if (MSILRemoveLastID == NULL)
-    MSILRemoveLastID = (fnILRemoveLastID)GetProcAddress(ELGetSystemLibrary(TEXT("shell32.dll")), (LPCSTR)17);
+    MSILRemoveLastID = (fnILRemoveLastID)GetProcAddress(shell32DLL, (LPCSTR)17);
   if (MSILRemoveLastID == NULL)
     return FALSE;
 
@@ -1681,15 +1723,12 @@ bool ELGetAppPath(const WCHAR *program, WCHAR *path)
 //----  --------------------------------------------------------------------------------------------------------
 bool ELRun()
 {
-  HMODULE shell32DLL = ELGetSystemLibrary(TEXT("shell32.dll"));
-  if (shell32DLL)
+  if (MSRun == NULL)
+    MSRun = (lpfnMSRun)GetProcAddress(shell32DLL, (LPCSTR) 61);
+  if (MSRun)
     {
-      static lpfnMSRun MSRun = (lpfnMSRun)GetProcAddress(shell32DLL, (LPCSTR) 61);
-      if (MSRun)
-        {
-          MSRun(NULL, NULL, NULL, NULL, NULL, 0);
-          return true;
-        }
+      MSRun(NULL, NULL, NULL, NULL, NULL, 0);
+      return true;
     }
 
   return false;
@@ -1740,29 +1779,25 @@ bool ELRegisterShellHook(HWND hwnd, DWORD method)
   MINIMIZEDMETRICS minMetrics;
   bool result = false;
 
-  HMODULE shell32DLL = ELGetSystemLibrary(TEXT("shell32.dll"));
-  if (shell32DLL)
+  if (MSRegisterShellHookWindow == NULL)
+    MSRegisterShellHookWindow = (lpfnMSRegisterShellHookWindow)GetProcAddress(shell32DLL, (LPSTR)((long)0xB5));
+  if (MSRegisterShellHookWindow)
     {
-      static lpfnMSRegisterShellHookWindow MSRegisterShellHookWindow =
-        (lpfnMSRegisterShellHookWindow)GetProcAddress(shell32DLL, (LPSTR)((long)0xB5));
-      if (MSRegisterShellHookWindow)
+      if (method == RSH_TASKMGR)
         {
-          if (method == RSH_TASKMGR)
-            {
-              shellWnd = hwnd;
+          shellWnd = hwnd;
 
-              // Hide minimized windows
-              ZeroMemory(&minMetrics, sizeof(MINIMIZEDMETRICS));
-              minMetrics.cbSize = sizeof(MINIMIZEDMETRICS);
-              SystemParametersInfo(SPI_GETMINIMIZEDMETRICS, sizeof(MINIMIZEDMETRICS), &minMetrics,
-                                   0);
-              minMetrics.iArrange |= ARW_HIDE;
-              SystemParametersInfo(SPI_SETMINIMIZEDMETRICS, sizeof(MINIMIZEDMETRICS), &minMetrics,
-                                   SPIF_SENDCHANGE);
-            }
-
-          result = (MSRegisterShellHookWindow(shellWnd, method) == TRUE);
+          // Hide minimized windows
+          ZeroMemory(&minMetrics, sizeof(MINIMIZEDMETRICS));
+          minMetrics.cbSize = sizeof(MINIMIZEDMETRICS);
+          SystemParametersInfo(SPI_GETMINIMIZEDMETRICS, sizeof(MINIMIZEDMETRICS), &minMetrics,
+                               0);
+          minMetrics.iArrange |= ARW_HIDE;
+          SystemParametersInfo(SPI_SETMINIMIZEDMETRICS, sizeof(MINIMIZEDMETRICS), &minMetrics,
+                               SPIF_SENDCHANGE);
         }
+
+      result = (MSRegisterShellHookWindow(shellWnd, method) == TRUE);
     }
 
   return result;
@@ -1776,7 +1811,7 @@ bool ELRegisterShellHook(HWND hwnd, DWORD method)
 //----  --------------------------------------------------------------------------------------------------------
 bool ELShutdown(HWND wnd)
 {
-  Shutdown shutdown(ELGetEmergeLibrary(TEXT("emergeLib.dll")), wnd);
+  Shutdown shutdown(emergeLibInstance, wnd);
   shutdown.Show();
 
   return false;
@@ -2471,16 +2506,12 @@ bool ELSnapSize(LPSNAPSIZEINFO snapSize)
 //----  --------------------------------------------------------------------------------------------------------
 bool ELSwitchToThisWindow(HWND wnd)
 {
-  HMODULE user32DLL = ELGetSystemLibrary(TEXT("user32.dll"));
-  if (user32DLL)
+  if (MSSwitchToThisWindow == NULL)
+    MSSwitchToThisWindow = (lpfnMSSwitchToThisWindow)GetProcAddress(user32DLL, "SwitchToThisWindow");
+  if (MSSwitchToThisWindow)
     {
-      static lpfnMSSwitchToThisWindow MSSwitchToThisWindow =
-        (lpfnMSSwitchToThisWindow)GetProcAddress(user32DLL, "SwitchToThisWindow");
-      if (MSSwitchToThisWindow)
-        {
-          MSSwitchToThisWindow(wnd, TRUE);
-          return true;
-        }
+      MSSwitchToThisWindow(wnd, TRUE);
+      return true;
     }
 
   return false;
@@ -3185,13 +3216,13 @@ bool ELReadFileColor(const WCHAR *fileName, WCHAR *item, COLORREF *target, COLOR
   @return Version of Operating System
 
   @note Windows 7	              6.1
-        Windows Server 2008 R2  6.1
-        Windows Server 2008	    6.0
-        Windows Vista	          6.0
-        Windows Server 2003 R2	5.2
-        Windows Server 2003	    5.2
-        Windows XP	            5.1
-        Windows 2000	          5.0
+  Windows Server 2008 R2  6.1
+  Windows Server 2008	    6.0
+  Windows Vista	          6.0
+  Windows Server 2003 R2	5.2
+  Windows Server 2003	    5.2
+  Windows XP	            5.1
+  Windows 2000	          5.0
   */
 
 float ELVersionInfo()
@@ -3842,9 +3873,9 @@ BOOL ELIsWow64()
 {
   BOOL bIsWow64 = FALSE;
 
-  MSIsWow64Process = (lpfnIsWow64Process)GetProcAddress(ELGetSystemLibrary(TEXT("kernel32")), "IsWow64Process");
-
-  if (MSIsWow64Process != NULL)
+  if (MSIsWow64Process == NULL)
+    MSIsWow64Process = (lpfnIsWow64Process)GetProcAddress(kernel32DLL, "IsWow64Process");
+  if (MSIsWow64Process)
     MSIsWow64Process(GetCurrentProcess(), &bIsWow64);
 
   return bIsWow64;

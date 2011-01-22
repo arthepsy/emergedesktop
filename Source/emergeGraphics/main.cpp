@@ -55,9 +55,45 @@ typedef HRESULT (WINAPI *fnDwmEnableBlurBehindWindow)(HWND, const DWM_BLURBEHIND
 static fnDwmEnableBlurBehindWindow MSDwmEnableBlurBehindWindow = NULL;
 
 // Globals
-HINSTANCE hInstance = NULL;
 HDC hdc = NULL;
 HBITMAP hbitmap = NULL;
+static HMODULE dwmapiDLL = NULL;
+static HMODULE shell32DLL = NULL;
+static HMODULE user32DLL = NULL;
+
+extern "C" BOOL WINAPI DllMain(HINSTANCE hinstDLL UNUSED, DWORD fdwReason, LPVOID lpvReserved UNUSED)
+{
+  switch (fdwReason)
+    {
+    case DLL_PROCESS_ATTACH:
+      if (dwmapiDLL == NULL)
+        dwmapiDLL = ELLoadSystemLibrary(TEXT("dwmapi.dll"));
+      if (shell32DLL == NULL)
+        shell32DLL = ELLoadSystemLibrary(TEXT("shell32.dll"));
+      if (user32DLL == NULL)
+        user32DLL = ELLoadSystemLibrary(TEXT("user32.dll"));
+      break;
+    case DLL_PROCESS_DETACH:
+      if (dwmapiDLL != NULL)
+        {
+          FreeLibrary(dwmapiDLL);
+          dwmapiDLL = NULL;
+        }
+      if (shell32DLL != NULL)
+        {
+          FreeLibrary(shell32DLL);
+          shell32DLL = NULL;
+        }
+      if (user32DLL != NULL)
+        {
+          FreeLibrary(user32DLL);
+          user32DLL = NULL;
+        }
+      break;
+    }
+
+  return TRUE;
+}
 
 BYTE EGGetMinAlpha(BYTE alphaBase, BYTE alphaDelta)
 {
@@ -649,8 +685,7 @@ bool EGGetIconDialogue(HWND hwnd, WCHAR *iconPath, int iconIndex)
   std::wstring tmpPath = iconPath;
 
   if (MSPickIcon == NULL)
-    MSPickIcon = (fnPickIcon)GetProcAddress(ELGetSystemLibrary(TEXT("shell32.dll")), (LPCSTR)62);
-
+    MSPickIcon = (fnPickIcon)GetProcAddress(shell32DLL, (LPCSTR)62);
   if (MSPickIcon == NULL)
     return false;
 
@@ -779,7 +814,7 @@ HICON EGExtractIcon(const WCHAR *iconLocation, int iconIndex, int iconSize)
   UINT iconID;
 
   if (MSPrivateExtractIcons == NULL)
-    MSPrivateExtractIcons = (fnPrivateExtractIcons)GetProcAddress(ELGetSystemLibrary(TEXT("user32.dll")), "PrivateExtractIconsW");
+    MSPrivateExtractIcons = (fnPrivateExtractIcons)GetProcAddress(user32DLL, "PrivateExtractIconsW");
   if (MSPrivateExtractIcons != NULL)
     MSPrivateExtractIcons(iconLocation, iconIndex, iconSize, iconSize, &icon, &iconID, 1, 0);
 
@@ -1241,17 +1276,20 @@ HBITMAP EGGetIconBitmap(HICON sourceIcon)
 
 BOOL EGIsCompositionEnabled()
 {
-  BOOL check;
+  BOOL check = FALSE;
+
+  if (dwmapiDLL == NULL)
+    return check;
 
   if (MSDwmIsCompositionEnabled == NULL)
-    MSDwmIsCompositionEnabled = (fnDwmIsCompositionEnabled)GetProcAddress(ELGetSystemLibrary(TEXT("dwmapi.dll")), "DwmIsCompositionEnabled");
+    MSDwmIsCompositionEnabled = (fnDwmIsCompositionEnabled)GetProcAddress(dwmapiDLL, "DwmIsCompositionEnabled");
   if (MSDwmIsCompositionEnabled)
     {
       if (SUCCEEDED(MSDwmIsCompositionEnabled(&check)))
         return check;
     }
 
-  return FALSE;
+  return check;
 }
 
 HRESULT EGBlurWindow(HWND hwnd)
@@ -1263,6 +1301,9 @@ HRESULT EGBlurWindow(HWND hwnd)
   if (!GetClientRect(hwnd, &clientrt))
     return hr;
 
+  if (dwmapiDLL == NULL)
+    return hr;
+
   // If region is not set, there will be bleed over of the blur affect when
   // resizing the window.
   ZeroMemory(&bb, sizeof(DWM_BLURBEHIND));
@@ -1272,7 +1313,7 @@ HRESULT EGBlurWindow(HWND hwnd)
                               clientrt.bottom);
 
   if (MSDwmEnableBlurBehindWindow == NULL)
-    MSDwmEnableBlurBehindWindow = (fnDwmEnableBlurBehindWindow)GetProcAddress(ELGetSystemLibrary(TEXT("dwmapi.dll")), "DwmEnableBlurBehindWindow");
+    MSDwmEnableBlurBehindWindow = (fnDwmEnableBlurBehindWindow)GetProcAddress(dwmapiDLL, "DwmEnableBlurBehindWindow");
   if (MSDwmEnableBlurBehindWindow)
     hr = MSDwmEnableBlurBehindWindow(hwnd, &bb);
 
