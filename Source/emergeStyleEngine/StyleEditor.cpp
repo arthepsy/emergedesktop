@@ -1,4 +1,4 @@
-// vim: tags+=../emergeLib/tags
+// vim: tags+=../emergeLib/tags,../emergeGraphics/tags
 //----  --------------------------------------------------------------------------------------------------------
 //
 //  This file is part of Emerge Desktop.
@@ -250,6 +250,7 @@ BOOL StyleEditor::DoInitDialog(HWND hwndDlg, bool updatePos)
 
   HWND okWnd = GetDlgItem(hwndDlg, IDOK);
   HWND treeWnd = GetDlgItem(hwndDlg, IDC_PANELTREE);
+  HWND blurWnd = GetDlgItem(hwndDlg, IDC_BLUR);
   EnableWindow(okWnd, (wcslen(style) != 0));
 
   BuildPanelMap(hwndDlg);
@@ -434,6 +435,9 @@ BOOL StyleEditor::DoInitDialog(HWND hwndDlg, bool updatePos)
       BuildPanelMap(hwndDlg);
       (void)TreeView_SelectItem(treeWnd, hitemOpacity);
     }
+
+  if (!EGIsCompositionEnabled())
+    EnableWindow(blurWnd, FALSE);
 
   return TRUE;
 }
