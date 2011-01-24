@@ -753,23 +753,25 @@ UINT MenuEditor::GetValueType(int value)
   switch (value)
     {
     case 0:
-      return 0;
+      return IT_SEPARATOR;
     case 1:
-      return 1;
+      return IT_EXECUTABLE;
     case 2:
-      return 2;
+      return IT_INTERNAL_COMMAND;
     case 3:
-      return 3;
+      return IT_DATE_TIME;
     case 4:
-      return 4;
+      return IT_SPECIAL_FOLDER;
     case 5:
-      return 100;
+      return IT_XML_MENU;
     case 6:
-      return 101;
+      return IT_FILE_MENU;
     case 7:
-      return 102;
+      return IT_TASKS_MENU;
     case 8:
-      return 103;
+      return IT_SETTINGS_MENU;
+    case 9:
+      return IT_HELP_MENU;
     }
 
   return 0;
