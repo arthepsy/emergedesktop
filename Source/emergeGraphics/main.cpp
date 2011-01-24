@@ -1292,7 +1292,7 @@ BOOL EGIsCompositionEnabled()
   return check;
 }
 
-HRESULT EGBlurWindow(HWND hwnd)
+HRESULT EGBlurWindow(HWND hwnd, bool enable)
 {
   HRESULT hr = E_FAIL;
   RECT clientrt;
@@ -1308,7 +1308,7 @@ HRESULT EGBlurWindow(HWND hwnd)
   // resizing the window.
   ZeroMemory(&bb, sizeof(DWM_BLURBEHIND));
   bb.dwFlags = DWM_BB_ENABLE | DWM_BB_BLURREGION;
-  bb.fEnable = true;
+  bb.fEnable = enable;
   bb.hRgnBlur = CreateRectRgn(clientrt.left, clientrt.top, clientrt.right,
                               clientrt.bottom);
 
