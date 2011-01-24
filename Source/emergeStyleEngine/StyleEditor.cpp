@@ -251,6 +251,10 @@ BOOL StyleEditor::DoInitDialog(HWND hwndDlg, bool updatePos)
   HWND okWnd = GetDlgItem(hwndDlg, IDOK);
   HWND treeWnd = GetDlgItem(hwndDlg, IDC_PANELTREE);
   HWND blurWnd = GetDlgItem(hwndDlg, IDC_BLUR);
+  HWND activeSliderWnd = GetDlgItem(hwndDlg, IDC_ACTIVESLIDER);
+  HWND activeAlphaWnd = GetDlgItem(hwndDlg, IDC_ACTIVEALPHA);
+  HWND inactiveSliderWnd = GetDlgItem(hwndDlg, IDC_INACTIVESLIDER);
+  HWND inactiveAlphaWnd = GetDlgItem(hwndDlg, IDC_INACTIVEALPHA);
   EnableWindow(okWnd, (wcslen(style) != 0));
 
   BuildPanelMap(hwndDlg);
@@ -335,7 +339,16 @@ BOOL StyleEditor::DoInitDialog(HWND hwndDlg, bool updatePos)
     SendDlgItemMessage(hwndDlg, IDC_SHADOW, BM_SETCHECK, BST_CHECKED, 0);
 
   if (guiInfo.windowBlur)
-    SendDlgItemMessage(hwndDlg, IDC_BLUR, BM_SETCHECK, BST_CHECKED, 0);
+    {
+      SendDlgItemMessage(hwndDlg, IDC_BLUR, BM_SETCHECK, BST_CHECKED, 0);
+      if (EGIsCompositionEnabled())
+        {
+          EnableWindow(activeSliderWnd, FALSE);
+          EnableWindow(activeAlphaWnd, FALSE);
+          EnableWindow(inactiveSliderWnd, FALSE);
+          EnableWindow(inactiveAlphaWnd, FALSE);
+        }
+    }
 
   SetDlgItemInt(hwndDlg, IDC_BEVEL, guiInfo.bevelWidth, false);
   SetDlgItemInt(hwndDlg, IDC_BORDER, guiInfo.dragBorder, false);
@@ -445,6 +458,10 @@ BOOL StyleEditor::DoInitDialog(HWND hwndDlg, bool updatePos)
 BOOL StyleEditor::DoCommand(HWND hwndDlg, WPARAM wParam, LPARAM lParam UNUSED)
 {
   bool update = false;
+  HWND activeSliderWnd = GetDlgItem(hwndDlg, IDC_ACTIVESLIDER);
+  HWND activeAlphaWnd = GetDlgItem(hwndDlg, IDC_ACTIVEALPHA);
+  HWND inactiveSliderWnd = GetDlgItem(hwndDlg, IDC_INACTIVESLIDER);
+  HWND inactiveAlphaWnd = GetDlgItem(hwndDlg, IDC_INACTIVEALPHA);
 
   switch (LOWORD(wParam))
     {
@@ -475,7 +492,7 @@ BOOL StyleEditor::DoCommand(HWND hwndDlg, WPARAM wParam, LPARAM lParam UNUSED)
           hbmColourBackground = EGCreateBitmap(0xff, colourBackground, colourRect);
           if (hbmColourBackground)
             DeleteObject((HBITMAP)SendDlgItemMessage(hwndDlg, IDC_BACKGROUNDCOLOUR, BM_SETIMAGE, IMAGE_BITMAP,
-                         (LPARAM)hbmColourBackground));
+                                                     (LPARAM)hbmColourBackground));
           return TRUE;
         }
       return FALSE;
@@ -495,7 +512,7 @@ BOOL StyleEditor::DoCommand(HWND hwndDlg, WPARAM wParam, LPARAM lParam UNUSED)
           hbmColourForeground = EGCreateBitmap(0xff, colourForeground, colourRect);
           if (hbmColourForeground)
             DeleteObject((HBITMAP)SendDlgItemMessage(hwndDlg, IDC_FOREGROUNDCOLOUR, BM_SETIMAGE, IMAGE_BITMAP,
-                         (LPARAM)hbmColourForeground));
+                                                     (LPARAM)hbmColourForeground));
           return TRUE;
         }
       return FALSE;
@@ -515,7 +532,7 @@ BOOL StyleEditor::DoCommand(HWND hwndDlg, WPARAM wParam, LPARAM lParam UNUSED)
           hbmColourSelected = EGCreateBitmap(0xff, colourSelected, colourRect);
           if (hbmColourSelected)
             DeleteObject((HBITMAP)SendDlgItemMessage(hwndDlg, IDC_SELECTEDCOLOUR, BM_SETIMAGE, IMAGE_BITMAP,
-                         (LPARAM)hbmColourSelected));
+                                                     (LPARAM)hbmColourSelected));
           return TRUE;
         }
       return FALSE;
@@ -535,7 +552,7 @@ BOOL StyleEditor::DoCommand(HWND hwndDlg, WPARAM wParam, LPARAM lParam UNUSED)
           hbmColourFrame = EGCreateBitmap(0xff, colourFrame, colourRect);
           if (hbmColourFrame)
             DeleteObject((HBITMAP)SendDlgItemMessage(hwndDlg, IDC_FRAMECOLOUR, BM_SETIMAGE, IMAGE_BITMAP,
-                         (LPARAM)hbmColourFrame));
+                                                     (LPARAM)hbmColourFrame));
           return TRUE;
         }
       return FALSE;
@@ -555,7 +572,7 @@ BOOL StyleEditor::DoCommand(HWND hwndDlg, WPARAM wParam, LPARAM lParam UNUSED)
           hbmColourFont = EGCreateBitmap(0xff, colourFont, colourRect);
           if (hbmColourFont)
             DeleteObject((HBITMAP)SendDlgItemMessage(hwndDlg, IDC_FONTCOLOUR, BM_SETIMAGE, IMAGE_BITMAP,
-                         (LPARAM)hbmColourFont));
+                                                     (LPARAM)hbmColourFont));
           return TRUE;
         }
       return FALSE;
@@ -575,7 +592,7 @@ BOOL StyleEditor::DoCommand(HWND hwndDlg, WPARAM wParam, LPARAM lParam UNUSED)
           hbmColourBorder = EGCreateBitmap(0xff, colourBorder, colourRect);
           if (hbmColourBorder)
             DeleteObject((HBITMAP)SendDlgItemMessage(hwndDlg, IDC_BORDERCOLOUR, BM_SETIMAGE,
-                         IMAGE_BITMAP, (LPARAM)hbmColourBorder));
+                                                     IMAGE_BITMAP, (LPARAM)hbmColourBorder));
           return TRUE;
         }
       return FALSE;
@@ -595,7 +612,7 @@ BOOL StyleEditor::DoCommand(HWND hwndDlg, WPARAM wParam, LPARAM lParam UNUSED)
           hbmColourFrom = EGCreateBitmap(0xff, colourFrom, colourRect);
           if (hbmColourFont)
             DeleteObject((HBITMAP)SendDlgItemMessage(hwndDlg, IDC_FROMCOLOUR, BM_SETIMAGE,
-                         IMAGE_BITMAP, (LPARAM)hbmColourFrom));
+                                                     IMAGE_BITMAP, (LPARAM)hbmColourFrom));
           return TRUE;
         }
       return FALSE;
@@ -615,7 +632,7 @@ BOOL StyleEditor::DoCommand(HWND hwndDlg, WPARAM wParam, LPARAM lParam UNUSED)
           hbmColourTo = EGCreateBitmap(0xff, colourTo, colourRect);
           if (hbmColourTo)
             DeleteObject((HBITMAP)SendDlgItemMessage(hwndDlg, IDC_TOCOLOUR, BM_SETIMAGE, IMAGE_BITMAP,
-                         (LPARAM)hbmColourTo));
+                                                     (LPARAM)hbmColourTo));
           return TRUE;
         }
       return FALSE;
@@ -623,6 +640,22 @@ BOOL StyleEditor::DoCommand(HWND hwndDlg, WPARAM wParam, LPARAM lParam UNUSED)
       ESESetStyle(tmpFile);
       if (DoSaveStyle(hwndDlg, tmpFile))
         PostMessage(mainWnd, EMERGE_NOTIFY, EMERGE_CORE, CORE_REFRESH);
+      return TRUE;
+    case IDC_BLUR:
+      if (SendDlgItemMessage(hwndDlg, IDC_BLUR, BM_GETCHECK, 0, 0) == BST_CHECKED)
+        {
+          EnableWindow(activeSliderWnd, FALSE);
+          EnableWindow(activeAlphaWnd, FALSE);
+          EnableWindow(inactiveSliderWnd, FALSE);
+          EnableWindow(inactiveAlphaWnd, FALSE);
+        }
+      else
+        {
+          EnableWindow(activeSliderWnd, TRUE);
+          EnableWindow(activeAlphaWnd, TRUE);
+          EnableWindow(inactiveSliderWnd, TRUE);
+          EnableWindow(inactiveAlphaWnd, TRUE);
+        }
       return TRUE;
     }
 
@@ -640,14 +673,14 @@ BOOL StyleEditor::DoSwitch(HWND hwndDlg)
   hbmColourFrom = EGCreateBitmap(0xff, colourFrom, colourRect);
   if (hbmColourFont)
     DeleteObject((HBITMAP)SendDlgItemMessage(hwndDlg, IDC_FROMCOLOUR, BM_SETIMAGE,
-                 IMAGE_BITMAP, (LPARAM)hbmColourFrom));
+                                             IMAGE_BITMAP, (LPARAM)hbmColourFrom));
 
   if (hbmColourTo)
     DeleteObject(hbmColourTo);
   hbmColourTo = EGCreateBitmap(0xff, colourTo, colourRect);
   if (hbmColourTo)
     DeleteObject((HBITMAP)SendDlgItemMessage(hwndDlg, IDC_TOCOLOUR, BM_SETIMAGE,
-                 IMAGE_BITMAP, (LPARAM)hbmColourTo));
+                                             IMAGE_BITMAP, (LPARAM)hbmColourTo));
   return TRUE;
 }
 
@@ -902,11 +935,11 @@ BOOL StyleEditor::DoNotify(HWND hwndDlg, LPARAM lParam)
       return 1;
 
     case TVN_SELCHANGING:
-    {
-      HTREEITEM selected = ((LPNMTREEVIEW)lParam)->itemNew.hItem;
-      ShowPanel(selected);
-    }
-    return 0;
+        {
+          HTREEITEM selected = ((LPNMTREEVIEW)lParam)->itemNew.hItem;
+          ShowPanel(selected);
+        }
+      return 0;
     }
 
   if (nmhdr->hwndFrom == activeSliderWnd)
