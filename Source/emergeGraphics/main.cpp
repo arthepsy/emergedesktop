@@ -1307,15 +1307,22 @@ HRESULT EGBlurWindow(HWND hwnd, bool enable)
   // If region is not set, there will be bleed over of the blur affect when
   // resizing the window.
   ZeroMemory(&bb, sizeof(DWM_BLURBEHIND));
-  bb.dwFlags = DWM_BB_ENABLE | DWM_BB_BLURREGION;
-  bb.fEnable = enable;
-  bb.hRgnBlur = CreateRectRgn(clientrt.left, clientrt.top, clientrt.right,
-                              clientrt.bottom);
+  bb.dwFlags = DWM_BB_ENABLE;
+  if (enable)
+    {
+      bb.dwFlags |= DWM_BB_BLURREGION;
+      bb.fEnable = TRUE;
+      bb.hRgnBlur = CreateRectRgn(clientrt.left, clientrt.top, clientrt.right,
+                                  clientrt.bottom);
+    }
 
   if (MSDwmEnableBlurBehindWindow == NULL)
     MSDwmEnableBlurBehindWindow = (fnDwmEnableBlurBehindWindow)GetProcAddress(dwmapiDLL, "DwmEnableBlurBehindWindow");
   if (MSDwmEnableBlurBehindWindow)
     hr = MSDwmEnableBlurBehindWindow(hwnd, &bb);
+
+  if (bb.hRgnBlur != NULL)
+    DeleteObject(bb.hRgnBlur);
 
   return hr;
 }
