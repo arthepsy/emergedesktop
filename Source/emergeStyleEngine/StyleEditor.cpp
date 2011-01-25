@@ -251,10 +251,6 @@ BOOL StyleEditor::DoInitDialog(HWND hwndDlg, bool updatePos)
   HWND okWnd = GetDlgItem(hwndDlg, IDOK);
   HWND treeWnd = GetDlgItem(hwndDlg, IDC_PANELTREE);
   HWND blurWnd = GetDlgItem(hwndDlg, IDC_BLUR);
-  HWND activeSliderWnd = GetDlgItem(hwndDlg, IDC_ACTIVESLIDER);
-  HWND activeAlphaWnd = GetDlgItem(hwndDlg, IDC_ACTIVEALPHA);
-  HWND inactiveSliderWnd = GetDlgItem(hwndDlg, IDC_INACTIVESLIDER);
-  HWND inactiveAlphaWnd = GetDlgItem(hwndDlg, IDC_INACTIVEALPHA);
   EnableWindow(okWnd, (wcslen(style) != 0));
 
   BuildPanelMap(hwndDlg);
@@ -339,16 +335,7 @@ BOOL StyleEditor::DoInitDialog(HWND hwndDlg, bool updatePos)
     SendDlgItemMessage(hwndDlg, IDC_SHADOW, BM_SETCHECK, BST_CHECKED, 0);
 
   if (guiInfo.windowBlur)
-    {
-      SendDlgItemMessage(hwndDlg, IDC_BLUR, BM_SETCHECK, BST_CHECKED, 0);
-      if (EGIsCompositionEnabled())
-        {
-          EnableWindow(activeSliderWnd, FALSE);
-          EnableWindow(activeAlphaWnd, FALSE);
-          EnableWindow(inactiveSliderWnd, FALSE);
-          EnableWindow(inactiveAlphaWnd, FALSE);
-        }
-    }
+    SendDlgItemMessage(hwndDlg, IDC_BLUR, BM_SETCHECK, BST_CHECKED, 0);
 
   SetDlgItemInt(hwndDlg, IDC_BEVEL, guiInfo.bevelWidth, false);
   SetDlgItemInt(hwndDlg, IDC_BORDER, guiInfo.dragBorder, false);
@@ -458,10 +445,6 @@ BOOL StyleEditor::DoInitDialog(HWND hwndDlg, bool updatePos)
 BOOL StyleEditor::DoCommand(HWND hwndDlg, WPARAM wParam, LPARAM lParam UNUSED)
 {
   bool update = false;
-  HWND activeSliderWnd = GetDlgItem(hwndDlg, IDC_ACTIVESLIDER);
-  HWND activeAlphaWnd = GetDlgItem(hwndDlg, IDC_ACTIVEALPHA);
-  HWND inactiveSliderWnd = GetDlgItem(hwndDlg, IDC_INACTIVESLIDER);
-  HWND inactiveAlphaWnd = GetDlgItem(hwndDlg, IDC_INACTIVEALPHA);
 
   switch (LOWORD(wParam))
     {
@@ -640,22 +623,6 @@ BOOL StyleEditor::DoCommand(HWND hwndDlg, WPARAM wParam, LPARAM lParam UNUSED)
       ESESetStyle(tmpFile);
       if (DoSaveStyle(hwndDlg, tmpFile))
         PostMessage(mainWnd, EMERGE_NOTIFY, EMERGE_CORE, CORE_REFRESH);
-      return TRUE;
-    case IDC_BLUR:
-      if (SendDlgItemMessage(hwndDlg, IDC_BLUR, BM_GETCHECK, 0, 0) == BST_CHECKED)
-        {
-          EnableWindow(activeSliderWnd, FALSE);
-          EnableWindow(activeAlphaWnd, FALSE);
-          EnableWindow(inactiveSliderWnd, FALSE);
-          EnableWindow(inactiveAlphaWnd, FALSE);
-        }
-      else
-        {
-          EnableWindow(activeSliderWnd, TRUE);
-          EnableWindow(activeAlphaWnd, TRUE);
-          EnableWindow(inactiveSliderWnd, TRUE);
-          EnableWindow(inactiveAlphaWnd, TRUE);
-        }
       return TRUE;
     }
 

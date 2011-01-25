@@ -460,15 +460,10 @@ void BaseApplet::DrawAlphaBlend()
   bf.BlendOp = AC_SRC_OVER;
   bf.BlendFlags = 0;
   bf.AlphaFormat = AC_SRC_ALPHA;  // use source alpha
-  if (EGIsCompositionEnabled() && guiInfo.windowBlur)
-    bf.SourceConstantAlpha = 255;
+  if (mouseOver)
+    bf.SourceConstantAlpha = guiInfo.alphaActive;
   else
-    {
-      if (mouseOver)
-        bf.SourceConstantAlpha = guiInfo.alphaActive;
-      else
-        bf.SourceConstantAlpha = guiInfo.alphaInactive;
-    }
+    bf.SourceConstantAlpha = guiInfo.alphaInactive;
 
   wndSz.cx = clientrt.right;
   wndSz.cy = clientrt.bottom;
