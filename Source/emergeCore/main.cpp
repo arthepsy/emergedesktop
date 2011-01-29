@@ -65,7 +65,7 @@ int WINAPI WinMain (HINSTANCE hInstance,
     }
   else if (block)
     {
-      // Check to see if iTray is already running, if so exit
+      // Check to see if emergeCore is already running, if so exit
       hMutex = CreateMutex(NULL, false, TEXT("emergeCore"));
       if (GetLastError() == ERROR_ALREADY_EXISTS)
         {
