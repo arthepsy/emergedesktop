@@ -363,7 +363,6 @@ LRESULT Core::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
   if (message == EMERGE_REGISTER)
     {
       pMessageControl->AddType((HWND)wParam, (UINT)lParam);
-      SetTimer(mainWnd, REFRESH_TIMER, REFRESH_DELAY, NULL);
       return 0;
     }
 

@@ -34,9 +34,6 @@
 #include "Desktop.h"
 #include "ThemeSelector.h"
 
-#define REFRESH_TIMER 1
-#define REFRESH_DELAY 5000
-
 typedef std::map<std::wstring, HWND> LaunchMap;
 
 class Core
