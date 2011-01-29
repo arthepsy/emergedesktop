@@ -30,7 +30,7 @@
 #include "ShellChanger.h"
 #include "Settings.h"
 #include "LaunchEditor.h"
-#include "DDEService.h"
+//#include "DDEService.h"
 #include "Desktop.h"
 #include "ThemeSelector.h"
 
@@ -41,7 +41,7 @@ class Core
 private:
   std::tr1::shared_ptr<ShellChanger> pShellChanger;
   std::tr1::shared_ptr<Settings> pSettings;
-  std::tr1::shared_ptr<DDEService> pDDEService;
+  //std::tr1::shared_ptr<DDEService> pDDEService;
   std::tr1::shared_ptr<Shell> pShell;
   std::tr1::shared_ptr<MessageControl> pMessageControl;
   std::tr1::shared_ptr<Desktop> pDesktop;

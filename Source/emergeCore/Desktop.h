@@ -33,6 +33,7 @@
 #define __MSVCRT_VERSION__ 0x0601
 
 #include "MessageControl.h"
+#include "ShellDesktopTray.h"
 #include <deque>
 #include <wchar.h>
 
@@ -51,10 +52,13 @@ private:
   bool SetBackgroundImage();
   __time64_t modifyTime;
   WCHAR bgImage[MAX_PATH];
+	HANDLE m_hThread;
+	DWORD m_dwThreadID;
   static LRESULT CALLBACK DesktopProcedure (HWND, UINT, WPARAM, LPARAM);
   static VOID CALLBACK DesktopTimerProc(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime);
   static BOOL CALLBACK SetMonitorArea(HMONITOR hMonitor, HDC hdcMonitor, LPRECT lprcMonitor, LPARAM dwData);
   static BOOL CALLBACK MinimizeWindowsEnum(HWND hwnd, LPARAM lParam);
+	static DWORD WINAPI ThreadFunc(LPVOID pvParam);
 
 public:
   Desktop(HINSTANCE hInstance, std::tr1::shared_ptr<MessageControl> pMessageControl);

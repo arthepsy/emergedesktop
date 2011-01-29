@@ -21,8 +21,10 @@
 #include "Desktop.h"
 
 std::deque<HWND> hwndDeque;
+typedef void *(WINAPI *SHCREATEDESKTOP)(void *);
+typedef bool (WINAPI *SHDESKTOPMESSAGELOOP)(void *);
 
-WCHAR desktopClass[] = TEXT("progman");
+WCHAR desktopClass[] = TEXT("EmergeDesktop_progman");
 
 BOOL CALLBACK Desktop::MinimizeWindowsEnum(HWND hwnd, LPARAM lParam)
 {
@@ -42,11 +44,12 @@ Desktop::Desktop(HINSTANCE hInstance, std::tr1::shared_ptr<MessageControl> pMess
   this->pMessageControl = pMessageControl;
   mainInst = hInstance;
   registered = false;
+  m_hThread = NULL;
 }
 
 bool Desktop::Initialize()
 {
-  WNDCLASSEX wincl;
+  /*WNDCLASSEX wincl;
   ZeroMemory(&wincl, sizeof(WNDCLASSEX));
 
   // Register the window class
@@ -83,13 +86,30 @@ bool Desktop::Initialize()
   SetBackgroundImage();
 
   if (ELRegisterShellHook(mainWnd, RSH_PROGMAN))
-    ShellMessage = RegisterWindowMessage(TEXT("SHELLHOOK"));
+    ShellMessage = RegisterWindowMessage(TEXT("SHELLHOOK"));*/
+
+  // Create Desktop thread
+  m_hThread = CreateThread(NULL, 0, ThreadFunc, NULL, 0, &m_dwThreadID);
 
   return true;
 }
 
 Desktop::~Desktop()
 {
+  // Send quit message to SHDesktopMessageLoop
+  if(m_dwThreadID)
+    PostThreadMessage(m_dwThreadID, WM_QUIT, 0, 0);
+
+  // Terminate thread
+  if (m_hThread)
+    {
+      if (WaitForSingleObject(m_hThread, 1000) != WAIT_OBJECT_0)
+        TerminateThread(m_hThread, 0);
+
+      CloseHandle(m_hThread);
+      m_hThread = 0;
+    }
+
   if (registered)
     {
       // Unregister the window class
@@ -294,3 +314,89 @@ bool Desktop::SetBackgroundImage()
   return ret;
 }
 
+DWORD WINAPI Desktop::ThreadFunc(LPVOID pvParam UNUSED)
+{
+  std::wstring debug = L"Thread Created";
+  ELWriteDebug(debug);
+
+  DWORD registerCookie;
+  TShellDesktopTrayFactory explorerFactory;
+
+  // Initialize COM for this thread
+  CoInitializeEx(NULL, COINIT_APARTMENTTHREADED);
+
+  // Register the IShellDesktopTray COM Object
+  if (FAILED(CoRegisterClassObject(IID_IShellDesktopTray,
+                                   LPUNKNOWN(&explorerFactory),
+                                   CLSCTX_LOCAL_SERVER,
+                                   REGCLS_MULTIPLEUSE,
+                                   &registerCookie)))
+    {
+      debug = L"CoRegisterClassObject failed";
+      ELWriteDebug(debug);
+      return 1;
+    }
+
+  // Create the ShellDesktopTray interface
+  IShellDesktopTray *iTray = new TShellDesktopTray;
+
+  SetPriorityClass(GetCurrentProcess(), HIGH_PRIORITY_CLASS);
+
+  SHCREATEDESKTOP SHCreateDesktop = (SHCREATEDESKTOP)GetProcAddress(ELGetSystemLibrary(TEXT("shell32.dll")), (LPCSTR)200);
+  SHDESKTOPMESSAGELOOP SHDesktopMessageLoop = (SHDESKTOPMESSAGELOOP)GetProcAddress(ELGetSystemLibrary(TEXT("shell32.dll")), (LPCSTR)201);
+
+  if (SHCreateDesktop && SHDesktopMessageLoop)
+    {
+      debug = L"After Check, Before SHCreateDesktop";
+      ELWriteDebug(debug);
+
+      // Create the desktop
+      HANDLE hDesktop = SHCreateDesktop(iTray);
+      //HANDLE hDesktop = NULL;
+
+      debug = L"After SHCreateDesktop";
+      ELWriteDebug(debug);
+
+
+      SendMessage(GetDesktopWindow(), 0x400, 0, 0);
+
+      // Switching shell event
+      HANDLE hEv = OpenEvent(EVENT_MODIFY_STATE, false, L"Global\\msgina: ShellReadyEvent");
+      if(hEv)
+        {
+          SetEvent(hEv);
+          CloseHandle(hEv);
+        }
+      hEv = OpenEvent(EVENT_MODIFY_STATE, false, L"msgina: ShellReadyEvent");
+      if(hEv)
+        {
+          SetEvent(hEv);
+          CloseHandle(hEv);
+        }
+      hEv = OpenEvent(EVENT_MODIFY_STATE, false, L"ShellDesktopSwitchEvent");
+      if(hEv)
+        {
+          SetEvent(hEv);
+          CloseHandle(hEv);
+        }
+
+      debug = L"After Events";
+      ELWriteDebug(debug);
+
+      // Run the desktop message loop
+      if (hDesktop)
+        SHDesktopMessageLoop(hDesktop);
+
+      debug = L"After SHDesktopMessageLoop";
+      ELWriteDebug(debug);
+    }
+
+  delete iTray;
+
+  // Revoke the COM object
+  CoRevokeClassObject(registerCookie);
+
+  CoUninitialize();
+
+  return 0;
+}

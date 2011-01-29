@@ -831,6 +831,12 @@
 		<Unit filename="emergeCore\ShellChanger.h">
 			<Option target="emergeCore - Release" />
 		</Unit>
+		<Unit filename="emergeCore\ShellDesktopTray.cpp">
+			<Option target="emergeCore - Release" />
+		</Unit>
+		<Unit filename="emergeCore\ShellDesktopTray.h">
+			<Option target="emergeCore - Release" />
+		</Unit>
 		<Unit filename="emergeCore\ThemeSaver.cpp">
 			<Option target="emergeCore - Release" />
 		</Unit>

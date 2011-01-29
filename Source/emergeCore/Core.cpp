@@ -70,10 +70,6 @@ bool Core::Initialize(WCHAR *commandLine)
   // Start the shell functions
   pShell = std::tr1::shared_ptr<Shell>(new Shell());
 
-  // Start the DDE Service
-  pDDEService = std::tr1::shared_ptr<DDEService>(new DDEService());
-  pDDEService->Start();
-
   // Register the window class
   wincl.hInstance = mainInst;
   wincl.lpszClassName = emergeCoreClass;
@@ -94,17 +90,17 @@ bool Core::Initialize(WCHAR *commandLine)
 
   // The class is registered, let's create the window
   mainWnd = CreateWindowEx (
-                            WS_EX_TOOLWINDOW,
-                            emergeCoreClass,
-                            NULL,
-                            WS_POPUP,
-                            0, 0,
-                            0, 0,
-                            NULL,
-                            NULL,
-                            mainInst,
-                            reinterpret_cast<LPVOID>(this)
-                           );
+              WS_EX_TOOLWINDOW,
+              emergeCoreClass,
+              NULL,
+              WS_POPUP,
+              0, 0,
+              0, 0,
+              NULL,
+              NULL,
+              mainInst,
+              reinterpret_cast<LPVOID>(this)
+            );
 
   // If the window failed to get created, unregister the class and quit the program
   if (!mainWnd)
@@ -120,6 +116,9 @@ bool Core::Initialize(WCHAR *commandLine)
 
   pMessageControl = std::tr1::shared_ptr<MessageControl>(new MessageControl());
 
+  // Start the shell functions
+  pShell->ShellServicesInit();
+
   // Create desktop window
   pDesktop = std::tr1::shared_ptr<Desktop>(new Desktop(mainInst, pMessageControl));
   pDesktop->Initialize();
@@ -129,16 +128,17 @@ bool Core::Initialize(WCHAR *commandLine)
 
   pShell->RegisterShell(mainWnd, true);
   pShell->BuildTaskList();
+  pShell->LoadSSO();
 
   // Load the start up entries in the registry and the startup
   // folders only if the startup items have not already been started
   if (pShell->FirstRunCheck())
     {
       if (!ELIsKeyDown(VK_SHIFT))
-          pShell->RunFolderStartup(pSettings->GetShowStartupErrors());
+        pShell->RunFolderStartup(pSettings->GetShowStartupErrors());
 
       if (!ELIsKeyDown(VK_CONTROL))
-          pShell->RunRegStartup(pSettings->GetShowStartupErrors());
+        pShell->RunRegStartup(pSettings->GetShowStartupErrors());
     }
 
   pMessageControl->AddType(mainWnd, EMERGE_CORE);
@@ -152,7 +152,7 @@ bool Core::Initialize(WCHAR *commandLine)
   if (wtslib)
     {
       lpfnWTSRegisterSessionNotification wtsrsn = (lpfnWTSRegisterSessionNotification)
-        GetProcAddress(wtslib, "WTSRegisterSessionNotification");
+          GetProcAddress(wtslib, "WTSRegisterSessionNotification");
       if (wtsrsn)
         wtsrsn(mainWnd, NOTIFY_FOR_THIS_SESSION);
       FreeLibrary(wtslib);
@@ -170,14 +170,16 @@ Core::~Core()
       if (wtslib)
         {
           lpfnWTSUnRegisterSessionNotification wtsursn = (lpfnWTSUnRegisterSessionNotification)
-            GetProcAddress(wtslib, "WTSUnRegisterSessionNotification");
+              GetProcAddress(wtslib, "WTSUnRegisterSessionNotification");
           if (wtsursn)
             wtsursn(mainWnd);
           FreeLibrary(wtslib);
         }
-      pDDEService->Stop();
+      //pDDEService->Stop();
+      pShell->UnloadSSO();
       pShell->RegisterShell(mainWnd, false);
       pShell->ClearSessionInformation();
+      pShell->ShellServicesTerminate();
 
       OleUninitialize();
 

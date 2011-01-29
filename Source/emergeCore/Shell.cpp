@@ -29,22 +29,27 @@
 #include "Shell.h"
 
 // Function pointers
-void (__stdcall *lpShellDDEInit)(bool bInit) = NULL;
-BOOL (WINAPI *lpSetShellWindow)(HWND) = NULL;
+void (WINAPI *lpShellDDEInit)(bool) = NULL;
+int (WINAPI *lpWinList_Init)() = NULL;
+int (WINAPI *lpWinList_Terminate)() = NULL;
+void (WINAPI *lpRunInstallUninstallStubs)(int) = NULL;
+bool (WINAPI *lpFileIconInit)(BOOL) = NULL;
+//BOOL (WINAPI *lpSetShellWindow)(HWND) = NULL;
 
 // Global Variables
-HMODULE DDEdll;
-bool DDELoaded = false;
-HMODULE user32DLL;
-bool user32Loaded = false;
+HMODULE shdocvmDLL = NULL;
+bool shdocvmLoaded = false;
+HMODULE explorerFrameDLL = NULL;
+bool explorerFrameLoaded = false;
+HMODULE shell32DLL = NULL;
+bool shell32Loaded = false;
 std::vector<HANDLE> processList;
 
 Shell::Shell()
 {}
 
 Shell::~Shell()
-{
-}
+{}
 
 //----  --------------------------------------------------------------------------------------------------------
 // Function:	RunRegEntries
@@ -418,5 +423,187 @@ bool Shell::FirstRunCheck()
     }
 
   return result;
+}
+
+void Shell::ShellServicesTerminate()
+{
+  if (lpShellDDEInit)
+    lpShellDDEInit(false);
+
+  if (lpFileIconInit)
+    lpFileIconInit(FALSE);
+
+  if (shdocvmLoaded)
+    {
+      lpWinList_Terminate = (int (WINAPI *) (void))GetProcAddress(shdocvmDLL, (LPCSTR)111);
+      if (lpWinList_Terminate)
+        lpWinList_Terminate();
+
+      FreeLibrary(shdocvmDLL);
+    }
+
+  if (shell32Loaded)
+    FreeLibrary(shell32DLL);
+
+  if (explorerFrameLoaded)
+    FreeLibrary(explorerFrameDLL);
+}
+
+void Shell::ShellServicesInit()
+{
+  shdocvmDLL = ELGetSystemLibrary(TEXT("shdocvw.dll"));
+  if (!shdocvmDLL)
+    {
+      shdocvmDLL = ELLoadSystemLibrary(TEXT("shdocvw.dll"));
+      if (shdocvmDLL)
+        shdocvmLoaded = true;
+    }
+
+  explorerFrameDLL = ELGetSystemLibrary(TEXT("ExplorerFrame.dll"));
+  if (!explorerFrameDLL)
+    {
+      explorerFrameDLL = ELLoadSystemLibrary(TEXT("ExplorerFrame.dll"));
+      if (explorerFrameDLL)
+        explorerFrameLoaded = true;
+    }
+
+  shell32DLL = ELGetSystemLibrary(TEXT("shell32.dll"));
+  if (!shell32DLL)
+    {
+      shell32DLL = ELLoadSystemLibrary(TEXT("shell32.dll"));
+      if (shell32DLL)
+        shell32Loaded = true;
+    }
+
+  SetPriorityClass(GetCurrentProcess(), HIGH_PRIORITY_CLASS);
+
+  if (shell32DLL)
+    {
+      lpShellDDEInit = (void (__stdcall *) (bool))GetProcAddress(shell32DLL, (LPCSTR)188);
+      lpFileIconInit = (bool (__stdcall *) (BOOL))GetProcAddress(shell32DLL, (LPCSTR)660);
+      lpRunInstallUninstallStubs = (void (WINAPI *)(int))GetProcAddress(shell32DLL, (LPCSTR)885);
+    }
+
+  if (shdocvmDLL)
+    {
+      //lpShellDDEInit = (void (__stdcall *) (bool))GetProcAddress(DDEdll, (LPCSTR)118);
+      lpWinList_Init = (int (WINAPI *) (void))GetProcAddress(shdocvmDLL, (LPCSTR)110);
+      //lpRunInstallUninstallStubs = (void (WINAPI *)(int))GetProcAddress(shdocvmDLL, (LPCSTR)130);
+    }
+
+  if (explorerFrameDLL || GetProcAddress(explorerFrameDLL, (LPCSTR)110))
+    {
+      if (shdocvmDLL && !lpRunInstallUninstallStubs)
+        lpRunInstallUninstallStubs = (void (WINAPI *)(int))GetProcAddress(shdocvmDLL, (LPCSTR)130);
+    }
+
+  // Create a mutex telling that this is the Explorer shell
+  HANDLE hIsShell = CreateMutex(NULL, false, L"Local\\ExplorerIsShellMutex");
+  WaitForSingleObject(hIsShell, INFINITE);
+
+  if (lpShellDDEInit)
+    lpShellDDEInit(true);
+
+  SetProcessShutdownParameters(3, 0);
+
+  MSG msg;
+  PeekMessageW(&msg, 0, WM_QUIT, WM_QUIT, false);
+
+  // Wait for Scm to be created
+  HANDLE hGScmEvent = OpenEvent(0x100002, false, L"Global\\ScmCreatedEvent");
+  if (hGScmEvent == NULL)
+    hGScmEvent = OpenEvent(0x100000, false, L"Global\\ScmCreatedEvent");
+  if (hGScmEvent == NULL)
+    hGScmEvent = CreateEvent(NULL, true, false, L"Global\\ScmCreatedEvent");
+
+  if (hGScmEvent)
+    {
+      WaitForSingleObject(hGScmEvent, 6000);
+      CloseHandle(hGScmEvent);
+    }
+
+  if (lpFileIconInit)
+    lpFileIconInit(TRUE);
+
+  if (lpWinList_Init)
+    lpWinList_Init();
+
+  // Event
+  HANDLE CanRegisterEvent = CreateEvent(NULL, true, true, L"Local\\_fCanRegisterWithShellService");
+
+  if (lpRunInstallUninstallStubs)
+    lpRunInstallUninstallStubs(0);
+
+  CloseHandle(CanRegisterEvent);
+}
+
+//----  --------------------------------------------------------------------------------------------------------
+// Function:	LoadSSO
+// Required:	Nothing
+// Returns:	Nothing
+// Purpose:	Loads the 2K/XP system icons
+//----  --------------------------------------------------------------------------------------------------------
+void Shell::LoadSSO()
+{
+  HKEY key, subkey;
+  int i = 0;
+  WCHAR valueName[32];
+  WCHAR data[40];
+  DWORD valueSize;
+  DWORD dataSize;
+  CLSID clsid, trayclsid;
+  IOleCommandTarget *target = NULL;
+
+  valueSize = 32 * sizeof(WCHAR);
+  dataSize = 40 * sizeof(WCHAR);
+  i = 0;
+
+  if (RegOpenKeyEx(HKEY_LOCAL_MACHINE,
+                   TEXT("Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\ShellServiceObjects"),
+                   0, KEY_READ, &key) == ERROR_SUCCESS)
+    {
+      while (RegEnumKeyEx(key, i, data, &dataSize, NULL, NULL, NULL, NULL) == ERROR_SUCCESS)
+        {
+          if (RegOpenKeyEx(key, data, 0, KEY_READ, &subkey) == ERROR_SUCCESS)
+            {
+              if (RegQueryValueEx(subkey, TEXT("AutoStart"), NULL, NULL, NULL, NULL) == ERROR_SUCCESS)
+                {
+                  CLSIDFromString(data, &clsid);
+                  if (clsid != trayclsid)
+                    {
+                      target = ELStartSSO(clsid);
+                      if (target)
+                        ssoIconList.push_back(target);
+                    }
+                }
+
+              RegCloseKey(subkey);
+            }
+
+          valueSize = 32 * sizeof(valueName[0]);
+          dataSize = 40 * sizeof(data[0]);
+          i++;
+        }
+
+      RegCloseKey(key);
+    }
+}
+
+//----  --------------------------------------------------------------------------------------------------------
+// Function:	UnloadSSO
+// Required:	Nothing
+// Returns:	Nothing
+// Purpose:	Unload the 2K/XP system icons
+//----  --------------------------------------------------------------------------------------------------------
+void Shell::UnloadSSO()
+{
+  // Go through each element of the array and stop it...
+  while (!ssoIconList.empty())
+    {
+      if (ssoIconList.back()->Exec(&CGID_ShellServiceObject, OLECMDID_SAVE,
+                                   OLECMDEXECOPT_DODEFAULT, NULL, NULL) == S_OK)
+        ssoIconList.back()->Release();
+      ssoIconList.pop_back();
+    }
 }
 

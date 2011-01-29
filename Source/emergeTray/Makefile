@@ -3,6 +3,7 @@ LIBS += -luuid \
 				-lgdi32 \
 				-lcomctl32 \
 				-lcomdlg32 \
+				-lshlwapi \
 				-lemergeLib \
 				-lemergeGraphics \
 				-lemergeStyleEngine \

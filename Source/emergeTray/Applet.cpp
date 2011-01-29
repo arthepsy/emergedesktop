@@ -193,7 +193,7 @@ LRESULT CALLBACK Applet::WindowProcedure (HWND hwnd, UINT message, WPARAM wParam
 }
 
 Applet::Applet(HINSTANCE hInstance)
-  :BaseApplet(hInstance, myName, true)
+:BaseApplet(hInstance, myName, true)
 {
   mainInst = hInstance;
 
@@ -402,10 +402,13 @@ void Applet::LoadSSO()
   DWORD dataSize;
   DWORD dwDataType;
   CLSID clsid, trayclsid;
+  IOleCommandTarget *target;
 
   CLSIDFromString((WCHAR*)TEXT("{35CEC8A3-2BE6-11D2-8773-92E220524153}"), &trayclsid);
 
-  StartSSO(trayclsid);
+  target = ELStartSSO(trayclsid);
+  if (target)
+    ssoIconList.push_back(target);
 
   valueSize = 32 * sizeof(WCHAR);
   dataSize = 40 * sizeof(WCHAR);
@@ -419,7 +422,11 @@ void Applet::LoadSSO()
         {
           CLSIDFromString(data, &clsid);
           if (clsid != trayclsid)
-            StartSSO(clsid);
+            {
+              target = ELStartSSO(clsid);
+              if (target)
+                ssoIconList.push_back(target);
+            }
 
           valueSize = 32 * sizeof(valueName[0]);
           dataSize = 40 * sizeof(data[0]);
@@ -427,22 +434,6 @@ void Applet::LoadSSO()
         }
 
       RegCloseKey(key);
-    }
-}
-
-void Applet::StartSSO(CLSID clsid)
-{
-  LPVOID lpVoid;
-
-  if (SUCCEEDED(CoCreateInstance(clsid, NULL, CLSCTX_INPROC_SERVER | CLSCTX_INPROC_HANDLER, IID_IOleCommandTarget,
-                                 &lpVoid)))
-    {
-      // Start ShellServiceObject
-      reinterpret_cast <IOleCommandTarget*> (lpVoid)->Exec(&CGID_ShellServiceObject,
-          OLECMDID_NEW,
-          OLECMDEXECOPT_DODEFAULT,
-          NULL, NULL);
-      ssoIconList.push_back(reinterpret_cast <IOleCommandTarget*>(lpVoid));
     }
 }
 
@@ -464,12 +455,6 @@ void Applet::UnloadSSO()
     }
 }
 
-//----  --------------------------------------------------------------------------------------------------------
-// Function:	ShowHiddenIcons
-// Required:	BOOL cmd - Whether to show the hidden icons
-//              BOOL force - Used to force the action regardless of GetUnhideIcons()
-// Returns:	Nothing
-//----  --------------------------------------------------------------------------------------------------------
 void Applet::ShowHiddenIcons(bool cmd, bool force)
 {
   std::vector< std::tr1::shared_ptr<TrayIcon> >::iterator iter;
@@ -928,17 +913,17 @@ bool Applet::TrayMouseEvent(UINT message, LPARAM lParam)
               // Second attempt at NIN_POPOPEN:
               /*case WM_MOUSEMOVE:
                 if ((ELVersionInfo() >= 6.0) && (((*iter)->GetFlags() & NIF_INFO) == NIF_INFO))
-                  {
-                    if (activeIcon != NULL)
-                      {
-                        if( activeIcon->GetWnd() != (*iter)->GetWnd())
-                          {
-                            activeIcon->SendMessage(NIN_POPUPCLOSE);
-                            activeIcon = (*iter).get();
-                          }
-                      }
-                    message = NIN_POPUPOPEN;
-                  }
+                {
+                if (activeIcon != NULL)
+                {
+                if( activeIcon->GetWnd() != (*iter)->GetWnd())
+                {
+                activeIcon->SendMessage(NIN_POPUPCLOSE);
+                activeIcon = (*iter).get();
+                }
+                }
+                message = NIN_POPUPOPEN;
+                }
                 (*iter)->SendMessage(message);
                 break;*/
 
