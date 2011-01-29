@@ -124,9 +124,6 @@ bool ESEEqualStyle(LPGUIINFO sourceInfo, LPGUIINFO targetInfo)
   if (_wcsicmp(sourceInfo->gradientMethod, targetInfo->gradientMethod) != 0)
     return false;
 
-  if (sourceInfo->windowBlur != targetInfo->windowBlur)
-    return false;
-
   return true;
 }
 
@@ -202,7 +199,6 @@ bool ESEWriteStyle(WCHAR *styleFile, LPGUIINFO guiInfo, HWND hwnd)
   ELWriteFileColor(workingStyle.c_str(), (WCHAR*)TEXT("gradient.colorFrom:"), guiInfo->gradientFrom);
   ELWriteFileColor(workingStyle.c_str(), (WCHAR*)TEXT("gradient.colorTo:"), guiInfo->gradientTo);
   ELWriteFileString(workingStyle.c_str(), (WCHAR*)TEXT("gradient.method:"), guiInfo->gradientMethod);
-  ELWriteFileBool(workingStyle.c_str(), (WCHAR*)TEXT("window.blur:"), guiInfo->windowBlur);
 
   return true;
 }
@@ -241,7 +237,6 @@ void ESEReadStyle(WCHAR *styleFile, LPGUIINFO guiInfo)
   ELReadFileColor(workingStyle.c_str(), (WCHAR*)TEXT("gradient.colorTo:"), &guiInfo->gradientTo,
                   RGB(0,0,0));
   ELReadFileString(workingStyle.c_str(), (WCHAR*)TEXT("gradient.method:"), guiInfo->gradientMethod, (WCHAR*)TEXT("VerticalFlat"));
-  ELReadFileBool(workingStyle.c_str(), (WCHAR*)TEXT("window.blur:"), &guiInfo->windowBlur, false);
 }
 
 void ESELoadStyle(WCHAR *styleFile, LPGUIINFO guiInfo)

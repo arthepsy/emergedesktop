@@ -91,7 +91,6 @@
 #define IDC_PADDINGUPDOWN       406
 #define IDC_BEVELUPDOWN         407
 #define IDC_BORDERUPDOWN        408
-#define IDC_BLUR                409
 
 #define IDC_METHOD              500
 #define IDC_INTERLACED          501

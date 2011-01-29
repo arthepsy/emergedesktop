@@ -244,7 +244,6 @@ BOOL MenuEditor::DoInitDialog(HWND hwndDlg)
   SendMessage(typeWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Folder Menu"));
   SendMessage(typeWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Tasks Menu"));
   SendMessage(typeWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Settings Menu"));
-  SendMessage(typeWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Help Menu"));
 
   edit = false;
 
@@ -741,8 +740,6 @@ int MenuEditor::GetTypeValue(UINT type)
       return 7;
     case IT_SETTINGS_MENU:
       return 8;
-    case IT_HELP_MENU:
-      return 9;
     }
 
   return -1;
@@ -753,25 +750,23 @@ UINT MenuEditor::GetValueType(int value)
   switch (value)
     {
     case 0:
-      return IT_SEPARATOR;
+      return 0;
     case 1:
-      return IT_EXECUTABLE;
+      return 1;
     case 2:
-      return IT_INTERNAL_COMMAND;
+      return 2;
     case 3:
-      return IT_DATE_TIME;
+      return 3;
     case 4:
-      return IT_SPECIAL_FOLDER;
+      return 4;
     case 5:
-      return IT_XML_MENU;
+      return 100;
     case 6:
-      return IT_FILE_MENU;
+      return 101;
     case 7:
-      return IT_TASKS_MENU;
+      return 102;
     case 8:
-      return IT_SETTINGS_MENU;
-    case 9:
-      return IT_HELP_MENU;
+      return 103;
     }
 
   return 0;

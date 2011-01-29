@@ -181,7 +181,6 @@ BOOL ItemEditor::DoInitDialog(HWND hwndDlg)
   SendMessage(typeWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Folder Menu"));
   SendMessage(typeWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Tasks Menu"));
   SendMessage(typeWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Settings Menu"));
-  SendMessage(typeWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Help Menu"));
 
   SendMessage(typeWnd, CB_SETCURSEL,
               (WPARAM)GetTypeValue(type), 0);
@@ -404,8 +403,6 @@ int ItemEditor::GetTypeValue(UINT type)
       return 7;
     case IT_SETTINGS_MENU:
       return 8;
-    case IT_HELP_MENU:
-      return 9;
     }
 
   return -1;
@@ -560,7 +557,6 @@ bool ItemEditor::EnableFields(HWND hwndDlg)
       break;
     case IT_XML_MENU:
     case IT_SETTINGS_MENU:
-    case IT_HELP_MENU:
     case IT_TASKS_MENU:
       EnableWindow(dirWnd, false);
       EnableWindow(workingDirTextWnd, false);
@@ -638,8 +634,6 @@ UINT ItemEditor::GetValueType(int value)
       return IT_TASKS_MENU;
     case 8:
       return IT_SETTINGS_MENU;
-    case 9:
-      return IT_HELP_MENU;
     }
 
   return 0;

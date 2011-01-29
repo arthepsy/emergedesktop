@@ -51,17 +51,6 @@
 #define CS_DROPSHADOW   0x00020000
 #endif
 
-#ifndef DWM_BB_ENABLE
-#define DWM_BB_ENABLE 0x00000001
-#endif
-
-#ifndef DWM_BB_BLURREGION
-#define DWM_BB_BLURREGION 0x00000002
-#endif
-
-#ifndef DWM_BB_TRANSITIONONMAXIMIZED
-#define DWM_BB_TRANSITIONONMAXIMIZED 0x00000004
-#endif
 
 #define ICON_DEFAULT        0
 #define ICON_RUN            4
@@ -70,7 +59,6 @@
 #define ICON_QUIT           9
 #define ICON_LOCK           10
 #define ICON_EMERGE         11
-#define ICON_QUESTION       12
 
 #define EGDAT_LEFT          1
 #define EGDAT_HCENTER       2
@@ -86,24 +74,6 @@
 #ifndef FE_FONTSMOOTHINGCLEARTYPE
 #define FE_FONTSMOOTHINGCLEARTYPE 2
 #endif
-
-typedef struct _MARGINS
-{
-  int cxLeftWidth;
-  int cxRightWidth;
-  int cyTopHeight;
-  int cyBottomHeight;
-}
-MARGINS;
-
-typedef struct _DWM_BLURBEHIND
-{
-  DWORD dwFlags;
-  BOOL  fEnable;
-  HRGN  hRgnBlur;
-  BOOL  fTransitionOnMaximized;
-}
-DWM_BLURBEHIND, *PDWM_BLURBEHIND;
 
 // Format Info
 typedef struct _FORMATINFO
@@ -150,7 +120,6 @@ typedef struct _GUIINFO
   WCHAR gradientMethod[MAX_PATH];
   int bevelWidth;
   int padding;
-  bool windowBlur;
 }
 GUIINFO, *LPGUIINFO;
 
@@ -178,7 +147,5 @@ DLL_EXPORT void EGStringToFont(const WCHAR *str, LOGFONT& font);
 DLL_EXPORT bool EGEqualLogFont(const LOGFONT& source, const LOGFONT& target);
 DLL_EXPORT bool EGGetTextRect(WCHAR *text, HFONT font, RECT *rect, UINT flags);
 DLL_EXPORT HBITMAP EGGetIconBitmap(HICON sourceIcon);
-DLL_EXPORT BOOL EGIsCompositionEnabled();
-DLL_EXPORT HRESULT EGBlurWindow(HWND hwnd, bool enable);
 
 #endif

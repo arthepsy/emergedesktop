@@ -69,9 +69,6 @@ UINT BaseApplet::Initialize(WNDPROC WindowProcedure, LPVOID lpParam, std::tr1::s
       return 0;
     }
 
-  // Set the non-critical evnvironment variables - do not popup warning messages.
-  ELSetEnvironmentVars(false);
-
   if (FAILED(OleInitialize(NULL)))
     {
       ELMessageBox(GetDesktopWindow(), (WCHAR*)TEXT("COM initialization failed"), appletName,
@@ -155,10 +152,7 @@ LRESULT BaseApplet::DoExitSizeMove(HWND hwnd)
   if ((currentWidth != referenceWidth) || (currentHeight != referenceHeight))
     DoSize(currentWidth, currentHeight);
 
-  if (_wcsicmp(pBaseSettings->GetZPosition(), TEXT("Top")) == 0)
-    SetWindowPos(mainWnd, HWND_TOPMOST, 0 , 0, 0, 0,
-                 SWP_NOSIZE|SWP_NOMOVE|SWP_NOSENDCHANGING);
-  else
+  if (_wcsicmp(pBaseSettings->GetZPosition(), TEXT("Top")) != 0)
     {
       SetWindowPos(mainWnd, HWND_NOTOPMOST, 0 , 0, 0, 0,
                    SWP_NOSIZE|SWP_NOMOVE|SWP_NOSENDCHANGING);
@@ -166,7 +160,6 @@ LRESULT BaseApplet::DoExitSizeMove(HWND hwnd)
         SetWindowPos(mainWnd, ELGetDesktopWindow(), 0 , 0, 0, 0,
                      SWP_NOSIZE|SWP_NOMOVE|SWP_NOSENDCHANGING);
     }
-
 
   pBaseSettings->WriteSettings();
 
@@ -178,7 +171,7 @@ void BaseApplet::UpdateGUI(WCHAR *styleFile)
   int dragBorder;
   HWND hWndInsertAfter;
   RECT wndRect;
-  UINT SWPFlags = 0;
+  UINT SWPFlags = SWP_FRAMECHANGED;
 
   pBaseSettings->ReadSettings();
   if (styleFile == NULL)
@@ -230,8 +223,7 @@ void BaseApplet::UpdateGUI(WCHAR *styleFile)
         SWPFlags |= SWP_SHOWWINDOW;
     }
 
-  // Seems like Windows 7 has an issue setting HWND_TOPMOST unless the window
-  // is the active window
+  // Set focus to mainWnd to fix the 'top' z-order issue
   ELStealFocus(mainWnd);
   SetWindowPos(mainWnd, hWndInsertAfter, wndRect.left, wndRect.top,
                wndRect.right - wndRect.left, wndRect.bottom - wndRect.top, SWPFlags);
@@ -283,7 +275,6 @@ LRESULT BaseApplet::DoWindowPosChanging(WINDOWPOS *windowPos)
   if (_wcsicmp(pBaseSettings->GetZPosition(), TEXT("bottom")) == 0)
     {
       windowPos->flags |= SWP_NOACTIVATE;
-      windowPos->flags &= ~SWP_NOZORDER;
       windowPos->hwndInsertAfter = ELGetDesktopWindow();
     }
 
@@ -440,9 +431,6 @@ void BaseApplet::DrawAlphaBlend()
         DeleteDC(inactiveBackgroundDC);
       activeBackgroundDC = ESEPaintBackground(clientrt, &guiInfo, true);
       inactiveBackgroundDC = ESEPaintBackground(clientrt, &guiInfo, false);
-
-      if (EGIsCompositionEnabled())
-        EGBlurWindow(mainWnd, guiInfo.windowBlur);
     }
 
   if (mouseOver)
@@ -904,13 +892,6 @@ LRESULT BaseApplet::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
               fullScreen = false;
               DoEmergeNotify(EMERGE_CORE, CORE_SHOW);
             }
-          return 1;
-
-        case HSHELL_WINDOWCREATED:
-          if (_wcsicmp(pBaseSettings->GetZPosition(), TEXT("Top")) == 0)
-            SetWindowPos(mainWnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOSIZE|SWP_NOMOVE|SWP_NOACTIVATE);
-          else if (_wcsicmp(pBaseSettings->GetZPosition(), TEXT("Bottom")) == 0)
-            SetWindowPos(mainWnd, ELGetDesktopWindow(), 0, 0, 0, 0, SWP_NOSIZE|SWP_NOMOVE|SWP_NOACTIVATE);
           return 1;
 
         default:
