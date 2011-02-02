@@ -484,14 +484,12 @@ void Shell::ShellServicesInit()
       lpRunInstallUninstallStubs = (void (WINAPI *)(int))GetProcAddress(shell32DLL, (LPCSTR)885);
     }
 
-  if (shdocvmDLL)
-    {
-      //lpShellDDEInit = (void (__stdcall *) (bool))GetProcAddress(DDEdll, (LPCSTR)118);
+  if (explorerFrameDLL)
+      lpWinList_Init = (int (WINAPI *) (void))GetProcAddress(explorerFrameDLL, (LPCSTR)110);
+  else if (shdocvmDLL)
       lpWinList_Init = (int (WINAPI *) (void))GetProcAddress(shdocvmDLL, (LPCSTR)110);
-      //lpRunInstallUninstallStubs = (void (WINAPI *)(int))GetProcAddress(shdocvmDLL, (LPCSTR)130);
-    }
 
-  if (explorerFrameDLL || GetProcAddress(explorerFrameDLL, (LPCSTR)110))
+  if (!explorerFrameDLL || !GetProcAddress(explorerFrameDLL, (LPCSTR)110))
     {
       if (shdocvmDLL && !lpRunInstallUninstallStubs)
         lpRunInstallUninstallStubs = (void (WINAPI *)(int))GetProcAddress(shdocvmDLL, (LPCSTR)130);
