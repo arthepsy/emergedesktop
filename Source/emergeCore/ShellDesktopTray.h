@@ -24,10 +24,10 @@ class TShellDesktopTray : public IShellDesktopTray
 		ULONG AddRef(IShellDesktopTray * p);
 		ULONG Release(IShellDesktopTray * p);
 
-		int __stdcall GetState();
-		int __stdcall GetTrayWindow(HWND *o);
-		int __stdcall RegisterDesktopWindow(HWND d);
-		int __stdcall SetVar(int p1, ULONG p2);
+		int STDMETHODCALLTYPE GetState();
+		int STDMETHODCALLTYPE GetTrayWindow(HWND *o);
+		int STDMETHODCALLTYPE RegisterDesktopWindow(HWND d);
+		int STDMETHODCALLTYPE SetVar(int p1, ULONG p2);
 };
 
 class TShellDesktopTrayFactory : public IClassFactory {
@@ -36,13 +36,13 @@ class TShellDesktopTrayFactory : public IClassFactory {
 		~TShellDesktopTrayFactory();
 
 		// from IUnknown
-		virtual ULONG _stdcall AddRef();
-		virtual ULONG _stdcall Release();
-		virtual HRESULT _stdcall QueryInterface(REFIID riid, void** ppv);
+		virtual ULONG STDMETHODCALLTYPE AddRef();
+		virtual ULONG STDMETHODCALLTYPE Release();
+		virtual HRESULT STDMETHODCALLTYPE QueryInterface(REFIID riid, void** ppv);
 
 		// from IClassFactory
-		virtual HRESULT _stdcall CreateInstance(IUnknown* pOuter, REFIID riid, void** ppv);
-		virtual HRESULT _stdcall LockServer(BOOL fLock);
+		virtual HRESULT STDMETHODCALLTYPE CreateInstance(IUnknown* pOuter, REFIID riid, void** ppv);
+		virtual HRESULT STDMETHODCALLTYPE LockServer(BOOL fLock);
 };
 
 IShellDesktopTray *CreateInstance();
