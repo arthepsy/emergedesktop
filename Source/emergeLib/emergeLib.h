@@ -73,6 +73,7 @@ typedef enum _ITEMTYPE {
 #include <string>
 #include <sstream>
 #include <iomanip>
+#include <docobj.h>
 
 #ifdef __GNUC__
 #include <tr1/memory>
