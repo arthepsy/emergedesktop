@@ -21,6 +21,16 @@ hgversion.h
 *.exe
 *.session
 *.o
+*.user
+*.sdf
+*.suo
+*.obj
+*.sbr
+*.idb
+*.pdb
+*.tlog
+*.cache
+*.filters
 
 # switch to regexp syntax.
 #syntax: regexp
