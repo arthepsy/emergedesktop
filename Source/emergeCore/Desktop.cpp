@@ -50,7 +50,7 @@ Desktop::Desktop(HINSTANCE hInstance, std::tr1::shared_ptr<MessageControl> pMess
 bool Desktop::Initialize()
 {
   /*WNDCLASSEX wincl;
-  ZeroMemory(&wincl, sizeof(WNDCLASSEX));
+    ZeroMemory(&wincl, sizeof(WNDCLASSEX));
 
   // Register the window class
   wincl.hInstance = mainInst;
@@ -63,30 +63,30 @@ bool Desktop::Initialize()
 
   // Register the window class, and if it fails quit the program
   if (!RegisterClassEx (&wincl))
-    return false;
+  return false;
 
   // The class is registered, let's create the window
   mainWnd = CreateWindowEx(WS_EX_TOOLWINDOW, desktopClass, NULL, WS_POPUP,
-                           0, 0, 0, 0, NULL, NULL, mainInst, reinterpret_cast<LPVOID>(this));
+  0, 0, 0, 0, NULL, NULL, mainInst, reinterpret_cast<LPVOID>(this));
 
   // If the window failed to get created, unregister the class and quit the program
   if (!mainWnd)
-    {
-      ELMessageBox(GetDesktopWindow(),
-                   (WCHAR*)TEXT("Failed to create desktop window"),
-                   (WCHAR*)TEXT("emergeDesktop"),
-                   ELMB_OK|ELMB_ICONERROR|ELMB_MODAL);
-      return false;
-    }
+  {
+  ELMessageBox(GetDesktopWindow(),
+  (WCHAR*)TEXT("Failed to create desktop window"),
+  (WCHAR*)TEXT("emergeDesktop"),
+  ELMB_OK|ELMB_ICONERROR|ELMB_MODAL);
+  return false;
+  }
 
   SetWindowPos(mainWnd, HWND_BOTTOM, GetSystemMetrics(SM_XVIRTUALSCREEN), GetSystemMetrics(SM_YVIRTUALSCREEN),
-               GetSystemMetrics(SM_CXVIRTUALSCREEN), GetSystemMetrics(SM_CYVIRTUALSCREEN),
-               SWP_SHOWWINDOW);
+  GetSystemMetrics(SM_CXVIRTUALSCREEN), GetSystemMetrics(SM_CYVIRTUALSCREEN),
+  SWP_SHOWWINDOW);
 
   SetBackgroundImage();
 
   if (ELRegisterShellHook(mainWnd, RSH_PROGMAN))
-    ShellMessage = RegisterWindowMessage(TEXT("SHELLHOOK"));*/
+  ShellMessage = RegisterWindowMessage(TEXT("SHELLHOOK"));*/
 
   // Create Desktop thread
   m_hThread = CreateThread(NULL, 0, ThreadFunc, NULL, 0, &m_dwThreadID);
@@ -156,13 +156,13 @@ LRESULT CALLBACK Desktop::DesktopProcedure (HWND hwnd, UINT message, WPARAM wPar
       break;
 
     case WM_PAINT:
-    {
-      PAINTSTRUCT ps;
-      HDC hdc = BeginPaint(hwnd, &ps);
-      PaintDesktop(hdc);
-      EndPaint(hwnd, &ps);
-    }
-    break;
+        {
+          PAINTSTRUCT ps;
+          HDC hdc = BeginPaint(hwnd, &ps);
+          PaintDesktop(hdc);
+          EndPaint(hwnd, &ps);
+        }
+      break;
 
     case WM_RBUTTONDOWN:
       pDesktop->ShowMenu(CORE_RIGHTMENU);
@@ -316,9 +316,6 @@ bool Desktop::SetBackgroundImage()
 
 DWORD WINAPI Desktop::ThreadFunc(LPVOID pvParam UNUSED)
 {
-  std::wstring debug = L"Thread Created";
-  ELWriteDebug(debug);
-
   DWORD registerCookie;
   TShellDesktopTrayFactory explorerFactory;
 
@@ -331,11 +328,7 @@ DWORD WINAPI Desktop::ThreadFunc(LPVOID pvParam UNUSED)
                                    CLSCTX_LOCAL_SERVER,
                                    REGCLS_MULTIPLEUSE,
                                    &registerCookie)))
-    {
-      debug = L"CoRegisterClassObject failed";
-      ELWriteDebug(debug);
-      return 1;
-    }
+    return 1;
 
   // Create the ShellDesktopTray interface
   IShellDesktopTray *iTray = new TShellDesktopTray;
@@ -347,16 +340,9 @@ DWORD WINAPI Desktop::ThreadFunc(LPVOID pvParam UNUSED)
 
   if (SHCreateDesktop && SHDesktopMessageLoop)
     {
-      debug = L"After Check, Before SHCreateDesktop";
-      ELWriteDebug(debug);
-
       // Create the desktop
       HANDLE hDesktop = SHCreateDesktop(iTray);
       //HANDLE hDesktop = NULL;
-
-      debug = L"After SHCreateDesktop";
-      ELWriteDebug(debug);
-
 
       SendMessage(GetDesktopWindow(), 0x400, 0, 0);
 
@@ -380,15 +366,9 @@ DWORD WINAPI Desktop::ThreadFunc(LPVOID pvParam UNUSED)
           CloseHandle(hEv);
         }
 
-      debug = L"After Events";
-      ELWriteDebug(debug);
-
       // Run the desktop message loop
       if (hDesktop)
         SHDesktopMessageLoop(hDesktop);
-
-      debug = L"After SHDesktopMessageLoop";
-      ELWriteDebug(debug);
     }
 
   delete iTray;
