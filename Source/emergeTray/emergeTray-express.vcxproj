@@ -69,7 +69,7 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>..\bin\emergeGraphics.lib;..\bin\emergeLib.lib;..\bin\emergeBaseClasses.lib;..\bin\emergeSchemeEngine.lib;comctl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>..\bin\emergeGraphics.lib;..\bin\emergeLib.lib;..\bin\emergeBaseClasses.lib;..\bin\emergeStyleEngine.lib;comctl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
