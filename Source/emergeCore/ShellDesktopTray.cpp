@@ -1,10 +1,5 @@
 #include "ShellDesktopTray.h"
 
-IShellDesktopTray *CreateInstance()
-{
-	return new TShellDesktopTray;
-}
-
 HRESULT TShellDesktopTray::QueryInterface(IShellDesktopTray * p UNUSED, REFIID riid, LPVOID * ppvObj)
 {
 	if(!ppvObj)
@@ -32,28 +27,29 @@ ULONG TShellDesktopTray::Release(IShellDesktopTray * p UNUSED)
 	return 1;
 }
 
-int TShellDesktopTray::GetState()
+ULONG TShellDesktopTray::GetState()
 {
 	return 2;
 }
 
-int TShellDesktopTray::GetTrayWindow(HWND *o)
+HRESULT TShellDesktopTray::GetTrayWindow(HWND *o)
 {
 	// Prevent Explorer from closing the tray window (and SharpCore) when shutting down
 	*o = 0;
-	//*o = FindWindow(L"Shell_TrayWnd", NULL);
+	//*o = FindWindow(TEXT("EmergeDesktopCore"), NULL);
 
-	return 0;
+
+	return S_OK;
 }
 
-int TShellDesktopTray::RegisterDesktopWindow(HWND d UNUSED)
+HRESULT TShellDesktopTray::RegisterDesktopWindow(HWND d UNUSED)
 {
-	return 0;
+	return S_OK;
 }
 
-int TShellDesktopTray::SetVar(int p1 UNUSED, ULONG p2 UNUSED)
+HRESULT TShellDesktopTray::SetVar(int p1 UNUSED, ULONG p2 UNUSED)
 {
-	return 0;
+	return S_OK;
 }
 
 

@@ -73,16 +73,24 @@ int WINAPI WinMain (HINSTANCE hInstance,
           return 0;
         }
 
-      if (ELVersionInfo() >= 6.0)
-        wcscpy(shellEvent, TEXT("ShellDesktopSwitchEvent"));
-      else
-        wcscpy(shellEvent, TEXT("msgina: ShellReadyEvent"));
-
-      HANDLE hLogonEvent = OpenEvent(EVENT_MODIFY_STATE, FALSE, shellEvent);
-      if (hLogonEvent)
+      // Switching shell event
+      HANDLE hEv = OpenEvent(EVENT_MODIFY_STATE, false, L"Global\\msgina: ShellReadyEvent");
+      if(hEv)
         {
-          SetEvent(hLogonEvent);
-          CloseHandle(hLogonEvent);
+          SetEvent(hEv);
+          CloseHandle(hEv);
+        }
+      hEv = OpenEvent(EVENT_MODIFY_STATE, false, L"msgina: ShellReadyEvent");
+      if(hEv)
+        {
+          SetEvent(hEv);
+          CloseHandle(hEv);
+        }
+      hEv = OpenEvent(EVENT_MODIFY_STATE, false, L"ShellDesktopSwitchEvent");
+      if(hEv)
+        {
+          SetEvent(hEv);
+          CloseHandle(hEv);
         }
     }
 

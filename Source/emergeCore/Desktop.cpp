@@ -100,6 +100,11 @@ Desktop::~Desktop()
   if(m_dwThreadID)
     PostThreadMessage(m_dwThreadID, WM_QUIT, 0, 0);
 
+  // Revoke the COM object
+  CoRevokeClassObject(registerCookie);
+
+  CoUninitialize();
+
   // Terminate thread
   if (m_hThread)
     {
@@ -317,7 +322,7 @@ bool Desktop::SetBackgroundImage()
 DWORD WINAPI Desktop::ThreadFunc(LPVOID pvParam UNUSED)
 {
   DWORD registerCookie;
-  TShellDesktopTrayFactory explorerFactory;
+  static TShellDesktopTrayFactory explorerFactory;
 
   // Initialize COM for this thread
   CoInitializeEx(NULL, COINIT_APARTMENTTHREADED);
@@ -331,47 +336,29 @@ DWORD WINAPI Desktop::ThreadFunc(LPVOID pvParam UNUSED)
     return 1;
 
   // Create the ShellDesktopTray interface
-  IShellDesktopTray *iTray = new TShellDesktopTray;
+  //TShellDesktopTray explorerTray;
+  LPVOID lpVoid;
+  static TShellDesktopTray *explorerTray = new TShellDesktopTray();
+  explorerTray->QueryInterface(NULL, IID_IShellDesktopTray, &lpVoid);
+  static IShellDesktopTray *iTray = reinterpret_cast <IShellDesktopTray*> (lpVoid);
 
   SetPriorityClass(GetCurrentProcess(), HIGH_PRIORITY_CLASS);
 
-  SHCREATEDESKTOP SHCreateDesktop = (SHCREATEDESKTOP)GetProcAddress(ELGetSystemLibrary(TEXT("shell32.dll")), (LPCSTR)200);
-  SHDESKTOPMESSAGELOOP SHDesktopMessageLoop = (SHDESKTOPMESSAGELOOP)GetProcAddress(ELGetSystemLibrary(TEXT("shell32.dll")), (LPCSTR)201);
+  static SHCREATEDESKTOP SHCreateDesktop = (SHCREATEDESKTOP)GetProcAddress(ELGetSystemLibrary(TEXT("shell32.dll")), (LPCSTR)200);
+  static SHDESKTOPMESSAGELOOP SHDesktopMessageLoop = (SHDESKTOPMESSAGELOOP)GetProcAddress(ELGetSystemLibrary(TEXT("shell32.dll")), (LPCSTR)201);
 
   if (SHCreateDesktop && SHDesktopMessageLoop)
     {
       // Create the desktop
-      HANDLE hDesktop = SHCreateDesktop(iTray);
-      //HANDLE hDesktop = NULL;
+      //HANDLE hDesktop = SHCreateDesktop(&explorerTray);
+      static HANDLE hDesktop = SHCreateDesktop(iTray);
 
       SendMessage(GetDesktopWindow(), 0x400, 0, 0);
-
-      // Switching shell event
-      HANDLE hEv = OpenEvent(EVENT_MODIFY_STATE, false, L"Global\\msgina: ShellReadyEvent");
-      if(hEv)
-        {
-          SetEvent(hEv);
-          CloseHandle(hEv);
-        }
-      hEv = OpenEvent(EVENT_MODIFY_STATE, false, L"msgina: ShellReadyEvent");
-      if(hEv)
-        {
-          SetEvent(hEv);
-          CloseHandle(hEv);
-        }
-      hEv = OpenEvent(EVENT_MODIFY_STATE, false, L"ShellDesktopSwitchEvent");
-      if(hEv)
-        {
-          SetEvent(hEv);
-          CloseHandle(hEv);
-        }
 
       // Run the desktop message loop
       if (hDesktop)
         SHDesktopMessageLoop(hDesktop);
     }
-
-  delete iTray;
 
   // Revoke the COM object
   CoRevokeClassObject(registerCookie);
