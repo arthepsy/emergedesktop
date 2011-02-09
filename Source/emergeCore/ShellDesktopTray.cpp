@@ -1,5 +1,15 @@
 #include "ShellDesktopTray.h"
 
+TShellDesktopTray::TShellDesktopTray()
+{
+  refCount = 0;
+}
+
+TShellDesktopTray::~TShellDesktopTray()
+{
+
+}
+
 HRESULT TShellDesktopTray::QueryInterface(IShellDesktopTray * p UNUSED, REFIID riid, LPVOID * ppvObj)
 {
 	if(!ppvObj)
@@ -17,14 +27,20 @@ HRESULT TShellDesktopTray::QueryInterface(IShellDesktopTray * p UNUSED, REFIID r
 	return S_OK;
 }
 
-ULONG TShellDesktopTray::AddRef(IShellDesktopTray * p UNUSED)
+ULONG TShellDesktopTray::AddRef(IShellDesktopTray *p)
 {
-	return 2;
+  if (p == this)
+    ++refCount;
+
+	return refCount;
 }
 
-ULONG TShellDesktopTray::Release(IShellDesktopTray * p UNUSED)
+ULONG TShellDesktopTray::Release(IShellDesktopTray *p)
 {
-	return 1;
+  if ((p == this) && (refCount > 0))
+    --refCount;
+
+	return refCount;
 }
 
 ULONG TShellDesktopTray::GetState()
@@ -35,7 +51,7 @@ ULONG TShellDesktopTray::GetState()
 HRESULT TShellDesktopTray::GetTrayWindow(HWND *o)
 {
 	// Prevent Explorer from closing the tray window (and SharpCore) when shutting down
-	*o = 0;
+	*o = NULL;
 	//*o = FindWindow(TEXT("EmergeDesktopCore"), NULL);
 
 
@@ -55,7 +71,7 @@ HRESULT TShellDesktopTray::SetVar(int p1 UNUSED, ULONG p2 UNUSED)
 
 TShellDesktopTrayFactory::TShellDesktopTrayFactory()
 {
-
+  refCount = 0;
 }
 
 TShellDesktopTrayFactory::~TShellDesktopTrayFactory()
@@ -65,12 +81,17 @@ TShellDesktopTrayFactory::~TShellDesktopTrayFactory()
 
 ULONG TShellDesktopTrayFactory::AddRef()
 {
-	return 2;
+  ++refCount;
+
+	return refCount;
 }
 
 ULONG TShellDesktopTrayFactory::Release()
 {
-	return 1;
+  if (refCount > 0)
+    --refCount;
+
+	return refCount;
 }
 
 HRESULT TShellDesktopTrayFactory::QueryInterface(REFIID riid, void** ppv)

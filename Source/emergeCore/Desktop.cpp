@@ -100,11 +100,6 @@ Desktop::~Desktop()
   if(m_dwThreadID)
     PostThreadMessage(m_dwThreadID, WM_QUIT, 0, 0);
 
-  // Revoke the COM object
-  CoRevokeClassObject(registerCookie);
-
-  CoUninitialize();
-
   // Terminate thread
   if (m_hThread)
     {
@@ -321,7 +316,7 @@ bool Desktop::SetBackgroundImage()
 
 DWORD WINAPI Desktop::ThreadFunc(LPVOID pvParam UNUSED)
 {
-  DWORD registerCookie;
+  static DWORD registerCookie;
   static TShellDesktopTrayFactory explorerFactory;
 
   // Initialize COM for this thread
@@ -337,7 +332,7 @@ DWORD WINAPI Desktop::ThreadFunc(LPVOID pvParam UNUSED)
 
   // Create the ShellDesktopTray interface
   //TShellDesktopTray explorerTray;
-  LPVOID lpVoid;
+  static LPVOID lpVoid;
   static TShellDesktopTray *explorerTray = new TShellDesktopTray();
   explorerTray->QueryInterface(NULL, IID_IShellDesktopTray, &lpVoid);
   static IShellDesktopTray *iTray = reinterpret_cast <IShellDesktopTray*> (lpVoid);

@@ -36,7 +36,7 @@ int WINAPI WinMain (HINSTANCE hInstance,
                     int nCmdShow UNUSED)
 {
   MSG messages;
-  WCHAR app[MAX_PATH], args[MAX_LINE_LENGTH], argsTmp[MAX_LINE_LENGTH], *token, shellEvent[MAX_LINE_LENGTH];
+  WCHAR app[MAX_PATH], args[MAX_LINE_LENGTH], argsTmp[MAX_LINE_LENGTH], *token;
   HANDLE hMutex = NULL;
   bool abort = true, block = false;
 
