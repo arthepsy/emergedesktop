@@ -10,6 +10,7 @@ tags
 .objs
 .objs64
 bin
+msbin
 bin64
 hgversion.h
 *.bmarks
@@ -31,6 +32,7 @@ hgversion.h
 *.tlog
 *.cache
 *.filters
+*.log
 
 # switch to regexp syntax.
 #syntax: regexp
