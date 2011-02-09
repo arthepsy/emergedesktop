@@ -33,6 +33,7 @@ hgversion.h
 *.cache
 *.filters
 *.log
+*.opensdf
 
 # switch to regexp syntax.
 #syntax: regexp
