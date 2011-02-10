@@ -34,6 +34,7 @@ class TShellDesktopTray : public IShellDesktopTray
 
   private:
     ULONG refCount;
+    HWND desktopWnd;
 };
 
 class TShellDesktopTrayFactory : public IClassFactory {

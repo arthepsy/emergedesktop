@@ -3,6 +3,7 @@
 TShellDesktopTray::TShellDesktopTray()
 {
   refCount = 0;
+  desktopWnd = NULL;
 }
 
 TShellDesktopTray::~TShellDesktopTray()
@@ -58,8 +59,10 @@ HRESULT TShellDesktopTray::GetTrayWindow(HWND *o)
 	return S_OK;
 }
 
-HRESULT TShellDesktopTray::RegisterDesktopWindow(HWND d UNUSED)
+HRESULT TShellDesktopTray::RegisterDesktopWindow(HWND d)
 {
+  desktopWnd = d;
+
 	return S_OK;
 }
 
