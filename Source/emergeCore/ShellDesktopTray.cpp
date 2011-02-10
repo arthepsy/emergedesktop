@@ -11,64 +11,62 @@ TShellDesktopTray::~TShellDesktopTray()
 
 }
 
-HRESULT TShellDesktopTray::QueryInterface(IShellDesktopTray * p UNUSED, REFIID riid, LPVOID * ppvObj)
+HRESULT TShellDesktopTray::QueryInterface(REFIID riid, LPVOID * ppvObj)
 {
-	if(!ppvObj)
-		return E_POINTER;
+  if(!ppvObj)
+    return E_POINTER;
 
-	if(riid == IID_IUnknown || riid == IID_IShellDesktopTray)
-		*ppvObj = this;
-	else
-	{
-		*ppvObj = 0;
-		return E_NOINTERFACE;
-	}
+  if(riid == IID_IUnknown || riid == IID_IShellDesktopTray)
+    *ppvObj = this;
+  else
+    {
+      *ppvObj = 0;
+      return E_NOINTERFACE;
+    }
 
-	AddRef(this);
-	return S_OK;
+  AddRef();
+  return S_OK;
 }
 
-ULONG TShellDesktopTray::AddRef(IShellDesktopTray *p)
+ULONG TShellDesktopTray::AddRef()
 {
-  if (p == this)
-    ++refCount;
+  ++refCount;
 
-	return refCount;
+  return refCount;
 }
 
-ULONG TShellDesktopTray::Release(IShellDesktopTray *p)
+ULONG TShellDesktopTray::Release()
 {
-  if ((p == this) && (refCount > 0))
-    --refCount;
+  --refCount;
 
-	return refCount;
+  return refCount;
 }
 
 ULONG TShellDesktopTray::GetState()
 {
-	return 2;
+  return 2;
 }
 
 HRESULT TShellDesktopTray::GetTrayWindow(HWND *o)
 {
-	// Prevent Explorer from closing the tray window (and SharpCore) when shutting down
-	*o = NULL;
-	//*o = FindWindow(TEXT("EmergeDesktopCore"), NULL);
+  // Prevent Explorer from closing the tray window (and SharpCore) when shutting down
+  *o = NULL;
+  //*o = FindWindow(TEXT("EmergeDesktopCore"), NULL);
 
 
-	return S_OK;
+  return S_OK;
 }
 
 HRESULT TShellDesktopTray::RegisterDesktopWindow(HWND d)
 {
   desktopWnd = d;
 
-	return S_OK;
+  return S_OK;
 }
 
 HRESULT TShellDesktopTray::SetVar(int p1 UNUSED, ULONG p2 UNUSED)
 {
-	return S_OK;
+  return S_OK;
 }
 
 
@@ -86,7 +84,7 @@ ULONG TShellDesktopTrayFactory::AddRef()
 {
   ++refCount;
 
-	return refCount;
+  return refCount;
 }
 
 ULONG TShellDesktopTrayFactory::Release()
@@ -94,44 +92,44 @@ ULONG TShellDesktopTrayFactory::Release()
   if (refCount > 0)
     --refCount;
 
-	return refCount;
+  return refCount;
 }
 
 HRESULT TShellDesktopTrayFactory::QueryInterface(REFIID riid, void** ppv)
 {
-	if(!ppv)
-		return E_POINTER;
+  if(!ppv)
+    return E_POINTER;
 
-	if(riid == IID_IUnknown || riid == IID_IClassFactory)
-		*ppv = this;
-	else
-	{
-		*ppv = 0;
-		return E_NOINTERFACE;
-	}
+  if(riid == IID_IUnknown || riid == IID_IClassFactory)
+    *ppv = this;
+  else
+    {
+      *ppv = 0;
+      return E_NOINTERFACE;
+    }
 
-	AddRef();
-	return S_OK;
+  AddRef();
+  return S_OK;
 }
 
 HRESULT TShellDesktopTrayFactory::CreateInstance(IUnknown* pOuter, REFIID riid, void** ppv)
 {
-	if(!ppv)
-		return E_POINTER;
+  if(!ppv)
+    return E_POINTER;
 
-	if(pOuter)
-		return CLASS_E_NOAGGREGATION;
+  if(pOuter)
+    return CLASS_E_NOAGGREGATION;
 
-	TShellDesktopTray* pShellDesktopTray = new TShellDesktopTray;
+  TShellDesktopTray* pShellDesktopTray = new TShellDesktopTray;
 
-	HRESULT hr = pShellDesktopTray->QueryInterface(NULL, riid, ppv);
-	if(hr)
-		delete pShellDesktopTray;
+  HRESULT hr = pShellDesktopTray->QueryInterface(riid, ppv);
+  if(hr)
+    delete pShellDesktopTray;
 
-	return hr;
+  return hr;
 }
 
 HRESULT TShellDesktopTrayFactory::LockServer(BOOL fLock UNUSED)
 {
-	return S_OK;
+  return S_OK;
 }

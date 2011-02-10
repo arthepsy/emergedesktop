@@ -316,37 +316,36 @@ bool Desktop::SetBackgroundImage()
 
 DWORD WINAPI Desktop::ThreadFunc(LPVOID pvParam UNUSED)
 {
-  static DWORD registerCookie;
-  static TShellDesktopTrayFactory explorerFactory;
+  LPVOID lpVoid;
+  DWORD registerCookie;
+  TShellDesktopTrayFactory *explorerFactory = new TShellDesktopTrayFactory();
+  TShellDesktopTray *explorerTray = NULL;
 
   // Initialize COM for this thread
   CoInitializeEx(NULL, COINIT_APARTMENTTHREADED);
 
   // Register the IShellDesktopTray COM Object
   if (FAILED(CoRegisterClassObject(IID_IShellDesktopTray,
-                                   LPUNKNOWN(&explorerFactory),
+                                   LPUNKNOWN(explorerFactory),
                                    CLSCTX_LOCAL_SERVER,
                                    REGCLS_MULTIPLEUSE,
                                    &registerCookie)))
     return 1;
 
   // Create the ShellDesktopTray interface
-  //TShellDesktopTray explorerTray;
-  static LPVOID lpVoid;
-  static TShellDesktopTray *explorerTray = new TShellDesktopTray();
-  explorerTray->QueryInterface(NULL, IID_IShellDesktopTray, &lpVoid);
-  static IShellDesktopTray *iTray = reinterpret_cast <IShellDesktopTray*> (lpVoid);
+  explorerTray = new TShellDesktopTray();
+  explorerTray->QueryInterface(IID_IShellDesktopTray, &lpVoid);
+  IShellDesktopTray *iTray = reinterpret_cast <IShellDesktopTray*> (lpVoid);
 
   SetPriorityClass(GetCurrentProcess(), HIGH_PRIORITY_CLASS);
 
-  static SHCREATEDESKTOP SHCreateDesktop = (SHCREATEDESKTOP)GetProcAddress(ELGetSystemLibrary(TEXT("shell32.dll")), (LPCSTR)200);
-  static SHDESKTOPMESSAGELOOP SHDesktopMessageLoop = (SHDESKTOPMESSAGELOOP)GetProcAddress(ELGetSystemLibrary(TEXT("shell32.dll")), (LPCSTR)201);
+  SHCREATEDESKTOP SHCreateDesktop = (SHCREATEDESKTOP)GetProcAddress(ELGetSystemLibrary(TEXT("shell32.dll")), (LPCSTR)200);
+  SHDESKTOPMESSAGELOOP SHDesktopMessageLoop = (SHDESKTOPMESSAGELOOP)GetProcAddress(ELGetSystemLibrary(TEXT("shell32.dll")), (LPCSTR)201);
 
   if (SHCreateDesktop && SHDesktopMessageLoop)
     {
       // Create the desktop
-      //HANDLE hDesktop = SHCreateDesktop(&explorerTray);
-      static HANDLE hDesktop = SHCreateDesktop(iTray);
+      HANDLE hDesktop = SHCreateDesktop(iTray);
 
       SendMessage(GetDesktopWindow(), 0x400, 0, 0);
 
@@ -354,6 +353,10 @@ DWORD WINAPI Desktop::ThreadFunc(LPVOID pvParam UNUSED)
       if (hDesktop)
         SHDesktopMessageLoop(hDesktop);
     }
+
+  delete explorerTray;
+
+  delete explorerFactory;
 
   // Revoke the COM object
   CoRevokeClassObject(registerCookie);
