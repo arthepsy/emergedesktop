@@ -320,6 +320,9 @@ DWORD WINAPI Desktop::ThreadFunc(LPVOID pvParam UNUSED)
   DWORD registerCookie;
   TShellDesktopTrayFactory *explorerFactory = new TShellDesktopTrayFactory();
   TShellDesktopTray *explorerTray = NULL;
+  HMODULE shell32DLL = ELLoadSystemLibrary(TEXT("shell32.dll"));
+  if (!shell32DLL)
+	  return 1;
 
   // Initialize COM for this thread
   CoInitializeEx(NULL, COINIT_APARTMENTTHREADED);
@@ -339,8 +342,8 @@ DWORD WINAPI Desktop::ThreadFunc(LPVOID pvParam UNUSED)
 
   SetPriorityClass(GetCurrentProcess(), HIGH_PRIORITY_CLASS);
 
-  SHCREATEDESKTOP SHCreateDesktop = (SHCREATEDESKTOP)GetProcAddress(ELGetSystemLibrary(TEXT("shell32.dll")), (LPCSTR)200);
-  SHDESKTOPMESSAGELOOP SHDesktopMessageLoop = (SHDESKTOPMESSAGELOOP)GetProcAddress(ELGetSystemLibrary(TEXT("shell32.dll")), (LPCSTR)201);
+  SHCREATEDESKTOP SHCreateDesktop = (SHCREATEDESKTOP)GetProcAddress(shell32DLL, (LPCSTR)200);
+  SHDESKTOPMESSAGELOOP SHDesktopMessageLoop = (SHDESKTOPMESSAGELOOP)GetProcAddress(shell32DLL, (LPCSTR)201);
 
   if (SHCreateDesktop && SHDesktopMessageLoop)
     {
@@ -354,14 +357,16 @@ DWORD WINAPI Desktop::ThreadFunc(LPVOID pvParam UNUSED)
         SHDesktopMessageLoop(hDesktop);
     }
 
-  delete explorerTray;
+  explorerTray->Release();
 
-  delete explorerFactory;
+  explorerFactory->Release();
 
   // Revoke the COM object
   CoRevokeClassObject(registerCookie);
 
   CoUninitialize();
+
+  FreeLibrary(shell32DLL);
 
   return 0;
 }

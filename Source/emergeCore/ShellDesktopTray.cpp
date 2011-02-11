@@ -37,7 +37,10 @@ ULONG TShellDesktopTray::AddRef()
 
 ULONG TShellDesktopTray::Release()
 {
-  --refCount;
+  if (refCount > 0)
+    --refCount;
+  else
+    delete this;
 
   return refCount;
 }
@@ -49,10 +52,8 @@ ULONG TShellDesktopTray::GetState()
 
 HRESULT TShellDesktopTray::GetTrayWindow(HWND *o)
 {
-  // Prevent Explorer from closing the tray window (and SharpCore) when shutting down
+  // Prevent Explorer from closing the tray window when shutting down
   *o = NULL;
-  //*o = FindWindow(TEXT("EmergeDesktopCore"), NULL);
-
 
   return S_OK;
 }
@@ -91,6 +92,8 @@ ULONG TShellDesktopTrayFactory::Release()
 {
   if (refCount > 0)
     --refCount;
+  else
+    delete this;
 
   return refCount;
 }
