@@ -1,21 +1,15 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 9.00
-# Visual C++ Express 2005
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SFXWiz", "sfx\SFXWiz32.vcproj", "{6BC29537-2E45-4429-A634-5C45B649436C}"
-	ProjectSection(ProjectDependencies) = postProject
-		{7545BD38-9F08-4F69-A944-E9981A5AB398} = {7545BD38-9F08-4F69-A944-E9981A5AB398}
-	EndProjectSection
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual C++ Express 2010
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SFXWiz", "sfx\SFXWiz32.vcxproj", "{6BC29537-2E45-4429-A634-5C45B649436C}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "unz32dll", "dll\unz32dll.vcproj", "{26E880E4-A1B1-4FB1-8833-13FC0FA48857}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "unz32dll", "dll\unz32dll.vcxproj", "{26E880E4-A1B1-4FB1-8833-13FC0FA48857}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "unz32lib", "lib\unz32lib.vcproj", "{AC199DDF-4CC8-4BEE-988E-1D20C7336F22}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "unz32lib", "lib\unz32lib.vcxproj", "{AC199DDF-4CC8-4BEE-988E-1D20C7336F22}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "unzsfx32", "sfx\unzsfx32.vcproj", "{7545BD38-9F08-4F69-A944-E9981A5AB398}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "unzsfx32", "sfx\unzsfx32.vcxproj", "{7545BD38-9F08-4F69-A944-E9981A5AB398}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "c_dll_ex", "exampl\c_dll_ex.vcproj", "{80E5EF65-3BD4-4EFF-BA4C-CA893C95EE8B}"
-	ProjectSection(ProjectDependencies) = postProject
-		{26E880E4-A1B1-4FB1-8833-13FC0FA48857} = {26E880E4-A1B1-4FB1-8833-13FC0FA48857}
-	EndProjectSection
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "c_dll_ex", "exampl\c_dll_ex.vcxproj", "{80E5EF65-3BD4-4EFF-BA4C-CA893C95EE8B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

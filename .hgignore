@@ -10,6 +10,7 @@ tags
 .objs
 .objs64
 bin
+msbin
 bin64
 hgversion.h
 *.bmarks
@@ -21,6 +22,18 @@ hgversion.h
 *.exe
 *.session
 *.o
+*.user
+*.sdf
+*.suo
+*.obj
+*.sbr
+*.idb
+*.pdb
+*.tlog
+*.cache
+*.filters
+*.log
+*.opensdf
 
 # switch to regexp syntax.
 #syntax: regexp

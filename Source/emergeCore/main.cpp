@@ -36,7 +36,7 @@ int WINAPI WinMain (HINSTANCE hInstance,
                     int nCmdShow UNUSED)
 {
   MSG messages;
-  WCHAR app[MAX_PATH], args[MAX_LINE_LENGTH], argsTmp[MAX_LINE_LENGTH], *token, shellEvent[MAX_LINE_LENGTH];
+  WCHAR app[MAX_PATH], args[MAX_LINE_LENGTH], argsTmp[MAX_LINE_LENGTH], *token;
   HANDLE hMutex = NULL;
   bool abort = true, block = false;
 
@@ -65,7 +65,7 @@ int WINAPI WinMain (HINSTANCE hInstance,
     }
   else if (block)
     {
-      // Check to see if iTray is already running, if so exit
+      // Check to see if emergeCore is already running, if so exit
       hMutex = CreateMutex(NULL, false, TEXT("emergeCore"));
       if (GetLastError() == ERROR_ALREADY_EXISTS)
         {
@@ -73,16 +73,24 @@ int WINAPI WinMain (HINSTANCE hInstance,
           return 0;
         }
 
-      if (ELVersionInfo() >= 6.0)
-        wcscpy(shellEvent, TEXT("ShellDesktopSwitchEvent"));
-      else
-        wcscpy(shellEvent, TEXT("msgina: ShellReadyEvent"));
-
-      HANDLE hLogonEvent = OpenEvent(EVENT_MODIFY_STATE, FALSE, shellEvent);
-      if (hLogonEvent)
+      // Switching shell event
+      HANDLE hEv = OpenEvent(EVENT_MODIFY_STATE, false, L"Global\\msgina: ShellReadyEvent");
+      if(hEv)
         {
-          SetEvent(hLogonEvent);
-          CloseHandle(hLogonEvent);
+          SetEvent(hEv);
+          CloseHandle(hEv);
+        }
+      hEv = OpenEvent(EVENT_MODIFY_STATE, false, L"msgina: ShellReadyEvent");
+      if(hEv)
+        {
+          SetEvent(hEv);
+          CloseHandle(hEv);
+        }
+      hEv = OpenEvent(EVENT_MODIFY_STATE, false, L"ShellDesktopSwitchEvent");
+      if(hEv)
+        {
+          SetEvent(hEv);
+          CloseHandle(hEv);
         }
     }
 

@@ -705,6 +705,9 @@
 		<ExtraCommands>
 			<Add before='[[ local hgfile = _T(&quot;hgversion.h&quot;); local hgcmd = _T(&quot;cmd /c hg tip --template \&quot;#define BUILD_VERSION {rev}\&quot; &gt; hgversion.h&quot;); if ( !IO.FileExists(hgfile) ) { IO.Execute(hgcmd); } ]]' />
 		</ExtraCommands>
+		<Unit filename="MinGWInterfaces.h">
+			<Option target="emergeLib - Release" />
+		</Unit>
 		<Unit filename="emergeAppletEngine\emergeAppletEngine.h">
 			<Option target="emergeAppletEngine - Release" />
 			<Option target="emergeAppletEngine - Debug" />

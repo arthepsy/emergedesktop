@@ -685,14 +685,15 @@ LRESULT Applet::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
         {
           //A new "task" was created
         case HSHELL_WINDOWCREATED:
-          return AddTask(task);
+          AddTask(task);
+          break;
 
           // A "task" was modified
         case HSHELL_REDRAW:
           pr = modifyMap.insert(std::pair<HWND, UINT>(task, modifyIndex));
           if (pr.second)
             SetTimer(hwnd, modifyIndex, MODIFY_POLL_TIME, (TIMERPROC)ModifyTimerProc);
-          return TRUE;
+          break;
 
           // A "task" was ended
         case HSHELL_WINDOWDESTROYED:
@@ -712,7 +713,8 @@ LRESULT Applet::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 
           // A "task" was flashed
         case HSHELL_FLASH:
-          return SetFlash(task, true);
+          SetFlash(task, true);
+          break;
         }
     }
 
