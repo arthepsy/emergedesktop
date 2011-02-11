@@ -42,6 +42,7 @@ bool Core::Initialize(WCHAR *commandLine)
 
   _wcslwr(commandLine);
 
+  // Set the critical environment variables
   if (!ELSetEmergeVars())
     {
       ELMessageBox(GetDesktopWindow(), TEXT("Failed to initialize Environment variables."),
@@ -63,6 +64,10 @@ bool Core::Initialize(WCHAR *commandLine)
 
   OleInitialize(NULL);
 
+  // Set the non-critical environment variables
+  ELSetEnvironmentVars(pSettings->GetShowStartupErrors());
+
+  // Start the shell functions
   pShell = std::tr1::shared_ptr<Shell>(new Shell());
 
   // Register the window class

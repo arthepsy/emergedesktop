@@ -61,15 +61,25 @@
 #endif
 
 // Define BuildSettingsMenu options
-#define BSM_SEPARATOR    0x00
-#define BSM_ABOUT        0x01
-#define BSM_CONFIGURE    0x02
-#define BSM_LAUNCH       0x03
-#define BSM_SHELL        0x05
-#define BSM_ALIAS        0x06
-#define BSM_SELECTTHEME  0x07
-#define BSM_SAVETHEME    0x08
-#define BSM_QUIT         0x09
+typedef enum _BUILDSETTINGSMENU {
+  BSM_SEPARATOR = 0,
+  BSM_CONFIGURE,
+  BSM_LAUNCH,
+  BSM_SHELL,
+  BSM_ALIAS,
+  BSM_SELECTTHEME,
+  BSM_SAVETHEME,
+  BSM_QUIT
+} BUILDSETTINGSMENU;
+
+// Define BuildHelpMenu options
+typedef enum _BUILDHELPMENU {
+  BHM_SEPARATOR = 0,
+  BHM_OFFLINE,
+  BHM_TUTORIAL,
+  BHM_WEBSITE,
+  BHM_ABOUT
+} BUILDHELPMENU;
 
 typedef std::map< HMENU,std::tr1::shared_ptr<MenuListItem> > MenuMap;
 
@@ -94,6 +104,7 @@ private:
   void BuildFileMenuFromString(MenuMap::iterator iter, WCHAR *parsedValue);
   void BuildDefaultMenu(MenuMap::iterator iter);
   void BuildSettingsMenu(MenuMap::iterator iter);
+  void BuildHelpMenu(MenuMap::iterator iter);
   bool NoPrefixString(WCHAR *source);
   MenuMap menuMap;
   HHOOK menuHook;
@@ -101,6 +112,7 @@ private:
   void ExecuteFileMenuItem(const WCHAR *value);
   void ExecuteTaskMenuItem(HWND task);
   void ExecuteSettingsMenuItem(UINT index);
+  void ExecuteHelpMenuItem(UINT index);
   void UpdateMenuHook();
   void ExpandEmergeVar(LPTSTR value, LPTSTR var);
   void ClearMenu(MenuMap::iterator iter);

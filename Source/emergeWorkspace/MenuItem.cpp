@@ -1,3 +1,4 @@
+// vim: tags+=../emergeLib/tags,../emergeGraphics/tags
 //----  --------------------------------------------------------------------------------------------------------
 //
 //  This file is part of Emerge Desktop.
@@ -149,6 +150,9 @@ void MenuItem::SetIcon()
       break;
     case IT_SETTINGS_MENU:
       icon = EGGetSystemIcon(ICON_EMERGE, 16);
+      break;
+    case IT_HELP_MENU:
+      icon = EGGetSystemIcon(ICON_QUESTION, 16);
       break;
     }
 
