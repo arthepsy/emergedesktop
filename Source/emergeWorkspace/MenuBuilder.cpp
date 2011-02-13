@@ -1600,7 +1600,8 @@ LRESULT MenuBuilder::DoButtonDown(UINT button)
 
   GetCursorPos(&mousePT);
 
-  ELSwitchToThisWindow(menuWnd);
+  ELStealFocus(menuWnd);
+  SetWindowPos(menuWnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
   SendMessage(menuWnd, WM_CANCELMODE, 0, 0);
 
   if (button == WM_LBUTTONDOWN)

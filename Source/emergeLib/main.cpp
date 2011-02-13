@@ -1004,13 +1004,15 @@ bool ELExecuteInternal(LPTSTR command)
 {
   if (_wcsicmp(command, TEXT("RightDeskMenu")) == 0)
     {
-      ELSwitchToThisWindow(ELGetCoreWindow());
+      /// TODO (Chris#1#): Find better implementation that doesn't rely on finding the desktop window
+      ELSwitchToThisWindow(FindWindow(TEXT("EmergeDesktopMenuBuilder"), NULL));/**< Needed to address keyboard focus issue with Launcher */
       PostMessage(ELGetCoreWindow(), EMERGE_DISPATCH, (WPARAM)EMERGE_CORE, (LPARAM)CORE_RIGHTMENU);
       return true;
     }
   else if (_wcsicmp(command, TEXT("MidDeskMenu")) == 0)
     {
-      ELSwitchToThisWindow(ELGetCoreWindow());
+      /// TODO (Chris#1#): Find better implementation that doesn't rely on finding the desktop window
+      ELSwitchToThisWindow(FindWindow(TEXT("EmergeDesktopMenuBuilder"), NULL));/**< Needed to address keyboard focus issue with Launcher */
       PostMessage(ELGetCoreWindow(), EMERGE_DISPATCH, (WPARAM)EMERGE_CORE, (LPARAM)CORE_MIDMENU);
       return true;
     }
