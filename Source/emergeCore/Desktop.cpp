@@ -340,8 +340,6 @@ DWORD WINAPI Desktop::ThreadFunc(LPVOID pvParam UNUSED)
   explorerTray->QueryInterface(IID_IShellDesktopTray, &lpVoid);
   IShellDesktopTray *iTray = reinterpret_cast <IShellDesktopTray*> (lpVoid);
 
-  SetPriorityClass(GetCurrentProcess(), HIGH_PRIORITY_CLASS);
-
   SHCREATEDESKTOP SHCreateDesktop = (SHCREATEDESKTOP)GetProcAddress(shell32DLL, (LPCSTR)200);
   SHDESKTOPMESSAGELOOP SHDesktopMessageLoop = (SHDESKTOPMESSAGELOOP)GetProcAddress(shell32DLL, (LPCSTR)201);
 
