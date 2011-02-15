@@ -430,14 +430,16 @@ void Shell::ShellServicesTerminate()
   if (lpFileIconInit)
     lpFileIconInit(FALSE);
 
-  if (shdocvmDLL)
-    {
-      lpWinList_Terminate = (int (WINAPI *) (void))GetProcAddress(shdocvmDLL, (LPCSTR)111);
-      if (lpWinList_Terminate)
-        lpWinList_Terminate();
+  if (explorerFrameDLL)
+    lpWinList_Terminate = (int (WINAPI *) (void))GetProcAddress(explorerFrameDLL, (LPCSTR)111);
+  else if (shdocvmDLL)
+    lpWinList_Terminate = (int (WINAPI *) (void))GetProcAddress(shdocvmDLL, (LPCSTR)111);
 
-      FreeLibrary(shdocvmDLL);
-    }
+  if (lpWinList_Terminate)
+    lpWinList_Terminate();
+
+  if (shdocvmDLL)
+    FreeLibrary(shdocvmDLL);
 
   if (shell32DLL)
     FreeLibrary(shell32DLL);
