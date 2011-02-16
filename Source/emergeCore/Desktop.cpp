@@ -355,8 +355,8 @@ DWORD WINAPI Desktop::ThreadFunc(LPVOID pvParam UNUSED)
         SHDesktopMessageLoop(hDesktop);
     }
 
+  iTray->Release();
   explorerTray->Release();
-
   explorerFactory->Release();
 
   // Revoke the COM object
