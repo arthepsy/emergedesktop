@@ -175,7 +175,6 @@ Core::~Core()
             wtsursn(mainWnd);
           FreeLibrary(wtslib);
         }
-      //pDDEService->Stop();
       pShell->UnloadSSO();
       pShell->RegisterShell(mainWnd, false);
       pShell->ClearSessionInformation();

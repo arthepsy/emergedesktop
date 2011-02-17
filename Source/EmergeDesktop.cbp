@@ -851,15 +851,7 @@
 			<Option target="emergeCore - Release" />
 			<Option target="emergeCore - Debug" />
 		</Unit>
-		<Unit filename="emergeCore\DDEService.cpp">
-			<Option target="emergeCore - Release" />
-			<Option target="emergeCore - Debug" />
-		</Unit>
 		<Unit filename="emergeCore\DDEService.h">
-			<Option target="emergeCore - Release" />
-			<Option target="emergeCore - Debug" />
-		</Unit>
-		<Unit filename="emergeCore\DDEWorker.cpp">
 			<Option target="emergeCore - Release" />
 			<Option target="emergeCore - Debug" />
 		</Unit>
