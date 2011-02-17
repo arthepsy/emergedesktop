@@ -79,8 +79,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Core.h" />
-    <ClInclude Include="DDEService.h" />
-    <ClInclude Include="DDEWorker.h" />
     <ClInclude Include="Desktop.h" />
     <ClInclude Include="LaunchEditor.h" />
     <ClInclude Include="MessageControl.h" />
@@ -100,8 +98,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Core.cpp" />
-    <ClCompile Include="DDEService.cpp" />
-    <ClCompile Include="DDEWorker.cpp" />
     <ClCompile Include="Desktop.cpp" />
     <ClCompile Include="LaunchEditor.cpp" />
     <ClCompile Include="main.cpp" />
