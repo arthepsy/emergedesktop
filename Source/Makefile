@@ -5,7 +5,7 @@ include functions.in
 
 LIBS = zip unzip emergeLib emergeGraphics emergeAppletEngine emergeStyleEngine emergeBaseClasses emergeIcons
 APPLETS = emergeCore emergeWorkspace emergeHotkeys emergeTasks emergeCommand emergeLauncher \
-					emergeVWM emergeTray emerge emergePower emergeSysMon reg2xml
+					emergeVWM emergeTray emerge emergePower emergeSysMon reg2xml Explorer
 VERSION = 4.1
 PACKAGE = EmergeDesktop
 BIN_DIR = bin
