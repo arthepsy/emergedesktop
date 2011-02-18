@@ -81,7 +81,7 @@ INT_PTR Config::DoInitDialog(HWND hwndDlg)
   psp[0].hInstance = hInstance;
   psp[0].pszTemplate = MAKEINTRESOURCE(IDD_CONFIG_PAGE);
   psp[0].pfnDlgProc = pConfigPage->ConfigPageDlgProc;
-  psp[0].pszTitle = TEXT("General");
+  psp[0].pszTitle = TEXT("Workspace");
   psp[0].lParam = reinterpret_cast<LPARAM>(pConfigPage.get());
   psp[0].pfnCallback = NULL;
 
