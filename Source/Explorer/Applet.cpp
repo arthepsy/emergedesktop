@@ -54,6 +54,9 @@ UINT Applet::Initialize()
 
   OleInitialize(NULL);
 
+  SetErrorMode(SEM_FAILCRITICALERRORS | SEM_NOOPENFILEERRORBOX);
+  SetPriorityClass(GetCurrentProcess(), HIGH_PRIORITY_CLASS);
+
   // Start the shell functions
   ShellServicesInit();
 
@@ -198,8 +201,6 @@ void Applet::ShellServicesInit()
   shdocvmDLL = ELLoadSystemLibrary(TEXT("shdocvw.dll"));
   explorerFrameDLL = ELLoadSystemLibrary(TEXT("ExplorerFrame.dll"));
   shell32DLL = ELLoadSystemLibrary(TEXT("shell32.dll"));
-
-  SetPriorityClass(GetCurrentProcess(), HIGH_PRIORITY_CLASS);
 
   if (shell32DLL)
     {
