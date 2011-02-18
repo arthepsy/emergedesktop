@@ -116,9 +116,6 @@ bool Core::Initialize(WCHAR *commandLine)
 
   pMessageControl = std::tr1::shared_ptr<MessageControl>(new MessageControl());
 
-  // Start the shell functions
-  pShell->ShellServicesInit();
-
   // Create desktop window
   pDesktop = std::tr1::shared_ptr<Desktop>(new Desktop(mainInst, pMessageControl));
   pDesktop->Initialize();
@@ -178,7 +175,6 @@ Core::~Core()
       pShell->UnloadSSO();
       pShell->RegisterShell(mainWnd, false);
       pShell->ClearSessionInformation();
-      pShell->ShellServicesTerminate();
 
       OleUninitialize();
 

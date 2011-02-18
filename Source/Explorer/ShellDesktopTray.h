@@ -2,7 +2,6 @@
 #define __EC_SHELLDESKTOPTRAY_H
 
 #include "../emergeLib/emergeLib.h"
-#include <basetyps.h>
 
 // {213E2DF9-9A14-4328-99B1-6961F9143CE9}
 const IID IID_IShellDesktopTray = {0x213E2DF9,0x9A14,0x4328,{0x99,0xB1,0x69,0x61,0xF9,0x14,0x3C,0xE9}};

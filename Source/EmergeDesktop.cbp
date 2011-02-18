@@ -491,6 +491,26 @@
 				<Option createDefFile="1" />
 				<Option createStaticLib="1" />
 			</Target>
+			<Target title="Explorer - Release">
+				<Option platforms="Windows;" />
+				<Option output="bin\Explorer" prefix_auto="1" extension_auto="1" />
+				<Option object_output=".objs\Release" />
+				<Option external_deps="bin\emergeAppletEngine.dll;bin\emergeLib.dll;" />
+				<Option type="0" />
+				<Option compiler="gcc" />
+				<ResourceCompiler>
+					<Add directory=".\emergeHotkeys" />
+				</ResourceCompiler>
+				<Linker>
+					<Add option="-s" />
+					<Add library="emergeAppletEngine" />
+					<Add library="emergeBaseClasses" />
+					<Add library="emergeLib" />
+					<Add library="uuid" />
+					<Add library="ole32" />
+					<Add directory=".\bin" />
+				</Linker>
+			</Target>
 			<Target title="emergeLib - Debug">
 				<Option platforms="Windows;" />
 				<Option output="bin\emergeLib" prefix_auto="1" extension_auto="1" />
@@ -685,7 +705,7 @@
 			</Target>
 		</Build>
 		<VirtualTargets>
-			<Add alias="All - Release" targets="zip - Release;unzip - Release;emergeLib - Release;emergeGraphics - Release;emergeAppletEngine - Release;emergeStyleEngine - Release;emergeBaseClasses - Release;emergeCore - Release;emergeCommand - Release;emergeWorkspace - Release;emergeHotkeys - Release;emergeLauncher - Release;emergeTasks - Release;emergeTray - Release;emergeVWM - Release;emerge - Release;emergePower - Release;emergeSysMon - Release;reg2xml - Release;emergeIcons - Release;" />
+			<Add alias="All - Release" targets="zip - Release;unzip - Release;emergeLib - Release;emergeGraphics - Release;emergeAppletEngine - Release;emergeStyleEngine - Release;emergeBaseClasses - Release;emergeCore - Release;emergeCommand - Release;emergeWorkspace - Release;emergeHotkeys - Release;emergeLauncher - Release;emergeTasks - Release;emergeTray - Release;emergeVWM - Release;emerge - Release;emergePower - Release;emergeSysMon - Release;reg2xml - Release;emergeIcons - Release;Explorer - Release;" />
 		</VirtualTargets>
 		<Compiler>
 			<Add option="-march=i586" />
@@ -705,6 +725,28 @@
 		<ExtraCommands>
 			<Add before='[[ local hgfile = _T(&quot;hgversion.h&quot;); local hgcmd = _T(&quot;cmd /c hg tip --template \&quot;#define BUILD_VERSION {rev}\&quot; &gt; hgversion.h&quot;); if ( !IO.FileExists(hgfile) ) { IO.Execute(hgcmd); } ]]' />
 		</ExtraCommands>
+		<Unit filename="Explorer\Applet.cpp">
+			<Option target="Explorer - Release" />
+		</Unit>
+		<Unit filename="Explorer\Applet.h">
+			<Option target="Explorer - Release" />
+		</Unit>
+		<Unit filename="Explorer\Explorer.rc">
+			<Option compilerVar="WINDRES" />
+			<Option target="Explorer - Release" />
+		</Unit>
+		<Unit filename="Explorer\ShellDesktopTray.cpp">
+			<Option target="Explorer - Release" />
+		</Unit>
+		<Unit filename="Explorer\ShellDesktopTray.h">
+			<Option target="Explorer - Release" />
+		</Unit>
+		<Unit filename="Explorer\main.cpp">
+			<Option target="Explorer - Release" />
+		</Unit>
+		<Unit filename="Explorer\resource.h">
+			<Option target="Explorer - Release" />
+		</Unit>
 		<Unit filename="MinGWInterfaces.h">
 			<Option target="emergeLib - Release" />
 		</Unit>
@@ -904,14 +946,6 @@
 			<Option target="emergeCore - Debug" />
 		</Unit>
 		<Unit filename="emergeCore\ShellChanger.h">
-			<Option target="emergeCore - Release" />
-			<Option target="emergeCore - Debug" />
-		</Unit>
-		<Unit filename="emergeCore\ShellDesktopTray.cpp">
-			<Option target="emergeCore - Release" />
-			<Option target="emergeCore - Debug" />
-		</Unit>
-		<Unit filename="emergeCore\ShellDesktopTray.h">
 			<Option target="emergeCore - Release" />
 			<Option target="emergeCore - Debug" />
 		</Unit>
@@ -1693,6 +1727,7 @@
 			<Option target="emergeTray - Debug" />
 			<Option target="emergeTasks - Debug" />
 			<Option target="emergeHotkeys - Debug" />
+			<Option target="Explorer - Release" />
 		</Unit>
 		<Unit filename="reg2xml\AppletSettings.cpp">
 			<Option target="reg2xml - Release" />
@@ -1926,6 +1961,7 @@
 			<Option target="emergeTray - Debug" />
 			<Option target="emergeTasks - Debug" />
 			<Option target="emergeHotkeys - Debug" />
+			<Option target="Explorer - Release" />
 		</Unit>
 		<Unit filename="zip\api.c">
 			<Option compilerVar="CC" />
