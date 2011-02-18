@@ -1,6 +1,6 @@
-LIBS += -lemergeLib -lcomctl32 -lcomdlg32 -lemergeAppletEngine -lemergeBaseClasses
+LIBS += -lemergeLib -luuid -lole32 -lemergeAppletEngine -lemergeBaseClasses
 
-TARGET = emergeHotkeys
+TARGET = Explorer
 SUFFIX = .exe
 
 include ../functions.in
