@@ -36,14 +36,23 @@ public:
     Settings();
     bool GetShowStartupErrors();
     void SetShowStartupErrors(bool showStartupErrors);
-    bool ReadSettings();
-    void ResetDefaults();
-    void DoReadSettings(IOHelper& helper);
-    bool WriteSettings();
-    void DoWriteSettings(IOHelper& helper);
+    bool ReadUserSettings();
+    void ResetUserDefaults();
+    void DoReadUserSettings(IOHelper& helper);
+    bool WriteUserSettings();
+    void DoWriteUserSettings(IOHelper& helper);
+    bool GetShowExplorerDesktop();
+    void SetShowExplorerDesktop(bool showExplorerDesktop);
+
+protected:
+  virtual void DoReadSettings(IOHelper& helper);
+  virtual void DoWriteSettings(IOHelper& helper);
+  virtual void ResetDefaults();
 
 private:
     bool showStartupErrors;
+    bool showExplorerDesktop;
+    bool userModified;
 };
 
 #endif

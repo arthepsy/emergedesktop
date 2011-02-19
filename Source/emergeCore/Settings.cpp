@@ -23,9 +23,41 @@
 
 Settings::Settings(): BaseSettings(false)
 {
+  userModified = false;
+  showStartupErrors = false;
+  showExplorerDesktop = false;
 }
 
-bool Settings::ReadSettings()
+void Settings::DoReadSettings(IOHelper& helper)
+{
+  helper.ReadBool(TEXT("ShowExplorerDesktop"), showExplorerDesktop, false);
+}
+
+void Settings::DoWriteSettings(IOHelper& helper)
+{
+  helper.WriteBool(TEXT("ShowExplorerDesktop"), showExplorerDesktop);
+}
+
+void Settings::ResetDefaults()
+{
+  showExplorerDesktop = false;
+}
+
+bool Settings::GetShowExplorerDesktop()
+{
+  return showExplorerDesktop;
+}
+
+void Settings::SetShowExplorerDesktop(bool showExplorerDesktop)
+{
+  if (this->showExplorerDesktop != showExplorerDesktop)
+    {
+      this->showExplorerDesktop = showExplorerDesktop;
+      SetModified();
+    }
+}
+
+bool Settings::ReadUserSettings()
 {
   std::wstring userFile = TEXT("%EmergeDir%\\files\\");
   std::tr1::shared_ptr<TiXmlDocument> xmlConfig;
@@ -44,23 +76,23 @@ bool Settings::ReadSettings()
         {
           readSettings = true;
           IOHelper xmlHelper(section);
-          DoReadSettings(xmlHelper);
+          DoReadUserSettings(xmlHelper);
         }
     }
 
   // In the case where there is an issue accessing the XML file, use default values;
   if (!readSettings)
-    ResetDefaults();
+    ResetUserDefaults();
 
   return true;
 }
 
-void Settings::ResetDefaults()
+void Settings::ResetUserDefaults()
 {
   showStartupErrors = false;
 }
 
-void Settings::DoReadSettings(IOHelper& helper)
+void Settings::DoReadUserSettings(IOHelper& helper)
 {
   helper.ReadBool(TEXT("ShowStartupErrors"), showStartupErrors, false);
 }
@@ -75,11 +107,11 @@ void Settings::SetShowStartupErrors(bool showStartupErrors)
   if (this->showStartupErrors != showStartupErrors)
     {
       this->showStartupErrors = showStartupErrors;
-      SetModified();
+      userModified = true;
     }
 }
 
-bool Settings::WriteSettings()
+bool Settings::WriteUserSettings()
 {
   std::tr1::shared_ptr<TiXmlDocument> configXML;
   TiXmlElement *section;
@@ -87,7 +119,7 @@ bool Settings::WriteSettings()
   xmlFile += TEXT("emergeCore.xml");
   bool ret = false;
 
-  if (GetModified())
+  if (userModified)
     {
       configXML = ELOpenXMLConfig(xmlFile, true);
       if (configXML)
@@ -100,7 +132,7 @@ bool Settings::WriteSettings()
               DoWriteSettings(helper);
 
               ret = ELWriteXMLConfig(configXML.get());
-              ClearModified();
+              userModified = false;
             }
         }
     }
@@ -108,7 +140,7 @@ bool Settings::WriteSettings()
   return ret;
 }
 
-void Settings::DoWriteSettings(IOHelper& helper)
+void Settings::DoWriteUserSettings(IOHelper& helper)
 {
   helper.WriteBool(TEXT("ShowStartupErrors"), showStartupErrors);
 }

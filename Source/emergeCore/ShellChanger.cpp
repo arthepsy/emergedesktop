@@ -428,7 +428,7 @@ bool ShellChanger::DoSetShell(HWND hwndDlg)
   else if (SendDlgItemMessage(hwndDlg, IDC_STARTERROR, BM_GETCHECK, 0, 0) == BST_UNCHECKED)
     success = false;
   pSettings->SetShowStartupErrors(success);
-  pSettings->WriteSettings();
+  pSettings->WriteUserSettings();
 
   ELMessageBox(hwndDlg, (WCHAR*)TEXT("Changes will take affect after reboot."), (WCHAR*)TEXT("emergeCore"),
                ELMB_OK|ELMB_ICONQUESTION|ELMB_MODAL);

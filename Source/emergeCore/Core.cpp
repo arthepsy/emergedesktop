@@ -53,6 +53,7 @@ bool Core::Initialize(WCHAR *commandLine)
   // Initialize Settings
   pSettings = std::tr1::shared_ptr<Settings>(new Settings());
   pSettings->ReadSettings();
+  pSettings->ReadUserSettings();
 
   if (wcsstr(commandLine, TEXT("/shellchanger")) != 0)
     {
@@ -385,12 +386,13 @@ LRESULT Core::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 
         case CORE_SHELL:
           if (pShellChanger->Show() == IDOK)
-            pSettings->ReadSettings();
+            pSettings->ReadUserSettings();
           break;
 
         case CORE_THEMESELECT:
           if (pThemeSelector->Show() == IDOK)
             {
+              pSettings->ReadSettings();
               CheckLaunchList();
               pMessageControl->DispatchMessage(EMERGE_CORE, CORE_RECONFIGURE);
             }
