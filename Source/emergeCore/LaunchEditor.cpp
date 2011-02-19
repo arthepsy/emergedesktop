@@ -91,16 +91,16 @@ LaunchEditor::LaunchEditor(HINSTANCE hInstance, HWND mainWnd)
   InitCommonControls();
 
   toolWnd = CreateWindowEx(
-                           0,
-                           TOOLTIPS_CLASS,
-                           NULL,
-                           TTS_ALWAYSTIP|WS_POPUP|TTS_NOPREFIX,
-                           CW_USEDEFAULT, CW_USEDEFAULT,
-                           CW_USEDEFAULT, CW_USEDEFAULT,
-                           NULL,
-                           NULL,
-                           hInstance,
-                           NULL);
+              0,
+              TOOLTIPS_CLASS,
+              NULL,
+              TTS_ALWAYSTIP|WS_POPUP|TTS_NOPREFIX,
+              CW_USEDEFAULT, CW_USEDEFAULT,
+              CW_USEDEFAULT, CW_USEDEFAULT,
+              NULL,
+              NULL,
+              hInstance,
+              NULL);
 
   if (toolWnd)
     {
@@ -599,7 +599,7 @@ bool LaunchEditor::UpdateLaunch(HWND hwndDlg)
   HWND listWnd = GetDlgItem(hwndDlg, IDC_APPLETLIST);
   WCHAR applet[MAX_PATH];
   std::tr1::shared_ptr<TiXmlDocument> configXML;
-  TiXmlElement *first, *section;
+  TiXmlElement *first, *section = NULL, *settings;
   std::wstring theme = ELGetThemeName(), oldTheme, newThemePath, oldThemePath;
 
   if ((saveCount == 0) && (deleteCount == 0))
@@ -623,30 +623,36 @@ bool LaunchEditor::UpdateLaunch(HWND hwndDlg)
   configXML = ELOpenXMLConfig(xmlFile, true);
   if (configXML)
     {
+      /**< Remove the old 'Launch' top level section */
+      section = ELGetXMLSection(configXML.get(), (WCHAR*)TEXT("Launch"), false);
+      if (section)
+        ELRemoveXMLElement(section);
+
       int i = 0;
-      section = ELGetXMLSection(configXML.get(), (WCHAR*)TEXT("Launch"), true);
+      settings = ELGetXMLSection(configXML.get(), (WCHAR*)TEXT("Settings"), true);
+      if (settings)
+        {
+          /**< Remove existing Launch list */
+          section = ELGetFirstXMLElementByName(settings, (WCHAR*)TEXT("Launch"));
+          if (section)
+            ELRemoveXMLElement(section);
+          section = ELSetFirstXMLElement(settings, (WCHAR*)TEXT("Launch"));
+        }
 
       if (section)
         {
-          first = ELGetFirstXMLElement(section);
-          while (first)
+          // Loop while there are entries in the key
+          while (i < ListView_GetItemCount(listWnd))
             {
-              ELRemoveXMLElement(first);
-              first = ELGetFirstXMLElement(section);
+              ListView_GetItemText(listWnd, i, 1, applet, MAX_PATH);
+              first = ELSetFirstXMLElement(section, TEXT("item"));
+              if (first)
+                ELWriteXMLStringValue(first, TEXT("Command"), applet);
+
+              i++;
             }
+          ELWriteXMLConfig(configXML.get());
         }
-
-      // Loop while there are entries in the key
-      while (i < ListView_GetItemCount(listWnd))
-        {
-          ListView_GetItemText(listWnd, i, 1, applet, MAX_PATH);
-          first = ELSetFirstXMLElement(section, TEXT("item"));
-          if (first)
-            ELWriteXMLStringValue(first, TEXT("Command"), applet);
-
-          i++;
-        }
-      ELWriteXMLConfig(configXML.get());
     }
 
   return true;
@@ -657,12 +663,16 @@ bool LaunchEditor::PopulateList(HWND listWnd)
   bool found = false;
   WCHAR data[MAX_LINE_LENGTH];
   std::tr1::shared_ptr<TiXmlDocument> configXML;
-  TiXmlElement *first, *sibling, *section;
+  TiXmlElement *first, *sibling, *section = NULL, *settings;
 
   configXML = ELOpenXMLConfig(xmlFile, false);
   if (configXML)
     {
-      section = ELGetXMLSection(configXML.get(), (WCHAR*)TEXT("Launch"), false);
+      settings = ELGetXMLSection(configXML.get(), (WCHAR*)TEXT("Settings"), false);
+      if (settings)
+        section = ELGetFirstXMLElementByName(settings, (WCHAR*)TEXT("Launch"));
+      else
+        section = ELGetXMLSection(configXML.get(), (WCHAR*)TEXT("Launch"), false);
 
       if (section)
         {

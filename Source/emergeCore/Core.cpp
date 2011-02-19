@@ -191,7 +191,7 @@ bool Core::RunLaunchItems()
   bool found = false, writeXML = false;
   WCHAR path[MAX_PATH], data[MAX_LINE_LENGTH], installDir[MAX_PATH];
   std::tr1::shared_ptr<TiXmlDocument> configXML;
-  TiXmlElement *first, *sibling, *section;
+  TiXmlElement *first, *sibling, *section = NULL, *settings;
   std::wstring theme = ELToLower(ELGetThemeName()), defaultTheme = TEXT("default");
 
   if (theme != defaultTheme)
@@ -199,7 +199,11 @@ bool Core::RunLaunchItems()
       configXML = ELOpenXMLConfig(xmlFile, false);
       if (configXML)
         {
-          section = ELGetXMLSection(configXML.get(), (WCHAR*)TEXT("Launch"), false);
+          settings = ELGetXMLSection(configXML.get(), (WCHAR*)TEXT("Settings"), false);
+          if (settings)
+            section = ELGetFirstXMLElementByName(settings, (WCHAR*)TEXT("Launch"));
+          else
+            section = ELGetXMLSection(configXML.get(), (WCHAR*)TEXT("Launch"), false);
 
           if (section)
             {
@@ -508,7 +512,7 @@ bool Core::BuildLaunchList()
   LaunchMap launchMap;
   LaunchMap::iterator iter;
   std::tr1::shared_ptr<TiXmlDocument> configXML;
-  TiXmlElement *section, *item;
+  TiXmlElement *section = NULL, *item, *settings;
   WCHAR program[MAX_PATH], arguments[MAX_LINE_LENGTH], command[MAX_LINE_LENGTH];
   bool found;
   std::wstring theme = ELToLower(ELGetThemeName()), defaultTheme = TEXT("default");
@@ -521,7 +525,9 @@ bool Core::BuildLaunchList()
   configXML = ELOpenXMLConfig(xmlFile, true);
   if (configXML)
     {
-      section = ELGetXMLSection(configXML.get(), (WCHAR*)TEXT("Launch"), true);
+      settings = ELGetXMLSection(configXML.get(), (WCHAR*)TEXT("Settings"), true);
+      if (settings)
+        section = ELSetFirstXMLElement(settings, (WCHAR*)TEXT("Launch"));
 
       if (section)
         {
@@ -550,7 +556,7 @@ bool Core::CheckLaunchList()
   LaunchMap launchMap;
   LaunchMap::iterator iter;
   std::tr1::shared_ptr<TiXmlDocument> configXML;
-  TiXmlElement *first, *tmp, *section;
+  TiXmlElement *first, *tmp, *section = NULL, *settings;
   WCHAR data[MAX_LINE_LENGTH];
   bool found = false, writeXML = false;
 
@@ -559,7 +565,11 @@ bool Core::CheckLaunchList()
   configXML = ELOpenXMLConfig(xmlFile, false);
   if (configXML)
     {
-      section = ELGetXMLSection(configXML.get(), (WCHAR*)TEXT("Launch"), false);
+      settings = ELGetXMLSection(configXML.get(), (WCHAR*)TEXT("Settings"), false);
+      if (settings)
+        section = ELGetFirstXMLElementByName(settings, (WCHAR*)TEXT("Launch"));
+      else
+        section = ELGetXMLSection(configXML.get(), (WCHAR*)TEXT("Launch"), false);
 
       if (section)
         {
