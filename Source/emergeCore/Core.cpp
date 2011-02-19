@@ -117,6 +117,13 @@ bool Core::Initialize(WCHAR *commandLine)
 
   pMessageControl = std::tr1::shared_ptr<MessageControl>(new MessageControl());
 
+  WCHAR explorerCmd[MAX_LINE_LENGTH];
+  ELGetCurrentPath(explorerCmd);
+  wcscat(explorerCmd, TEXT("\\Explorer.exe"));
+  if (pSettings->GetShowExplorerDesktop())
+    wcscat(explorerCmd, TEXT(" /showdesktop"));
+  ELExecute(explorerCmd);
+
   // Create desktop window
   pDesktop = std::tr1::shared_ptr<Desktop>(new Desktop(mainInst, pMessageControl));
   pDesktop->Initialize();
