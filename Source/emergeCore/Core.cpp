@@ -126,7 +126,7 @@ bool Core::Initialize(WCHAR *commandLine)
 
   // Create desktop window
   pDesktop = std::tr1::shared_ptr<Desktop>(new Desktop(mainInst, pMessageControl));
-  pDesktop->Initialize();
+  pDesktop->Initialize(pSettings->GetShowExplorerDesktop());
 
   // Launch additional Emerge Desktop applets
   RunLaunchItems();

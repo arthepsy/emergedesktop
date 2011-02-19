@@ -44,46 +44,49 @@ Desktop::Desktop(HINSTANCE hInstance, std::tr1::shared_ptr<MessageControl> pMess
   registered = false;
 }
 
-bool Desktop::Initialize()
+bool Desktop::Initialize(bool explorerDesktop)
 {
-  /*WNDCLASSEX wincl;
-    ZeroMemory(&wincl, sizeof(WNDCLASSEX));
+  if (!explorerDesktop)
+    {
+      WNDCLASSEX wincl;
+      ZeroMemory(&wincl, sizeof(WNDCLASSEX));
 
-  // Register the window class
-  wincl.hInstance = mainInst;
-  wincl.lpszClassName = desktopClass;
-  wincl.lpfnWndProc = DesktopProcedure;
-  wincl.cbSize = sizeof (WNDCLASSEX);
-  wincl.hIcon = LoadIcon (NULL, IDI_APPLICATION);
-  wincl.hIconSm = LoadIcon (NULL, IDI_APPLICATION);
-  wincl.hCursor = LoadCursor (NULL, IDC_ARROW);
+      // Register the window class
+      wincl.hInstance = mainInst;
+      wincl.lpszClassName = desktopClass;
+      wincl.lpfnWndProc = DesktopProcedure;
+      wincl.cbSize = sizeof (WNDCLASSEX);
+      wincl.hIcon = LoadIcon (NULL, IDI_APPLICATION);
+      wincl.hIconSm = LoadIcon (NULL, IDI_APPLICATION);
+      wincl.hCursor = LoadCursor (NULL, IDC_ARROW);
 
-  // Register the window class, and if it fails quit the program
-  if (!RegisterClassEx (&wincl))
-  return false;
+      // Register the window class, and if it fails quit the program
+      if (!RegisterClassEx (&wincl))
+        return false;
 
-  // The class is registered, let's create the window
-  mainWnd = CreateWindowEx(WS_EX_TOOLWINDOW, desktopClass, NULL, WS_POPUP,
-  0, 0, 0, 0, NULL, NULL, mainInst, reinterpret_cast<LPVOID>(this));
+      // The class is registered, let's create the window
+      mainWnd = CreateWindowEx(WS_EX_TOOLWINDOW, desktopClass, NULL, WS_POPUP,
+                               0, 0, 0, 0, NULL, NULL, mainInst, reinterpret_cast<LPVOID>(this));
 
-  // If the window failed to get created, unregister the class and quit the program
-  if (!mainWnd)
-  {
-  ELMessageBox(GetDesktopWindow(),
-  (WCHAR*)TEXT("Failed to create desktop window"),
-  (WCHAR*)TEXT("emergeDesktop"),
-  ELMB_OK|ELMB_ICONERROR|ELMB_MODAL);
-  return false;
-  }
+      // If the window failed to get created, unregister the class and quit the program
+      if (!mainWnd)
+        {
+          ELMessageBox(GetDesktopWindow(),
+                       (WCHAR*)TEXT("Failed to create desktop window"),
+                       (WCHAR*)TEXT("emergeDesktop"),
+                       ELMB_OK|ELMB_ICONERROR|ELMB_MODAL);
+          return false;
+        }
 
-  SetWindowPos(mainWnd, HWND_BOTTOM, GetSystemMetrics(SM_XVIRTUALSCREEN), GetSystemMetrics(SM_YVIRTUALSCREEN),
-  GetSystemMetrics(SM_CXVIRTUALSCREEN), GetSystemMetrics(SM_CYVIRTUALSCREEN),
-  SWP_SHOWWINDOW);
+      SetWindowPos(mainWnd, HWND_BOTTOM, GetSystemMetrics(SM_XVIRTUALSCREEN), GetSystemMetrics(SM_YVIRTUALSCREEN),
+                   GetSystemMetrics(SM_CXVIRTUALSCREEN), GetSystemMetrics(SM_CYVIRTUALSCREEN),
+                   SWP_SHOWWINDOW);
 
-  SetBackgroundImage();
+      SetBackgroundImage();
 
-  if (ELRegisterShellHook(mainWnd, RSH_PROGMAN))
-  ShellMessage = RegisterWindowMessage(TEXT("SHELLHOOK"));*/
+      if (ELRegisterShellHook(mainWnd, RSH_PROGMAN))
+        ShellMessage = RegisterWindowMessage(TEXT("SHELLHOOK"));
+    }
 
   return true;
 }
@@ -136,13 +139,13 @@ LRESULT CALLBACK Desktop::DesktopProcedure (HWND hwnd, UINT message, WPARAM wPar
       break;
 
     case WM_PAINT:
-        {
-          PAINTSTRUCT ps;
-          HDC hdc = BeginPaint(hwnd, &ps);
-          PaintDesktop(hdc);
-          EndPaint(hwnd, &ps);
-        }
-      break;
+    {
+      PAINTSTRUCT ps;
+      HDC hdc = BeginPaint(hwnd, &ps);
+      PaintDesktop(hdc);
+      EndPaint(hwnd, &ps);
+    }
+    break;
 
     case WM_RBUTTONDOWN:
       pDesktop->ShowMenu(CORE_RIGHTMENU);

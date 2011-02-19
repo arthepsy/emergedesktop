@@ -59,7 +59,7 @@ private:
 public:
   Desktop(HINSTANCE hInstance, std::tr1::shared_ptr<MessageControl> pMessageControl);
   ~Desktop();
-  bool Initialize();
+  bool Initialize(bool explorerDesktop);
   void ShowMenu(UINT menu);
   void DoWindowPosChanging(LPWINDOWPOS winPos);
   void ToggleDesktop();
