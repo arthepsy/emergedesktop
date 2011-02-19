@@ -39,7 +39,7 @@ Applet::Applet(HINSTANCE hInstance)
   m_hThread = NULL;
 }
 
-UINT Applet::Initialize()
+UINT Applet::Initialize(bool showDesktop)
 {
   mainWnd = EAEInitializeAppletWindow(mainInst, WindowProcedure, this);
 
@@ -60,8 +60,9 @@ UINT Applet::Initialize()
   // Start the shell functions
   ShellServicesInit();
 
-  // Create Desktop Thread
-  m_hThread = CreateThread(NULL, 0, ThreadFunc, NULL, 0, &m_dwThreadID);
+  // Create Desktop Thread if showDesktop specified
+  if (showDesktop)
+    m_hThread = CreateThread(NULL, 0, ThreadFunc, NULL, 0, &m_dwThreadID);
 
   return 1;
 }

@@ -37,6 +37,13 @@ int WINAPI WinMain (HINSTANCE hInstance,
 
 {
   MSG messages;
+  bool showDesktop = false;
+  WCHAR app[MAX_PATH], args[MAX_LINE_LENGTH];
+
+  /**< Check to see if the explorer desktop should be created */
+  ELParseCommand(GetCommandLine(), app, args);
+  if (_wcsicmp(args, TEXT("/showdesktop")) == 0)
+    showDesktop = true;
 
   // Check to see if Explorer is already running, if so exit
   HANDLE hMutex = CreateMutex(NULL, false, TEXT("Explorer"));
@@ -48,7 +55,7 @@ int WINAPI WinMain (HINSTANCE hInstance,
 
   Applet applet(hInstance);
 
-  if (!applet.Initialize())
+  if (!applet.Initialize(showDesktop))
     return 0;
 
   // Run the message loop. It will run until GetMessage() returns 0

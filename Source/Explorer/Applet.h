@@ -40,7 +40,7 @@ private:
 public:
   Applet(HINSTANCE hInstance);
   ~Applet();
-  UINT Initialize();
+  UINT Initialize(bool showDesktop);
   static LRESULT CALLBACK WindowProcedure (HWND, UINT, WPARAM, LPARAM);
 	static DWORD WINAPI ThreadFunc(LPVOID pvParam);
 };
