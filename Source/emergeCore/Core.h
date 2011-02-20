@@ -32,6 +32,7 @@
 #include "LaunchEditor.h"
 #include "Desktop.h"
 #include "ThemeSelector.h"
+#include "Config.h"
 
 typedef std::map<std::wstring, HWND> LaunchMap;
 
@@ -60,6 +61,7 @@ public:
   Core(HINSTANCE hInstance);
   ~Core();
   void About();
+  void ShowConfig();
   bool Initialize(WCHAR *commandLine);
   LRESULT DoWTSSessionChange(UINT message);
   LRESULT DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);

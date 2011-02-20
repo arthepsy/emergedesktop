@@ -52,6 +52,7 @@ bool Core::Initialize(WCHAR *commandLine)
 
   // Initialize Settings
   pSettings = std::tr1::shared_ptr<Settings>(new Settings());
+  pSettings->Init(mainWnd, (WCHAR*)TEXT("emergeCore"));
   pSettings->ReadSettings();
   pSettings->ReadUserSettings();
 
@@ -456,6 +457,11 @@ LRESULT Core::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 
         case CORE_ABOUT:
           About();
+          break;
+
+        case CORE_CONFIGURE:
+          ShowConfig();
+          break;
         }
 
       return 0;
@@ -466,6 +472,12 @@ LRESULT Core::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
     return DefWindowProc(hwnd, message, wParam, lParam);
 
   return 0;
+}
+
+void Core::ShowConfig()
+{
+  Config config(mainInst, mainWnd, pSettings);
+  config.Show();
 }
 
 LRESULT Core::DoWTSSessionChange(UINT message)

@@ -22,28 +22,30 @@
 #include <winuser.h>
 #include <commctrl.h>
 
-#define IDC_STATIC		    100
-#define IDC_NAMETEXT      101
-#define IDC_COMMANDTEXT   102
+#define IDC_STATIC          100
+#define IDC_NAMETEXT        101
+#define IDC_COMMANDTEXT     102
 
-#define IDD_LAUNCH		    200
-#define IDD_SHELL         201
-#define IDD_THEMESELECT   202
-#define IDD_THEMESAVE     203
+#define IDD_LAUNCH          200
+#define IDD_SHELL           201
+#define IDD_THEMESELECT     202
+#define IDD_THEMESAVE       203
+#define IDD_CONFIG          204
+#define IDD_CONFIG_PAGE     205
 
-#define IDC_APPLET		    500
-#define IDC_ADDAPP		    501
-#define IDC_BROWSE		    502
-#define IDC_APPLETLIST		503
-#define IDC_DELAPP		    504
-#define IDC_STARTAPP		  505
-#define IDC_STOPAPP		    506
-#define IDC_UPAPP		      507
-#define IDC_DOWNAPP		    508
-#define IDC_SAVEAPP		    509
-#define IDC_ABORTAPP      510
-#define IDC_INFOAPP       511
-#define IDC_GATHERAPP     512
+#define IDC_APPLET          500
+#define IDC_ADDAPP          501
+#define IDC_BROWSE          502
+#define IDC_APPLETLIST      503
+#define IDC_DELAPP          504
+#define IDC_STARTAPP        505
+#define IDC_STOPAPP         506
+#define IDC_UPAPP           507
+#define IDC_DOWNAPP         508
+#define IDC_SAVEAPP         509
+#define IDC_ABORTAPP        510
+#define IDC_INFOAPP         511
+#define IDC_GATHERAPP       512
 
 #define IDC_SHELLITEM       600
 #define IDC_SHELLNAME       601
@@ -57,11 +59,13 @@
 #define IDC_CHANGESHELL     609
 #define IDC_STARTERROR      610
 
-#define IDC_THEMEITEM   700
-#define IDC_SAVEAS      701
-#define IDC_SAVETHEME   702
-#define IDC_DELTHEME    703
-#define IDC_EXPORTTHEME 704
-#define IDC_IMPORTTHEME 705
+#define IDC_THEMEITEM       700
+#define IDC_SAVEAS          701
+#define IDC_SAVETHEME       702
+#define IDC_DELTHEME        703
+#define IDC_EXPORTTHEME     704
+#define IDC_IMPORTTHEME     705
 
-#define IDI_DEFAULT		  1000
+#define IDC_EXPLORERDESKTOP 800
+
+#define IDI_DEFAULT         1000

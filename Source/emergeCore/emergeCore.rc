@@ -24,6 +24,7 @@
 #include "resource.h"
 #include "../version.h"
 #include "../hgversion.h"
+#include "ConfigPage.dlg"
 
 VS_VERSION_INFO VERSIONINFO
  FILEVERSION COMMA_VERSION
@@ -144,4 +145,11 @@ BEGIN
 
 	PUSHBUTTON	"&OK",IDOK,5,30,70,14
 	PUSHBUTTON	"&Cancel",IDCANCEL,116,30,70,14
+END
+
+IDD_CONFIG DIALOGEX 0, 0, CONFIG_WIDTH, CONFIG_HEIGHT
+STYLE WS_POPUP | WS_VISIBLE | WS_CAPTION | DS_CENTER
+CAPTION "emergeCore Configuration"
+FONT 8, "MS Shell Dlg"
+BEGIN
 END
