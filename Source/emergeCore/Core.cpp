@@ -489,9 +489,7 @@ void Core::ShowConfig()
         wcscat(explorerCmd, TEXT(" /showdesktop"));
       ELExecute(explorerCmd);
 
-      pDesktop.reset();
-      pDesktop = std::tr1::shared_ptr<Desktop>(new Desktop(mainInst, pMessageControl));
-      pDesktop->Initialize(pSettings->GetShowExplorerDesktop());
+      pDesktop->ShowDesktop(!pSettings->GetShowExplorerDesktop());
     }
 }
 

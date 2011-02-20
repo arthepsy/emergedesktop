@@ -66,6 +66,7 @@ public:
   LRESULT DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
   LRESULT DoTimer(UINT_PTR timerID);
   LRESULT DoDisplayChange(HWND hwnd);
+  void ShowDesktop(bool show);
 };
 
 #endif
