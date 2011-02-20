@@ -92,17 +92,17 @@ bool Core::Initialize(WCHAR *commandLine)
 
   // The class is registered, let's create the window
   mainWnd = CreateWindowEx (
-              WS_EX_TOOLWINDOW,
-              emergeCoreClass,
-              NULL,
-              WS_POPUP,
-              0, 0,
-              0, 0,
-              NULL,
-              NULL,
-              mainInst,
-              reinterpret_cast<LPVOID>(this)
-            );
+                            WS_EX_TOOLWINDOW,
+                            emergeCoreClass,
+                            NULL,
+                            WS_POPUP,
+                            0, 0,
+                            0, 0,
+                            NULL,
+                            NULL,
+                            mainInst,
+                            reinterpret_cast<LPVOID>(this)
+                           );
 
   // If the window failed to get created, unregister the class and quit the program
   if (!mainWnd)
@@ -158,7 +158,7 @@ bool Core::Initialize(WCHAR *commandLine)
   if (wtslib)
     {
       lpfnWTSRegisterSessionNotification wtsrsn = (lpfnWTSRegisterSessionNotification)
-          GetProcAddress(wtslib, "WTSRegisterSessionNotification");
+        GetProcAddress(wtslib, "WTSRegisterSessionNotification");
       if (wtsrsn)
         wtsrsn(mainWnd, NOTIFY_FOR_THIS_SESSION);
       FreeLibrary(wtslib);
@@ -176,7 +176,7 @@ Core::~Core()
       if (wtslib)
         {
           lpfnWTSUnRegisterSessionNotification wtsursn = (lpfnWTSUnRegisterSessionNotification)
-              GetProcAddress(wtslib, "WTSUnRegisterSessionNotification");
+            GetProcAddress(wtslib, "WTSUnRegisterSessionNotification");
           if (wtsursn)
             wtsursn(mainWnd);
           FreeLibrary(wtslib);
@@ -476,8 +476,38 @@ LRESULT Core::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 void Core::ShowConfig()
 {
+  WCHAR explorerCmd[MAX_LINE_LENGTH];
   Config config(mainInst, mainWnd, pSettings);
-  config.Show();
+
+  ELGetCurrentPath(explorerCmd);
+  wcscat(explorerCmd, TEXT("\\Explorer.exe"));
+
+  if (config.Show() == IDOK)
+    {
+      EnumWindows(ExplorerCheck, 0);
+      if (pSettings->GetShowExplorerDesktop())
+        wcscat(explorerCmd, TEXT(" /showdesktop"));
+      ELExecute(explorerCmd);
+
+      pDesktop.reset();
+      pDesktop = std::tr1::shared_ptr<Desktop>(new Desktop(mainInst, pMessageControl));
+      pDesktop->Initialize(pSettings->GetShowExplorerDesktop());
+    }
+}
+
+BOOL CALLBACK Core::ExplorerCheck(HWND hwnd, LPARAM lParam UNUSED)
+{
+  WCHAR fileName[MAX_PATH];
+  std::wstring explorer = TEXT("%AppletDir%\\Explorer.exe");
+  explorer = ELExpandVars(explorer);
+
+  if (!ELGetWindowApp(hwnd, fileName, true))
+    return true;
+
+  if (_wcsicmp(fileName, explorer.c_str()) == 0)
+    SendMessage(hwnd, WM_NCDESTROY, 0, 0);
+
+  return true;
 }
 
 LRESULT Core::DoWTSSessionChange(UINT message)

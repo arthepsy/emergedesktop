@@ -51,6 +51,7 @@ private:
   bool registered;
   static LRESULT CALLBACK CoreProcedure (HWND, UINT, WPARAM, LPARAM);
   static BOOL CALLBACK LaunchMapEnum(HWND hwnd, LPARAM lParam);
+  static BOOL CALLBACK ExplorerCheck(HWND hwnd, LPARAM lParam);
   bool RunLaunchItems();
   bool CheckLaunchList();
   bool BuildLaunchList();
