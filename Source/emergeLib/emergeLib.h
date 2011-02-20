@@ -110,32 +110,35 @@ static const UINT EMERGE_MESSAGE = RegisterWindowMessage(TEXT("EmergeMessage"));
 #define EMERGE_VWM      0x02
 
 // EMERGE_CORE Messages
-#define CORE_QUIT           100
-#define CORE_SHOW           101
-#define CORE_HIDE           102
-#define CORE_LAUNCH         103
-#define CORE_SETTINGS       104
-#define CORE_MENU           105
-#define CORE_SHELL          106
-#define CORE_RIGHTMENU      107
-#define CORE_MIDMENU        108
-#define CORE_RUN            109
-#define CORE_SHUTDOWN       110
-#define CORE_EMPTYBIN       111
-#define CORE_LOGOFF         112
-#define CORE_REBOOT         113
-#define CORE_HALT           114
-#define CORE_SUSPEND        115
-#define CORE_HIBERNATE      116
-#define CORE_DESKTOP        117
-#define CORE_REFRESH        118
-#define CORE_DISCONNECT     119
-#define CORE_ABOUT          120
-#define CORE_RECONFIGURE    121
-#define CORE_THEMESELECT    122
-#define CORE_WRITESETTINGS  123
-#define CORE_LEFTMENU       124
-#define CORE_REPOSITION     125
+typedef enum _COREMESSAGES {
+  CORE_QUIT = 100,
+  CORE_SHOW,
+  CORE_HIDE,
+  CORE_LAUNCH,
+  CORE_SETTINGS,
+  CORE_MENU,
+  CORE_SHELL,
+  CORE_RIGHTMENU,
+  CORE_MIDMENU,
+  CORE_RUN,
+  CORE_SHUTDOWN,
+  CORE_EMPTYBIN,
+  CORE_LOGOFF,
+  CORE_REBOOT,
+  CORE_HALT,
+  CORE_SUSPEND,
+  CORE_HIBERNATE,
+  CORE_DESKTOP,
+  CORE_REFRESH,
+  CORE_DISCONNECT,
+  CORE_ABOUT,
+  CORE_RECONFIGURE,
+  CORE_THEMESELECT,
+  CORE_WRITESETTINGS,
+  CORE_LEFTMENU,
+  CORE_REPOSITION,
+  CORE_CONFIGURE
+} COREMESSAGES;
 
 // EMERGE_VWM Messages
 #define VWM_UP          200
