@@ -32,6 +32,8 @@ HMODULE shdocvmDLL = NULL;
 HMODULE explorerFrameDLL = NULL;
 HMODULE shell32DLL = NULL;
 
+WCHAR explorerClass[ ] = TEXT("EmergeDesktopExplorer");
+
 Applet::Applet(HINSTANCE hInstance)
 {
   mainInst = hInstance;
@@ -41,18 +43,41 @@ Applet::Applet(HINSTANCE hInstance)
 
 UINT Applet::Initialize(bool showDesktop)
 {
-  mainWnd = EAEInitializeAppletWindow(mainInst, WindowProcedure, this);
+  WNDCLASSEX wincl;
+  ZeroMemory(&wincl, sizeof(WNDCLASSEX));
+
+  if (FAILED(OleInitialize(NULL)))
+    {
+      ELMessageBox(GetDesktopWindow(), (WCHAR*)TEXT("COM initialization failed"), (WCHAR*)TEXT("Explorer"),
+                   ELMB_OK|ELMB_ICONERROR|ELMB_MODAL);
+      return 0;
+    }
+
+  // Register the window class
+  wincl.hInstance = mainInst;
+  wincl.lpszClassName = explorerClass;
+  wincl.lpfnWndProc = WindowProcedure;
+  wincl.style = CS_DBLCLKS;
+  wincl.cbSize = sizeof (WNDCLASSEX);
+  wincl.hIcon = LoadIcon (NULL, IDI_APPLICATION);
+  wincl.hIconSm = LoadIcon (NULL, IDI_APPLICATION);
+  wincl.hCursor = LoadCursor (NULL, IDC_ARROW);
+
+  // Register the window class, and if it fails quit the program
+  if (!RegisterClassEx (&wincl))
+    return 0;
+
+  // The class is registered, let's create the window
+  mainWnd = CreateWindowEx(WS_EX_TOOLWINDOW|WS_EX_NOACTIVATE, explorerClass, NULL, WS_POPUP,
+                           0, 0, 0, 0, NULL, NULL, mainInst, reinterpret_cast<LPVOID>(this));
 
   // If the window failed to get created, unregister the class and quit the program
   if (!mainWnd)
     return 0;
 
-  SetWindowPos(mainWnd, NULL, 0, 0, 0, 0, SWP_NOACTIVATE);
   ShowWindow(mainWnd, SW_SHOW);
 
   PostMessage(ELGetCoreWindow(), EMERGE_REGISTER, (WPARAM)mainWnd, (LPARAM)EMERGE_CORE);
-
-  OleInitialize(NULL);
 
   SetErrorMode(SEM_FAILCRITICALERRORS | SEM_NOOPENFILEERRORBOX);
   SetPriorityClass(GetCurrentProcess(), HIGH_PRIORITY_CLASS);

@@ -476,6 +476,7 @@ LRESULT Core::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 void Core::ShowConfig()
 {
+  HWND explorerWnd = NULL;
   WCHAR explorerCmd[MAX_LINE_LENGTH];
   Config config(mainInst, mainWnd, pSettings);
 
@@ -484,28 +485,15 @@ void Core::ShowConfig()
 
   if (config.Show() == IDOK)
     {
-      EnumWindows(ExplorerCheck, 0);
+      explorerWnd = FindWindow(TEXT("EmergeDesktopExplorer"), NULL);
+      if (explorerWnd)
+        SendMessage(explorerWnd, WM_NCDESTROY, 0, 0);
       if (pSettings->GetShowExplorerDesktop())
         wcscat(explorerCmd, TEXT(" /showdesktop"));
       ELExecute(explorerCmd);
 
       pDesktop->ShowDesktop(!pSettings->GetShowExplorerDesktop());
     }
-}
-
-BOOL CALLBACK Core::ExplorerCheck(HWND hwnd, LPARAM lParam UNUSED)
-{
-  WCHAR fileName[MAX_PATH];
-  std::wstring explorer = TEXT("%AppletDir%\\Explorer.exe");
-  explorer = ELExpandVars(explorer);
-
-  if (!ELGetWindowApp(hwnd, fileName, true))
-    return true;
-
-  if (_wcsicmp(fileName, explorer.c_str()) == 0)
-    SendMessage(hwnd, WM_NCDESTROY, 0, 0);
-
-  return true;
 }
 
 LRESULT Core::DoWTSSessionChange(UINT message)
