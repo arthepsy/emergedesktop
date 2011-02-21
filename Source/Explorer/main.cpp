@@ -49,6 +49,13 @@ int WINAPI WinMain (HINSTANCE hInstance,
   HANDLE hMutex = CreateMutex(NULL, false, TEXT("Explorer"));
   if (GetLastError() == ERROR_ALREADY_EXISTS)
     {
+      if (!showDesktop)
+        {
+          WCHAR passCmd[MAX_LINE_LENGTH];
+          std::wstring explorer = TEXT("%WINDIR%\\explorer.exe");
+          swprintf(passCmd, TEXT("%s %s"), ELExpandVars(explorer).c_str(), args);
+          ELExecute(passCmd);
+        }
       CloseHandle(hMutex);
       return 0;
     }
