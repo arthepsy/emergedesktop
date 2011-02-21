@@ -1821,7 +1821,7 @@ bool MenuBuilder::GetPos(MenuMap::iterator iter, WCHAR *input, bool directory, U
 void MenuBuilder::BuildSettingsMenu(MenuMap::iterator iter)
 {
   AddSettingsItem(iter, (WCHAR*)TEXT("Configure Workspace"), BSM_CONFIGURE);
-  AddSettingsItem(iter, (WCHAR*)TEXT("Edit Launch Applets"), BSM_LAUNCH);
+  AddSettingsItem(iter, (WCHAR*)TEXT("Configure Core"), BSM_CORE);
   AddSettingsItem(iter, (WCHAR*)TEXT("Edit Aliases"), BSM_ALIAS);
   AddSettingsItem(iter, (WCHAR*)TEXT("\0"), BSM_SEPARATOR);
   AddSettingsItem(iter, (WCHAR*)TEXT("Theme Manager"), BSM_SELECTTHEME);
@@ -1909,8 +1909,8 @@ void MenuBuilder::ExecuteSettingsMenuItem(UINT index)
           UpdateMenuHook();
         }
       break;
-    case BSM_LAUNCH:
-      ELExecuteInternal((WCHAR*)TEXT("CoreLaunchEditor"));
+    case BSM_CORE:
+      ELExecuteInternal((WCHAR*)TEXT("CoreSettings"));
       break;
     case BSM_SHELL:
       ELExecuteInternal((WCHAR*)TEXT("CoreShellChanger"));
