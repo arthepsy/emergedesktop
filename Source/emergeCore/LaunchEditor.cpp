@@ -21,14 +21,16 @@
 
 #include "LaunchEditor.h"
 
-BOOL CALLBACK LaunchEditor::LaunchDlgProc(HWND hwndDlg, UINT message, WPARAM wParam, LPARAM lParam)
+INT_PTR CALLBACK LaunchEditor::LaunchDlgProc(HWND hwndDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
   static LaunchEditor *pLaunchEditor = NULL;
+  PROPSHEETPAGE *psp;
 
   switch (message)
     {
     case WM_INITDIALOG:
-      pLaunchEditor = reinterpret_cast<LaunchEditor*>(lParam);
+      psp = (PROPSHEETPAGE*)lParam;
+      pLaunchEditor = reinterpret_cast<LaunchEditor*>(psp->lParam);
       if (!pLaunchEditor)
         break;
       return pLaunchEditor->DoInitDialog(hwndDlg);
@@ -147,11 +149,6 @@ LaunchEditor::~LaunchEditor()
     DestroyIcon(stopIcon);
 
   DestroyWindow(toolWnd);
-}
-
-int LaunchEditor::Show()
-{
-  return (int)DialogBoxParam(hInstance, MAKEINTRESOURCE(IDD_LAUNCH), mainWnd, (DLGPROC)LaunchDlgProc, (LPARAM)this);
 }
 
 BOOL LaunchEditor::DoInitDialog(HWND hwndDlg)
@@ -358,20 +355,6 @@ BOOL LaunchEditor::DoLaunchCommand(HWND hwndDlg, WPARAM wParam, LPARAM lParam UN
 {
   switch (LOWORD(wParam))
     {
-    case IDOK:
-      if (!CheckFields(hwndDlg))
-        break;
-      if (!UpdateLaunch(hwndDlg))
-        break;
-      EndDialog(hwndDlg, wParam);
-      return TRUE;
-    case IDCANCEL:
-      if (!CheckFields(hwndDlg))
-        break;
-      if (!CheckSaveCount(hwndDlg))
-        break;
-      EndDialog(hwndDlg, wParam);
-      return TRUE;
     case IDC_DELAPP:
       return DoLaunchDelete(hwndDlg);
     case IDC_ADDAPP:
@@ -989,6 +972,34 @@ BOOL LaunchEditor::DoNotify(HWND hwndDlg, LPARAM lParam)
       // Disable Right click menu for now
       //case NM_RCLICK:
       //return DoRightClick(hwndDlg, ((LPNMITEMACTIVATE)lParam)->iItem);
+
+    case PSN_APPLY:
+      if (!CheckFields(hwndDlg))
+        {
+          SetWindowLongPtr(hwndDlg, DWLP_MSGRESULT, PSNRET_INVALID);
+          return 1;
+        }
+
+      if (UpdateLaunch(hwndDlg))
+        SetWindowLongPtr(hwndDlg, DWLP_MSGRESULT, PSNRET_NOERROR);
+      else
+        SetWindowLongPtr(hwndDlg, DWLP_MSGRESULT, PSNRET_INVALID);
+      return 1;
+
+    case PSN_SETACTIVE:
+      SetWindowLongPtr(hwndDlg, DWLP_MSGRESULT, 0);
+      return 1;
+
+    case PSN_KILLACTIVE:
+      SetWindowLongPtr(hwndDlg, DWLP_MSGRESULT, FALSE);
+      return 1;
+
+    case PSN_QUERYCANCEL:
+      if (CheckFields(hwndDlg) && CheckSaveCount(hwndDlg))
+        SetWindowLong(hwndDlg,DWLP_MSGRESULT,FALSE);
+      else
+        SetWindowLong(hwndDlg,DWLP_MSGRESULT,TRUE);
+      return TRUE;
     }
 
   return FALSE;

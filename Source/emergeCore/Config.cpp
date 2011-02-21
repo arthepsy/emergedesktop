@@ -43,6 +43,7 @@ Config::Config(HINSTANCE hInstance, HWND mainWnd, std::tr1::shared_ptr<Settings>
   this->pSettings = pSettings;
 
   pConfigPage = std::tr1::shared_ptr<ConfigPage>(new ConfigPage(pSettings));
+  pLaunchEditor = std::tr1::shared_ptr<LaunchEditor>(new LaunchEditor(hInstance, mainWnd));
 }
 
 Config::~Config()
@@ -57,7 +58,7 @@ int Config::Show()
 INT_PTR Config::DoInitDialog(HWND hwndDlg)
 {
   int ret;
-  PROPSHEETPAGE psp[1];
+  PROPSHEETPAGE psp[2];
   PROPSHEETHEADER psh;
 
   ELStealFocus(hwndDlg);
@@ -71,6 +72,15 @@ INT_PTR Config::DoInitDialog(HWND hwndDlg)
   psp[0].pszTitle = TEXT("General");
   psp[0].lParam = reinterpret_cast<LPARAM>(pConfigPage.get());
   psp[0].pfnCallback = NULL;
+
+  psp[1].dwSize = sizeof(PROPSHEETPAGE);
+  psp[1].dwFlags = PSP_USETITLE;
+  psp[1].hInstance = hInstance;
+  psp[1].pszTemplate = MAKEINTRESOURCE(IDD_LAUNCH);
+  psp[1].pfnDlgProc = pLaunchEditor->LaunchDlgProc;
+  psp[1].pszTitle = TEXT("Launch Editor");
+  psp[1].lParam = reinterpret_cast<LPARAM>(pLaunchEditor.get());
+  psp[1].pfnCallback = NULL;
 
   psh.dwSize = sizeof(PROPSHEETHEADER);
   psh.dwFlags = PSH_PROPSHEETPAGE | PSH_NOAPPLYNOW | PSH_NOCONTEXTHELP;

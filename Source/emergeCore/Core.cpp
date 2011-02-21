@@ -392,10 +392,6 @@ LRESULT Core::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
     {
       switch (lParam)
         {
-        case CORE_LAUNCH:
-          pLaunchEditor->Show();
-          break;
-
         case CORE_SHELL:
           if (pShellChanger->Show() == IDOK)
             pSettings->ReadUserSettings();
@@ -479,20 +475,24 @@ void Core::ShowConfig()
   HWND explorerWnd = NULL;
   WCHAR explorerCmd[MAX_LINE_LENGTH];
   Config config(mainInst, mainWnd, pSettings);
+  bool oldShowExplorerDesktop = pSettings->GetShowExplorerDesktop();
 
   ELGetCurrentPath(explorerCmd);
   wcscat(explorerCmd, TEXT("\\Explorer.exe"));
 
   if (config.Show() == IDOK)
     {
-      explorerWnd = FindWindow(TEXT("EmergeDesktopExplorer"), NULL);
-      if (explorerWnd)
-        SendMessage(explorerWnd, WM_NCDESTROY, 0, 0);
-      if (pSettings->GetShowExplorerDesktop())
-        wcscat(explorerCmd, TEXT(" /showdesktop"));
-      ELExecute(explorerCmd);
+      if (oldShowExplorerDesktop != pSettings->GetShowExplorerDesktop())
+        {
+          explorerWnd = FindWindow(TEXT("EmergeDesktopExplorer"), NULL);
+          if (explorerWnd)
+            SendMessage(explorerWnd, WM_NCDESTROY, 0, 0);
+          if (pSettings->GetShowExplorerDesktop())
+            wcscat(explorerCmd, TEXT(" /showdesktop"));
+          ELExecute(explorerCmd);
 
-      pDesktop->ShowDesktop(!pSettings->GetShowExplorerDesktop());
+          pDesktop->ShowDesktop(!pSettings->GetShowExplorerDesktop());
+        }
     }
 }
 

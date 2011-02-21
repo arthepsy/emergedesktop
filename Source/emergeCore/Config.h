@@ -27,6 +27,7 @@
 #include "Settings.h"
 #include "resource.h"
 #include "ConfigPage.h"
+#include "LaunchEditor.h"
 
 #ifdef __GNUC__
 #include <tr1/memory>
@@ -45,6 +46,7 @@ public:
 
 private:
   std::tr1::shared_ptr<ConfigPage> pConfigPage;
+  std::tr1::shared_ptr<LaunchEditor> pLaunchEditor;
   std::tr1::shared_ptr<Settings> pSettings;
   HINSTANCE hInstance;
   HWND mainWnd;

@@ -1182,12 +1182,6 @@ bool ELExecuteInternal(LPTSTR command)
       PostMessage(ELGetCoreWindow(), EMERGE_DISPATCH, (WPARAM)EMERGE_CORE, (LPARAM)CORE_CONFIGURE);
       return true;
     }
-  else if (_wcsicmp(command, TEXT("CoreLaunchEditor")) == 0)
-    {
-      ELSwitchToThisWindow(ELGetCoreWindow());
-      PostMessage(ELGetCoreWindow(), EMERGE_DISPATCH, (WPARAM)EMERGE_CORE, (LPARAM)CORE_LAUNCH);
-      return true;
-    }
   else if (_wcsicmp(command, TEXT("CoreShellChanger")) == 0)
     {
       ELSwitchToThisWindow(ELGetCoreWindow());

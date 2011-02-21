@@ -43,13 +43,13 @@ class LaunchEditor
 public:
   LaunchEditor(HINSTANCE hInstance, HWND mainWnd);
   ~LaunchEditor();
-  int Show();
   BOOL DoInitDialog(HWND hwndDlg);
   BOOL DoLaunchCommand(HWND hwndDlg, WPARAM wParam, LPARAM lParam);
   BOOL DoNotify(HWND hwndDlg, LPARAM lParam);
   bool UpdateLaunch(HWND hwndDlg);
   bool GetLaunchAppletName(int index, WCHAR *applet);
   std::wstring GetSelectedApplet();
+  static INT_PTR CALLBACK LaunchDlgProc(HWND hwndDlg, UINT message, WPARAM wParam, LPARAM lParam);
 
 private:
   bool CheckFields(HWND hwndDlg);
@@ -76,7 +76,6 @@ private:
   HWND mainWnd, toolWnd, dlgWnd;
   HICON addIcon, delIcon, upIcon, downIcon, browseIcon, saveIcon, abortIcon, startIcon, stopIcon;
   HICON infoIcon, gatherIcon;
-  static BOOL CALLBACK LaunchDlgProc(HWND hwndDlg, UINT message, WPARAM wParam, LPARAM lParam);
   static BOOL CALLBACK AppletCheck(HWND hwnd, LPARAM lParam);
   static BOOL CALLBACK GatherApplet(HWND hwnd, LPARAM lParam);
   std::wstring xmlFile;
