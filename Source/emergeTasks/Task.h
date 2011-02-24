@@ -60,7 +60,7 @@ public:
   void ToggleVisible();
   void SetFlashCount(UINT flashCount);
   UINT GetFlashCount();
-  void CreateNewIcon(BYTE foregroundAlpha);
+  void CreateNewIcon(BYTE foregroundAlpha, BYTE backgroundAlpha);
   void UpdateIcon();
 
 private:

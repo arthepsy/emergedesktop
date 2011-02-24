@@ -457,9 +457,10 @@ void BaseApplet::DrawAlphaBlend()
   InflateRect(&contentrt, -dragBorder, -dragBorder);
   PaintContent(hdc, contentrt); // Call the applet content paint routine
 
+  ZeroMemory(&bf, sizeof(BLENDFUNCTION));
   bf.BlendOp = AC_SRC_OVER;
-  bf.BlendFlags = 0;
-  bf.AlphaFormat = AC_SRC_ALPHA;  // use source alpha
+  if (guiInfo.alphaBackground < 0xff)
+    bf.AlphaFormat = AC_SRC_ALPHA;  // use source alpha
   if (mouseOver)
     bf.SourceConstantAlpha = guiInfo.alphaActive;
   else

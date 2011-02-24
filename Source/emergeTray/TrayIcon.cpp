@@ -62,7 +62,7 @@ TrayIcon::TrayIcon(HINSTANCE appInstance, HWND wnd, UINT id, HWND mainWnd, HWND 
   pBalloon->Initialize();
 }
 
-void TrayIcon::CreateNewIcon(BYTE foregroundAlpha)
+void TrayIcon::CreateNewIcon(BYTE foregroundAlpha, BYTE backgroundAlpha)
 {
   HICON tmpIcon = NULL;
 
@@ -77,12 +77,22 @@ void TrayIcon::CreateNewIcon(BYTE foregroundAlpha)
     {
       convertIcon = false;
 
-      /**< Don't bail if EGConvertIcon returns a NULL icon, since in this case it may be valid (icon flashing) */
-      tmpIcon = EGConvertIcon(origIcon, foregroundAlpha);
-      if (newIcon != NULL)
-        DestroyIcon(newIcon);
-      newIcon = CopyIcon(tmpIcon);
-      DestroyIcon(tmpIcon);
+      // If the background if fully opaque, don't bother converting the icon, simply copy it
+      if (backgroundAlpha == 0xff)
+        {
+          if (newIcon != NULL)
+            DestroyIcon(newIcon);
+          newIcon = CopyIcon(origIcon);
+        }
+      else
+        {
+          /**< Don't bail if EGConvertIcon returns a NULL icon, since in this case it may be valid (icon flashing) */
+          tmpIcon = EGConvertIcon(origIcon, foregroundAlpha);
+          if (newIcon != NULL)
+            DestroyIcon(newIcon);
+          newIcon = CopyIcon(tmpIcon);
+          DestroyIcon(tmpIcon);
+        }
     }
 }
 

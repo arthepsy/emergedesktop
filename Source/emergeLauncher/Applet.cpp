@@ -163,7 +163,7 @@ bool Applet::PaintItem(HDC hdc, UINT index, int x, int y, RECT rect)
 {
   pSettings->GetItem(index)->SetRect(rect);
   UpdateTip(index);
-  pSettings->GetItem(index)->CreateNewIcon(guiInfo.alphaForeground);
+  pSettings->GetItem(index)->CreateNewIcon(guiInfo.alphaForeground, guiInfo.alphaBackground);
 
   InflateRect(&rect, 1, 1);
   if (pSettings->GetItem(index)->GetActive())

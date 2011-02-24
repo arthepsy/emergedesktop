@@ -51,7 +51,7 @@ public:
   RECT *GetRect();
   void SetIcon(int iconSize, WCHAR *orientation);
   void SetRect(RECT rect);
-  void CreateNewIcon(BYTE foregroundAlpha);
+  void CreateNewIcon(BYTE foregroundAlpha, BYTE backgroundAlpha);
   WCHAR *GetApp();
   WCHAR *GetTip();
   int GetType();

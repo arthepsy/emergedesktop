@@ -216,7 +216,7 @@ bool Applet::PaintItem(HDC hdc, UINT index, int x, int y, RECT rect)
   SendMessageTimeout((*iter)->GetWnd(), WM_GETTEXT, MAX_LINE_LENGTH, reinterpret_cast<LPARAM>(windowTitle), SMTO_ABORTIFHUNG, 100, &response);
   if (response != 0)
     (*iter)->UpdateTip(mainWnd, toolWnd, windowTitle);
-  (*iter)->CreateNewIcon(guiInfo.alphaForeground);
+  (*iter)->CreateNewIcon(guiInfo.alphaForeground, guiInfo.alphaBackground);
 
   if ((*iter)->GetVisible())
     {
