@@ -15,4 +15,5 @@ makedir:
 
 makedep:
 
+distclean:
 
