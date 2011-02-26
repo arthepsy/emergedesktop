@@ -888,6 +888,26 @@
 		<Unit filename="emergeCommand\resource.h">
 			<Option target="emergeCommand - Release" />
 		</Unit>
+		<Unit filename="emergeCore\Config.cpp">
+			<Option target="emergeCore - Release" />
+			<Option target="emergeCore - Debug" />
+		</Unit>
+		<Unit filename="emergeCore\Config.h">
+			<Option target="emergeCore - Release" />
+			<Option target="emergeCore - Debug" />
+		</Unit>
+		<Unit filename="emergeCore\ConfigPage.cpp">
+			<Option target="emergeCore - Release" />
+			<Option target="emergeCore - Debug" />
+		</Unit>
+		<Unit filename="emergeCore\ConfigPage.dlg">
+			<Option target="emergeCore - Release" />
+			<Option target="emergeCore - Debug" />
+		</Unit>
+		<Unit filename="emergeCore\ConfigPage.h">
+			<Option target="emergeCore - Release" />
+			<Option target="emergeCore - Debug" />
+		</Unit>
 		<Unit filename="emergeCore\Core.cpp">
 			<Option target="emergeCore - Release" />
 			<Option target="emergeCore - Debug" />
