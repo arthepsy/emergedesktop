@@ -197,7 +197,7 @@ Core::~Core()
 
 bool Core::RunLaunchItems()
 {
-  bool found = false, writeXML = false;
+  bool found = false;
   WCHAR path[MAX_PATH], data[MAX_LINE_LENGTH], installDir[MAX_PATH];
   std::tr1::shared_ptr<TiXmlDocument> configXML;
   TiXmlElement *first, *sibling, *section = NULL, *settings;
@@ -219,11 +219,6 @@ bool Core::RunLaunchItems()
                   if (ELReadXMLStringValue(first, TEXT("Command"), data, TEXT("")))
                     {
                       found = true;
-                      if (ELStringReplace(data, TEXT("emergeDesktop"), TEXT("emergeWorkspace"), true) != 0)
-                        {
-                          writeXML = true;
-                          ELWriteXMLStringValue(first, TEXT("Command"), data);
-                        }
                       ELExecute(data);
                     }
 
@@ -233,22 +228,12 @@ bool Core::RunLaunchItems()
                       first = sibling;
 
                       if (ELReadXMLStringValue(first, TEXT("Command"), data, TEXT("")))
-                        {
-                          if (ELStringReplace(data, TEXT("emergeDesktop"), TEXT("emergeWorkspace"), true) != 0)
-                            {
-                              writeXML = true;
-                              ELWriteXMLStringValue(first, TEXT("Command"), data);
-                            }
-                          ELExecute(data);
-                        }
+                        ELExecute(data);
 
                       sibling = ELGetSiblingXMLElement(first);
                     }
                 }
             }
-
-          if (writeXML)
-            ELWriteXMLConfig(configXML.get());
         }
     }
 
@@ -633,7 +618,7 @@ bool Core::CheckLaunchList()
   std::tr1::shared_ptr<TiXmlDocument> configXML;
   TiXmlElement *first, *tmp, *section = NULL, *settings;
   WCHAR data[MAX_LINE_LENGTH];
-  bool found = false, writeXML = false;
+  bool found = false;
 
   EnumWindows(LaunchMapEnum, (LPARAM)&launchMap);
 
@@ -652,11 +637,6 @@ bool Core::CheckLaunchList()
               if (ELReadXMLStringValue(first, TEXT("Command"), data, TEXT("")))
                 {
                   found = true;
-                  if (ELStringReplace(data, TEXT("emergeDesktop"), TEXT("emergeWorkspace"), true) != 0)
-                    {
-                      writeXML = true;
-                      ELWriteXMLStringValue(first, TEXT("Command"), data);
-                    }
                   CheckLaunchItem(&launchMap, data);
                 }
 
@@ -664,9 +644,6 @@ bool Core::CheckLaunchList()
               first = ELGetSiblingXMLElement(tmp);
             }
         }
-
-      if (writeXML)
-        ELWriteXMLConfig(configXML.get());
     }
 
   if (!found)
