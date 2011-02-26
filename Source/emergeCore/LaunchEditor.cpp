@@ -654,9 +654,6 @@ bool LaunchEditor::PopulateList(HWND listWnd)
       settings = ELGetXMLSection(configXML.get(), (WCHAR*)TEXT("Settings"), false);
       if (settings)
         section = ELGetFirstXMLElementByName(settings, (WCHAR*)TEXT("Launch"));
-      else
-        section = ELGetXMLSection(configXML.get(), (WCHAR*)TEXT("Launch"), false);
-
       if (section)
         {
           first = ELGetFirstXMLElement(section);

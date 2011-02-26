@@ -130,6 +130,7 @@ bool Core::Initialize(WCHAR *commandLine)
   pDesktop->Initialize(pSettings->GetShowExplorerDesktop());
 
   // Launch additional Emerge Desktop applets
+  ConvertTheme();
   RunLaunchItems();
 
   pShell->RegisterShell(mainWnd, true);
@@ -210,9 +211,6 @@ bool Core::RunLaunchItems()
           settings = ELGetXMLSection(configXML.get(), (WCHAR*)TEXT("Settings"), false);
           if (settings)
             section = ELGetFirstXMLElementByName(settings, (WCHAR*)TEXT("Launch"));
-          else
-            section = ELGetXMLSection(configXML.get(), (WCHAR*)TEXT("Launch"), false);
-
           if (section)
             {
               first = ELGetFirstXMLElement(section);
@@ -400,6 +398,7 @@ LRESULT Core::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
         case CORE_THEMESELECT:
           if (pThemeSelector->Show() == IDOK)
             {
+              ConvertTheme();
               pSettings->ReadSettings();
               CheckLaunchList();
               pMessageControl->DispatchMessage(EMERGE_CORE, CORE_RECONFIGURE);
@@ -563,7 +562,6 @@ bool Core::BuildLaunchList()
       settings = ELGetXMLSection(configXML.get(), (WCHAR*)TEXT("Settings"), true);
       if (settings)
         section = ELSetFirstXMLElement(settings, (WCHAR*)TEXT("Launch"));
-
       if (section)
         {
           while (!launchMap.empty())
@@ -586,6 +584,48 @@ bool Core::BuildLaunchList()
   return found;
 }
 
+void Core::ConvertTheme()
+{
+  std::tr1::shared_ptr<TiXmlDocument> configXML;
+  TiXmlElement *first, *tmp, *section, *settings, *oldSection = NULL;
+  WCHAR data[MAX_LINE_LENGTH];
+
+  configXML = ELOpenXMLConfig(xmlFile, false);
+  if (configXML)
+    {
+      oldSection = ELGetXMLSection(configXML.get(), (WCHAR*)TEXT("Launch"), false);
+      if (oldSection)
+        {
+          settings = ELGetXMLSection(configXML.get(), (WCHAR*)TEXT("Settings"), true);
+          if (settings)
+            {
+              section = ELGetFirstXMLElementByName(settings, (WCHAR*)TEXT("Launch"));
+              if (section)
+                {
+                  first = ELGetFirstXMLElement(oldSection);
+
+                  while (first)
+                    {
+                      if (ELReadXMLStringValue(first, TEXT("Command"), data, TEXT("")))
+                        {
+                          ELStringReplace(data, TEXT("emergeDesktop"), TEXT("emergeWorkspace"), true);
+                          tmp = ELSetFirstXMLElement(section, TEXT("item"));
+                          if (tmp)
+                            ELWriteXMLStringValue(tmp, TEXT("Command"), data);
+                        }
+
+                      tmp = first;
+                      first = ELGetSiblingXMLElement(tmp);
+                    }
+
+                  ELRemoveXMLElement(oldSection);
+                  ELWriteXMLConfig(configXML.get());
+                }
+            }
+        }
+    }
+}
+
 bool Core::CheckLaunchList()
 {
   LaunchMap launchMap;
@@ -603,9 +643,6 @@ bool Core::CheckLaunchList()
       settings = ELGetXMLSection(configXML.get(), (WCHAR*)TEXT("Settings"), false);
       if (settings)
         section = ELGetFirstXMLElementByName(settings, (WCHAR*)TEXT("Launch"));
-      else
-        section = ELGetXMLSection(configXML.get(), (WCHAR*)TEXT("Launch"), false);
-
       if (section)
         {
           first = ELGetFirstXMLElement(section);
