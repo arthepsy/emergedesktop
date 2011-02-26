@@ -118,12 +118,7 @@ bool Core::Initialize(WCHAR *commandLine)
 
   pMessageControl = std::tr1::shared_ptr<MessageControl>(new MessageControl());
 
-  WCHAR explorerCmd[MAX_LINE_LENGTH];
-  ELGetCurrentPath(explorerCmd);
-  wcscat(explorerCmd, TEXT("\\Explorer.exe"));
-  if (pSettings->GetShowExplorerDesktop())
-    wcscat(explorerCmd, TEXT(" /showdesktop"));
-  ELExecute(explorerCmd);
+  StartExplorer(pSettings->GetShowExplorerDesktop());
 
   // Create desktop window
   pDesktop = std::tr1::shared_ptr<Desktop>(new Desktop(mainInst, pMessageControl));
@@ -383,10 +378,17 @@ LRESULT Core::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
         case CORE_THEMESELECT:
           if (pThemeSelector->Show() == IDOK)
             {
+              bool oldShowExplorerDesktop = pSettings->GetShowExplorerDesktop();
+
               ConvertTheme();
               pSettings->ReadSettings();
               CheckLaunchList();
               pMessageControl->DispatchMessage(EMERGE_CORE, CORE_RECONFIGURE);
+              if (oldShowExplorerDesktop != pSettings->GetShowExplorerDesktop())
+                {
+                  StartExplorer(pSettings->GetShowExplorerDesktop());
+                  pDesktop->ShowDesktop(!pSettings->GetShowExplorerDesktop());
+                }
             }
           break;
 
@@ -456,25 +458,14 @@ LRESULT Core::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 void Core::ShowConfig()
 {
-  HWND explorerWnd = NULL;
-  WCHAR explorerCmd[MAX_LINE_LENGTH];
   Config config(mainInst, mainWnd, pSettings);
   bool oldShowExplorerDesktop = pSettings->GetShowExplorerDesktop();
-
-  ELGetCurrentPath(explorerCmd);
-  wcscat(explorerCmd, TEXT("\\Explorer.exe"));
 
   if (config.Show() == IDOK)
     {
       if (oldShowExplorerDesktop != pSettings->GetShowExplorerDesktop())
         {
-          explorerWnd = FindWindow(TEXT("EmergeDesktopExplorer"), NULL);
-          if (explorerWnd)
-            SendMessage(explorerWnd, WM_NCDESTROY, 0, 0);
-          if (pSettings->GetShowExplorerDesktop())
-            wcscat(explorerCmd, TEXT(" /showdesktop"));
-          ELExecute(explorerCmd);
-
+          StartExplorer(pSettings->GetShowExplorerDesktop());
           pDesktop->ShowDesktop(!pSettings->GetShowExplorerDesktop());
         }
     }
@@ -567,6 +558,23 @@ bool Core::BuildLaunchList()
     }
 
   return found;
+}
+
+void Core::StartExplorer(bool showDesktop)
+{
+  HWND explorerWnd = NULL;
+  WCHAR explorerCmd[MAX_LINE_LENGTH];
+
+  ELGetCurrentPath(explorerCmd);
+  wcscat(explorerCmd, TEXT("\\Explorer.exe"));
+  if (showDesktop)
+    wcscat(explorerCmd, TEXT(" /showdesktop"));
+
+  explorerWnd = FindWindow(TEXT("EmergeDesktopExplorer"), NULL);
+  if (explorerWnd)
+    SendMessage(explorerWnd, WM_NCDESTROY, 0, 0);
+
+  ELExecute(explorerCmd);
 }
 
 void Core::ConvertTheme()
