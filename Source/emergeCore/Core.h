@@ -52,6 +52,7 @@ private:
   static LRESULT CALLBACK CoreProcedure (HWND, UINT, WPARAM, LPARAM);
   static BOOL CALLBACK LaunchMapEnum(HWND hwnd, LPARAM lParam);
   bool RunLaunchItems();
+  void ConvertTheme();
   bool CheckLaunchList();
   bool BuildLaunchList();
   void CheckLaunchItem(LaunchMap *launchMap, const WCHAR *item);
