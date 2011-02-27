@@ -459,7 +459,7 @@ private:
   std::vector< std::tr1::shared_ptr<TrayIcon> > trayIconList;
   std::vector<IOleCommandTarget*> ssoIconList;
   bool movesizeinprogress;
-  HWND trayWnd, notifyWnd;
+  HWND trayWnd, notifyWnd, clockWnd, rebarWnd, taskWnd;
   bool baseClassRegistered, trayClassRegistered, notifyClassRegistered;
   RECT HoverRect;
   void UpdateIcons();

@@ -32,8 +32,13 @@
 
 #include "Applet.h"
 
+/**< Tray related class names */
 WCHAR szTrayName[ ] = TEXT("Shell_TrayWnd");
 WCHAR szNotifyName[ ] = TEXT("TrayNotifyWnd");
+WCHAR szReBarName[ ] = TEXT("ReBarWindow32");
+WCHAR szClockName[ ] = TEXT("TrayClockWClass");
+WCHAR szTaskSwName[ ] = TEXT("MSTaskSwWClass");
+
 WCHAR myName[] = TEXT("emergeTray");
 
 LRESULT CALLBACK Applet::TrayProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
@@ -251,6 +256,18 @@ UINT Applet::Initialize()
   if (!RegisterClassEx (&wincl))
     return 0;
 
+  wincl.lpszClassName = szClockName;
+  if (!RegisterClassEx (&wincl))
+    return 0;
+
+  wincl.lpszClassName = szTaskSwName;
+  if (!RegisterClassEx (&wincl))
+    return 0;
+
+  wincl.lpszClassName = szReBarName;
+  if (!RegisterClassEx (&wincl))
+    return 0;
+
   trayWnd = CreateWindowEx(WS_EX_TOOLWINDOW, szTrayName, NULL, WS_POPUP,
                            0, 0, 0, 0, NULL, NULL, mainInst, reinterpret_cast<LPVOID>(this));
   if (!trayWnd)
@@ -259,6 +276,21 @@ UINT Applet::Initialize()
   notifyWnd = CreateWindowEx(0, szNotifyName, NULL, WS_CHILDWINDOW,
                              0, 0, 0, 0, trayWnd, NULL, mainInst, reinterpret_cast<LPVOID>(this));
   if (!notifyWnd)
+    return 0;
+
+  clockWnd = CreateWindowEx(0, szClockName, NULL, WS_CHILDWINDOW,
+                             0, 0, 0, 0, notifyWnd, NULL, mainInst, reinterpret_cast<LPVOID>(this));
+  if (!clockWnd)
+    return 0;
+
+  rebarWnd = CreateWindowEx(0, szReBarName, NULL, WS_CHILDWINDOW,
+                             0, 0, 0, 0, trayWnd, NULL, mainInst, reinterpret_cast<LPVOID>(this));
+  if (!rebarWnd)
+    return 0;
+
+  taskWnd = CreateWindowEx(0, szTaskSwName, NULL, WS_CHILDWINDOW,
+                             0, 0, 0, 0, rebarWnd, NULL, mainInst, reinterpret_cast<LPVOID>(this));
+  if (!rebarWnd)
     return 0;
 
   SetProp(trayWnd, TEXT("AllowConsentToStealFocus"), (HANDLE)1);
