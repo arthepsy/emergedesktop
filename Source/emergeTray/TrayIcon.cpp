@@ -308,10 +308,13 @@ BOOL TrayIcon::SendMessage(LPARAM lParam)
 {
   if (iconVersion == NOTIFYICON_VERSION_4)
     {
-      POINT cursorPos;
-      GetCursorPos(&cursorPos);
+      POINT messagePt;
 
-      return SendNotifyMessage(wnd, callbackMessage, MAKEWPARAM(rect.left, rect.top),
+      messagePt.x = rect.left;
+      messagePt.y = rect.top;
+      ClientToScreen(mainWnd, &messagePt);
+
+      return SendNotifyMessage(wnd, callbackMessage, MAKEWPARAM(messagePt.x, messagePt.y),
                                MAKELPARAM(lParam, id));
     }
   else
