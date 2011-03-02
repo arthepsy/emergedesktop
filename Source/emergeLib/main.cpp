@@ -2673,6 +2673,36 @@ std::wstring ELGetUserDataPath()
   return path;
 }
 
+void ELStripLeadingSpaces(LPTSTR input)
+{
+  WCHAR *tmp = _wcsdup(input);
+  size_t inputLen = wcslen(input), i = 0, j = 0;
+
+  /**< Search input for the first non-space character */
+  while (i < inputLen)
+    {
+      if (input[i] != ' ')
+        break;
+
+      i++;
+    }
+
+  /**< Copy the remaining contents of input to tmp */
+  while (i < inputLen)
+    {
+      tmp[j] = input[i];
+      i++;
+      j++;
+    }
+
+  /**< Null terminate tmp */
+  tmp[j] = '\0';
+
+  /**< Copy tmp to input and free tmp */
+  wcscpy(input, tmp);
+  free(tmp);
+}
+
 /*!
   @fn ELExecuteAlias(LPTSTR alias)
   @brief Take the supplied alias comparing it to the command file and executes the appropriate command based on the alias.
@@ -2704,12 +2734,17 @@ bool ELExecuteAlias(LPTSTR alias)
           if (value != NULL)
             command = wcstok(NULL, TEXT("\n"));
 
-          // execute the command
-          if (wcscmp(value, alias) == 0)
+          if (command != NULL)
             {
-              ELExecute(command);
-              ret = true;
-              break;
+              ELStripLeadingSpaces(command);
+
+              // execute the command
+              if (wcscmp(value, alias) == 0)
+                {
+                  ELExecute(command);
+                  ret = true;
+                  break;
+                }
             }
         }
 

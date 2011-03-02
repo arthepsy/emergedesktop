@@ -447,5 +447,6 @@ DLL_EXPORT HANDLE ELActivateActCtxForDll(LPCTSTR pszDll, PULONG_PTR pulCookie);
 DLL_EXPORT HANDLE ELActivateActCtxForClsid(REFCLSID rclsid, PULONG_PTR pulCookie);
 DLL_EXPORT void ELDeactivateActCtx(HANDLE hActCtx, ULONG_PTR* pulCookie);
 DLL_EXPORT IOleCommandTarget *ELStartSSO(CLSID clsid);
+DLL_EXPORT void ELStripLeadingSpaces(LPTSTR input);
 
 #endif
