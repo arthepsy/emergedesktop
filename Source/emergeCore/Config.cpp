@@ -44,6 +44,7 @@ Config::Config(HINSTANCE hInstance, HWND mainWnd, std::tr1::shared_ptr<Settings>
 
   pConfigPage = std::tr1::shared_ptr<ConfigPage>(new ConfigPage(pSettings));
   pLaunchEditor = std::tr1::shared_ptr<LaunchEditor>(new LaunchEditor(hInstance, mainWnd));
+  pAliasEditor = std::tr1::shared_ptr<AliasEditor>(new AliasEditor(hInstance, mainWnd));
 }
 
 Config::~Config()
@@ -58,7 +59,7 @@ int Config::Show()
 INT_PTR Config::DoInitDialog(HWND hwndDlg)
 {
   int ret;
-  PROPSHEETPAGE psp[2];
+  PROPSHEETPAGE psp[3];
   PROPSHEETHEADER psh;
 
   ELStealFocus(hwndDlg);
@@ -81,6 +82,15 @@ INT_PTR Config::DoInitDialog(HWND hwndDlg)
   psp[1].pszTitle = TEXT("Launch Editor");
   psp[1].lParam = reinterpret_cast<LPARAM>(pLaunchEditor.get());
   psp[1].pfnCallback = NULL;
+
+  psp[2].dwSize = sizeof(PROPSHEETPAGE);
+  psp[2].dwFlags = PSP_USETITLE;
+  psp[2].hInstance = hInstance;
+  psp[2].pszTemplate = MAKEINTRESOURCE(IDD_ALIAS);
+  psp[2].pfnDlgProc = pAliasEditor->AliasDlgProc;
+  psp[2].pszTitle = TEXT("Alias Editor");
+  psp[2].lParam = reinterpret_cast<LPARAM>(pAliasEditor.get());
+  psp[2].pfnCallback = NULL;
 
   psh.dwSize = sizeof(PROPSHEETHEADER);
   psh.dwFlags = PSH_PROPSHEETPAGE | PSH_NOAPPLYNOW | PSH_NOCONTEXTHELP;

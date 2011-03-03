@@ -32,6 +32,7 @@
 #define IDD_THEMESAVE       203
 #define IDD_CONFIG          204
 #define IDD_CONFIG_PAGE     205
+#define IDD_ALIAS           206
 
 #define IDC_APPLET          500
 #define IDC_ADDAPP          501
@@ -67,5 +68,10 @@
 #define IDC_IMPORTTHEME     705
 
 #define IDC_EXPLORERDESKTOP 800
+
+#define IDC_ACTIONTEXT      900
+#define IDC_ALIASTEXT       901
+#define IDC_ALIAS           902
+#define IDC_EDITAPP         903
 
 #define IDI_DEFAULT         1000

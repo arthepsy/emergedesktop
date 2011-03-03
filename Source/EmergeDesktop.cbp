@@ -537,6 +537,9 @@
 					<Add library="wtsapi32" />
 					<Add library="winmm" />
 					<Add library="powrprof" />
+					<Add library="zip32z64" />
+					<Add library="unzip32" />
+					<Add directory=".\bin" />
 				</Linker>
 			</Target>
 			<Target title="emergeAppletEngine - Debug">
@@ -631,6 +634,7 @@
 					<Add library="emergeBaseClasses" />
 					<Add library="uuid" />
 					<Add library="ole32" />
+					<Add library="comctl32" />
 					<Add directory=".\bin" />
 				</Linker>
 			</Target>
@@ -884,6 +888,18 @@
 		<Unit filename="emergeCommand\resource.h">
 			<Option target="emergeCommand - Release" />
 			<Option target="emergeCommand - Debug" />
+		</Unit>
+		<Unit filename="emergeCore\AliasEditor.cpp">
+			<Option target="emergeCore - Release" />
+			<Option target="emergeCore - Debug" />
+		</Unit>
+		<Unit filename="emergeCore\AliasEditor.dlg">
+			<Option target="emergeCore - Release" />
+			<Option target="emergeCore - Debug" />
+		</Unit>
+		<Unit filename="emergeCore\AliasEditor.h">
+			<Option target="emergeCore - Release" />
+			<Option target="emergeCore - Debug" />
 		</Unit>
 		<Unit filename="emergeCore\Config.cpp">
 			<Option target="emergeCore - Release" />
@@ -1225,6 +1241,7 @@
 		<Unit filename="emergeLib\unzip.c">
 			<Option compilerVar="CC" />
 			<Option target="emergeLib - Release" />
+			<Option target="emergeLib - Debug" />
 		</Unit>
 		<Unit filename="emergeLib\zip.c">
 			<Option compilerVar="CC" />
