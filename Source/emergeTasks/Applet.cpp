@@ -678,6 +678,8 @@ LRESULT Applet::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
   std::map<HWND, UINT>::iterator mapIter;
   UINT modifyIndex = modifyMap.size() + 1;
   std::pair<std::map<HWND,UINT>::iterator, bool> pr;
+  TaskVector::iterator iter;
+  HICON icon = NULL;
 
   if (message == ShellMessage)
     {
@@ -703,12 +705,25 @@ LRESULT Applet::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
           // A "task" was activated
         case HSHELL_RUDEAPPACTIVATED:
         case HSHELL_WINDOWACTIVATED:
+          SetFlash(task, false);
+
+          /**< Set the icon when the tast is activiated to address issues with some apps (like Outlook) */
+          iter = FindTask(task);
+          if (iter != taskList.end())
+            {
+              if (pSettings->GetIconSize() == 32)
+                icon = EGGetWindowIcon(task, false, true);
+              else
+                icon = EGGetWindowIcon(task, true, true);
+
+              (*iter)->SetIcon(icon);
+            }
+
           if ((task != mainWnd) && (task != activeWnd))
             {
               activeWnd = task;
               DrawAlphaBlend();
             }
-          SetFlash(task, false);
           break;
 
           // A "task" was flashed
