@@ -363,7 +363,7 @@ bool AliasEditor::UpdateAliases(HWND hwndDlg)
 {
   HWND listWnd = GetDlgItem(hwndDlg, IDC_APPLETLIST);
   WCHAR alias[MAX_LINE_LENGTH], action[MAX_LINE_LENGTH];
-  size_t i = 0;
+  int i = 0;
   std::wstring aliasFile = TEXT("%EmergeDir%\\files\\cmd.txt");
   aliasFile = ELExpandVars(aliasFile);
 
@@ -534,7 +534,7 @@ bool AliasEditor::DoAliasAdd(HWND hwndDlg)
 
 bool AliasEditor::DoAliasAbort(HWND hwndDlg)
 {
-  size_t i = 0;
+  int i = 0;
   HWND appletWnd = GetDlgItem(hwndDlg, IDC_APPLET);
   HWND browseWnd = GetDlgItem(hwndDlg, IDC_BROWSE);
   HWND saveWnd = GetDlgItem(hwndDlg, IDC_SAVEAPP);
@@ -589,7 +589,7 @@ bool AliasEditor::DoAliasSave(HWND hwndDlg)
   LVFINDINFO lvFI;
   LVITEM lvItem;
   WCHAR alias[MAX_LINE_LENGTH], error[MAX_LINE_LENGTH], action[MAX_LINE_LENGTH];
-  size_t i = 0;
+  int i = 0;
 
   ZeroMemory(alias, MAX_LINE_LENGTH);
   ZeroMemory(action, MAX_LINE_LENGTH);
