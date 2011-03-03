@@ -1822,7 +1822,6 @@ void MenuBuilder::BuildSettingsMenu(MenuMap::iterator iter)
 {
   AddSettingsItem(iter, (WCHAR*)TEXT("Configure Workspace"), BSM_CONFIGURE);
   AddSettingsItem(iter, (WCHAR*)TEXT("Configure Core"), BSM_CORE);
-  AddSettingsItem(iter, (WCHAR*)TEXT("Edit Aliases"), BSM_ALIAS);
   AddSettingsItem(iter, (WCHAR*)TEXT("\0"), BSM_SEPARATOR);
   AddSettingsItem(iter, (WCHAR*)TEXT("Theme Manager"), BSM_SELECTTHEME);
   AddSettingsItem(iter, (WCHAR*)TEXT("\0"), BSM_SEPARATOR);
@@ -1896,7 +1895,6 @@ void MenuBuilder::ExecuteSettingsMenuItem(UINT index)
 {
   std::wstring aliasFile;
   Config config(mainInst, pSettings);
-  HANDLE cmdFile;
 
   switch (++index)
     {
@@ -1914,26 +1912,6 @@ void MenuBuilder::ExecuteSettingsMenuItem(UINT index)
       break;
     case BSM_SHELL:
       ELExecuteInternal((WCHAR*)TEXT("CoreShellChanger"));
-      break;
-    case BSM_ALIAS:
-      aliasFile = TEXT("%EmergeDir%\\files\\");
-      if (!PathIsDirectory(aliasFile.c_str()))
-        ELCreateDirectory(aliasFile);
-      aliasFile += TEXT("cmd.txt");
-      if (!ELPathFileExists(aliasFile.c_str()))
-        {
-          aliasFile = ELExpandVars(aliasFile);
-          cmdFile = CreateFile(aliasFile.c_str(),
-                               GENERIC_ALL,
-                               0,
-                               NULL,
-                               CREATE_NEW,
-                               FILE_ATTRIBUTE_NORMAL,
-                               NULL);
-          if (cmdFile != INVALID_HANDLE_VALUE)
-            CloseHandle(cmdFile);
-        }
-      ELExecute((WCHAR*)aliasFile.c_str());
       break;
     case BSM_SELECTTHEME:
       ELExecuteInternal((WCHAR*)TEXT("CoreThemeSelector"));
