@@ -66,6 +66,7 @@ private:
   HWND mainWnd, toolWnd, dlgWnd;
   HICON addIcon, delIcon, upIcon, downIcon, browseIcon, saveIcon, abortIcon, editIcon;
   bool edit;
+  bool FindListSubItem(HWND listWnd, int subItem, WCHAR *searchString);
 };
 
 #endif

@@ -804,6 +804,7 @@ bool LaunchEditor::DoLaunchDelete(HWND hwndDlg)
 
 bool LaunchEditor::DoLaunchAdd(HWND hwndDlg)
 {
+  HWND listWnd = GetDlgItem(hwndDlg, IDC_APPLETLIST);
   HWND appletWnd = GetDlgItem(hwndDlg, IDC_APPLET);
   HWND browseWnd = GetDlgItem(hwndDlg, IDC_BROWSE);
   HWND saveWnd = GetDlgItem(hwndDlg, IDC_SAVEAPP);
@@ -813,6 +814,7 @@ bool LaunchEditor::DoLaunchAdd(HWND hwndDlg)
   EnableWindow(browseWnd, true);
   EnableWindow(saveWnd, true);
   EnableWindow(abortWnd, true);
+  EnableWindow(listWnd, false);
 
   SetDlgItemText(hwndDlg, IDC_APPLET, TEXT(""));
 
@@ -821,6 +823,7 @@ bool LaunchEditor::DoLaunchAdd(HWND hwndDlg)
 
 bool LaunchEditor::DoLaunchAbort(HWND hwndDlg)
 {
+  HWND listWnd = GetDlgItem(hwndDlg, IDC_APPLETLIST);
   HWND appletWnd = GetDlgItem(hwndDlg, IDC_APPLET);
   HWND browseWnd = GetDlgItem(hwndDlg, IDC_BROWSE);
   HWND saveWnd = GetDlgItem(hwndDlg, IDC_SAVEAPP);
@@ -831,8 +834,28 @@ bool LaunchEditor::DoLaunchAbort(HWND hwndDlg)
   EnableWindow(browseWnd, false);
   EnableWindow(saveWnd, false);
   EnableWindow(abortWnd, false);
+  EnableWindow(listWnd, true);
 
   return true;
+}
+
+bool LaunchEditor::FindListSubItem(HWND listWnd, int subItem, WCHAR *searchString)
+{
+  int listSize = ListView_GetItemCount(listWnd), i = 0;
+  WCHAR item[MAX_LINE_LENGTH];
+  bool ret = false;
+
+  for (i = 0; i < listSize; i++)
+    {
+      ListView_GetItemText(listWnd, i, subItem, item, MAX_LINE_LENGTH);
+      if (_wcsicmp(item, searchString) == 0)
+        {
+          ret = true;
+          break;
+        }
+    }
+
+  return ret;
 }
 
 bool LaunchEditor::DoLaunchSave(HWND hwndDlg)
@@ -843,22 +866,17 @@ bool LaunchEditor::DoLaunchSave(HWND hwndDlg)
   HWND appletWnd = GetDlgItem(hwndDlg, IDC_APPLET);
   HWND browseWnd = GetDlgItem(hwndDlg, IDC_BROWSE);
   bool ret = false;
-  LVFINDINFO lvFI;
   LVITEM lvItem;
   WCHAR tmp[MAX_LINE_LENGTH], error[MAX_LINE_LENGTH];
   VERSIONINFO versionInfo;
 
   ZeroMemory(tmp, MAX_LINE_LENGTH);
-
-  lvFI.flags = LVFI_STRING;
   lvItem.mask = LVIF_TEXT;
 
   GetDlgItemText(hwndDlg, IDC_APPLET, tmp, MAX_LINE_LENGTH);
   if (wcslen(tmp) > 0)
     {
-      lvFI.psz = tmp;
-
-      if (ListView_FindItem(listWnd, 0, &lvFI) == -1)
+      if (!FindListSubItem(listWnd, 1, tmp))
         {
           lvItem.iItem = ListView_GetItemCount(listWnd);
           lvItem.iSubItem = 0;
@@ -891,6 +909,7 @@ bool LaunchEditor::DoLaunchSave(HWND hwndDlg)
   EnableWindow(abortWnd, false);
   EnableWindow(appletWnd, false);
   EnableWindow(browseWnd, false);
+  EnableWindow(listWnd, true);
 
   return ret;
 }

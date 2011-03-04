@@ -528,6 +528,7 @@ bool AliasEditor::DoAliasAdd(HWND hwndDlg)
   EnableWindow(aliasWnd, true);
   EnableWindow(actionTextWnd, true);
   EnableWindow(aliasTextWnd, true);
+  EnableWindow(listWnd, false);
 
   return true;
 }
@@ -570,9 +571,29 @@ bool AliasEditor::DoAliasAbort(HWND hwndDlg)
   EnableWindow(aliasWnd, false);
   EnableWindow(aliasTextWnd, false);
   EnableWindow(actionTextWnd, false);
+  EnableWindow(listWnd, true);
   edit = false;
 
   return true;
+}
+
+bool AliasEditor::FindListSubItem(HWND listWnd, int subItem, WCHAR *searchString)
+{
+  int listSize = ListView_GetItemCount(listWnd), i = 0;
+  WCHAR item[MAX_LINE_LENGTH];
+  bool ret = false;
+
+  for (i = 0; i < listSize; i++)
+    {
+      ListView_GetItemText(listWnd, i, subItem, item, MAX_LINE_LENGTH);
+      if (_wcsicmp(item, searchString) == 0)
+        {
+          ret = true;
+          break;
+        }
+    }
+
+  return ret;
 }
 
 bool AliasEditor::DoAliasSave(HWND hwndDlg)
@@ -586,7 +607,6 @@ bool AliasEditor::DoAliasSave(HWND hwndDlg)
   HWND aliasTextWnd = GetDlgItem(hwndDlg, IDC_ALIASTEXT);
   HWND actionTextWnd = GetDlgItem(hwndDlg, IDC_ACTIONTEXT);
   bool ret = false;
-  LVFINDINFO lvFI;
   LVITEM lvItem;
   WCHAR alias[MAX_LINE_LENGTH], error[MAX_LINE_LENGTH], action[MAX_LINE_LENGTH];
   int i = 0;
@@ -594,7 +614,6 @@ bool AliasEditor::DoAliasSave(HWND hwndDlg)
   ZeroMemory(alias, MAX_LINE_LENGTH);
   ZeroMemory(action, MAX_LINE_LENGTH);
 
-  lvFI.flags = LVFI_STRING;
   lvItem.mask = LVIF_TEXT;
 
   GetDlgItemText(hwndDlg, IDC_APPLET, action, MAX_LINE_LENGTH);
@@ -620,9 +639,7 @@ bool AliasEditor::DoAliasSave(HWND hwndDlg)
         }
       else
         {
-          lvFI.psz = alias;
-
-          if (ListView_FindItem(listWnd, 0, &lvFI) == -1)
+          if (!FindListSubItem(listWnd, 0, alias))
             {
               lvItem.iItem = ListView_GetItemCount(listWnd);
               lvItem.iSubItem = 0;
@@ -657,6 +674,7 @@ bool AliasEditor::DoAliasSave(HWND hwndDlg)
   EnableWindow(aliasWnd, false);
   EnableWindow(aliasTextWnd, false);
   EnableWindow(actionTextWnd, false);
+  EnableWindow(listWnd, true);
   edit = false;
 
   return ret;

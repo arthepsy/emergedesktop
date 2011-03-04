@@ -80,6 +80,7 @@ private:
   static BOOL CALLBACK GatherApplet(HWND hwnd, LPARAM lParam);
   std::wstring xmlFile;
   std::wstring selectedApplet;
+  bool FindListSubItem(HWND listWnd, int subItem, WCHAR *searchString);
 };
 
 #endif
