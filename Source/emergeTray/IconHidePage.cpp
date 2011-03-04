@@ -304,6 +304,7 @@ bool IconHidePage::UpdateSettings(HWND hwndDlg)
 
 bool IconHidePage::DoEdit(HWND hwndDlg UNUSED)
 {
+  HWND listWnd = GetDlgItem(hwndDlg, IDC_HIDELIST);
   HWND saveWnd = GetDlgItem(hwndDlg, IDC_SAVETIP);
   HWND abortWnd = GetDlgItem(hwndDlg, IDC_ABORTTIP);
   HWND appWnd = GetDlgItem(hwndDlg, IDC_ICONTEXT);
@@ -311,6 +312,7 @@ bool IconHidePage::DoEdit(HWND hwndDlg UNUSED)
   EnableWindow(appWnd, true);
   EnableWindow(saveWnd, true);
   EnableWindow(abortWnd, true);
+  EnableWindow(listWnd, false);
   edit = true;
 
   return true;
@@ -339,6 +341,7 @@ bool IconHidePage::DoAbort(HWND hwndDlg)
   EnableWindow(saveWnd, false);
   EnableWindow(abortWnd, false);
   EnableWindow(appWnd, false);
+  EnableWindow(listWnd, true);
 
   return true;
 }
@@ -422,6 +425,7 @@ bool IconHidePage::DoSave(HWND hwndDlg)
   EnableWindow(saveWnd, false);
   EnableWindow(abortWnd, false);
   EnableWindow(appWnd, false);
+  EnableWindow(listWnd, true);
 
   return ret;
 }
@@ -483,6 +487,7 @@ bool IconHidePage::DoDelete(HWND hwndDlg)
 
 bool IconHidePage::DoAdd(HWND hwndDlg)
 {
+  HWND listWnd = GetDlgItem(hwndDlg, IDC_HIDELIST);
   HWND saveWnd = GetDlgItem(hwndDlg, IDC_SAVETIP);
   HWND abortWnd = GetDlgItem(hwndDlg, IDC_ABORTTIP);
   HWND appWnd = GetDlgItem(hwndDlg, IDC_ICONTEXT);
@@ -492,6 +497,7 @@ bool IconHidePage::DoAdd(HWND hwndDlg)
   EnableWindow(saveWnd, true);
   EnableWindow(abortWnd, true);
   EnableWindow(appWnd, true);
+  EnableWindow(listWnd, false);
 
   return true;
 }

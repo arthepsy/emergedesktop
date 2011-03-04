@@ -1374,6 +1374,7 @@ bool MenuEditor::DoAddItem(HWND hwndDlg)
   EnableWindow(addWnd, false);
   EnableWindow(editWnd, false);
   EnableWindow(delWnd, false);
+  EnableWindow(treeWnd, false);
 
   edit = false;
 

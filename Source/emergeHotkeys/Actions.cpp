@@ -659,6 +659,7 @@ bool Actions::EnableFields(HWND hwndDlg, bool enable)
       EnableWindow(editWnd, false);
       EnableWindow(delWnd, false);
       EnableWindow(addWnd, false);
+      EnableWindow(listWnd, false);
     }
   else
     {
@@ -687,6 +688,7 @@ bool Actions::EnableFields(HWND hwndDlg, bool enable)
           EnableWindow(delWnd, false);
         }
       EnableWindow(addWnd, true);
+      EnableWindow(listWnd, true);
     }
 
   return true;

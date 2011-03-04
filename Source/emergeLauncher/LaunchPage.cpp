@@ -889,11 +889,13 @@ bool LaunchPage::DoAdd(HWND hwndDlg)
   HWND typeWnd = GetDlgItem(hwndDlg, IDC_TYPE);
   HWND typeLabelWnd = GetDlgItem(hwndDlg, IDC_STATIC9);
   HWND abortWnd = GetDlgItem(hwndDlg, IDC_ABORTITEM);
+  HWND listWnd = GetDlgItem(hwndDlg, IDC_APPLIST);
 
   EnableFields(hwndDlg, false);
   EnableWindow(typeWnd, true);
   EnableWindow(typeLabelWnd, true);
   EnableWindow(abortWnd, true);
+  EnableWindow(listWnd, false);
 
   SendDlgItemMessage(hwndDlg, IDC_TYPE, CB_SETCURSEL, (WPARAM)-1, 0);
   SendDlgItemMessage(hwndDlg, IDC_INTERNAL, CB_SETCURSEL, (WPARAM)-1, 0);
