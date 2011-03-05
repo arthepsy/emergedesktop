@@ -65,16 +65,16 @@ MenuEditor::MenuEditor(HINSTANCE hInstance)
   InitCommonControls();
 
   toolWnd = CreateWindowEx(
-                           0,
-                           TOOLTIPS_CLASS,
-                           NULL,
-                           TTS_ALWAYSTIP|WS_POPUP|TTS_NOPREFIX,
-                           CW_USEDEFAULT, CW_USEDEFAULT,
-                           CW_USEDEFAULT, CW_USEDEFAULT,
-                           NULL,
-                           NULL,
-                           hInstance,
-                           NULL);
+              0,
+              TOOLTIPS_CLASS,
+              NULL,
+              TTS_ALWAYSTIP|WS_POPUP|TTS_NOPREFIX,
+              CW_USEDEFAULT, CW_USEDEFAULT,
+              CW_USEDEFAULT, CW_USEDEFAULT,
+              NULL,
+              NULL,
+              hInstance,
+              NULL);
 
   if (toolWnd)
     {
@@ -610,82 +610,88 @@ BOOL MenuEditor::DoMenuNotify(HWND hwndDlg, WPARAM wParam UNUSED, LPARAM lParam)
   switch (((LPNMHDR)lParam)->code)
     {
     case TVN_SELCHANGING:
+    {
+      selected = ((LPNMTREEVIEW)lParam)->itemNew.hItem;
+
+      iter = treeMap.find(selected);
+
+      if ((selected == rightRoot) || (selected == midRoot))
         {
-          selected = ((LPNMTREEVIEW)lParam)->itemNew.hItem;
-
-          iter = treeMap.find(selected);
-
-          if ((selected == rightRoot) || (selected == midRoot))
+          if (TreeView_SelectDropTarget(treeWnd, selected))
             {
-              if (TreeView_SelectDropTarget(treeWnd, selected))
+              if (IsWindowEnabled(treeWnd))
                 {
                   EnableWindow(addWnd, true);
                   EnableWindow(editWnd, false);
                   EnableWindow(delWnd, false);
                 }
             }
-          else if (iter != treeMap.end())
+        }
+      else if (iter != treeMap.end())
+        {
+          if (IsWindowEnabled(treeWnd))
             {
               EnableWindow(addWnd, true);
               EnableWindow(editWnd, true);
               EnableWindow(delWnd, true);
+            }
 
-              if (TreeView_SelectDropTarget(treeWnd, iter->first))
+          if (TreeView_SelectDropTarget(treeWnd, iter->first))
+            {
+              SetDlgItemText(hwndDlg, IDC_ITEMNAME, iter->second.name);
+              SetDlgItemText(hwndDlg, IDC_ITEMVALUE, iter->second.value);
+              SetDlgItemText(hwndDlg, IDC_WORKINGDIR, iter->second.workingDir);
+              SendMessage(typeWnd, CB_SETCURSEL,
+                          (WPARAM)GetTypeValue(iter->second.type), 0);
+              ShowFields(hwndDlg, GetTypeValue(iter->second.type));
+              if (iter->second.type == IT_INTERNAL_COMMAND)
                 {
-                  SetDlgItemText(hwndDlg, IDC_ITEMNAME, iter->second.name);
+                  SendMessage(commandWnd, CB_SETCURSEL,
+                              SendMessage(commandWnd,
+                                          CB_FINDSTRINGEXACT,
+                                          (WPARAM)-1,
+                                          (LPARAM)iter->second.value),
+                              0);
+                }
+              else if (iter->second.type == IT_SPECIAL_FOLDER)
+                {
+                  int folder = ELIsSpecialFolder(iter->second.value);
+                  if (ELGetSpecialFolder(folder, value))
+                    SendMessage(specialFoldersWnd, CB_SETCURSEL,
+                                SendMessage(specialFoldersWnd,
+                                            CB_FINDSTRINGEXACT,
+                                            (WPARAM)-1,
+                                            (LPARAM)value),
+                                0);
+                }
+              else
+                {
                   SetDlgItemText(hwndDlg, IDC_ITEMVALUE, iter->second.value);
-                  SetDlgItemText(hwndDlg, IDC_WORKINGDIR, iter->second.workingDir);
-                  SendMessage(typeWnd, CB_SETCURSEL,
-                              (WPARAM)GetTypeValue(iter->second.type), 0);
-                  ShowFields(hwndDlg, GetTypeValue(iter->second.type));
-                  if (iter->second.type == IT_INTERNAL_COMMAND)
-                    {
-                      SendMessage(commandWnd, CB_SETCURSEL,
-                                  SendMessage(commandWnd,
-                                              CB_FINDSTRINGEXACT,
-                                              (WPARAM)-1,
-                                              (LPARAM)iter->second.value),
-                                  0);
-                    }
-                  else if (iter->second.type == IT_SPECIAL_FOLDER)
-                    {
-                      int folder = ELIsSpecialFolder(iter->second.value);
-                      if (ELGetSpecialFolder(folder, value))
-                        SendMessage(specialFoldersWnd, CB_SETCURSEL,
-                                    SendMessage(specialFoldersWnd,
-                                                CB_FINDSTRINGEXACT,
-                                                (WPARAM)-1,
-                                                (LPARAM)value),
-                                    0);
-                    }
-                  else
-                    {
-                      SetDlgItemText(hwndDlg, IDC_ITEMVALUE, iter->second.value);
-                      SetTooltip(browseWnd, iter->second.type);
-                    }
+                  SetTooltip(browseWnd, iter->second.type);
                 }
             }
         }
-      break;
+    }
+    break;
 
     case TVN_BEGINDRAG:
-        {
-          selected = ((LPNMTREEVIEW)lParam)->itemNew.hItem;
+    {
+      selected = ((LPNMTREEVIEW)lParam)->itemNew.hItem;
 
-          if ((selected == rightRoot) || (selected == midRoot))
-            return FALSE;
+      if ((selected == rightRoot) || (selected == midRoot))
+        return FALSE;
 
-          pItem.mask = TVIF_STATE | TVIF_HANDLE;
-          pItem.stateMask = TVIS_BOLD;
-          pItem.hItem = selected;
-          pItem.state = TVIS_BOLD;
-          SendMessage(treeWnd, TVM_SETITEM, 0, (LPARAM)&pItem);
+      pItem.mask = TVIF_STATE | TVIF_HANDLE;
+      pItem.stateMask = TVIS_BOLD;
+      pItem.hItem = selected;
+      pItem.state = TVIS_BOLD;
+      SendMessage(treeWnd, TVM_SETITEM, 0, (LPARAM)&pItem);
 
-          SetCapture(hwndDlg);
-          dragging = true;
+      SetCapture(hwndDlg);
+      dragging = true;
 
-          return TRUE;
-        }
+      return TRUE;
+    }
 
     case PSN_APPLY:
       if (!CheckFields(hwndDlg))
