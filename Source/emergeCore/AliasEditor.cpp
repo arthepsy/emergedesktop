@@ -50,6 +50,8 @@ AliasEditor::AliasEditor(HINSTANCE hInstance, HWND mainWnd)
   (*this).hInstance = hInstance;
   (*this).mainWnd = mainWnd;
   edit = false;
+  toggleSort[0] = false;
+  toggleSort[1] = false;
 
   InitCommonControls();
 
@@ -732,12 +734,29 @@ BOOL AliasEditor::PopulateFields(HWND hwndDlg, int index)
   return TRUE;
 }
 
+int CALLBACK AliasEditor::ListViewCompareProc (LPARAM lParam1, LPARAM lParam2, LPARAM lParamSort)
+{
+  WCHAR szBuf1[MAX_LINE_LENGTH], szBuf2[MAX_LINE_LENGTH];
+  SORTINFO *si = (SORTINFO*)lParamSort;
+
+  ListView_GetItemText(si->listWnd, lParam1, si->subItem, szBuf1, MAX_LINE_LENGTH);
+  ListView_GetItemText(si->listWnd, lParam2, si->subItem, szBuf2, MAX_LINE_LENGTH);
+
+  if (si->assending) // ACENDING ORDER
+    return(wcscmp(szBuf1, szBuf2) * -1);
+  else
+    return(wcscmp(szBuf1, szBuf2));
+}
+
 BOOL AliasEditor::DoNotify(HWND hwndDlg, LPARAM lParam)
 {
+  HWND listWnd = GetDlgItem(hwndDlg, IDC_APPLETLIST);
   HWND delWnd = GetDlgItem(hwndDlg, IDC_DELAPP);
   HWND upWnd = GetDlgItem(hwndDlg, IDC_UPAPP);
   HWND downWnd = GetDlgItem(hwndDlg, IDC_DOWNAPP);
   HWND editWnd = GetDlgItem(hwndDlg, IDC_EDITAPP);
+  SORTINFO sortInfo;
+  int subItem;
 
   switch (((LPNMITEMACTIVATE)lParam)->hdr.code)
     {
@@ -747,6 +766,18 @@ BOOL AliasEditor::DoNotify(HWND hwndDlg, LPARAM lParam)
       EnableWindow(downWnd, true);
       EnableWindow(editWnd, true);
       return PopulateFields(hwndDlg, ((LPNMLISTVIEW)lParam)->iItem);
+
+    case LVN_COLUMNCLICK:
+      subItem = ((LPNMLISTVIEW)lParam)->iSubItem;
+      if (toggleSort[subItem])
+        toggleSort[subItem] = false;
+      else
+        toggleSort[subItem] = true;
+      sortInfo.listWnd = listWnd;
+      sortInfo.assending = toggleSort[subItem];
+      sortInfo.subItem = subItem;
+      ListView_SortItemsEx(listWnd, ListViewCompareProc, (LPARAM)&sortInfo);
+      return 0;
 
     case PSN_APPLY:
       if (!CheckFields(hwndDlg))

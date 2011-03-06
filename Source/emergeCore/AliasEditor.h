@@ -38,6 +38,14 @@
 #include <stdio.h>
 #include "../emergeLib/emergeLib.h"
 
+typedef struct tagSORTINFO
+{
+  HWND listWnd;
+  bool assending;
+  int subItem;
+}
+SORTINFO, *PSORTINFO;
+
 class AliasEditor
 {
 public:
@@ -48,6 +56,7 @@ public:
   BOOL DoNotify(HWND hwndDlg, LPARAM lParam);
   bool UpdateAliases(HWND hwndDlg);
   static INT_PTR CALLBACK AliasDlgProc(HWND hwndDlg, UINT message, WPARAM wParam, LPARAM lParam);
+  static int CALLBACK ListViewCompareProc (LPARAM lParam1, LPARAM lParam2, LPARAM lParamSort);
 
 private:
   bool CheckFields(HWND hwndDlg);
@@ -65,7 +74,7 @@ private:
   HINSTANCE hInstance;
   HWND mainWnd, toolWnd, dlgWnd;
   HICON addIcon, delIcon, upIcon, downIcon, browseIcon, saveIcon, abortIcon, editIcon;
-  bool edit;
+  bool edit, toggleSort[2];
   bool FindListSubItem(HWND listWnd, int subItem, WCHAR *searchString);
 };
 
