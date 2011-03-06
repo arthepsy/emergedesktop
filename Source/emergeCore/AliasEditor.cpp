@@ -398,6 +398,7 @@ bool AliasEditor::PopulateList(HWND listWnd)
   bool ret = false;
   std::wstring aliasFile = TEXT("%EmergeDir%\\files\\cmd.txt");
   aliasFile = ELExpandVars(aliasFile);
+  int index = 0;
 
   WCHAR line[MAX_LINE_LENGTH];
 
@@ -407,7 +408,7 @@ bool AliasEditor::PopulateList(HWND listWnd)
     return false;
 
   while (fgetws(line, MAX_LINE_LENGTH, fp))
-    InsertListViewItem(listWnd, 0, line);
+    InsertListViewItem(listWnd, index++, line);
 
   fclose(fp);
 
