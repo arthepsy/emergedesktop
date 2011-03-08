@@ -714,11 +714,13 @@
 		<Compiler>
 			<Add option="-march=i586" />
 			<Add option="-O2" />
+			<Add option="-pedantic" />
 			<Add option="-Wfatal-errors" />
 			<Add option="-Wextra" />
 			<Add option="-Wall" />
 			<Add option="-W" />
 			<Add option="-fno-inline" />
+			<Add option="-Wno-long-long" />
 			<Add option="-D_GLIBCXX_DLL" />
 		</Compiler>
 		<Linker>

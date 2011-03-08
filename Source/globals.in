@@ -16,7 +16,8 @@ BUILD = Release
 HG_FILE = ../hgversion.h
 HG_SED = ../hgversion.sed
 LDFLAGS = -Wl,--subsystem,windows -shared-libgcc -Wl,--enable-auto-import
-CXXFLAGS = -W -Wall -Werror -pedantic -D_GLIBCXX_DLL
+CXXFLAGS = -W -Wall -Werror -pedantic -Wno-long-long -D_GLIBCXX_DLL
+CFLAGS = -W -Wall -Werror -pedantic -Wno-long-long
 
 ifeq ($(ARCH), 64)
 		BIN_DIR = ../bin64

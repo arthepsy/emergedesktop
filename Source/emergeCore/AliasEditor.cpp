@@ -758,6 +758,7 @@ BOOL AliasEditor::DoNotify(HWND hwndDlg, LPARAM lParam)
   HWND editWnd = GetDlgItem(hwndDlg, IDC_EDITAPP);
   SORTINFO sortInfo;
   int subItem;
+  BOOL ret;
 
   switch (((LPNMITEMACTIVATE)lParam)->hdr.code)
     {
@@ -777,29 +778,29 @@ BOOL AliasEditor::DoNotify(HWND hwndDlg, LPARAM lParam)
       sortInfo.listWnd = listWnd;
       sortInfo.assending = toggleSort[subItem];
       sortInfo.subItem = subItem;
-      ListView_SortItemsEx(listWnd, ListViewCompareProc, (LPARAM)&sortInfo);
-      return 0;
+      ret = ListView_SortItemsEx(listWnd, ListViewCompareProc, (LPARAM)&sortInfo);
+      return ret;
 
     case PSN_APPLY:
       if (!CheckFields(hwndDlg))
         {
           SetWindowLongPtr(hwndDlg, DWLP_MSGRESULT, PSNRET_INVALID);
-          return 1;
+          return FALSE;
         }
 
       if (UpdateAliases(hwndDlg))
         SetWindowLongPtr(hwndDlg, DWLP_MSGRESULT, PSNRET_NOERROR);
       else
         SetWindowLongPtr(hwndDlg, DWLP_MSGRESULT, PSNRET_INVALID);
-      return 1;
+      return TRUE;
 
     case PSN_SETACTIVE:
       SetWindowLongPtr(hwndDlg, DWLP_MSGRESULT, 0);
-      return 1;
+      return TRUE;
 
     case PSN_KILLACTIVE:
       SetWindowLongPtr(hwndDlg, DWLP_MSGRESULT, FALSE);
-      return 1;
+      return TRUE;
 
     case PSN_QUERYCANCEL:
       if (CheckFields(hwndDlg) && CheckSaveCount(hwndDlg))
