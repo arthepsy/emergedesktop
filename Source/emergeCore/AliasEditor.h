@@ -37,19 +37,19 @@
 #include <process.h>
 #include <stdio.h>
 #include "../emergeLib/emergeLib.h"
+#include "settings.h"
 
-typedef struct tagSORTINFO
+typedef struct tagLISTVIEWSORTINFO
 {
   HWND listWnd;
-  bool assending;
-  int subItem;
+  PSORTINFO sortInfo;
 }
-SORTINFO, *PSORTINFO;
+LISTVIEWSORTINFO, *PLISTVIEWSORTINFO;
 
 class AliasEditor
 {
 public:
-  AliasEditor(HINSTANCE hInstance, HWND mainWnd);
+  AliasEditor(HINSTANCE hInstance, HWND mainWnd, std::tr1::shared_ptr<Settings> pSettings);
   ~AliasEditor();
   BOOL DoInitDialog(HWND hwndDlg);
   BOOL DoCommand(HWND hwndDlg, WPARAM wParam, LPARAM lParam);
@@ -76,6 +76,9 @@ private:
   HICON addIcon, delIcon, upIcon, downIcon, browseIcon, saveIcon, abortIcon, editIcon;
   bool edit, toggleSort[2];
   bool FindListSubItem(HWND listWnd, int subItem, WCHAR *searchString);
+  std::tr1::shared_ptr<Settings> pSettings;
+  SORTINFO sortInfo;
+  WCHAR myName[MAX_LINE_LENGTH];
 };
 
 #endif

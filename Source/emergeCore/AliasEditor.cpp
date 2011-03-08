@@ -45,13 +45,15 @@ INT_PTR CALLBACK AliasEditor::AliasDlgProc(HWND hwndDlg, UINT message, WPARAM wP
   return FALSE;
 }
 
-AliasEditor::AliasEditor(HINSTANCE hInstance, HWND mainWnd)
+AliasEditor::AliasEditor(HINSTANCE hInstance, HWND mainWnd, std::tr1::shared_ptr<Settings> pSettings)
 {
-  (*this).hInstance = hInstance;
-  (*this).mainWnd = mainWnd;
+  this->hInstance = hInstance;
+  this->mainWnd = mainWnd;
+  this->pSettings = pSettings;
   edit = false;
   toggleSort[0] = false;
   toggleSort[1] = false;
+  wcscpy(myName, TEXT("AliasEditor"));
 
   InitCommonControls();
 
@@ -82,6 +84,8 @@ AliasEditor::AliasEditor(HINSTANCE hInstance, HWND mainWnd)
   ExtractIconEx(TEXT("emergeIcons.dll"), 9, NULL, &saveIcon, 1);
   ExtractIconEx(TEXT("emergeIcons.dll"), 1, NULL, &abortIcon, 1);
   ExtractIconEx(TEXT("emergeIcons.dll"), 5, NULL, &editIcon, 1);
+
+  pSettings->GetSortInfo(myName, &sortInfo);
 }
 
 AliasEditor::~AliasEditor()
@@ -235,6 +239,12 @@ BOOL AliasEditor::DoInitDialog(HWND hwndDlg)
   EnableWindow(aliasTextWnd, false);
   EnableWindow(actionTextWnd, false);
   EnableWindow(editWnd, false);
+
+  LISTVIEWSORTINFO si;
+  bool ret;
+  si.listWnd = listWnd;
+  si.sortInfo = &sortInfo;
+  ret = ListView_SortItemsEx(listWnd, ListViewCompareProc, (LPARAM)&si);
 
   return TRUE;
 }
@@ -738,15 +748,15 @@ BOOL AliasEditor::PopulateFields(HWND hwndDlg, int index)
 int CALLBACK AliasEditor::ListViewCompareProc (LPARAM lParam1, LPARAM lParam2, LPARAM lParamSort)
 {
   WCHAR szBuf1[MAX_LINE_LENGTH], szBuf2[MAX_LINE_LENGTH];
-  SORTINFO *si = (SORTINFO*)lParamSort;
+  PLISTVIEWSORTINFO si = (PLISTVIEWSORTINFO)lParamSort;
 
-  ListView_GetItemText(si->listWnd, lParam1, si->subItem, szBuf1, MAX_LINE_LENGTH);
-  ListView_GetItemText(si->listWnd, lParam2, si->subItem, szBuf2, MAX_LINE_LENGTH);
+  ListView_GetItemText(si->listWnd, lParam1, si->sortInfo->subItem, szBuf1, MAX_LINE_LENGTH);
+  ListView_GetItemText(si->listWnd, lParam2, si->sortInfo->subItem, szBuf2, MAX_LINE_LENGTH);
 
-  if (si->assending) // ACENDING ORDER
-    return(wcscmp(szBuf1, szBuf2) * -1);
-  else
+  if (si->sortInfo->assending) // ACENDING ORDER
     return(wcscmp(szBuf1, szBuf2));
+  else
+    return(wcscmp(szBuf1, szBuf2) * -1);
 }
 
 BOOL AliasEditor::DoNotify(HWND hwndDlg, LPARAM lParam)
@@ -756,7 +766,7 @@ BOOL AliasEditor::DoNotify(HWND hwndDlg, LPARAM lParam)
   HWND upWnd = GetDlgItem(hwndDlg, IDC_UPAPP);
   HWND downWnd = GetDlgItem(hwndDlg, IDC_DOWNAPP);
   HWND editWnd = GetDlgItem(hwndDlg, IDC_EDITAPP);
-  SORTINFO sortInfo;
+  LISTVIEWSORTINFO si;
   int subItem;
   BOOL ret;
 
@@ -775,10 +785,12 @@ BOOL AliasEditor::DoNotify(HWND hwndDlg, LPARAM lParam)
         toggleSort[subItem] = false;
       else
         toggleSort[subItem] = true;
-      sortInfo.listWnd = listWnd;
       sortInfo.assending = toggleSort[subItem];
       sortInfo.subItem = subItem;
-      ret = ListView_SortItemsEx(listWnd, ListViewCompareProc, (LPARAM)&sortInfo);
+      si.listWnd = listWnd;
+      si.sortInfo = &sortInfo;
+      pSettings->SetSortInfo(myName, &sortInfo);
+      ret = ListView_SortItemsEx(listWnd, ListViewCompareProc, (LPARAM)&si);
       return ret;
 
     case PSN_APPLY:
