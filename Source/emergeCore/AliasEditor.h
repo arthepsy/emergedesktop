@@ -42,7 +42,7 @@
 typedef struct tagLISTVIEWSORTINFO
 {
   HWND listWnd;
-  PSORTINFO sortInfo;
+  SORTINFO sortInfo;
 }
 LISTVIEWSORTINFO, *PLISTVIEWSORTINFO;
 
@@ -77,7 +77,7 @@ private:
   bool edit, toggleSort[2];
   bool FindListSubItem(HWND listWnd, int subItem, WCHAR *searchString);
   std::tr1::shared_ptr<Settings> pSettings;
-  SORTINFO sortInfo;
+  LISTVIEWSORTINFO lvSortInfo;
   WCHAR myName[MAX_LINE_LENGTH];
 };
 

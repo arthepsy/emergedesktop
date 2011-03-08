@@ -85,7 +85,8 @@ AliasEditor::AliasEditor(HINSTANCE hInstance, HWND mainWnd, std::tr1::shared_ptr
   ExtractIconEx(TEXT("emergeIcons.dll"), 1, NULL, &abortIcon, 1);
   ExtractIconEx(TEXT("emergeIcons.dll"), 5, NULL, &editIcon, 1);
 
-  pSettings->GetSortInfo(myName, &sortInfo);
+  pSettings->GetSortInfo(myName, &lvSortInfo.sortInfo);
+  toggleSort[lvSortInfo.sortInfo.subItem] = lvSortInfo.sortInfo.assending;
 }
 
 AliasEditor::~AliasEditor()
@@ -240,11 +241,9 @@ BOOL AliasEditor::DoInitDialog(HWND hwndDlg)
   EnableWindow(actionTextWnd, false);
   EnableWindow(editWnd, false);
 
-  LISTVIEWSORTINFO si;
   bool ret;
-  si.listWnd = listWnd;
-  si.sortInfo = &sortInfo;
-  ret = ListView_SortItemsEx(listWnd, ListViewCompareProc, (LPARAM)&si);
+  lvSortInfo.listWnd = listWnd;
+  ret = ListView_SortItemsEx(listWnd, ListViewCompareProc, (LPARAM)&lvSortInfo);
 
   return TRUE;
 }
@@ -750,10 +749,10 @@ int CALLBACK AliasEditor::ListViewCompareProc (LPARAM lParam1, LPARAM lParam2, L
   WCHAR szBuf1[MAX_LINE_LENGTH], szBuf2[MAX_LINE_LENGTH];
   PLISTVIEWSORTINFO si = (PLISTVIEWSORTINFO)lParamSort;
 
-  ListView_GetItemText(si->listWnd, lParam1, si->sortInfo->subItem, szBuf1, MAX_LINE_LENGTH);
-  ListView_GetItemText(si->listWnd, lParam2, si->sortInfo->subItem, szBuf2, MAX_LINE_LENGTH);
+  ListView_GetItemText(si->listWnd, lParam1, si->sortInfo.subItem, szBuf1, MAX_LINE_LENGTH);
+  ListView_GetItemText(si->listWnd, lParam2, si->sortInfo.subItem, szBuf2, MAX_LINE_LENGTH);
 
-  if (si->sortInfo->assending) // ACENDING ORDER
+  if (si->sortInfo.assending) // ACENDING ORDER
     return(wcscmp(szBuf1, szBuf2));
   else
     return(wcscmp(szBuf1, szBuf2) * -1);
@@ -766,7 +765,6 @@ BOOL AliasEditor::DoNotify(HWND hwndDlg, LPARAM lParam)
   HWND upWnd = GetDlgItem(hwndDlg, IDC_UPAPP);
   HWND downWnd = GetDlgItem(hwndDlg, IDC_DOWNAPP);
   HWND editWnd = GetDlgItem(hwndDlg, IDC_EDITAPP);
-  LISTVIEWSORTINFO si;
   int subItem;
   BOOL ret;
 
@@ -785,12 +783,10 @@ BOOL AliasEditor::DoNotify(HWND hwndDlg, LPARAM lParam)
         toggleSort[subItem] = false;
       else
         toggleSort[subItem] = true;
-      sortInfo.assending = toggleSort[subItem];
-      sortInfo.subItem = subItem;
-      si.listWnd = listWnd;
-      si.sortInfo = &sortInfo;
-      pSettings->SetSortInfo(myName, &sortInfo);
-      ret = ListView_SortItemsEx(listWnd, ListViewCompareProc, (LPARAM)&si);
+      lvSortInfo.sortInfo.assending = toggleSort[subItem];
+      lvSortInfo.sortInfo.subItem = subItem;
+      pSettings->SetSortInfo(myName, &lvSortInfo.sortInfo);
+      ret = ListView_SortItemsEx(listWnd, ListViewCompareProc, (LPARAM)&lvSortInfo);
       return ret;
 
     case PSN_APPLY:

@@ -644,7 +644,7 @@ bool BaseSettings::SetSortInfo(WCHAR *editorName, PSORTINFO sortInfo)
         {
           std::wstring debug = editorName;
           ELWriteDebug(debug);
-          editor = ELSetFirstXMLElement(section, editorName);
+          editor = ELGetFirstXMLElementByName(section, editorName);
           if (editor)
             {
               ELWriteXMLIntValue(editor, TEXT("SubItem"), sortInfo->subItem);
