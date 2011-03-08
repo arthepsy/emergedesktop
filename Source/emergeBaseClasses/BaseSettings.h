@@ -35,6 +35,12 @@
 #include "../emergeStyleEngine/emergeStyleEngine.h"
 #include <shlwapi.h>
 
+typedef struct _SORTINFO
+{
+  bool assending;
+  int subItem;
+} SORTINFO, *PSORTINFO;
+
 class DLL_EXPORT BaseSettings
 {
 public:
@@ -117,6 +123,8 @@ public:
   bool GetModified();
   bool CopyTheme();
   bool CopyStyle();
+  bool GetSortInfo(WCHAR *editorName, PSORTINFO sortInfo);
+  bool SetSortInfo(WCHAR *editorName, PSORTINFO sortInfo);
 
 protected:
   virtual void DoReadSettings(IOHelper& helper);

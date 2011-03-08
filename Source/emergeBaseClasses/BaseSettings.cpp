@@ -597,6 +597,66 @@ bool BaseSettings::CopyStyle()
   return true;
 }
 
+bool BaseSettings::GetSortInfo(WCHAR *editorName, PSORTINFO sortInfo)
+{
+  std::tr1::shared_ptr<TiXmlDocument> configXML;
+  TiXmlElement *section, *editor;
+  bool readSettings = false;
+  std::wstring xmlFile = TEXT("%EmergeDir%\\files\\SortOrder.xml");
+
+  configXML = ELOpenXMLConfig(xmlFile, false);
+  if (configXML)
+    {
+      section = ELGetXMLSection(configXML.get(), (WCHAR*)TEXT("Settings"), false);
+      if (section)
+        {
+          editor = ELGetFirstXMLElementByName(section, editorName);
+          if (editor)
+            {
+              readSettings = true;
+
+              ELReadXMLIntValue(editor, TEXT("SubItem"), &sortInfo->subItem, 0);
+              ELReadXMLBoolValue(editor, TEXT("Assending"), &sortInfo->assending, true);
+            }
+        }
+    }
+
+  if (!readSettings)
+    {
+      sortInfo->subItem = 0;
+      sortInfo->assending = true;
+    }
+
+  return readSettings;
+}
+
+bool BaseSettings::SetSortInfo(WCHAR *editorName, PSORTINFO sortInfo)
+{
+  std::tr1::shared_ptr<TiXmlDocument> configXML;
+  TiXmlElement *section, *editor;
+  std::wstring xmlFile = TEXT("%EmergeDir%\\files\\SortOrder.xml");
+
+  configXML = ELOpenXMLConfig(xmlFile, true);
+  if (configXML)
+    {
+      section = ELGetXMLSection(configXML.get(), (WCHAR*)TEXT("Settings"), true);
+      if (section)
+        {
+          std::wstring debug = editorName;
+          ELWriteDebug(debug);
+          editor = ELSetFirstXMLElement(section, editorName);
+          if (editor)
+            {
+              ELWriteXMLIntValue(editor, TEXT("SubItem"), sortInfo->subItem);
+              ELWriteXMLBoolValue(editor, TEXT("Assending"), sortInfo->assending);
+              return ELWriteXMLConfig(configXML.get());
+            }
+        }
+    }
+
+  return false;
+}
+
 BaseSettings::IOHelper::IOHelper(TiXmlElement *sec)
 {
   key = NULL;
