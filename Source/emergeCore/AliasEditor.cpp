@@ -679,6 +679,8 @@ bool AliasEditor::DoAliasSave(HWND hwndDlg)
         }
     }
 
+  lvSortInfo.listWnd = listWnd;
+  ret = ListView_SortItemsEx(listWnd, ListViewCompareProc, (LPARAM)&lvSortInfo);
   EnableWindow(saveWnd, false);
   EnableWindow(abortWnd, false);
   EnableWindow(appletWnd, false);
