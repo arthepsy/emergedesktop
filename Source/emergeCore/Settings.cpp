@@ -21,6 +21,8 @@
 
 #include "Settings.h"
 
+WCHAR appletName[] = TEXT("emergeCore");
+
 Settings::Settings(): BaseSettings(false)
 {
   userModified = false;
