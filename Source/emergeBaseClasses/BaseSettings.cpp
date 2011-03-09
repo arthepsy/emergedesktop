@@ -600,7 +600,7 @@ bool BaseSettings::CopyStyle()
 bool BaseSettings::GetSortInfo(WCHAR *editorName, PSORTINFO sortInfo)
 {
   std::tr1::shared_ptr<TiXmlDocument> configXML;
-  TiXmlElement *section, *editor;
+  TiXmlElement *section, *editor, *applet;
   bool readSettings = false;
   std::wstring xmlFile = TEXT("%EmergeDir%\\files\\SortOrder.xml");
 
@@ -610,13 +610,17 @@ bool BaseSettings::GetSortInfo(WCHAR *editorName, PSORTINFO sortInfo)
       section = ELGetXMLSection(configXML.get(), (WCHAR*)TEXT("Settings"), false);
       if (section)
         {
-          editor = ELGetFirstXMLElementByName(section, editorName);
-          if (editor)
+          applet = ELGetFirstXMLElementByName(section, appletName);
+          if (applet)
             {
-              readSettings = true;
+              editor = ELGetFirstXMLElementByName(applet, editorName);
+              if (editor)
+                {
+                  readSettings = true;
 
-              ELReadXMLIntValue(editor, TEXT("SubItem"), &sortInfo->subItem, 0);
-              ELReadXMLBoolValue(editor, TEXT("Assending"), &sortInfo->assending, true);
+                  ELReadXMLIntValue(editor, TEXT("SubItem"), &sortInfo->subItem, 0);
+                  ELReadXMLBoolValue(editor, TEXT("Assending"), &sortInfo->assending, true);
+                }
             }
         }
     }
@@ -633,7 +637,7 @@ bool BaseSettings::GetSortInfo(WCHAR *editorName, PSORTINFO sortInfo)
 bool BaseSettings::SetSortInfo(WCHAR *editorName, PSORTINFO sortInfo)
 {
   std::tr1::shared_ptr<TiXmlDocument> configXML;
-  TiXmlElement *section, *editor;
+  TiXmlElement *section, *applet, *editor;
   std::wstring xmlFile = TEXT("%EmergeDir%\\files\\SortOrder.xml");
 
   configXML = ELOpenXMLConfig(xmlFile, true);
@@ -642,14 +646,16 @@ bool BaseSettings::SetSortInfo(WCHAR *editorName, PSORTINFO sortInfo)
       section = ELGetXMLSection(configXML.get(), (WCHAR*)TEXT("Settings"), true);
       if (section)
         {
-          std::wstring debug = editorName;
-          ELWriteDebug(debug);
-          editor = ELGetFirstXMLElementByName(section, editorName);
-          if (editor)
+          applet = ELGetFirstXMLElementByName(section, appletName);
+          if (applet)
             {
-              ELWriteXMLIntValue(editor, TEXT("SubItem"), sortInfo->subItem);
-              ELWriteXMLBoolValue(editor, TEXT("Assending"), sortInfo->assending);
-              return ELWriteXMLConfig(configXML.get());
+              editor = ELGetFirstXMLElementByName(applet, editorName);
+              if (editor)
+                {
+                  ELWriteXMLIntValue(editor, TEXT("SubItem"), sortInfo->subItem);
+                  ELWriteXMLBoolValue(editor, TEXT("Assending"), sortInfo->assending);
+                  return ELWriteXMLConfig(configXML.get());
+                }
             }
         }
     }
