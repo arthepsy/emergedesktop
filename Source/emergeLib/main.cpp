@@ -2741,8 +2741,7 @@ bool ELExecuteAlias(LPTSTR alias)
               // execute the command
               if (wcscmp(value, alias) == 0)
                 {
-                  ELExecute(command);
-                  ret = true;
+                  ret = ELExecute(command);
                   break;
                 }
             }
