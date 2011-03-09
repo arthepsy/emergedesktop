@@ -37,7 +37,7 @@
 
 typedef struct _SORTINFO
 {
-  bool assending;
+  bool ascending;
   int subItem;
 } SORTINFO, *PSORTINFO;
 

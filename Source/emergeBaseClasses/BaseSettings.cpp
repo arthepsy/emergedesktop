@@ -619,7 +619,7 @@ bool BaseSettings::GetSortInfo(WCHAR *editorName, PSORTINFO sortInfo)
                   readSettings = true;
 
                   ELReadXMLIntValue(editor, TEXT("SubItem"), &sortInfo->subItem, 0);
-                  ELReadXMLBoolValue(editor, TEXT("Assending"), &sortInfo->assending, true);
+                  ELReadXMLBoolValue(editor, TEXT("Ascending"), &sortInfo->ascending, true);
                 }
             }
         }
@@ -628,7 +628,7 @@ bool BaseSettings::GetSortInfo(WCHAR *editorName, PSORTINFO sortInfo)
   if (!readSettings)
     {
       sortInfo->subItem = 0;
-      sortInfo->assending = true;
+      sortInfo->ascending = true;
     }
 
   return readSettings;
@@ -653,7 +653,7 @@ bool BaseSettings::SetSortInfo(WCHAR *editorName, PSORTINFO sortInfo)
               if (editor)
                 {
                   ELWriteXMLIntValue(editor, TEXT("SubItem"), sortInfo->subItem);
-                  ELWriteXMLBoolValue(editor, TEXT("Assending"), sortInfo->assending);
+                  ELWriteXMLBoolValue(editor, TEXT("Ascending"), sortInfo->ascending);
                   return ELWriteXMLConfig(configXML.get());
                 }
             }

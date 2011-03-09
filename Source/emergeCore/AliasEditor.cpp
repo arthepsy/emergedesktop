@@ -84,7 +84,7 @@ AliasEditor::AliasEditor(HINSTANCE hInstance, HWND mainWnd, std::tr1::shared_ptr
   ExtractIconEx(TEXT("emergeIcons.dll"), 5, NULL, &editIcon, 1);
 
   pSettings->GetSortInfo(myName, &lvSortInfo.sortInfo);
-  toggleSort[lvSortInfo.sortInfo.subItem] = lvSortInfo.sortInfo.assending;
+  toggleSort[lvSortInfo.sortInfo.subItem] = lvSortInfo.sortInfo.ascending;
 }
 
 AliasEditor::~AliasEditor()
@@ -666,7 +666,7 @@ int CALLBACK AliasEditor::ListViewCompareProc (LPARAM lParam1, LPARAM lParam2, L
   ListView_GetItemText(si->listWnd, lParam1, si->sortInfo.subItem, szBuf1, MAX_LINE_LENGTH);
   ListView_GetItemText(si->listWnd, lParam2, si->sortInfo.subItem, szBuf2, MAX_LINE_LENGTH);
 
-  if (si->sortInfo.assending) // ACENDING ORDER
+  if (si->sortInfo.ascending) // ACENDING ORDER
     return(wcscmp(szBuf1, szBuf2));
   else
     return(wcscmp(szBuf1, szBuf2) * -1);
@@ -693,7 +693,7 @@ BOOL AliasEditor::DoNotify(HWND hwndDlg, LPARAM lParam)
         toggleSort[subItem] = false;
       else
         toggleSort[subItem] = true;
-      lvSortInfo.sortInfo.assending = toggleSort[subItem];
+      lvSortInfo.sortInfo.ascending = toggleSort[subItem];
       lvSortInfo.sortInfo.subItem = subItem;
       pSettings->SetSortInfo(myName, &lvSortInfo.sortInfo);
       ret = ListView_SortItemsEx(listWnd, ListViewCompareProc, (LPARAM)&lvSortInfo);
