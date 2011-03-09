@@ -79,8 +79,6 @@ AliasEditor::AliasEditor(HINSTANCE hInstance, HWND mainWnd, std::tr1::shared_ptr
   ExtractIconEx(TEXT("emergeIcons.dll"), 2, NULL, &addIcon, 1);
   ExtractIconEx(TEXT("emergeIcons.dll"), 3, NULL, &delIcon, 1);
   ExtractIconEx(TEXT("emergeIcons.dll"), 18, NULL, &browseIcon, 1);
-  ExtractIconEx(TEXT("emergeIcons.dll"), 13, NULL, &upIcon, 1);
-  ExtractIconEx(TEXT("emergeIcons.dll"), 4, NULL, &downIcon, 1);
   ExtractIconEx(TEXT("emergeIcons.dll"), 9, NULL, &saveIcon, 1);
   ExtractIconEx(TEXT("emergeIcons.dll"), 1, NULL, &abortIcon, 1);
   ExtractIconEx(TEXT("emergeIcons.dll"), 5, NULL, &editIcon, 1);
@@ -95,10 +93,6 @@ AliasEditor::~AliasEditor()
     DestroyIcon(addIcon);
   if (delIcon)
     DestroyIcon(delIcon);
-  if (upIcon)
-    DestroyIcon(upIcon);
-  if (downIcon)
-    DestroyIcon(downIcon);
   if (browseIcon)
     DestroyIcon(browseIcon);
   if (saveIcon)
@@ -126,8 +120,6 @@ BOOL AliasEditor::DoInitDialog(HWND hwndDlg)
   HWND listWnd = GetDlgItem(hwndDlg, IDC_APPLETLIST);
   HWND browseWnd = GetDlgItem(hwndDlg, IDC_BROWSE);
   HWND appletWnd = GetDlgItem(hwndDlg, IDC_APPLET);
-  HWND upWnd = GetDlgItem(hwndDlg, IDC_UPAPP);
-  HWND downWnd = GetDlgItem(hwndDlg, IDC_DOWNAPP);
   HWND saveWnd = GetDlgItem(hwndDlg, IDC_SAVEAPP);
   HWND abortWnd = GetDlgItem(hwndDlg, IDC_ABORTAPP);
   HWND aliasWnd = GetDlgItem(hwndDlg, IDC_ALIAS);
@@ -165,10 +157,6 @@ BOOL AliasEditor::DoInitDialog(HWND hwndDlg)
     SendMessage(delWnd, BM_SETIMAGE, IMAGE_ICON, (LPARAM)delIcon);
   if (browseIcon)
     SendMessage(browseWnd, BM_SETIMAGE, IMAGE_ICON, (LPARAM)browseIcon);
-  if (upIcon)
-    SendMessage(upWnd, BM_SETIMAGE, IMAGE_ICON, (LPARAM)upIcon);
-  if (downIcon)
-    SendMessage(downWnd, BM_SETIMAGE, IMAGE_ICON, (LPARAM)downIcon);
   if (saveIcon)
     SendMessage(saveWnd, BM_SETIMAGE, IMAGE_ICON, (LPARAM)saveIcon);
   if (abortIcon)
@@ -203,18 +191,6 @@ BOOL AliasEditor::DoInitDialog(HWND hwndDlg)
   GetClientRect(browseWnd, &ti.rect);
   SendMessage(toolWnd, TTM_ADDTOOL, 0, (LPARAM)(LPTOOLINFO)&ti);
 
-  ti.hwnd = upWnd;
-  ti.uId = (ULONG_PTR)upWnd;
-  ti.lpszText = (WCHAR*)TEXT("Move Alias Up");
-  GetClientRect(upWnd, &ti.rect);
-  SendMessage(toolWnd, TTM_ADDTOOL, 0, (LPARAM)(LPTOOLINFO)&ti);
-
-  ti.hwnd = downWnd;
-  ti.uId = (ULONG_PTR)downWnd;
-  ti.lpszText = (WCHAR*)TEXT("Move Alias Down");
-  GetClientRect(downWnd, &ti.rect);
-  SendMessage(toolWnd, TTM_ADDTOOL, 0, (LPARAM)(LPTOOLINFO)&ti);
-
   ti.hwnd = saveWnd;
   ti.uId = (ULONG_PTR)saveWnd;
   ti.lpszText = (WCHAR*)TEXT("Save Changes");
@@ -229,8 +205,6 @@ BOOL AliasEditor::DoInitDialog(HWND hwndDlg)
 
   PopulateList(listWnd);
 
-  EnableWindow(upWnd, false);
-  EnableWindow(downWnd, false);
   EnableWindow(delWnd, false);
   EnableWindow(appletWnd, false);
   EnableWindow(browseWnd, false);
@@ -303,71 +277,9 @@ BOOL AliasEditor::DoCommand(HWND hwndDlg, WPARAM wParam, LPARAM lParam UNUSED)
       return DoAliasAbort(hwndDlg);
     case IDC_BROWSE:
       return DoAliasBrowse(hwndDlg);
-    case IDC_UPAPP:
-      return DoAliasMove(hwndDlg, true);
-    case IDC_DOWNAPP:
-      return DoAliasMove(hwndDlg, false);
     }
 
   return FALSE;
-}
-
-bool AliasEditor::DoAliasMove(HWND hwndDlg, bool up)
-{
-  HWND listWnd = GetDlgItem(hwndDlg, IDC_APPLETLIST);
-  int i = 0;
-  bool ret = false;
-  LVITEM lvItem;
-  WCHAR alias[MAX_LINE_LENGTH], action[MAX_LINE_LENGTH];
-
-  if (ListView_GetSelectedCount(listWnd) > 1)
-    {
-      ELMessageBox(hwndDlg, (WCHAR*)TEXT("You can only move one item at a time."),
-                   (WCHAR*)TEXT("emergeCore"), ELMB_OK|MB_ICONERROR|ELMB_MODAL);
-
-      return ret;
-    }
-
-  saveCount++;
-
-  lvItem.mask = LVIF_TEXT;
-
-  while (i < ListView_GetItemCount(listWnd))
-    {
-      if (ListView_GetItemState(listWnd, i, LVIS_SELECTED))
-        {
-          ListView_GetItemText(listWnd, i, 0, alias, MAX_LINE_LENGTH);
-          ListView_GetItemText(listWnd, i, 1, action, MAX_LINE_LENGTH);
-
-          if (up)
-            lvItem.iItem = ListView_GetNextItem(listWnd, i, LVNI_ABOVE);
-          else
-            lvItem.iItem = ListView_GetNextItem(listWnd, i, LVNI_BELOW);
-
-          if (lvItem.iItem == -1)
-            break;
-
-          lvItem.iSubItem = 0;
-          lvItem.pszText = alias;
-          lvItem.cchTextMax = MAX_PATH;
-
-          if (ListView_DeleteItem(listWnd, i))
-            {
-
-              if (ListView_InsertItem(listWnd, &lvItem) != -1)
-                ListView_SetItemText(listWnd, lvItem.iItem, 1, action);
-
-              ListView_SetItemState(listWnd, lvItem.iItem, LVIS_SELECTED, LVIS_SELECTED);
-              ret = (ListView_EnsureVisible(listWnd, lvItem.iItem, FALSE) == TRUE);
-            }
-
-          break;
-        }
-      else
-        i++;
-    }
-
-  return ret;
 }
 
 bool AliasEditor::UpdateAliases(HWND hwndDlg)
@@ -455,8 +367,6 @@ bool AliasEditor::DoAliasDelete(HWND hwndDlg)
   HWND listWnd = GetDlgItem(hwndDlg, IDC_APPLETLIST);
   HWND delWnd = GetDlgItem(hwndDlg, IDC_DELAPP);
   HWND editWnd = GetDlgItem(hwndDlg, IDC_EDITAPP);
-  HWND upWnd = GetDlgItem(hwndDlg, IDC_UPAPP);
-  HWND downWnd = GetDlgItem(hwndDlg, IDC_DOWNAPP);
   bool ret = false;
   int i = 0, prevItem = 0;
 
@@ -499,8 +409,6 @@ bool AliasEditor::DoAliasDelete(HWND hwndDlg)
     {
       EnableWindow(delWnd, false);
       EnableWindow(editWnd, false);
-      EnableWindow(upWnd, false);
-      EnableWindow(downWnd, false);
     }
 
   return ret;
@@ -529,6 +437,9 @@ bool AliasEditor::DoAliasAdd(HWND hwndDlg)
     }
   else
     {
+      /**< Clear any existing selected items */
+      for (int i = 0; i < ListView_GetItemCount(listWnd); i++)
+        ListView_SetItemState(listWnd, i, 0, LVIS_SELECTED);
       SetDlgItemText(hwndDlg, IDC_APPLET, TEXT(""));
       SetDlgItemText(hwndDlg, IDC_ALIAS, TEXT(""));
     }
@@ -626,8 +537,6 @@ bool AliasEditor::DoAliasSave(HWND hwndDlg)
   ZeroMemory(alias, MAX_LINE_LENGTH);
   ZeroMemory(action, MAX_LINE_LENGTH);
 
-  lvItem.mask = LVIF_TEXT;
-
   GetDlgItemText(hwndDlg, IDC_APPLET, action, MAX_LINE_LENGTH);
   GetDlgItemText(hwndDlg, IDC_ALIAS, alias, MAX_LINE_LENGTH);
   if (wcslen(alias) > 0)
@@ -653,10 +562,13 @@ bool AliasEditor::DoAliasSave(HWND hwndDlg)
         {
           if (!FindListSubItem(listWnd, 0, alias))
             {
+              lvItem.mask = LVIF_TEXT|LVIF_STATE;
               lvItem.iItem = ListView_GetItemCount(listWnd);
               lvItem.iSubItem = 0;
               lvItem.pszText = alias;
               lvItem.cchTextMax = (int)wcslen(lvItem.pszText);
+              lvItem.state = LVIS_SELECTED;
+              lvItem.stateMask = LVIS_SELECTED;
               if (ListView_InsertItem(listWnd, &lvItem) != -1)
                 {
                   ListView_SetItemText(listWnd, lvItem.iItem, 1, action);
@@ -764,8 +676,6 @@ BOOL AliasEditor::DoNotify(HWND hwndDlg, LPARAM lParam)
 {
   HWND listWnd = GetDlgItem(hwndDlg, IDC_APPLETLIST);
   HWND delWnd = GetDlgItem(hwndDlg, IDC_DELAPP);
-  HWND upWnd = GetDlgItem(hwndDlg, IDC_UPAPP);
-  HWND downWnd = GetDlgItem(hwndDlg, IDC_DOWNAPP);
   HWND editWnd = GetDlgItem(hwndDlg, IDC_EDITAPP);
   int subItem;
   BOOL ret;
@@ -774,8 +684,6 @@ BOOL AliasEditor::DoNotify(HWND hwndDlg, LPARAM lParam)
     {
     case LVN_ITEMCHANGED:
       EnableWindow(delWnd, true);
-      EnableWindow(upWnd, true);
-      EnableWindow(downWnd, true);
       EnableWindow(editWnd, true);
       return PopulateFields(hwndDlg, ((LPNMLISTVIEW)lParam)->iItem);
 

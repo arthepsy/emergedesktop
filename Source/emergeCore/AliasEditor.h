@@ -66,14 +66,13 @@ private:
   bool DoAliasAbort(HWND listWnd);
   bool DoAliasDelete(HWND listWnd);
   bool DoAliasBrowse(HWND listWnd);
-  bool DoAliasMove(HWND listWnd, bool up);
   bool CheckSaveCount(HWND hwndDlg);
   void InsertListViewItem(HWND listWnd, int index, const WCHAR *item);
   BOOL PopulateFields(HWND hwndDlg, int index);
   UINT saveCount, deleteCount;
   HINSTANCE hInstance;
   HWND mainWnd, toolWnd, dlgWnd;
-  HICON addIcon, delIcon, upIcon, downIcon, browseIcon, saveIcon, abortIcon, editIcon;
+  HICON addIcon, delIcon, browseIcon, saveIcon, abortIcon, editIcon;
   bool edit, toggleSort[2];
   bool FindListSubItem(HWND listWnd, int subItem, WCHAR *searchString);
   std::tr1::shared_ptr<Settings> pSettings;
