@@ -49,7 +49,9 @@ Actions::Actions(HINSTANCE hInstance, HWND mainWnd, std::tr1::shared_ptr<Setting
   this->hInstance = hInstance;
   this->mainWnd = mainWnd;
   this->pSettings = pSettings;
-
+  toggleSort[0] = false;
+  toggleSort[1] = false;
+  wcscpy(myName, TEXT("Actions"));
   edit = false;
   dialogVisible = false;
 
@@ -81,6 +83,9 @@ Actions::Actions(HINSTANCE hInstance, HWND mainWnd, std::tr1::shared_ptr<Setting
   ExtractIconEx(TEXT("emergeIcons.dll"), 18, NULL, &fileIcon, 1);
   ExtractIconEx(TEXT("emergeIcons.dll"), 9, NULL, &saveIcon, 1);
   ExtractIconEx(TEXT("emergeIcons.dll"), 1, NULL, &abortIcon, 1);
+
+  pSettings->GetSortInfo(myName, &lvSortInfo.sortInfo);
+  toggleSort[lvSortInfo.sortInfo.subItem] = lvSortInfo.sortInfo.ascending;
 }
 
 Actions::~Actions()
@@ -272,8 +277,27 @@ BOOL Actions::DoInitDialog(HWND hwndDlg)
   GetClientRect(abortWnd, &ti.rect);
   SendMessage(toolWnd, TTM_ADDTOOL, 0, (LPARAM)(LPTOOLINFO)&ti);
 
+  bool ignored;
+  lvSortInfo.listWnd = listWnd;
+  ignored = ListView_SortItemsEx(listWnd, ListViewCompareProc, (LPARAM)&lvSortInfo);
+
   return TRUE;
 }
+
+int CALLBACK Actions::ListViewCompareProc (LPARAM lParam1, LPARAM lParam2, LPARAM lParamSort)
+{
+  WCHAR szBuf1[MAX_LINE_LENGTH], szBuf2[MAX_LINE_LENGTH];
+  PLISTVIEWSORTINFO si = (PLISTVIEWSORTINFO)lParamSort;
+
+  ListView_GetItemText(si->listWnd, lParam1, si->sortInfo.subItem, szBuf1, MAX_LINE_LENGTH);
+  ListView_GetItemText(si->listWnd, lParam2, si->sortInfo.subItem, szBuf2, MAX_LINE_LENGTH);
+
+  if (si->sortInfo.ascending) // ACENDING ORDER
+    return(wcscmp(szBuf1, szBuf2));
+  else
+    return(wcscmp(szBuf1, szBuf2) * -1);
+}
+
 
 bool Actions::CheckSaveCount(HWND hwndDlg)
 {
@@ -579,6 +603,8 @@ bool Actions::PopulateFields(HWND hwndDlg, int modIndex)
 
 bool Actions::DoAdd(HWND hwndDlg)
 {
+  HWND listWnd = GetDlgItem(hwndDlg, IDC_ACTIONSLIST);
+
   SendDlgItemMessage(hwndDlg, IDC_WIN, BM_SETCHECK, BST_UNCHECKED, 0);
   SendDlgItemMessage(hwndDlg, IDC_ALT, BM_SETCHECK, BST_UNCHECKED, 0);
   SendDlgItemMessage(hwndDlg, IDC_CTRL, BM_SETCHECK, BST_UNCHECKED, 0);
@@ -588,6 +614,10 @@ bool Actions::DoAdd(HWND hwndDlg)
   SetDlgItemText(hwndDlg, IDC_APPLICATION, TEXT(""));
   SendDlgItemMessage(hwndDlg, IDC_EXTERNAL, BM_SETCHECK, BST_CHECKED, 0);
   SendDlgItemMessage(hwndDlg, IDC_INTERNAL, BM_SETCHECK, BST_UNCHECKED, 0);
+
+  /**< Clear any existing selected items */
+  for (int i = 0; i < ListView_GetItemCount(listWnd); i++)
+    ListView_SetItemState(listWnd, i, 0, LVIS_SELECTED);
 
   return EnableFields(hwndDlg, true);
 }
@@ -701,7 +731,7 @@ bool Actions::DoSave(HWND hwndDlg)
   LVFINDINFO lvFI;
   LVITEM lvItem;
   WCHAR tmpKey[MAX_LINE_LENGTH], tmpAction[MAX_LINE_LENGTH], tmp[MAX_LINE_LENGTH],
-  error[MAX_LINE_LENGTH];
+        error[MAX_LINE_LENGTH];
   UINT index = ListView_GetItemCount(listWnd);
   HotkeyCombo *hc;
 
@@ -709,7 +739,6 @@ bool Actions::DoSave(HWND hwndDlg)
   ZeroMemory(tmpKey, MAX_LINE_LENGTH);
 
   lvFI.flags = LVFI_STRING;
-  lvItem.mask = LVIF_TEXT;
 
   if (SendDlgItemMessage(hwndDlg, IDC_EXTERNAL, BM_GETCHECK, 0, 0) == BST_CHECKED)
     GetDlgItemText(hwndDlg, IDC_APPLICATION, tmpAction, MAX_LINE_LENGTH);
@@ -753,10 +782,13 @@ bool Actions::DoSave(HWND hwndDlg)
       if (RegisterHotKey(mainWnd, hc->GetHotkeyID(), hc->GetHotkeyModifiers(),
                          hc->GetHotkeyKey()))
         {
+          lvItem.mask = LVIF_TEXT|LVIF_STATE;
           lvItem.iItem = index;
           lvItem.iSubItem = 0;
           lvItem.pszText = tmpKey;
           lvItem.cchTextMax = (int)wcslen(tmpKey);
+          lvItem.state = LVIS_SELECTED;
+          lvItem.stateMask = LVIS_SELECTED;
 
           pSettings->AddHotkeyListItem(hc);
           if (ListView_InsertItem(listWnd, &lvItem) != -1)
@@ -783,6 +815,9 @@ bool Actions::DoSave(HWND hwndDlg)
                        ELMB_OK|ELMB_ICONERROR|ELMB_MODAL);
         }
     }
+
+  lvSortInfo.listWnd = listWnd;
+  ret = ListView_SortItemsEx(listWnd, ListViewCompareProc, (LPARAM)&lvSortInfo);
 
   return ret;
 }
@@ -1125,6 +1160,9 @@ BOOL Actions::DoNotify(HWND hwndDlg, LPARAM lParam)
 {
   HWND delWnd = GetDlgItem(hwndDlg, IDC_DELAPP);
   HWND editWnd = GetDlgItem(hwndDlg, IDC_MODAPP);
+  HWND listWnd = GetDlgItem(hwndDlg, IDC_ACTIONSLIST);
+  int subItem;
+  BOOL ret;
 
   switch (((LPNMITEMACTIVATE)lParam)->hdr.code)
     {
@@ -1132,6 +1170,18 @@ BOOL Actions::DoNotify(HWND hwndDlg, LPARAM lParam)
       EnableWindow(delWnd, true);
       EnableWindow(editWnd, true);
       return PopulateFields(hwndDlg, ((LPNMLISTVIEW)lParam)->iItem);
+
+    case LVN_COLUMNCLICK:
+      subItem = ((LPNMLISTVIEW)lParam)->iSubItem;
+      if (toggleSort[subItem])
+        toggleSort[subItem] = false;
+      else
+        toggleSort[subItem] = true;
+      lvSortInfo.sortInfo.ascending = toggleSort[subItem];
+      lvSortInfo.sortInfo.subItem = subItem;
+      pSettings->SetSortInfo(myName, &lvSortInfo.sortInfo);
+      ret = ListView_SortItemsEx(listWnd, ListViewCompareProc, (LPARAM)&lvSortInfo);
+      return ret;
     }
 
   return FALSE;

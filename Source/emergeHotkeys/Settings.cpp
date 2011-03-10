@@ -26,6 +26,7 @@ Settings::Settings(HWND mainWnd)
 {
   (*this).mainWnd = mainWnd;
   xmlFile = TEXT("%EmergeDir%\\files\\emergeHotkeys.xml");
+  wcscpy(appletName, TEXT("emergeHotkeys"));
 }
 
 Settings::~Settings()
