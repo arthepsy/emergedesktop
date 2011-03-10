@@ -20,8 +20,6 @@
 
 #include "Settings.h"
 
-extern WCHAR myName[];
-
 Settings::Settings()
   :BaseSettings(false)
 {

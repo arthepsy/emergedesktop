@@ -22,8 +22,6 @@
 #include "Applet.h"
 #include "TrayIcon.h"
 
-extern WCHAR myName[];
-
 Settings::Settings(LPARAM lParam)
   :BaseSettings(true)
 {

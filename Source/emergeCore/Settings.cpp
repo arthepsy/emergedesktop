@@ -21,13 +21,12 @@
 
 #include "Settings.h"
 
-WCHAR appletName[] = TEXT("emergeCore");
-
 Settings::Settings(): BaseSettings(false)
 {
   userModified = false;
   showStartupErrors = false;
   showExplorerDesktop = false;
+  wcscpy(appletName, TEXT("emergeCore"));
 }
 
 void Settings::DoReadSettings(IOHelper& helper)

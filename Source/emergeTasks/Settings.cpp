@@ -21,8 +21,6 @@
 #include "Settings.h"
 #include <stdio.h>
 
-WCHAR appletName[] = TEXT("emergeTasks");
-
 Settings::Settings()
 :BaseSettings(true)
 {

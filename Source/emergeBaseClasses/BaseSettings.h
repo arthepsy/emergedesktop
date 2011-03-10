@@ -138,11 +138,11 @@ protected:
   bool autoSize, snapMove, snapSize, dynamicPositioning;
   WCHAR anchorPoint[MAX_LINE_LENGTH];
   WCHAR zPosition[MAX_LINE_LENGTH];
+  WCHAR appletName[MAX_LINE_LENGTH];
 
 private:
   HWND appletWnd;
   WCHAR keyString[MAX_LINE_LENGTH];
-  WCHAR appletName[MAX_LINE_LENGTH];
   bool allowAutoSize;
   WCHAR styleFile[MAX_PATH];
   bool modifiedFlag;
