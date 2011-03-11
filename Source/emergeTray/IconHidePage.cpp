@@ -49,6 +49,8 @@ IconHidePage::IconHidePage(HINSTANCE hInstance, std::tr1::shared_ptr<Settings> p
   this->pSettings = pSettings;
   this->hInstance = hInstance;
   edit = false;
+  toggleSort[0] = false;
+  wcscpy(myName, TEXT("IconHide"));
 
   InitCommonControls();
 
@@ -76,6 +78,9 @@ IconHidePage::IconHidePage(HINSTANCE hInstance, std::tr1::shared_ptr<Settings> p
   ExtractIconEx(TEXT("emergeIcons.dll"), 3, NULL, &delIcon, 1);
   ExtractIconEx(TEXT("emergeIcons.dll"), 9, NULL, &saveIcon, 1);
   ExtractIconEx(TEXT("emergeIcons.dll"), 1, NULL, &abortIcon, 1);
+
+  pSettings->GetSortInfo(myName, &lvSortInfo.sortInfo);
+  toggleSort[lvSortInfo.sortInfo.subItem] = lvSortInfo.sortInfo.ascending;
 }
 
 IconHidePage::~IconHidePage()
@@ -92,6 +97,20 @@ IconHidePage::~IconHidePage()
     DestroyIcon(abortIcon);
 
   DestroyWindow(toolWnd);
+}
+
+int CALLBACK IconHidePage::ListViewCompareProc (LPARAM lParam1, LPARAM lParam2, LPARAM lParamSort)
+{
+  WCHAR szBuf1[MAX_LINE_LENGTH], szBuf2[MAX_LINE_LENGTH];
+  PLISTVIEWSORTINFO si = (PLISTVIEWSORTINFO)lParamSort;
+
+  ListView_GetItemText(si->listWnd, lParam1, si->sortInfo.subItem, szBuf1, MAX_LINE_LENGTH);
+  ListView_GetItemText(si->listWnd, lParam2, si->sortInfo.subItem, szBuf2, MAX_LINE_LENGTH);
+
+  if (si->sortInfo.ascending)
+    return(wcscmp(szBuf1, szBuf2));
+  else
+    return(wcscmp(szBuf1, szBuf2) * -1);
 }
 
 BOOL IconHidePage::DoInitPage(HWND hwndDlg)
@@ -177,6 +196,10 @@ BOOL IconHidePage::DoInitPage(HWND hwndDlg)
 
   PopulateList(listWnd);
 
+  bool ret;
+  lvSortInfo.listWnd = listWnd;
+  ret = ListView_SortItemsEx(listWnd, ListViewCompareProc, (LPARAM)&lvSortInfo);
+
   return TRUE;
 }
 
@@ -225,7 +248,8 @@ BOOL IconHidePage::DoNotify(HWND hwndDlg, LPARAM lParam)
   HWND editWnd = GetDlgItem(hwndDlg, IDC_EDITTIP);
   HWND listWnd = GetDlgItem(hwndDlg, IDC_HIDELIST);
   WCHAR tipText[MAX_LINE_LENGTH];
-  int itemIndex;
+  int itemIndex, subItem;
+  BOOL ret;
 
   switch (((LPNMITEMACTIVATE)lParam)->hdr.code)
     {
@@ -239,6 +263,18 @@ BOOL IconHidePage::DoNotify(HWND hwndDlg, LPARAM lParam)
           SetDlgItemText(hwndDlg, IDC_ICONTEXT, tipText);
         }
       return TRUE;
+
+    case LVN_COLUMNCLICK:
+      subItem = ((LPNMLISTVIEW)lParam)->iSubItem;
+      if (toggleSort[subItem])
+        toggleSort[subItem] = false;
+      else
+        toggleSort[subItem] = true;
+      lvSortInfo.sortInfo.ascending = toggleSort[subItem];
+      lvSortInfo.sortInfo.subItem = subItem;
+      pSettings->SetSortInfo(myName, &lvSortInfo.sortInfo);
+      ret = ListView_SortItemsEx(listWnd, ListViewCompareProc, (LPARAM)&lvSortInfo);
+      return ret;
 
     case PSN_APPLY:
       if (CheckFields(hwndDlg) && UpdateSettings(hwndDlg))
@@ -426,6 +462,8 @@ bool IconHidePage::DoSave(HWND hwndDlg)
   EnableWindow(abortWnd, false);
   EnableWindow(appWnd, false);
   EnableWindow(listWnd, true);
+  lvSortInfo.listWnd = listWnd;
+  ret = ListView_SortItemsEx(listWnd, ListViewCompareProc, (LPARAM)&lvSortInfo);
 
   return ret;
 }
