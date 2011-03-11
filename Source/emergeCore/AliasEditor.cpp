@@ -666,7 +666,7 @@ int CALLBACK AliasEditor::ListViewCompareProc (LPARAM lParam1, LPARAM lParam2, L
   ListView_GetItemText(si->listWnd, lParam1, si->sortInfo.subItem, szBuf1, MAX_LINE_LENGTH);
   ListView_GetItemText(si->listWnd, lParam2, si->sortInfo.subItem, szBuf2, MAX_LINE_LENGTH);
 
-  if (si->sortInfo.ascending) // ACENDING ORDER
+  if (si->sortInfo.ascending)
     return(wcscmp(szBuf1, szBuf2));
   else
     return(wcscmp(szBuf1, szBuf2) * -1);
