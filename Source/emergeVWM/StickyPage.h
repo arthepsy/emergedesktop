@@ -38,6 +38,13 @@
 #include <memory>
 #endif
 
+typedef struct tagLISTVIEWSORTINFO
+{
+  HWND listWnd;
+  SORTINFO sortInfo;
+}
+LISTVIEWSORTINFO, *PLISTVIEWSORTINFO;
+
 class StickyPage
 {
 public:
@@ -48,6 +55,7 @@ public:
   BOOL DoNotify(HWND hwndDlg, LPARAM lParam);
   bool UpdateSettings(HWND hwndDlg);
   static INT_PTR CALLBACK StickyPageDlgProc(HWND hwndDlg, UINT message, WPARAM wParam, LPARAM lParam);
+  static int CALLBACK ListViewCompareProc (LPARAM lParam1, LPARAM lParam2, LPARAM lParamSort);
 
 private:
   std::tr1::shared_ptr<Settings> pSettings;
@@ -63,8 +71,10 @@ private:
   UINT saveCount, deleteCount;
   HINSTANCE hInstance;
   HWND toolWnd;
-  bool edit;
+  bool edit, toggleSort[1];
   HICON addIcon, delIcon, fileIcon, saveIcon, abortIcon, editIcon;
+  LISTVIEWSORTINFO lvSortInfo;
+  WCHAR myName[MAX_LINE_LENGTH];
 };
 
 #endif

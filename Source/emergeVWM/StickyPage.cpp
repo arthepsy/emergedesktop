@@ -52,6 +52,8 @@ StickyPage::StickyPage(HINSTANCE hInstance, std::tr1::shared_ptr<Settings> pSett
 {
   this->hInstance = hInstance;
   this->pSettings = pSettings;
+  toggleSort[0] = false;
+  wcscpy(myName, TEXT("Sticky"));
 
   InitCommonControls();
 
@@ -80,6 +82,9 @@ StickyPage::StickyPage(HINSTANCE hInstance, std::tr1::shared_ptr<Settings> pSett
   ExtractIconEx(TEXT("emergeIcons.dll"), 18, NULL, &fileIcon, 1);
   ExtractIconEx(TEXT("emergeIcons.dll"), 9, NULL, &saveIcon, 1);
   ExtractIconEx(TEXT("emergeIcons.dll"), 1, NULL, &abortIcon, 1);
+
+  pSettings->GetSortInfo(myName, &lvSortInfo.sortInfo);
+  toggleSort[lvSortInfo.sortInfo.subItem] = lvSortInfo.sortInfo.ascending;
 }
 
 StickyPage::~StickyPage()
@@ -98,6 +103,20 @@ StickyPage::~StickyPage()
     DestroyIcon(abortIcon);
 
   DestroyWindow(toolWnd);
+}
+
+int CALLBACK StickyPage::ListViewCompareProc (LPARAM lParam1, LPARAM lParam2, LPARAM lParamSort)
+{
+  WCHAR szBuf1[MAX_LINE_LENGTH], szBuf2[MAX_LINE_LENGTH];
+  PLISTVIEWSORTINFO si = (PLISTVIEWSORTINFO)lParamSort;
+
+  ListView_GetItemText(si->listWnd, lParam1, si->sortInfo.subItem, szBuf1, MAX_LINE_LENGTH);
+  ListView_GetItemText(si->listWnd, lParam2, si->sortInfo.subItem, szBuf2, MAX_LINE_LENGTH);
+
+  if (si->sortInfo.ascending)
+    return(wcscmp(szBuf1, szBuf2));
+  else
+    return(wcscmp(szBuf1, szBuf2) * -1);
 }
 
 BOOL StickyPage::DoInitDialog(HWND hwndDlg)
@@ -191,6 +210,10 @@ BOOL StickyPage::DoInitDialog(HWND hwndDlg)
   SendMessage(toolWnd, TTM_ADDTOOL, 0, (LPARAM)(LPTOOLINFO)&ti);
 
   PopulateList(listWnd);
+
+  bool ret;
+  lvSortInfo.listWnd = listWnd;
+  ret = ListView_SortItemsEx(listWnd, ListViewCompareProc, (LPARAM)&lvSortInfo);
 
   return TRUE;
 }
@@ -384,10 +407,15 @@ bool StickyPage::DoDelete(HWND hwndDlg)
 
 bool StickyPage::DoAdd(HWND hwndDlg)
 {
+  HWND listWnd = GetDlgItem(hwndDlg, IDC_STICKYLIST);
   HWND fileWnd = GetDlgItem(hwndDlg, IDC_BROWSE);
   HWND saveWnd = GetDlgItem(hwndDlg, IDC_SAVEAPP);
   HWND abortWnd = GetDlgItem(hwndDlg, IDC_ABORTAPP);
   HWND appWnd = GetDlgItem(hwndDlg, IDC_APPLICATION);
+
+  for (int i = 0; i < ListView_GetItemCount(listWnd); i++)
+    ListView_SetItemState(listWnd, i, 0, LVIS_SELECTED);
+  SetDlgItemText(hwndDlg, IDC_APPLICATION, TEXT(""));
 
   EnableWindow(saveWnd, true);
   EnableWindow(abortWnd, true);
@@ -430,7 +458,7 @@ bool StickyPage::DoSave(HWND hwndDlg)
   ZeroMemory(tmp, MAX_LINE_LENGTH);
 
   lvFI.flags = LVFI_STRING;
-  lvItem.mask = LVIF_TEXT;
+  lvItem.mask = LVIF_TEXT|LVIF_STATE;
 
   GetDlgItemText(hwndDlg, IDC_APPLICATION, tmp, MAX_LINE_LENGTH);
   if (wcslen(tmp) > 0)
@@ -442,6 +470,8 @@ bool StickyPage::DoSave(HWND hwndDlg)
           lvItem.iSubItem = 0;
           lvItem.pszText = tmp;
           lvItem.cchTextMax = (int)wcslen(tmp);
+          lvItem.state = LVIS_SELECTED;
+          lvItem.stateMask = LVIS_SELECTED;
 
           if (edit)
             {
@@ -481,6 +511,8 @@ bool StickyPage::DoSave(HWND hwndDlg)
   EnableWindow(appWnd, false);
   EnableWindow(fileWnd, false);
   edit = false;
+  lvSortInfo.listWnd = listWnd;
+  ret = ListView_SortItemsEx(listWnd, ListViewCompareProc, (LPARAM)&lvSortInfo);
 
   return ret;
 }
@@ -519,7 +551,8 @@ BOOL StickyPage::DoNotify(HWND hwndDlg, LPARAM lParam)
   HWND editWnd = GetDlgItem(hwndDlg, IDC_EDITAPP);
   WCHAR appName[MAX_LINE_LENGTH];
   HWND listWnd = GetDlgItem(hwndDlg, IDC_STICKYLIST);
-  int itemIndex;
+  int itemIndex, subItem;
+  BOOL ret;
 
   switch (((LPNMITEMACTIVATE)lParam)->hdr.code)
     {
@@ -533,6 +566,18 @@ BOOL StickyPage::DoNotify(HWND hwndDlg, LPARAM lParam)
           SetDlgItemText(hwndDlg, IDC_APPLICATION, appName);
         }
       return TRUE;
+
+    case LVN_COLUMNCLICK:
+      subItem = ((LPNMLISTVIEW)lParam)->iSubItem;
+      if (toggleSort[subItem])
+        toggleSort[subItem] = false;
+      else
+        toggleSort[subItem] = true;
+      lvSortInfo.sortInfo.ascending = toggleSort[subItem];
+      lvSortInfo.sortInfo.subItem = subItem;
+      pSettings->SetSortInfo(myName, &lvSortInfo.sortInfo);
+      ret = ListView_SortItemsEx(listWnd, ListViewCompareProc, (LPARAM)&lvSortInfo);
+      return ret;
 
     case PSN_APPLY:
       if (CheckFields(hwndDlg) && UpdateSettings(hwndDlg))
