@@ -75,6 +75,7 @@ private:
   HICON addIcon, delIcon, browseIcon, saveIcon, abortIcon, editIcon;
   bool edit, toggleSort[2];
   bool FindListSubItem(HWND listWnd, int subItem, WCHAR *searchString);
+  bool SpaceCheck(WCHAR *alias);
   std::tr1::shared_ptr<Settings> pSettings;
   LISTVIEWSORTINFO lvSortInfo;
   WCHAR myName[MAX_LINE_LENGTH];
