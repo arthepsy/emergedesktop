@@ -558,73 +558,80 @@ bool AliasEditor::DoAliasSave(HWND hwndDlg)
 
   if (wcslen(alias) > 0)
     {
-      if (SpaceCheck(alias))
+      if (alias[0] != '.')
         {
-          swprintf(error, TEXT("Alias cannot contain spaces"), alias);
+          swprintf(error, TEXT("Alias must start with a period (.)"));
           ELMessageBox(hwndDlg, error, (WCHAR*)TEXT("emergeCore"),
                        ELMB_OK|ELMB_ICONERROR|ELMB_MODAL);
+          return ret;
+        }
+
+      if (SpaceCheck(alias))
+        {
+          swprintf(error, TEXT("Alias cannot contain spaces"));
+          ELMessageBox(hwndDlg, error, (WCHAR*)TEXT("emergeCore"),
+                       ELMB_OK|ELMB_ICONERROR|ELMB_MODAL);
+          return ret;
+        }
+
+      if (edit)
+        {
+          while (i < ListView_GetItemCount(listWnd))
+            {
+              if (ListView_GetItemState(listWnd, i, LVIS_SELECTED))
+                {
+                  ListView_SetItemText(listWnd, i, 0, alias);
+                  ListView_SetItemText(listWnd, i, 1, action);
+
+                  saveCount++;
+                  deleteCount++;
+                  break;
+                }
+
+              i++;
+            }
         }
       else
         {
-          if (edit)
+          if (!FindListSubItem(listWnd, 0, alias))
             {
-              while (i < ListView_GetItemCount(listWnd))
+              lvItem.mask = LVIF_TEXT|LVIF_STATE;
+              lvItem.iItem = ListView_GetItemCount(listWnd);
+              lvItem.iSubItem = 0;
+              lvItem.pszText = alias;
+              lvItem.cchTextMax = (int)wcslen(lvItem.pszText);
+              lvItem.state = LVIS_SELECTED;
+              lvItem.stateMask = LVIS_SELECTED;
+              if (ListView_InsertItem(listWnd, &lvItem) != -1)
                 {
-                  if (ListView_GetItemState(listWnd, i, LVIS_SELECTED))
-                    {
-                      ListView_SetItemText(listWnd, i, 0, alias);
-                      ListView_SetItemText(listWnd, i, 1, action);
+                  ListView_SetItemText(listWnd, lvItem.iItem, 1, action);
 
-                      saveCount++;
-                      deleteCount++;
-                      break;
-                    }
+                  saveCount++;
+                  deleteCount++;
 
-                  i++;
+                  ret = true;
+
+                  lvSortInfo.listWnd = listWnd;
+                  ret = ListView_SortItemsEx(listWnd, ListViewCompareProc, (LPARAM)&lvSortInfo);
+                  EnableWindow(saveWnd, false);
+                  EnableWindow(abortWnd, false);
+                  EnableWindow(appletWnd, false);
+                  EnableWindow(browseWnd, false);
+                  EnableWindow(aliasWnd, false);
+                  EnableWindow(aliasTextWnd, false);
+                  EnableWindow(actionTextWnd, false);
+                  EnableWindow(listWnd, true);
+                  edit = false;
+
+                  SetDlgItemText(hwndDlg, IDC_APPLET, TEXT(""));
+                  SetDlgItemText(hwndDlg, IDC_ALIAS, TEXT(""));
                 }
             }
           else
             {
-              if (!FindListSubItem(listWnd, 0, alias))
-                {
-                  lvItem.mask = LVIF_TEXT|LVIF_STATE;
-                  lvItem.iItem = ListView_GetItemCount(listWnd);
-                  lvItem.iSubItem = 0;
-                  lvItem.pszText = alias;
-                  lvItem.cchTextMax = (int)wcslen(lvItem.pszText);
-                  lvItem.state = LVIS_SELECTED;
-                  lvItem.stateMask = LVIS_SELECTED;
-                  if (ListView_InsertItem(listWnd, &lvItem) != -1)
-                    {
-                      ListView_SetItemText(listWnd, lvItem.iItem, 1, action);
-
-                      saveCount++;
-                      deleteCount++;
-
-                      ret = true;
-
-                      lvSortInfo.listWnd = listWnd;
-                      ret = ListView_SortItemsEx(listWnd, ListViewCompareProc, (LPARAM)&lvSortInfo);
-                      EnableWindow(saveWnd, false);
-                      EnableWindow(abortWnd, false);
-                      EnableWindow(appletWnd, false);
-                      EnableWindow(browseWnd, false);
-                      EnableWindow(aliasWnd, false);
-                      EnableWindow(aliasTextWnd, false);
-                      EnableWindow(actionTextWnd, false);
-                      EnableWindow(listWnd, true);
-                      edit = false;
-
-                      SetDlgItemText(hwndDlg, IDC_APPLET, TEXT(""));
-                      SetDlgItemText(hwndDlg, IDC_ALIAS, TEXT(""));
-                    }
-                }
-              else
-                {
-                  swprintf(error, TEXT("%s is already in the applet launch list"), alias);
-                  ELMessageBox(hwndDlg, error, (WCHAR*)TEXT("emergeCore"),
-                               ELMB_OK|ELMB_ICONERROR|ELMB_MODAL);
-                }
+              swprintf(error, TEXT("%s is already in the applet launch list"), alias);
+              ELMessageBox(hwndDlg, error, (WCHAR*)TEXT("emergeCore"),
+                           ELMB_OK|ELMB_ICONERROR|ELMB_MODAL);
             }
         }
     }
