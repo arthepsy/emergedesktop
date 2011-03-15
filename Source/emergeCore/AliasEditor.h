@@ -79,6 +79,8 @@ private:
   std::tr1::shared_ptr<Settings> pSettings;
   LISTVIEWSORTINFO lvSortInfo;
   WCHAR myName[MAX_LINE_LENGTH];
+  static LRESULT CALLBACK AliasProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
+  static LRESULT CALLBACK AppletProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
 };
 
 #endif

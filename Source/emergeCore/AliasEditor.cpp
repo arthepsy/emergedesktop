@@ -219,7 +219,100 @@ BOOL AliasEditor::DoInitDialog(HWND hwndDlg)
   lvSortInfo.listWnd = listWnd;
   ret = ListView_SortItemsEx(listWnd, ListViewCompareProc, (LPARAM)&lvSortInfo);
 
+  WNDPROC oldAliasProc;
+  oldAliasProc = (WNDPROC)SetWindowLongPtr(aliasWnd,GWLP_WNDPROC,(LONG_PTR)AliasProc);
+  SendMessage(aliasWnd, WM_APP+1, (WPARAM)hwndDlg, (LPARAM)oldAliasProc);
+
+  WNDPROC oldAppletProc;
+  oldAppletProc = (WNDPROC)SetWindowLongPtr(appletWnd,GWLP_WNDPROC,(LONG_PTR)AppletProc);
+  SendMessage(appletWnd, WM_APP+1, (WPARAM)hwndDlg, (LPARAM)oldAppletProc);
+
   return TRUE;
+}
+
+LRESULT CALLBACK AliasEditor::AliasProc(HWND hwnd,UINT message,WPARAM wParam,LPARAM lParam)
+{
+  static WNDPROC oldProc = NULL;
+  static HWND hwndDlg = NULL;
+
+  if (message == WM_APP+1)
+    {
+      hwndDlg = (HWND)wParam;
+      oldProc = (WNDPROC)lParam;
+    }
+
+  if ((oldProc == NULL) || (hwndDlg == NULL))
+    return DefWindowProc(hwnd, message, wParam, lParam);
+
+  switch (message)
+    {
+      /**< This is needed to capture the VK_RETURN */
+    case WM_GETDLGCODE:
+      return (DLGC_WANTALLKEYS|CallWindowProc(oldProc, hwnd, message, wParam, lParam));
+
+    case WM_CHAR:
+      /**< This is needed to avoid message beeps */
+      if ((wParam == VK_RETURN) || (wParam == VK_TAB))
+        return 0;
+      else
+        return (CallWindowProc(oldProc, hwnd, message, wParam, lParam));
+
+    case WM_KEYDOWN:
+      if ((wParam == VK_RETURN) || (wParam == VK_TAB))
+        {
+          PostMessage(hwndDlg, WM_NEXTDLGCTL, 0, 0);
+          return FALSE;
+        }
+      break;
+    }
+
+  return CallWindowProc(oldProc, hwnd, message, wParam, lParam);
+}
+
+LRESULT CALLBACK AliasEditor::AppletProc(HWND hwnd,UINT message,WPARAM wParam,LPARAM lParam)
+{
+  static WNDPROC oldProc = NULL;
+  static HWND hwndDlg = NULL;
+
+  if (message == WM_APP+1)
+    {
+      hwndDlg = (HWND)wParam;
+      oldProc = (WNDPROC)lParam;
+    }
+
+  if ((oldProc == NULL) || (hwndDlg == NULL))
+    return DefWindowProc(hwnd, message, wParam, lParam);
+
+  switch (message)
+    {
+      /**< This is needed to capture the VK_RETURN */
+    case WM_GETDLGCODE:
+      return (DLGC_WANTALLKEYS|CallWindowProc(oldProc, hwnd, message, wParam, lParam));
+
+    case WM_CHAR:
+      /**< This is needed to avoid message beeps */
+      if ((wParam == VK_RETURN) || (wParam == VK_TAB))
+        return 0;
+      else
+        return (CallWindowProc(oldProc, hwnd, message, wParam, lParam));
+
+    case WM_KEYDOWN:
+      if (wParam == VK_RETURN)
+        {
+          PostMessage(hwndDlg, WM_COMMAND, IDC_SAVEAPP, 0);
+          return FALSE;
+        }
+
+      if (wParam == VK_TAB)
+        {
+          PostMessage(hwndDlg, WM_NEXTDLGCTL, 0, 0);
+          return FALSE;
+        }
+
+      break;
+    }
+
+  return CallWindowProc(oldProc, hwnd, message, wParam, lParam);
 }
 
 bool AliasEditor::CheckSaveCount(HWND hwndDlg)
@@ -453,6 +546,7 @@ bool AliasEditor::DoAliasAdd(HWND hwndDlg)
   EnableWindow(aliasTextWnd, true);
   EnableWindow(listWnd, false);
 
+  SetFocus(aliasWnd);
   return true;
 }
 
