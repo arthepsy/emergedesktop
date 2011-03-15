@@ -1544,6 +1544,9 @@ bool ELExecute(LPTSTR application, LPTSTR workingDir, int nShow, WCHAR *verb)
 
   if (ELParseCommand(workingString.c_str(), program, arguments))
     workingString = program;
+  else
+    return false;
+
   shortcutInfo.flags = SI_PATH | SI_ARGUMENTS | SI_WORKINGDIR | SI_SHOW;
   if (ELParseShortcut(workingString.c_str(), &shortcutInfo))
     {
@@ -1699,18 +1702,18 @@ bool ELIsExecutable(WCHAR *extension)
 
 bool ELGetAppPath(const WCHAR *program, WCHAR *path)
 {
-  WCHAR appString[MAX_LINE_LENGTH];
+  std::wstring appString;
   DWORD size;
   HKEY key;
   bool ret = false;
 
-  swprintf(appString, TEXT("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\%s"),
-           program);
+  appString = TEXT("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\");
+  appString += program;
 
   if (wcslen(PathFindExtension(program)) == 0)
-    wcscat(appString, TEXT(".exe"));
+    appString += TEXT(".exe");
 
-  if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, appString, 0, KEY_ALL_ACCESS, &key) == ERROR_SUCCESS)
+  if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, appString.c_str(), 0, KEY_READ, &key) == ERROR_SUCCESS)
     {
       ret = (RegQueryValueEx(key, NULL, NULL, NULL, (BYTE*)path, &size) == ERROR_SUCCESS);
       RegCloseKey(key);

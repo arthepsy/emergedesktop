@@ -96,9 +96,6 @@ bool Desktop::Initialize(bool explorerDesktop)
 
 Desktop::~Desktop()
 {
-  std::wstring debug = L"In Desktop dtor";
-  ELWriteDebug(debug);
-
   if (registered)
     {
       // Unregister the window class
