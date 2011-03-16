@@ -222,6 +222,7 @@ BOOL AliasEditor::DoInitDialog(HWND hwndDlg)
   WNDPROC oldAliasProc;
   oldAliasProc = (WNDPROC)SetWindowLongPtr(aliasWnd,GWLP_WNDPROC,(LONG_PTR)AliasProc);
   SendMessage(aliasWnd, WM_APP+1, (WPARAM)hwndDlg, (LPARAM)oldAliasProc);
+  SendMessage(aliasWnd, WM_APP+2, 0, (LPARAM)this);
 
   WNDPROC oldAppletProc;
   oldAppletProc = (WNDPROC)SetWindowLongPtr(appletWnd,GWLP_WNDPROC,(LONG_PTR)AppletProc);
@@ -234,6 +235,8 @@ LRESULT CALLBACK AliasEditor::AliasProc(HWND hwnd,UINT message,WPARAM wParam,LPA
 {
   static WNDPROC oldProc = NULL;
   static HWND hwndDlg = NULL;
+  static AliasEditor *pThis = NULL;
+  WCHAR alias[MAX_LINE_LENGTH];
 
   if (message == WM_APP+1)
     {
@@ -241,7 +244,10 @@ LRESULT CALLBACK AliasEditor::AliasProc(HWND hwnd,UINT message,WPARAM wParam,LPA
       oldProc = (WNDPROC)lParam;
     }
 
-  if ((oldProc == NULL) || (hwndDlg == NULL))
+  if (message == WM_APP+2)
+    pThis = (AliasEditor*)lParam;
+
+  if ((oldProc == NULL) || (hwndDlg == NULL) || (pThis == NULL))
     return DefWindowProc(hwnd, message, wParam, lParam);
 
   switch (message)
@@ -252,7 +258,7 @@ LRESULT CALLBACK AliasEditor::AliasProc(HWND hwnd,UINT message,WPARAM wParam,LPA
 
     case WM_CHAR:
       /**< This is needed to avoid message beeps */
-      if ((wParam == VK_RETURN) || (wParam == VK_TAB))
+      if ((wParam == VK_RETURN) || (wParam == VK_TAB) || (wParam == VK_ESCAPE))
         return 0;
       else
         return (CallWindowProc(oldProc, hwnd, message, wParam, lParam));
@@ -260,7 +266,17 @@ LRESULT CALLBACK AliasEditor::AliasProc(HWND hwnd,UINT message,WPARAM wParam,LPA
     case WM_KEYDOWN:
       if ((wParam == VK_RETURN) || (wParam == VK_TAB))
         {
-          PostMessage(hwndDlg, WM_NEXTDLGCTL, 0, 0);
+          GetWindowText(hwnd, alias, MAX_LINE_LENGTH);
+
+          if (pThis->AliasCheck(hwndDlg, alias))
+            PostMessage(hwndDlg, WM_NEXTDLGCTL, 0, 0);
+
+          return FALSE;
+        }
+
+      if (wParam == VK_ESCAPE)
+        {
+          PostMessage(hwndDlg, WM_COMMAND, IDC_ABORTAPP, 0);
           return FALSE;
         }
       break;
@@ -273,6 +289,7 @@ LRESULT CALLBACK AliasEditor::AppletProc(HWND hwnd,UINT message,WPARAM wParam,LP
 {
   static WNDPROC oldProc = NULL;
   static HWND hwndDlg = NULL;
+  WCHAR error[MAX_LINE_LENGTH], action[MAX_LINE_LENGTH];
 
   if (message == WM_APP+1)
     {
@@ -291,7 +308,7 @@ LRESULT CALLBACK AliasEditor::AppletProc(HWND hwnd,UINT message,WPARAM wParam,LP
 
     case WM_CHAR:
       /**< This is needed to avoid message beeps */
-      if ((wParam == VK_RETURN) || (wParam == VK_TAB))
+      if ((wParam == VK_RETURN) || (wParam == VK_TAB) || (wParam == VK_ESCAPE))
         return 0;
       else
         return (CallWindowProc(oldProc, hwnd, message, wParam, lParam));
@@ -299,7 +316,17 @@ LRESULT CALLBACK AliasEditor::AppletProc(HWND hwnd,UINT message,WPARAM wParam,LP
     case WM_KEYDOWN:
       if (wParam == VK_RETURN)
         {
-          PostMessage(hwndDlg, WM_COMMAND, IDC_SAVEAPP, 0);
+          GetWindowText(hwnd, action, MAX_LINE_LENGTH);
+          if (wcslen(action) == 0)
+            {
+              swprintf(error, TEXT("Action is empty."));
+              ELMessageBox(hwndDlg, error, (WCHAR*)TEXT("emergeCore"),
+                           ELMB_OK|ELMB_ICONERROR|ELMB_MODAL);
+            }
+          else
+            {
+              PostMessage(hwndDlg, WM_COMMAND, IDC_SAVEAPP, 0);
+            }
           return FALSE;
         }
 
@@ -309,6 +336,11 @@ LRESULT CALLBACK AliasEditor::AppletProc(HWND hwnd,UINT message,WPARAM wParam,LP
           return FALSE;
         }
 
+      if (wParam == VK_ESCAPE)
+        {
+          PostMessage(hwndDlg, WM_COMMAND, IDC_ABORTAPP, 0);
+          return FALSE;
+        }
       break;
     }
 
@@ -591,6 +623,7 @@ bool AliasEditor::DoAliasAbort(HWND hwndDlg)
   EnableWindow(listWnd, true);
   edit = false;
 
+  SetFocus(aliasWnd);
   return true;
 }
 
@@ -613,20 +646,34 @@ bool AliasEditor::FindListSubItem(HWND listWnd, int subItem, WCHAR *searchString
   return ret;
 }
 
-bool AliasEditor::SpaceCheck(WCHAR *alias)
+bool AliasEditor::AliasCheck(HWND hwndDlg, WCHAR *alias)
 {
   size_t aliasLength = wcslen(alias);
-  bool ret = false;
+  WCHAR error[MAX_LINE_LENGTH];
+
+  if (aliasLength == 0)
+    return false;
+
+  if (alias[0] != '.')
+    {
+      swprintf(error, TEXT("Alias must start with a period (.)"));
+      ELMessageBox(hwndDlg, error, (WCHAR*)TEXT("emergeCore"),
+                   ELMB_OK|ELMB_ICONERROR|ELMB_MODAL);
+      return false;
+    }
+
   for (size_t i = 0; i < aliasLength; i++)
     {
       if (alias[i] == ' ')
         {
-          ret = true;
-          break;
+          swprintf(error, TEXT("Alias cannot contain spaces"));
+          ELMessageBox(hwndDlg, error, (WCHAR*)TEXT("emergeCore"),
+                       ELMB_OK|ELMB_ICONERROR|ELMB_MODAL);
+          return false;
         }
     }
 
-  return ret;
+  return true;
 }
 
 bool AliasEditor::DoAliasSave(HWND hwndDlg)
@@ -652,21 +699,8 @@ bool AliasEditor::DoAliasSave(HWND hwndDlg)
 
   if (wcslen(alias) > 0)
     {
-      if (alias[0] != '.')
-        {
-          swprintf(error, TEXT("Alias must start with a period (.)"));
-          ELMessageBox(hwndDlg, error, (WCHAR*)TEXT("emergeCore"),
-                       ELMB_OK|ELMB_ICONERROR|ELMB_MODAL);
-          return ret;
-        }
-
-      if (SpaceCheck(alias))
-        {
-          swprintf(error, TEXT("Alias cannot contain spaces"));
-          ELMessageBox(hwndDlg, error, (WCHAR*)TEXT("emergeCore"),
-                       ELMB_OK|ELMB_ICONERROR|ELMB_MODAL);
-          return ret;
-        }
+      if (!AliasCheck(hwndDlg, alias))
+        return ret;
 
       if (edit)
         {
@@ -679,6 +713,8 @@ bool AliasEditor::DoAliasSave(HWND hwndDlg)
 
                   saveCount++;
                   deleteCount++;
+
+                  ret = true;
                   break;
                 }
 
@@ -703,20 +739,8 @@ bool AliasEditor::DoAliasSave(HWND hwndDlg)
                   saveCount++;
                   deleteCount++;
 
-                  ret = true;
-
                   lvSortInfo.listWnd = listWnd;
                   ret = ListView_SortItemsEx(listWnd, ListViewCompareProc, (LPARAM)&lvSortInfo);
-                  EnableWindow(saveWnd, false);
-                  EnableWindow(abortWnd, false);
-                  EnableWindow(appletWnd, false);
-                  EnableWindow(browseWnd, false);
-                  EnableWindow(aliasWnd, false);
-                  EnableWindow(aliasTextWnd, false);
-                  EnableWindow(actionTextWnd, false);
-                  EnableWindow(listWnd, true);
-                  edit = false;
-
                   SetDlgItemText(hwndDlg, IDC_APPLET, TEXT(""));
                   SetDlgItemText(hwndDlg, IDC_ALIAS, TEXT(""));
                 }
@@ -728,6 +752,21 @@ bool AliasEditor::DoAliasSave(HWND hwndDlg)
                            ELMB_OK|ELMB_ICONERROR|ELMB_MODAL);
             }
         }
+    }
+
+  if (ret)
+    {
+      EnableWindow(saveWnd, false);
+      EnableWindow(abortWnd, false);
+      EnableWindow(appletWnd, false);
+      EnableWindow(browseWnd, false);
+      EnableWindow(aliasWnd, false);
+      EnableWindow(aliasTextWnd, false);
+      EnableWindow(actionTextWnd, false);
+      EnableWindow(listWnd, true);
+      edit = false;
+
+      SetFocus(listWnd);
     }
 
   return ret;
