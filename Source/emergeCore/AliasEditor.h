@@ -39,6 +39,9 @@
 #include "../emergeLib/emergeLib.h"
 #include "settings.h"
 
+#define HOTKEY_N  1
+#define HOTKEY_E  2
+
 typedef struct tagLISTVIEWSORTINFO
 {
   HWND listWnd;
@@ -54,6 +57,7 @@ public:
   BOOL DoInitDialog(HWND hwndDlg);
   BOOL DoCommand(HWND hwndDlg, WPARAM wParam, LPARAM lParam);
   BOOL DoNotify(HWND hwndDlg, LPARAM lParam);
+  BOOL DoHotkey(HWND hwndDlg, int hotkeyID);
   bool UpdateAliases(HWND hwndDlg);
   static INT_PTR CALLBACK AliasDlgProc(HWND hwndDlg, UINT message, WPARAM wParam, LPARAM lParam);
   static int CALLBACK ListViewCompareProc (LPARAM lParam1, LPARAM lParam2, LPARAM lParamSort);
@@ -62,10 +66,10 @@ public:
 private:
   bool CheckFields(HWND hwndDlg);
   bool PopulateList(HWND listWnd);
-  bool DoAliasAdd(HWND listWnd);
+  bool DoAliasAdd(HWND hwndDlg);
   bool DoAliasSave(HWND listWnd);
   bool DoAliasAbort(HWND listWnd);
-  bool DoAliasDelete(HWND listWnd);
+  bool DoAliasDelete(HWND hwndDlg);
   bool DoAliasBrowse(HWND listWnd);
   bool CheckSaveCount(HWND hwndDlg);
   void InsertListViewItem(HWND listWnd, int index, const WCHAR *item);

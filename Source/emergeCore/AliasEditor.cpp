@@ -40,6 +40,9 @@ INT_PTR CALLBACK AliasEditor::AliasDlgProc(HWND hwndDlg, UINT message, WPARAM wP
 
     case WM_NOTIFY:
       return pAliasEditor->DoNotify(hwndDlg, lParam);
+
+    case WM_HOTKEY:
+      return pAliasEditor->DoHotkey(hwndDlg, wParam);
     }
 
   return FALSE;
@@ -228,6 +231,24 @@ BOOL AliasEditor::DoInitDialog(HWND hwndDlg)
   oldAppletProc = (WNDPROC)SetWindowLongPtr(appletWnd,GWLP_WNDPROC,(LONG_PTR)AppletProc);
   SendMessage(appletWnd, WM_APP+1, (WPARAM)hwndDlg, (LPARAM)oldAppletProc);
 
+  if (!RegisterHotKey(hwndDlg, HOTKEY_N, MOD_CONTROL, 'N'))
+    {
+      ELMessageBox(hwndDlg,
+                   (WCHAR*)TEXT("Failed to register Hotkey combination Ctrl+N"),
+                   (WCHAR*)TEXT("emergeCore"),
+                   ELMB_OK|ELMB_ICONERROR|ELMB_MODAL);
+      return FALSE;
+    }
+
+  if (!RegisterHotKey(hwndDlg, HOTKEY_E, MOD_CONTROL, 'E'))
+    {
+      ELMessageBox(hwndDlg,
+                   (WCHAR*)TEXT("Failed to register Hotkey combination Ctrl+E"),
+                   (WCHAR*)TEXT("emergeCore"),
+                   ELMB_OK|ELMB_ICONERROR|ELMB_MODAL);
+      return FALSE;
+    }
+
   return TRUE;
 }
 
@@ -383,6 +404,28 @@ bool AliasEditor::CheckFields(HWND hwndDlg)
     }
 
   return true;
+}
+
+BOOL AliasEditor::DoHotkey(HWND hwndDlg, int hotkeyID)
+{
+  HWND appletWnd = GetDlgItem(hwndDlg, IDC_APPLET);
+  HWND aliasWnd = GetDlgItem(hwndDlg, IDC_ALIAS);
+
+  if (!IsWindowEnabled(appletWnd) && !IsWindowEnabled(aliasWnd))
+    {
+      switch (hotkeyID)
+        {
+        case HOTKEY_N:
+          DoAliasAdd(hwndDlg);
+          break;
+        case HOTKEY_E:
+          edit = true;
+          DoAliasAdd(hwndDlg);
+          break;
+        }
+    }
+
+  return TRUE;
 }
 
 BOOL AliasEditor::DoCommand(HWND hwndDlg, WPARAM wParam, LPARAM lParam UNUSED)
@@ -843,6 +886,8 @@ BOOL AliasEditor::DoNotify(HWND hwndDlg, LPARAM lParam)
   HWND listWnd = GetDlgItem(hwndDlg, IDC_APPLETLIST);
   HWND delWnd = GetDlgItem(hwndDlg, IDC_DELAPP);
   HWND editWnd = GetDlgItem(hwndDlg, IDC_EDITAPP);
+  HWND appletWnd = GetDlgItem(hwndDlg, IDC_APPLET);
+  HWND aliasWnd = GetDlgItem(hwndDlg, IDC_ALIAS);
   int subItem;
   BOOL ret;
 
@@ -852,6 +897,11 @@ BOOL AliasEditor::DoNotify(HWND hwndDlg, LPARAM lParam)
       EnableWindow(delWnd, true);
       EnableWindow(editWnd, true);
       return PopulateFields(hwndDlg, ((LPNMLISTVIEW)lParam)->iItem);
+
+    case LVN_KEYDOWN:
+      if (!IsWindowEnabled(appletWnd) && !IsWindowEnabled(aliasWnd) && (((LPNMLVKEYDOWN) lParam)->wVKey == VK_DELETE))
+        DoAliasDelete(hwndDlg);
+      return TRUE;
 
     case LVN_COLUMNCLICK:
       subItem = ((LPNMLISTVIEW)lParam)->iSubItem;
