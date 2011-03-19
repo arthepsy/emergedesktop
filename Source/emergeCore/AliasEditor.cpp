@@ -172,19 +172,19 @@ BOOL AliasEditor::DoInitDialog(HWND hwndDlg)
   ti.hwnd = addWnd;
   ti.uId = (ULONG_PTR)addWnd;
   ti.hinst = hInstance;
-  ti.lpszText = (WCHAR*)TEXT("Add Alias");
+  ti.lpszText = (WCHAR*)TEXT("New Alias (Ctrl+N)");
   GetClientRect(addWnd, &ti.rect);
   SendMessage(toolWnd, TTM_ADDTOOL, 0, (LPARAM)(LPTOOLINFO)&ti);
 
   ti.hwnd = delWnd;
   ti.uId = (ULONG_PTR)delWnd;
-  ti.lpszText = (WCHAR*)TEXT("Delete Alias");
+  ti.lpszText = (WCHAR*)TEXT("Delete Alias (Del)");
   GetClientRect(delWnd, &ti.rect);
   SendMessage(toolWnd, TTM_ADDTOOL, 0, (LPARAM)(LPTOOLINFO)&ti);
 
   ti.hwnd = editWnd;
   ti.uId = (ULONG_PTR)editWnd;
-  ti.lpszText = (WCHAR*)TEXT("Edit Alias");
+  ti.lpszText = (WCHAR*)TEXT("Edit Alias (Ctrl+E)");
   GetClientRect(editWnd, &ti.rect);
   SendMessage(toolWnd, TTM_ADDTOOL, 0, (LPARAM)(LPTOOLINFO)&ti);
 
