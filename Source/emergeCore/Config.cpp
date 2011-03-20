@@ -51,8 +51,9 @@ Config::~Config()
 {
 }
 
-int Config::Show()
+int Config::Show(UINT startPage)
 {
+  this->startPage = startPage;
   return (int)DialogBoxParam(hInstance, MAKEINTRESOURCE(IDD_CONFIG), mainWnd, (DLGPROC)ConfigDlgProc, (LPARAM)this);
 }
 
@@ -99,7 +100,7 @@ INT_PTR Config::DoInitDialog(HWND hwndDlg)
   psh.pszCaption = TEXT("emergeCore Configuration");
   psh.nPages = sizeof(psp) /
                sizeof(PROPSHEETPAGE);
-  psh.nStartPage = 0;
+  psh.nStartPage = startPage;
   psh.ppsp = (LPCPROPSHEETPAGE) &psp;
   psh.pfnCallback = NULL;
 

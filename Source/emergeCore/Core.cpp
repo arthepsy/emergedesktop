@@ -442,8 +442,11 @@ LRESULT Core::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
           break;
 
         case CORE_CONFIGURE:
-          ShowConfig();
+          ShowConfig(0);
           break;
+
+        case CORE_ALIAS:
+          ShowConfig(2);
         }
 
       return 0;
@@ -456,12 +459,12 @@ LRESULT Core::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
   return 0;
 }
 
-void Core::ShowConfig()
+void Core::ShowConfig(UINT startPage)
 {
   Config config(mainInst, mainWnd, pSettings);
   bool oldShowExplorerDesktop = pSettings->GetShowExplorerDesktop();
 
-  if (config.Show() == IDOK)
+  if (config.Show(startPage) == IDOK)
     {
       if (oldShowExplorerDesktop != pSettings->GetShowExplorerDesktop())
         {

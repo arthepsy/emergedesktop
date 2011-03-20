@@ -42,7 +42,7 @@ class Config
 public:
   Config(HINSTANCE hInstance, HWND mainWnd, std::tr1::shared_ptr<Settings> pSettings);
   ~Config();
-  int Show();
+  int Show(UINT startPage);
   INT_PTR DoInitDialog(HWND hwndDlg);
 
 private:
@@ -52,6 +52,7 @@ private:
   std::tr1::shared_ptr<Settings> pSettings;
   HINSTANCE hInstance;
   HWND mainWnd;
+  UINT startPage;
   static INT_PTR CALLBACK ConfigDlgProc(HWND hwndDlg, UINT message, WPARAM wParam, LPARAM lParam);
 };
 

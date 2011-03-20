@@ -255,6 +255,7 @@ void ItemEditor::PopulateCommands(HWND commandWnd)
   SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("CoreSettings"));
   SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("CoreShellChanger"));
   SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("CoreAbout"));
+  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("CoreAliasEditor"));
   SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Homepage"));
   SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Tutorial"));
 }

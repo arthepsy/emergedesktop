@@ -63,7 +63,7 @@ public:
   Core(HINSTANCE hInstance);
   ~Core();
   void About();
-  void ShowConfig();
+  void ShowConfig(UINT startPage);
   bool Initialize(WCHAR *commandLine);
   LRESULT DoWTSSessionChange(UINT message);
   LRESULT DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
