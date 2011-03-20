@@ -1911,10 +1911,10 @@ void MenuBuilder::ExecuteSettingsMenuItem(UINT index)
       ELExecuteInternal((WCHAR*)TEXT("CoreSettings"));
       break;
     case BSM_SHELL:
-      ELExecuteInternal((WCHAR*)TEXT("CoreShellChanger"));
+      ELExecuteInternal((WCHAR*)TEXT("ShellChanger"));
       break;
     case BSM_SELECTTHEME:
-      ELExecuteInternal((WCHAR*)TEXT("CoreThemeSelector"));
+      ELExecuteInternal((WCHAR*)TEXT("ThemeManager"));
       break;
     case BSM_QUIT:
       ELQuit(true);
@@ -1927,7 +1927,7 @@ void MenuBuilder::ExecuteHelpMenuItem(UINT index)
   switch (++index)
     {
     case BHM_ABOUT:
-      ELExecuteInternal((WCHAR*)TEXT("CoreAbout"));
+      ELExecuteInternal((WCHAR*)TEXT("About"));
       break;
     case BHM_OFFLINE:
       ELExecute((WCHAR*)TEXT("%AppletDir%\\Documentation\\Emerge Desktop.chm"));

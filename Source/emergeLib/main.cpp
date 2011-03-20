@@ -1184,31 +1184,31 @@ bool ELExecuteInternal(LPTSTR command)
       PostMessage(ELGetCoreWindow(), EMERGE_DISPATCH, (WPARAM)EMERGE_CORE, (LPARAM)CORE_CONFIGURE);
       return true;
     }
-  else if (_wcsicmp(command, TEXT("CoreAliasEditor")) == 0)
+  else if (_wcsicmp(command, TEXT("AliasEditor")) == 0)
     {
       ELSwitchToThisWindow(ELGetCoreWindow());
       PostMessage(ELGetCoreWindow(), EMERGE_DISPATCH, (WPARAM)EMERGE_CORE, (LPARAM)CORE_ALIAS);
       return true;
     }
-  else if (_wcsicmp(command, TEXT("CoreLaunchEditor")) == 0)
+  else if ((_wcsicmp(command, TEXT("LaunchEditor")) == 0) || (_wcsicmp(command, TEXT("CoreLaunchEditor")) == 0))
     {
       ELSwitchToThisWindow(ELGetCoreWindow());
       PostMessage(ELGetCoreWindow(), EMERGE_DISPATCH, (WPARAM)EMERGE_CORE, (LPARAM)CORE_LAUNCH);
       return true;
     }
-  else if (_wcsicmp(command, TEXT("CoreShellChanger")) == 0)
+  else if ((_wcsicmp(command, TEXT("ShellChanger")) == 0) || (_wcsicmp(command, TEXT("CoreShellChanger")) == 0))
     {
       ELSwitchToThisWindow(ELGetCoreWindow());
       PostMessage(ELGetCoreWindow(), EMERGE_DISPATCH, (WPARAM)EMERGE_CORE, (LPARAM)CORE_SHELL);
       return true;
     }
-  else if (_wcsicmp(command, TEXT("CoreThemeSelector")) == 0)
+  else if ((_wcsicmp(command, TEXT("ThemeManager")) == 0) || (_wcsicmp(command, TEXT("CoreThemeSelector")) == 0))
     {
       ELSwitchToThisWindow(ELGetCoreWindow());
       PostMessage(ELGetCoreWindow(), EMERGE_DISPATCH, (WPARAM)EMERGE_CORE, (LPARAM)CORE_THEMESELECT);
       return true;
     }
-  else if (_wcsicmp(command, TEXT("CoreAbout")) == 0)
+  else if ((_wcsicmp(command, TEXT("About")) == 0) || (_wcsicmp(command, TEXT("CoreAbout")) == 0))
     {
       ELSwitchToThisWindow(ELGetCoreWindow());
       PostMessage(ELGetCoreWindow(), EMERGE_DISPATCH, (WPARAM)EMERGE_CORE, (LPARAM)CORE_ABOUT);
