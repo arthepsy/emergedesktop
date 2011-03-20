@@ -447,6 +447,11 @@ LRESULT Core::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 
         case CORE_ALIAS:
           ShowConfig(2);
+          break;
+
+        case CORE_LAUNCH:
+          ShowConfig(1);
+          break;
         }
 
       return 0;

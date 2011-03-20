@@ -647,6 +647,7 @@ void LaunchPage::PopulateComboBoxes(HWND hwndDlg)
   SendMessage(internalWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("CoreShellChanger"));
   SendMessage(internalWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("CoreAbout"));
   SendMessage(internalWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("CoreAliasEditor"));
+  SendMessage(internalWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("CoreLaunchEditor"));
   SendMessage(internalWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Homepage"));
   SendMessage(internalWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Tutorial"));
 }
