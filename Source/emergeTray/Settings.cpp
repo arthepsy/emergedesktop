@@ -313,47 +313,38 @@ WCHAR *Settings::GetHideListItem(UINT item)
   return (WCHAR*)hideList[item].c_str();
 }
 
-void Settings::ClearHiddenList()
-{
-  UINT i = 0, j = 0;
-  Applet *pApplet = reinterpret_cast<Applet*>(lParam);
-
-  while (i < pApplet->GetTrayIconListSize())
-    {
-      while (j < hideList.size())
-        {
-          if (wcsstr(pApplet->GetTrayIconListItem(i)->GetTip(), hideList[j].c_str()))
-            pApplet->GetTrayIconListItem(i)->SetHidden(false);
-          j++;
-        }
-
-      j = 0;
-      i++;
-    }
-
-  while (!hideList.empty())
-    hideList.erase(hideList.begin());
-}
-
-void Settings::DeleteHideListItem(UINT item)
+void Settings::DeleteHideListItem(WCHAR *itemText)
 {
   UINT i = 0;
   Applet *pApplet = reinterpret_cast<Applet*>(lParam);
+  std::vector<std::wstring>::iterator iter = hideList.begin();
 
   while (i < pApplet->GetTrayIconListSize())
     {
-      if (wcsstr(pApplet->GetTrayIconListItem(i)->GetTip(), hideList[item].c_str()))
+      if (wcsstr(pApplet->GetTrayIconListItem(i)->GetTip(), itemText))
         pApplet->GetTrayIconListItem(i)->SetHidden(false);
 
       i++;
     }
 
-  hideList.erase(hideList.begin() + item);
+  while (iter != hideList.end())
+  {
+    if ((*iter) == itemText)
+      hideList.erase(iter);
+    iter++;
+  }
 }
 
-void Settings::ModifyHideListItem(UINT item, WCHAR *itemText)
+void Settings::ModifyHideListItem(WCHAR *oldText, WCHAR *newText)
 {
-  hideList[item] = itemText;
+  std::vector<std::wstring>::iterator iter = hideList.begin();
+
+  while (iter != hideList.end())
+  {
+    if ((*iter) == oldText)
+      (*iter) = newText;
+    iter++;
+  }
 }
 
 void Settings::AddHideListItem(WCHAR *item)

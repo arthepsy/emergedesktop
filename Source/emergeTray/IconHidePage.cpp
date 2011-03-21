@@ -327,24 +327,10 @@ BOOL IconHidePage::DoCommand(HWND hwndDlg, WPARAM wParam, LPARAM lParam UNUSED)
 
 bool IconHidePage::UpdateSettings(HWND hwndDlg)
 {
-  HWND listWnd = GetDlgItem(hwndDlg, IDC_HIDELIST);
-  WCHAR hiddenText[MAX_LINE_LENGTH];
-  int i = 0;
-
   if (SendDlgItemMessage(hwndDlg, IDC_UNHIDE, BM_GETCHECK, 0, 0) == BST_CHECKED)
     pSettings->SetUnhideIcons(true);
   else if (SendDlgItemMessage(hwndDlg, IDC_UNHIDE, BM_GETCHECK, 0, 0) == BST_UNCHECKED)
     pSettings->SetUnhideIcons(false);
-
-  pSettings->ClearHiddenList();
-
-  while (i < ListView_GetItemCount(listWnd))
-    {
-      ListView_GetItemText(listWnd, i, 0, hiddenText, MAX_LINE_LENGTH);
-      pSettings->AddHideListItem(hiddenText);
-
-      i++;
-    }
 
   pSettings->WriteSettings();
   pSettings->WriteHideList();
@@ -405,7 +391,7 @@ bool IconHidePage::DoSave(HWND hwndDlg)
   bool ret = false;
   LVFINDINFO lvFI;
   LVITEM lvItem;
-  WCHAR tmp[MAX_LINE_LENGTH], error[MAX_LINE_LENGTH];
+  WCHAR tmp[MAX_LINE_LENGTH], error[MAX_LINE_LENGTH], itemText[MAX_LINE_LENGTH];
 
   ZeroMemory(tmp, MAX_LINE_LENGTH);
 
@@ -437,13 +423,16 @@ bool IconHidePage::DoSave(HWND hwndDlg)
 
                   i++;
                 }
+              ListView_GetItemText(listWnd, i, 0, itemText, MAX_LINE_LENGTH);
               if (ListView_DeleteItem(listWnd, i))
                 {
+                  pSettings->ModifyHideListItem(itemText, tmp);
                   lvItem.iItem = i;
                 }
             }
           else
             {
+              pSettings->AddHideListItem(tmp);
               lvItem.iItem = ListView_GetItemCount(listWnd);
             }
 
@@ -489,6 +478,7 @@ bool IconHidePage::DoDelete(HWND hwndDlg)
   UINT i = 0;
   int prevItem = 0;
   BOOL bRet;
+  WCHAR itemText[MAX_LINE_LENGTH];
 
   if (ListView_GetSelectedCount(listWnd) > 1)
     {
@@ -505,7 +495,9 @@ bool IconHidePage::DoDelete(HWND hwndDlg)
           deleteCount++;
           ret = true;
           prevItem = ListView_GetNextItem(listWnd, i, LVNI_ABOVE);
+          ListView_GetItemText(listWnd, i, 0, itemText, MAX_LINE_LENGTH);
           bRet = ListView_DeleteItem(listWnd, i);
+          pSettings->DeleteHideListItem(itemText);
 
           ListView_SetItemState(listWnd, i, LVIS_SELECTED,
                                 LVIS_SELECTED);

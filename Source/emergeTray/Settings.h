@@ -35,8 +35,8 @@ public:
   bool SetUnhideIcons(bool unhideIcons);
   UINT GetHideListSize();
   WCHAR *GetHideListItem(UINT item);
-  void DeleteHideListItem(UINT item);
-  void ModifyHideListItem(UINT item, WCHAR *itemText);
+  void DeleteHideListItem(WCHAR *itemText);
+  void ModifyHideListItem(WCHAR *oldText, WCHAR *newText);
   bool CheckHide(WCHAR *iconTip);
   void AddHideListItem(WCHAR *item);
   void WriteHideList();
@@ -57,7 +57,6 @@ public:
   bool SetAlpha(int alpha);
   WCHAR *GetGradientMethod();
   bool SetGradientMethod(WCHAR *gradientMethod);
-  void ClearHiddenList();
 
 protected:
   virtual void DoReadSettings(IOHelper& helper);
