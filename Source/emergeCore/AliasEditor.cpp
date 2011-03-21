@@ -666,7 +666,7 @@ bool AliasEditor::DoAliasAbort(HWND hwndDlg)
   EnableWindow(listWnd, true);
   edit = false;
 
-  SetFocus(aliasWnd);
+  SetFocus(listWnd);
   return true;
 }
 
