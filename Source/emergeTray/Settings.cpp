@@ -313,6 +313,28 @@ WCHAR *Settings::GetHideListItem(UINT item)
   return (WCHAR*)hideList[item].c_str();
 }
 
+void Settings::ClearHiddenList()
+{
+  UINT i = 0, j = 0;
+  Applet *pApplet = reinterpret_cast<Applet*>(lParam);
+
+  while (i < pApplet->GetTrayIconListSize())
+    {
+      while (j < hideList.size())
+        {
+          if (wcsstr(pApplet->GetTrayIconListItem(i)->GetTip(), hideList[j].c_str()))
+            pApplet->GetTrayIconListItem(i)->SetHidden(false);
+          j++;
+        }
+
+      j = 0;
+      i++;
+    }
+
+  while (!hideList.empty())
+    hideList.erase(hideList.begin());
+}
+
 void Settings::DeleteHideListItem(UINT item)
 {
   UINT i = 0;

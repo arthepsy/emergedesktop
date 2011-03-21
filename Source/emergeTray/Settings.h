@@ -57,6 +57,7 @@ public:
   bool SetAlpha(int alpha);
   WCHAR *GetGradientMethod();
   bool SetGradientMethod(WCHAR *gradientMethod);
+  void ClearHiddenList();
 
 protected:
   virtual void DoReadSettings(IOHelper& helper);

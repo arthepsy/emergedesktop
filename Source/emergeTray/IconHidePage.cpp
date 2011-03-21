@@ -327,10 +327,24 @@ BOOL IconHidePage::DoCommand(HWND hwndDlg, WPARAM wParam, LPARAM lParam UNUSED)
 
 bool IconHidePage::UpdateSettings(HWND hwndDlg)
 {
+  HWND listWnd = GetDlgItem(hwndDlg, IDC_HIDELIST);
+  WCHAR hiddenText[MAX_LINE_LENGTH];
+  int i = 0;
+
   if (SendDlgItemMessage(hwndDlg, IDC_UNHIDE, BM_GETCHECK, 0, 0) == BST_CHECKED)
     pSettings->SetUnhideIcons(true);
   else if (SendDlgItemMessage(hwndDlg, IDC_UNHIDE, BM_GETCHECK, 0, 0) == BST_UNCHECKED)
     pSettings->SetUnhideIcons(false);
+
+  pSettings->ClearHiddenList();
+
+  while (i < ListView_GetItemCount(listWnd))
+    {
+      ListView_GetItemText(listWnd, i, 0, hiddenText, MAX_LINE_LENGTH);
+      pSettings->AddHideListItem(hiddenText);
+
+      i++;
+    }
 
   pSettings->WriteSettings();
   pSettings->WriteHideList();
@@ -425,13 +439,11 @@ bool IconHidePage::DoSave(HWND hwndDlg)
                 }
               if (ListView_DeleteItem(listWnd, i))
                 {
-                  pSettings->ModifyHideListItem(i, tmp);
                   lvItem.iItem = i;
                 }
             }
           else
             {
-              pSettings->AddHideListItem(tmp);
               lvItem.iItem = ListView_GetItemCount(listWnd);
             }
 
@@ -494,7 +506,6 @@ bool IconHidePage::DoDelete(HWND hwndDlg)
           ret = true;
           prevItem = ListView_GetNextItem(listWnd, i, LVNI_ABOVE);
           bRet = ListView_DeleteItem(listWnd, i);
-          pSettings->DeleteHideListItem(i);
 
           ListView_SetItemState(listWnd, i, LVIS_SELECTED,
                                 LVIS_SELECTED);
