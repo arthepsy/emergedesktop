@@ -592,6 +592,9 @@ const char* TiXmlBase::ReadText(	const char* p,
 			p = GetChar( p, cArr, &len, encoding );
 			text->append( cArr, len );
 		}
+		if( p && !*p ) {
+			p = 0;
+		}
 	}
 	else
 	{
@@ -629,6 +632,9 @@ const char* TiXmlBase::ReadText(	const char* p,
 				else
 					text->append( cArr, len );
 			}
+		}
+		if( p && !*p ) {
+			p = 0;
 		}
 	}
 	if ( p && *p ) 

@@ -1350,6 +1350,13 @@ int main()
 		xml.Print(stdout);
 	}
 	*/
+
+	{
+		// This one must not result in an infinite loop
+		TiXmlDocument xml;
+		xml.Parse( "<infinite>loop" );
+	}
+
 	#if defined( WIN32 ) && defined( TUNE )
 	_CrtMemCheckpoint( &endMemState );
 	//_CrtMemDumpStatistics( &endMemState );
