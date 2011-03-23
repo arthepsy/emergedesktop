@@ -209,7 +209,7 @@ void ShellChanger::PopulateShells(HWND shellWnd)
   bool doCheck = false;
   int shellIndex = -1;
   std::tr1::shared_ptr<TiXmlDocument> configXML;
-  TiXmlElement *first, *sibling, *section;
+  TiXmlElement *first, *sibling, *section = NULL, *settings = NULL;
 
   size = MAX_LINE_LENGTH * sizeof(currentShell[0]);
   if (RegCreateKeyEx(HKEY_CURRENT_USER,
@@ -241,8 +241,11 @@ void ShellChanger::PopulateShells(HWND shellWnd)
   configXML = ELOpenXMLConfig(xmlFile, false);
   if (configXML)
     {
-      section = ELGetXMLSection(configXML.get(), (WCHAR*)TEXT("Shells"), false);
-
+      settings = ELGetXMLSection(configXML.get(), (WCHAR*)TEXT("Settings"), false);
+      if (settings)
+        section = ELGetFirstXMLElementByName(settings, (WCHAR*)TEXT("Shells"), false);
+      if (section == NULL) /**< Handle the broken file format where Shells is a top level XML element */
+        section = ELGetXMLSection(configXML.get(), (WCHAR*)TEXT("Shells"), false);
       if (section)
         {
           first = ELGetFirstXMLElement(section);
@@ -385,7 +388,7 @@ bool ShellChanger::DoSetShell(HWND hwndDlg)
       process = 1;
       wcscpy(command, TEXT("yes"));
       //RegSetValueEx(key, TEXT("DesktopProcess"), 0, REG_DWORD, (BYTE*)&process,
-                    //sizeof(DWORD));
+      //sizeof(DWORD));
       RegSetValueEx(key, TEXT("BrowseNewProcess"), 0, REG_SZ, (BYTE*)command,
                     (DWORD)wcslen(command) * sizeof(command[0]));
 
@@ -513,15 +516,16 @@ bool ShellChanger::WriteShells(HWND hwndDlg)
   HWND shellWnd = GetDlgItem(hwndDlg, IDC_SHELLITEM);
   int count = (int)SendMessage(shellWnd, CB_GETCOUNT, 0, 0);
   std::tr1::shared_ptr<TiXmlDocument> configXML;
-  TiXmlElement *first, *section;
+  TiXmlElement *first, *section = NULL, *settings = NULL;
   WCHAR name[MAX_LINE_LENGTH];
   EmergeShellItemMap::iterator iter;
 
   configXML = ELOpenXMLConfig(xmlFile, true);
   if (configXML)
     {
-      section = ELGetXMLSection(configXML.get(), (WCHAR*)TEXT("Shells"), true);
-
+      settings = ELGetXMLSection(configXML.get(), (WCHAR*)TEXT("Settings"), true);
+      if (settings)
+        section = ELGetFirstXMLElementByName(settings, (WCHAR*)TEXT("Shells"), true);
       if (section)
         {
           int index = 2;
@@ -544,9 +548,8 @@ bool ShellChanger::WriteShells(HWND hwndDlg)
 
               index++;
             }
+          ELWriteXMLConfig(configXML.get());
         }
-
-      ELWriteXMLConfig(configXML.get());
     }
 
   return true;
