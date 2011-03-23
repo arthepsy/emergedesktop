@@ -529,10 +529,10 @@ bool MenuBuilder::AddMenuItem(MenuMap::iterator iter, int index)
         {
           if (type == IT_XML_MENU)
             {
-              subMenu = ELGetFirstXMLElementByName(newElement, (WCHAR*)TEXT("Submenu"));
+              subMenu = ELGetFirstXMLElementByName(newElement, (WCHAR*)TEXT("Submenu"), true);
               if (subMenu)
                 {
-                  subItem = ELGetFirstXMLElementByName(subMenu, (WCHAR*)TEXT("item"));
+                  subItem = ELGetFirstXMLElementByName(subMenu, (WCHAR*)TEXT("item"), true);
                   if (subItem)
                     {
                       ELWriteXMLIntValue(subItem, (WCHAR*)TEXT("Type"), 0);
@@ -927,7 +927,7 @@ void MenuBuilder::BuildXMLMenu(MenuMap::iterator iter)
       if (type == IT_XML_MENU)
         {
           ELReadXMLStringValue(child, (WCHAR*)TEXT("Name"), name, (WCHAR*)TEXT("\0"));
-          subSection = ELGetFirstXMLElementByName(child, (WCHAR*)TEXT("Submenu"));
+          subSection = ELGetFirstXMLElementByName(child, (WCHAR*)TEXT("Submenu"), false);
           subMenu = CreatePopupMenu();
           NoPrefixString(name);
           MenuItem *menuItem = new MenuItem(name, type, NULL, NULL, child);
@@ -1625,7 +1625,7 @@ LRESULT MenuBuilder::DoButtonDown(UINT button)
               break;
             }
 
-          menu = ELGetFirstXMLElementByName(section, menuName);
+          menu = ELGetFirstXMLElementByName(section, menuName, true);
           if (menu)
             {
               ClearAllMenus();

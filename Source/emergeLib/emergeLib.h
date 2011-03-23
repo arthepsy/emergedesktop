@@ -369,7 +369,7 @@ DLL_EXPORT bool ELReadXMLStringValue(TiXmlElement *section, const WCHAR *item, W
 DLL_EXPORT bool ELWriteXMLStringValue(TiXmlElement *section, const WCHAR *item, const WCHAR *value);
 DLL_EXPORT TiXmlElement *ELGetXMLSection(TiXmlDocument *configXML, WCHAR *section, bool createSection);
 DLL_EXPORT TiXmlElement *ELGetFirstXMLElement(TiXmlElement *xmlSection);
-DLL_EXPORT TiXmlElement *ELGetFirstXMLElementByName(TiXmlElement *xmlSection, WCHAR *elementName);
+DLL_EXPORT TiXmlElement *ELGetFirstXMLElementByName(TiXmlElement *xmlSection, WCHAR *elementName, bool createElement);
 DLL_EXPORT TiXmlElement *ELSetFirstXMLElement(TiXmlElement *xmlSection, const WCHAR *elementName);
 DLL_EXPORT TiXmlElement *ELGetSiblingXMLElement(TiXmlElement *xmlElement);
 DLL_EXPORT TiXmlElement *ELSetSibilingXMLElement(TiXmlElement *xmlElement, const WCHAR *elementName);

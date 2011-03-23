@@ -73,7 +73,7 @@ void Settings::PopulateItems()
       settingsSection = ELGetXMLSection(configXML.get(), (WCHAR*)TEXT("Settings"), false);
       if (settingsSection)
         {
-          launchSection = ELGetFirstXMLElementByName(settingsSection, (WCHAR*)TEXT("Launch"));
+          launchSection = ELGetFirstXMLElementByName(settingsSection, (WCHAR*)TEXT("Launch"), false);
 
           if (launchSection)
             {
@@ -132,18 +132,18 @@ void Settings::DeleteItems(bool clearXML)
       configXML = ELOpenXMLConfig(xmlFile, false);
       if (configXML)
         {
-          settingsSection = ELGetXMLSection(configXML.get(), (WCHAR*)TEXT("Settings"), true);
+          settingsSection = ELGetXMLSection(configXML.get(), (WCHAR*)TEXT("Settings"), false);
           if (settingsSection)
             {
-              launchSection = ELGetFirstXMLElementByName(settingsSection, (WCHAR*)TEXT("Launch"));
+              launchSection = ELGetFirstXMLElementByName(settingsSection, (WCHAR*)TEXT("Launch"), false);
               if (launchSection)
                 {
                   IOHelper userIO(launchSection);
                   userIO.Clear();
+
+                  ELWriteXMLConfig(configXML.get());
                 }
             }
-
-          ELWriteXMLConfig(configXML.get());
         }
     }
 
@@ -163,7 +163,7 @@ void Settings::WriteItem(int type, WCHAR *command, WCHAR *iconPath, WCHAR *tip, 
       settingsSection = ELGetXMLSection(configXML.get(), (WCHAR*)TEXT("Settings"), true);
       if (settingsSection)
         {
-          launchSection = ELGetFirstXMLElementByName(settingsSection, (WCHAR*)TEXT("Launch"));
+          launchSection = ELGetFirstXMLElementByName(settingsSection, (WCHAR*)TEXT("Launch"), true);
 
           if (launchSection)
             {

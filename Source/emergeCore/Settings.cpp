@@ -130,7 +130,7 @@ bool Settings::WriteUserSettings()
           if (section)
             {
               IOHelper helper(section);
-              DoWriteSettings(helper);
+              DoWriteUserSettings(helper);
 
               ret = ELWriteXMLConfig(configXML.get());
               userModified = false;

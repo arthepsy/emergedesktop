@@ -610,10 +610,10 @@ bool BaseSettings::GetSortInfo(WCHAR *editorName, PSORTINFO sortInfo)
       section = ELGetXMLSection(configXML.get(), (WCHAR*)TEXT("Settings"), false);
       if (section)
         {
-          applet = ELGetFirstXMLElementByName(section, appletName);
+          applet = ELGetFirstXMLElementByName(section, appletName, false);
           if (applet)
             {
-              editor = ELGetFirstXMLElementByName(applet, editorName);
+              editor = ELGetFirstXMLElementByName(applet, editorName, false);
               if (editor)
                 {
                   readSettings = true;
@@ -646,10 +646,10 @@ bool BaseSettings::SetSortInfo(WCHAR *editorName, PSORTINFO sortInfo)
       section = ELGetXMLSection(configXML.get(), (WCHAR*)TEXT("Settings"), true);
       if (section)
         {
-          applet = ELGetFirstXMLElementByName(section, appletName);
+          applet = ELGetFirstXMLElementByName(section, appletName, true);
           if (applet)
             {
-              editor = ELGetFirstXMLElementByName(applet, editorName);
+              editor = ELGetFirstXMLElementByName(applet, editorName, true);
               if (editor)
                 {
                   ELWriteXMLIntValue(editor, TEXT("SubItem"), sortInfo->subItem);
@@ -777,7 +777,7 @@ void *BaseSettings::IOHelper::GetElement(WCHAR *name)
 {
   if (section)
     {
-      item = ELGetFirstXMLElementByName(section, name);
+      item = ELGetFirstXMLElementByName(section, name, false);
 
       // If item is found, set it as the target element
       if (item)

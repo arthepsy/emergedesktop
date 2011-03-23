@@ -205,7 +205,7 @@ bool Core::RunLaunchItems()
         {
           settings = ELGetXMLSection(configXML.get(), (WCHAR*)TEXT("Settings"), false);
           if (settings)
-            section = ELGetFirstXMLElementByName(settings, (WCHAR*)TEXT("Launch"));
+            section = ELGetFirstXMLElementByName(settings, (WCHAR*)TEXT("Launch"), false);
           if (section)
             {
               first = ELGetFirstXMLElement(section);
@@ -600,7 +600,7 @@ void Core::ConvertTheme()
           settings = ELGetXMLSection(configXML.get(), (WCHAR*)TEXT("Settings"), true);
           if (settings)
             {
-              section = ELGetFirstXMLElementByName(settings, (WCHAR*)TEXT("Launch"));
+              section = ELGetFirstXMLElementByName(settings, (WCHAR*)TEXT("Launch"), true);
               if (section)
                 {
                   first = ELGetFirstXMLElement(oldSection);
@@ -643,7 +643,7 @@ bool Core::CheckLaunchList()
     {
       settings = ELGetXMLSection(configXML.get(), (WCHAR*)TEXT("Settings"), false);
       if (settings)
-        section = ELGetFirstXMLElementByName(settings, (WCHAR*)TEXT("Launch"));
+        section = ELGetFirstXMLElementByName(settings, (WCHAR*)TEXT("Launch"), false);
       if (section)
         {
           first = ELGetFirstXMLElement(section);

@@ -600,13 +600,13 @@ TiXmlElement *ELGetFirstXMLElement(TiXmlElement *xmlSection)
   return xmlSection->FirstChildElement();
 }
 
-TiXmlElement *ELGetFirstXMLElementByName(TiXmlElement *xmlSection, WCHAR *elementName)
+TiXmlElement *ELGetFirstXMLElementByName(TiXmlElement *xmlSection, WCHAR *elementName, bool createElement)
 {
   std::string narrowElement = ELwstringTostring(elementName);
   TiXmlElement *child;
 
   child = xmlSection->FirstChildElement(narrowElement.c_str());
-  if (!child)
+  if (!child && createElement)
     child = ELSetFirstXMLElement(xmlSection, elementName);
 
   return child;

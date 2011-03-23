@@ -616,7 +616,7 @@ bool LaunchEditor::UpdateLaunch(HWND hwndDlg)
       if (settings)
         {
           /**< Remove existing Launch list */
-          section = ELGetFirstXMLElementByName(settings, (WCHAR*)TEXT("Launch"));
+          section = ELGetFirstXMLElementByName(settings, (WCHAR*)TEXT("Launch"), false);
           if (section)
             ELRemoveXMLElement(section);
           section = ELSetFirstXMLElement(settings, (WCHAR*)TEXT("Launch"));
@@ -653,7 +653,7 @@ bool LaunchEditor::PopulateList(HWND listWnd)
     {
       settings = ELGetXMLSection(configXML.get(), (WCHAR*)TEXT("Settings"), false);
       if (settings)
-        section = ELGetFirstXMLElementByName(settings, (WCHAR*)TEXT("Launch"));
+        section = ELGetFirstXMLElementByName(settings, (WCHAR*)TEXT("Launch"), false);
       if (section)
         {
           first = ELGetFirstXMLElement(section);

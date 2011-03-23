@@ -70,7 +70,7 @@ bool DesktopSettings::ConvertMenus()
       menuSection = ELGetXMLSection(xmlConfig.get(), (WCHAR*)TEXT("Menus"), true);
       if (menuSection)
         {
-          rightSection = ELGetFirstXMLElementByName(menuSection, (WCHAR*)TEXT("RightMenu"));
+          rightSection = ELGetFirstXMLElementByName(menuSection, (WCHAR*)TEXT("RightMenu"), true);
           if (rightSection)
             {
               wcscpy(menuKeyName, TEXT("RightMenu"));
@@ -82,7 +82,7 @@ bool DesktopSettings::ConvertMenus()
                   RegCloseKey(menuKey);
                 }
             }
-          midSection = ELGetFirstXMLElementByName(menuSection, (WCHAR*)TEXT("MidMenu"));
+          midSection = ELGetFirstXMLElementByName(menuSection, (WCHAR*)TEXT("MidMenu"), true);
           if (midSection)
             {
               wcscpy(menuKeyName, TEXT("MidMenu"));

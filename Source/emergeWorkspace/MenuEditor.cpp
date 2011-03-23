@@ -370,7 +370,7 @@ bool MenuEditor::BuildMenuTreeHelper (HWND treeWnd, HTREEITEM parent, TiXmlEleme
 
       if (type == IT_XML_MENU)
         {
-          subMenu = ELGetFirstXMLElementByName(xmlItem, (WCHAR*)TEXT("Submenu"));
+          subMenu = ELGetFirstXMLElementByName(xmlItem, (WCHAR*)TEXT("Submenu"), false);
           if (subMenu)
             BuildMenuTreeHelper(treeWnd, child, subMenu);
         }
@@ -394,7 +394,7 @@ bool MenuEditor::BuildMenuTree(HWND treeWnd, HTREEITEM parent, WCHAR *rootElemen
       section = ELGetXMLSection(configXML.get(), (WCHAR*)TEXT("Menus"), false);
       if (section)
         {
-          rootXML = ELGetFirstXMLElementByName(section, rootElement);
+          rootXML = ELGetFirstXMLElementByName(section, rootElement, false);
           if (rootXML)
             ret = BuildMenuTreeHelper(treeWnd, parent, rootXML);
         }
@@ -579,7 +579,7 @@ bool MenuEditor::WriteMenu(HWND treeWnd, HTREEITEM parent, WCHAR *menu)
 
       if (section)
         {
-          menuRoot = ELGetFirstXMLElementByName(section, menu);
+          menuRoot = ELGetFirstXMLElementByName(section, menu, true);
 
           if (menuRoot)
             {
