@@ -527,6 +527,9 @@ bool ShellChanger::WriteShells(HWND hwndDlg)
   configXML = ELOpenXMLConfig(xmlFile, true);
   if (configXML)
     {
+      section = ELGetXMLSection(configXML.get(), (WCHAR*)TEXT("Shells"), false);
+      if (section) /**< Remove the 'Shells' top-level if it exists */
+        ELRemoveXMLElement(section);
       settings = ELGetXMLSection(configXML.get(), (WCHAR*)TEXT("Settings"), true);
       if (settings)
         section = ELGetFirstXMLElementByName(settings, (WCHAR*)TEXT("Shells"), true);
