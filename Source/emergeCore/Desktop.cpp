@@ -49,6 +49,7 @@ bool Desktop::Initialize(bool explorerDesktop)
   WNDCLASSEX wincl;
   ZeroMemory(&wincl, sizeof(WNDCLASSEX));
   UINT SWPFlags = 0;
+  this->explorerDesktop = explorerDesktop;
 
   // Register the window class
   wincl.hInstance = mainInst;
@@ -202,11 +203,15 @@ LRESULT CALLBACK Desktop::DesktopProcedure (HWND hwnd, UINT message, WPARAM wPar
  */
 LRESULT Desktop::DoDisplayChange(HWND hwnd)
 {
+  UINT SWPFlags = SWP_SHOWWINDOW;
+  if (explorerDesktop)
+    SWPFlags = SWP_HIDEWINDOW;
+
   /**< Adjust the window position to cover the desktop */
   SetWindowPos(hwnd, HWND_BOTTOM,
                GetSystemMetrics(SM_XVIRTUALSCREEN), GetSystemMetrics(SM_YVIRTUALSCREEN),
                GetSystemMetrics(SM_CXVIRTUALSCREEN), GetSystemMetrics(SM_CYVIRTUALSCREEN),
-               SWP_SHOWWINDOW);
+               SWPFlags);
 
   /**< Set the background image again so that the user doesn't end up with a blank background */
   SetBackgroundImage();
@@ -261,12 +266,14 @@ void Desktop::ToggleDesktop()
       for (iter = minimizedWindowDeque.begin(); iter != minimizedWindowDeque.end(); ++iter)
         ShowWindow(*iter, SW_SHOWNOACTIVATE);
       minimizedWindowDeque.clear();
-      SetWindowPos(mainWnd, HWND_BOTTOM, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOSENDCHANGING | SWP_NOACTIVATE);
+      if (!explorerDesktop)
+        SetWindowPos(mainWnd, HWND_BOTTOM, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOSENDCHANGING | SWP_NOACTIVATE);
     }
   else
     {
       EnumWindows(MinimizeWindowsEnum, (LPARAM)&minimizedWindowDeque);
-      SetWindowPos(mainWnd, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOSENDCHANGING);
+      if (!explorerDesktop)
+        SetWindowPos(mainWnd, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOSENDCHANGING);
       for (iter = minimizedWindowDeque.begin(); iter != minimizedWindowDeque.end(); ++iter)
         ShowWindow(*iter, SW_SHOWMINNOACTIVE);
     }

@@ -46,7 +46,7 @@ private:
   std::deque<HWND> minimizedWindowDeque;
   HINSTANCE mainInst;
   HWND mainWnd;
-  bool registered;
+  bool registered, explorerDesktop;
   UINT ShellMessage;
   bool SetBackgroundImage();
   __time64_t modifyTime;
