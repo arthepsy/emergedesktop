@@ -204,7 +204,7 @@ BOOL ShellChanger::DoInitDialog(HWND hwndDlg)
 void ShellChanger::PopulateShells(HWND shellWnd)
 {
   DWORD size, result;
-  WCHAR name[MAX_LINE_LENGTH], command[MAX_LINE_LENGTH], ELPath[MAX_LINE_LENGTH], currentShell[MAX_LINE_LENGTH], *lower;
+  WCHAR name[MAX_LINE_LENGTH], command[MAX_LINE_LENGTH], ELPath[MAX_LINE_LENGTH], currentShell[MAX_LINE_LENGTH];
   HKEY key;
   bool doCheck = false;
   int shellIndex = -1;
@@ -224,17 +224,6 @@ void ShellChanger::PopulateShells(HWND shellWnd)
         }
     }
 
-  if (doCheck)
-    {
-      ELGetCurrentPath(ELPath);
-      wcscat(ELPath, TEXT("\\emergeCore.exe"));
-      _wcslwr(ELPath);
-      if (wcsstr(currentShell, ELPath))
-        shellIndex = 0;
-      if (wcsstr(currentShell, TEXT("explorer.exe")))
-        shellIndex = 1;
-    }
-
   SendMessage(shellWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Emerge Desktop"));
   SendMessage(shellWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Windows Explorer"));
 
@@ -252,17 +241,8 @@ void ShellChanger::PopulateShells(HWND shellWnd)
 
           if (first)
             {
-              DWORD index = 0;
               ELReadXMLStringValue(first, (WCHAR*)TEXT("Name"), name, (WCHAR*)TEXT("\0"));
               ELReadXMLStringValue(first, (WCHAR*)TEXT("Command"), command, (WCHAR*)TEXT("\0"));
-
-              if (doCheck)
-                {
-                  lower = _wcslwr(_wcsdup(command));
-                  if (wcsstr(currentShell, lower))
-                    shellIndex = index + 2;
-                  free(lower);
-                }
 
               SendMessage(shellWnd, CB_ADDSTRING, 0, (LPARAM)name);
               shellMap.insert(EmergeShellItem(std::wstring(name), std::wstring(command)));
@@ -274,20 +254,34 @@ void ShellChanger::PopulateShells(HWND shellWnd)
                   ELReadXMLStringValue(first, (WCHAR*)TEXT("Name"), name, (WCHAR*)TEXT("\0"));
                   ELReadXMLStringValue(first, (WCHAR*)TEXT("Command"), command, (WCHAR*)TEXT("\0"));
 
-                  if (doCheck)
-                    {
-                      lower = _wcslwr(_wcsdup(command));
-                      if (wcsstr(currentShell, lower))
-                        shellIndex = index + 2;
-                      free(lower);
-                    }
-
                   SendMessage(shellWnd, CB_ADDSTRING, 0, (LPARAM)name);
                   shellMap.insert(EmergeShellItem(std::wstring(name), std::wstring(command)));
 
                   sibling = ELGetSiblingXMLElement(first);
-                  index++;
                 }
+            }
+        }
+    }
+
+  if (doCheck)
+    {
+      ELGetCurrentPath(ELPath);
+      wcscat(ELPath, TEXT("\\emergeCore.exe"));
+      _wcslwr(ELPath);
+      if (wcsstr(currentShell, ELPath))
+        shellIndex = (int)SendMessage(shellWnd, CB_FINDSTRINGEXACT, (WPARAM)-1, (LPARAM)TEXT("Emerge Desktop"));
+      else if (wcsstr(currentShell, TEXT("explorer.exe")))
+        shellIndex = (int)SendMessage(shellWnd, CB_FINDSTRINGEXACT, (WPARAM)-1, (LPARAM)TEXT("Windows Explorer"));
+      else
+        {
+          std::wstring lowerIter;
+          EmergeShellItemMap::iterator iter = shellMap.begin();
+          while (iter != shellMap.end())
+            {
+              lowerIter = ELToLower(iter->second);
+              if (lowerIter == currentShell)
+                shellIndex = (int)SendMessage(shellWnd, CB_FINDSTRINGEXACT, (WPARAM)-1, (LPARAM)iter->first.c_str());
+              iter++;
             }
         }
     }
@@ -447,12 +441,12 @@ int ShellChanger::GetShellCommand(HWND hwndDlg, WCHAR *name, WCHAR *command)
 
   GetDlgItemText(hwndDlg, IDC_SHELLITEM, name, MAX_LINE_LENGTH);
 
-  if (index == 0)
+  if (_wcsicmp(name, TEXT("Emerge Desktop")) == 0)
     {
       ELGetCurrentPath(command);
       wcscat(command, TEXT("\\emergeCore.exe"));
     }
-  else if (index == 1)
+  else if (_wcsicmp(name, TEXT("Windows Explorer")) == 0)
     wcscpy(command, TEXT("explorer.exe"));
   else
     {
@@ -487,20 +481,30 @@ void ShellChanger::UpdateFields(HWND hwndDlg)
       SetDlgItemText(hwndDlg, IDC_SHELLNAME, name);
       SetDlgItemText(hwndDlg, IDC_SHELLCOMMAND, command);
 
-      if (index == 0)
-        EnableWindow(startErrorWnd, true);
-      else
-        EnableWindow(startErrorWnd, false);
-
-      if (index > 1)
+      if (_wcsicmp(name, TEXT("Emerge Desktop")) == 0)
         {
-          EnableWindow(editWnd, true);
-          EnableWindow(delWnd, true);
+          if (pSettings->GetShowStartupErrors())
+            SendDlgItemMessage(hwndDlg, IDC_STARTERROR, BM_SETCHECK, BST_CHECKED, 0);
+          else
+            SendDlgItemMessage(hwndDlg, IDC_STARTERROR, BM_SETCHECK, BST_UNCHECKED, 0);
+          EnableWindow(startErrorWnd, true);
         }
       else
         {
+          SendDlgItemMessage(hwndDlg, IDC_STARTERROR, BM_SETCHECK, BST_UNCHECKED, 0);
+          EnableWindow(startErrorWnd, false);
+        }
+
+      if ((_wcsicmp(name, TEXT("Emerge Desktop")) == 0) ||
+          (_wcsicmp(name, TEXT("Window Explorer")) == 0))
+        {
           EnableWindow(editWnd, false);
           EnableWindow(delWnd, false);
+        }
+      else
+        {
+          EnableWindow(editWnd, true);
+          EnableWindow(delWnd, true);
         }
     }
   else
@@ -528,7 +532,7 @@ bool ShellChanger::WriteShells(HWND hwndDlg)
         section = ELGetFirstXMLElementByName(settings, (WCHAR*)TEXT("Shells"), true);
       if (section)
         {
-          int index = 2;
+          int index = 0;
           first = ELGetFirstXMLElement(section);
           while (first)
             {
@@ -540,11 +544,15 @@ bool ShellChanger::WriteShells(HWND hwndDlg)
           while (index < count)
             {
               SendMessage(shellWnd, CB_GETLBTEXT, (WPARAM)index, (LPARAM)name);
-              iter = shellMap.find(name);
+              if ((_wcsicmp(name, TEXT("Emerge Desktop")) != 0) &&
+                  (_wcsicmp(name, TEXT("Windows Explorer")) != 0))
+                {
+                  iter = shellMap.find(name);
 
-              first = ELSetFirstXMLElement(section, TEXT("item"));
-              ELWriteXMLStringValue(first, (WCHAR*)TEXT("Name"), name);
-              ELWriteXMLStringValue(first, (WCHAR*)TEXT("Command"), (WCHAR*)iter->second.c_str());
+                  first = ELSetFirstXMLElement(section, TEXT("item"));
+                  ELWriteXMLStringValue(first, (WCHAR*)TEXT("Name"), name);
+                  ELWriteXMLStringValue(first, (WCHAR*)TEXT("Command"), (WCHAR*)iter->second.c_str());
+                }
 
               index++;
             }
@@ -735,6 +743,10 @@ bool ShellChanger::DeleteShell(HWND hwndDlg, WCHAR *name)
   EmergeShellItemMap::iterator iter;
   int item;
 
+  if ((_wcsicmp(name, TEXT("Emerge Desktop")) == 0) ||
+      (_wcsicmp(name, TEXT("Window Explorer")) == 0))
+    return false;
+
   iter = shellMap.find(name);
 
   // Note: Order is important!
@@ -745,7 +757,7 @@ bool ShellChanger::DeleteShell(HWND hwndDlg, WCHAR *name)
 
   item = (int)SendMessage(shellWnd, CB_FINDSTRINGEXACT, (WPARAM)-1, (LPARAM)name);
 
-  if ((item != CB_ERR) && (item > 1))
+  if (item != CB_ERR)
     {
       SendMessage(shellWnd, CB_DELETESTRING, (WPARAM)item, 0);
       return true;
