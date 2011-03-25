@@ -4456,6 +4456,10 @@ bool ELIsApplet(HWND hwnd)
   if (_wcsicmp(windowClass, TEXT("progman")) == 0)
     return true;
 
+  // Explorer Class
+  if (_wcsicmp(windowClass, TEXT("WorkerW")) == 0)
+    return true;
+
   return false;
 }
 
