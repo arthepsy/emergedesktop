@@ -4344,6 +4344,9 @@ size_t ELwcsftime(WCHAR *strDest, size_t maxsize, WCHAR *format, const struct tm
   int dayOfYear, weekday, h, yearNumber, weekNumber, i;
   bool isLeapYear = false, previousIsLeapYear = false;
   WCHAR stringDay[2], stringWeek[3];
+  char tmpFormat[MAX_LINE_LENGTH], tmpDest[MAX_LINE_LENGTH];
+  BOOL defaultUsed;
+  size_t ret;
 
   /**< Determine if the current year is a leap year */
   if (((year % 4 == 0) && (year % 100 != 0)) || (year % 400 == 0))
@@ -4412,8 +4415,17 @@ size_t ELwcsftime(WCHAR *strDest, size_t maxsize, WCHAR *format, const struct tm
   ELStringReplace(format, (WCHAR*)TEXT("%u"), stringDay, false);
   ELStringReplace(format, (WCHAR*)TEXT("%V"), stringWeek, false);
 
-  /**< Finally, pass the updated format string to the MSVC supplied wcsftime */
-  return wcsftime(strDest, maxsize, format, timeptr);
+  /**< Convert to UTF-8 to pass to strftime due to issues with wcsftime */
+  WideCharToMultiByte(CP_ACP, 0, format, wcslen(format)+1,
+                      tmpFormat, MAX_LINE_LENGTH, NULL, &defaultUsed);
+
+  ret = strftime(tmpDest, MAX_LINE_LENGTH, tmpFormat, timeptr);
+
+  /**< Convert back to unicode */
+	MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, tmpDest, (int)strlen(tmpDest)+1,
+                     strDest, maxsize);
+
+  return ret;
 }
 
 void ELStripModified(WCHAR *theme)
