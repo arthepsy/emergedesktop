@@ -53,8 +53,16 @@ ConfigPage::~ConfigPage()
 
 INT_PTR ConfigPage::DoInitPage(HWND hwndDlg)
 {
+  HWND warningWnd = GetDlgItem(hwndDlg, IDC_WARNING);
+
   if (pSettings->GetShowExplorerDesktop())
     SendDlgItemMessage(hwndDlg, IDC_EXPLORERDESKTOP, BM_SETCHECK, BST_CHECKED, 0);
+
+  std::wstring warningMessage = L"Note:\n\n";
+  warningMessage += L"1. With 'Explorer Desktop' enabled, right clicking on the desktop willl display the Explorer right click menu.\n";
+  warningMessage += L"2. When disabling 'Explorer Desktop' (if previously enabled), an Explorer window will be displayed.\n";
+
+  SetWindowText(warningWnd, warningMessage.c_str());
 
   return 1;
 }

@@ -68,6 +68,7 @@
 #define IDC_IMPORTTHEME     705
 
 #define IDC_EXPLORERDESKTOP 800
+#define IDC_WARNING         801
 
 #define IDC_ACTIONTEXT      900
 #define IDC_ALIASTEXT       901
