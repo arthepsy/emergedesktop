@@ -1300,8 +1300,9 @@ int ELMakeZip(std::wstring zipFile, std::wstring zipRoot, std::wstring zipPath)
 
 int ELExtractZip(std::wstring zipFile, std::wstring unzipPath)
 {
-  std::wstring tmpPath;
-  int ret = -1;
+  std::wstring tmpPath = unzipPath + TEXT("\\");
+  tmpPath = ELExpandVars(tmpPath);
+  ELWriteDebug(tmpPath);
 
   HZIP hz = OpenZip(zipFile.c_str(), 0);
 
@@ -1318,13 +1319,34 @@ int ELExtractZip(std::wstring zipFile, std::wstring unzipPath)
       for (int zi=0; zi<numitems; zi++)
         {
           GetZipItem(hz,zi,&ze); // fetch individual details
-          ret = UnzipItem(hz, zi, ze.name); // e.g. the item's name.
+
+          if (zi == 0)
+            {
+              tmpPath += ze.name;
+              ELWriteDebug(tmpPath);
+
+              if (ze.attr == FILE_ATTRIBUTE_DIRECTORY)
+                {
+                  if (PathIsDirectory(tmpPath.c_str()))
+                    {
+                      WCHAR message[MAX_LINE_LENGTH];
+                      swprintf(message, TEXT("Do you want to overwrite the '%s' theme?"), ze.name);
+                      if (ELMessageBox(NULL, message, TEXT("Warning"),
+                                       ELMB_YESNO|ELMB_ICONQUESTION) == IDNO)
+                        return 2;
+                    }
+                }
+            }
+
+          UnzipItem(hz, zi, ze.name); // e.g. the item's name.
         }
 
       CloseZip(hz);
+
+      return 0;
     }
 
-  return ret;
+  return 1;
 }
 
 void stripQuotes(LPTSTR source)
