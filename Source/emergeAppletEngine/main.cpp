@@ -404,32 +404,32 @@ HRESULT AddContextMenu(WCHAR *file)
       return hr;
     }
 
-  pidlRelative = ELILClone(ELILFindLastID(pidlLocal));
-  ELILRemoveLastID(pidlLocal);
+  pidlRelative = ILClone(ILFindLastID(pidlLocal));
+  ILRemoveLastID(pidlLocal);
 
   hr = deskFolder->BindToObject(pidlLocal, NULL, IID_IShellFolder, &lpVoid);
   if (FAILED(hr))
     {
       deskFolder->Release();
-      ELILFree(pidlLocal);
+      ILFree(pidlLocal);
       return hr;
     }
   appObject = reinterpret_cast <IShellFolder*> (lpVoid);
 
   deskFolder->Release();
-  ELILFree(pidlLocal);
+  ILFree(pidlLocal);
 
   hr = appObject->GetUIObjectOf(NULL, 1, (LPCITEMIDLIST*)&pidlRelative,
                                 IID_IContextMenu, NULL, &lpVoid);
   if (FAILED(hr))
     {
       appObject->Release();
-      ELILFree(pidlRelative);
+      ILFree(pidlRelative);
       return hr;
     }
   contextMenu = reinterpret_cast <IContextMenu*> (lpVoid);
 
-  ELILFree(pidlRelative);
+  ILFree(pidlRelative);
   appObject->Release();
 
   contextMenu->QueryInterface(IID_IContextMenu2, &lpVoid);

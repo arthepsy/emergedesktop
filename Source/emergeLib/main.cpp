@@ -166,19 +166,6 @@ static lpfnMSSwitchToThisWindow MSSwitchToThisWindow = NULL;
 typedef BOOL (WINAPI *lpfnMSRegisterShellHookWindow)(HWND hWnd, DWORD method);
 static lpfnMSRegisterShellHookWindow MSRegisterShellHookWindow = NULL;
 
-// MS IL Functions
-typedef LPITEMIDLIST (WINAPI *fnILClone)(LPCITEMIDLIST);
-static fnILClone MSILClone = NULL;
-
-typedef LPITEMIDLIST (WINAPI *fnILFindLastID)(LPCITEMIDLIST);
-static fnILFindLastID MSILFindLastID = NULL;
-
-typedef BOOL (WINAPI *fnILRemoveLastID)(LPCITEMIDLIST);
-static fnILRemoveLastID MSILRemoveLastID = NULL;
-
-typedef void (WINAPI *lpfnILFree)(LPCITEMIDLIST);
-static lpfnILFree MSILFree = NULL;
-
 typedef BOOL (WINAPI *lpfnIsWow64Process)(HANDLE, PBOOL);
 static lpfnIsWow64Process MSIsWow64Process = NULL;
 
@@ -1423,46 +1410,6 @@ bool GetPIDLGUID(LPITEMIDLIST pidl, WCHAR *classID)
   return ret;
 }
 
-void ELILFree(LPITEMIDLIST pidl)
-{
-  if (MSILFree == NULL)
-    MSILFree = (lpfnILFree)GetProcAddress(shell32DLL, (LPCSTR)155);
-  if (MSILFree == NULL)
-    return;
-
-  MSILFree(pidl);
-}
-
-LPITEMIDLIST ELILClone(LPITEMIDLIST pidl)
-{
-  if (MSILClone == NULL)
-    MSILClone = (fnILClone)GetProcAddress(shell32DLL, (LPCSTR)18);
-  if (MSILClone == NULL)
-    return NULL;
-
-  return MSILClone(pidl);
-}
-
-LPITEMIDLIST ELILFindLastID(LPITEMIDLIST pidl)
-{
-  if (MSILFindLastID == NULL)
-    MSILFindLastID = (fnILFindLastID)GetProcAddress(shell32DLL, (LPCSTR)16);
-  if (MSILFindLastID == NULL)
-    return NULL;
-
-  return MSILFindLastID(pidl);
-}
-
-BOOL ELILRemoveLastID(LPITEMIDLIST pidl)
-{
-  if (MSILRemoveLastID == NULL)
-    MSILRemoveLastID = (fnILRemoveLastID)GetProcAddress(shell32DLL, (LPCSTR)17);
-  if (MSILRemoveLastID == NULL)
-    return FALSE;
-
-  return MSILRemoveLastID(pidl);
-}
-
 bool GetSpecialFolderGUID(int folder, WCHAR *classID)
 {
   LPITEMIDLIST pidl;
@@ -1471,7 +1418,7 @@ bool GetSpecialFolderGUID(int folder, WCHAR *classID)
   if (SUCCEEDED(SHGetFolderLocation(NULL, folder, NULL, 0, &pidl)))
     {
       ret = GetPIDLGUID(pidl, classID);
-      ELILFree(pidl);
+      ILFree(pidl);
     }
 
   return ret;
@@ -2628,7 +2575,7 @@ bool ELParseShortcut(LPCTSTR shortcut, LPSHORTCUTINFO shortcutInfo)
       if (SUCCEEDED(psl->GetIDList(&pidl)))
         {
           ret = (SHGetPathFromIDList(pidl, shortcutInfo->Path) == TRUE);
-          ELILFree(pidl);
+          ILFree(pidl);
         }
     }
 
@@ -3511,7 +3458,7 @@ bool ELSpecialFolderValue(WCHAR *folder, WCHAR *value)
           wcscpy(value, TEXT("CSIDL_PERSONAL"));
           ret = true;
         }
-      ELILFree(pidl);
+      ILFree(pidl);
     }
 
   if (SUCCEEDED(SHGetSpecialFolderLocation(NULL, CSIDL_DRIVES, &pidl)))
@@ -3522,7 +3469,7 @@ bool ELSpecialFolderValue(WCHAR *folder, WCHAR *value)
           wcscpy(value, TEXT("CSIDL_DRIVES"));
           ret = true;
         }
-      ELILFree(pidl);
+      ILFree(pidl);
     }
 
   if (SUCCEEDED(SHGetSpecialFolderLocation(NULL, CSIDL_CONTROLS, &pidl)))
@@ -3533,7 +3480,7 @@ bool ELSpecialFolderValue(WCHAR *folder, WCHAR *value)
           wcscpy(value, TEXT("CSIDL_CONTROLS"));
           ret = true;
         }
-      ELILFree(pidl);
+      ILFree(pidl);
     }
 
   if (SUCCEEDED(SHGetSpecialFolderLocation(NULL, CSIDL_BITBUCKET, &pidl)))
@@ -3544,7 +3491,7 @@ bool ELSpecialFolderValue(WCHAR *folder, WCHAR *value)
           wcscpy(value, TEXT("CSIDL_BITBUCKET"));
           ret = true;
         }
-      ELILFree(pidl);
+      ILFree(pidl);
     }
 
   if (SUCCEEDED(SHGetSpecialFolderLocation(NULL, CSIDL_NETWORK, &pidl)))
@@ -3555,7 +3502,7 @@ bool ELSpecialFolderValue(WCHAR *folder, WCHAR *value)
           wcscpy(value, TEXT("CSIDL_NETWORK"));
           ret = true;
         }
-      ELILFree(pidl);
+      ILFree(pidl);
     }
 
   return ret;
@@ -3580,7 +3527,7 @@ int ELIsSpecialFolder(WCHAR *folder)
       SHGetFileInfo((LPCTSTR)pidl, 0, &fileInfo, sizeof(fileInfo), SHGFI_PIDL | SHGFI_DISPLAYNAME);
       if (_wcsicmp(folder, fileInfo.szDisplayName) == 0)
         csidl = CSIDL_PERSONAL;
-      ELILFree(pidl);
+      ILFree(pidl);
     }
 
   if (SUCCEEDED(SHGetSpecialFolderLocation(NULL, CSIDL_DRIVES, &pidl)))
@@ -3588,7 +3535,7 @@ int ELIsSpecialFolder(WCHAR *folder)
       SHGetFileInfo((LPCTSTR)pidl, 0, &fileInfo, sizeof(fileInfo), SHGFI_PIDL | SHGFI_DISPLAYNAME);
       if (_wcsicmp(folder, fileInfo.szDisplayName) == 0)
         csidl = CSIDL_DRIVES;
-      ELILFree(pidl);
+      ILFree(pidl);
     }
 
   if (SUCCEEDED(SHGetSpecialFolderLocation(NULL, CSIDL_CONTROLS, &pidl)))
@@ -3596,7 +3543,7 @@ int ELIsSpecialFolder(WCHAR *folder)
       SHGetFileInfo((LPCTSTR)pidl, 0, &fileInfo, sizeof(fileInfo), SHGFI_PIDL | SHGFI_DISPLAYNAME);
       if (_wcsicmp(folder, fileInfo.szDisplayName) == 0)
         csidl = CSIDL_CONTROLS;
-      ELILFree(pidl);
+      ILFree(pidl);
     }
 
   if (SUCCEEDED(SHGetSpecialFolderLocation(NULL, CSIDL_BITBUCKET, &pidl)))
@@ -3604,7 +3551,7 @@ int ELIsSpecialFolder(WCHAR *folder)
       SHGetFileInfo((LPCTSTR)pidl, 0, &fileInfo, sizeof(fileInfo), SHGFI_PIDL | SHGFI_DISPLAYNAME);
       if (_wcsicmp(folder, fileInfo.szDisplayName) == 0)
         csidl = CSIDL_BITBUCKET;
-      ELILFree(pidl);
+      ILFree(pidl);
     }
 
   if (SUCCEEDED(SHGetSpecialFolderLocation(NULL, CSIDL_NETWORK, &pidl)))
@@ -3612,7 +3559,7 @@ int ELIsSpecialFolder(WCHAR *folder)
       SHGetFileInfo((LPCTSTR)pidl, 0, &fileInfo, sizeof(fileInfo), SHGFI_PIDL | SHGFI_DISPLAYNAME);
       if (_wcsicmp(folder, fileInfo.szDisplayName) == 0)
         csidl = CSIDL_NETWORK;
-      ELILFree(pidl);
+      ILFree(pidl);
     }
 
   return csidl;
@@ -3633,7 +3580,7 @@ bool ELGetSpecialFolder(int folder, WCHAR *folderPath)
     {
       SHGetFileInfo((LPCTSTR)pidl, 0, &fileInfo, sizeof(fileInfo), SHGFI_PIDL | SHGFI_DISPLAYNAME);
       wcscpy(folderPath, fileInfo.szDisplayName);
-      ELILFree(pidl);
+      ILFree(pidl);
       return true;
     }
 

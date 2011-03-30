@@ -618,19 +618,19 @@ HICON EGGetFileIcon(WCHAR *file, UINT iconSize)
       return icon;
     }
 
-  pidlRelative = ELILClone(ELILFindLastID(pidlLocal));
-  ELILRemoveLastID(pidlLocal);
+  pidlRelative = ILClone(ILFindLastID(pidlLocal));
+  ILRemoveLastID(pidlLocal);
 
   hr = deskFolder->BindToObject(pidlLocal, NULL, IID_IShellFolder, &lpVoid);
   if (FAILED(hr))
     {
       deskFolder->Release();
-      ELILFree(pidlLocal);
+      ILFree(pidlLocal);
       return icon;
     }
   appObject = reinterpret_cast <IShellFolder*> (lpVoid);
 
-  ELILFree(pidlLocal);
+  ILFree(pidlLocal);
 
   hr = appObject->GetUIObjectOf(NULL, 1, (LPCITEMIDLIST*)&pidlRelative,
                                 IID_IExtractIcon, NULL, &lpVoid);
@@ -638,12 +638,12 @@ HICON EGGetFileIcon(WCHAR *file, UINT iconSize)
     {
       deskFolder->Release();
       appObject->Release();
-      ELILFree(pidlRelative);
+      ILFree(pidlRelative);
       return icon;
     }
   extractIcon = reinterpret_cast <IExtractIcon*> (lpVoid);
 
-  ELILFree(pidlRelative);
+  ILFree(pidlRelative);
 
   hr = extractIcon->GetIconLocation(0, iconLocation, MAX_PATH, &iconIndex, &iconFlags);
   if (FAILED(hr))
@@ -802,7 +802,7 @@ HICON EGGetSpecialFolderIcon(int csidl, UINT iconSize)
           icon = EGGetFileIcon(iconLocation, iconSize);
         }
 
-      ELILFree(pidl);
+      ILFree(pidl);
     }
 
   return icon;
