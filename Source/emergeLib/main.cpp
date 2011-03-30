@@ -1300,9 +1300,8 @@ int ELMakeZip(std::wstring zipFile, std::wstring zipRoot, std::wstring zipPath)
 
 int ELExtractZip(std::wstring zipFile, std::wstring unzipPath)
 {
-  std::wstring tmpPath = unzipPath + TEXT("\\");
+  std::wstring tmpPath = unzipPath + TEXT("\\"), themeName;
   tmpPath = ELExpandVars(tmpPath);
-  ELWriteDebug(tmpPath);
 
   HZIP hz = OpenZip(zipFile.c_str(), 0);
 
@@ -1323,14 +1322,15 @@ int ELExtractZip(std::wstring zipFile, std::wstring unzipPath)
           if (zi == 0)
             {
               tmpPath += ze.name;
-              ELWriteDebug(tmpPath);
 
               if (ze.attr == FILE_ATTRIBUTE_DIRECTORY)
                 {
                   if (PathIsDirectory(tmpPath.c_str()))
                     {
+                      themeName = ze.name;
+                      themeName = themeName.substr(0, themeName.rfind('/'));
                       WCHAR message[MAX_LINE_LENGTH];
-                      swprintf(message, TEXT("Do you want to overwrite the '%s' theme?"), ze.name);
+                      swprintf(message, TEXT("Do you want to overwrite the '%s' theme?"), themeName.c_str());
                       if (ELMessageBox(NULL, message, TEXT("Warning"),
                                        ELMB_YESNO|ELMB_ICONQUESTION) == IDNO)
                         return 2;
