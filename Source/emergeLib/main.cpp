@@ -56,6 +56,7 @@ topic alone.
 #include "Shutdown.h"
 #include "MsgBox.h"
 #include "zip.h"
+#include "unzip.h"
 #ifdef _W64
 #include <mapinls.h>
 #endif
@@ -1235,40 +1236,95 @@ bool ELExecuteInternal(LPTSTR command)
   return false;
 }
 
+void ZipAddDir(HZIP hz, std::wstring relativePath, std::wstring zipPath)
+{
+  WIN32_FIND_DATA findData;
+  HANDLE fileHandle;
+  std::wstring tmpPath, searchPath, tmpRelativePath;
+
+  searchPath = zipPath + TEXT("\\*");
+
+  fileHandle = FindFirstFile(searchPath.c_str(), &findData);
+  if (fileHandle == INVALID_HANDLE_VALUE)
+    return;
+
+  do
+    {
+      // Skip hidden files
+      if (wcscmp(findData.cFileName, TEXT(".")) == 0 ||
+          wcscmp(findData.cFileName, TEXT("..")) == 0 ||
+          (findData.dwFileAttributes & FILE_ATTRIBUTE_HIDDEN))
+        continue;
+
+      tmpPath = zipPath + TEXT("\\");
+      tmpPath += findData.cFileName;
+
+      if (!relativePath.empty())
+        tmpRelativePath = relativePath + TEXT("\\");
+      tmpRelativePath += findData.cFileName;
+
+      if (findData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+        {
+          ZipAddFolder(hz, tmpRelativePath.c_str());
+          ZipAddDir(hz, tmpRelativePath, tmpPath);
+        }
+      else
+        ZipAdd(hz, tmpRelativePath.c_str(), tmpPath.c_str());
+    }
+  while (FindNextFile(fileHandle, &findData));
+
+  FindClose(fileHandle);
+}
+
 int ELMakeZip(std::wstring zipFile, std::wstring zipRoot, std::wstring zipPath)
 {
-  std::wstring forwardSlash = TEXT("\\"), backSlash = TEXT("/");
-  std::string narrowZipFile, narrowZipRoot, narrowZipPath;
+  std::wstring forwardSlash = TEXT("\\"), backSlash = TEXT("/"), relativePath;
 
   zipFile = ELExpandVars(zipFile);
   zipRoot = ELExpandVars(zipRoot);
   zipPath = ELExpandVars(zipPath);
 
-  // switch to UNIX path separators since zip lib requires it
-  zipFile = ELwstringReplace(zipFile, forwardSlash, backSlash, false);
+  relativePath = zipPath.substr(zipPath.rfind('\\') + 1);
 
-  narrowZipFile = ELwstringTostring(zipFile);
-  narrowZipRoot = ELwstringTostring(zipRoot);
-  narrowZipPath = ELwstringTostring(zipPath);
+  HZIP hz = CreateZip(zipFile.c_str(), 0);
+  if (hz)
+    {
+      ZipAddFolder(hz, relativePath.c_str());
+      ZipAddDir(hz, relativePath, zipPath);
 
-  return MakeZip((char*)narrowZipFile.c_str(), (char*)narrowZipRoot.c_str(), (char*)narrowZipPath.c_str());
+      CloseZip(hz);
+    }
+
+  return 0;
 }
 
 int ELExtractZip(std::wstring zipFile, std::wstring unzipPath)
 {
-  std::wstring forwardSlash = TEXT("\\"), backSlash = TEXT("/");
-  std::string narrowZipFile, narrowUnzipPath;
+  std::wstring tmpPath;
+  int ret = -1;
 
-  zipFile = ELExpandVars(zipFile);
-  unzipPath = ELExpandVars(unzipPath);
+  HZIP hz = OpenZip(zipFile.c_str(), 0);
 
-  // switch to UNIX path separators since unzip lib requires it
-  zipFile = ELwstringReplace(zipFile, forwardSlash, backSlash, false);
+  if (hz)
+    {
+      ZIPENTRY ze;
 
-  narrowZipFile = ELwstringTostring(zipFile);
-  narrowUnzipPath = ELwstringTostring(unzipPath);
+      unzipPath = ELExpandVars(unzipPath);
+      SetUnzipBaseDir(hz, unzipPath.c_str());
 
-  return ExtractZip((char*)narrowZipFile.c_str(), (char*)narrowUnzipPath.c_str());
+      GetZipItem(hz,-1,&ze); // -1 gives overall information about the zipfile
+      int numitems=ze.index;
+
+      for (int zi=0; zi<numitems; zi++)
+        {
+          GetZipItem(hz,zi,&ze); // fetch individual details
+          ret = UnzipItem(hz, zi, ze.name); // e.g. the item's name.
+        }
+
+      CloseZip(hz);
+    }
+
+  return ret;
 }
 
 void stripQuotes(LPTSTR source)
