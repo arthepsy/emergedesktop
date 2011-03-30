@@ -60,7 +60,7 @@ INT_PTR ConfigPage::DoInitPage(HWND hwndDlg)
 
   std::wstring warningMessage = L"Note:\n\n";
   warningMessage += L"1. With 'Explorer Desktop' enabled, right clicking on the desktop willl display the Explorer right click menu.\n";
-  warningMessage += L"2. When disabling 'Explorer Desktop' (if previously enabled), an Explorer window will be displayed.\n";
+  warningMessage += L"2. When disabling 'Explorer Desktop', an Explorer window will be displayed.\n";
 
   SetWindowText(warningWnd, warningMessage.c_str());
 
