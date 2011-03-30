@@ -449,5 +449,9 @@ DLL_EXPORT HANDLE ELActivateActCtxForClsid(REFCLSID rclsid, PULONG_PTR pulCookie
 DLL_EXPORT void ELDeactivateActCtx(HANDLE hActCtx, ULONG_PTR* pulCookie);
 DLL_EXPORT IOleCommandTarget *ELStartSSO(CLSID clsid);
 DLL_EXPORT void ELStripLeadingSpaces(LPTSTR input);
+inline bool ELPathIsCLSID(const WCHAR *path)
+{
+  return (path[0] == ':' && path[1] == ':' && path[2] == '{');
+}
 
 #endif

@@ -1325,6 +1325,12 @@ bool ELParseCommand(const WCHAR *application, WCHAR *program, WCHAR *arguments)
     }
   workingApp = ELExpandVars(workingApp);
 
+  if (ELPathIsCLSID(application))
+    {
+      wcscpy(program, application);
+      return true;
+    }
+
   // Bail if workingApp is a directory, UNC Path or it exists
   if (PathIsDirectory(workingApp.c_str()) ||
       PathIsUNC(workingApp.c_str()) ||
@@ -1473,10 +1479,9 @@ bool GetSpecialFolderGUID(int folder, WCHAR *classID)
 
 bool ELExecuteSpecialFolder(LPTSTR folder)
 {
-  WCHAR command[MAX_LINE_LENGTH], classID[MAX_PATH];
-  wcscpy(command, TEXT("%windir%\\explorer.exe ::"));
-
   int specialFolder = ELIsSpecialFolder(folder);
+  WCHAR command[MAX_LINE_LENGTH], classID[MAX_PATH];
+  wcscpy(command, TEXT("::"));
 
   switch (specialFolder)
     {
@@ -1495,12 +1500,6 @@ bool ELExecuteSpecialFolder(LPTSTR folder)
       if (GetSpecialFolderGUID(specialFolder, classID))
         wcscat(command, classID);
       break;
-    case CSIDL_PERSONAL:
-      if (ELVersionInfo() == 5.0)
-        {
-          wcscpy(command, TEXT("%Documents%"));
-          break;
-        }
     default:
       if (GetSpecialFolderGUID(specialFolder, classID))
         wcscat(command, classID);
@@ -1586,7 +1585,7 @@ bool ELExecute(LPTSTR application, LPTSTR workingDir, int nShow, WCHAR *verb)
 
   // If the program doesn't exist or is not a URL return false so as to not
   // generate stray DDE calls
-  if (!ELPathFileExists(program) && !PathIsURL(program))
+  if (!ELPathFileExists(program) && !PathIsURL(program) && !ELPathIsCLSID(program))
     return false;
 
   if (!ELFileTypeCommand(program, arguments, command))
@@ -4422,8 +4421,8 @@ size_t ELwcsftime(WCHAR *strDest, size_t maxsize, WCHAR *format, const struct tm
   ret = strftime(tmpDest, MAX_LINE_LENGTH, tmpFormat, timeptr);
 
   /**< Convert back to unicode */
-	MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, tmpDest, (int)strlen(tmpDest)+1,
-                     strDest, maxsize);
+  MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, tmpDest, (int)strlen(tmpDest)+1,
+                      strDest, maxsize);
 
   return ret;
 }
