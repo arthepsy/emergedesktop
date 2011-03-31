@@ -3,10 +3,10 @@
 
 include functions.in
 
-LIBS = zip unzip emergeLib emergeGraphics emergeAppletEngine emergeStyleEngine emergeBaseClasses emergeIcons
+LIBS = emergeLib emergeGraphics emergeAppletEngine emergeStyleEngine emergeBaseClasses emergeIcons
 APPLETS = emergeCore emergeWorkspace emergeHotkeys emergeTasks emergeCommand emergeLauncher \
 					emergeVWM emergeTray emerge emergePower emergeSysMon Explorer
-VERSION = 4.1
+VERSION = 6.0
 PACKAGE = EmergeDesktop
 BIN_DIR = bin
 SHELL_BREAK = &
@@ -38,16 +38,8 @@ makedep: all
 $(APPLETS): $(LIBS)
 	$(MAKE) -C $@ ARCH=$(ARCH) $(MAKECMDGOALS)
 
-.PHONY: zip
-zip:
-	$(MAKE) -C $@ ARCH=$(ARCH) $(MAKECMDGOALS)
-
-.PHONY: unzip
-unzip:
-	$(MAKE) -C $@ ARCH=$(ARCH) $(MAKECMDGOALS)
-
 .PHONY: emergeLib
-emergeLib: zip unzip
+emergeLib:
 	$(MAKE) -C $@ ARCH=$(ARCH) $(MAKECMDGOALS)
 
 .PHONY: emergeIcons
