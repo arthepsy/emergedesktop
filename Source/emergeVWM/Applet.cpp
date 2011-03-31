@@ -240,7 +240,7 @@ bool Applet::AddTasks(HWND hwnd)
 
   iter = taskList.begin();
 
-  while (iter != taskList.end())
+  while (iter < taskList.end())
     {
       if ((*iter)->GetTaskWnd() == hwnd)
         {
@@ -404,7 +404,7 @@ void Applet::SwitchDesktop(int row, int column, bool gather)
       dwp = BeginDeferWindowPos((int)taskList.size());
 
       iter = taskList.begin();
-      while (iter != taskList.end())
+      while (iter < taskList.end())
         {
           // VERY IMPORTANT: Only modify a valid window
           if (GetWindowRect((*iter)->GetTaskWnd(), &r))
@@ -431,7 +431,7 @@ void Applet::SwitchDesktop(int row, int column, bool gather)
   dwp = BeginDeferWindowPos((int)taskList.size());
 
   iter = taskList.begin();
-  while (iter != taskList.end())
+  while (iter < taskList.end())
     {
       // VERY IMPORTANT: Only modify a valid window
       if (GetWindowRect((*iter)->GetTaskWnd(), &r))
@@ -712,7 +712,7 @@ LRESULT Applet::DoTimer(UINT timerID)
       // Remove and invalid tasks
       std::vector< std::tr1::shared_ptr<Task> >::iterator iter = taskList.begin(), tmpIter;
 
-      while (iter != taskList.end())
+      while (iter < taskList.end())
         {
           if ((!IsWindow((*iter)->GetTaskWnd())) ||
               (!IsWindowVisible((*iter)->GetTaskWnd())))

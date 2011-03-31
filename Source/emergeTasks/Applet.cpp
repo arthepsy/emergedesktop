@@ -188,7 +188,7 @@ void Applet::UpdateIcons()
 
   EnterCriticalSection(&vectorLock);
   iter = taskList.begin();
-  while (iter != taskList.end())
+  while (iter < taskList.end())
     {
       (*iter)->UpdateIcon();
       iter++;
@@ -359,7 +359,7 @@ bool Applet::CleanTasks()
   UINT SWPFlags = SWP_NOZORDER | SWP_NOACTIVATE;
 
   // Go through each of the elements in the trayIcons array
-  while (iter != taskList.end())
+  while (iter < taskList.end())
     {
       // If the icon does not have a valid window handle, remove it
       if (!IsWindow((*iter)->GetWnd()))
@@ -414,7 +414,7 @@ LRESULT Applet::TaskMouseEvent(UINT message, LPARAM lParam)
   // Traverse the valid icon vector to see if the mouse is in the bounding rectangle
   // of the current icon
   iter = taskList.begin();
-  while (iter != taskList.end())
+  while (iter < taskList.end())
     {
       if (PtInRect((*iter)->GetRect(), pt))
         {
@@ -552,7 +552,7 @@ TaskVector::iterator Applet::FindTask(HWND hwnd)
   // Go through each of the elements in the trayIcons array
   EnterCriticalSection(&vectorLock);
   iter = taskList.begin();
-  while (iter != taskList.end())
+  while (iter < taskList.end())
     {
       if ((*iter)->GetWnd() == hwnd)
         break;
@@ -744,7 +744,7 @@ void Applet::ResetTaskIcons()
   TaskVector::iterator iter = taskList.begin();
   HICON icon;
 
-  while (iter != taskList.end())
+  while (iter < taskList.end())
     {
       if (pSettings->GetIconSize() == 32)
         icon = EGGetWindowIcon((*iter)->GetWnd(), false, true);
@@ -773,7 +773,7 @@ void Applet::AppletUpdate()
     }
 
   iter = taskList.begin();
-  while (iter != taskList.end())
+  while (iter < taskList.end())
     {
       if ((*iter)->GetFlash())
         {

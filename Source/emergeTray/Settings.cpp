@@ -327,7 +327,8 @@ void Settings::DeleteHideListItem(WCHAR *itemText)
       i++;
     }
 
-  while (iter != hideList.end())
+  /**< Using a '!=' caused a crash here, switching to '<' fixed the crash - odd */
+  while (iter < hideList.end())
   {
     if ((*iter) == itemText)
       hideList.erase(iter);
@@ -337,9 +338,19 @@ void Settings::DeleteHideListItem(WCHAR *itemText)
 
 void Settings::ModifyHideListItem(WCHAR *oldText, WCHAR *newText)
 {
+  UINT i = 0;
+  Applet *pApplet = reinterpret_cast<Applet*>(lParam);
   std::vector<std::wstring>::iterator iter = hideList.begin();
 
-  while (iter != hideList.end())
+  while (i < pApplet->GetTrayIconListSize())
+    {
+      if (wcsstr(pApplet->GetTrayIconListItem(i)->GetTip(), oldText))
+        pApplet->GetTrayIconListItem(i)->SetHidden(false);
+
+      i++;
+    }
+
+  while (iter < hideList.end())
   {
     if ((*iter) == oldText)
       (*iter) = newText;
