@@ -15,7 +15,8 @@
 				<Option createStaticLib="1" />
 				<Compiler>
 					<Add option="-O2" />
-					<Add option="-Wno-strict-alias" />
+					<Add option="-Wno-strict-aliasing" />
+					<Add option="-Wno-unused-value" />
 					<Add option="-DEMERGELIB_EXPORTS" />
 					<Add option="-DTIXML_USE_STL" />
 				</Compiler>
@@ -671,11 +672,12 @@
 			<Add alias="All - Release" targets="emergeLib - Release;emergeGraphics - Release;emergeAppletEngine - Release;emergeStyleEngine - Release;emergeBaseClasses - Release;emergeCore - Release;emergeCommand - Release;emergeWorkspace - Release;emergeHotkeys - Release;emergeLauncher - Release;emergeTasks - Release;emergeTray - Release;emergeVWM - Release;emerge - Release;emergePower - Release;emergeSysMon - Release;emergeIcons - Release;Explorer - Release;" />
 		</VirtualTargets>
 		<Compiler>
+			<Add option="-pedantic" />
 			<Add option="-Wfatal-errors" />
 			<Add option="-Wextra" />
 			<Add option="-Wall" />
 			<Add option="-W" />
-			<Add option="-Wno-unused-value" />
+			<Add option="-Wno-long-long" />
 			<Add option="-D_GLIBCXX_DLL" />
 		</Compiler>
 		<Linker>
