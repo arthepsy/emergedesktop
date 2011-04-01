@@ -34,8 +34,6 @@
 					<Add library="gdi32" />
 					<Add library="winmm" />
 					<Add library="powrprof" />
-					<Add library="zip32z64" />
-					<Add library="unzip32" />
 					<Add directory=".\bin64" />
 				</Linker>
 			</Target>
