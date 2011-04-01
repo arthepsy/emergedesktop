@@ -198,7 +198,7 @@ LRESULT CALLBACK Applet::WindowProcedure (HWND hwnd, UINT message, WPARAM wParam
 }
 
 Applet::Applet(HINSTANCE hInstance)
-:BaseApplet(hInstance, myName, true)
+  :BaseApplet(hInstance, myName, true)
 {
   mainInst = hInstance;
 
@@ -212,7 +212,7 @@ Applet::Applet(HINSTANCE hInstance)
   autoHideBottom = false;
   autoHideTop = false;
 
-  //  activeIcon = NULL;
+  activeIcon = NULL;
 }
 
 Applet::~Applet()
@@ -279,17 +279,17 @@ UINT Applet::Initialize()
     return 0;
 
   clockWnd = CreateWindowEx(0, szClockName, NULL, WS_CHILDWINDOW,
-                             0, 0, 0, 0, notifyWnd, NULL, mainInst, reinterpret_cast<LPVOID>(this));
+                            0, 0, 0, 0, notifyWnd, NULL, mainInst, reinterpret_cast<LPVOID>(this));
   if (!clockWnd)
     return 0;
 
   rebarWnd = CreateWindowEx(0, szReBarName, NULL, WS_CHILDWINDOW,
-                             0, 0, 0, 0, trayWnd, NULL, mainInst, reinterpret_cast<LPVOID>(this));
+                            0, 0, 0, 0, trayWnd, NULL, mainInst, reinterpret_cast<LPVOID>(this));
   if (!rebarWnd)
     return 0;
 
   taskWnd = CreateWindowEx(0, szTaskSwName, NULL, WS_CHILDWINDOW,
-                             0, 0, 0, 0, rebarWnd, NULL, mainInst, reinterpret_cast<LPVOID>(this));
+                           0, 0, 0, 0, rebarWnd, NULL, mainInst, reinterpret_cast<LPVOID>(this));
   if (!rebarWnd)
     return 0;
 
@@ -899,26 +899,26 @@ bool Applet::TrayMouseEvent(UINT message, LPARAM lParam)
           GetWindowThreadProcessId((*iter)->GetWnd(), &processID);
           AllowSetForegroundWindow(processID);
 
-          /*          if (activeIcon != NULL)
-                      {
-                      if (activeIcon->GetWnd() != (*iter)->GetWnd())
-                      {
-                      SendMessage(activeIcon->GetWnd(), activeIcon->GetCallback(), MAKEWPARAM(0, 0),
-                      MAKELPARAM(NIN_POPUPCLOSE, activeIcon->GetID()));
-                      activeIcon = NULL;
-                      }
-                      }*/
+          /*if (activeIcon != NULL)
+            {
+              if (activeIcon->GetWnd() != (*iter)->GetWnd())
+                {
+                  SendMessage(activeIcon->GetWnd(), activeIcon->GetCallback(), MAKEWPARAM(0, 0),
+                              MAKELPARAM(NIN_POPUPCLOSE, activeIcon->GetID()));
+                  activeIcon = NULL;
+                }
+            }*/
 
           //std::wstring debug;
           switch (message)
             {
-              /*                case WM_MOUSEMOVE:
-                                if (activeIcon == NULL)
-                                {
-                                message = NIN_POPUPOPEN;
-                                activeIcon = (*iter);
-                                }
-                                break;*/
+            /*case WM_MOUSEMOVE:
+              if (activeIcon == NULL)
+                {
+                  message = NIN_POPUPOPEN;
+                  activeIcon = (*iter);
+                }
+              break;*/
 
               /*if (ELVersionInfo() >= 7.0)
                 {
@@ -943,21 +943,21 @@ bool Applet::TrayMouseEvent(UINT message, LPARAM lParam)
                 }*/
 
               // Second attempt at NIN_POPOPEN:
-              /*case WM_MOUSEMOVE:
-                if ((ELVersionInfo() >= 6.0) && (((*iter)->GetFlags() & NIF_INFO) == NIF_INFO))
+            case WM_MOUSEMOVE:
+              if ((ELVersionInfo() >= 6.0) && (((*iter)->GetFlags() & NIF_INFO) == NIF_INFO))
                 {
-                if (activeIcon != NULL)
-                {
-                if( activeIcon->GetWnd() != (*iter)->GetWnd())
-                {
-                activeIcon->SendMessage(NIN_POPUPCLOSE);
-                activeIcon = (*iter).get();
+                  if (activeIcon != NULL)
+                    {
+                      if( activeIcon->GetWnd() != (*iter)->GetWnd())
+                        {
+                          activeIcon->SendMessage(NIN_POPUPCLOSE);
+                          activeIcon = (*iter).get();
+                        }
+                    }
+                  message = NIN_POPUPOPEN;
                 }
-                }
-                message = NIN_POPUPOPEN;
-                }
-                (*iter)->SendMessage(message);
-                break;*/
+              (*iter)->SendMessage(message);
+              break;
 
             case WM_RBUTTONUP:
               (*iter)->SendMessage(message);
