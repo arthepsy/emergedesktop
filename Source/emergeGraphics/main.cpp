@@ -736,7 +736,15 @@ VOID CALLBACK GetIconCallBack(HWND hwnd, UINT uMsg UNUSED, ULONG_PTR dwData, LRE
 //----  --------------------------------------------------------------------------------------------------------
 HICON EGGetWindowIcon(HWND callerWnd, HWND hwnd, bool smallIcon, bool force)
 {
-  HICON icon = LoadIcon(NULL, IDI_APPLICATION);
+  HICON icon = NULL;
+  UINT iconSize = 32;
+  WCHAR applicationName[MAX_PATH];
+
+  if (smallIcon)
+    iconSize = 16;
+
+  ELGetWindowApp(hwnd, applicationName, true);
+  icon = EGGetFileIcon(applicationName, iconSize);
 
   if (force)
     {
@@ -762,6 +770,9 @@ HICON EGGetWindowIcon(HWND callerWnd, HWND hwnd, bool smallIcon, bool force)
       else
         SendMessageCallback(hwnd, WM_GETICON, ICON_BIG, 0, GetIconCallBack, (DWORD)callerWnd);
     }
+
+  if (!icon)
+    icon = LoadIcon(NULL, IDI_APPLICATION);
 
   return icon;
 }
