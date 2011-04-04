@@ -899,50 +899,8 @@ bool Applet::TrayMouseEvent(UINT message, LPARAM lParam)
           GetWindowThreadProcessId((*iter)->GetWnd(), &processID);
           AllowSetForegroundWindow(processID);
 
-          /*if (activeIcon != NULL)
-            {
-              if (activeIcon->GetWnd() != (*iter)->GetWnd())
-                {
-                  SendMessage(activeIcon->GetWnd(), activeIcon->GetCallback(), MAKEWPARAM(0, 0),
-                              MAKELPARAM(NIN_POPUPCLOSE, activeIcon->GetID()));
-                  activeIcon = NULL;
-                }
-            }*/
-
-          //std::wstring debug;
           switch (message)
             {
-            /*case WM_MOUSEMOVE:
-              if (activeIcon == NULL)
-                {
-                  message = NIN_POPUPOPEN;
-                  activeIcon = (*iter);
-                }
-              break;*/
-
-              /*if (ELVersionInfo() >= 7.0)
-                {
-                case WM_LBUTTONDOWN:
-                debug = TEXT("LBUTTONDOWN");
-                ELWriteDebug(debug);
-                return 0;
-                case WM_LBUTTONUP:
-                debug = TEXT("LBUTTONUP");
-                ELWriteDebug(debug);
-                SendNotifyMessage((*iter)->GetWnd(), (*iter)->GetCallback(), MAKEWPARAM(cursorPT.x, cursorPT.y),
-                MAKELPARAM(NIN_POPUPCLOSE, (*iter)->GetID()));
-                SendNotifyMessage((*iter)->GetWnd(), (*iter)->GetCallback(), MAKEWPARAM(cursorPT.x, cursorPT.y),
-                MAKELPARAM(WM_LBUTTONDOWN, (*iter)->GetID()));
-                SendNotifyMessage((*iter)->GetWnd(), (*iter)->GetCallback(), MAKEWPARAM(cursorPT.x, cursorPT.y),
-                MAKELPARAM(message, (*iter)->GetID()));
-                return 0;
-                case WM_LBUTTONDBLCLK:
-                debug = TEXT("LBUTTONDBLCLK");
-                ELWriteDebug(debug);
-                return 0;
-                }*/
-
-              // Second attempt at NIN_POPOPEN:
             case WM_MOUSEMOVE:
               if ((ELVersionInfo() >= 6.0) && (((*iter)->GetFlags() & NIF_INFO) == NIF_INFO))
                 {
@@ -956,15 +914,20 @@ bool Applet::TrayMouseEvent(UINT message, LPARAM lParam)
                     }
                   message = NIN_POPUPOPEN;
                 }
-              (*iter)->SendMessage(message);
+              break;
+
+            /**< For some reason some icons require WM_USER being passed to activate the left click action */
+            case WM_LBUTTONUP:
+              (*iter)->SendMessage(WM_USER);
               break;
 
             case WM_RBUTTONUP:
               (*iter)->SendMessage(message);
               message = WM_CONTEXTMENU;
-            default:
-              (*iter)->SendMessage(message);
+              break;
             }
+
+          (*iter)->SendMessage(message);
           return 0;
         }
     }
