@@ -68,6 +68,7 @@ private:
   static VOID CALLBACK ModifyTimerProc(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime);
   static VOID CALLBACK FlashTimerProc(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime);
   CRITICAL_SECTION vectorLock;
+  LRESULT DoTaskIcon(HWND task, HICON icon);
 
 protected:
   virtual std::tr1::shared_ptr<BaseSettings> createSettings();

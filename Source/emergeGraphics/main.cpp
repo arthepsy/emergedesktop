@@ -499,9 +499,9 @@ UINT32 EGGetPixel(BYTE alpha, COLORREF colour)
   fAlphaFactor = (float)alpha / (float)0xff;
 
   pixel = (alpha << 24) |
-    ((UCHAR)(GetRValue(colour) * fAlphaFactor) << 16) |
-    ((UCHAR)(GetGValue(colour) * fAlphaFactor) << 8) |
-    (UCHAR)(GetBValue(colour) * fAlphaFactor);
+          ((UCHAR)(GetRValue(colour) * fAlphaFactor) << 16) |
+          ((UCHAR)(GetGValue(colour) * fAlphaFactor) << 8) |
+          (UCHAR)(GetBValue(colour) * fAlphaFactor);
 
   return pixel;
 }
@@ -706,80 +706,62 @@ bool EGGetIconDialogue(HWND hwnd, WCHAR *iconPath, int iconIndex)
   return false;
 }
 
+VOID CALLBACK GetSmallIconCallBack(HWND hwnd, UINT uMsg UNUSED, ULONG_PTR dwData, LRESULT lResult)
+{
+  HICON icon = (HICON)lResult;
+
+  if (!icon)
+    icon = (HICON)GetClassLongPtr(hwnd, GCLP_HICONSM);
+
+  if (icon)
+    PostMessage((HWND)dwData, TASK_ICON, (WPARAM)hwnd, (LPARAM)icon);
+}
+
+VOID CALLBACK GetIconCallBack(HWND hwnd, UINT uMsg UNUSED, ULONG_PTR dwData, LRESULT lResult)
+{
+  HICON icon = (HICON)lResult;
+
+  if (!icon)
+    icon = (HICON)GetClassLongPtr(hwnd, GCLP_HICON);
+
+  if (icon)
+    PostMessage((HWND)dwData, TASK_ICON, (WPARAM)hwnd, (LPARAM)icon);
+}
+
 //----  --------------------------------------------------------------------------------------------------------
 // Function:	EGGetWindowIcon
 // Required:	HWND task - handle to the task's window
 // Returns:	HICON
 // Purpose:	Retrieve the icon for the task
 //----  --------------------------------------------------------------------------------------------------------
-HICON EGGetWindowIcon(HWND hwnd, bool smallIcon, bool force)
+HICON EGGetWindowIcon(HWND callerWnd, HWND hwnd, bool smallIcon, bool force)
 {
-  HICON icon = NULL;
-  UINT iconSize = 32;
-  WCHAR applicationName[MAX_LINE_LENGTH];
+  HICON icon = LoadIcon(NULL, IDI_APPLICATION);
 
-  if (smallIcon)
+  if (force)
     {
-      iconSize = 16;
-
-      if (force)
-        {
-          icon = (HICON)SendMessage(hwnd, WM_GETICON, ICON_SMALL2, 0);
-          if (!icon)
-            icon = (HICON)SendMessage(hwnd, WM_GETICON, ICON_SMALL, 0);
-          if (!icon)
-            icon = (HICON)SendMessage(hwnd, WM_GETICON, ICON_BIG, 0);
-        }
-      else
+      if (smallIcon)
         {
           SendMessageTimeout(hwnd, WM_GETICON, ICON_SMALL2, 0, SMTO_ABORTIFHUNG, ICON_LOOKUP_TIMEOUT,
                              reinterpret_cast<ULONG_PTR*>(&icon));
           if (!icon)
-            SendMessageTimeout(hwnd, WM_GETICON, ICON_SMALL, 0, SMTO_ABORTIFHUNG, ICON_LOOKUP_TIMEOUT,
-                               reinterpret_cast<ULONG_PTR*>(&icon));
-          if (!icon)
-            SendMessageTimeout(hwnd, WM_GETICON, ICON_BIG, 0, SMTO_ABORTIFHUNG, ICON_LOOKUP_TIMEOUT,
-                               reinterpret_cast<ULONG_PTR*>(&icon));
-        }
-      if (!icon)
-        icon = (HICON)GetClassLongPtr(hwnd, GCLP_HICONSM);
-      if (!icon)
-        icon = (HICON)GetClassLongPtr(hwnd, GCLP_HICON);
-    }
-  else
-    {
-      if (force)
-        {
-          icon = (HICON)SendMessage(hwnd, WM_GETICON, ICON_BIG, 0);
-          if (!icon)
-            icon = (HICON)SendMessage(hwnd, WM_GETICON, ICON_SMALL2, 0);
-          if (!icon)
-            icon = (HICON)SendMessage(hwnd, WM_GETICON, ICON_SMALL, 0);
+            icon = (HICON)GetClassLongPtr(hwnd, GCLP_HICONSM);
         }
       else
         {
           SendMessageTimeout(hwnd, WM_GETICON, ICON_BIG, 0, SMTO_ABORTIFHUNG, ICON_LOOKUP_TIMEOUT,
                              reinterpret_cast<ULONG_PTR*>(&icon));
           if (!icon)
-            SendMessageTimeout(hwnd, WM_GETICON, ICON_SMALL2, 0, SMTO_ABORTIFHUNG, ICON_LOOKUP_TIMEOUT,
-                               reinterpret_cast<ULONG_PTR*>(&icon));
-          if (!icon)
-            SendMessageTimeout(hwnd, WM_GETICON, ICON_SMALL, 0, SMTO_ABORTIFHUNG, ICON_LOOKUP_TIMEOUT,
-                               reinterpret_cast<ULONG_PTR*>(&icon));
+            icon = (HICON)GetClassLongPtr(hwnd, GCLP_HICON);
         }
-      if (!icon)
-        icon = (HICON)GetClassLongPtr(hwnd, GCLP_HICON);
-      if (!icon)
-        icon = (HICON)GetClassLongPtr(hwnd, GCLP_HICONSM);
     }
-
-  if (!icon)
+  else
     {
-      ELGetWindowApp(hwnd, applicationName, true);
-      icon = EGGetFileIcon(applicationName, iconSize);
+      if (smallIcon)
+        SendMessageCallback(hwnd, WM_GETICON, ICON_SMALL2, 0, GetSmallIconCallBack, (DWORD)callerWnd);
+      else
+        SendMessageCallback(hwnd, WM_GETICON, ICON_BIG, 0, GetIconCallBack, (DWORD)callerWnd);
     }
-  if (!icon)
-    icon = LoadIcon(NULL, IDI_APPLICATION);
 
   return icon;
 }
@@ -978,7 +960,7 @@ bool EGDrawAlphaText(BYTE alpha, CLIENTINFO clientInfo, FORMATINFO formatInfo, W
     for (x = 0; x < bmi.bmiHeader.biWidth; x++)
       {
         pixel = ((UINT32 *)maskBits)
-          [x + ((bmi.bmiHeader.biHeight - (y + 1)) * bmi.bmiHeader.biWidth)];
+                [x + ((bmi.bmiHeader.biHeight - (y + 1)) * bmi.bmiHeader.biWidth)];
 
         if (pixel != 0)
           {

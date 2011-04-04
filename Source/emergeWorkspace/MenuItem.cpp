@@ -99,7 +99,7 @@ void MenuItem::SetIcon()
   switch (type)
     {
     case IT_SEPARATOR:
-      icon = EGGetWindowIcon((HWND)_wtoi(value), true, true);
+      icon = EGGetWindowIcon(NULL, (HWND)_wtoi(value), true, true);
       break;
     case IT_EXECUTABLE:
       if ((wcsstr(lwrValue, TEXT("%documents%")) != NULL) ||
