@@ -766,9 +766,9 @@ HICON EGGetWindowIcon(HWND callerWnd, HWND hwnd, bool smallIcon, bool force)
   else
     {
       if (smallIcon)
-        SendMessageCallback(hwnd, WM_GETICON, ICON_SMALL2, 0, GetSmallIconCallBack, (DWORD)callerWnd);
+        SendMessageCallback(hwnd, WM_GETICON, ICON_SMALL2, 0, GetSmallIconCallBack, (ULONG_PTR)callerWnd);
       else
-        SendMessageCallback(hwnd, WM_GETICON, ICON_BIG, 0, GetIconCallBack, (DWORD)callerWnd);
+        SendMessageCallback(hwnd, WM_GETICON, ICON_BIG, 0, GetIconCallBack, (ULONG_PTR)callerWnd);
     }
 
   if (!icon)
