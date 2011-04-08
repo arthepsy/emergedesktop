@@ -106,6 +106,10 @@ topic alone.
 #define CP_USER   2
 #define CP_APPLET 3
 
+#ifndef SEE_MASK_NOASYNC
+#define SEE_MASK_NOASYNC 0x00000100
+#endif
+
 // Helper functions
 bool ELCheckPathWithExtension(LPTSTR path);
 bool IsClose(int side, int edge);
@@ -1522,12 +1526,10 @@ bool ELExecuteSpecialFolder(LPTSTR folder)
               wcscat(command, TEXT("\\::"));
             }
         }
-      if (GetSpecialFolderGUID(specialFolder, classID))
-        wcscat(command, classID);
-      break;
     default:
       if (GetSpecialFolderGUID(specialFolder, classID))
         wcscat(command, classID);
+      break;
     }
 
   return ELExecute(command);
@@ -1668,7 +1670,7 @@ bool ELExecute(LPTSTR application, LPTSTR workingDir, int nShow, WCHAR *verb)
   // Call ShellExecuteEx as an 'all-else-fails' mechanism since things like UAC escalation don't play nice
   // with CreateProcess
   sei.cbSize = sizeof(sei);
-  sei.fMask = SEE_MASK_FLAG_NO_UI|SEE_MASK_ASYNCOK|SEE_MASK_UNICODE;
+  sei.fMask = SEE_MASK_FLAG_NO_UI|SEE_MASK_NOASYNC|SEE_MASK_UNICODE;
   sei.lpFile = program;
   sei.lpParameters = arguments;
   sei.lpDirectory = commandDir;
