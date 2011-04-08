@@ -248,6 +248,7 @@ UINT Applet::Initialize()
   wincl.hIcon = LoadIcon (NULL, IDI_APPLICATION);
   wincl.hIconSm = LoadIcon (NULL, IDI_APPLICATION);
   wincl.hCursor = LoadCursor (NULL, IDC_ARROW);
+  wincl.hbrBackground = NULL;
 
   if (!RegisterClassEx (&wincl))
     return 0;
@@ -402,7 +403,7 @@ LRESULT Applet::MyMove()
   movesizeinprogress = false;
 
   GetWindowRect(mainWnd, &winRect);
-  SetWindowPos(trayWnd, NULL, winRect.left, winRect.top, 0, 0, SWP_NOZORDER | SWP_NOACTIVATE | SWP_NOSIZE);
+  SetWindowPos(trayWnd, NULL, winRect.left, winRect.top, (winRect.right - winRect.left), (winRect.bottom - winRect.top), SWP_NOZORDER | SWP_NOACTIVATE);
 
   return 0;
 }
