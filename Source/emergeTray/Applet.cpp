@@ -917,7 +917,7 @@ bool Applet::TrayMouseEvent(UINT message, LPARAM lParam)
                 }
               break;
 
-            /**< For some reason some icons require WM_USER being passed to activate the left click action */
+              /**< For some reason some icons require WM_USER being passed to activate the left click action */
             case WM_LBUTTONUP:
               (*iter)->SendMessage(WM_USER);
               break;
@@ -1079,10 +1079,22 @@ LRESULT Applet::AppBarEvent(COPYDATASTRUCT *cpData)
       return 1;
 
     case ABM_GETSTATE:
-      if (_wcsicmp(pSettings->GetZPosition(), TEXT("Top")) == 0)
-        return ABS_ALWAYSONTOP;
+    {
+      LRESULT result = 0;
+
+      if (!IsWindowVisible(mainWnd))
+        result = ABS_AUTOHIDE;
+
+      if (ELVersionInfo() >= 7.0)
+        result |= ABS_ALWAYSONTOP;
       else
-        return 0;
+        {
+          if (_wcsicmp(pSettings->GetZPosition(), TEXT("Top")) == 0)
+            result |= ABS_ALWAYSONTOP;
+        }
+
+      return result;
+    }
 
     case ABM_SETSTATE:
       return 1;
