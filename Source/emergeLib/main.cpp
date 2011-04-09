@@ -120,8 +120,6 @@ bool SnapSizeToEdge(LPSNAPSIZEINFO snapSize, RECT rt);
 bool WriteValue(const WCHAR *fileName, WCHAR *keyword, WCHAR *value);
 BOOL CALLBACK FullscreenEnum(HWND hwnd, LPARAM lParam);
 BOOL CALLBACK WindowIconEnum(HWND hwnd, LPARAM lParam);
-bool GetSpecialFolderGUID(int folder, WCHAR *classID);
-bool GetPIDLGUID(LPITEMIDLIST pidl, WCHAR *classID);
 bool VistaVolumeControl(UINT command);
 bool VolumeControl(UINT command);
 bool PathTokenCheck(WCHAR *path);
@@ -1451,88 +1449,26 @@ bool ELParseCommand(const WCHAR *application, WCHAR *program, WCHAR *arguments)
   return false;
 }
 
-bool GetPIDLGUID(LPITEMIDLIST pidl, WCHAR *classID)
+bool ELExecuteSpecialFolder(LPTSTR folder)
 {
-  IShellFolder *pDesktop, *pFolder;
-  IPersistFolder *pPersist;
-  CLSID clsID;
-  LPVOID lpVoid;
-  WCHAR *GUIDString;
+  int specialFolder = ELIsSpecialFolder(folder);
+  LPITEMIDLIST pidl = NULL;
+  SHELLEXECUTEINFO sei;
   bool ret = false;
 
-  if (SUCCEEDED(SHGetDesktopFolder(&pDesktop)))
+  if (SUCCEEDED(SHGetFolderLocation(NULL, specialFolder, NULL, 0, &pidl)))
     {
-      if (SUCCEEDED(pDesktop->BindToObject(pidl, NULL, IID_IShellFolder, &lpVoid)))
-        {
-          pFolder = reinterpret_cast <IShellFolder*> (lpVoid);
+      ZeroMemory(&sei, sizeof(sei));
+      sei.cbSize = sizeof(sei);
+      sei.fMask = SEE_MASK_IDLIST | SEE_MASK_NOASYNC | SEE_MASK_FLAG_NO_UI | SEE_MASK_UNICODE;
+      sei.nShow = SW_SHOW;
+      sei.lpIDList = pidl;
+      ret = (ShellExecuteEx(&sei) == TRUE);
 
-          if (SUCCEEDED(pFolder->QueryInterface(IID_IPersistFolder, &lpVoid)))
-            {
-              pPersist = reinterpret_cast <IPersistFolder*> (lpVoid);
-
-              if (SUCCEEDED(pPersist->GetClassID(&clsID)))
-                {
-                  if (SUCCEEDED(StringFromCLSID(clsID, &GUIDString)))
-                    {
-                      wcscpy(classID, GUIDString);
-                      CoTaskMemFree(GUIDString);
-                      ret = true;
-                    }
-                }
-
-              pPersist->Release();
-            }
-
-          pFolder->Release();
-        }
-
-      pDesktop->Release();
-    }
-
-  return ret;
-}
-
-bool GetSpecialFolderGUID(int folder, WCHAR *classID)
-{
-  LPITEMIDLIST pidl;
-  bool ret = false;
-
-  if (SUCCEEDED(SHGetFolderLocation(NULL, folder, NULL, 0, &pidl)))
-    {
-      ret = GetPIDLGUID(pidl, classID);
       ILFree(pidl);
     }
 
   return ret;
-}
-
-bool ELExecuteSpecialFolder(LPTSTR folder)
-{
-  int specialFolder = ELIsSpecialFolder(folder);
-  WCHAR command[MAX_LINE_LENGTH], classID[MAX_PATH];
-  wcscpy(command, TEXT("::"));
-
-  switch (specialFolder)
-    {
-    case 0:
-      return false;
-
-    case CSIDL_CONTROLS:
-      if (ELVersionInfo() < 6.0)
-        {
-          if (GetSpecialFolderGUID(CSIDL_DRIVES, classID))
-            {
-              wcscat(command, classID);
-              wcscat(command, TEXT("\\::"));
-            }
-        }
-    default:
-      if (GetSpecialFolderGUID(specialFolder, classID))
-        wcscat(command, classID);
-      break;
-    }
-
-  return ELExecute(command);
 }
 
 BOOL CALLBACK WindowIconEnum(HWND hwnd, LPARAM lParam)
