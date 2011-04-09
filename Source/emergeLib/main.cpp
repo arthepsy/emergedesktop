@@ -1456,6 +1456,9 @@ bool ELExecuteSpecialFolder(LPTSTR folder)
   SHELLEXECUTEINFO sei;
   bool ret = false;
 
+  if (!specialFolder)
+    return ret;
+
   if (SUCCEEDED(SHGetFolderLocation(NULL, specialFolder, NULL, 0, &pidl)))
     {
       ZeroMemory(&sei, sizeof(sei));
