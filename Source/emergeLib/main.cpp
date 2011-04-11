@@ -1958,6 +1958,9 @@ BOOL CALLBACK FullscreenEnum(HWND hwnd, LPARAM lParam)
   if (hwndMonitor != (HMONITOR)lParam)
     return true;
 
+  if (ELIsApplet(hwnd))
+    return true;
+
   if (hwnd == FindWindow(TEXT("Progman"), NULL))
     return true;
 
@@ -4430,6 +4433,7 @@ bool ELIsApplet(HWND hwnd)
     return true;
 
   // Desktop Class
+  //if (_wcsicmp(windowClass, TEXT("EmergeDesktop_progman")) == 0)
   if (_wcsicmp(windowClass, TEXT("progman")) == 0)
     return true;
 

@@ -22,7 +22,7 @@
 
 std::deque<HWND> hwndDeque;
 
-WCHAR desktopClass[] = TEXT("EmergeDesktop_progman");
+WCHAR desktopClass[] = TEXT("progman");
 
 BOOL CALLBACK Desktop::MinimizeWindowsEnum(HWND hwnd, LPARAM lParam)
 {
