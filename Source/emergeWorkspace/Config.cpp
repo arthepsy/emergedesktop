@@ -60,7 +60,7 @@ int Config::Show()
       return ret;
     }
 
-  ret = (int)DialogBoxParam(hInstance, MAKEINTRESOURCE(IDD_SETTINGS), FindWindow(TEXT("progman"), NULL), (DLGPROC)ConfigDlgProc, (LPARAM)this);
+  ret = (int)DialogBoxParam(hInstance, MAKEINTRESOURCE(IDD_SETTINGS), FindWindow(TEXT("EmergeDesktopProgman"), NULL), (DLGPROC)ConfigDlgProc, (LPARAM)this);
 
   CloseHandle(hMutex);
 

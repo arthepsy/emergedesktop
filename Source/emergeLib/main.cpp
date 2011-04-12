@@ -881,7 +881,7 @@ HWND ELGetDesktopWindow()
 {
   HWND deskWindow = FindWindow(TEXT("progman"), NULL);
   if (deskWindow == NULL)
-    deskWindow = FindWindow(TEXT("EmergeDesktop_progman"), NULL);
+    deskWindow = FindWindow(TEXT("EmergeDesktopProgman"), NULL);
 
   if (deskWindow == NULL)
     deskWindow = HWND_BOTTOM;
@@ -4433,11 +4433,14 @@ bool ELIsApplet(HWND hwnd)
     return true;
 
   // Desktop Class
-  //if (_wcsicmp(windowClass, TEXT("EmergeDesktop_progman")) == 0)
-  if (_wcsicmp(windowClass, TEXT("progman")) == 0)
+  if (_wcsicmp(windowClass, TEXT("EmergeDesktopProgman")) == 0)
     return true;
 
   // Explorer Class
+  if (_wcsicmp(windowClass, TEXT("progman")) == 0)
+    return true;
+
+  // Explorer Desktop Class
   if (_wcsicmp(windowClass, TEXT("WorkerW")) == 0)
     return true;
 
