@@ -246,7 +246,17 @@ void ELGetThemeInfo(LPTHEMEINFO themeInfo)
   ELGetCurrentPath(xmlPath);
   workingPath = xmlPath;
   userPath = workingPath + TEXT("\\theme.xml");
-  if (!ELPathFileExists(userPath.c_str()))
+
+  if (ELGetPortableMode() == TEXT("PAF"))
+    {
+      //if we're in PortableApps Format, we're in EmergeDesktopPortable\App\Emerge Desktop; we need to go up two levels (to EmergeDesktopPortable) and then into Data\Emerge Desktop
+      workingPath = workingPath.substr(0, workingPath.rfind(TEXT("\\")));
+      workingPath = workingPath.substr(0, workingPath.rfind(TEXT("\\")));
+      workingPath = workingPath + TEXT("\\Data\\Emerge Desktop");
+      userPath = workingPath + TEXT("\\theme.xml");
+    }
+
+  if (ELGetPortableMode().empty() && !ELPathFileExists(userPath.c_str()))
     {
       workingPath = TEXT("%AppData%\\Emerge Desktop");
       workingPath = ELExpandVars(workingPath);
@@ -897,12 +907,12 @@ std::string ELwstringTostring(std::wstring inString, UINT codePage)
   std::string returnString;
 
   size_t tmpStringLength = WideCharToMultiByte(codePage, 0, wideString.c_str(), wideString.length(), NULL, 0,
-                           NULL, NULL);
+                                               NULL, NULL);
   if (tmpStringLength != 0)
     {
       LPSTR tmpString = new char[tmpStringLength + 1];
       size_t writtenBytes = WideCharToMultiByte(codePage, 0, wideString.c_str(), wideString.length(), tmpString,
-                            tmpStringLength, NULL, NULL);
+                                                tmpStringLength, NULL, NULL);
       if (writtenBytes != 0)
         {
           if (writtenBytes <= tmpStringLength)
@@ -924,7 +934,7 @@ std::wstring ELstringTowstring(std::string inString, UINT codePage)
     {
       LPWSTR tmpString = new WCHAR[tmpStringLength + 1];
       size_t writtenBytes = MultiByteToWideChar(codePage, 0, narrowString.c_str(), narrowString.length(), tmpString,
-                            tmpStringLength);
+                                                tmpStringLength);
       if (writtenBytes != 0)
         {
           if (writtenBytes <= tmpStringLength)
@@ -2656,6 +2666,40 @@ std::wstring ELGetUserDataPath()
   return path;
 }
 
+std::wstring ELGetPortableMode()
+{
+  WCHAR xmlPath[MAX_PATH];
+  std::tr1::shared_ptr<TiXmlDocument> configXML;
+  TiXmlElement *section;
+  bool PAF;
+  std::wstring portablePath, workingPath, portableMode;
+
+  ELGetCurrentPath(xmlPath);
+  workingPath = xmlPath;
+  portablePath = workingPath + TEXT("\\portable.xml");
+
+  if (!ELPathFileExists(portablePath.c_str()))
+    return portableMode;
+
+  configXML = ELOpenXMLConfig(portablePath, false);
+  if (configXML)
+    {
+      section = ELGetXMLSection(configXML.get(), (WCHAR*)TEXT("Portable"), false);
+      if (section)
+        {
+          if (ELReadXMLBoolValue(section, TEXT("PAF"), &PAF, false))
+            {
+              if (PAF == true)
+                portableMode = TEXT("PAF");
+            }
+        }
+    }
+
+  portableMode = TEXT("Portable");
+
+  return portableMode;
+}
+
 void ELStripLeadingSpaces(LPTSTR input)
 {
   WCHAR *tmp = _wcsdup(input);
@@ -3913,15 +3957,18 @@ void ELClearEmergeVars()
   SetEnvironmentVariable(TEXT("ThemeDir"), NULL);
   SetEnvironmentVariable(TEXT("EmergeDir"), NULL);
   SetEnvironmentVariable(TEXT("AppletDir"), NULL);
+  SetEnvironmentVariable(TEXT("PortableMode"), NULL);
 }
 
 bool ELSetEmergeVars()
 {
   WCHAR appletPath[MAX_PATH];
+  std::wstring portableMode;
 
   THEMEINFO themeInfo;
   ELGetThemeInfo(&themeInfo);
   ELGetCurrentPath(appletPath);
+  portableMode = ELGetPortableMode();
 
   if (!SetEnvironmentVariable(TEXT("ThemeDir"), themeInfo.themePath))
     return false;
@@ -3930,6 +3977,9 @@ bool ELSetEmergeVars()
     return false;
 
   if (!SetEnvironmentVariable(TEXT("AppletDir"), appletPath))
+    return false;
+
+  if (!SetEnvironmentVariable(TEXT("PortableMode"), portableMode.c_str()))
     return false;
 
   return true;
@@ -4456,10 +4506,10 @@ HANDLE ELActivateActCtxForDll(LPCTSTR pszDll, PULONG_PTR pulCookie)
   typedef BOOL (WINAPI* ActivateActCtx_t)(HANDLE hCtx, ULONG_PTR* pCookie);
 
   CreateActCtx_t fnCreateActCtx = (CreateActCtx_t)
-                                  GetProcAddress(kernel32, "CreateActCtxW");
+    GetProcAddress(kernel32, "CreateActCtxW");
 
   ActivateActCtx_t fnActivateActCtx = (ActivateActCtx_t)
-                                      GetProcAddress(kernel32, "ActivateActCtx");
+    GetProcAddress(kernel32, "ActivateActCtx");
 
   if (fnCreateActCtx != NULL && fnActivateActCtx != NULL)
     {
@@ -4526,7 +4576,7 @@ HANDLE ELActivateActCtxForClsid(REFCLSID rclsid, PULONG_PTR pulCookie)
           DWORD cbDll = sizeof(szDll);
 
           LONG lres = SHGetValue(
-                        HKEY_CLASSES_ROOT, szSubkey, NULL, NULL, szDll, &cbDll);
+                                 HKEY_CLASSES_ROOT, szSubkey, NULL, NULL, szDll, &cbDll);
 
           if (lres == ERROR_SUCCESS)
             {
@@ -4549,10 +4599,10 @@ void ELDeactivateActCtx(HANDLE hActCtx, ULONG_PTR* pulCookie)
   typedef void (WINAPI* ReleaseActCtx_t)(HANDLE hActCtx);
 
   DeactivateActCtx_t fnDeactivateActCtx = (DeactivateActCtx_t)
-                                          GetProcAddress(kernel32, "DeactivateActCtx");
+    GetProcAddress(kernel32, "DeactivateActCtx");
 
   ReleaseActCtx_t fnReleaseActCtx = (ReleaseActCtx_t)
-                                    GetProcAddress(kernel32, "ReleaseActCtx");
+    GetProcAddress(kernel32, "ReleaseActCtx");
 
   if (fnDeactivateActCtx != NULL && fnReleaseActCtx != NULL)
     {
@@ -4583,9 +4633,9 @@ IOleCommandTarget *ELStartSSO(CLSID clsid)
     {
       // Start ShellServiceObject
       reinterpret_cast <IOleCommandTarget*> (lpVoid)->Exec(&CGID_ShellServiceObject,
-          OLECMDID_NEW,
-          OLECMDEXECOPT_DODEFAULT,
-          NULL, NULL);
+                                                           OLECMDID_NEW,
+                                                           OLECMDEXECOPT_DODEFAULT,
+                                                           NULL, NULL);
       target = reinterpret_cast <IOleCommandTarget*>(lpVoid);
     }
 

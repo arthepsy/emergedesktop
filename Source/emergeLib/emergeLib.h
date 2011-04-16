@@ -300,6 +300,7 @@ DLL_EXPORT bool ELExecuteSpecialFolder(LPTSTR folder);
 DLL_EXPORT bool ELExecuteAll(WCHAR *command, WCHAR *workingDir);
 DLL_EXPORT bool ELGetCurrentPath(LPTSTR path);
 DLL_EXPORT std::wstring ELGetUserDataPath();
+DLL_EXPORT std::wstring ELGetPortableMode();
 DLL_EXPORT HWND ELGetCoreWindow();
 DLL_EXPORT bool ELRun();
 DLL_EXPORT bool ELRegisterShellHook(HWND hwnd, DWORD method);
