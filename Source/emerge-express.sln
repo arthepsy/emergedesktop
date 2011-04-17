@@ -70,6 +70,11 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "emergeStyleEngine", "emerge
 		{C54398FD-EBE7-40E0-AC9A-FF8015E5CA46} = {C54398FD-EBE7-40E0-AC9A-FF8015E5CA46}
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Explorer", "Explorer\Explorer.vcxproj", "{85369E27-2E2F-479F-82FC-A1B223741A7E}"
+	ProjectSection(ProjectDependencies) = postProject
+		{7A35311A-8373-4BC8-84A4-2CB88D50AA84} = {7A35311A-8373-4BC8-84A4-2CB88D50AA84}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -144,6 +149,10 @@ Global
 		{13443F0D-C7FB-4CB6-AB61-1CC14FD61939}.Debug|Win32.Build.0 = Debug|Win32
 		{13443F0D-C7FB-4CB6-AB61-1CC14FD61939}.Release|Win32.ActiveCfg = Release|Win32
 		{13443F0D-C7FB-4CB6-AB61-1CC14FD61939}.Release|Win32.Build.0 = Release|Win32
+		{85369E27-2E2F-479F-82FC-A1B223741A7E}.Debug|Win32.ActiveCfg = Debug|Win32
+		{85369E27-2E2F-479F-82FC-A1B223741A7E}.Debug|Win32.Build.0 = Debug|Win32
+		{85369E27-2E2F-479F-82FC-A1B223741A7E}.Release|Win32.ActiveCfg = Release|Win32
+		{85369E27-2E2F-479F-82FC-A1B223741A7E}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

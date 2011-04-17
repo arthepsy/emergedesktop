@@ -55,7 +55,7 @@
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>shlwapi.lib;winmm.lib;psapi.lib;version.lib;wtsapi32.lib;powrprof.lib;zip32z64.lib;unzip32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>shlwapi.lib;winmm.lib;psapi.lib;version.lib;wtsapi32.lib;powrprof.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <TargetMachine>MachineX86</TargetMachine>
@@ -101,8 +101,8 @@
     <ClCompile Include="..\tinyxml\tinyxml.cpp" />
     <ClCompile Include="..\tinyxml\tinyxmlerror.cpp" />
     <ClCompile Include="..\tinyxml\tinyxmlparser.cpp" />
-    <ClCompile Include="unzip.c" />
-    <ClCompile Include="zip.c" />
+    <ClCompile Include="unzip.cpp" />
+    <ClCompile Include="zip.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

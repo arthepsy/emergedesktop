@@ -78,6 +78,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="AliasEditor.h" />
+    <ClInclude Include="Config.h" />
+    <ClInclude Include="ConfigPage.h" />
     <ClInclude Include="Core.h" />
     <ClInclude Include="Desktop.h" />
     <ClInclude Include="LaunchEditor.h" />
@@ -86,7 +89,6 @@
     <ClInclude Include="Settings.h" />
     <ClInclude Include="Shell.h" />
     <ClInclude Include="ShellChanger.h" />
-    <ClInclude Include="ShellDesktopTray.h" />
     <ClInclude Include="ThemeSaver.h" />
     <ClInclude Include="ThemeSelector.h" />
   </ItemGroup>
@@ -97,6 +99,9 @@
     <ResourceCompile Include="emergeCore.rc" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="AliasEditor.cpp" />
+    <ClCompile Include="Config.cpp" />
+    <ClCompile Include="ConfigPage.cpp" />
     <ClCompile Include="Core.cpp" />
     <ClCompile Include="Desktop.cpp" />
     <ClCompile Include="LaunchEditor.cpp" />
@@ -105,7 +110,6 @@
     <ClCompile Include="Settings.cpp" />
     <ClCompile Include="Shell.cpp" />
     <ClCompile Include="ShellChanger.cpp" />
-    <ClCompile Include="ShellDesktopTray.cpp" />
     <ClCompile Include="ThemeSaver.cpp" />
     <ClCompile Include="ThemeSelector.cpp" />
   </ItemGroup>
@@ -118,6 +122,10 @@
       <Project>{7a35311a-8373-4bc8-84a4-2cb88d50aa84}</Project>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="AliasEditor.dlg" />
+    <None Include="ConfigPage.dlg" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
