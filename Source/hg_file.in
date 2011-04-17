@@ -1,2 +1,2 @@
 $(HG_FILE):
-	hg tip --template "#define BUILD_VERSION {rev}" > $(HG_FILE)
+	hg tip --template "#define BUILD_VERSION {rev}\n" > $(HG_FILE)
