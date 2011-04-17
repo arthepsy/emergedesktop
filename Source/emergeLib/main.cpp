@@ -3290,15 +3290,15 @@ bool ELReadFileColor(const WCHAR *fileName, WCHAR *item, COLORREF *target, COLOR
   Windows 2000	          5.0
   */
 
-float ELVersionInfo()
+double ELVersionInfo()
 {
   OSVERSIONINFO osv;
   ZeroMemory(&osv, sizeof(osv));
   osv.dwOSVersionInfoSize = sizeof(osv);
   GetVersionEx(&osv);
 
-  float fMajor = (float)osv.dwMajorVersion;
-  float fMinor = (float)osv.dwMinorVersion / 10.0;
+  double fMajor = (double)osv.dwMajorVersion;
+  double fMinor = (double)osv.dwMinorVersion / 10.0;
 
   return (fMajor + fMinor);
 }

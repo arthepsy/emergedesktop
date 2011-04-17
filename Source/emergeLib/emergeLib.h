@@ -328,7 +328,7 @@ DLL_EXPORT bool ELWriteFileInt(const WCHAR *fileName, WCHAR *keyword, int value)
 DLL_EXPORT bool ELWriteFileString(const WCHAR *fileName, WCHAR *keyword, WCHAR *value);
 DLL_EXPORT bool ELWriteFileBool(const WCHAR *fileName, WCHAR *keyword, bool value);
 DLL_EXPORT bool ELWriteFileColor(const WCHAR *fileName, WCHAR *keyword, COLORREF value);
-DLL_EXPORT float ELVersionInfo();
+DLL_EXPORT double ELVersionInfo();
 DLL_EXPORT bool ELAppletVersionInfo(HWND appWnd, LPVERSIONINFO versionInfo);
 DLL_EXPORT bool ELAppletFileVersion(WCHAR *applet, LPVERSIONINFO versionInfo);
 DLL_EXPORT bool ELGetWindowApp(HWND hWnd, WCHAR *processName, bool fullName);
