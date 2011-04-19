@@ -722,9 +722,12 @@ LRESULT Applet::ModifyTrayIcon(HWND hwnd, UINT uID, UINT uFlags, UINT uCallbackM
    */
   else
     {
-      pTrayIcon->SetHidden(true);
-      adjust = true;
-      changed = true;
+      if (wcslen(pTrayIcon->GetTip()) == 0)
+        {
+          pTrayIcon->SetHidden(true);
+          adjust = true;
+          changed = true;
+        }
     }
 
   pTrayIcon->SetShared(shared);
