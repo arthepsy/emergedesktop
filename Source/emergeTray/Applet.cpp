@@ -198,7 +198,7 @@ LRESULT CALLBACK Applet::WindowProcedure (HWND hwnd, UINT message, WPARAM wParam
 }
 
 Applet::Applet(HINSTANCE hInstance)
-  :BaseApplet(hInstance, myName, true)
+:BaseApplet(hInstance, myName, true)
 {
   mainInst = hInstance;
 
@@ -696,7 +696,7 @@ LRESULT Applet::ModifyTrayIcon(HWND hwnd, UINT uID, UINT uFlags, UINT uCallbackM
   if (!pTrayIcon)
     return 0;
 
-  bool isHide = pSettings->CheckHide(pTrayIcon->GetTip());
+  bool isHide = pSettings->CheckHide(newTip);
 
   if ((uFlags & NIF_ICON) == NIF_ICON)
     {
@@ -716,6 +716,15 @@ LRESULT Applet::ModifyTrayIcon(HWND hwnd, UINT uID, UINT uFlags, UINT uCallbackM
           adjust = true;
           changed = true;
         }
+    }
+  /* Due to some tray icons getting their tip text delayed (i.e. network icons
+   * use the isHidden check to force them hidden if appropriate.
+   */
+  else
+    {
+      pTrayIcon->SetHidden(true);
+      adjust = true;
+      changed = true;
     }
 
   pTrayIcon->SetShared(shared);
@@ -765,8 +774,7 @@ LRESULT Applet::ModifyTrayIcon(HWND hwnd, UINT uID, UINT uFlags, UINT uCallbackM
         }
     }
 
-  // ELWriteDebug(towstring<UINT>(uFlags));
-  if ((!isHide) && (changed))
+  if (changed)
     DrawAlphaBlend();
 
   return 1;
@@ -803,7 +811,7 @@ LRESULT Applet::AddTrayIcon(HWND hwnd, UINT uID, UINT uFlags, UINT uCallbackMess
   if ((uFlags & NIF_TIP) == NIF_TIP)
     pTrayIcon->SetTip(szTip);
   else
-    PostMessage(hwnd, uCallbackMessage, WPARAM(uID), LPARAM(WM_MOUSEMOVE));
+    pTrayIcon->SendMessage(LPARAM(WM_MOUSEMOVE));
 
   pTrayIcon->SetFlags(uFlags);
   if (pSettings->CheckHide(szTip))
@@ -1079,22 +1087,22 @@ LRESULT Applet::AppBarEvent(COPYDATASTRUCT *cpData)
       return 1;
 
     case ABM_GETSTATE:
-    {
-      LRESULT result = 0;
-
-      if (!IsWindowVisible(mainWnd))
-        result = ABS_AUTOHIDE;
-
-      if (ELVersionInfo() >= 7.0)
-        result |= ABS_ALWAYSONTOP;
-      else
         {
-          if (_wcsicmp(pSettings->GetZPosition(), TEXT("Top")) == 0)
-            result |= ABS_ALWAYSONTOP;
-        }
+          LRESULT result = 0;
 
-      return result;
-    }
+          if (!IsWindowVisible(mainWnd))
+            result = ABS_AUTOHIDE;
+
+          if (ELVersionInfo() >= 7.0)
+            result |= ABS_ALWAYSONTOP;
+          else
+            {
+              if (_wcsicmp(pSettings->GetZPosition(), TEXT("Top")) == 0)
+                result |= ABS_ALWAYSONTOP;
+            }
+
+          return result;
+        }
 
     case ABM_SETSTATE:
       return 1;
