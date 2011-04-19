@@ -148,7 +148,7 @@ LRESULT Applet::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 }
 
 Applet::Applet(HINSTANCE hInstance)
-  :BaseApplet(hInstance, myName, false)
+:BaseApplet(hInstance, myName, false)
 {
   // Set current row and column
   currentRow = 0;
@@ -469,7 +469,7 @@ void Applet::SwitchDesktop(int row, int column, bool gather)
                 }
 
               dwp = DeferWindowPos(dwp, (*iter)->GetTaskWnd(), NULL,
-                                   r.left,	r.top,
+                                   r.left, r.top,
                                    0, 0,
                                    SWP_NOZORDER | SWP_NOACTIVATE | SWP_NOSIZE);
             }
@@ -480,9 +480,12 @@ void Applet::SwitchDesktop(int row, int column, bool gather)
 
   oldActiveWindow = NULL;
 
-  EndDeferWindowPos(dwp);
+  dwp = DeferWindowPos(dwp, FindWindow(TEXT("EmergeDesktopProgman"), NULL), HWND_BOTTOM,
+                       0, 0,
+                       0, 0,
+                       SWP_NOMOVE | SWP_NOACTIVATE | SWP_NOSIZE);
 
-  DrawAlphaBlend();
+  EndDeferWindowPos(dwp);
 }
 
 //----  --------------------------------------------------------------------------------------------------------
@@ -501,7 +504,7 @@ LRESULT Applet::DesktopMouseEvent(HWND hwnd, UINT message, LPARAM lParam)
   HWND popupWnd;
   UINT dragBorder = guiInfo.dragBorder + guiInfo.bevelWidth + guiInfo.padding;
   int screenWidth = GetSystemMetrics(SM_CXVIRTUALSCREEN),
-                    screenHeight = GetSystemMetrics(SM_CYVIRTUALSCREEN);
+      screenHeight = GetSystemMetrics(SM_CYVIRTUALSCREEN);
 
   pt.x = LOWORD(lParam);
   pt.y = HIWORD(lParam);
@@ -543,10 +546,10 @@ LRESULT Applet::DesktopMouseEvent(HWND hwnd, UINT message, LPARAM lParam)
               GetClientRect(mainWnd, &clientRect);
 
               rowScalar = (float)(clientRect.bottom - (2 * dragBorder)) /
-                          (float)pSettings->GetDesktopRows();
+                (float)pSettings->GetDesktopRows();
               rowScalar = (float)screenHeight / rowScalar;
               columnScalar = (float)(clientRect.right - (2 * dragBorder)) /
-                             (float)pSettings->GetDesktopColumns();
+                (float)pSettings->GetDesktopColumns();
               columnScalar = (float)screenWidth / columnScalar;
 
               xOffset = (float)pt.x - (float)referencePt.x;
@@ -595,9 +598,9 @@ LRESULT Applet::DesktopMouseEvent(HWND hwnd, UINT message, LPARAM lParam)
           for (column = 0; column < pSettings->GetDesktopColumns(); column++)
             {
               float rowScalar = (float)(clientRect.bottom - (2 * dragBorder)) /
-                                (float)pSettings->GetDesktopRows();
+                (float)pSettings->GetDesktopRows();
               float columnScalar = (float)(clientRect.right - (2 * dragBorder)) /
-                                   (float)pSettings->GetDesktopColumns();
+                (float)pSettings->GetDesktopColumns();
 
               desktopRect.top = dragBorder + (int)(row * rowScalar);
               desktopRect.bottom = desktopRect.top + (int)rowScalar;
