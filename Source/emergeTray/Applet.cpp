@@ -718,11 +718,12 @@ LRESULT Applet::ModifyTrayIcon(HWND hwnd, UINT uID, UINT uFlags, UINT uCallbackM
         }
     }
   /* Due to some tray icons getting their tip text delayed (i.e. network icons
-   * use the isHidden check to force them hidden if appropriate.
+   * use the isHidden check to force them hidden if appropriate.  However, do
+   * not re-hide them if the mouse is over the applet.
    */
   else
     {
-      if (wcslen(pTrayIcon->GetTip()) == 0)
+      if (!pSettings->GetUnhideIcons() || (!mouseOver && pSettings->GetUnhideIcons()))
         {
           pTrayIcon->SetHidden(true);
           adjust = true;
