@@ -92,17 +92,17 @@ bool Core::Initialize(WCHAR *commandLine)
 
   // The class is registered, let's create the window
   mainWnd = CreateWindowEx (
-                            WS_EX_TOOLWINDOW,
-                            emergeCoreClass,
-                            NULL,
-                            WS_POPUP,
-                            0, 0,
-                            0, 0,
-                            NULL,
-                            NULL,
-                            mainInst,
-                            reinterpret_cast<LPVOID>(this)
-                           );
+              WS_EX_TOOLWINDOW,
+              emergeCoreClass,
+              NULL,
+              WS_POPUP,
+              0, 0,
+              0, 0,
+              NULL,
+              NULL,
+              mainInst,
+              reinterpret_cast<LPVOID>(this)
+            );
 
   // If the window failed to get created, unregister the class and quit the program
   if (!mainWnd)
@@ -123,6 +123,29 @@ bool Core::Initialize(WCHAR *commandLine)
   // Create desktop window
   pDesktop = std::tr1::shared_ptr<Desktop>(new Desktop(mainInst, pMessageControl));
   pDesktop->Initialize(pSettings->GetShowExplorerDesktop());
+
+  WCHAR tempPMode[MAX_PATH];
+  GetEnvironmentVariable(TEXT("PortableMode"), tempPMode, MAX_PATH);
+  std::wstring portableMode = tempPMode;
+  if (!portableMode.empty()) //we're in portable mode, probably running on top of Explorer; hide the Taskbar
+    {
+      //get the Taskbar window
+      HWND taskBarWnd = FindWindow(TEXT("Shell_TrayWnd"), NULL);
+
+      //get the start button window
+      HWND startWnd = FindWindow(TEXT("Button"), NULL);
+
+      if (taskBarWnd)
+        {
+          ShowWindow(taskBarWnd, SW_HIDE);
+          UpdateWindow(taskBarWnd);
+        }
+      if (startWnd)
+        {
+          ShowWindow(startWnd, SW_HIDE);
+          UpdateWindow(startWnd);
+        }
+    }
 
   // Launch additional Emerge Desktop applets
   ConvertTheme();
@@ -154,7 +177,7 @@ bool Core::Initialize(WCHAR *commandLine)
   if (wtslib)
     {
       lpfnWTSRegisterSessionNotification wtsrsn = (lpfnWTSRegisterSessionNotification)
-        GetProcAddress(wtslib, "WTSRegisterSessionNotification");
+          GetProcAddress(wtslib, "WTSRegisterSessionNotification");
       if (wtsrsn)
         wtsrsn(mainWnd, NOTIFY_FOR_THIS_SESSION);
       FreeLibrary(wtslib);
@@ -172,11 +195,35 @@ Core::~Core()
       if (wtslib)
         {
           lpfnWTSUnRegisterSessionNotification wtsursn = (lpfnWTSUnRegisterSessionNotification)
-            GetProcAddress(wtslib, "WTSUnRegisterSessionNotification");
+              GetProcAddress(wtslib, "WTSUnRegisterSessionNotification");
           if (wtsursn)
             wtsursn(mainWnd);
           FreeLibrary(wtslib);
         }
+
+      WCHAR tempPMode[MAX_PATH];
+      GetEnvironmentVariable(TEXT("PortableMode"), tempPMode, MAX_PATH);
+      std::wstring portableMode = tempPMode;
+      if (!portableMode.empty()) //we're in portable mode, probably running on top of Explorer; show the Taskbar before exiting
+        {
+          //get the Taskbar window
+          HWND taskBarWnd = FindWindow(TEXT("Shell_TrayWnd"), NULL);
+
+          //get the start button window
+          HWND startWnd = FindWindow(TEXT("Button"), NULL);
+
+          if (taskBarWnd)
+            {
+              ShowWindow(taskBarWnd, SW_SHOW);
+              UpdateWindow(taskBarWnd);
+            }
+          if (startWnd)
+            {
+              ShowWindow(startWnd, SW_SHOW);
+              UpdateWindow(startWnd);
+            }
+        }
+
       pShell->UnloadSSO();
       pShell->RegisterShell(mainWnd, false);
       pShell->ClearSessionInformation();
