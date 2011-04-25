@@ -696,8 +696,6 @@ LRESULT Applet::ModifyTrayIcon(HWND hwnd, UINT uID, UINT uFlags, UINT uCallbackM
   if (!pTrayIcon)
     return 0;
 
-  bool isHide = pSettings->CheckHide(newTip);
-
   if ((uFlags & NIF_ICON) == NIF_ICON)
     {
       if (pTrayIcon->SetIcon(icon))
@@ -708,24 +706,33 @@ LRESULT Applet::ModifyTrayIcon(HWND hwnd, UINT uID, UINT uFlags, UINT uCallbackM
         }
     }
 
-  if (!isHide)
+  if ((uFlags & NIF_TIP) == NIF_TIP)
     {
-      if (hidden != pTrayIcon->GetHidden())
+      if (pTrayIcon->SetTip(newTip))
         {
-          pTrayIcon->SetHidden(hidden);
-          adjust = true;
+          pTrayIcon->SetFlags(pTrayIcon->GetFlags() | NIF_TIP);
           changed = true;
         }
     }
+
   /* Due to some tray icons getting their tip text delayed (i.e. network icons
    * use the isHidden check to force them hidden if appropriate.  However, do
    * not re-hide them if the mouse is over the applet.
    */
-  else
+  if (pSettings->CheckHide(pTrayIcon->GetTip()))
     {
       if (!pSettings->GetUnhideIcons() || (!mouseOver && pSettings->GetUnhideIcons()))
         {
           pTrayIcon->SetHidden(true);
+          adjust = true;
+          changed = true;
+        }
+    }
+  else
+    {
+      if (hidden != pTrayIcon->GetHidden())
+        {
+          pTrayIcon->SetHidden(hidden);
           adjust = true;
           changed = true;
         }
@@ -746,18 +753,6 @@ LRESULT Applet::ModifyTrayIcon(HWND hwnd, UINT uID, UINT uFlags, UINT uCallbackM
     {
       pTrayIcon->ShowBalloon(newInfoTitle, newInfo, newInfoFlags, icon);
       pTrayIcon->SetFlags(pTrayIcon->GetFlags() | NIF_INFO);
-    }
-
-  if ((uFlags & NIF_TIP) == NIF_TIP)
-    {
-      if (!isHide || (isHide && (wcslen(newTip) != 0)))
-        {
-          if (pTrayIcon->SetTip(newTip))
-            {
-              pTrayIcon->SetFlags(pTrayIcon->GetFlags() | NIF_TIP);
-              changed = true;
-            }
-        }
     }
 
   if (adjust)
