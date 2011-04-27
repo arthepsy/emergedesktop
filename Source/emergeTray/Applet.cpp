@@ -706,6 +706,10 @@ LRESULT Applet::ModifyTrayIcon(HWND hwnd, UINT uID, UINT uFlags, UINT uCallbackM
         }
     }
 
+  /* Some icons (i.e. network icons) will be displayed when they shouldn't be,
+   * at least until a WM_MOUSEOVER.  They seem to have no TIP, so proactively 
+   * send icons with no tip the WM_MOUSEOVER message.
+   */
   if ((uFlags & NIF_TIP) == NIF_TIP)
     {
       if (pTrayIcon->SetTip(newTip))
@@ -714,10 +718,13 @@ LRESULT Applet::ModifyTrayIcon(HWND hwnd, UINT uID, UINT uFlags, UINT uCallbackM
           changed = true;
         }
     }
+  else
+    pTrayIcon->SendMessage(LPARAM(WM_MOUSEMOVE));
 
-  /* Due to some tray icons getting their tip text delayed (i.e. network icons
-   * use the isHidden check to force them hidden if appropriate.  However, do
-   * not re-hide them if the mouse is over the applet.
+  /* Due to some tray icons getting their tip text delayed (i.e. network icons)
+   * check to see if they should be hidden based on tip text prior to using the
+   * 'hidden' value.  However, do not re-hide them if the mouse is over the
+   * applet.
    */
   if (pSettings->CheckHide(pTrayIcon->GetTip()))
     {
@@ -807,6 +814,10 @@ LRESULT Applet::AddTrayIcon(HWND hwnd, UINT uID, UINT uFlags, UINT uCallbackMess
   if ((uFlags & NIF_INFO) == NIF_INFO)
     pTrayIcon->ShowBalloon(szInfoTitle, szInfo, dwInfoFlags, icon);
 
+  /* Some icons (i.e. network icons) will be displayed when they shouldn't be,
+   * at least until a WM_MOUSEOVER.  They seem to have no TIP, so proactively 
+   * send icons with no tip the WM_MOUSEOVER message.
+   */
   if ((uFlags & NIF_TIP) == NIF_TIP)
     pTrayIcon->SetTip(szTip);
   else
