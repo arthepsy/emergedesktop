@@ -255,7 +255,8 @@ LRESULT Applet::AddTask(HWND task)
   else
     icon = EGGetWindowIcon(mainWnd, task, true, false);
 
-  TaskPtr taskPtr(new Task(task, icon, mainInst));
+  TaskPtr taskPtr(new Task(task, mainInst));
+  taskPtr->SetIcon(icon, pSettings->GetIconSize());
   EnterCriticalSection(&vectorLock);
   taskList.push_back(taskPtr);
   LeaveCriticalSection(&vectorLock);
@@ -299,7 +300,7 @@ LRESULT Applet::ModifyTask(HWND task)
   else
     icon = EGGetWindowIcon(mainWnd, task, true, false);
 
-  (*iter)->SetIcon(icon);
+  (*iter)->SetIcon(icon, pSettings->GetIconSize());
   DrawAlphaBlend();
 
   return 0;
@@ -716,7 +717,7 @@ LRESULT Applet::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
               else
                 icon = EGGetWindowIcon(mainWnd, task, true, false);
 
-              (*iter)->SetIcon(icon);
+              (*iter)->SetIcon(icon, pSettings->GetIconSize());
             }
 
           if ((task != mainWnd) && (task != activeWnd))
@@ -749,7 +750,7 @@ LRESULT Applet::DoTaskIcon(HWND task, HICON icon)
   if (iter == taskList.end())
     return 1;
 
-  (*iter)->SetIcon(icon);
+  (*iter)->SetIcon(icon, pSettings->GetIconSize());
   DrawAlphaBlend();
 
   return 0;
@@ -767,7 +768,7 @@ void Applet::ResetTaskIcons()
       else
         icon = EGGetWindowIcon(mainWnd, (*iter)->GetWnd(), true, false);
 
-      (*iter)->SetIcon(icon);
+      (*iter)->SetIcon(icon, pSettings->GetIconSize());
 
       iter++;
     }

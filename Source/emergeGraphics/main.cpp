@@ -736,28 +736,25 @@ VOID CALLBACK GetIconCallBack(HWND hwnd, UINT uMsg UNUSED, ULONG_PTR dwData, LRE
 //----  --------------------------------------------------------------------------------------------------------
 HICON EGGetWindowIcon(HWND callerWnd, HWND hwnd, bool smallIcon, bool force)
 {
+  /* Set icon to NULL to return a NULL value in the case where an icon cannot
+   * be found.  Leave it to the applet to create a default icon in this case.
+   */
   HICON icon = NULL;
-  UINT iconSize = 32;
-  WCHAR applicationName[MAX_PATH];
-
-  if (smallIcon)
-    iconSize = 16;
-
-  ELGetWindowApp(hwnd, applicationName, true);
-  icon = EGGetFileIcon(applicationName, iconSize);
 
   if (force)
     {
       if (smallIcon)
         {
-          SendMessageTimeout(hwnd, WM_GETICON, ICON_SMALL2, 0, SMTO_ABORTIFHUNG, ICON_LOOKUP_TIMEOUT,
+          SendMessageTimeout(hwnd, WM_GETICON, ICON_SMALL2, 0,
+                             SMTO_ABORTIFHUNG, ICON_LOOKUP_TIMEOUT,
                              reinterpret_cast<ULONG_PTR*>(&icon));
           if (!icon)
             icon = (HICON)GetClassLongPtr(hwnd, GCLP_HICONSM);
         }
       else
         {
-          SendMessageTimeout(hwnd, WM_GETICON, ICON_BIG, 0, SMTO_ABORTIFHUNG, ICON_LOOKUP_TIMEOUT,
+          SendMessageTimeout(hwnd, WM_GETICON, ICON_BIG, 0, SMTO_ABORTIFHUNG,
+                             ICON_LOOKUP_TIMEOUT,
                              reinterpret_cast<ULONG_PTR*>(&icon));
           if (!icon)
             icon = (HICON)GetClassLongPtr(hwnd, GCLP_HICON);
@@ -766,13 +763,12 @@ HICON EGGetWindowIcon(HWND callerWnd, HWND hwnd, bool smallIcon, bool force)
   else
     {
       if (smallIcon)
-        SendMessageCallback(hwnd, WM_GETICON, ICON_SMALL2, 0, GetSmallIconCallBack, (ULONG_PTR)callerWnd);
+        SendMessageCallback(hwnd, WM_GETICON, ICON_SMALL2, 0,
+                            GetSmallIconCallBack, (ULONG_PTR)callerWnd);
       else
-        SendMessageCallback(hwnd, WM_GETICON, ICON_BIG, 0, GetIconCallBack, (ULONG_PTR)callerWnd);
+        SendMessageCallback(hwnd, WM_GETICON, ICON_BIG, 0, GetIconCallBack,
+                            (ULONG_PTR)callerWnd);
     }
-
-  if (!icon)
-    icon = LoadIcon(NULL, IDI_APPLICATION);
 
   return icon;
 }

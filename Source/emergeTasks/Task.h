@@ -43,7 +43,7 @@
 class Task
 {
 public:
-  Task(HWND task, HICON icon, HINSTANCE mainInstance);
+  Task(HWND task, HINSTANCE mainInstance);
   ~Task();
 
   void UpdateTip(HWND mainWnd, HWND toolWnd, WCHAR *tip);
@@ -53,7 +53,7 @@ public:
   RECT *GetRect();
   bool GetFlash();
   bool GetVisible();
-  void SetIcon(HICON icon);
+  void SetIcon(HICON icon, int iconSize);
   void SetRect(RECT rect);
   void SetFlash(bool flash);
   void DisplayMenu(HWND callingWnd);

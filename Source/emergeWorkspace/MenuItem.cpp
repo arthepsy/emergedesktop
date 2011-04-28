@@ -95,11 +95,21 @@ HICON MenuItem::GetIcon()
 void MenuItem::SetIcon()
 {
   WCHAR app[MAX_PATH], args[MAX_PATH], *lwrValue = _wcslwr(_wcsdup(value));
+  HWND task;
 
   switch (type)
     {
     case IT_SEPARATOR:
-      icon = EGGetWindowIcon(NULL, (HWND)_wtoi(value), true, true);
+      task = (HWND)_wtoi(value);
+      icon = EGGetWindowIcon(NULL, task, true, true);
+      /* If the task icon is NULL, generate a default icon using the
+       * application's icon.
+       */
+      if (icon == NULL)
+        {
+          ELGetWindowApp(task, app, true);
+          icon = EGGetFileIcon(app, 16);
+        }
       break;
     case IT_EXECUTABLE:
       if ((wcsstr(lwrValue, TEXT("%documents%")) != NULL) ||
