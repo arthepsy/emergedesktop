@@ -2950,9 +2950,8 @@ bool ELExit(UINT uFlag, bool prompt)
 
 bool ELCheckWindow(HWND hwnd)
 {
-  // If the window is hidden, a toolwindow or has no title, ignore it
+  // If the window is hidden or a toolwindow, ignore it
   if ((IsWindowVisible(hwnd)) &&
-      !(GetWindowLongPtr(hwnd, GWL_STYLE) & WS_POPUP) &&
       !(GetWindowLongPtr(hwnd, GWL_EXSTYLE) & WS_EX_TOOLWINDOW))
     return true;
 
