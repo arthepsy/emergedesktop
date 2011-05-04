@@ -2959,7 +2959,7 @@ bool ELCheckWindow(HWND hwnd)
   if ((IsWindowVisible(hwnd)) &&
       !(GetWindowLongPtr(hwnd, GWL_EXSTYLE) & WS_EX_TOOLWINDOW) &&
       !GetParent(hwnd) &&
-      !IsRectEmpty(&hwndRt))
+      !(IsRectEmpty(&hwndRt) && !IsIconic(hwnd)))
     return true;
 
   return false;
