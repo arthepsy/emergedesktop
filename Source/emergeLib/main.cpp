@@ -2950,9 +2950,11 @@ bool ELExit(UINT uFlag, bool prompt)
 
 bool ELCheckWindow(HWND hwnd)
 {
-  // If the window is hidden or a toolwindow, ignore it
+  // If the window is visible, not a toolwindow and has no parent, it's a valid
+  // task window.
   if ((IsWindowVisible(hwnd)) &&
-      !(GetWindowLongPtr(hwnd, GWL_EXSTYLE) & WS_EX_TOOLWINDOW))
+      !(GetWindowLongPtr(hwnd, GWL_EXSTYLE) & WS_EX_TOOLWINDOW) &&
+      !GetParent(hwnd))
     return true;
 
   return false;
