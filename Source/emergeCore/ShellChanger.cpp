@@ -54,16 +54,16 @@ ShellChanger::ShellChanger(HINSTANCE hInstance, HWND mainWnd, std::tr1::shared_p
   InitCommonControls();
 
   toolWnd = CreateWindowEx(
-              0,
-              TOOLTIPS_CLASS,
-              NULL,
-              TTS_ALWAYSTIP|WS_POPUP|TTS_NOPREFIX,
-              CW_USEDEFAULT, CW_USEDEFAULT,
-              CW_USEDEFAULT, CW_USEDEFAULT,
-              NULL,
-              NULL,
-              hInstance,
-              NULL);
+                           0,
+                           TOOLTIPS_CLASS,
+                           NULL,
+                           TTS_ALWAYSTIP|WS_POPUP|TTS_NOPREFIX,
+                           CW_USEDEFAULT, CW_USEDEFAULT,
+                           CW_USEDEFAULT, CW_USEDEFAULT,
+                           NULL,
+                           NULL,
+                           hInstance,
+                           NULL);
 
   if (toolWnd)
     {
@@ -357,6 +357,7 @@ bool ShellChanger::DoSetShell(HWND hwndDlg)
   DWORD process;
   REGSAM regMask = 0;
   bool success = false;
+  HWND startErrorWnd = GetDlgItem(hwndDlg, IDC_STARTERROR);
 
   GetDlgItemText(hwndDlg, IDC_SHELLITEM, name, MAX_LINE_LENGTH);
   GetShellCommand(hwndDlg, name, command);
@@ -420,13 +421,16 @@ bool ShellChanger::DoSetShell(HWND hwndDlg)
   emergeCmd += TEXT("cmd.txt");
   CopyFile(appletCmd.c_str(), emergeCmd.c_str(), TRUE);
 
-  if (SendDlgItemMessage(hwndDlg, IDC_STARTERROR, BM_GETCHECK, 0, 0) == BST_CHECKED)
-    success = true;
-  else if (SendDlgItemMessage(hwndDlg, IDC_STARTERROR, BM_GETCHECK, 0, 0) == BST_UNCHECKED)
-    success = false;
-  pSettings->SetShowStartupErrors(success);
-  pSettings->WriteUserSettings();
+  if (IsWindowEnabled(startErrorWnd))
+    {
+      if (SendDlgItemMessage(hwndDlg, IDC_STARTERROR, BM_GETCHECK, 0, 0) == BST_CHECKED)
+        success = true;
+      else if (SendDlgItemMessage(hwndDlg, IDC_STARTERROR, BM_GETCHECK, 0, 0) == BST_UNCHECKED)
+        success = false;
+      pSettings->SetShowStartupErrors(success);
+    }
 
+  pSettings->WriteUserSettings();
   ELMessageBox(hwndDlg, (WCHAR*)TEXT("Changes will take affect after reboot."), (WCHAR*)TEXT("emergeCore"),
                ELMB_OK|ELMB_ICONQUESTION|ELMB_MODAL);
 
