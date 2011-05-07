@@ -66,6 +66,8 @@
 #define ABM_SETSTATE  10
 #endif
 
+static const UINT TRAYHOOK_MSGPROC_ATTACH = RegisterWindowMessage(TEXT("TrayHook_MsgProc_Attach"));
+
 //====================
 // this is the versions of NOTIFYICONDATA
 typedef struct
@@ -460,11 +462,13 @@ private:
   std::vector<IOleCommandTarget*> ssoIconList;
   bool movesizeinprogress;
   HWND trayWnd, notifyWnd, clockWnd, rebarWnd, taskWnd;
+  HINSTANCE trayHookhInstance;
   bool baseClassRegistered, trayClassRegistered, notifyClassRegistered;
   RECT HoverRect;
   void UpdateIcons();
   static LRESULT CALLBACK WindowProcedure (HWND, UINT, WPARAM, LPARAM);
   static LRESULT CALLBACK TrayProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
+  static LRESULT CALLBACK TrayHookProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam, Applet *pApplet);
   bool IsIconVisible(TrayIcon *pTrayIcon);
   TrayIcon *activeIcon;
   bool SetAutoHideEdge(UINT edge);
@@ -475,6 +479,7 @@ public:
   Applet(HINSTANCE hInstance);
   ~Applet();
   UINT Initialize();
+  UINT portableInitialize();
   TrayIcon *GetTrayIconListItem(UINT index);
   size_t GetTrayIconListSize();
   LRESULT DoTimer(UINT timerID);

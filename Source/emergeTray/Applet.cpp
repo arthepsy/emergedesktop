@@ -39,7 +39,11 @@ WCHAR szReBarName[ ] = TEXT("ReBarWindow32");
 WCHAR szClockName[ ] = TEXT("TrayClockWClass");
 WCHAR szTaskSwName[ ] = TEXT("MSTaskSwWClass");
 
+WCHAR edTrayName[ ] = TEXT("ed_Shell_TrayWnd");
+
 WCHAR myName[] = TEXT("emergeTray");
+
+DWORD DLLHandle;
 
 LRESULT CALLBACK Applet::TrayProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
@@ -76,7 +80,7 @@ LRESULT CALLBACK Applet::TrayProcedure (HWND hwnd, UINT message, WPARAM wParam, 
 
       // If not handled just forward the message on
     default:
-      return DefWindowProc(hwnd, message, wParam, lParam);
+		return DefWindowProc(hwnd, message, wParam, lParam);
     }
 
   return 0;
@@ -215,11 +219,112 @@ Applet::Applet(HINSTANCE hInstance)
   activeIcon = NULL;
 }
 
+bool injectExplorerTrayHook(HWND messageHandler)
+{
+    HWND trayhWnd = FindWindow(szTrayName, NULL);
+    if (!trayhWnd)
+        return false;
+
+    DWORD processId;
+    DWORD threadId = GetWindowThreadProcessId(trayhWnd, &processId);
+    if ((!threadId) || (!processId))
+        return false;
+
+    HMODULE hKernel32 = GetModuleHandle(TEXT("Kernel32"));
+    if (!hKernel32)
+        return false; //this should never happen, since Kernel32 should always be loaded, but it's better to be safe than sorry
+
+    WCHAR szLibPath[MAX_PATH];
+    ELGetCurrentPath(szLibPath);
+    wcscat(szLibPath, TEXT("\\emergeTrayExplorerHook.dll"));
+
+    SIZE_T memSize = sizeof(WCHAR)*(wcslen(szLibPath) + 1);
+
+    HANDLE hProcess = OpenProcess(PROCESS_CREATE_THREAD|PROCESS_QUERY_INFORMATION|PROCESS_VM_OPERATION|PROCESS_VM_WRITE|PROCESS_VM_READ, false, processId);
+    if (!hProcess)
+        return false;
+
+    void* pLibRemote = VirtualAllocEx(hProcess, NULL, memSize, MEM_COMMIT, PAGE_READWRITE);
+    if (!pLibRemote)
+        return false;
+
+	if (WriteProcessMemory(hProcess, pLibRemote, (void*)szLibPath, memSize, NULL))
+	{
+		FARPROC loadLibraryAddr = GetProcAddress(hKernel32, "LoadLibraryW");
+
+		HANDLE hThread = CreateRemoteThread(hProcess, NULL, 0, (LPTHREAD_START_ROUTINE)loadLibraryAddr, pLibRemote, 0, NULL);
+		if (hThread)
+		{
+			DWORD returnValue = WaitForSingleObject(hThread, INFINITE);
+			if (returnValue == WAIT_OBJECT_0)
+			{
+				GetExitCodeThread(hThread, &DLLHandle);
+				if (!DLLHandle)
+					MessageBox(NULL, TEXT("Error: emergeTrayExplorerHook.dll was not loaded properly."), TEXT("Error"), MB_OK|MB_ICONSTOP);
+			}
+
+			CloseHandle(hThread);
+		}
+	}
+
+    VirtualFreeEx(hProcess, pLibRemote, 0, MEM_RELEASE);
+
+    SendMessage(trayhWnd, TRAYHOOK_MSGPROC_ATTACH, (WPARAM)NULL, (LPARAM)messageHandler);
+
+    return true;
+}
+
+bool removeExplorerTrayHook()
+{
+    if (!DLLHandle)
+        return false;
+
+    HWND processhWnd = FindWindow(szTrayName, NULL);
+    if (!processhWnd)
+        return false;
+
+    DWORD processId;
+    DWORD threadId = GetWindowThreadProcessId(processhWnd, &processId);
+    if ((!threadId) || (!processId))
+        return false;
+
+    HMODULE hKernel32 = GetModuleHandle(TEXT("Kernel32"));
+    if (!hKernel32)
+        return false;
+
+    HANDLE hProcess = OpenProcess(PROCESS_CREATE_THREAD|PROCESS_QUERY_INFORMATION|PROCESS_VM_OPERATION|PROCESS_VM_WRITE|PROCESS_VM_READ, false, processId);
+    if (!hProcess)
+        return false;
+
+    HANDLE hThread = CreateRemoteThread(hProcess, NULL, 0, (LPTHREAD_START_ROUTINE)GetProcAddress(hKernel32, "FreeLibrary"), (void*)DLLHandle, 0, NULL);
+    if (hThread)
+    {
+        DWORD returnValue = WaitForSingleObject(hThread, INFINITE);
+        if (returnValue == WAIT_OBJECT_0)
+            CloseHandle(hThread);
+    }
+
+    RedrawWindow(processhWnd, NULL, NULL, RDW_INVALIDATE|RDW_ERASE|RDW_FRAME|RDW_UPDATENOW|RDW_ALLCHILDREN); //force the Taskbar, tray, clock, etc. to redraw
+
+    return true;
+}
+
 Applet::~Applet()
 {
-  // A quit message was recieved, so unload the 2K/XP system icons
+  // A quit message was received, so unload the 2K/XP system icons and the Explorer tray hook
+
   UnloadSSO();
+
   DestroyWindow(trayWnd);
+
+  WCHAR tempPMode[MAX_PATH];
+  GetEnvironmentVariable(TEXT("PortableMode"), tempPMode, MAX_PATH);
+  std::wstring portableMode = tempPMode;
+  if (!portableMode.empty()) //we're in portable mode, probably running on top of Explorer
+  {
+      removeExplorerTrayHook();
+      LoadSSO(); //give the 2K/XP tray icons back to Explorer
+  }
 
   // Cleanup the icon vectors
   while (!trayIconList.empty())
@@ -227,6 +332,9 @@ Applet::~Applet()
       trayIconList.front()->DeleteTip();
       trayIconList.erase(trayIconList.begin());
     }
+
+    // Return control to the default shell
+    SendNotifyMessage(HWND_BROADCAST, RegisterWindowMessage(TEXT("TaskbarCreated")), 0, 0);
 }
 
 UINT Applet::Initialize()
@@ -310,6 +418,66 @@ UINT Applet::Initialize()
 
   // Load the 2K/XP system icons
   LoadSSO();
+
+  return 1;
+}
+
+UINT Applet::portableInitialize()
+{
+  HWND explorerTrayWnd;
+
+  WNDCLASSEX wincl;
+  ZeroMemory(&wincl, sizeof(WNDCLASSEX));
+
+  pSettings = std::tr1::shared_ptr<Settings>(new Settings(reinterpret_cast<LPARAM>(this)));
+  UINT ret = BaseApplet::Initialize(WindowProcedure, this, pSettings);
+  if (ret == 0)
+    return ret;
+
+  // Register the window class
+  wincl.hInstance = mainInst;
+  wincl.lpszClassName = edTrayName;
+  wincl.lpfnWndProc = TrayProcedure;
+  wincl.cbSize = sizeof (WNDCLASSEX);
+  wincl.style = CS_DBLCLKS;
+  wincl.hIcon = LoadIcon (NULL, IDI_APPLICATION);
+  wincl.hIconSm = LoadIcon (NULL, IDI_APPLICATION);
+  wincl.hCursor = LoadCursor (NULL, IDC_ARROW);
+  wincl.hbrBackground = NULL;
+
+  if (!RegisterClassEx (&wincl))
+    return 0;
+
+  trayWnd = CreateWindowEx(WS_EX_TOOLWINDOW, edTrayName, NULL, WS_POPUP,
+                           0, 0, 0, 0, NULL, NULL, mainInst, reinterpret_cast<LPVOID>(this));
+  if (!trayWnd)
+    return 0;
+
+  injectExplorerTrayHook(trayWnd);
+
+  explorerTrayWnd = FindWindow(szTrayName, NULL);
+  SetProp(explorerTrayWnd, TEXT("AllowConsentToStealFocus"), (HANDLE)1);
+  SetProp(explorerTrayWnd, TEXT("TaskBandHWND"), trayWnd);
+
+  movesizeinprogress = false;
+
+  // Set the window transparency
+  UpdateGUI();
+
+  // Build the sticky list only after reading the settings (in UpdateGUI())
+  pSettings->BuildHideList();
+
+  // Tell the applications that a systray was created
+  SendNotifyMessage(HWND_BROADCAST, RegisterWindowMessage(TEXT("TaskbarCreated")), 0, 0);
+
+  WCHAR tempPMode[MAX_PATH];
+  GetEnvironmentVariable(TEXT("PortableMode"), tempPMode, MAX_PATH);
+  std::wstring portableMode = tempPMode;
+  if (!portableMode.empty()) //we're in portable mode, probably running on top of Explorer
+  {
+      UnloadSSO(); //it's likely the 2K/XP system icons are already showing in the Explorer tray; remove them so we can get access to them
+      LoadSSO(); // Load the 2K/XP system icons
+  }
 
   return 1;
 }

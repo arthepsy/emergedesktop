@@ -37,13 +37,18 @@ int WINAPI WinMain (HINSTANCE hInstance,
 {
   MSG messages;
 
-  if (FindWindow(TEXT("Shell_TrayWnd"), NULL))
-    return 0;
-
   Applet applet(hInstance);
 
-  if (!applet.Initialize())
-    return 0;
+  if (FindWindow(TEXT("Shell_TrayWnd"), NULL))
+  {
+      if (!applet.portableInitialize())
+        return 0;
+  }
+  else
+  {
+      if (!applet.Initialize())
+        return 0;
+  }
 
   // Run the message loop. It will run until GetMessage() returns 0
   while (GetMessage (&messages, NULL, 0, 0))
