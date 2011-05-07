@@ -198,7 +198,7 @@ LRESULT CALLBACK Applet::WindowProcedure (HWND hwnd, UINT message, WPARAM wParam
 }
 
 Applet::Applet(HINSTANCE hInstance)
-:BaseApplet(hInstance, myName, true)
+  :BaseApplet(hInstance, myName, true)
 {
   mainInst = hInstance;
 
@@ -707,7 +707,7 @@ LRESULT Applet::ModifyTrayIcon(HWND hwnd, UINT uID, UINT uFlags, UINT uCallbackM
     }
 
   /* Some icons (i.e. network icons) will be displayed when they shouldn't be,
-   * at least until a WM_MOUSEOVER.  They seem to have no TIP, so proactively 
+   * at least until a WM_MOUSEOVER.  They seem to have no TIP, so proactively
    * send icons with no tip the WM_MOUSEOVER message.
    */
   if ((uFlags & NIF_TIP) == NIF_TIP)
@@ -815,7 +815,7 @@ LRESULT Applet::AddTrayIcon(HWND hwnd, UINT uID, UINT uFlags, UINT uCallbackMess
     pTrayIcon->ShowBalloon(szInfoTitle, szInfo, dwInfoFlags, icon);
 
   /* Some icons (i.e. network icons) will be displayed when they shouldn't be,
-   * at least until a WM_MOUSEOVER.  They seem to have no TIP, so proactively 
+   * at least until a WM_MOUSEOVER.  They seem to have no TIP, so proactively
    * send icons with no tip the WM_MOUSEOVER message.
    */
   if ((uFlags & NIF_TIP) == NIF_TIP)
@@ -1097,22 +1097,22 @@ LRESULT Applet::AppBarEvent(COPYDATASTRUCT *cpData)
       return 1;
 
     case ABM_GETSTATE:
+    {
+      LRESULT result = 0;
+
+      if (!IsWindowVisible(mainWnd))
+        result = ABS_AUTOHIDE;
+
+      if (ELVersionInfo() >= 7.0)
+        result |= ABS_ALWAYSONTOP;
+      else
         {
-          LRESULT result = 0;
-
-          if (!IsWindowVisible(mainWnd))
-            result = ABS_AUTOHIDE;
-
-          if (ELVersionInfo() >= 7.0)
+          if (_wcsicmp(pSettings->GetZPosition(), TEXT("Top")) == 0)
             result |= ABS_ALWAYSONTOP;
-          else
-            {
-              if (_wcsicmp(pSettings->GetZPosition(), TEXT("Top")) == 0)
-                result |= ABS_ALWAYSONTOP;
-            }
-
-          return result;
         }
+
+      return result;
+    }
 
     case ABM_SETSTATE:
       return 1;
