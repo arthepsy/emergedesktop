@@ -80,7 +80,7 @@ LRESULT CALLBACK Applet::TrayProcedure (HWND hwnd, UINT message, WPARAM wParam, 
 
       // If not handled just forward the message on
     default:
-		return DefWindowProc(hwnd, message, wParam, lParam);
+      return DefWindowProc(hwnd, message, wParam, lParam);
     }
 
   return 0;
@@ -202,7 +202,7 @@ LRESULT CALLBACK Applet::WindowProcedure (HWND hwnd, UINT message, WPARAM wParam
 }
 
 Applet::Applet(HINSTANCE hInstance)
-:BaseApplet(hInstance, myName, true)
+  :BaseApplet(hInstance, myName, true)
 {
   mainInst = hInstance;
 
@@ -221,92 +221,92 @@ Applet::Applet(HINSTANCE hInstance)
 
 bool injectExplorerTrayHook(HWND messageHandler)
 {
-    HWND trayhWnd = FindWindow(szTrayName, NULL);
-    if (!trayhWnd)
-        return false;
+  HWND trayhWnd = FindWindow(szTrayName, NULL);
+  if (!trayhWnd)
+    return false;
 
-    DWORD processId;
-    DWORD threadId = GetWindowThreadProcessId(trayhWnd, &processId);
-    if ((!threadId) || (!processId))
-        return false;
+  DWORD processId;
+  DWORD threadId = GetWindowThreadProcessId(trayhWnd, &processId);
+  if ((!threadId) || (!processId))
+    return false;
 
-    HMODULE hKernel32 = GetModuleHandle(TEXT("Kernel32"));
-    if (!hKernel32)
-        return false; //this should never happen, since Kernel32 should always be loaded, but it's better to be safe than sorry
+  HMODULE hKernel32 = GetModuleHandle(TEXT("Kernel32"));
+  if (!hKernel32)
+    return false; //this should never happen, since Kernel32 should always be loaded, but it's better to be safe than sorry
 
-    WCHAR szLibPath[MAX_PATH];
-    ELGetCurrentPath(szLibPath);
-    wcscat(szLibPath, TEXT("\\emergeTrayExplorerHook.dll"));
+  WCHAR szLibPath[MAX_PATH];
+  ELGetCurrentPath(szLibPath);
+  wcscat(szLibPath, TEXT("\\emergeTrayExplorerHook.dll"));
 
-    SIZE_T memSize = sizeof(WCHAR)*(wcslen(szLibPath) + 1);
+  SIZE_T memSize = sizeof(WCHAR)*(wcslen(szLibPath) + 1);
 
-    HANDLE hProcess = OpenProcess(PROCESS_CREATE_THREAD|PROCESS_QUERY_INFORMATION|PROCESS_VM_OPERATION|PROCESS_VM_WRITE|PROCESS_VM_READ, false, processId);
-    if (!hProcess)
-        return false;
+  HANDLE hProcess = OpenProcess(PROCESS_CREATE_THREAD|PROCESS_QUERY_INFORMATION|PROCESS_VM_OPERATION|PROCESS_VM_WRITE|PROCESS_VM_READ, false, processId);
+  if (!hProcess)
+    return false;
 
-    void* pLibRemote = VirtualAllocEx(hProcess, NULL, memSize, MEM_COMMIT, PAGE_READWRITE);
-    if (!pLibRemote)
-        return false;
+  void* pLibRemote = VirtualAllocEx(hProcess, NULL, memSize, MEM_COMMIT, PAGE_READWRITE);
+  if (!pLibRemote)
+    return false;
 
-	if (WriteProcessMemory(hProcess, pLibRemote, (void*)szLibPath, memSize, NULL))
-	{
-		FARPROC loadLibraryAddr = GetProcAddress(hKernel32, "LoadLibraryW");
+  if (WriteProcessMemory(hProcess, pLibRemote, (void*)szLibPath, memSize, NULL))
+    {
+      FARPROC loadLibraryAddr = GetProcAddress(hKernel32, "LoadLibraryW");
 
-		HANDLE hThread = CreateRemoteThread(hProcess, NULL, 0, (LPTHREAD_START_ROUTINE)loadLibraryAddr, pLibRemote, 0, NULL);
-		if (hThread)
-		{
-			DWORD returnValue = WaitForSingleObject(hThread, INFINITE);
-			if (returnValue == WAIT_OBJECT_0)
-			{
-				GetExitCodeThread(hThread, &DLLHandle);
-				if (!DLLHandle)
-					MessageBox(NULL, TEXT("Error: emergeTrayExplorerHook.dll was not loaded properly."), TEXT("Error"), MB_OK|MB_ICONSTOP);
-			}
+      HANDLE hThread = CreateRemoteThread(hProcess, NULL, 0, (LPTHREAD_START_ROUTINE)loadLibraryAddr, pLibRemote, 0, NULL);
+      if (hThread)
+        {
+          DWORD returnValue = WaitForSingleObject(hThread, INFINITE);
+          if (returnValue == WAIT_OBJECT_0)
+            {
+              GetExitCodeThread(hThread, &DLLHandle);
+              if (!DLLHandle)
+                MessageBox(NULL, TEXT("Error: emergeTrayExplorerHook.dll was not loaded properly."), TEXT("Error"), MB_OK|MB_ICONSTOP);
+            }
 
-			CloseHandle(hThread);
-		}
-	}
+          CloseHandle(hThread);
+        }
+    }
 
-    VirtualFreeEx(hProcess, pLibRemote, 0, MEM_RELEASE);
+  VirtualFreeEx(hProcess, pLibRemote, 0, MEM_RELEASE);
 
-    SendMessage(trayhWnd, TRAYHOOK_MSGPROC_ATTACH, (WPARAM)NULL, (LPARAM)messageHandler);
+  SendMessage(trayhWnd, TRAYHOOK_MSGPROC_ATTACH, (WPARAM)NULL, (LPARAM)messageHandler);
 
-    return true;
+  return true;
 }
 
 bool removeExplorerTrayHook()
 {
-    if (!DLLHandle)
-        return false;
+  if (!DLLHandle)
+    return false;
 
-    HWND processhWnd = FindWindow(szTrayName, NULL);
-    if (!processhWnd)
-        return false;
+  HWND processhWnd = FindWindow(szTrayName, NULL);
+  if (!processhWnd)
+    return false;
 
-    DWORD processId;
-    DWORD threadId = GetWindowThreadProcessId(processhWnd, &processId);
-    if ((!threadId) || (!processId))
-        return false;
+  DWORD processId;
+  DWORD threadId = GetWindowThreadProcessId(processhWnd, &processId);
+  if ((!threadId) || (!processId))
+    return false;
 
-    HMODULE hKernel32 = GetModuleHandle(TEXT("Kernel32"));
-    if (!hKernel32)
-        return false;
+  HMODULE hKernel32 = GetModuleHandle(TEXT("Kernel32"));
+  if (!hKernel32)
+    return false;
 
-    HANDLE hProcess = OpenProcess(PROCESS_CREATE_THREAD|PROCESS_QUERY_INFORMATION|PROCESS_VM_OPERATION|PROCESS_VM_WRITE|PROCESS_VM_READ, false, processId);
-    if (!hProcess)
-        return false;
+  HANDLE hProcess = OpenProcess(PROCESS_CREATE_THREAD|PROCESS_QUERY_INFORMATION|PROCESS_VM_OPERATION|PROCESS_VM_WRITE|PROCESS_VM_READ, false, processId);
+  if (!hProcess)
+    return false;
 
-    HANDLE hThread = CreateRemoteThread(hProcess, NULL, 0, (LPTHREAD_START_ROUTINE)GetProcAddress(hKernel32, "FreeLibrary"), (void*)DLLHandle, 0, NULL);
-    if (hThread)
+  HANDLE hThread = CreateRemoteThread(hProcess, NULL, 0, (LPTHREAD_START_ROUTINE)GetProcAddress(hKernel32, "FreeLibrary"), (void*)DLLHandle, 0, NULL);
+  if (hThread)
     {
-        DWORD returnValue = WaitForSingleObject(hThread, INFINITE);
-        if (returnValue == WAIT_OBJECT_0)
-            CloseHandle(hThread);
+      DWORD returnValue = WaitForSingleObject(hThread, INFINITE);
+      if (returnValue == WAIT_OBJECT_0)
+        CloseHandle(hThread);
     }
 
-    RedrawWindow(processhWnd, NULL, NULL, RDW_INVALIDATE|RDW_ERASE|RDW_FRAME|RDW_UPDATENOW|RDW_ALLCHILDREN); //force the Taskbar, tray, clock, etc. to redraw
+  RedrawWindow(processhWnd, NULL, NULL, RDW_INVALIDATE|RDW_ERASE|RDW_FRAME|RDW_UPDATENOW|RDW_ALLCHILDREN); //force the Taskbar, tray, clock, etc. to redraw
 
-    return true;
+  return true;
 }
 
 Applet::~Applet()
@@ -321,10 +321,10 @@ Applet::~Applet()
   GetEnvironmentVariable(TEXT("PortableMode"), tempPMode, MAX_PATH);
   std::wstring portableMode = tempPMode;
   if (!portableMode.empty()) //we're in portable mode, probably running on top of Explorer
-  {
+    {
       removeExplorerTrayHook();
       LoadSSO(); //give the 2K/XP tray icons back to Explorer
-  }
+    }
 
   // Cleanup the icon vectors
   while (!trayIconList.empty())
@@ -333,8 +333,8 @@ Applet::~Applet()
       trayIconList.erase(trayIconList.begin());
     }
 
-    // Return control to the default shell
-    SendNotifyMessage(HWND_BROADCAST, RegisterWindowMessage(TEXT("TaskbarCreated")), 0, 0);
+  // Return control to the default shell
+  SendNotifyMessage(HWND_BROADCAST, RegisterWindowMessage(TEXT("TaskbarCreated")), 0, 0);
 }
 
 UINT Applet::Initialize()
@@ -473,11 +473,11 @@ UINT Applet::portableInitialize()
   WCHAR tempPMode[MAX_PATH];
   GetEnvironmentVariable(TEXT("PortableMode"), tempPMode, MAX_PATH);
   std::wstring portableMode = tempPMode;
-  if (!portableMode.empty()) //we're in portable mode, probably running on top of Explorer
-  {
+  /*if (!portableMode.empty()) //we're in portable mode, probably running on top of Explorer
+    {
       UnloadSSO(); //it's likely the 2K/XP system icons are already showing in the Explorer tray; remove them so we can get access to them
       LoadSSO(); // Load the 2K/XP system icons
-  }
+    }*/
 
   return 1;
 }
@@ -875,7 +875,7 @@ LRESULT Applet::ModifyTrayIcon(HWND hwnd, UINT uID, UINT uFlags, UINT uCallbackM
     }
 
   /* Some icons (i.e. network icons) will be displayed when they shouldn't be,
-   * at least until a WM_MOUSEOVER.  They seem to have no TIP, so proactively 
+   * at least until a WM_MOUSEOVER.  They seem to have no TIP, so proactively
    * send icons with no tip the WM_MOUSEOVER message.
    */
   if ((uFlags & NIF_TIP) == NIF_TIP)
@@ -983,7 +983,7 @@ LRESULT Applet::AddTrayIcon(HWND hwnd, UINT uID, UINT uFlags, UINT uCallbackMess
     pTrayIcon->ShowBalloon(szInfoTitle, szInfo, dwInfoFlags, icon);
 
   /* Some icons (i.e. network icons) will be displayed when they shouldn't be,
-   * at least until a WM_MOUSEOVER.  They seem to have no TIP, so proactively 
+   * at least until a WM_MOUSEOVER.  They seem to have no TIP, so proactively
    * send icons with no tip the WM_MOUSEOVER message.
    */
   if ((uFlags & NIF_TIP) == NIF_TIP)
@@ -1265,22 +1265,22 @@ LRESULT Applet::AppBarEvent(COPYDATASTRUCT *cpData)
       return 1;
 
     case ABM_GETSTATE:
+    {
+      LRESULT result = 0;
+
+      if (!IsWindowVisible(mainWnd))
+        result = ABS_AUTOHIDE;
+
+      if (ELVersionInfo() >= 7.0)
+        result |= ABS_ALWAYSONTOP;
+      else
         {
-          LRESULT result = 0;
-
-          if (!IsWindowVisible(mainWnd))
-            result = ABS_AUTOHIDE;
-
-          if (ELVersionInfo() >= 7.0)
+          if (_wcsicmp(pSettings->GetZPosition(), TEXT("Top")) == 0)
             result |= ABS_ALWAYSONTOP;
-          else
-            {
-              if (_wcsicmp(pSettings->GetZPosition(), TEXT("Top")) == 0)
-                result |= ABS_ALWAYSONTOP;
-            }
-
-          return result;
         }
+
+      return result;
+    }
 
     case ABM_SETSTATE:
       return 1;
