@@ -1004,6 +1004,26 @@ void ELWriteDebug(std::wstring debugText)
 //----  --------------------------------------------------------------------------------------------------------
 bool ELExecuteInternal(LPTSTR command)
 {
+  std::wstring tempCmd = command;
+  bool confirm = true;
+
+  while (tempCmd.find(TEXT("/")) != std::wstring::npos)
+    tempCmd.replace(tempCmd.find(TEXT("/")), 1, TEXT(""));
+
+  if (tempCmd.find(TEXT("silent")) != std::wstring::npos)
+    {
+      confirm = false;
+      tempCmd.replace(tempCmd.find(TEXT("silent")), 6, TEXT(""));
+    }
+
+  if (tempCmd.find_first_not_of(TEXT(" \t")) != std::wstring::npos)
+    tempCmd = tempCmd.substr(tempCmd.find_first_not_of(TEXT(" \t")), tempCmd.length() - tempCmd.find_first_not_of(TEXT(" \t")));
+
+  if (tempCmd.find_last_not_of(TEXT(" \t")) != std::wstring::npos)
+    tempCmd = tempCmd.substr(0, tempCmd.find_last_not_of(TEXT(" \t")) + 1);
+
+  command = (WCHAR*)tempCmd.c_str();
+
   if (_wcsicmp(command, TEXT("RightDeskMenu")) == 0)
     {
       /// TODO (Chris#1#): Find better implementation that doesn't rely on finding the desktop window
@@ -1020,7 +1040,7 @@ bool ELExecuteInternal(LPTSTR command)
     }
   else if (_wcsicmp(command, TEXT("Quit")) == 0)
     {
-      ELQuit(true);
+      ELQuit(confirm);
       return true;
     }
   else if (_wcsicmp(command, TEXT("Run")) == 0)
@@ -1138,32 +1158,32 @@ bool ELExecuteInternal(LPTSTR command)
     return (LockWorkStation() == TRUE);
   else if (_wcsicmp(command, TEXT("Logoff")) == 0)  //allelimo 05/28/2004
     {
-      ELExit(EMERGE_LOGOFF, true);
+      ELExit(EMERGE_LOGOFF, confirm);
       return true;
     }
   else if (_wcsicmp(command, TEXT("Disconnect")) == 0)
     {
-      ELExit(EMERGE_DISCONNECT, true);
+      ELExit(EMERGE_DISCONNECT, confirm);
       return true;
     }
   else if (_wcsicmp(command, TEXT("Reboot")) == 0)
     {
-      ELExit(EMERGE_REBOOT, true);
+      ELExit(EMERGE_REBOOT, confirm);
       return true;
     }
   else if (_wcsicmp(command, TEXT("Halt")) == 0)
     {
-      ELExit(EMERGE_HALT, true);
+      ELExit(EMERGE_HALT, confirm);
       return true;
     }
   else if (_wcsicmp(command, TEXT("Suspend")) == 0)
     {
-      ELExit(EMERGE_SUSPEND, true);
+      ELExit(EMERGE_SUSPEND, confirm);
       return true;
     }
   else if (_wcsicmp(command, TEXT("Hibernate")) == 0)
     {
-      ELExit(EMERGE_HIBERNATE, true);
+      ELExit(EMERGE_HIBERNATE, confirm);
       return true;
     }
   else if (_wcsicmp(command, TEXT("ShowDesktop")) == 0)
