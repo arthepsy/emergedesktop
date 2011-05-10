@@ -1991,7 +1991,7 @@ BOOL CALLBACK FullscreenEnum(HWND hwnd, LPARAM lParam)
   if (ELIsApplet(hwnd))
     return true;
 
-  if (hwnd == FindWindow(TEXT("Progman"), NULL))
+  if (ELIsExplorer(hwnd))
     return true;
 
   if (hwnd == FindWindow(TEXT("InstallShield_Win"), NULL))
@@ -4511,6 +4511,14 @@ bool ELIsApplet(HWND hwnd)
   // Desktop Class
   if (_wcsicmp(windowClass, TEXT("EmergeDesktopProgman")) == 0)
     return true;
+
+  return false;
+}
+
+bool ELIsExplorer(HWND hwnd)
+{
+  WCHAR windowClass[MAX_LINE_LENGTH];
+  RealGetWindowClass(hwnd, windowClass, MAX_LINE_LENGTH);
 
   // Explorer Class
   if (_wcsicmp(windowClass, TEXT("progman")) == 0)
