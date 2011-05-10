@@ -346,6 +346,9 @@ bool Applet::IsWindowValidTask(HWND hwnd)
   if (ELIsApplet(hwnd))
     return false;
 
+  if (ELIsExplorer(hwnd))
+    return false;
+
   // Ignore toolwindows
   /*  if((GetWindowLongPtr(hwnd, GWL_EXSTYLE) & WS_EX_TOOLWINDOW) == WS_EX_TOOLWINDOW)
       return false;*/
