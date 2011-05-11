@@ -126,15 +126,17 @@ void MenuItem::SetIcon()
         }
       break;
     case IT_INTERNAL_COMMAND:
-      if (_wcsicmp(value, TEXT("logoff")) == 0)
+      app = value;
+      app = ELToLower(app.substr(0, app.find_first_of(TEXT(" \t"))));
+      if (app == TEXT("logoff"))
         icon = EGGetSystemIcon(ICON_LOGOFF, 16);
-      else if (_wcsicmp(value, TEXT("shutdown")) == 0)
+      else if (app == TEXT("shutdown"))
         icon = EGGetSystemIcon(ICON_SHUTDOWN, 16);
-      else if (_wcsicmp(value, TEXT("run")) == 0)
+      else if (app == TEXT("run"))
         icon = EGGetSystemIcon(ICON_RUN, 16);
-      else if (_wcsicmp(value, TEXT("quit")) == 0)
+      else if (app == TEXT("quit"))
         icon = EGGetSystemIcon(ICON_QUIT, 16);
-      else if (_wcsicmp(value, TEXT("lock")) == 0)
+      else if (app == TEXT("lock"))
         icon = EGGetSystemIcon(ICON_LOCK, 16);
       break;
     case IT_SPECIAL_FOLDER:
