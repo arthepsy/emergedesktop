@@ -3344,6 +3344,28 @@ bool ELAppletVersionInfo(HWND appWnd, LPVERSIONINFO versionInfo)
   return ELAppletFileVersion(applet.c_str(), versionInfo);
 }
 
+bool ELIsExplorerShell()
+{
+  WCHAR explorerPath[MAX_PATH];
+
+  if (GetWindowsDirectory(explorerPath, MAX_PATH) == 0)
+    return false;
+
+  wcscat(explorerPath, TEXT("\\"));
+  wcscat(explorerPath, TEXT("explorer.exe"));
+  _wcslwr(explorerPath);
+
+  HWND progmanWnd = FindWindow(TEXT("progman"), NULL);
+  if (progmanWnd)
+    {
+      std::wstring progmanExec = ELGetWindowApp(progmanWnd, true);
+      if (ELToLower(progmanExec) == explorerPath)
+        return true;
+    }
+
+  return false;
+}
+
 /*!
   @fn ELAppletFileVersion(WCHAR *applet, LPVERSIONINFO versionInfo)
   @brief Populates a VERSIONINFO structure based on the filename supplied
