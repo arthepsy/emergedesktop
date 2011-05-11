@@ -124,10 +124,7 @@ bool Core::Initialize(WCHAR *commandLine)
   pDesktop = std::tr1::shared_ptr<Desktop>(new Desktop(mainInst, pMessageControl));
   pDesktop->Initialize(pSettings->GetShowExplorerDesktop());
 
-  WCHAR tempPMode[MAX_PATH];
-  GetEnvironmentVariable(TEXT("PortableMode"), tempPMode, MAX_PATH);
-  std::wstring portableMode = tempPMode;
-  if (!portableMode.empty()) //we're in portable mode, probably running on top of Explorer; hide the Taskbar
+  if (ELIsExplorerShell()) // Running on top of Explorer; hide the Taskbar
     {
       //get the Taskbar window
       HWND taskBarWnd = FindWindow(TEXT("Shell_TrayWnd"), NULL);
@@ -157,7 +154,8 @@ bool Core::Initialize(WCHAR *commandLine)
 
   // Load the start up entries in the registry and the startup
   // folders only if the startup items have not already been started
-  if (pShell->FirstRunCheck())
+  // and explorer.exe is not running as the shell
+  if (pShell->FirstRunCheck() && !ELIsExplorerShell())
     {
       if (!ELIsKeyDown(VK_SHIFT))
         pShell->RunFolderStartup(pSettings->GetShowStartupErrors());
@@ -201,10 +199,7 @@ Core::~Core()
           FreeLibrary(wtslib);
         }
 
-      WCHAR tempPMode[MAX_PATH];
-      GetEnvironmentVariable(TEXT("PortableMode"), tempPMode, MAX_PATH);
-      std::wstring portableMode = tempPMode;
-      if (!portableMode.empty()) //we're in portable mode, probably running on top of Explorer; show the Taskbar before exiting
+      if (ELIsExplorerShell()) // Running on top of Explorer; show the Taskbar before exiting
         {
           //get the Taskbar window
           HWND taskBarWnd = FindWindow(TEXT("Shell_TrayWnd"), NULL);

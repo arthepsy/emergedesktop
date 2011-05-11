@@ -451,5 +451,6 @@ inline bool ELPathIsCLSID(const WCHAR *path)
 {
   return (path[0] == ':' && path[1] == ':' && path[2] == '{');
 }
+DLL_EXPORT bool ELIsExplorerShell();
 
 #endif
