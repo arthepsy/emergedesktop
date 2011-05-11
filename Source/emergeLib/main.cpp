@@ -3339,12 +3339,9 @@ double ELVersionInfo()
 
 bool ELAppletVersionInfo(HWND appWnd, LPVERSIONINFO versionInfo)
 {
-  WCHAR applet[MAX_LINE_LENGTH];
+  std::wstring applet = ELGetWindowApp(appWnd, false);
 
-  if (!ELGetWindowApp(appWnd, applet, false))
-    return false;
-
-  return ELAppletFileVersion(applet, versionInfo);
+  return ELAppletFileVersion(applet.c_str(), versionInfo);
 }
 
 /*!
@@ -3355,7 +3352,7 @@ bool ELAppletVersionInfo(HWND appWnd, LPVERSIONINFO versionInfo)
   @return true if successful
   */
 
-bool ELAppletFileVersion(WCHAR *applet, LPVERSIONINFO versionInfo)
+bool ELAppletFileVersion(const WCHAR *applet, LPVERSIONINFO versionInfo)
 {
   WCHAR tmp[MAX_LINE_LENGTH], var[MAX_LINE_LENGTH];
   void *buffer, *data;
@@ -3467,29 +3464,20 @@ std::wstring ELGetProcessIDApp(DWORD processID, bool fullName)
 }
 
 /*!
-  @fn ELGetWindowApp(HWND hWnd, WCHAR *processName, bool fullName)
+  @fn ELGetWindowApp(HWND hWnd, bool fullName)
   @brief Determines the process name based on the supplied window handle
   @param hWnd Window handle
   @param processName Populated with process owning the window handle
   @param fullName if true return fully qualified name, if false return basename
-  @return true if successful
+  @return std::wstring
   */
 
-bool ELGetWindowApp(HWND hWnd, WCHAR *processName, bool fullName)
+std::wstring ELGetWindowApp(HWND hWnd, bool fullName)
 {
   DWORD processID;
-  std::wstring tmpName;
 
   GetWindowThreadProcessId(hWnd, &processID);
-  tmpName = ELGetProcessIDApp(processID, fullName);
-
-  if (tmpName.size() != 0)
-    {
-      wcscpy(processName, tmpName.c_str());
-      return true;
-    }
-
-  return false;
+  return ELGetProcessIDApp(processID, fullName);
 }
 
 /*!

@@ -159,7 +159,7 @@ RECT *Task::GetRect()
 //----  --------------------------------------------------------------------------------------------------------
 void Task::SetIcon(HICON icon, int iconSize)
 {
-  WCHAR applicationName[MAX_PATH];
+  std::wstring applicationName;
 
   if (icon)
     {
@@ -177,8 +177,8 @@ void Task::SetIcon(HICON icon, int iconSize)
     {
       if (origIcon == NULL)
         {
-          ELGetWindowApp(wnd, applicationName, true);
-          origIcon = EGGetFileIcon(applicationName, iconSize);
+          applicationName = ELGetWindowApp(wnd, true);
+          origIcon = EGGetFileIcon(applicationName.c_str(), iconSize);
         }
     }
 }

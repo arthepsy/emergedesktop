@@ -94,8 +94,9 @@ HICON MenuItem::GetIcon()
 
 void MenuItem::SetIcon()
 {
-  WCHAR app[MAX_PATH], args[MAX_PATH], *lwrValue = _wcslwr(_wcsdup(value));
+  WCHAR command[MAX_PATH], args[MAX_PATH], *lwrValue = _wcslwr(_wcsdup(value));
   HWND task;
+  std::wstring app;
 
   switch (type)
     {
@@ -107,8 +108,8 @@ void MenuItem::SetIcon()
        */
       if (icon == NULL)
         {
-          ELGetWindowApp(task, app, true);
-          icon = EGGetFileIcon(app, 16);
+          app = ELGetWindowApp(task, true);
+          icon = EGGetFileIcon(app.c_str(), 16);
         }
       break;
     case IT_EXECUTABLE:
@@ -120,8 +121,8 @@ void MenuItem::SetIcon()
         icon = EGGetSpecialFolderIcon(CSIDL_DESKTOP, 16);
       else
         {
-          ELParseCommand(value, app, args);
-          icon = EGGetFileIcon(app, 16);
+          ELParseCommand(value, command, args);
+          icon = EGGetFileIcon(command, 16);
         }
       break;
     case IT_INTERNAL_COMMAND:
@@ -155,8 +156,8 @@ void MenuItem::SetIcon()
         break;
     case IT_XML_MENU:
     case IT_TASKS_MENU:
-      ELGetCurrentPath(app);
-      icon = EGGetFileIcon(app, 16);
+      ELGetCurrentPath(command);
+      icon = EGGetFileIcon(command, 16);
       break;
     case IT_SETTINGS_MENU:
       icon = EGGetSystemIcon(ICON_EMERGE, 16);

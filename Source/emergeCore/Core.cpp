@@ -756,18 +756,16 @@ void Core::CheckLaunchItem(LaunchMap *launchMap, const WCHAR *item)
 
 BOOL Core::LaunchMapEnum(HWND hwnd, LPARAM lParam)
 {
-  WCHAR windowClass[MAX_LINE_LENGTH], windowName[MAX_LINE_LENGTH];
-  std::wstring workingName;
+  WCHAR windowClass[MAX_LINE_LENGTH];
+  std::wstring windowName;
 
   if (RealGetWindowClass(hwnd, windowClass, MAX_LINE_LENGTH) != 0)
     {
       if ((_wcsicmp(windowClass, TEXT("EmergeDesktopApplet")) == 0) ||
           (_wcsicmp(windowClass, TEXT("EmergeDesktopMenuBuilder")) == 0))
         {
-          ELGetWindowApp(hwnd, windowName, true);
-          _wcslwr(windowName);
-          workingName = windowName;
-          ((LaunchMap*)lParam)->insert(std::pair<std::wstring, HWND>(workingName, hwnd));
+          windowName = ELToLower(ELGetWindowApp(hwnd, true));
+          ((LaunchMap*)lParam)->insert(std::pair<std::wstring, HWND>(windowName, hwnd));
         }
     }
 

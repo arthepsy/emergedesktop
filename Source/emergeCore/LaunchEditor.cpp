@@ -48,12 +48,12 @@ INT_PTR CALLBACK LaunchEditor::LaunchDlgProc(HWND hwndDlg, UINT message, WPARAM 
 BOOL CALLBACK LaunchEditor::AppletCheck(HWND hwnd, LPARAM lParam)
 {
   LaunchEditor *pLaunchEditor = reinterpret_cast<LaunchEditor*>(lParam);
-  WCHAR fileName[MAX_PATH];
+  std::wstring fileName = ELGetWindowApp(hwnd, true);
 
-  if (!ELGetWindowApp(hwnd, fileName, true))
+  if (fileName.empty())
     return true;
 
-  if (_wcsicmp(fileName, pLaunchEditor->GetSelectedApplet().c_str()) == 0)
+  if (ELToLower(fileName) == ELToLower(pLaunchEditor->GetSelectedApplet()))
     SendMessage(hwnd, WM_NCDESTROY, 0, 0);
 
   return true;
@@ -62,17 +62,17 @@ BOOL CALLBACK LaunchEditor::AppletCheck(HWND hwnd, LPARAM lParam)
 BOOL CALLBACK LaunchEditor::GatherApplet(HWND hwnd, LPARAM lParam)
 {
   LaunchEditor *pLaunchEditor = reinterpret_cast<LaunchEditor*>(lParam);
-  WCHAR fileName[MAX_PATH];
+  std::wstring fileName = ELGetWindowApp(hwnd, true);
   POINT cursorPt;
   RECT appletRect;
 
-  if (!ELGetWindowApp(hwnd, fileName, true))
+  if (fileName.empty())
     return true;
 
   GetCursorPos(&cursorPt);
   GetClientRect(hwnd, &appletRect);
 
-  if (_wcsicmp(fileName, pLaunchEditor->GetSelectedApplet().c_str()) == 0)
+  if (ELToLower(fileName) == ELToLower(pLaunchEditor->GetSelectedApplet()))
     SetWindowPos(hwnd, HWND_TOPMOST, cursorPt.x - (appletRect.right / 2),
                  cursorPt.y - (appletRect.bottom / 2), 0, 0,
                  SWP_NOSIZE|SWP_NOSENDCHANGING);

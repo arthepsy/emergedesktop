@@ -550,7 +550,7 @@ HBITMAP EGCreateBitmap(BYTE alpha, COLORREF colour, RECT wndRect)
   return bmp;
 }
 
-HICON EGGetFileIcon(WCHAR *file, UINT iconSize)
+HICON EGGetFileIcon(const WCHAR *file, UINT iconSize)
 {
   HICON icon = NULL;
   HICON tmpIcon = NULL;

@@ -142,19 +142,18 @@ void Settings::BuildStickyList()
 // Returns:	bool
 // Purpose:	Checks to see if the window should be sticky
 //-----
-bool Settings::CheckSticky(WCHAR *appName)
+bool Settings::CheckSticky(std::wstring appName)
 {
   UINT i;
   bool titleMatch = false;
-  WCHAR *tmp = _wcslwr(_wcsdup(appName));
+  std::wstring tmp = ELToLower(appName);
 
   for (i = 0; i < stickyList.size(); i++)
     {
-      if (wcsstr(appName, ELToLower(stickyList[i]).c_str()))
+      if (appName == ELToLower(stickyList[i]))
         titleMatch = true;
     }
 
-  free(tmp);
   return titleMatch;
 }
 

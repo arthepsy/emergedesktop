@@ -38,7 +38,7 @@ public:
   UINT GetStickyListSize();
   WCHAR *GetStickyListItem(UINT item);
   void DeleteStickyListItem(UINT item);
-  bool CheckSticky(WCHAR *appName);
+  bool CheckSticky(std::wstring appName);
   void AddStickyListItem(WCHAR *item);
   void WriteStickyList();
   bool GetHideSticky();
