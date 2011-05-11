@@ -22,13 +22,9 @@
 
 BOOL CALLBACK FocusWindowEnum(HWND hwnd, LPARAM lParam UNUSED)
 {
-  WCHAR window[MAX_PATH];
+  std::wstring window = ELToLower(ELGetWindowApp(hwnd, false));
 
-  ZeroMemory(window, MAX_PATH);
-  ELGetWindowApp(hwnd, window, false);
-  _wcslwr(window);
-
-  if (wcscmp(window, TEXT("emergecommand.exe")) == 0)
+  if (window == TEXT("emergecommand.exe"))
     {
       if (!IsWindowVisible(hwnd))
         return true;

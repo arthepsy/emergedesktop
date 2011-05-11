@@ -59,7 +59,7 @@ public:
   RECT *GetReferenceRect();
   void SetReferenceRect(RECT referenceRect);
   void UpdateDimensions(UINT currentColumn, UINT currentRow, UINT maxColumns, UINT maxRows, GUIINFO guiInfo);
-  WCHAR *GetAppName();
+  std::wstring GetAppName();
   void SetMinimized(bool minimized);
   bool GetMinimized();
 
@@ -67,7 +67,7 @@ private:
   HWND taskWnd, mainWnd;
   HINSTANCE mainInst;
   RECT taskRect, referenceRect;
-  WCHAR appName[MAX_PATH];
+  std::wstring appName;
   bool minimized;
 };
 
