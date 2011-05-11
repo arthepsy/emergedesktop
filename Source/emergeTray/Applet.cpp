@@ -317,10 +317,7 @@ Applet::~Applet()
 
   DestroyWindow(trayWnd);
 
-  WCHAR tempPMode[MAX_PATH];
-  GetEnvironmentVariable(TEXT("PortableMode"), tempPMode, MAX_PATH);
-  std::wstring portableMode = tempPMode;
-  if (!portableMode.empty()) //we're in portable mode, probably running on top of Explorer
+  if (ELIsExplorerShell()) //we're running on top of Explorer
     {
       removeExplorerTrayHook();
       LoadSSO(); //give the 2K/XP tray icons back to Explorer
@@ -470,14 +467,11 @@ UINT Applet::portableInitialize()
   // Tell the applications that a systray was created
   SendNotifyMessage(HWND_BROADCAST, RegisterWindowMessage(TEXT("TaskbarCreated")), 0, 0);
 
-  WCHAR tempPMode[MAX_PATH];
-  GetEnvironmentVariable(TEXT("PortableMode"), tempPMode, MAX_PATH);
-  std::wstring portableMode = tempPMode;
-  /*if (!portableMode.empty()) //we're in portable mode, probably running on top of Explorer
+  if (ELIsExplorerShell()) //we're running on top of Explorer
     {
       UnloadSSO(); //it's likely the 2K/XP system icons are already showing in the Explorer tray; remove them so we can get access to them
       LoadSSO(); // Load the 2K/XP system icons
-    }*/
+    }
 
   return 1;
 }

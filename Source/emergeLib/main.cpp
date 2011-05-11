@@ -3366,6 +3366,19 @@ bool ELIsExplorerShell()
   return false;
 }
 
+bool ELIsEmergeShell()
+{
+  HWND trayWnd = FindWindow(TEXT("ShellTray_Wnd"), NULL);
+  if (trayWnd)
+    {
+      std::wstring trayExec = ELGetWindowApp(trayWnd, false);
+      if (ELToLower(trayExec) == TEXT("emergetray.exe"))
+        return true;
+    }
+
+  return false;
+}
+
 /*!
   @fn ELAppletFileVersion(WCHAR *applet, LPVERSIONINFO versionInfo)
   @brief Populates a VERSIONINFO structure based on the filename supplied

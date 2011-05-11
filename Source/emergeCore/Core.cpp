@@ -124,7 +124,7 @@ bool Core::Initialize(WCHAR *commandLine)
   pDesktop = std::tr1::shared_ptr<Desktop>(new Desktop(mainInst, pMessageControl));
   pDesktop->Initialize(pSettings->GetShowExplorerDesktop());
 
-  if (ELIsExplorerShell()) // Running on top of Explorer; hide the Taskbar
+  if (!ELIsEmergeShell()) // Running on top of Explorer; hide the Taskbar
     {
       //get the Taskbar window
       HWND taskBarWnd = FindWindow(TEXT("Shell_TrayWnd"), NULL);
@@ -199,7 +199,7 @@ Core::~Core()
           FreeLibrary(wtslib);
         }
 
-      if (ELIsExplorerShell()) // Running on top of Explorer; show the Taskbar before exiting
+      if (!ELIsEmergeShell()) // Running on top of Explorer; show the Taskbar before exiting
         {
           //get the Taskbar window
           HWND taskBarWnd = FindWindow(TEXT("Shell_TrayWnd"), NULL);

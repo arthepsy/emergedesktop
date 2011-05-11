@@ -39,7 +39,7 @@ int WINAPI WinMain (HINSTANCE hInstance,
 
   Applet applet(hInstance);
 
-  if (FindWindow(TEXT("Shell_TrayWnd"), NULL))
+  if (ELIsExplorerShell())
   {
       if (!applet.portableInitialize())
         return 0;
