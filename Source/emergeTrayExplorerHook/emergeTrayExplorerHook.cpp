@@ -31,10 +31,12 @@ LRESULT CALLBACK messageProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
           sendingData.cbData = dataSize;
           sendingData.lpData = dataPtr;
           SendMessage(trayMsgHandler, uMsg, wParam, (LPARAM)(LPVOID)&sendingData);
+          free(dataPtr);
             {
               if ((GetLastError() == ERROR_INVALID_HANDLE) || (GetLastError() == ERROR_INVALID_WINDOW_HANDLE))
                 trayMsgHandler = 0; //trayMsgHandler is an invalid handle (the window probably closed), so clear it; we don't want to keep sending messages to nothing
-              return 0; //eat all messages headed for the Taskbar
+              return DefWindowProc(hwnd, uMsg, wParam, lParam); //let Explorer get the COPYDATA message, since it may be tray-related. We need to make sure Explorer can
+              //keep its tray icon list properly updated, so the tray looks good even after emergeTray exits.
             }
         }
 

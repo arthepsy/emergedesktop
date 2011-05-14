@@ -202,7 +202,7 @@ LRESULT CALLBACK Applet::WindowProcedure (HWND hwnd, UINT message, WPARAM wParam
 }
 
 Applet::Applet(HINSTANCE hInstance)
-  :BaseApplet(hInstance, myName, true)
+:BaseApplet(hInstance, myName, true)
 {
   mainInst = hInstance;
 
@@ -269,6 +269,8 @@ bool injectExplorerTrayHook(HWND messageHandler)
 
   VirtualFreeEx(hProcess, pLibRemote, 0, MEM_RELEASE);
 
+  CloseHandle(hProcess);
+
   SendMessage(trayhWnd, TRAYHOOK_MSGPROC_ATTACH, (WPARAM)NULL, (LPARAM)messageHandler);
 
   return true;
@@ -306,6 +308,103 @@ bool removeExplorerTrayHook()
 
   RedrawWindow(processhWnd, NULL, NULL, RDW_INVALIDATE|RDW_ERASE|RDW_FRAME|RDW_UPDATENOW|RDW_ALLCHILDREN); //force the Taskbar, tray, clock, etc. to redraw
 
+  CloseHandle(hProcess);
+
+  return true;
+}
+
+bool Applet::AcquireExplorerTrayIconList()
+{
+  HWND taskBarhWnd = FindWindow(szTrayName, NULL);
+  if (!taskBarhWnd)
+    return false;
+
+  HWND notifyhWnd = FindWindowEx(taskBarhWnd, NULL, szNotifyName, NULL);
+  if (!notifyhWnd)
+    return false;
+
+  HWND sysPagerhWnd = FindWindowEx(notifyhWnd, NULL, TEXT("SysPager"), NULL);
+  if (!sysPagerhWnd)
+    return false;
+
+  HWND trayhWnd = FindWindowEx(sysPagerhWnd, NULL, TEXT("ToolbarWindow32"), NULL);
+  if (!trayhWnd)
+    return false;
+
+  DWORD processId;
+  DWORD threadId = GetWindowThreadProcessId(taskBarhWnd, &processId);
+  if ((!threadId) || (!processId))
+    return false;
+
+  int trayButtonCount = SendMessage(trayhWnd, TB_BUTTONCOUNT, 0, 0);
+  if (trayButtonCount == 0)
+    return false;
+
+  HANDLE hProcess = OpenProcess(PROCESS_VM_OPERATION|PROCESS_VM_WRITE|PROCESS_VM_READ, false, processId);
+  if (!hProcess)
+    return false;
+
+  TRAYICONDATA trayIconData;
+  TBBUTTONINFO trayIconTBButtonInfo;
+  void* tbButtonInfoRemote;
+  void* sTipRemote;
+  bool hidden;
+  bool shared;
+  WCHAR sTipText[1024];
+  UINT uFlags;
+
+  for (int counter=0; counter<trayButtonCount; counter++)
+    {
+      tbButtonInfoRemote = VirtualAllocEx(hProcess, NULL, sizeof(TBBUTTONINFO), MEM_COMMIT, PAGE_READWRITE);
+      if (!tbButtonInfoRemote)
+        return false;
+
+      sTipRemote = VirtualAllocEx(hProcess, NULL, (sizeof(WCHAR)*(wcslen(sTipText) + 1)), MEM_COMMIT, PAGE_READWRITE);
+      if (!sTipRemote)
+        return false;
+
+      trayIconTBButtonInfo.cbSize = sizeof(TBBUTTONINFO);
+      trayIconTBButtonInfo.dwMask = TBIF_BYINDEX|TBIF_STYLE|TBIF_LPARAM|TBIF_COMMAND;
+      if (!WriteProcessMemory(hProcess, tbButtonInfoRemote, &trayIconTBButtonInfo, sizeof(TBBUTTONINFO), NULL))
+        return false;
+
+      SendMessage(trayhWnd, TB_GETBUTTONINFO, counter, (LPARAM)tbButtonInfoRemote);
+
+      if (!ReadProcessMemory(hProcess, tbButtonInfoRemote, (LPVOID)&trayIconTBButtonInfo, sizeof(TBBUTTONINFO), NULL))
+        return false;
+
+      if (!ReadProcessMemory(hProcess, (void *)trayIconTBButtonInfo.lParam, (LPVOID)&trayIconData, sizeof(TRAYICONDATA), NULL))
+        return false;
+
+      VirtualFreeEx(hProcess, tbButtonInfoRemote, 0, MEM_RELEASE);
+
+      SendMessage(trayhWnd, TB_GETBUTTONTEXT, trayIconTBButtonInfo.idCommand, (LPARAM)sTipRemote);
+
+      if (!ReadProcessMemory(hProcess, sTipRemote, (LPVOID)&sTipText, sizeof(sTipText), NULL))
+        return false;
+
+      VirtualFreeEx(hProcess, sTipRemote, 0, MEM_RELEASE);
+
+      hidden = ((trayIconData.dwState & trayIconData.dwStateMask & NIS_HIDDEN) == NIS_HIDDEN);
+      shared = ((trayIconData.dwState & trayIconData.dwStateMask & NIS_SHAREDICON) == NIS_SHAREDICON);
+
+      uFlags = (UINT)(trayIconData.uFlags/0x100000);
+      if (trayIconData.hIcon)
+        uFlags = uFlags|NIF_ICON;
+      if (trayIconData.uCallbackMessage)
+        uFlags = uFlags|NIF_MESSAGE;
+      if (wcslen(sTipText) > 0)
+        uFlags = uFlags|NIF_TIP;
+      if (wcslen(trayIconData.lpszInfo) > 0)
+        uFlags = uFlags|NIF_INFO;
+
+      AddTrayIcon(trayIconData.hWnd, trayIconData.uID, uFlags, trayIconData.uCallbackMessage,
+                  trayIconData.hIcon, (LPTSTR)sTipText, (LPTSTR)trayIconData.lpszInfo, (LPTSTR)trayIconData.lpszInfoTitle,
+                  trayIconData.dwInfoFlags, hidden, shared);
+    }
+
+  CloseHandle(hProcess);
+
   return true;
 }
 
@@ -313,7 +412,10 @@ Applet::~Applet()
 {
   // A quit message was received, so unload the 2K/XP system icons and the Explorer tray hook
 
-  UnloadSSO();
+  if (!ELIsEmergeShell()) //we're probably running on top of Explorer
+    removeExplorerTrayHook();
+  else
+    UnloadSSO();
 
   DestroyWindow(trayWnd);
 
@@ -450,6 +552,8 @@ UINT Applet::portableInitialize()
   if (!trayWnd)
     return 0;
 
+  AcquireExplorerTrayIconList(); //it's likely the 2K/XP system icons are already showing in the Explorer tray; load them from Explorer
+
   injectExplorerTrayHook(trayWnd);
 
   explorerTrayWnd = FindWindow(szTrayName, NULL);
@@ -463,15 +567,6 @@ UINT Applet::portableInitialize()
 
   // Build the sticky list only after reading the settings (in UpdateGUI())
   pSettings->BuildHideList();
-
-  // Tell the applications that a systray was created
-  SendNotifyMessage(HWND_BROADCAST, RegisterWindowMessage(TEXT("TaskbarCreated")), 0, 0);
-
-  if (ELIsExplorerShell()) //we're running on top of Explorer
-    {
-      UnloadSSO(); //it's likely the 2K/XP system icons are already showing in the Explorer tray; remove them so we can get access to them
-      LoadSSO(); // Load the 2K/XP system icons
-    }
 
   return 1;
 }
@@ -1259,22 +1354,22 @@ LRESULT Applet::AppBarEvent(COPYDATASTRUCT *cpData)
       return 1;
 
     case ABM_GETSTATE:
-    {
-      LRESULT result = 0;
-
-      if (!IsWindowVisible(mainWnd))
-        result = ABS_AUTOHIDE;
-
-      if (ELVersionInfo() >= 7.0)
-        result |= ABS_ALWAYSONTOP;
-      else
         {
-          if (_wcsicmp(pSettings->GetZPosition(), TEXT("Top")) == 0)
-            result |= ABS_ALWAYSONTOP;
-        }
+          LRESULT result = 0;
 
-      return result;
-    }
+          if (!IsWindowVisible(mainWnd))
+            result = ABS_AUTOHIDE;
+
+          if (ELVersionInfo() >= 7.0)
+            result |= ABS_ALWAYSONTOP;
+          else
+            {
+              if (_wcsicmp(pSettings->GetZPosition(), TEXT("Top")) == 0)
+                result |= ABS_ALWAYSONTOP;
+            }
+
+          return result;
+        }
 
     case ABM_SETSTATE:
       return 1;
