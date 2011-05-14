@@ -40,6 +40,10 @@ int WINAPI WinMain (HINSTANCE hInstance,
   bool showDesktop = false;
   WCHAR app[MAX_PATH], args[MAX_LINE_LENGTH];
 
+  // If Windows Explorer is running as the shell, then don't start
+  if (ELIsExplorerShell())
+    return 1;
+
   /**< Check to see if the explorer desktop should be created */
   ELParseCommand(GetCommandLine(), app, args);
   if (_wcsicmp(args, TEXT("/showdesktop")) == 0)
