@@ -419,12 +419,6 @@ Applet::~Applet()
 
   DestroyWindow(trayWnd);
 
-  if (ELIsExplorerShell()) //we're running on top of Explorer
-    {
-      removeExplorerTrayHook();
-      LoadSSO(); //give the 2K/XP tray icons back to Explorer
-    }
-
   // Cleanup the icon vectors
   while (!trayIconList.empty())
     {
