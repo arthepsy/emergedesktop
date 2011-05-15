@@ -412,7 +412,7 @@ Applet::~Applet()
 {
   // A quit message was received, so unload the 2K/XP system icons and the Explorer tray hook
 
-  if (!ELIsEmergeShell()) //we're probably running on top of Explorer
+  if (ELIsExplorerShell()) //we're probably running on top of Explorer
     removeExplorerTrayHook();
   else
     UnloadSSO();
