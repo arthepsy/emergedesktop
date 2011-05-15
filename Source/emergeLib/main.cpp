@@ -3368,7 +3368,7 @@ bool ELIsExplorerShell()
 
 bool ELIsEmergeShell()
 {
-  HWND trayWnd = FindWindow(TEXT("ShellTray_Wnd"), NULL);
+  HWND trayWnd = FindWindow(TEXT("Shell_TrayWnd"), NULL);
   if (trayWnd)
     {
       std::wstring trayExec = ELGetWindowApp(trayWnd, false);
