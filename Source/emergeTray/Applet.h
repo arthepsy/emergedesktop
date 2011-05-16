@@ -453,7 +453,7 @@ typedef struct ICONIDENTIFIERDATA
 }
 ICONIDENTIFIERDATA, *PICONIDENTIFIERDATA;
 
-/*typedef struct _TRAYICONDATA{
+typedef struct _TRAYICONDATA{
   HWND hWnd;
   UINT uID;
   UINT uCallbackMessage;
@@ -467,9 +467,9 @@ ICONIDENTIFIERDATA, *PICONIDENTIFIERDATA;
   TCHAR sIconText[MAX_PATH];
   UINT uNumSeconds;
   GUID guidItem;
-  } TRAYICONDATA;*/
+  } TRAYICONDATA;
 
-typedef struct _TRAYICONDATA{
+/*typedef struct _TRAYICONDATA{
     HWND hWnd;
     UINT uID;
     UINT uCallbackMessage;
@@ -483,7 +483,7 @@ typedef struct _TRAYICONDATA{
     DWORD szUnion;
     DWORD lpszInfoTitle;
     DWORD dwInfoFlags;
-} TRAYICONDATA;
+} TRAYICONDATA;*/
 
 class Applet: public BaseApplet
 {

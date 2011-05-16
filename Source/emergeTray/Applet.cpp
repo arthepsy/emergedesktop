@@ -351,7 +351,7 @@ bool Applet::AcquireExplorerTrayIconList()
   bool hidden;
   bool shared;
   WCHAR sTipText[1024];
-  UINT uFlags;
+  UINT uFlags = 0;
 
   for (int counter=0; counter<trayButtonCount; counter++)
     {
@@ -385,22 +385,27 @@ bool Applet::AcquireExplorerTrayIconList()
 
       VirtualFreeEx(hProcess, sTipRemote, 0, MEM_RELEASE);
 
-      hidden = ((trayIconData.dwState & trayIconData.dwStateMask & NIS_HIDDEN) == NIS_HIDDEN);
-      shared = ((trayIconData.dwState & trayIconData.dwStateMask & NIS_SHAREDICON) == NIS_SHAREDICON);
+      hidden = ((trayIconData.dwState & NIS_HIDDEN) == NIS_HIDDEN);
+      shared = ((trayIconData.dwState & NIS_SHAREDICON) == NIS_SHAREDICON);
 
-      uFlags = (UINT)(trayIconData.uFlags/0x100000);
       if (trayIconData.hIcon)
         uFlags = uFlags|NIF_ICON;
       if (trayIconData.uCallbackMessage)
         uFlags = uFlags|NIF_MESSAGE;
       if (wcslen(sTipText) > 0)
         uFlags = uFlags|NIF_TIP;
-      if (wcslen(trayIconData.lpszInfo) > 0)
-        uFlags = uFlags|NIF_INFO;
+      //if (wcslen(trayIconData.lpszInfo) > 0)
+        //uFlags = uFlags|NIF_INFO;
+
+      std::wstring debug = trayIconData.sIconText;
+      ELWriteDebug(debug);
 
       AddTrayIcon(trayIconData.hWnd, trayIconData.uID, uFlags, trayIconData.uCallbackMessage,
+                  trayIconData.hIcon, (LPTSTR)sTipText, (TCHAR*)L"", (TCHAR*)L"",
+                  0, hidden, shared);
+      /*AddTrayIcon(trayIconData.hWnd, trayIconData.uID, uFlags, trayIconData.uCallbackMessage,
                   trayIconData.hIcon, (LPTSTR)sTipText, (LPTSTR)trayIconData.lpszInfo, (LPTSTR)trayIconData.lpszInfoTitle,
-                  trayIconData.dwInfoFlags, hidden, shared);
+                  trayIconData.dwInfoFlags, hidden, shared);*/
     }
 
   CloseHandle(hProcess);
