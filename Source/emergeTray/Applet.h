@@ -469,22 +469,6 @@ typedef struct _TRAYICONDATA{
   GUID guidItem;
   } TRAYICONDATA;
 
-/*typedef struct _TRAYICONDATA{
-    HWND hWnd;
-    UINT uID;
-    UINT uCallbackMessage;
-    DWORD uFlags;
-    UINT uVersion;
-    HICON hIcon;
-    ULONG lpszTip;
-    DWORD dwState;
-    DWORD dwStateMask;
-    WCHAR lpszInfo[MAX_PATH];
-    DWORD szUnion;
-    DWORD lpszInfoTitle;
-    DWORD dwInfoFlags;
-} TRAYICONDATA;*/
-
 class Applet: public BaseApplet
 {
 private:
