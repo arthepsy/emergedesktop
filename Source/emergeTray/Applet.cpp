@@ -43,7 +43,9 @@ WCHAR edTrayName[ ] = TEXT("ed_Shell_TrayWnd");
 
 WCHAR myName[] = TEXT("emergeTray");
 
-DWORD DLLHandle;
+HMODULE hookDLLaddr;
+DWORD taskBarThreadId, notifyWndThreadId, trayWndThreadId, clockWndThreadId, rebarWndThreadId, taskWndThreadId;
+HHOOK taskBarCallWndRetHook, notifyWndCallWndRetHook, trayWndCallWndRetHook, clockWndCallWndRetHook, rebarWndCallWndRetHook, taskWndCallWndRetHook;
 
 LRESULT CALLBACK Applet::TrayProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
@@ -221,94 +223,109 @@ Applet::Applet(HINSTANCE hInstance)
 
 bool injectExplorerTrayHook(HWND messageHandler)
 {
-  HWND trayhWnd = FindWindow(szTrayName, NULL);
-  if (!trayhWnd)
-    return false;
-
-  DWORD processId;
-  DWORD threadId = GetWindowThreadProcessId(trayhWnd, &processId);
-  if ((!threadId) || (!processId))
-    return false;
-
-  HMODULE hKernel32 = GetModuleHandle(TEXT("Kernel32"));
-  if (!hKernel32)
-    return false; //this should never happen, since Kernel32 should always be loaded, but it's better to be safe than sorry
-
   WCHAR szLibPath[MAX_PATH];
   ELGetCurrentPath(szLibPath);
   wcscat(szLibPath, TEXT("\\emergeTrayExplorerHook.dll"));
-
-  SIZE_T memSize = sizeof(WCHAR)*(wcslen(szLibPath) + 1);
-
-  HANDLE hProcess = OpenProcess(PROCESS_CREATE_THREAD|PROCESS_QUERY_INFORMATION|PROCESS_VM_OPERATION|PROCESS_VM_WRITE|PROCESS_VM_READ, false, processId);
-  if (!hProcess)
+  hookDLLaddr = LoadLibrary(szLibPath);
+  if (!hookDLLaddr)
     return false;
 
-  void* pLibRemote = VirtualAllocEx(hProcess, NULL, memSize, MEM_COMMIT, PAGE_READWRITE);
-  if (!pLibRemote)
-    return false;
-
-  if (WriteProcessMemory(hProcess, pLibRemote, (void*)szLibPath, memSize, NULL))
+  HOOKPROC CallWndRetProcAddr = (HOOKPROC)GetProcAddress(hookDLLaddr, "CallWndRetProc@12");
+  if (!CallWndRetProcAddr)
     {
-      FARPROC loadLibraryAddr = GetProcAddress(hKernel32, "LoadLibraryW");
+      FreeLibrary(hookDLLaddr);
+      hookDLLaddr = NULL;
+      return false;
+    }
 
-      HANDLE hThread = CreateRemoteThread(hProcess, NULL, 0, (LPTHREAD_START_ROUTINE)loadLibraryAddr, pLibRemote, 0, NULL);
-      if (hThread)
+  HWND taskBarhWnd = FindWindow(szTrayName, NULL);
+
+  if (taskBarhWnd)
+    {
+      taskBarThreadId = GetWindowThreadProcessId(taskBarhWnd, NULL);
+
+      HWND notifyhWnd = FindWindowEx(taskBarhWnd, NULL, szNotifyName, NULL);
+      if (notifyhWnd)
         {
-          DWORD returnValue = WaitForSingleObject(hThread, INFINITE);
-          if (returnValue == WAIT_OBJECT_0)
+          notifyWndThreadId = GetWindowThreadProcessId(notifyhWnd, NULL);
+
+          HWND sysPagerhWnd = FindWindowEx(notifyhWnd, NULL, TEXT("SysPager"), NULL);
+          if (sysPagerhWnd)
             {
-              GetExitCodeThread(hThread, &DLLHandle);
-              if (!DLLHandle)
-                MessageBox(NULL, TEXT("Error: emergeTrayExplorerHook.dll was not loaded properly."), TEXT("Error"), MB_OK|MB_ICONSTOP);
+              HWND trayhWnd = FindWindowEx(sysPagerhWnd, NULL, TEXT("ToolbarWindow32"), NULL);
+              if (trayhWnd)
+                {
+                  trayWndThreadId = GetWindowThreadProcessId(trayhWnd, NULL);
+                }
             }
 
-          CloseHandle(hThread);
+          HWND clockhWnd = FindWindowEx(notifyhWnd, NULL, szClockName, NULL);
+          if (clockhWnd)
+            {
+              clockWndThreadId = GetWindowThreadProcessId(clockhWnd, NULL);
+            }
+        }
+
+      HWND rebarhWnd = FindWindowEx(taskBarhWnd, NULL, szReBarName, NULL);
+      if (rebarhWnd)
+        {
+          rebarWndThreadId = GetWindowThreadProcessId(rebarhWnd, NULL);
+
+          HWND taskhWnd = FindWindowEx(rebarhWnd, NULL, szTaskSwName, NULL);
+          if (taskhWnd)
+            {
+              taskWndThreadId = GetWindowThreadProcessId(taskhWnd, NULL);
+            }
         }
     }
 
-  VirtualFreeEx(hProcess, pLibRemote, 0, MEM_RELEASE);
+  if (taskBarThreadId)
+    taskBarCallWndRetHook = SetWindowsHookEx(WH_CALLWNDPROCRET, CallWndRetProcAddr, hookDLLaddr, taskBarThreadId);
 
-  CloseHandle(hProcess);
+  if (notifyWndThreadId)
+    notifyWndCallWndRetHook = SetWindowsHookEx(WH_CALLWNDPROCRET, CallWndRetProcAddr, hookDLLaddr, notifyWndThreadId);
 
-  SendMessage(trayhWnd, TRAYHOOK_MSGPROC_ATTACH, (WPARAM)NULL, (LPARAM)messageHandler);
+  if (trayWndThreadId)
+    trayWndCallWndRetHook = SetWindowsHookEx(WH_CALLWNDPROCRET, CallWndRetProcAddr, hookDLLaddr, trayWndThreadId);
+
+  if (clockWndThreadId)
+    clockWndCallWndRetHook = SetWindowsHookEx(WH_CALLWNDPROCRET, CallWndRetProcAddr, hookDLLaddr, clockWndThreadId);
+
+  if (rebarWndThreadId)
+    rebarWndCallWndRetHook = SetWindowsHookEx(WH_CALLWNDPROCRET, CallWndRetProcAddr, hookDLLaddr, rebarWndThreadId);
+
+  if (taskWndThreadId)
+    taskWndCallWndRetHook = SetWindowsHookEx(WH_CALLWNDPROCRET, CallWndRetProcAddr, hookDLLaddr, taskWndThreadId);
+
+  SendMessage(taskBarhWnd, TRAYHOOK_MSGPROC_ATTACH, (WPARAM)NULL, (LPARAM)messageHandler);
 
   return true;
 }
 
 bool removeExplorerTrayHook()
 {
-  if (!DLLHandle)
+  if (!hookDLLaddr)
     return false;
 
-  HWND processhWnd = FindWindow(szTrayName, NULL);
-  if (!processhWnd)
-    return false;
+  if (taskBarCallWndRetHook)
+    UnhookWindowsHookEx(taskBarCallWndRetHook);
 
-  DWORD processId;
-  DWORD threadId = GetWindowThreadProcessId(processhWnd, &processId);
-  if ((!threadId) || (!processId))
-    return false;
+  if (notifyWndCallWndRetHook)
+    UnhookWindowsHookEx(notifyWndCallWndRetHook);
 
-  HMODULE hKernel32 = GetModuleHandle(TEXT("Kernel32"));
-  if (!hKernel32)
-    return false;
+  if (trayWndCallWndRetHook)
+    UnhookWindowsHookEx(trayWndCallWndRetHook);
 
-  HANDLE hProcess = OpenProcess(PROCESS_CREATE_THREAD|PROCESS_QUERY_INFORMATION|PROCESS_VM_OPERATION|PROCESS_VM_WRITE|PROCESS_VM_READ, false, processId);
-  if (!hProcess)
-    return false;
+  if (clockWndCallWndRetHook)
+    UnhookWindowsHookEx(clockWndCallWndRetHook);
 
-  HANDLE hThread = CreateRemoteThread(hProcess, NULL, 0, (LPTHREAD_START_ROUTINE)GetProcAddress(hKernel32, "FreeLibrary"), (void*)DLLHandle, 0, NULL);
-  if (hThread)
-    {
-      DWORD returnValue = WaitForSingleObject(hThread, INFINITE);
-      if (returnValue == WAIT_OBJECT_0)
-        CloseHandle(hThread);
-    }
+  if (rebarWndCallWndRetHook)
+    UnhookWindowsHookEx(rebarWndCallWndRetHook);
 
-  RedrawWindow(processhWnd, NULL, NULL, RDW_INVALIDATE|RDW_ERASE|RDW_FRAME|RDW_UPDATENOW|RDW_ALLCHILDREN); //force the Taskbar, tray, clock, etc. to redraw
+  if (taskWndCallWndRetHook)
+    UnhookWindowsHookEx(taskWndCallWndRetHook);
 
-  CloseHandle(hProcess);
+  FreeLibrary(hookDLLaddr);
 
   return true;
 }

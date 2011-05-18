@@ -48,7 +48,9 @@
 
 HWND trayMsgHandler;
 HINSTANCE hInst;
-LONG_PTR oldTaskbarWndProc, oldNotifyWndProc, oldTrayWndProc, oldClockWndProc, oldRebarWndProc, oldTaskWndProc;
+
+extern "C" LRESULT CALLBACK CallWndRetProc(int nCode, WPARAM wParam, LPARAM lParam);
+extern "C" BOOL WINAPI DllMain(HINSTANCE hinstDLL UNUSED, DWORD fdwReason, LPVOID lpvReserved UNUSED);
 
 static const UINT TRAYHOOK_MSGPROC_ATTACH = RegisterWindowMessage(TEXT("TrayHook_MsgProc_Attach"));
 

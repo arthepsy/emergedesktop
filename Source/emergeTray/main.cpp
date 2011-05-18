@@ -39,14 +39,14 @@ int WINAPI WinMain (HINSTANCE hInstance,
 
   Applet applet(hInstance);
 
-  if (ELIsExplorerShell())
+  if (ELIsEmergeShell())
   {
-      if (!applet.portableInitialize())
+      if (!applet.Initialize())
         return 0;
   }
   else
   {
-      if (!applet.Initialize())
+      if (!applet.portableInitialize())
         return 0;
   }
 
