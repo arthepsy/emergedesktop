@@ -202,7 +202,7 @@ LRESULT CALLBACK Applet::WindowProcedure (HWND hwnd, UINT message, WPARAM wParam
 }
 
 Applet::Applet(HINSTANCE hInstance)
-:BaseApplet(hInstance, myName, true)
+  :BaseApplet(hInstance, myName, true)
 {
   mainInst = hInstance;
 
@@ -394,18 +394,10 @@ bool Applet::AcquireExplorerTrayIconList()
         uFlags = uFlags|NIF_MESSAGE;
       if (wcslen(sTipText) > 0)
         uFlags = uFlags|NIF_TIP;
-      //if (wcslen(trayIconData.lpszInfo) > 0)
-        //uFlags = uFlags|NIF_INFO;
 
-      std::wstring debug = trayIconData.sIconText;
-      ELWriteDebug(debug);
-
-      AddTrayIcon(trayIconData.hWnd, trayIconData.uID, uFlags, trayIconData.uCallbackMessage,
-                  trayIconData.hIcon, (LPTSTR)sTipText, (TCHAR*)L"", (TCHAR*)L"",
-                  0, hidden, shared);
-      /*AddTrayIcon(trayIconData.hWnd, trayIconData.uID, uFlags, trayIconData.uCallbackMessage,
-                  trayIconData.hIcon, (LPTSTR)sTipText, (LPTSTR)trayIconData.lpszInfo, (LPTSTR)trayIconData.lpszInfoTitle,
-                  trayIconData.dwInfoFlags, hidden, shared);*/
+      AddTrayIcon(trayIconData.hWnd, trayIconData.uID, uFlags,
+                  trayIconData.uCallbackMessage, trayIconData.hIcon,
+                  (LPTSTR)sTipText, NULL, NULL, 0, hidden, shared);
     }
 
   CloseHandle(hProcess);
@@ -558,6 +550,38 @@ UINT Applet::portableInitialize()
   explorerTrayWnd = FindWindow(szTrayName, NULL);
   SetProp(explorerTrayWnd, TEXT("AllowConsentToStealFocus"), (HANDLE)1);
   SetProp(explorerTrayWnd, TEXT("TaskBandHWND"), trayWnd);
+
+  // In Windows 7 (and possibly Vista) Explorer seems to keep it's hidden tray
+  // icons in a separate location.  In order for emergeTray to pull them from
+  // Explorer, they must first all be made visible.
+  /*DWORD enableAutoTray = 0;
+  ULONG_PTR result = 0;
+  HKEY explorerKey;
+  HWND trayWnd = FindWindow(szTrayName, NULL);
+  if (trayWnd)
+    {
+      if (RegOpenKeyEx(HKEY_CURRENT_USER,
+                       TEXT("Software\\Microsoft\\Windows\\CurrentVersion\\Explorer"),
+                       0,
+                       KEY_ALL_ACCESS,
+                       &explorerKey) == ERROR_SUCCESS)
+        {
+          if (RegSetValueEx(explorerKey,
+                            TEXT("EnableAutoTray"),
+                            0,
+                            REG_DWORD,
+                            (BYTE*)&enableAutoTray,
+                            sizeof(enableAutoTray)) == ERROR_SUCCESS)
+            {
+              // TODO (Chris#1#): Figure out a way to have Explorer take the EnableAutoTray settings change into effect.
+              SendMessage(trayWnd, WM_WININICHANGE, 0, 0);
+              SendMessageTimeout(HWND_BROADCAST, WM_SETTINGCHANGE, 0, 0,
+                                 SMTO_ABORTIFHUNG, 2000, &result);
+            }
+
+          RegCloseKey(explorerKey);
+        }
+    }*/
 
   movesizeinprogress = false;
 
@@ -1353,22 +1377,22 @@ LRESULT Applet::AppBarEvent(COPYDATASTRUCT *cpData)
       return 1;
 
     case ABM_GETSTATE:
+    {
+      LRESULT result = 0;
+
+      if (!IsWindowVisible(mainWnd))
+        result = ABS_AUTOHIDE;
+
+      if (ELVersionInfo() >= 7.0)
+        result |= ABS_ALWAYSONTOP;
+      else
         {
-          LRESULT result = 0;
-
-          if (!IsWindowVisible(mainWnd))
-            result = ABS_AUTOHIDE;
-
-          if (ELVersionInfo() >= 7.0)
+          if (_wcsicmp(pSettings->GetZPosition(), TEXT("Top")) == 0)
             result |= ABS_ALWAYSONTOP;
-          else
-            {
-              if (_wcsicmp(pSettings->GetZPosition(), TEXT("Top")) == 0)
-                result |= ABS_ALWAYSONTOP;
-            }
-
-          return result;
         }
+
+      return result;
+    }
 
     case ABM_SETSTATE:
       return 1;
