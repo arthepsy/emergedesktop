@@ -39,7 +39,7 @@ int WINAPI WinMain (HINSTANCE hInstance,
 
   Applet applet(hInstance);
 
-  if (ELIsEmergeShell())
+  if (!ELIsExplorerShell())
   {
       if (!applet.Initialize())
         return 0;
