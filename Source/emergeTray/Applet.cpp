@@ -1362,6 +1362,8 @@ bool Applet::ClearAutoHideEdge(UINT edge)
   return true;
 }
 
+// TODO (Chris#1#): Wrong AppBar implementation - check SharpE SVN to see how
+// it should be handled.
 LRESULT Applet::AppBarEvent(COPYDATASTRUCT *cpData)
 {
   DWORD message = 0, dataSize;
