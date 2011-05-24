@@ -107,6 +107,7 @@ private:
   bool NoPrefixString(WCHAR *source);
   MenuMap menuMap;
   HHOOK menuHook;
+  RECT explorerWorkArea;
   void ExecuteXMLMenuItem(UINT type, WCHAR *value, WCHAR *workingDir);
   void ExecuteFileMenuItem(const WCHAR *value);
   void ExecuteTaskMenuItem(HWND task);
