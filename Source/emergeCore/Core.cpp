@@ -133,15 +133,9 @@ bool Core::Initialize(WCHAR *commandLine)
       HWND startWnd = FindWindow(TEXT("Button"), NULL);
 
       if (taskBarWnd)
-        {
-          ShowWindow(taskBarWnd, SW_HIDE);
-          UpdateWindow(taskBarWnd);
-        }
+        ShowWindow(taskBarWnd, SW_HIDE);
       if (startWnd)
-        {
-          ShowWindow(startWnd, SW_HIDE);
-          UpdateWindow(startWnd);
-        }
+        ShowWindow(startWnd, SW_HIDE);
     }
 
   // Launch additional Emerge Desktop applets
@@ -208,15 +202,9 @@ Core::~Core()
           HWND startWnd = FindWindow(TEXT("Button"), NULL);
 
           if (taskBarWnd)
-            {
-              ShowWindow(taskBarWnd, SW_SHOW);
-              UpdateWindow(taskBarWnd);
-            }
+            ShowWindow(taskBarWnd, SW_SHOW);
           if (startWnd)
-            {
-              ShowWindow(startWnd, SW_SHOW);
-              UpdateWindow(startWnd);
-            }
+            ShowWindow(startWnd, SW_SHOW);
         }
 
       pShell->UnloadSSO();
