@@ -1907,7 +1907,8 @@ bool ELCheckPathWithExtension(LPTSTR path)
 bool PathTokenCheck(WCHAR *path)
 {
   WCHAR tmp[MAX_LINE_LENGTH], corePath[MAX_PATH], sysWOW64[MAX_PATH];
-  const WCHAR *corePathPtr[MAX_PATH];
+  WCHAR cwd[MAX_PATH];
+  const WCHAR *corePathPtr[2];
   std::wstring working = path;
 
   working = ELExpandVars(working);
@@ -1924,11 +1925,12 @@ bool PathTokenCheck(WCHAR *path)
     }
 
   ELGetCurrentPath(corePath);
+  _wgetcwd(cwd, MAX_PATH);
 
   corePathPtr[0] = corePath;
   corePathPtr[1] = NULL;
 
-  ExpandEnvironmentStrings((LPCTSTR)TEXT("%systemroot%\\SysWOW64\\"),
+  ExpandEnvironmentStrings((LPCTSTR)TEXT("%systemroot%\\SysWOW64"),
                            (LPTSTR)sysWOW64,
                            MAX_PATH);
 
@@ -1939,12 +1941,21 @@ bool PathTokenCheck(WCHAR *path)
     }
   else
     {
-      wcscpy(tmp, sysWOW64);
-      wcscat(tmp, path);
+      WCHAR tmpCheck[MAX_LINE_LENGTH];
 
-      if (ELPathFileExists(tmp) && !PathIsDirectory(tmp))
+      /**< Check to see if tmp exists in sysWOW64 */
+      swprintf(tmpCheck, TEXT("%s\\%s"), sysWOW64, tmp);
+      if (ELPathFileExists(tmpCheck) && !PathIsDirectory(tmpCheck))
         {
-          wcscpy(path, tmp);
+          wcscpy(path, tmpCheck);
+          return true;
+        }
+
+      /**< Check to see if tmp exists in current working directory */
+      swprintf(tmpCheck, TEXT("%s\\%s"), cwd, tmp);
+      if (ELPathFileExists(tmpCheck) && !PathIsDirectory(tmpCheck))
+        {
+          wcscpy(path, tmpCheck);
           return true;
         }
     }
