@@ -144,7 +144,10 @@ bool Core::Initialize(WCHAR *commandLine)
 
   pShell->RegisterShell(mainWnd, true);
   pShell->BuildTaskList();
-  pShell->LoadSSO();
+
+  /**< Only load SSO objects if not running on top of Explorer */
+  if (!ELIsExplorerShell())
+    pShell->LoadSSO();
 
   // Load the start up entries in the registry and the startup
   // folders only if the startup items have not already been started
@@ -207,7 +210,9 @@ Core::~Core()
             ShowWindow(startWnd, SW_SHOW);
         }
 
-      pShell->UnloadSSO();
+      /**< Only unload SSO objects if not running on top of Explorer */
+      if (!ELIsExplorerShell())
+        pShell->UnloadSSO();
       pShell->RegisterShell(mainWnd, false);
       pShell->ClearSessionInformation();
 
