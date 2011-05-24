@@ -33,12 +33,6 @@ extern "C" LRESULT CALLBACK CallWndRetProc(int nCode, WPARAM wParam, LPARAM lPar
       if ((GetLastError() == ERROR_INVALID_HANDLE) || (GetLastError() == ERROR_INVALID_WINDOW_HANDLE))
         trayMsgHandler = NULL; //trayMsgHandler is an invalid handle (the window probably closed), so clear it; we don't want to keep sending messages to nothing
     }
-  else
-    {
-      SendMessage(trayMsgHandler, cwpRetMsg->message, cwpRetMsg->wParam, cwpRetMsg->lParam);
-      if ((GetLastError() == ERROR_INVALID_HANDLE) || (GetLastError() == ERROR_INVALID_WINDOW_HANDLE))
-        trayMsgHandler = NULL; //trayMsgHandler is an invalid handle (the window probably closed), so clear it; we don't want to keep sending messages to nothing
-    }
 
   return CallNextHookEx(NULL, nCode, wParam, lParam);
 }
