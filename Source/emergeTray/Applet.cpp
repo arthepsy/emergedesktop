@@ -369,36 +369,37 @@ bool Applet::AcquireExplorerTrayIconList()
   bool shared;
   WCHAR sTipText[1024];
   UINT uFlags = 0;
+  int counter;
 
-  for (int counter=0; counter<trayButtonCount; counter++)
+  for (counter=0; counter<trayButtonCount; counter++)
     {
       tbButtonInfoRemote = VirtualAllocEx(hProcess, NULL, sizeof(TBBUTTONINFO), MEM_COMMIT, PAGE_READWRITE);
       if (!tbButtonInfoRemote)
-        return false;
+        break;
 
       sTipRemote = VirtualAllocEx(hProcess, NULL, (sizeof(WCHAR)*(wcslen(sTipText) + 1)), MEM_COMMIT, PAGE_READWRITE);
       if (!sTipRemote)
-        return false;
+        break;
 
       trayIconTBButtonInfo.cbSize = sizeof(TBBUTTONINFO);
       trayIconTBButtonInfo.dwMask = TBIF_BYINDEX|TBIF_STYLE|TBIF_LPARAM|TBIF_COMMAND;
       if (!WriteProcessMemory(hProcess, tbButtonInfoRemote, &trayIconTBButtonInfo, sizeof(TBBUTTONINFO), NULL))
-        return false;
+        break;
 
       SendMessage(trayhWnd, TB_GETBUTTONINFO, counter, (LPARAM)tbButtonInfoRemote);
 
       if (!ReadProcessMemory(hProcess, tbButtonInfoRemote, (LPVOID)&trayIconTBButtonInfo, sizeof(TBBUTTONINFO), NULL))
-        return false;
+        break;
 
       if (!ReadProcessMemory(hProcess, (void *)trayIconTBButtonInfo.lParam, (LPVOID)&trayIconData, sizeof(TRAYICONDATA), NULL))
-        return false;
+        break;
 
       VirtualFreeEx(hProcess, tbButtonInfoRemote, 0, MEM_RELEASE);
 
       SendMessage(trayhWnd, TB_GETBUTTONTEXT, trayIconTBButtonInfo.idCommand, (LPARAM)sTipRemote);
 
       if (!ReadProcessMemory(hProcess, sTipRemote, (LPVOID)&sTipText, sizeof(sTipText), NULL))
-        return false;
+        break;
 
       VirtualFreeEx(hProcess, sTipRemote, 0, MEM_RELEASE);
 
@@ -419,7 +420,7 @@ bool Applet::AcquireExplorerTrayIconList()
 
   CloseHandle(hProcess);
 
-  return true;
+  return (counter == trayButtonCount);
 }
 
 Applet::~Applet()
