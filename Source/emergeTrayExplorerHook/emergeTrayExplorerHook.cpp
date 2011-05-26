@@ -1,4 +1,5 @@
 #include "emergeTrayExplorerHook.h"
+#include <stdio.h>
 
 LRESULT CALLBACK CallWndRetProc(int nCode, WPARAM wParam, LPARAM lParam)
 {
@@ -22,16 +23,19 @@ LRESULT CALLBACK CallWndRetProc(int nCode, WPARAM wParam, LPARAM lParam)
       PCOPYDATASTRUCT receivedData = (PCOPYDATASTRUCT)cwpRetMsg->lParam;
       DWORD dataSize = receivedData->cbData;
       void * dataPtr = malloc(dataSize);
-      memcpy(dataPtr, receivedData->lpData, dataSize);
+      if (dataPtr)
+        {
+          memcpy(dataPtr, receivedData->lpData, dataSize);
 
-      COPYDATASTRUCT sendingData;
-      sendingData.dwData = receivedData->dwData;
-      sendingData.cbData = dataSize;
-      sendingData.lpData = dataPtr;
-      SendMessage(trayMsgHandler, cwpRetMsg->message, cwpRetMsg->wParam, (LPARAM)(LPVOID)&sendingData);
-      free(dataPtr);
-      if ((GetLastError() == ERROR_INVALID_HANDLE) || (GetLastError() == ERROR_INVALID_WINDOW_HANDLE))
-        trayMsgHandler = NULL; //trayMsgHandler is an invalid handle (the window probably closed), so clear it; we don't want to keep sending messages to nothing
+          COPYDATASTRUCT sendingData;
+          sendingData.dwData = receivedData->dwData;
+          sendingData.cbData = dataSize;
+          sendingData.lpData = dataPtr;
+          SendMessage(trayMsgHandler, cwpRetMsg->message, cwpRetMsg->wParam, (LPARAM)(LPVOID)&sendingData);
+          free(dataPtr);
+          if ((GetLastError() == ERROR_INVALID_HANDLE) || (GetLastError() == ERROR_INVALID_WINDOW_HANDLE))
+            trayMsgHandler = NULL; //trayMsgHandler is an invalid handle (the window probably closed), so clear it; we don't want to keep sending messages to nothing
+        }
     }
 
   return CallNextHookEx(NULL, nCode, wParam, lParam);
@@ -42,10 +46,10 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL UNUSED, DWORD fdwReason, LPVOID lpvReserv
   switch (fdwReason)
     {
     case DLL_PROCESS_ATTACH:
-        {
-          hInst = hinstDLL;
-          break;
-        }
+    {
+      hInst = hinstDLL;
+      break;
+    }
     }
 
   return true;
