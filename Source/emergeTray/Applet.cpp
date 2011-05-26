@@ -230,7 +230,7 @@ bool injectExplorerTrayHook(HWND messageHandler)
   if (!hookDLLaddr)
     return false;
 
-  HOOKPROC CallWndRetProcAddr = (HOOKPROC)GetProcAddress(hookDLLaddr, "CallWndRetProc@12");
+  HOOKPROC CallWndRetProcAddr = (HOOKPROC)GetProcAddress(hookDLLaddr, "CallWndRetProc");
   if (!CallWndRetProcAddr)
     {
       FreeLibrary(hookDLLaddr);
