@@ -1,6 +1,6 @@
 #include "emergeTrayExplorerHook.h"
 
-extern "C" LRESULT CALLBACK CallWndRetProc(int nCode, WPARAM wParam, LPARAM lParam)
+LRESULT CALLBACK CallWndRetProc(int nCode, WPARAM wParam, LPARAM lParam)
 {
   if (nCode < 0)
     return CallNextHookEx(NULL, nCode, wParam, lParam);
@@ -37,7 +37,7 @@ extern "C" LRESULT CALLBACK CallWndRetProc(int nCode, WPARAM wParam, LPARAM lPar
   return CallNextHookEx(NULL, nCode, wParam, lParam);
 }
 
-extern "C" BOOL WINAPI DllMain(HINSTANCE hinstDLL UNUSED, DWORD fdwReason, LPVOID lpvReserved UNUSED)
+BOOL WINAPI DllMain(HINSTANCE hinstDLL UNUSED, DWORD fdwReason, LPVOID lpvReserved UNUSED)
 {
   switch (fdwReason)
     {
