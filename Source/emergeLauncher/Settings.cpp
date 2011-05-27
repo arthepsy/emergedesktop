@@ -84,9 +84,11 @@ void Settings::PopulateItems()
                   found = true; // Existing user settings found
                   userIO.ReadInt(TEXT("Type"), type, IT_EXECUTABLE);
                   userIO.ReadString(TEXT("Command"), app, TEXT(""));
+                  ELAbsPathFromRelativePath(app);
                   userIO.ReadString(TEXT("Icon"), icon, TEXT(""));
                   userIO.ReadString(TEXT("Tip"), tip, TEXT(""));
                   userIO.ReadString(TEXT("WorkingDir"), workingDir, TEXT(""));
+                  ELAbsPathFromRelativePath(workingDir);
 
                   // Convert the iconValue to a full path if relative
                   if (ELPathIsRelative(icon))
@@ -171,9 +173,11 @@ void Settings::WriteItem(int type, WCHAR *command, WCHAR *iconPath, WCHAR *tip, 
               if (userIO.SetElement(TEXT("item")))
                 {
                   userIO.WriteInt(TEXT("Type"), type);
+                  ELRelativePathFromAbsPath(command);
                   userIO.WriteString(TEXT("Command"), command);
                   userIO.WriteString(TEXT("Icon"), iconPath);
                   userIO.WriteString(TEXT("Tip"), tip);
+                  ELRelativePathFromAbsPath(workingDir, true);
                   userIO.WriteString(TEXT("WorkingDir"), workingDir);
                   ELWriteXMLConfig(configXML.get());
                 }

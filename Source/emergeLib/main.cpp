@@ -907,12 +907,12 @@ std::string ELwstringTostring(std::wstring inString, UINT codePage)
   std::string returnString;
 
   size_t tmpStringLength = WideCharToMultiByte(codePage, 0, wideString.c_str(), wideString.length(), NULL, 0,
-                                               NULL, NULL);
+                           NULL, NULL);
   if (tmpStringLength != 0)
     {
       LPSTR tmpString = new char[tmpStringLength + 1];
       size_t writtenBytes = WideCharToMultiByte(codePage, 0, wideString.c_str(), wideString.length(), tmpString,
-                                                tmpStringLength, NULL, NULL);
+                            tmpStringLength, NULL, NULL);
       if (writtenBytes != 0)
         {
           if (writtenBytes <= tmpStringLength)
@@ -934,7 +934,7 @@ std::wstring ELstringTowstring(std::string inString, UINT codePage)
     {
       LPWSTR tmpString = new WCHAR[tmpStringLength + 1];
       size_t writtenBytes = MultiByteToWideChar(codePage, 0, narrowString.c_str(), narrowString.length(), tmpString,
-                                                tmpStringLength);
+                            tmpStringLength);
       if (writtenBytes != 0)
         {
           if (writtenBytes <= tmpStringLength)
@@ -4314,6 +4314,72 @@ bool ConvertPath(WCHAR *styleFile, DWORD flags, DWORD path)
   return converted;
 }
 
+bool ELRelativePathFromAbsPath(WCHAR *destPath, bool isDir)
+{
+  std::wstring sourcePath = ELExpandVars(TEXT("%AppletDir%\\"));
+  WCHAR tmpPath[MAX_PATH];
+  UINT j = 0;
+  DWORD flags;
+
+  if (wcslen(destPath) == 0)
+    return false;
+
+  if (ELPathIsRelative(destPath))
+    return true; //the path is already relative; there's nothing for us to do!
+
+  if (isDir)
+    flags = FILE_ATTRIBUTE_DIRECTORY;
+  else
+    flags = FILE_ATTRIBUTE_NORMAL;
+
+  if (PathRelativePathTo(tmpPath, sourcePath.c_str(), FILE_ATTRIBUTE_DIRECTORY, destPath, flags))
+    {
+      // If the file is stored in the current directory, the PathRelativePathTo
+      // prepends the string with '\' making windows think the file is in the root
+      // directory, so I've implemented the change below to account for that.
+      for (UINT i = 0; i < wcslen(tmpPath); i++)
+        {
+          if ((i == 0) && (tmpPath[i] == '\\'))
+            continue;
+
+          destPath[j] = tmpPath[i];
+          j++;
+        }
+
+      destPath[j] = '\0';
+      return true;
+    }
+  else
+    return false;
+}
+
+bool ELAbsPathFromRelativePath(WCHAR *destPath)
+{
+  std::wstring sourcePath = ELExpandVars(TEXT("%AppletDir%\\"));
+  WCHAR tmpPath[MAX_PATH];
+
+  if (wcslen(destPath) == 0)
+    return false;
+
+  if (!PathFileExists(destPath))
+    return false;
+
+  if (!ELPathIsRelative(destPath))
+    return true; //the path is already absolute; there's nothing for us to do!
+
+  if (GetFullPathName(destPath, MAX_PATH, tmpPath, NULL))
+    {
+      UINT i = 0;
+      for (i = 0; i < wcslen(tmpPath); i++)
+        destPath[i] = tmpPath[i];
+
+      destPath[i] = '\0';
+      return true;
+    }
+  else
+    return false;
+}
+
 RECT ELGetMonitorRect(int monitor)
 {
   APPLETMONITORINFO appMonInfo;
@@ -4574,10 +4640,10 @@ HANDLE ELActivateActCtxForDll(LPCTSTR pszDll, PULONG_PTR pulCookie)
   typedef BOOL (WINAPI* ActivateActCtx_t)(HANDLE hCtx, ULONG_PTR* pCookie);
 
   CreateActCtx_t fnCreateActCtx = (CreateActCtx_t)
-    GetProcAddress(kernel32, "CreateActCtxW");
+                                  GetProcAddress(kernel32, "CreateActCtxW");
 
   ActivateActCtx_t fnActivateActCtx = (ActivateActCtx_t)
-    GetProcAddress(kernel32, "ActivateActCtx");
+                                      GetProcAddress(kernel32, "ActivateActCtx");
 
   if (fnCreateActCtx != NULL && fnActivateActCtx != NULL)
     {
@@ -4644,7 +4710,7 @@ HANDLE ELActivateActCtxForClsid(REFCLSID rclsid, PULONG_PTR pulCookie)
           DWORD cbDll = sizeof(szDll);
 
           LONG lres = SHGetValue(
-                                 HKEY_CLASSES_ROOT, szSubkey, NULL, NULL, szDll, &cbDll);
+                        HKEY_CLASSES_ROOT, szSubkey, NULL, NULL, szDll, &cbDll);
 
           if (lres == ERROR_SUCCESS)
             {
@@ -4667,10 +4733,10 @@ void ELDeactivateActCtx(HANDLE hActCtx, ULONG_PTR* pulCookie)
   typedef void (WINAPI* ReleaseActCtx_t)(HANDLE hActCtx);
 
   DeactivateActCtx_t fnDeactivateActCtx = (DeactivateActCtx_t)
-    GetProcAddress(kernel32, "DeactivateActCtx");
+                                          GetProcAddress(kernel32, "DeactivateActCtx");
 
   ReleaseActCtx_t fnReleaseActCtx = (ReleaseActCtx_t)
-    GetProcAddress(kernel32, "ReleaseActCtx");
+                                    GetProcAddress(kernel32, "ReleaseActCtx");
 
   if (fnDeactivateActCtx != NULL && fnReleaseActCtx != NULL)
     {
@@ -4701,9 +4767,9 @@ IOleCommandTarget *ELStartSSO(CLSID clsid)
     {
       // Start ShellServiceObject
       reinterpret_cast <IOleCommandTarget*> (lpVoid)->Exec(&CGID_ShellServiceObject,
-                                                           OLECMDID_NEW,
-                                                           OLECMDEXECOPT_DODEFAULT,
-                                                           NULL, NULL);
+          OLECMDID_NEW,
+          OLECMDEXECOPT_DODEFAULT,
+          NULL, NULL);
       target = reinterpret_cast <IOleCommandTarget*>(lpVoid);
     }
 
