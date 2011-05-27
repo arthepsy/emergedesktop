@@ -34,14 +34,9 @@ LRESULT CALLBACK CallWndRetProc(int nCode, WPARAM wParam, LPARAM lParam)
           sendingData.dwData = receivedData->dwData;
           sendingData.cbData = dataSize;
           sendingData.lpData = dataPtr;
-          SendMessage(trayMsgHandler, cwpRetMsg->message, cwpRetMsg->wParam,
-                      (LPARAM)(LPVOID)&sendingData);
-          if ((GetLastError() == ERROR_INVALID_HANDLE) ||
-              (GetLastError() == ERROR_INVALID_WINDOW_HANDLE))
-            trayMsgHandler = NULL; //trayMsgHandler is an invalid handle (the
-                                   //window probably closed), so clear it; we
-                                   //don't want to keep sending messages to
-                                   //nothing
+          if (IsWindow(trayMsgHandler))
+            SendMessage(trayMsgHandler, cwpRetMsg->message, cwpRetMsg->wParam,
+                        (LPARAM)(LPVOID)&sendingData);
           free(dataPtr);
         }
     }
