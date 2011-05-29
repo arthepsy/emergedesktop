@@ -4262,8 +4262,6 @@ bool ELConvertAppletPath(WCHAR *styleFile, DWORD flags)
 
 bool ConvertPath(WCHAR *styleFile, DWORD flags, DWORD path)
 {
-  WCHAR tmpPath[MAX_PATH];
-  UINT j = 0;
   bool converted = false;
   std::wstring themePath;
 
@@ -4289,34 +4287,15 @@ bool ConvertPath(WCHAR *styleFile, DWORD flags, DWORD path)
         }
       break;
     case CTP_RELATIVE:
-      if (!ELPathIsRelative(styleFile))
-        {
-          if (PathRelativePathTo(tmpPath, themePath.c_str(), FILE_ATTRIBUTE_DIRECTORY, styleFile, FILE_ATTRIBUTE_NORMAL))
-            {
-              // If the file is stored in the current directory, the PathRelativePathTo
-              // prepends the string with '\' making windows think the file is in the root
-              // directory, so I've implemented the change below to account for that.
-              for (UINT i = 0; i < wcslen(tmpPath); i++)
-                {
-                  if ((i == 0) && (tmpPath[i] == '\\'))
-                    continue;
-
-                  styleFile[j] = tmpPath[i];
-                  j++;
-                }
-              styleFile[j] = '\0';
-              converted = true;
-            }
-        }
-      break;
+      converted = ELRelativePathFromAbsPath(styleFile, themePath.c_str());
     }
 
   return converted;
 }
 
-bool ELRelativePathFromAbsPath(WCHAR *destPath, bool isDir)
+bool ELRelativePathFromAbsPath(WCHAR *destPath, LPCTSTR sourcePath)
 {
-  std::wstring sourcePath = ELExpandVars(TEXT("%AppletDir%\\"));
+  std::wstring srcPath = ELExpandVars(sourcePath);
   WCHAR tmpPath[MAX_PATH];
   UINT j = 0;
   DWORD flags;
@@ -4327,16 +4306,18 @@ bool ELRelativePathFromAbsPath(WCHAR *destPath, bool isDir)
   if (ELPathIsRelative(destPath))
     return true; //the path is already relative; there's nothing for us to do!
 
-  if (isDir)
+  if (PathIsDirectory(destPath))
     flags = FILE_ATTRIBUTE_DIRECTORY;
   else
     flags = FILE_ATTRIBUTE_NORMAL;
 
-  if (PathRelativePathTo(tmpPath, sourcePath.c_str(), FILE_ATTRIBUTE_DIRECTORY, destPath, flags))
+  if (PathRelativePathTo(tmpPath, srcPath.c_str(), FILE_ATTRIBUTE_DIRECTORY,
+                         destPath, flags))
     {
       // If the file is stored in the current directory, the PathRelativePathTo
-      // prepends the string with '\' making windows think the file is in the root
-      // directory, so I've implemented the change below to account for that.
+      // prepends the string with '\' making windows think the file is in the
+      // root directory, so I've implemented the change below to account for
+      // that.
       for (UINT i = 0; i < wcslen(tmpPath); i++)
         {
           if ((i == 0) && (tmpPath[i] == '\\'))
@@ -4349,13 +4330,17 @@ bool ELRelativePathFromAbsPath(WCHAR *destPath, bool isDir)
       destPath[j] = '\0';
       return true;
     }
-  else
-    return false;
+
+  return false;
 }
 
-bool ELAbsPathFromRelativePath(WCHAR *destPath)
+bool ELAbsPathFromRelativePath(WCHAR *destPath, LPCTSTR sourcePath)
 {
-  std::wstring sourcePath = ELExpandVars(TEXT("%AppletDir%\\"));
+  std::wstring srcPath = ELExpandVars(sourcePath);
+  WCHAR originalWorkingDir[MAX_PATH];
+  if (GetCurrentDirectory(MAX_PATH, originalWorkingDir))
+    SetCurrentDirectory(srcPath.c_str());
+
   WCHAR tmpPath[MAX_PATH];
 
   if (wcslen(destPath) == 0)
@@ -4374,10 +4359,11 @@ bool ELAbsPathFromRelativePath(WCHAR *destPath)
         destPath[i] = tmpPath[i];
 
       destPath[i] = '\0';
+      SetCurrentDirectory(originalWorkingDir);
       return true;
     }
-  else
-    return false;
+
+  return false;
 }
 
 RECT ELGetMonitorRect(int monitor)

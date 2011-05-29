@@ -177,7 +177,7 @@ void Settings::WriteItem(int type, WCHAR *command, WCHAR *iconPath, WCHAR *tip, 
                   userIO.WriteString(TEXT("Command"), command);
                   userIO.WriteString(TEXT("Icon"), iconPath);
                   userIO.WriteString(TEXT("Tip"), tip);
-                  ELRelativePathFromAbsPath(workingDir, true);
+                  ELRelativePathFromAbsPath(workingDir);
                   userIO.WriteString(TEXT("WorkingDir"), workingDir);
                   ELWriteXMLConfig(configXML.get());
                 }
