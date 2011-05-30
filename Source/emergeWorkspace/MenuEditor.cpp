@@ -1244,6 +1244,8 @@ bool MenuEditor::DoSaveItem(HWND hwndDlg)
         }
     }
 
+  if (ELUnExpandVars(value))
+    SetDlgItemText(hwndDlg, IDC_ITEMVALUE, value);
   wcscpy(iter->second.value, value);
   wcscpy(iter->second.workingDir, workingDir);
 

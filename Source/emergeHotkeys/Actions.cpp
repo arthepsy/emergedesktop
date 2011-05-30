@@ -778,6 +778,7 @@ bool Actions::DoSave(HWND hwndDlg)
 
   if ((wcslen(tmpKey) > 0) && (wcslen(tmpAction) > 0))
     {
+      ELUnExpandVars(tmpAction);
       hc = new HotkeyCombo(tmpKey, tmpAction);
       if (RegisterHotKey(mainWnd, hc->GetHotkeyID(), hc->GetHotkeyModifiers(),
                          hc->GetHotkeyKey()))

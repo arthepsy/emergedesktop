@@ -714,7 +714,10 @@ bool ItemEditor::DoSaveItem(HWND hwndDlg)
   ELWriteXMLStringValue(section, (WCHAR*)TEXT("Name"), name);
   ELWriteXMLIntValue(section, (WCHAR*)TEXT("Type"), type);
   if (wcslen(value) > 0)
-    ELWriteXMLStringValue(section, (WCHAR*)TEXT("Value"), value);
+    {
+      ELUnExpandVars(value);
+      ELWriteXMLStringValue(section, (WCHAR*)TEXT("Value"), value);
+    }
   if (wcslen(workingDir) > 0)
     ELWriteXMLStringValue(section, (WCHAR*)TEXT("WorkingDir"), workingDir);
 
