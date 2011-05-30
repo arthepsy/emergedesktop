@@ -35,6 +35,7 @@ hgversion.h
 *.log
 *.opensdf
 ipch
+*.cbTemp
 
 # switch to regexp syntax.
 #syntax: regexp
