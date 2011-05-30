@@ -4305,6 +4305,9 @@ bool ELRelativePathFromAbsPath(WCHAR *destPath, LPCTSTR sourcePath)
 
   if (ELPathIsRelative(destPath))
     return true; //the path is already relative; there's nothing for us to do!
+  
+  if (ELUnExpandVars(destPath)) //the unexpanded path contains an environment variable, so we don't want to manipulate the string any further.
+	return true;
 
   if (PathIsDirectory(destPath))
     flags = FILE_ATTRIBUTE_DIRECTORY;
