@@ -113,11 +113,11 @@ void MenuItem::SetIcon()
         }
       break;
     case IT_EXECUTABLE:
-      if ((wcsstr(lwrValue, TEXT("%documents%")) != NULL) ||
-          (wcsstr(lwrValue, TEXT("%commondocuments%")) != NULL))
+      if ((wcsicmp(lwrValue, TEXT("%documents%")) == 0) ||
+          (wcsicmp(lwrValue, TEXT("%commondocuments%")) == 0))
         icon = EGGetSpecialFolderIcon(CSIDL_PERSONAL, 16);
-      else if ((wcsstr(lwrValue, TEXT("%desktop%")) != NULL) ||
-               (wcsstr(lwrValue, TEXT("%commondesktop%")) != NULL))
+      else if ((wcsicmp(lwrValue, TEXT("%desktop%")) == 0) ||
+               (wcsicmp(lwrValue, TEXT("%commondesktop%")) == 0))
         icon = EGGetSpecialFolderIcon(CSIDL_DESKTOP, 16);
       else
         {
@@ -146,11 +146,11 @@ void MenuItem::SetIcon()
         }
       break;
     case IT_FILE_MENU:
-      if ((wcsstr(lwrValue, TEXT("%documents%")) != NULL) ||
-          (wcsstr(lwrValue, TEXT("%commondocuments%")) != NULL))
+      if ((wcsicmp(lwrValue, TEXT("%documents%")) == 0) ||
+          (wcsicmp(lwrValue, TEXT("%commondocuments%")) == 0))
         icon = EGGetSpecialFolderIcon(CSIDL_PERSONAL, 16);
-      else if ((wcsstr(lwrValue, TEXT("%desktop%")) != NULL) ||
-               (wcsstr(lwrValue, TEXT("%commondesktop%")) != NULL))
+      else if ((wcsicmp(lwrValue, TEXT("%desktop%")) == 0) ||
+               (wcsicmp(lwrValue, TEXT("%commondesktop%")) == 0))
         icon = EGGetSpecialFolderIcon(CSIDL_DESKTOP, 16);
       else
         icon = EGGetFileIcon(value, 16);

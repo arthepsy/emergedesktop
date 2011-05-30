@@ -180,11 +180,11 @@ void Item::SetIcon(int iconSize, WCHAR *orientation)
               UINT internalCommand = ELIsInternalCommand(app);
               if (internalCommand == 0)
                 {
-                  if ((wcsstr(lwrApp, TEXT("%documents%")) != NULL) ||
-                      (wcsstr(lwrApp, TEXT("%commondocuments%")) != NULL))
+                  if ((wcsicmp(lwrApp, TEXT("%documents%")) == 0) ||
+                      (wcsicmp(lwrApp, TEXT("%commondocuments%")) == 0))
                     origIcon = EGGetSpecialFolderIcon(CSIDL_PERSONAL, 16);
-                  else if ((wcsstr(lwrApp, TEXT("%desktop%")) != NULL) ||
-                           (wcsstr(lwrApp, TEXT("%commondesktop%")) != NULL))
+                  else if ((wcsicmp(lwrApp, TEXT("%desktop%")) == 0) ||
+                           (wcsicmp(lwrApp, TEXT("%commondesktop%")) == 0))
                     origIcon = EGGetSpecialFolderIcon(CSIDL_DESKTOP, 16);
                   else
                     {
