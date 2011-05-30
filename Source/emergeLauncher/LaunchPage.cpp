@@ -1104,6 +1104,9 @@ bool LaunchPage::SaveItem(HWND hwndDlg)
   else
     ZeroMemory(command, MAX_LINE_LENGTH);
 
+  if (command != NULL)
+    ELUnExpandVars(command);
+
   GetDlgItemText(hwndDlg, IDC_ICONPATH, iconPath, MAX_LINE_LENGTH);
   GetDlgItemText(hwndDlg, IDC_TIP, tip, MAX_LINE_LENGTH);
   GetDlgItemText(hwndDlg, IDC_WORKINGDIR, workingDir, MAX_LINE_LENGTH);
