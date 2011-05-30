@@ -188,7 +188,8 @@ void Item::SetIcon(int iconSize, WCHAR *orientation)
                     origIcon = EGGetSpecialFolderIcon(CSIDL_DESKTOP, 16);
                   else
                     {
-                      ELParseCommand(app, source, tmp);
+                      ELAbsPathFromRelativePath(lwrApp);
+                      ELParseCommand(lwrApp, source, tmp);
                       origIcon = EGGetFileIcon(source, iconSize);
                     }
                 }
