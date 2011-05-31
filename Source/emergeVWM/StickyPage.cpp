@@ -463,6 +463,8 @@ bool StickyPage::DoSave(HWND hwndDlg)
   GetDlgItemText(hwndDlg, IDC_APPLICATION, tmp, MAX_LINE_LENGTH);
   if (wcslen(tmp) > 0)
     {
+      // Strip the path from tmp so it's the basename of the application.
+      PathStripPath(tmp);
       lvFI.psz = tmp;
 
       if (ListView_FindItem(listWnd, 0, &lvFI) == -1)
