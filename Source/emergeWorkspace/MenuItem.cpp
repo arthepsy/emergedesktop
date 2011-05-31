@@ -39,7 +39,10 @@ MenuItem::MenuItem(WCHAR *name, UINT type, WCHAR* value, WCHAR *workingDir, TiXm
     wcscpy(this->name, (WCHAR*)TEXT("\0"));
 
   if (value)
-    wcscpy(this->value, value);
+    {
+      wcscpy(this->value, value);
+      ELAbsPathFromRelativePath(this->value);
+    }
   else
     wcscpy(this->value, (WCHAR*)TEXT("\0"));
 
@@ -178,10 +181,11 @@ void MenuItem::SetIcon()
 
 void MenuItem::SetValue(WCHAR *value)
 {
-  wcscpy((*this).value, value);
+  wcscpy(this->value, value);
+  ELAbsPathFromRelativePath(this->value);
 }
 
 void MenuItem::SetName(WCHAR *name)
 {
-  wcscpy((*this).name, name);
+  wcscpy(this->name, name);
 }
