@@ -179,8 +179,16 @@ LRESULT CALLBACK Desktop::DesktopProcedure (HWND hwnd, UINT message, WPARAM wPar
       pDesktop->DoWindowPosChanging((LPWINDOWPOS)lParam);
       break;
 
-    case WM_TIMER:
-      return pDesktop->DoTimer((UINT_PTR)wParam);
+    /*case WM_TIMER:
+      return pDesktop->DoTimer((UINT_PTR)wParam);*/
+
+    case WM_SETTINGCHANGE:
+        {
+          RECT bgRect;
+          GetClientRect(hwnd, &bgRect);
+          InvalidateRect(hwnd, &bgRect, true);
+        }
+      break;
 
     case WM_DESTROY:
     case WM_NCDESTROY:
