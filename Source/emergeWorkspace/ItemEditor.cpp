@@ -715,11 +715,14 @@ bool ItemEditor::DoSaveItem(HWND hwndDlg)
   ELWriteXMLIntValue(section, (WCHAR*)TEXT("Type"), type);
   if (wcslen(value) > 0)
     {
-      ELUnExpandVars(value);
+      ELRelativePathFromAbsPath(value);
       ELWriteXMLStringValue(section, (WCHAR*)TEXT("Value"), value);
     }
   if (wcslen(workingDir) > 0)
-    ELWriteXMLStringValue(section, (WCHAR*)TEXT("WorkingDir"), workingDir);
+    {
+      ELRelativePathFromAbsPath(workingDir);
+      ELWriteXMLStringValue(section, (WCHAR*)TEXT("WorkingDir"), workingDir);
+    }
 
   TiXmlDocument *configXML = ELGetXMLConfig(section);
   if (configXML)

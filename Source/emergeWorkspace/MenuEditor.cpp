@@ -347,7 +347,9 @@ bool MenuEditor::BuildMenuTreeHelper (HWND treeWnd, HTREEITEM parent, TiXmlEleme
       ELReadXMLStringValue(xmlItem, (WCHAR*)TEXT("Name"), name, (WCHAR*)TEXT("\0"));
       ELReadXMLIntValue(xmlItem, (WCHAR*)TEXT("Type"), &type, 0);
       ELReadXMLStringValue(xmlItem, (WCHAR*)TEXT("Value"), value, (WCHAR*)TEXT("\0"));
+      ELAbsPathFromRelativePath(value);
       ELReadXMLStringValue(xmlItem, (WCHAR*)TEXT("WorkingDir"), workingDir, (WCHAR*)TEXT("\0"));
+      ELAbsPathFromRelativePath(workingDir);
 
       wcscpy(menuItem.name, name);
       menuItem.type = type;
@@ -540,11 +542,17 @@ bool MenuEditor::WriteMenuHelper(TiXmlElement *section, HWND treeWnd, HTREEITEM 
                                       iter->second.name);
               ELWriteXMLIntValue(item, (WCHAR*)TEXT("Type"), iter->second.type);
               if (wcslen(iter->second.value) > 0)
-                ELWriteXMLStringValue(item, (WCHAR*)TEXT("Value"),
-                                      iter->second.value);
+                {
+                  ELRelativePathFromAbsPath(iter->second.value);
+                  ELWriteXMLStringValue(item, (WCHAR*)TEXT("Value"),
+                                        iter->second.value);
+                }
               if (wcslen(iter->second.workingDir) > 0)
-                ELWriteXMLStringValue(item, (WCHAR*)TEXT("WorkingDir"),
-                                      iter->second.workingDir);
+                {
+                  ELRelativePathFromAbsPath(iter->second.workingDir);
+                  ELWriteXMLStringValue(item, (WCHAR*)TEXT("WorkingDir"),
+                                        iter->second.workingDir);
+                }
 
               if (iter->second.type == IT_XML_MENU)
                 {
