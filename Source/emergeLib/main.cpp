@@ -889,9 +889,11 @@ HWND ELGetCoreWindow()
 //----  --------------------------------------------------------------------------------------------------------
 HWND ELGetDesktopWindow()
 {
-  HWND deskWindow = FindWindow(TEXT("progman"), NULL);
+  // Check for emergeCore's Desktop before progman to handle running on top of
+  // Explorer.
+  HWND deskWindow = FindWindow(TEXT("EmergeDesktopProgman"), NULL);
   if (deskWindow == NULL)
-    deskWindow = FindWindow(TEXT("EmergeDesktopProgman"), NULL);
+    deskWindow = FindWindow(TEXT("progman"), NULL);
 
   if (deskWindow == NULL)
     deskWindow = HWND_BOTTOM;
@@ -4305,7 +4307,7 @@ bool ELRelativePathFromAbsPath(WCHAR *destPath, LPCTSTR sourcePath)
 
   if (ELPathIsRelative(destPath))
     return true; //the path is already relative; there's nothing for us to do!
-  
+
   if (ELUnExpandVars(destPath)) //the unexpanded path contains an environment variable, so we don't want to manipulate the string any further.
 	return true;
 
