@@ -3534,7 +3534,7 @@ std::wstring ELGetWindowApp(HWND hWnd, bool fullName)
   @param command string to perform check on
   */
 
-UINT ELIsInternalCommand(WCHAR *command)
+UINT ELIsInternalCommand(const WCHAR *command)
 {
   if (_wcsicmp(command, TEXT("run")) == 0)
     return COMMAND_RUN;

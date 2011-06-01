@@ -143,6 +143,7 @@ int Item::GetType()
 void Item::SetIcon(int iconSize, WCHAR *orientation)
 {
   WCHAR source[MAX_LINE_LENGTH], tmp[MAX_LINE_LENGTH], *lwrApp = _wcslwr(_wcsdup(app));
+  std::wstring workingApp = app;
 
   if (origIcon)
     DestroyIcon(origIcon);
@@ -177,7 +178,8 @@ void Item::SetIcon(int iconSize, WCHAR *orientation)
           UINT specialFolder = ELIsSpecialFolder(app);
           if (specialFolder == 0)
             {
-              UINT internalCommand = ELIsInternalCommand(app);
+              workingApp = workingApp.substr(0, workingApp.find_first_of(TEXT(" \t")));
+              UINT internalCommand = ELIsInternalCommand(workingApp.c_str());
               if (internalCommand == 0)
                 {
                   if ((wcsicmp(lwrApp, TEXT("%documents%")) == 0) ||
