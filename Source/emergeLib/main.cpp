@@ -4579,7 +4579,10 @@ BOOL ELPathIsRelative(LPCTSTR lpszPath)
   std::wstring tmpPath = lpszPath;
   tmpPath = ELExpandVars(tmpPath);
 
-  return PathIsRelative(tmpPath.c_str());
+  // PathIsRelative treats "\" as a fully qualified path, which isn't true
+  // (except for UNC) as a restult, check for a drive number first.
+  return ((PathGetDriveNumber(tmpPath.c_str()) == -1) &&
+          !PathIsUNC(tmpPath.c_str()));
 }
 
 bool ELIsApplet(HWND hwnd)
