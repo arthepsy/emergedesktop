@@ -2714,6 +2714,8 @@ std::wstring ELGetPortableMode()
   if (!ELPathFileExists(portablePath.c_str()))
     return portableMode;
 
+  portableMode = TEXT("Portable");
+
   configXML = ELOpenXMLConfig(portablePath, false);
   if (configXML)
     {
@@ -2727,8 +2729,6 @@ std::wstring ELGetPortableMode()
             }
         }
     }
-
-  portableMode = TEXT("Portable");
 
   return portableMode;
 }
