@@ -1,7 +1,7 @@
 //---
 //
 //  This file is part of Emerge Desktop.
-//  Copyright (C) 2004-2007  The Emerge Desktop Development Team
+//  Copyright (C) 2004-2011  The Emerge Desktop Development Team
 //
 //  Emerge Desktop is free software; you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -38,6 +38,13 @@
 #include <memory>
 #endif
 
+typedef struct tagLISTVIEWSORTINFO
+{
+  HWND listWnd;
+  SORTINFO sortInfo;
+}
+LISTVIEWSORTINFO, *PLISTVIEWSORTINFO;
+
 class IconHidePage
 {
 public:
@@ -48,6 +55,7 @@ public:
   BOOL DoNotify(HWND hwndDlg, LPARAM lParam);
   bool UpdateSettings(HWND hwndDlg);
   static INT_PTR CALLBACK IconHidePageDlgProc(HWND hwndDlg, UINT message, WPARAM wParam, LPARAM lParam);
+  static int CALLBACK ListViewCompareProc (LPARAM lParam1, LPARAM lParam2, LPARAM lParamSort);
 
 private:
   bool CheckSaveCount(HWND hwndDlg);
@@ -64,7 +72,9 @@ private:
   bool DoSave(HWND listWnd);
   bool DoAbort(HWND listWnd);
   HICON addIcon, editIcon, delIcon, fileIcon, saveIcon, abortIcon;
-  bool edit;
+  bool edit, toggleSort[1];
+  LISTVIEWSORTINFO lvSortInfo;
+  WCHAR myName[MAX_LINE_LENGTH];
 };
 
 #endif

@@ -1,7 +1,7 @@
 //---
 //
 //  This file is part of Emerge Desktop.
-//  Copyright (C) 2004-2007  The Emerge Desktop Development Team
+//  Copyright (C) 2004-2011  The Emerge Desktop Development Team
 //
 //  Emerge Desktop is free software; you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -37,13 +37,18 @@ int WINAPI WinMain (HINSTANCE hInstance,
 {
   MSG messages;
 
-  if (FindWindow(TEXT("Shell_TrayWnd"), NULL))
-    return 0;
-
   Applet applet(hInstance);
 
-  if (!applet.Initialize())
-    return 0;
+  if (!ELIsExplorerShell())
+  {
+      if (!applet.Initialize())
+        return 0;
+  }
+  else
+  {
+      if (!applet.portableInitialize())
+        return 0;
+  }
 
   // Run the message loop. It will run until GetMessage() returns 0
   while (GetMessage (&messages, NULL, 0, 0))

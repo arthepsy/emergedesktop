@@ -1,7 +1,7 @@
 //---
 //
 //  This file is part of Emerge Desktop.
-//  Copyright (C) 2004-2007  The Emerge Desktop Development Team
+//  Copyright (C) 2004-2011  The Emerge Desktop Development Team
 //
 //  Emerge Desktop is free software; you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -49,6 +49,8 @@ IconHidePage::IconHidePage(HINSTANCE hInstance, std::tr1::shared_ptr<Settings> p
   this->pSettings = pSettings;
   this->hInstance = hInstance;
   edit = false;
+  toggleSort[0] = false;
+  wcscpy(myName, TEXT("IconHide"));
 
   InitCommonControls();
 
@@ -76,6 +78,9 @@ IconHidePage::IconHidePage(HINSTANCE hInstance, std::tr1::shared_ptr<Settings> p
   ExtractIconEx(TEXT("emergeIcons.dll"), 3, NULL, &delIcon, 1);
   ExtractIconEx(TEXT("emergeIcons.dll"), 9, NULL, &saveIcon, 1);
   ExtractIconEx(TEXT("emergeIcons.dll"), 1, NULL, &abortIcon, 1);
+
+  pSettings->GetSortInfo(myName, &lvSortInfo.sortInfo);
+  toggleSort[lvSortInfo.sortInfo.subItem] = lvSortInfo.sortInfo.ascending;
 }
 
 IconHidePage::~IconHidePage()
@@ -92,6 +97,20 @@ IconHidePage::~IconHidePage()
     DestroyIcon(abortIcon);
 
   DestroyWindow(toolWnd);
+}
+
+int CALLBACK IconHidePage::ListViewCompareProc (LPARAM lParam1, LPARAM lParam2, LPARAM lParamSort)
+{
+  WCHAR szBuf1[MAX_LINE_LENGTH], szBuf2[MAX_LINE_LENGTH];
+  PLISTVIEWSORTINFO si = (PLISTVIEWSORTINFO)lParamSort;
+
+  ListView_GetItemText(si->listWnd, lParam1, si->sortInfo.subItem, szBuf1, MAX_LINE_LENGTH);
+  ListView_GetItemText(si->listWnd, lParam2, si->sortInfo.subItem, szBuf2, MAX_LINE_LENGTH);
+
+  if (si->sortInfo.ascending)
+    return(wcscmp(szBuf1, szBuf2));
+  else
+    return(wcscmp(szBuf1, szBuf2) * -1);
 }
 
 BOOL IconHidePage::DoInitPage(HWND hwndDlg)
@@ -177,6 +196,10 @@ BOOL IconHidePage::DoInitPage(HWND hwndDlg)
 
   PopulateList(listWnd);
 
+  bool ret;
+  lvSortInfo.listWnd = listWnd;
+  ret = ListView_SortItemsEx(listWnd, ListViewCompareProc, (LPARAM)&lvSortInfo);
+
   return TRUE;
 }
 
@@ -225,7 +248,8 @@ BOOL IconHidePage::DoNotify(HWND hwndDlg, LPARAM lParam)
   HWND editWnd = GetDlgItem(hwndDlg, IDC_EDITTIP);
   HWND listWnd = GetDlgItem(hwndDlg, IDC_HIDELIST);
   WCHAR tipText[MAX_LINE_LENGTH];
-  int itemIndex;
+  int itemIndex, subItem;
+  BOOL ret;
 
   switch (((LPNMITEMACTIVATE)lParam)->hdr.code)
     {
@@ -239,6 +263,18 @@ BOOL IconHidePage::DoNotify(HWND hwndDlg, LPARAM lParam)
           SetDlgItemText(hwndDlg, IDC_ICONTEXT, tipText);
         }
       return TRUE;
+
+    case LVN_COLUMNCLICK:
+      subItem = ((LPNMLISTVIEW)lParam)->iSubItem;
+      if (toggleSort[subItem])
+        toggleSort[subItem] = false;
+      else
+        toggleSort[subItem] = true;
+      lvSortInfo.sortInfo.ascending = toggleSort[subItem];
+      lvSortInfo.sortInfo.subItem = subItem;
+      pSettings->SetSortInfo(myName, &lvSortInfo.sortInfo);
+      ret = ListView_SortItemsEx(listWnd, ListViewCompareProc, (LPARAM)&lvSortInfo);
+      return ret;
 
     case PSN_APPLY:
       if (CheckFields(hwndDlg) && UpdateSettings(hwndDlg))
@@ -304,6 +340,7 @@ bool IconHidePage::UpdateSettings(HWND hwndDlg)
 
 bool IconHidePage::DoEdit(HWND hwndDlg UNUSED)
 {
+  HWND listWnd = GetDlgItem(hwndDlg, IDC_HIDELIST);
   HWND saveWnd = GetDlgItem(hwndDlg, IDC_SAVETIP);
   HWND abortWnd = GetDlgItem(hwndDlg, IDC_ABORTTIP);
   HWND appWnd = GetDlgItem(hwndDlg, IDC_ICONTEXT);
@@ -311,6 +348,7 @@ bool IconHidePage::DoEdit(HWND hwndDlg UNUSED)
   EnableWindow(appWnd, true);
   EnableWindow(saveWnd, true);
   EnableWindow(abortWnd, true);
+  EnableWindow(listWnd, false);
   edit = true;
 
   return true;
@@ -339,6 +377,7 @@ bool IconHidePage::DoAbort(HWND hwndDlg)
   EnableWindow(saveWnd, false);
   EnableWindow(abortWnd, false);
   EnableWindow(appWnd, false);
+  EnableWindow(listWnd, true);
 
   return true;
 }
@@ -352,7 +391,7 @@ bool IconHidePage::DoSave(HWND hwndDlg)
   bool ret = false;
   LVFINDINFO lvFI;
   LVITEM lvItem;
-  WCHAR tmp[MAX_LINE_LENGTH], error[MAX_LINE_LENGTH];
+  WCHAR tmp[MAX_LINE_LENGTH], error[MAX_LINE_LENGTH], itemText[MAX_LINE_LENGTH];
 
   ZeroMemory(tmp, MAX_LINE_LENGTH);
 
@@ -384,9 +423,10 @@ bool IconHidePage::DoSave(HWND hwndDlg)
 
                   i++;
                 }
+              ListView_GetItemText(listWnd, i, 0, itemText, MAX_LINE_LENGTH);
               if (ListView_DeleteItem(listWnd, i))
                 {
-                  pSettings->ModifyHideListItem(i, tmp);
+                  pSettings->ModifyHideListItem(itemText, tmp);
                   lvItem.iItem = i;
                 }
             }
@@ -422,6 +462,9 @@ bool IconHidePage::DoSave(HWND hwndDlg)
   EnableWindow(saveWnd, false);
   EnableWindow(abortWnd, false);
   EnableWindow(appWnd, false);
+  EnableWindow(listWnd, true);
+  lvSortInfo.listWnd = listWnd;
+  ret = ListView_SortItemsEx(listWnd, ListViewCompareProc, (LPARAM)&lvSortInfo);
 
   return ret;
 }
@@ -435,6 +478,7 @@ bool IconHidePage::DoDelete(HWND hwndDlg)
   UINT i = 0;
   int prevItem = 0;
   BOOL bRet;
+  WCHAR itemText[MAX_LINE_LENGTH];
 
   if (ListView_GetSelectedCount(listWnd) > 1)
     {
@@ -451,8 +495,9 @@ bool IconHidePage::DoDelete(HWND hwndDlg)
           deleteCount++;
           ret = true;
           prevItem = ListView_GetNextItem(listWnd, i, LVNI_ABOVE);
+          ListView_GetItemText(listWnd, i, 0, itemText, MAX_LINE_LENGTH);
           bRet = ListView_DeleteItem(listWnd, i);
-          pSettings->DeleteHideListItem(i);
+          pSettings->DeleteHideListItem(itemText);
 
           ListView_SetItemState(listWnd, i, LVIS_SELECTED,
                                 LVIS_SELECTED);
@@ -483,6 +528,7 @@ bool IconHidePage::DoDelete(HWND hwndDlg)
 
 bool IconHidePage::DoAdd(HWND hwndDlg)
 {
+  HWND listWnd = GetDlgItem(hwndDlg, IDC_HIDELIST);
   HWND saveWnd = GetDlgItem(hwndDlg, IDC_SAVETIP);
   HWND abortWnd = GetDlgItem(hwndDlg, IDC_ABORTTIP);
   HWND appWnd = GetDlgItem(hwndDlg, IDC_ICONTEXT);
@@ -492,6 +538,7 @@ bool IconHidePage::DoAdd(HWND hwndDlg)
   EnableWindow(saveWnd, true);
   EnableWindow(abortWnd, true);
   EnableWindow(appWnd, true);
+  EnableWindow(listWnd, false);
 
   return true;
 }

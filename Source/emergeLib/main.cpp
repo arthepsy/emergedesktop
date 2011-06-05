@@ -56,6 +56,7 @@ topic alone.
 #include "Shutdown.h"
 #include "MsgBox.h"
 #include "zip.h"
+#include "unzip.h"
 #ifdef _W64
 #include <mapinls.h>
 #endif
@@ -105,6 +106,10 @@ topic alone.
 #define CP_USER   2
 #define CP_APPLET 3
 
+#ifndef SEE_MASK_NOASYNC
+#define SEE_MASK_NOASYNC 0x00000100
+#endif
+
 // Helper functions
 bool ELCheckPathWithExtension(LPTSTR path);
 bool IsClose(int side, int edge);
@@ -115,8 +120,6 @@ bool SnapSizeToEdge(LPSNAPSIZEINFO snapSize, RECT rt);
 bool WriteValue(const WCHAR *fileName, WCHAR *keyword, WCHAR *value);
 BOOL CALLBACK FullscreenEnum(HWND hwnd, LPARAM lParam);
 BOOL CALLBACK WindowIconEnum(HWND hwnd, LPARAM lParam);
-bool GetSpecialFolderGUID(int folder, WCHAR *classID);
-bool GetPIDLGUID(LPITEMIDLIST pidl, WCHAR *classID);
 bool VistaVolumeControl(UINT command);
 bool VolumeControl(UINT command);
 bool PathTokenCheck(WCHAR *path);
@@ -165,19 +168,6 @@ static lpfnMSSwitchToThisWindow MSSwitchToThisWindow = NULL;
 // MS RegisterShellHookWindow
 typedef BOOL (WINAPI *lpfnMSRegisterShellHookWindow)(HWND hWnd, DWORD method);
 static lpfnMSRegisterShellHookWindow MSRegisterShellHookWindow = NULL;
-
-// MS IL Functions
-typedef LPITEMIDLIST (WINAPI *fnILClone)(LPCITEMIDLIST);
-static fnILClone MSILClone = NULL;
-
-typedef LPITEMIDLIST (WINAPI *fnILFindLastID)(LPCITEMIDLIST);
-static fnILFindLastID MSILFindLastID = NULL;
-
-typedef BOOL (WINAPI *fnILRemoveLastID)(LPCITEMIDLIST);
-static fnILRemoveLastID MSILRemoveLastID = NULL;
-
-typedef void (WINAPI *lpfnILFree)(LPCITEMIDLIST);
-static lpfnILFree MSILFree = NULL;
 
 typedef BOOL (WINAPI *lpfnIsWow64Process)(HANDLE, PBOOL);
 static lpfnIsWow64Process MSIsWow64Process = NULL;
@@ -256,7 +246,17 @@ void ELGetThemeInfo(LPTHEMEINFO themeInfo)
   ELGetCurrentPath(xmlPath);
   workingPath = xmlPath;
   userPath = workingPath + TEXT("\\theme.xml");
-  if (!ELPathFileExists(userPath.c_str()))
+
+  if (ELGetPortableMode() == TEXT("PAF"))
+    {
+      //if we're in PortableApps Format, we're in EmergeDesktopPortable\App\Emerge Desktop; we need to go up two levels (to EmergeDesktopPortable) and then into Data\Emerge Desktop
+      workingPath = workingPath.substr(0, workingPath.rfind(TEXT("\\")));
+      workingPath = workingPath.substr(0, workingPath.rfind(TEXT("\\")));
+      workingPath = workingPath + TEXT("\\Data\\Emerge Desktop");
+      userPath = workingPath + TEXT("\\theme.xml");
+    }
+
+  if (ELGetPortableMode().empty() && !ELPathFileExists(userPath.c_str()))
     {
       workingPath = TEXT("%AppData%\\Emerge Desktop");
       workingPath = ELExpandVars(workingPath);
@@ -600,13 +600,13 @@ TiXmlElement *ELGetFirstXMLElement(TiXmlElement *xmlSection)
   return xmlSection->FirstChildElement();
 }
 
-TiXmlElement *ELGetFirstXMLElementByName(TiXmlElement *xmlSection, WCHAR *elementName)
+TiXmlElement *ELGetFirstXMLElementByName(TiXmlElement *xmlSection, WCHAR *elementName, bool createElement)
 {
   std::string narrowElement = ELwstringTostring(elementName);
   TiXmlElement *child;
 
   child = xmlSection->FirstChildElement(narrowElement.c_str());
-  if (!child)
+  if (!child && createElement)
     child = ELSetFirstXMLElement(xmlSection, elementName);
 
   return child;
@@ -889,7 +889,11 @@ HWND ELGetCoreWindow()
 //----  --------------------------------------------------------------------------------------------------------
 HWND ELGetDesktopWindow()
 {
-  HWND deskWindow = FindWindow(TEXT("progman"), NULL);
+  // Check for emergeCore's Desktop before progman to handle running on top of
+  // Explorer.
+  HWND deskWindow = FindWindow(TEXT("EmergeDesktopProgman"), NULL);
+  if (deskWindow == NULL)
+    deskWindow = FindWindow(TEXT("progman"), NULL);
 
   if (deskWindow == NULL)
     deskWindow = HWND_BOTTOM;
@@ -905,12 +909,12 @@ std::string ELwstringTostring(std::wstring inString, UINT codePage)
   std::string returnString;
 
   size_t tmpStringLength = WideCharToMultiByte(codePage, 0, wideString.c_str(), wideString.length(), NULL, 0,
-                                               NULL, NULL);
+                           NULL, NULL);
   if (tmpStringLength != 0)
     {
       LPSTR tmpString = new char[tmpStringLength + 1];
       size_t writtenBytes = WideCharToMultiByte(codePage, 0, wideString.c_str(), wideString.length(), tmpString,
-                                                tmpStringLength, NULL, NULL);
+                            tmpStringLength, NULL, NULL);
       if (writtenBytes != 0)
         {
           if (writtenBytes <= tmpStringLength)
@@ -932,7 +936,7 @@ std::wstring ELstringTowstring(std::string inString, UINT codePage)
     {
       LPWSTR tmpString = new WCHAR[tmpStringLength + 1];
       size_t writtenBytes = MultiByteToWideChar(codePage, 0, narrowString.c_str(), narrowString.length(), tmpString,
-                                                tmpStringLength);
+                            tmpStringLength);
       if (writtenBytes != 0)
         {
           if (writtenBytes <= tmpStringLength)
@@ -1002,21 +1006,43 @@ void ELWriteDebug(std::wstring debugText)
 //----  --------------------------------------------------------------------------------------------------------
 bool ELExecuteInternal(LPTSTR command)
 {
+  std::wstring tempCmd = command;
+  bool confirm = true;
+
+  while (tempCmd.find(TEXT("/")) != std::wstring::npos)
+    tempCmd.replace(tempCmd.find(TEXT("/")), 1, TEXT(""));
+
+  if (tempCmd.find(TEXT("silent")) != std::wstring::npos)
+    {
+      confirm = false;
+      tempCmd.replace(tempCmd.find(TEXT("silent")), 6, TEXT(""));
+    }
+
+  if (tempCmd.find_first_not_of(TEXT(" \t")) != std::wstring::npos)
+    tempCmd = tempCmd.substr(tempCmd.find_first_not_of(TEXT(" \t")), tempCmd.length() - tempCmd.find_first_not_of(TEXT(" \t")));
+
+  if (tempCmd.find_last_not_of(TEXT(" \t")) != std::wstring::npos)
+    tempCmd = tempCmd.substr(0, tempCmd.find_last_not_of(TEXT(" \t")) + 1);
+
+  command = (WCHAR*)tempCmd.c_str();
+
   if (_wcsicmp(command, TEXT("RightDeskMenu")) == 0)
     {
-      ELSwitchToThisWindow(ELGetCoreWindow());
+      /// TODO (Chris#1#): Find better implementation that doesn't rely on finding the desktop window
+      ELSwitchToThisWindow(FindWindow(TEXT("EmergeDesktopMenuBuilder"), NULL));/**< Needed to address keyboard focus issue with Launcher */
       PostMessage(ELGetCoreWindow(), EMERGE_DISPATCH, (WPARAM)EMERGE_CORE, (LPARAM)CORE_RIGHTMENU);
       return true;
     }
   else if (_wcsicmp(command, TEXT("MidDeskMenu")) == 0)
     {
-      ELSwitchToThisWindow(ELGetCoreWindow());
+      /// TODO (Chris#1#): Find better implementation that doesn't rely on finding the desktop window
+      ELSwitchToThisWindow(FindWindow(TEXT("EmergeDesktopMenuBuilder"), NULL));/**< Needed to address keyboard focus issue with Launcher */
       PostMessage(ELGetCoreWindow(), EMERGE_DISPATCH, (WPARAM)EMERGE_CORE, (LPARAM)CORE_MIDMENU);
       return true;
     }
   else if (_wcsicmp(command, TEXT("Quit")) == 0)
     {
-      ELQuit(true);
+      ELQuit(confirm);
       return true;
     }
   else if (_wcsicmp(command, TEXT("Run")) == 0)
@@ -1134,32 +1160,32 @@ bool ELExecuteInternal(LPTSTR command)
     return (LockWorkStation() == TRUE);
   else if (_wcsicmp(command, TEXT("Logoff")) == 0)  //allelimo 05/28/2004
     {
-      ELExit(EMERGE_LOGOFF, true);
+      ELExit(EMERGE_LOGOFF, confirm);
       return true;
     }
   else if (_wcsicmp(command, TEXT("Disconnect")) == 0)
     {
-      ELExit(EMERGE_DISCONNECT, true);
+      ELExit(EMERGE_DISCONNECT, confirm);
       return true;
     }
   else if (_wcsicmp(command, TEXT("Reboot")) == 0)
     {
-      ELExit(EMERGE_REBOOT, true);
+      ELExit(EMERGE_REBOOT, confirm);
       return true;
     }
   else if (_wcsicmp(command, TEXT("Halt")) == 0)
     {
-      ELExit(EMERGE_HALT, true);
+      ELExit(EMERGE_HALT, confirm);
       return true;
     }
   else if (_wcsicmp(command, TEXT("Suspend")) == 0)
     {
-      ELExit(EMERGE_SUSPEND, true);
+      ELExit(EMERGE_SUSPEND, confirm);
       return true;
     }
   else if (_wcsicmp(command, TEXT("Hibernate")) == 0)
     {
-      ELExit(EMERGE_HIBERNATE, true);
+      ELExit(EMERGE_HIBERNATE, confirm);
       return true;
     }
   else if (_wcsicmp(command, TEXT("ShowDesktop")) == 0)
@@ -1174,25 +1200,37 @@ bool ELExecuteInternal(LPTSTR command)
       PostMessage(ELGetCoreWindow(), EMERGE_DISPATCH, (WPARAM)EMERGE_CORE, (LPARAM)CORE_SETTINGS);
       return true;
     }
-  else if (_wcsicmp(command, TEXT("CoreLaunchEditor")) == 0)
+  else if (_wcsicmp(command, TEXT("CoreSettings")) == 0)
+    {
+      ELSwitchToThisWindow(ELGetCoreWindow());
+      PostMessage(ELGetCoreWindow(), EMERGE_DISPATCH, (WPARAM)EMERGE_CORE, (LPARAM)CORE_CONFIGURE);
+      return true;
+    }
+  else if (_wcsicmp(command, TEXT("AliasEditor")) == 0)
+    {
+      ELSwitchToThisWindow(ELGetCoreWindow());
+      PostMessage(ELGetCoreWindow(), EMERGE_DISPATCH, (WPARAM)EMERGE_CORE, (LPARAM)CORE_ALIAS);
+      return true;
+    }
+  else if ((_wcsicmp(command, TEXT("LaunchEditor")) == 0) || (_wcsicmp(command, TEXT("CoreLaunchEditor")) == 0))
     {
       ELSwitchToThisWindow(ELGetCoreWindow());
       PostMessage(ELGetCoreWindow(), EMERGE_DISPATCH, (WPARAM)EMERGE_CORE, (LPARAM)CORE_LAUNCH);
       return true;
     }
-  else if (_wcsicmp(command, TEXT("CoreShellChanger")) == 0)
+  else if ((_wcsicmp(command, TEXT("ShellChanger")) == 0) || (_wcsicmp(command, TEXT("CoreShellChanger")) == 0))
     {
       ELSwitchToThisWindow(ELGetCoreWindow());
       PostMessage(ELGetCoreWindow(), EMERGE_DISPATCH, (WPARAM)EMERGE_CORE, (LPARAM)CORE_SHELL);
       return true;
     }
-  else if (_wcsicmp(command, TEXT("CoreThemeSelector")) == 0)
+  else if ((_wcsicmp(command, TEXT("ThemeManager")) == 0) || (_wcsicmp(command, TEXT("CoreThemeSelector")) == 0))
     {
       ELSwitchToThisWindow(ELGetCoreWindow());
       PostMessage(ELGetCoreWindow(), EMERGE_DISPATCH, (WPARAM)EMERGE_CORE, (LPARAM)CORE_THEMESELECT);
       return true;
     }
-  else if (_wcsicmp(command, TEXT("CoreAbout")) == 0)
+  else if ((_wcsicmp(command, TEXT("About")) == 0) || (_wcsicmp(command, TEXT("CoreAbout")) == 0))
     {
       ELSwitchToThisWindow(ELGetCoreWindow());
       PostMessage(ELGetCoreWindow(), EMERGE_DISPATCH, (WPARAM)EMERGE_CORE, (LPARAM)CORE_ABOUT);
@@ -1232,40 +1270,117 @@ bool ELExecuteInternal(LPTSTR command)
   return false;
 }
 
+void ZipAddDir(HZIP hz, std::wstring relativePath, std::wstring zipPath)
+{
+  WIN32_FIND_DATA findData;
+  HANDLE fileHandle;
+  std::wstring tmpPath, searchPath, tmpRelativePath;
+
+  searchPath = zipPath + TEXT("\\*");
+
+  fileHandle = FindFirstFile(searchPath.c_str(), &findData);
+  if (fileHandle == INVALID_HANDLE_VALUE)
+    return;
+
+  do
+    {
+      // Skip hidden files
+      if (wcscmp(findData.cFileName, TEXT(".")) == 0 ||
+          wcscmp(findData.cFileName, TEXT("..")) == 0 ||
+          (findData.dwFileAttributes & FILE_ATTRIBUTE_HIDDEN))
+        continue;
+
+      tmpPath = zipPath + TEXT("\\");
+      tmpPath += findData.cFileName;
+
+      if (!relativePath.empty())
+        tmpRelativePath = relativePath + TEXT("\\");
+      tmpRelativePath += findData.cFileName;
+
+      if (findData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+        {
+          ZipAddFolder(hz, tmpRelativePath.c_str());
+          ZipAddDir(hz, tmpRelativePath, tmpPath);
+        }
+      else
+        ZipAdd(hz, tmpRelativePath.c_str(), tmpPath.c_str());
+    }
+  while (FindNextFile(fileHandle, &findData));
+
+  FindClose(fileHandle);
+}
+
 int ELMakeZip(std::wstring zipFile, std::wstring zipRoot, std::wstring zipPath)
 {
-  std::wstring forwardSlash = TEXT("\\"), backSlash = TEXT("/");
-  std::string narrowZipFile, narrowZipRoot, narrowZipPath;
+  std::wstring forwardSlash = TEXT("\\"), backSlash = TEXT("/"), relativePath;
 
   zipFile = ELExpandVars(zipFile);
   zipRoot = ELExpandVars(zipRoot);
   zipPath = ELExpandVars(zipPath);
 
-  // switch to UNIX path separators since zip lib requires it
-  zipFile = ELwstringReplace(zipFile, forwardSlash, backSlash, false);
+  relativePath = zipPath.substr(zipPath.rfind('\\') + 1);
 
-  narrowZipFile = ELwstringTostring(zipFile);
-  narrowZipRoot = ELwstringTostring(zipRoot);
-  narrowZipPath = ELwstringTostring(zipPath);
+  HZIP hz = CreateZip(zipFile.c_str(), 0);
+  if (hz)
+    {
+      ZipAddFolder(hz, relativePath.c_str());
+      ZipAddDir(hz, relativePath, zipPath);
 
-  return MakeZip((char*)narrowZipFile.c_str(), (char*)narrowZipRoot.c_str(), (char*)narrowZipPath.c_str());
+      CloseZip(hz);
+    }
+
+  return 0;
 }
 
 int ELExtractZip(std::wstring zipFile, std::wstring unzipPath)
 {
-  std::wstring forwardSlash = TEXT("\\"), backSlash = TEXT("/");
-  std::string narrowZipFile, narrowUnzipPath;
+  std::wstring tmpPath = unzipPath + TEXT("\\"), themeName;
+  tmpPath = ELExpandVars(tmpPath);
 
-  zipFile = ELExpandVars(zipFile);
-  unzipPath = ELExpandVars(unzipPath);
+  HZIP hz = OpenZip(zipFile.c_str(), 0);
 
-  // switch to UNIX path separators since unzip lib requires it
-  zipFile = ELwstringReplace(zipFile, forwardSlash, backSlash, false);
+  if (hz)
+    {
+      ZIPENTRY ze;
 
-  narrowZipFile = ELwstringTostring(zipFile);
-  narrowUnzipPath = ELwstringTostring(unzipPath);
+      unzipPath = ELExpandVars(unzipPath);
+      SetUnzipBaseDir(hz, unzipPath.c_str());
 
-  return ExtractZip((char*)narrowZipFile.c_str(), (char*)narrowUnzipPath.c_str());
+      GetZipItem(hz,-1,&ze); // -1 gives overall information about the zipfile
+      int numitems=ze.index;
+
+      for (int zi=0; zi<numitems; zi++)
+        {
+          GetZipItem(hz,zi,&ze); // fetch individual details
+
+          if (zi == 0)
+            {
+              tmpPath += ze.name;
+
+              if (ze.attr == FILE_ATTRIBUTE_DIRECTORY)
+                {
+                  if (PathIsDirectory(tmpPath.c_str()))
+                    {
+                      themeName = ze.name;
+                      themeName = themeName.substr(0, themeName.rfind('/'));
+                      WCHAR message[MAX_LINE_LENGTH];
+                      swprintf(message, TEXT("Do you want to overwrite the '%s' theme?"), themeName.c_str());
+                      if (ELMessageBox(NULL, message, TEXT("Warning"),
+                                       ELMB_YESNO|ELMB_ICONQUESTION) == IDNO)
+                        return 2;
+                    }
+                }
+            }
+
+          UnzipItem(hz, zi, ze.name); // e.g. the item's name.
+        }
+
+      CloseZip(hz);
+
+      return 0;
+    }
+
+  return 1;
 }
 
 void stripQuotes(LPTSTR source)
@@ -1308,6 +1423,12 @@ bool ELParseCommand(const WCHAR *application, WCHAR *program, WCHAR *arguments)
         workingApp = workingApp.substr(1);
     }
   workingApp = ELExpandVars(workingApp);
+
+  if (ELPathIsCLSID(application))
+    {
+      wcscpy(program, application);
+      return true;
+    }
 
   // Bail if workingApp is a directory, UNC Path or it exists
   if (PathIsDirectory(workingApp.c_str()) ||
@@ -1360,137 +1481,29 @@ bool ELParseCommand(const WCHAR *application, WCHAR *program, WCHAR *arguments)
   return false;
 }
 
-bool GetPIDLGUID(LPITEMIDLIST pidl, WCHAR *classID)
-{
-  IShellFolder *pDesktop, *pFolder;
-  IPersistFolder *pPersist;
-  CLSID clsID;
-  LPVOID lpVoid;
-  WCHAR *GUIDString;
-  bool ret = false;
-
-  if (SUCCEEDED(SHGetDesktopFolder(&pDesktop)))
-    {
-      if (SUCCEEDED(pDesktop->BindToObject(pidl, NULL, IID_IShellFolder, &lpVoid)))
-        {
-          pFolder = reinterpret_cast <IShellFolder*> (lpVoid);
-
-          if (SUCCEEDED(pFolder->QueryInterface(IID_IPersistFolder, &lpVoid)))
-            {
-              pPersist = reinterpret_cast <IPersistFolder*> (lpVoid);
-
-              if (SUCCEEDED(pPersist->GetClassID(&clsID)))
-                {
-                  if (SUCCEEDED(StringFromCLSID(clsID, &GUIDString)))
-                    {
-                      wcscpy(classID, GUIDString);
-                      CoTaskMemFree(GUIDString);
-                      ret = true;
-                    }
-                }
-
-              pPersist->Release();
-            }
-
-          pFolder->Release();
-        }
-
-      pDesktop->Release();
-    }
-
-  return ret;
-}
-
-void ELILFree(LPITEMIDLIST pidl)
-{
-  if (MSILFree == NULL)
-    MSILFree = (lpfnILFree)GetProcAddress(shell32DLL, (LPCSTR)155);
-  if (MSILFree == NULL)
-    return;
-
-  MSILFree(pidl);
-}
-
-LPITEMIDLIST ELILClone(LPITEMIDLIST pidl)
-{
-  if (MSILClone == NULL)
-    MSILClone = (fnILClone)GetProcAddress(shell32DLL, (LPCSTR)18);
-  if (MSILClone == NULL)
-    return NULL;
-
-  return MSILClone(pidl);
-}
-
-LPITEMIDLIST ELILFindLastID(LPITEMIDLIST pidl)
-{
-  if (MSILFindLastID == NULL)
-    MSILFindLastID = (fnILFindLastID)GetProcAddress(shell32DLL, (LPCSTR)16);
-  if (MSILFindLastID == NULL)
-    return NULL;
-
-  return MSILFindLastID(pidl);
-}
-
-BOOL ELILRemoveLastID(LPITEMIDLIST pidl)
-{
-  if (MSILRemoveLastID == NULL)
-    MSILRemoveLastID = (fnILRemoveLastID)GetProcAddress(shell32DLL, (LPCSTR)17);
-  if (MSILRemoveLastID == NULL)
-    return FALSE;
-
-  return MSILRemoveLastID(pidl);
-}
-
-bool GetSpecialFolderGUID(int folder, WCHAR *classID)
-{
-  LPITEMIDLIST pidl;
-  bool ret = false;
-
-  if (SUCCEEDED(SHGetFolderLocation(NULL, folder, NULL, 0, &pidl)))
-    {
-      ret = GetPIDLGUID(pidl, classID);
-      ELILFree(pidl);
-    }
-
-  return ret;
-}
-
 bool ELExecuteSpecialFolder(LPTSTR folder)
 {
-  WCHAR command[MAX_LINE_LENGTH], classID[MAX_PATH];
-  wcscpy(command, TEXT("%windir%\\explorer.exe ::"));
-
   int specialFolder = ELIsSpecialFolder(folder);
+  LPITEMIDLIST pidl = NULL;
+  SHELLEXECUTEINFO sei;
+  bool ret = false;
 
-  switch (specialFolder)
+  if (!specialFolder)
+    return ret;
+
+  if (SUCCEEDED(SHGetFolderLocation(NULL, specialFolder, NULL, 0, &pidl)))
     {
-    case 0:
-      return false;
+      ZeroMemory(&sei, sizeof(sei));
+      sei.cbSize = sizeof(sei);
+      sei.fMask = SEE_MASK_IDLIST | SEE_MASK_NOASYNC | SEE_MASK_FLAG_NO_UI | SEE_MASK_UNICODE;
+      sei.nShow = SW_SHOW;
+      sei.lpIDList = pidl;
+      ret = (ShellExecuteEx(&sei) == TRUE);
 
-    case CSIDL_CONTROLS:
-      if (ELVersionInfo() < 6.0)
-        {
-          if (GetSpecialFolderGUID(CSIDL_DRIVES, classID))
-            {
-              wcscat(command, classID);
-              wcscat(command, TEXT("\\::"));
-            }
-        }
-      if (GetSpecialFolderGUID(specialFolder, classID))
-        wcscat(command, classID);
-      break;
-    case CSIDL_PERSONAL:
-      if (ELVersionInfo() == 5.0)
-        {
-          wcscpy(command, TEXT("%Documents%"));
-          break;
-        }
-    default:
-      if (GetSpecialFolderGUID(specialFolder, classID))
-        wcscat(command, classID);
+      ILFree(pidl);
     }
 
-  return ELExecute(command);
+  return ret;
 }
 
 BOOL CALLBACK WindowIconEnum(HWND hwnd, LPARAM lParam)
@@ -1540,6 +1553,9 @@ bool ELExecute(LPTSTR application, LPTSTR workingDir, int nShow, WCHAR *verb)
 
   if (ELParseCommand(workingString.c_str(), program, arguments))
     workingString = program;
+  else
+    return false;
+
   shortcutInfo.flags = SI_PATH | SI_ARGUMENTS | SI_WORKINGDIR | SI_SHOW;
   if (ELParseShortcut(workingString.c_str(), &shortcutInfo))
     {
@@ -1567,7 +1583,7 @@ bool ELExecute(LPTSTR application, LPTSTR workingDir, int nShow, WCHAR *verb)
 
   // If the program doesn't exist or is not a URL return false so as to not
   // generate stray DDE calls
-  if (!ELPathFileExists(program) && !PathIsURL(program))
+  if (!ELPathFileExists(program) && !PathIsURL(program) && !ELPathIsCLSID(program))
     return false;
 
   if (!ELFileTypeCommand(program, arguments, command))
@@ -1625,7 +1641,7 @@ bool ELExecute(LPTSTR application, LPTSTR workingDir, int nShow, WCHAR *verb)
   // Call ShellExecuteEx as an 'all-else-fails' mechanism since things like UAC escalation don't play nice
   // with CreateProcess
   sei.cbSize = sizeof(sei);
-  sei.fMask = SEE_MASK_FLAG_NO_UI|SEE_MASK_ASYNCOK|SEE_MASK_UNICODE;
+  sei.fMask = SEE_MASK_FLAG_NO_UI|SEE_MASK_NOASYNC|SEE_MASK_UNICODE;
   sei.lpFile = program;
   sei.lpParameters = arguments;
   sei.lpDirectory = commandDir;
@@ -1695,18 +1711,18 @@ bool ELIsExecutable(WCHAR *extension)
 
 bool ELGetAppPath(const WCHAR *program, WCHAR *path)
 {
-  WCHAR appString[MAX_LINE_LENGTH];
+  std::wstring appString;
   DWORD size;
   HKEY key;
   bool ret = false;
 
-  swprintf(appString, TEXT("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\%s"),
-           program);
+  appString = TEXT("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\");
+  appString += program;
 
   if (wcslen(PathFindExtension(program)) == 0)
-    wcscat(appString, TEXT(".exe"));
+    appString += TEXT(".exe");
 
-  if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, appString, 0, KEY_ALL_ACCESS, &key) == ERROR_SUCCESS)
+  if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, appString.c_str(), 0, KEY_READ, &key) == ERROR_SUCCESS)
     {
       ret = (RegQueryValueEx(key, NULL, NULL, NULL, (BYTE*)path, &size) == ERROR_SUCCESS);
       RegCloseKey(key);
@@ -1893,7 +1909,8 @@ bool ELCheckPathWithExtension(LPTSTR path)
 bool PathTokenCheck(WCHAR *path)
 {
   WCHAR tmp[MAX_LINE_LENGTH], corePath[MAX_PATH], sysWOW64[MAX_PATH];
-  const WCHAR *corePathPtr[MAX_PATH];
+  WCHAR cwd[MAX_PATH];
+  const WCHAR *corePathPtr[2];
   std::wstring working = path;
 
   working = ELExpandVars(working);
@@ -1910,11 +1927,12 @@ bool PathTokenCheck(WCHAR *path)
     }
 
   ELGetCurrentPath(corePath);
+  _wgetcwd(cwd, MAX_PATH);
 
   corePathPtr[0] = corePath;
   corePathPtr[1] = NULL;
 
-  ExpandEnvironmentStrings((LPCTSTR)TEXT("%systemroot%\\SysWOW64\\"),
+  ExpandEnvironmentStrings((LPCTSTR)TEXT("%systemroot%\\SysWOW64"),
                            (LPTSTR)sysWOW64,
                            MAX_PATH);
 
@@ -1925,12 +1943,21 @@ bool PathTokenCheck(WCHAR *path)
     }
   else
     {
-      wcscpy(tmp, sysWOW64);
-      wcscat(tmp, path);
+      WCHAR tmpCheck[MAX_LINE_LENGTH];
 
-      if (ELPathFileExists(tmp) && !PathIsDirectory(tmp))
+      /**< Check to see if tmp exists in sysWOW64 */
+      swprintf(tmpCheck, TEXT("%s\\%s"), sysWOW64, tmp);
+      if (ELPathFileExists(tmpCheck) && !PathIsDirectory(tmpCheck))
         {
-          wcscpy(path, tmp);
+          wcscpy(path, tmpCheck);
+          return true;
+        }
+
+      /**< Check to see if tmp exists in current working directory */
+      swprintf(tmpCheck, TEXT("%s\\%s"), cwd, tmp);
+      if (ELPathFileExists(tmpCheck) && !PathIsDirectory(tmpCheck))
+        {
+          wcscpy(path, tmpCheck);
           return true;
         }
     }
@@ -1974,7 +2001,10 @@ BOOL CALLBACK FullscreenEnum(HWND hwnd, LPARAM lParam)
   if (hwndMonitor != (HMONITOR)lParam)
     return true;
 
-  if (hwnd == FindWindow(TEXT("Progman"), NULL))
+  if (ELIsApplet(hwnd))
+    return true;
+
+  if (ELIsExplorer(hwnd))
     return true;
 
   if (hwnd == FindWindow(TEXT("InstallShield_Win"), NULL))
@@ -2610,7 +2640,7 @@ bool ELParseShortcut(LPCTSTR shortcut, LPSHORTCUTINFO shortcutInfo)
       if (SUCCEEDED(psl->GetIDList(&pidl)))
         {
           ret = (SHGetPathFromIDList(pidl, shortcutInfo->Path) == TRUE);
-          ELILFree(pidl);
+          ILFree(pidl);
         }
     }
 
@@ -2669,6 +2699,70 @@ std::wstring ELGetUserDataPath()
   return path;
 }
 
+std::wstring ELGetPortableMode()
+{
+  WCHAR xmlPath[MAX_PATH];
+  std::tr1::shared_ptr<TiXmlDocument> configXML;
+  TiXmlElement *section;
+  bool PAF;
+  std::wstring portablePath, workingPath, portableMode;
+
+  ELGetCurrentPath(xmlPath);
+  workingPath = xmlPath;
+  portablePath = workingPath + TEXT("\\portable.xml");
+
+  if (!ELPathFileExists(portablePath.c_str()))
+    return portableMode;
+
+  portableMode = TEXT("Portable");
+
+  configXML = ELOpenXMLConfig(portablePath, false);
+  if (configXML)
+    {
+      section = ELGetXMLSection(configXML.get(), (WCHAR*)TEXT("Portable"), false);
+      if (section)
+        {
+          if (ELReadXMLBoolValue(section, TEXT("PAF"), &PAF, false))
+            {
+              if (PAF == true)
+                portableMode = TEXT("PAF");
+            }
+        }
+    }
+
+  return portableMode;
+}
+
+void ELStripLeadingSpaces(LPTSTR input)
+{
+  WCHAR *tmp = _wcsdup(input);
+  size_t inputLen = wcslen(input), i = 0, j = 0;
+
+  /**< Search input for the first non-space character */
+  while (i < inputLen)
+    {
+      if (input[i] != ' ')
+        break;
+
+      i++;
+    }
+
+  /**< Copy the remaining contents of input to tmp */
+  while (i < inputLen)
+    {
+      tmp[j] = input[i];
+      i++;
+      j++;
+    }
+
+  /**< Null terminate tmp */
+  tmp[j] = '\0';
+
+  /**< Copy tmp to input and free tmp */
+  wcscpy(input, tmp);
+  free(tmp);
+}
+
 /*!
   @fn ELExecuteAlias(LPTSTR alias)
   @brief Take the supplied alias comparing it to the command file and executes the appropriate command based on the alias.
@@ -2700,12 +2794,16 @@ bool ELExecuteAlias(LPTSTR alias)
           if (value != NULL)
             command = wcstok(NULL, TEXT("\n"));
 
-          // execute the command
-          if (wcscmp(value, alias) == 0)
+          if (command != NULL)
             {
-              ELExecute(command);
-              ret = true;
-              break;
+              ELStripLeadingSpaces(command);
+
+              // execute the command
+              if (wcscmp(value, alias) == 0)
+                {
+                  ret = ELExecute(command);
+                  break;
+                }
             }
         }
 
@@ -2885,10 +2983,16 @@ bool ELExit(UINT uFlag, bool prompt)
 
 bool ELCheckWindow(HWND hwnd)
 {
-  // If the window is hidden, a toolwindow or has no title, ignore it
+  RECT hwndRt;
+  GetClientRect(hwnd, &hwndRt);
+
+  /* If the window is visible, not a toolwindow, has no parent, and it's client
+   * rect isn't empty, it's a valid task window.
+   */
   if ((IsWindowVisible(hwnd)) &&
-      !(GetWindowLongPtr(hwnd, GWL_STYLE) & WS_POPUP) &&
-      !(GetWindowLongPtr(hwnd, GWL_EXSTYLE) & WS_EX_TOOLWINDOW))
+      !(GetWindowLongPtr(hwnd, GWL_EXSTYLE) & WS_EX_TOOLWINDOW) &&
+      !GetParent(hwnd) &&
+      !(IsRectEmpty(&hwndRt) && !IsIconic(hwnd)))
     return true;
 
   return false;
@@ -3225,15 +3329,15 @@ bool ELReadFileColor(const WCHAR *fileName, WCHAR *item, COLORREF *target, COLOR
   Windows 2000	          5.0
   */
 
-float ELVersionInfo()
+double ELVersionInfo()
 {
   OSVERSIONINFO osv;
   ZeroMemory(&osv, sizeof(osv));
   osv.dwOSVersionInfoSize = sizeof(osv);
   GetVersionEx(&osv);
 
-  float fMajor = (float)osv.dwMajorVersion;
-  float fMinor = (float)osv.dwMinorVersion / 10.0;
+  double fMajor = (double)osv.dwMajorVersion;
+  double fMinor = (double)osv.dwMinorVersion / 10.0;
 
   return (fMajor + fMinor);
 }
@@ -3248,12 +3352,44 @@ float ELVersionInfo()
 
 bool ELAppletVersionInfo(HWND appWnd, LPVERSIONINFO versionInfo)
 {
-  WCHAR applet[MAX_LINE_LENGTH];
+  std::wstring applet = ELGetWindowApp(appWnd, false);
 
-  if (!ELGetWindowApp(appWnd, applet, false))
+  return ELAppletFileVersion(applet.c_str(), versionInfo);
+}
+
+bool ELIsExplorerShell()
+{
+  WCHAR explorerPath[MAX_PATH];
+
+  if (GetWindowsDirectory(explorerPath, MAX_PATH) == 0)
     return false;
 
-  return ELAppletFileVersion(applet, versionInfo);
+  wcscat(explorerPath, TEXT("\\"));
+  wcscat(explorerPath, TEXT("explorer.exe"));
+  _wcslwr(explorerPath);
+
+  HWND progmanWnd = FindWindow(TEXT("progman"), NULL);
+  if (progmanWnd)
+    {
+      std::wstring progmanExec = ELGetWindowApp(progmanWnd, true);
+      if (ELToLower(progmanExec) == explorerPath)
+        return true;
+    }
+
+  return false;
+}
+
+bool ELIsEmergeShell()
+{
+  HWND trayWnd = FindWindow(TEXT("Shell_TrayWnd"), NULL);
+  if (trayWnd)
+    {
+      std::wstring trayExec = ELGetWindowApp(trayWnd, false);
+      if (ELToLower(trayExec) == TEXT("emergetray.exe"))
+        return true;
+    }
+
+  return false;
 }
 
 /*!
@@ -3264,7 +3400,7 @@ bool ELAppletVersionInfo(HWND appWnd, LPVERSIONINFO versionInfo)
   @return true if successful
   */
 
-bool ELAppletFileVersion(WCHAR *applet, LPVERSIONINFO versionInfo)
+bool ELAppletFileVersion(const WCHAR *applet, LPVERSIONINFO versionInfo)
 {
   WCHAR tmp[MAX_LINE_LENGTH], var[MAX_LINE_LENGTH];
   void *buffer, *data;
@@ -3376,29 +3512,20 @@ std::wstring ELGetProcessIDApp(DWORD processID, bool fullName)
 }
 
 /*!
-  @fn ELGetWindowApp(HWND hWnd, WCHAR *processName, bool fullName)
+  @fn ELGetWindowApp(HWND hWnd, bool fullName)
   @brief Determines the process name based on the supplied window handle
   @param hWnd Window handle
   @param processName Populated with process owning the window handle
   @param fullName if true return fully qualified name, if false return basename
-  @return true if successful
+  @return std::wstring
   */
 
-bool ELGetWindowApp(HWND hWnd, WCHAR *processName, bool fullName)
+std::wstring ELGetWindowApp(HWND hWnd, bool fullName)
 {
   DWORD processID;
-  std::wstring tmpName;
 
   GetWindowThreadProcessId(hWnd, &processID);
-  tmpName = ELGetProcessIDApp(processID, fullName);
-
-  if (tmpName.size() != 0)
-    {
-      wcscpy(processName, tmpName.c_str());
-      return true;
-    }
-
-  return false;
+  return ELGetProcessIDApp(processID, fullName);
 }
 
 /*!
@@ -3407,7 +3534,7 @@ bool ELGetWindowApp(HWND hWnd, WCHAR *processName, bool fullName)
   @param command string to perform check on
   */
 
-UINT ELIsInternalCommand(WCHAR *command)
+UINT ELIsInternalCommand(const WCHAR *command)
 {
   if (_wcsicmp(command, TEXT("run")) == 0)
     return COMMAND_RUN;
@@ -3459,7 +3586,7 @@ bool ELSpecialFolderValue(WCHAR *folder, WCHAR *value)
           wcscpy(value, TEXT("CSIDL_PERSONAL"));
           ret = true;
         }
-      ELILFree(pidl);
+      ILFree(pidl);
     }
 
   if (SUCCEEDED(SHGetSpecialFolderLocation(NULL, CSIDL_DRIVES, &pidl)))
@@ -3470,7 +3597,7 @@ bool ELSpecialFolderValue(WCHAR *folder, WCHAR *value)
           wcscpy(value, TEXT("CSIDL_DRIVES"));
           ret = true;
         }
-      ELILFree(pidl);
+      ILFree(pidl);
     }
 
   if (SUCCEEDED(SHGetSpecialFolderLocation(NULL, CSIDL_CONTROLS, &pidl)))
@@ -3481,7 +3608,7 @@ bool ELSpecialFolderValue(WCHAR *folder, WCHAR *value)
           wcscpy(value, TEXT("CSIDL_CONTROLS"));
           ret = true;
         }
-      ELILFree(pidl);
+      ILFree(pidl);
     }
 
   if (SUCCEEDED(SHGetSpecialFolderLocation(NULL, CSIDL_BITBUCKET, &pidl)))
@@ -3492,7 +3619,7 @@ bool ELSpecialFolderValue(WCHAR *folder, WCHAR *value)
           wcscpy(value, TEXT("CSIDL_BITBUCKET"));
           ret = true;
         }
-      ELILFree(pidl);
+      ILFree(pidl);
     }
 
   if (SUCCEEDED(SHGetSpecialFolderLocation(NULL, CSIDL_NETWORK, &pidl)))
@@ -3503,7 +3630,7 @@ bool ELSpecialFolderValue(WCHAR *folder, WCHAR *value)
           wcscpy(value, TEXT("CSIDL_NETWORK"));
           ret = true;
         }
-      ELILFree(pidl);
+      ILFree(pidl);
     }
 
   return ret;
@@ -3528,7 +3655,7 @@ int ELIsSpecialFolder(WCHAR *folder)
       SHGetFileInfo((LPCTSTR)pidl, 0, &fileInfo, sizeof(fileInfo), SHGFI_PIDL | SHGFI_DISPLAYNAME);
       if (_wcsicmp(folder, fileInfo.szDisplayName) == 0)
         csidl = CSIDL_PERSONAL;
-      ELILFree(pidl);
+      ILFree(pidl);
     }
 
   if (SUCCEEDED(SHGetSpecialFolderLocation(NULL, CSIDL_DRIVES, &pidl)))
@@ -3536,7 +3663,7 @@ int ELIsSpecialFolder(WCHAR *folder)
       SHGetFileInfo((LPCTSTR)pidl, 0, &fileInfo, sizeof(fileInfo), SHGFI_PIDL | SHGFI_DISPLAYNAME);
       if (_wcsicmp(folder, fileInfo.szDisplayName) == 0)
         csidl = CSIDL_DRIVES;
-      ELILFree(pidl);
+      ILFree(pidl);
     }
 
   if (SUCCEEDED(SHGetSpecialFolderLocation(NULL, CSIDL_CONTROLS, &pidl)))
@@ -3544,7 +3671,7 @@ int ELIsSpecialFolder(WCHAR *folder)
       SHGetFileInfo((LPCTSTR)pidl, 0, &fileInfo, sizeof(fileInfo), SHGFI_PIDL | SHGFI_DISPLAYNAME);
       if (_wcsicmp(folder, fileInfo.szDisplayName) == 0)
         csidl = CSIDL_CONTROLS;
-      ELILFree(pidl);
+      ILFree(pidl);
     }
 
   if (SUCCEEDED(SHGetSpecialFolderLocation(NULL, CSIDL_BITBUCKET, &pidl)))
@@ -3552,7 +3679,7 @@ int ELIsSpecialFolder(WCHAR *folder)
       SHGetFileInfo((LPCTSTR)pidl, 0, &fileInfo, sizeof(fileInfo), SHGFI_PIDL | SHGFI_DISPLAYNAME);
       if (_wcsicmp(folder, fileInfo.szDisplayName) == 0)
         csidl = CSIDL_BITBUCKET;
-      ELILFree(pidl);
+      ILFree(pidl);
     }
 
   if (SUCCEEDED(SHGetSpecialFolderLocation(NULL, CSIDL_NETWORK, &pidl)))
@@ -3560,7 +3687,7 @@ int ELIsSpecialFolder(WCHAR *folder)
       SHGetFileInfo((LPCTSTR)pidl, 0, &fileInfo, sizeof(fileInfo), SHGFI_PIDL | SHGFI_DISPLAYNAME);
       if (_wcsicmp(folder, fileInfo.szDisplayName) == 0)
         csidl = CSIDL_NETWORK;
-      ELILFree(pidl);
+      ILFree(pidl);
     }
 
   return csidl;
@@ -3581,7 +3708,7 @@ bool ELGetSpecialFolder(int folder, WCHAR *folderPath)
     {
       SHGetFileInfo((LPCTSTR)pidl, 0, &fileInfo, sizeof(fileInfo), SHGFI_PIDL | SHGFI_DISPLAYNAME);
       wcscpy(folderPath, fileInfo.szDisplayName);
-      ELILFree(pidl);
+      ILFree(pidl);
       return true;
     }
 
@@ -3892,15 +4019,18 @@ void ELClearEmergeVars()
   SetEnvironmentVariable(TEXT("ThemeDir"), NULL);
   SetEnvironmentVariable(TEXT("EmergeDir"), NULL);
   SetEnvironmentVariable(TEXT("AppletDir"), NULL);
+  SetEnvironmentVariable(TEXT("PortableMode"), NULL);
 }
 
 bool ELSetEmergeVars()
 {
   WCHAR appletPath[MAX_PATH];
+  std::wstring portableMode;
 
   THEMEINFO themeInfo;
   ELGetThemeInfo(&themeInfo);
   ELGetCurrentPath(appletPath);
+  portableMode = ELGetPortableMode();
 
   if (!SetEnvironmentVariable(TEXT("ThemeDir"), themeInfo.themePath))
     return false;
@@ -3909,6 +4039,9 @@ bool ELSetEmergeVars()
     return false;
 
   if (!SetEnvironmentVariable(TEXT("AppletDir"), appletPath))
+    return false;
+
+  if (!SetEnvironmentVariable(TEXT("PortableMode"), portableMode.c_str()))
     return false;
 
   return true;
@@ -4131,8 +4264,6 @@ bool ELConvertAppletPath(WCHAR *styleFile, DWORD flags)
 
 bool ConvertPath(WCHAR *styleFile, DWORD flags, DWORD path)
 {
-  WCHAR tmpPath[MAX_PATH];
-  UINT j = 0;
   bool converted = false;
   std::wstring themePath;
 
@@ -4158,29 +4289,86 @@ bool ConvertPath(WCHAR *styleFile, DWORD flags, DWORD path)
         }
       break;
     case CTP_RELATIVE:
-      if (!ELPathIsRelative(styleFile))
-        {
-          if (PathRelativePathTo(tmpPath, themePath.c_str(), FILE_ATTRIBUTE_DIRECTORY, styleFile, FILE_ATTRIBUTE_NORMAL))
-            {
-              // If the file is stored in the current directory, the PathRelativePathTo
-              // prepends the string with '\' making windows think the file is in the root
-              // directory, so I've implemented the change below to account for that.
-              for (UINT i = 0; i < wcslen(tmpPath); i++)
-                {
-                  if ((i == 0) && (tmpPath[i] == '\\'))
-                    continue;
-
-                  styleFile[j] = tmpPath[i];
-                  j++;
-                }
-              styleFile[j] = '\0';
-              converted = true;
-            }
-        }
-      break;
+      converted = ELRelativePathFromAbsPath(styleFile, themePath.c_str());
     }
 
   return converted;
+}
+
+bool ELRelativePathFromAbsPath(WCHAR *destPath, LPCTSTR sourcePath)
+{
+  std::wstring srcPath = ELExpandVars(sourcePath);
+  WCHAR tmpPath[MAX_PATH];
+  UINT j = 0;
+  DWORD flags;
+
+  if (wcslen(destPath) == 0)
+    return false;
+
+  if (ELPathIsRelative(destPath))
+    return true; //the path is already relative; there's nothing for us to do!
+
+  if (ELUnExpandVars(destPath)) //the unexpanded path contains an environment variable, so we don't want to manipulate the string any further.
+	return true;
+
+  if (PathIsDirectory(destPath))
+    flags = FILE_ATTRIBUTE_DIRECTORY;
+  else
+    flags = FILE_ATTRIBUTE_NORMAL;
+
+  if (PathRelativePathTo(tmpPath, srcPath.c_str(), FILE_ATTRIBUTE_DIRECTORY,
+                         destPath, flags))
+    {
+      // If the file is stored in the current directory, the PathRelativePathTo
+      // prepends the string with '\' making windows think the file is in the
+      // root directory, so I've implemented the change below to account for
+      // that.
+      for (UINT i = 0; i < wcslen(tmpPath); i++)
+        {
+          if ((i == 0) && (tmpPath[i] == '\\'))
+            continue;
+
+          destPath[j] = tmpPath[i];
+          j++;
+        }
+
+      destPath[j] = '\0';
+      return true;
+    }
+
+  return false;
+}
+
+bool ELAbsPathFromRelativePath(WCHAR *destPath, LPCTSTR sourcePath)
+{
+  std::wstring srcPath = ELExpandVars(sourcePath);
+  WCHAR originalWorkingDir[MAX_PATH];
+  if (GetCurrentDirectory(MAX_PATH, originalWorkingDir))
+    SetCurrentDirectory(srcPath.c_str());
+
+  WCHAR tmpPath[MAX_PATH];
+
+  if (wcslen(destPath) == 0)
+    return false;
+
+  if (!PathFileExists(destPath))
+    return false;
+
+  if (!ELPathIsRelative(destPath))
+    return true; //the path is already absolute; there's nothing for us to do!
+
+  if (GetFullPathName(destPath, MAX_PATH, tmpPath, NULL))
+    {
+      UINT i = 0;
+      for (i = 0; i < wcslen(tmpPath); i++)
+        destPath[i] = tmpPath[i];
+
+      destPath[i] = '\0';
+      SetCurrentDirectory(originalWorkingDir);
+      return true;
+    }
+
+  return false;
 }
 
 RECT ELGetMonitorRect(int monitor)
@@ -4291,6 +4479,9 @@ size_t ELwcsftime(WCHAR *strDest, size_t maxsize, WCHAR *format, const struct tm
   int dayOfYear, weekday, h, yearNumber, weekNumber, i;
   bool isLeapYear = false, previousIsLeapYear = false;
   WCHAR stringDay[2], stringWeek[3];
+  char tmpFormat[MAX_LINE_LENGTH], tmpDest[MAX_LINE_LENGTH];
+  BOOL defaultUsed;
+  size_t ret;
 
   /**< Determine if the current year is a leap year */
   if (((year % 4 == 0) && (year % 100 != 0)) || (year % 400 == 0))
@@ -4359,8 +4550,17 @@ size_t ELwcsftime(WCHAR *strDest, size_t maxsize, WCHAR *format, const struct tm
   ELStringReplace(format, (WCHAR*)TEXT("%u"), stringDay, false);
   ELStringReplace(format, (WCHAR*)TEXT("%V"), stringWeek, false);
 
-  /**< Finally, pass the updated format string to the MSVC supplied wcsftime */
-  return wcsftime(strDest, maxsize, format, timeptr);
+  /**< Convert to UTF-8 to pass to strftime due to issues with wcsftime */
+  WideCharToMultiByte(CP_ACP, 0, format, wcslen(format)+1,
+                      tmpFormat, MAX_LINE_LENGTH, NULL, &defaultUsed);
+
+  ret = strftime(tmpDest, MAX_LINE_LENGTH, tmpFormat, timeptr);
+
+  /**< Convert back to unicode */
+  MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, tmpDest, (int)strlen(tmpDest)+1,
+                      strDest, maxsize);
+
+  return ret;
 }
 
 void ELStripModified(WCHAR *theme)
@@ -4379,7 +4579,10 @@ BOOL ELPathIsRelative(LPCTSTR lpszPath)
   std::wstring tmpPath = lpszPath;
   tmpPath = ELExpandVars(tmpPath);
 
-  return PathIsRelative(tmpPath.c_str());
+  // PathIsRelative treats "\" as a fully qualified path, which isn't true
+  // (except for UNC) as a restult, check for a drive number first.
+  return ((PathGetDriveNumber(tmpPath.c_str()) == -1) &&
+          !PathIsUNC(tmpPath.c_str()));
 }
 
 bool ELIsApplet(HWND hwnd)
@@ -4400,7 +4603,23 @@ bool ELIsApplet(HWND hwnd)
     return true;
 
   // Desktop Class
+  if (_wcsicmp(windowClass, TEXT("EmergeDesktopProgman")) == 0)
+    return true;
+
+  return false;
+}
+
+bool ELIsExplorer(HWND hwnd)
+{
+  WCHAR windowClass[MAX_LINE_LENGTH];
+  RealGetWindowClass(hwnd, windowClass, MAX_LINE_LENGTH);
+
+  // Explorer Class
   if (_wcsicmp(windowClass, TEXT("progman")) == 0)
+    return true;
+
+  // Explorer Desktop Class
+  if (_wcsicmp(windowClass, TEXT("WorkerW")) == 0)
     return true;
 
   return false;
@@ -4415,10 +4634,10 @@ HANDLE ELActivateActCtxForDll(LPCTSTR pszDll, PULONG_PTR pulCookie)
   typedef BOOL (WINAPI* ActivateActCtx_t)(HANDLE hCtx, ULONG_PTR* pCookie);
 
   CreateActCtx_t fnCreateActCtx = (CreateActCtx_t)
-    GetProcAddress(kernel32, "CreateActCtxW");
+                                  GetProcAddress(kernel32, "CreateActCtxW");
 
   ActivateActCtx_t fnActivateActCtx = (ActivateActCtx_t)
-    GetProcAddress(kernel32, "ActivateActCtx");
+                                      GetProcAddress(kernel32, "ActivateActCtx");
 
   if (fnCreateActCtx != NULL && fnActivateActCtx != NULL)
     {
@@ -4485,7 +4704,7 @@ HANDLE ELActivateActCtxForClsid(REFCLSID rclsid, PULONG_PTR pulCookie)
           DWORD cbDll = sizeof(szDll);
 
           LONG lres = SHGetValue(
-                                 HKEY_CLASSES_ROOT, szSubkey, NULL, NULL, szDll, &cbDll);
+                        HKEY_CLASSES_ROOT, szSubkey, NULL, NULL, szDll, &cbDll);
 
           if (lres == ERROR_SUCCESS)
             {
@@ -4508,10 +4727,10 @@ void ELDeactivateActCtx(HANDLE hActCtx, ULONG_PTR* pulCookie)
   typedef void (WINAPI* ReleaseActCtx_t)(HANDLE hActCtx);
 
   DeactivateActCtx_t fnDeactivateActCtx = (DeactivateActCtx_t)
-    GetProcAddress(kernel32, "DeactivateActCtx");
+                                          GetProcAddress(kernel32, "DeactivateActCtx");
 
   ReleaseActCtx_t fnReleaseActCtx = (ReleaseActCtx_t)
-    GetProcAddress(kernel32, "ReleaseActCtx");
+                                    GetProcAddress(kernel32, "ReleaseActCtx");
 
   if (fnDeactivateActCtx != NULL && fnReleaseActCtx != NULL)
     {
@@ -4542,9 +4761,9 @@ IOleCommandTarget *ELStartSSO(CLSID clsid)
     {
       // Start ShellServiceObject
       reinterpret_cast <IOleCommandTarget*> (lpVoid)->Exec(&CGID_ShellServiceObject,
-                                                           OLECMDID_NEW,
-                                                           OLECMDEXECOPT_DODEFAULT,
-                                                           NULL, NULL);
+          OLECMDID_NEW,
+          OLECMDEXECOPT_DODEFAULT,
+          NULL, NULL);
       target = reinterpret_cast <IOleCommandTarget*>(lpVoid);
     }
 

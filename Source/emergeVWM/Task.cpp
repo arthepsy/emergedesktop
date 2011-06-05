@@ -41,8 +41,7 @@ Task::Task(HWND taskWnd, HWND mainWnd, HINSTANCE mainInst, UINT currentRow, UINT
 
   minimized = (IsIconic(taskWnd) == TRUE);
 
-  ELGetWindowApp(taskWnd, appName, false);
-  _wcslwr(appName);
+  appName = ELToLower(ELGetWindowApp(taskWnd, false));
 
   UpdateDimensions(currentColumn, currentRow, maxRows, maxColumns, guiInfo);
 
@@ -64,7 +63,7 @@ Task::~Task()
 // Returns:	WCHAR *
 // Purpose:	Retrieves the application the window belongs to
 //----  --------------------------------------------------------------------------------------------------------
-WCHAR *Task::GetAppName()
+std::wstring Task::GetAppName()
 {
   return appName;
 }

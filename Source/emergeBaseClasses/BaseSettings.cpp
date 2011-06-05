@@ -597,6 +597,72 @@ bool BaseSettings::CopyStyle()
   return true;
 }
 
+bool BaseSettings::GetSortInfo(WCHAR *editorName, PSORTINFO sortInfo)
+{
+  std::tr1::shared_ptr<TiXmlDocument> configXML;
+  TiXmlElement *section, *editor, *applet;
+  bool readSettings = false;
+  std::wstring xmlFile = TEXT("%EmergeDir%\\files\\SortOrder.xml");
+
+  configXML = ELOpenXMLConfig(xmlFile, false);
+  if (configXML)
+    {
+      section = ELGetXMLSection(configXML.get(), (WCHAR*)TEXT("Settings"), false);
+      if (section)
+        {
+          applet = ELGetFirstXMLElementByName(section, appletName, false);
+          if (applet)
+            {
+              editor = ELGetFirstXMLElementByName(applet, editorName, false);
+              if (editor)
+                {
+                  readSettings = true;
+
+                  ELReadXMLIntValue(editor, TEXT("SubItem"), &sortInfo->subItem, 0);
+                  ELReadXMLBoolValue(editor, TEXT("Ascending"), &sortInfo->ascending, true);
+                }
+            }
+        }
+    }
+
+  if (!readSettings)
+    {
+      sortInfo->subItem = 0;
+      sortInfo->ascending = true;
+    }
+
+  return readSettings;
+}
+
+bool BaseSettings::SetSortInfo(WCHAR *editorName, PSORTINFO sortInfo)
+{
+  std::tr1::shared_ptr<TiXmlDocument> configXML;
+  TiXmlElement *section, *applet, *editor;
+  std::wstring xmlFile = TEXT("%EmergeDir%\\files\\SortOrder.xml");
+
+  configXML = ELOpenXMLConfig(xmlFile, true);
+  if (configXML)
+    {
+      section = ELGetXMLSection(configXML.get(), (WCHAR*)TEXT("Settings"), true);
+      if (section)
+        {
+          applet = ELGetFirstXMLElementByName(section, appletName, true);
+          if (applet)
+            {
+              editor = ELGetFirstXMLElementByName(applet, editorName, true);
+              if (editor)
+                {
+                  ELWriteXMLIntValue(editor, TEXT("SubItem"), sortInfo->subItem);
+                  ELWriteXMLBoolValue(editor, TEXT("Ascending"), sortInfo->ascending);
+                  return ELWriteXMLConfig(configXML.get());
+                }
+            }
+        }
+    }
+
+  return false;
+}
+
 BaseSettings::IOHelper::IOHelper(TiXmlElement *sec)
 {
   key = NULL;
@@ -711,7 +777,7 @@ void *BaseSettings::IOHelper::GetElement(WCHAR *name)
 {
   if (section)
     {
-      item = ELGetFirstXMLElementByName(section, name);
+      item = ELGetFirstXMLElementByName(section, name, false);
 
       // If item is found, set it as the target element
       if (item)

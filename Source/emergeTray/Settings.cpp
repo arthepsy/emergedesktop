@@ -1,7 +1,7 @@
 //---
 //
 //  This file is part of Emerge Desktop.
-//  Copyright (C) 2004-2007  The Emerge Desktop Development Team
+//  Copyright (C) 2004-2011  The Emerge Desktop Development Team
 //
 //  Emerge Desktop is free software; you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -21,8 +21,6 @@
 #include "Settings.h"
 #include "Applet.h"
 #include "TrayIcon.h"
-
-extern WCHAR myName[];
 
 Settings::Settings(LPARAM lParam)
   :BaseSettings(true)
@@ -315,25 +313,49 @@ WCHAR *Settings::GetHideListItem(UINT item)
   return (WCHAR*)hideList[item].c_str();
 }
 
-void Settings::DeleteHideListItem(UINT item)
+void Settings::DeleteHideListItem(WCHAR *itemText)
 {
   UINT i = 0;
   Applet *pApplet = reinterpret_cast<Applet*>(lParam);
+  std::vector<std::wstring>::iterator iter = hideList.begin();
 
   while (i < pApplet->GetTrayIconListSize())
     {
-      if (wcsstr(pApplet->GetTrayIconListItem(i)->GetTip(), hideList[item].c_str()))
+      if (wcsstr(pApplet->GetTrayIconListItem(i)->GetTip(), itemText))
         pApplet->GetTrayIconListItem(i)->SetHidden(false);
 
       i++;
     }
 
-  hideList.erase(hideList.begin() + item);
+  /**< Using a '!=' caused a crash here, switching to '<' fixed the crash - odd */
+  while (iter < hideList.end())
+  {
+    if ((*iter) == itemText)
+      hideList.erase(iter);
+    iter++;
+  }
 }
 
-void Settings::ModifyHideListItem(UINT item, WCHAR *itemText)
+void Settings::ModifyHideListItem(WCHAR *oldText, WCHAR *newText)
 {
-  hideList[item] = itemText;
+  UINT i = 0;
+  Applet *pApplet = reinterpret_cast<Applet*>(lParam);
+  std::vector<std::wstring>::iterator iter = hideList.begin();
+
+  while (i < pApplet->GetTrayIconListSize())
+    {
+      if (wcsstr(pApplet->GetTrayIconListItem(i)->GetTip(), oldText))
+        pApplet->GetTrayIconListItem(i)->SetHidden(false);
+
+      i++;
+    }
+
+  while (iter < hideList.end())
+  {
+    if ((*iter) == oldText)
+      (*iter) = newText;
+    iter++;
+  }
 }
 
 void Settings::AddHideListItem(WCHAR *item)

@@ -7,65 +7,6 @@
 		<Option pch_mode="2" />
 		<Option compiler="gcc" />
 		<Build>
-			<Target title="zip - Release">
-				<Option platforms="Windows;" />
-				<Option output="bin\zip32z64" prefix_auto="1" extension_auto="1" />
-				<Option object_output=".objs\Release" />
-				<Option type="3" />
-				<Option compiler="gcc" />
-				<Option projectCompilerOptionsRelation="1" />
-				<Option projectLinkerOptionsRelation="1" />
-				<Compiler>
-					<Add option="-march=i586" />
-					<Add option="-O2" />
-					<Add option="-w" />
-					<Add option="-DWIN32" />
-					<Add option="-DFORCE_WIN32_OVER_UNIX" />
-					<Add option="-DIZ_CRCOPTIM_UNFOLDTBL" />
-					<Add option="-DNO_ASM" />
-					<Add option="-DNO_ASM_CRC" />
-					<Add option="-DWINDLL" />
-					<Add option="-DUSE_ZIPMAIN" />
-				</Compiler>
-				<ResourceCompiler>
-					<Add directory=".\emergeLib" />
-				</ResourceCompiler>
-				<Linker>
-					<Add option="-s" />
-					<Add option="-Wl,--enable-stdcall-fixup" />
-				</Linker>
-				<ExtraCommands>
-					<Add after="dlltool --dllname zip32z64.dll --def zip/windll/windllmingw.def --output-lib bin/libzip32z64.dll.a" />
-				</ExtraCommands>
-			</Target>
-			<Target title="unzip - Release">
-				<Option platforms="Windows;" />
-				<Option output="bin\unzip32" prefix_auto="1" extension_auto="1" />
-				<Option object_output=".objs\Release" />
-				<Option type="3" />
-				<Option compiler="gcc" />
-				<Option projectCompilerOptionsRelation="1" />
-				<Option projectLinkerOptionsRelation="1" />
-				<Compiler>
-					<Add option="-march=i586" />
-					<Add option="-O2" />
-					<Add option="-w" />
-					<Add option="-DWIN32" />
-					<Add option="-DFORCE_WIN32_OVER_UNIX" />
-					<Add option="-DIZ_CRCOPTIM_UNFOLDTBL" />
-					<Add option="-DDLL" />
-					<Add option="-DWINDLL" />
-				</Compiler>
-				<ResourceCompiler>
-					<Add directory=".\emergeLib" />
-				</ResourceCompiler>
-				<Linker>
-					<Add option="-s" />
-				</Linker>
-				<ExtraCommands>
-					<Add after="dlltool --dllname unzip32.dll --def unzip/windll/windllmingw.def --output-lib bin/libunzip32.dll.a" />
-				</ExtraCommands>
-			</Target>
 			<Target title="emergeLib - Release">
 				<Option platforms="Windows;" />
 				<Option output="bin\emergeLib" prefix_auto="1" extension_auto="1" />
@@ -75,6 +16,8 @@
 				<Option createDefFile="1" />
 				<Option createStaticLib="1" />
 				<Compiler>
+					<Add option="-Wno-unused-value" />
+					<Add option="-Wno-strict-aliasing" />
 					<Add option="-DEMERGELIB_EXPORTS" />
 					<Add option="-DTIXML_USE_STL" />
 				</Compiler>
@@ -93,8 +36,6 @@
 					<Add library="wtsapi32" />
 					<Add library="winmm" />
 					<Add library="powrprof" />
-					<Add library="zip32z64" />
-					<Add library="unzip32" />
 					<Add directory=".\bin" />
 				</Linker>
 			</Target>
@@ -190,6 +131,29 @@
 					<Add library="comdlg32" />
 					<Add library="shlwapi" />
 					<Add library="ole32" />
+					<Add directory=".\bin" />
+				</Linker>
+			</Target>
+			<Target title="emergeTrayExplorerHook - Release">
+				<Option platforms="Windows;" />
+				<Option output="bin\emergeTrayExplorerHook" prefix_auto="1" extension_auto="1" />
+				<Option object_output=".objs\Release" />
+				<Option type="3" />
+				<Option compiler="gcc" />
+				<Option createDefFile="1" />
+				<Option createStaticLib="1" />
+				<Option projectLinkerOptionsRelation="1" />
+				<Compiler>
+					<Add option="-DEMERGETRAYEXPLORERHOOK_EXPORTS" />
+				</Compiler>
+				<ResourceCompiler>
+					<Add directory=".\emergeTrayExplorerHook" />
+				</ResourceCompiler>
+				<Linker>
+					<Add option="-static-libgcc" />
+					<Add option="-Wl,--enable-auto-import" />
+					<Add option="-Wl,--enable-auto-image-base" />
+					<Add option="-Wl,--add-stdcall-alias" />
 					<Add directory=".\bin" />
 				</Linker>
 			</Target>
@@ -328,7 +292,7 @@
 				<Option platforms="Windows;" />
 				<Option output="bin\emergeTray" prefix_auto="1" extension_auto="1" />
 				<Option object_output=".objs\Release" />
-				<Option external_deps="bin\emergeAppletEngine.dll;bin\emergeBaseClasses.dll;bin\emergeGraphics.dll;bin\emergeLib.dll;bin\emergeSchemeEngine.dll;" />
+				<Option external_deps="bin\emergeAppletEngine.dll;bin\emergeBaseClasses.dll;bin\emergeGraphics.dll;bin\emergeLib.dll;bin\emergeSchemeEngine.dll;bin\emergeTrayExplorerHook.dll" />
 				<Option type="0" />
 				<Option compiler="gcc" />
 				<ResourceCompiler>
@@ -491,6 +455,26 @@
 				<Option createDefFile="1" />
 				<Option createStaticLib="1" />
 			</Target>
+			<Target title="Explorer - Release">
+				<Option platforms="Windows;" />
+				<Option output="bin\Explorer" prefix_auto="1" extension_auto="1" />
+				<Option object_output=".objs\Release" />
+				<Option external_deps="bin\emergeAppletEngine.dll;bin\emergeLib.dll;" />
+				<Option type="0" />
+				<Option compiler="gcc" />
+				<ResourceCompiler>
+					<Add directory=".\emergeHotkeys" />
+				</ResourceCompiler>
+				<Linker>
+					<Add option="-s" />
+					<Add library="emergeAppletEngine" />
+					<Add library="emergeBaseClasses" />
+					<Add library="emergeLib" />
+					<Add library="uuid" />
+					<Add library="ole32" />
+					<Add directory=".\bin" />
+				</Linker>
+			</Target>
 			<Target title="emergeLib - Debug">
 				<Option platforms="Windows;" />
 				<Option output="bin\emergeLib" prefix_auto="1" extension_auto="1" />
@@ -517,6 +501,9 @@
 					<Add library="wtsapi32" />
 					<Add library="winmm" />
 					<Add library="powrprof" />
+					<Add library="zip32z64" />
+					<Add library="unzip32" />
+					<Add directory=".\bin" />
 				</Linker>
 			</Target>
 			<Target title="emergeAppletEngine - Debug">
@@ -611,6 +598,30 @@
 					<Add library="emergeBaseClasses" />
 					<Add library="uuid" />
 					<Add library="ole32" />
+					<Add library="comctl32" />
+					<Add directory=".\bin" />
+				</Linker>
+			</Target>
+			<Target title="emergeTrayExplorerHook - Debug">
+				<Option platforms="Windows;" />
+				<Option output="bin\emergeTrayExplorerHook" prefix_auto="1" extension_auto="1" />
+				<Option object_output=".objs\Debug" />
+				<Option type="3" />
+				<Option compiler="gcc" />
+				<Option createDefFile="1" />
+				<Option createStaticLib="1" />
+				<Option projectLinkerOptionsRelation="1" />
+				<Compiler>
+					<Add option="-g" />
+					<Add option="-DEMERGETRAYEXPLORERHOOK_EXPORTS" />
+				</Compiler>
+				<ResourceCompiler>
+					<Add directory=".\emergeTrayExplorerHook" />
+				</ResourceCompiler>
+				<Linker>
+					<Add option="-static-libgcc" />
+					<Add option="-Wl,--enable-auto-import" />
+					<Add option="-Wl,--enable-auto-image-base" />
 					<Add directory=".\bin" />
 				</Linker>
 			</Target>
@@ -618,7 +629,7 @@
 				<Option platforms="Windows;" />
 				<Option output="bin\emergeTray" prefix_auto="1" extension_auto="1" />
 				<Option object_output=".objs\Debug" />
-				<Option external_deps="bin\emergeAppletEngine.dll;bin\emergeBaseClasses.dll;bin\emergeGraphics.dll;bin\emergeLib.dll;bin\emergeSchemeEngine.dll;" />
+				<Option external_deps="bin\emergeAppletEngine.dll;bin\emergeBaseClasses.dll;bin\emergeGraphics.dll;bin\emergeLib.dll;bin\emergeSchemeEngine.dll;bin\emergeTrayExplorerHook.dll" />
 				<Option type="0" />
 				<Option compiler="gcc" />
 				<Compiler>
@@ -633,6 +644,7 @@
 					<Add library="emergeAppletEngine" />
 					<Add library="emergeGraphics" />
 					<Add library="emergeBaseClasses" />
+					<Add library="emergeTrayExplorerHook" />
 					<Add library="comctl32" />
 					<Add library="uuid" />
 					<Add library="ole32" />
@@ -685,16 +697,18 @@
 			</Target>
 		</Build>
 		<VirtualTargets>
-			<Add alias="All - Release" targets="zip - Release;unzip - Release;emergeLib - Release;emergeGraphics - Release;emergeAppletEngine - Release;emergeStyleEngine - Release;emergeBaseClasses - Release;emergeCore - Release;emergeCommand - Release;emergeWorkspace - Release;emergeHotkeys - Release;emergeLauncher - Release;emergeTasks - Release;emergeTray - Release;emergeVWM - Release;emerge - Release;emergePower - Release;emergeSysMon - Release;reg2xml - Release;emergeIcons - Release;" />
+			<Add alias="All - Release" targets="emergeLib - Release;emergeGraphics - Release;emergeAppletEngine - Release;emergeStyleEngine - Release;emergeBaseClasses - Release;emergeTrayExplorerHook - Release;emergeCore - Release;emergeCommand - Release;emergeWorkspace - Release;emergeHotkeys - Release;emergeLauncher - Release;emergeTasks - Release;emergeTray - Release;emergeVWM - Release;emerge - Release;emergePower - Release;emergeSysMon - Release;Explorer - Release;emergeIcons - Release;" />
 		</VirtualTargets>
 		<Compiler>
 			<Add option="-march=i586" />
 			<Add option="-O2" />
+			<Add option="-pedantic" />
 			<Add option="-Wfatal-errors" />
 			<Add option="-Wextra" />
 			<Add option="-Wall" />
 			<Add option="-W" />
 			<Add option="-fno-inline" />
+			<Add option="-Wno-long-long" />
 			<Add option="-D_GLIBCXX_DLL" />
 		</Compiler>
 		<Linker>
@@ -703,8 +717,30 @@
 			<Add library="stdc++.dll" />
 		</Linker>
 		<ExtraCommands>
-			<Add before='[[ local hgfile = _T(&quot;hgversion.h&quot;); local hgcmd = _T(&quot;cmd /c hg tip --template \&quot;#define BUILD_VERSION {rev}\&quot; &gt; hgversion.h&quot;); if ( !IO.FileExists(hgfile) ) { IO.Execute(hgcmd); } ]]' />
+			<Add before='[[ IO.Execute(_T(&quot;cmd /c hgversion.bat&quot;)) ]]' />
 		</ExtraCommands>
+		<Unit filename="Explorer\Applet.cpp">
+			<Option target="Explorer - Release" />
+		</Unit>
+		<Unit filename="Explorer\Applet.h">
+			<Option target="Explorer - Release" />
+		</Unit>
+		<Unit filename="Explorer\Explorer.rc">
+			<Option compilerVar="WINDRES" />
+			<Option target="Explorer - Release" />
+		</Unit>
+		<Unit filename="Explorer\ShellDesktopTray.cpp">
+			<Option target="Explorer - Release" />
+		</Unit>
+		<Unit filename="Explorer\ShellDesktopTray.h">
+			<Option target="Explorer - Release" />
+		</Unit>
+		<Unit filename="Explorer\main.cpp">
+			<Option target="Explorer - Release" />
+		</Unit>
+		<Unit filename="Explorer\resource.h">
+			<Option target="Explorer - Release" />
+		</Unit>
 		<Unit filename="MinGWInterfaces.h">
 			<Option target="emergeLib - Release" />
 		</Unit>
@@ -843,27 +879,43 @@
 			<Option target="emergeCommand - Release" />
 			<Option target="emergeCommand - Debug" />
 		</Unit>
+		<Unit filename="emergeCore\AliasEditor.cpp">
+			<Option target="emergeCore - Release" />
+			<Option target="emergeCore - Debug" />
+		</Unit>
+		<Unit filename="emergeCore\AliasEditor.dlg">
+			<Option target="emergeCore - Release" />
+			<Option target="emergeCore - Debug" />
+		</Unit>
+		<Unit filename="emergeCore\AliasEditor.h">
+			<Option target="emergeCore - Release" />
+			<Option target="emergeCore - Debug" />
+		</Unit>
+		<Unit filename="emergeCore\Config.cpp">
+			<Option target="emergeCore - Release" />
+			<Option target="emergeCore - Debug" />
+		</Unit>
+		<Unit filename="emergeCore\Config.h">
+			<Option target="emergeCore - Release" />
+			<Option target="emergeCore - Debug" />
+		</Unit>
+		<Unit filename="emergeCore\ConfigPage.cpp">
+			<Option target="emergeCore - Release" />
+			<Option target="emergeCore - Debug" />
+		</Unit>
+		<Unit filename="emergeCore\ConfigPage.dlg">
+			<Option target="emergeCore - Release" />
+			<Option target="emergeCore - Debug" />
+		</Unit>
+		<Unit filename="emergeCore\ConfigPage.h">
+			<Option target="emergeCore - Release" />
+			<Option target="emergeCore - Debug" />
+		</Unit>
 		<Unit filename="emergeCore\Core.cpp">
 			<Option target="emergeCore - Release" />
 			<Option target="emergeCore - Debug" />
 		</Unit>
 		<Unit filename="emergeCore\Core.h">
-			<Option target="emergeCore - Release" />
-			<Option target="emergeCore - Debug" />
-		</Unit>
-		<Unit filename="emergeCore\DDEService.cpp">
-			<Option target="emergeCore - Release" />
-			<Option target="emergeCore - Debug" />
-		</Unit>
-		<Unit filename="emergeCore\DDEService.h">
-			<Option target="emergeCore - Release" />
-			<Option target="emergeCore - Debug" />
-		</Unit>
-		<Unit filename="emergeCore\DDEWorker.cpp">
-			<Option target="emergeCore - Release" />
-			<Option target="emergeCore - Debug" />
-		</Unit>
-		<Unit filename="emergeCore\DDEWorker.h">
 			<Option target="emergeCore - Release" />
 			<Option target="emergeCore - Debug" />
 		</Unit>
@@ -912,14 +964,6 @@
 			<Option target="emergeCore - Debug" />
 		</Unit>
 		<Unit filename="emergeCore\ShellChanger.h">
-			<Option target="emergeCore - Release" />
-			<Option target="emergeCore - Debug" />
-		</Unit>
-		<Unit filename="emergeCore\ShellDesktopTray.cpp">
-			<Option target="emergeCore - Release" />
-			<Option target="emergeCore - Debug" />
-		</Unit>
-		<Unit filename="emergeCore\ShellDesktopTray.h">
 			<Option target="emergeCore - Release" />
 			<Option target="emergeCore - Debug" />
 		</Unit>
@@ -1176,12 +1220,15 @@
 			<Option target="emergeLib - Release" />
 			<Option target="emergeLib - Debug" />
 		</Unit>
-		<Unit filename="emergeLib\unzip.c">
-			<Option compilerVar="CC" />
+		<Unit filename="emergeLib\unzip.cpp">
 			<Option target="emergeLib - Release" />
+			<Option target="emergeLib - Debug" />
 		</Unit>
-		<Unit filename="emergeLib\zip.c">
-			<Option compilerVar="CC" />
+		<Unit filename="emergeLib\unzip.h">
+			<Option target="emergeLib - Release" />
+			<Option target="emergeLib - Debug" />
+		</Unit>
+		<Unit filename="emergeLib\zip.cpp">
 			<Option target="emergeLib - Release" />
 			<Option target="emergeLib - Debug" />
 		</Unit>
@@ -1398,6 +1445,23 @@
 			<Option target="emergeTasks - Release" />
 			<Option target="emergeTasks - Debug" />
 		</Unit>
+		<Unit filename="emergeTrayExplorerHook\emergeTrayExplorerHook.cpp">
+			<Option target="emergeTrayExplorerHook - Release" />
+			<Option target="emergeTrayExplorerHook - Debug" />
+		</Unit>
+		<Unit filename="emergeTrayExplorerHook\emergeTrayExplorerHook.dll.manifest">
+			<Option target="emergeTrayExplorerHook - Release" />
+			<Option target="emergeTrayExplorerHook - Debug" />
+		</Unit>
+		<Unit filename="emergeTrayExplorerHook\emergeTrayExplorerHook.h">
+			<Option target="emergeTrayExplorerHook - Release" />
+			<Option target="emergeTrayExplorerHook - Debug" />
+		</Unit>
+		<Unit filename="emergeTrayExplorerHook\emergeTrayExplorerHook.rc">
+			<Option compilerVar="WINDRES" />
+			<Option target="emergeTrayExplorerHook - Release" />
+			<Option target="emergeTrayExplorerHook - Debug" />
+		</Unit>
 		<Unit filename="emergeTray\AppBar.cpp">
 			<Option target="emergeTray - Release" />
 			<Option target="emergeTray - Debug" />
@@ -1488,6 +1552,10 @@
 		</Unit>
 		<Unit filename="emergeTray\emergeTray.rc">
 			<Option compilerVar="WINDRES" />
+			<Option target="emergeTray - Release" />
+			<Option target="emergeTray - Debug" />
+		</Unit>
+		<Unit filename="emergeTray\emergeTrayExplorerHook.h">
 			<Option target="emergeTray - Release" />
 			<Option target="emergeTray - Debug" />
 		</Unit>
@@ -1701,6 +1769,7 @@
 			<Option target="emergeTray - Debug" />
 			<Option target="emergeTasks - Debug" />
 			<Option target="emergeHotkeys - Debug" />
+			<Option target="Explorer - Release" />
 		</Unit>
 		<Unit filename="reg2xml\AppletSettings.cpp">
 			<Option target="reg2xml - Release" />
@@ -1805,107 +1874,6 @@
 			<Option target="emergeLib - Release" />
 			<Option target="emergeLib - Debug" />
 		</Unit>
-		<Unit filename="unzip\api.c">
-			<Option compilerVar="CC" />
-			<Option target="unzip - Release" />
-		</Unit>
-		<Unit filename="unzip\crc32.c">
-			<Option compilerVar="CC" />
-			<Option target="unzip - Release" />
-		</Unit>
-		<Unit filename="unzip\crc32.h">
-			<Option target="unzip - Release" />
-		</Unit>
-		<Unit filename="unzip\crypt.c">
-			<Option compilerVar="CC" />
-			<Option target="unzip - Release" />
-		</Unit>
-		<Unit filename="unzip\crypt.h">
-			<Option target="unzip - Release" />
-		</Unit>
-		<Unit filename="unzip\explode.c">
-			<Option compilerVar="CC" />
-			<Option target="unzip - Release" />
-		</Unit>
-		<Unit filename="unzip\extract.c">
-			<Option compilerVar="CC" />
-			<Option target="unzip - Release" />
-		</Unit>
-		<Unit filename="unzip\fileio.c">
-			<Option compilerVar="CC" />
-			<Option target="unzip - Release" />
-		</Unit>
-		<Unit filename="unzip\globals.c">
-			<Option compilerVar="CC" />
-			<Option target="unzip - Release" />
-		</Unit>
-		<Unit filename="unzip\globals.h">
-			<Option target="unzip - Release" />
-		</Unit>
-		<Unit filename="unzip\inflate.c">
-			<Option compilerVar="CC" />
-			<Option target="unzip - Release" />
-		</Unit>
-		<Unit filename="unzip\inflate.h">
-			<Option target="unzip - Release" />
-		</Unit>
-		<Unit filename="unzip\list.c">
-			<Option compilerVar="CC" />
-			<Option target="unzip - Release" />
-		</Unit>
-		<Unit filename="unzip\match.c">
-			<Option compilerVar="CC" />
-			<Option target="unzip - Release" />
-		</Unit>
-		<Unit filename="unzip\process.c">
-			<Option compilerVar="CC" />
-			<Option target="unzip - Release" />
-		</Unit>
-		<Unit filename="unzip\ubz2err.c">
-			<Option compilerVar="CC" />
-			<Option target="unzip - Release" />
-		</Unit>
-		<Unit filename="unzip\unreduce.c">
-			<Option compilerVar="CC" />
-			<Option target="unzip - Release" />
-		</Unit>
-		<Unit filename="unzip\unshrink.c">
-			<Option compilerVar="CC" />
-			<Option target="unzip - Release" />
-		</Unit>
-		<Unit filename="unzip\win32\nt.c">
-			<Option compilerVar="CC" />
-			<Option target="unzip - Release" />
-		</Unit>
-		<Unit filename="unzip\win32\nt.h">
-			<Option target="unzip - Release" />
-		</Unit>
-		<Unit filename="unzip\win32\win32.c">
-			<Option compilerVar="CC" />
-			<Option target="unzip - Release" />
-		</Unit>
-		<Unit filename="unzip\win32\win32i64.c">
-			<Option compilerVar="CC" />
-			<Option target="unzip - Release" />
-		</Unit>
-		<Unit filename="unzip\windll\structs.h">
-			<Option target="unzip - Release" />
-		</Unit>
-		<Unit filename="unzip\windll\windll.c">
-			<Option compilerVar="CC" />
-			<Option target="unzip - Release" />
-		</Unit>
-		<Unit filename="unzip\windll\windll.h">
-			<Option target="unzip - Release" />
-		</Unit>
-		<Unit filename="unzip\windll\windll.rc">
-			<Option compilerVar="WINDRES" />
-			<Option target="unzip - Release" />
-		</Unit>
-		<Unit filename="unzip\zipinfo.c">
-			<Option compilerVar="CC" />
-			<Option target="unzip - Release" />
-		</Unit>
 		<Unit filename="version.h">
 			<Option target="emergeLib - Release" />
 			<Option target="emergeGraphics - Release" />
@@ -1934,109 +1902,7 @@
 			<Option target="emergeTray - Debug" />
 			<Option target="emergeTasks - Debug" />
 			<Option target="emergeHotkeys - Debug" />
-		</Unit>
-		<Unit filename="zip\api.c">
-			<Option compilerVar="CC" />
-			<Option target="zip - Release" />
-		</Unit>
-		<Unit filename="zip\api.h">
-			<Option target="zip - Release" />
-		</Unit>
-		<Unit filename="zip\crc32.c">
-			<Option compilerVar="CC" />
-			<Option target="zip - Release" />
-		</Unit>
-		<Unit filename="zip\crc32.h">
-			<Option target="zip - Release" />
-		</Unit>
-		<Unit filename="zip\crypt.c">
-			<Option compilerVar="CC" />
-			<Option target="zip - Release" />
-		</Unit>
-		<Unit filename="zip\crypt.h">
-			<Option target="zip - Release" />
-		</Unit>
-		<Unit filename="zip\deflate.c">
-			<Option compilerVar="CC" />
-			<Option target="zip - Release" />
-		</Unit>
-		<Unit filename="zip\fileio.c">
-			<Option compilerVar="CC" />
-			<Option target="zip - Release" />
-		</Unit>
-		<Unit filename="zip\globals.c">
-			<Option compilerVar="CC" />
-			<Option target="zip - Release" />
-		</Unit>
-		<Unit filename="zip\trees.c">
-			<Option compilerVar="CC" />
-			<Option target="zip - Release" />
-		</Unit>
-		<Unit filename="zip\ttyio.c">
-			<Option compilerVar="CC" />
-			<Option target="zip - Release" />
-		</Unit>
-		<Unit filename="zip\ttyio.h">
-			<Option target="zip - Release" />
-		</Unit>
-		<Unit filename="zip\util.c">
-			<Option compilerVar="CC" />
-			<Option target="zip - Release" />
-		</Unit>
-		<Unit filename="zip\win32\nt.c">
-			<Option compilerVar="CC" />
-			<Option target="zip - Release" />
-		</Unit>
-		<Unit filename="zip\win32\nt.h">
-			<Option target="zip - Release" />
-		</Unit>
-		<Unit filename="zip\win32\osdep.h">
-			<Option target="zip - Release" />
-		</Unit>
-		<Unit filename="zip\win32\win32.c">
-			<Option compilerVar="CC" />
-			<Option target="zip - Release" />
-		</Unit>
-		<Unit filename="zip\win32\win32i64.c">
-			<Option compilerVar="CC" />
-			<Option target="zip - Release" />
-		</Unit>
-		<Unit filename="zip\win32\win32zip.c">
-			<Option compilerVar="CC" />
-			<Option target="zip - Release" />
-		</Unit>
-		<Unit filename="zip\win32\win32zip.h">
-			<Option target="zip - Release" />
-		</Unit>
-		<Unit filename="zip\windll\windll.c">
-			<Option compilerVar="CC" />
-			<Option target="zip - Release" />
-		</Unit>
-		<Unit filename="zip\windll\windll.h">
-			<Option target="zip - Release" />
-		</Unit>
-		<Unit filename="zip\windll\windll.rc">
-			<Option compilerVar="WINDRES" />
-			<Option target="zip - Release" />
-		</Unit>
-		<Unit filename="zip\zbz2err.c">
-			<Option compilerVar="CC" />
-			<Option target="zip - Release" />
-		</Unit>
-		<Unit filename="zip\zip.c">
-			<Option compilerVar="CC" />
-			<Option target="zip - Release" />
-		</Unit>
-		<Unit filename="zip\zip.h">
-			<Option target="zip - Release" />
-		</Unit>
-		<Unit filename="zip\zipfile.c">
-			<Option compilerVar="CC" />
-			<Option target="zip - Release" />
-		</Unit>
-		<Unit filename="zip\zipup.c">
-			<Option compilerVar="CC" />
-			<Option target="zip - Release" />
+			<Option target="Explorer - Release" />
 		</Unit>
 		<Extensions>
 			<code_completion />

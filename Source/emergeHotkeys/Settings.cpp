@@ -26,6 +26,7 @@ Settings::Settings(HWND mainWnd)
 {
   (*this).mainWnd = mainWnd;
   xmlFile = TEXT("%EmergeDir%\\files\\emergeHotkeys.xml");
+  wcscpy(appletName, TEXT("emergeHotkeys"));
 }
 
 Settings::~Settings()
@@ -89,6 +90,7 @@ void Settings::WriteList(bool backup)
                   if (userIO.SetElement(TEXT("item")))
                     {
                       userIO.WriteString(TEXT("KeyCombo"), backupList[i]->GetHotkeyString());
+                      ELRelativePathFromAbsPath(backupList[i]->GetHotkeyAction());
                       userIO.WriteString(TEXT("Action"), backupList[i]->GetHotkeyAction());
                     }
                 }
@@ -101,6 +103,7 @@ void Settings::WriteList(bool backup)
                   if (userIO.SetElement(TEXT("item")))
                     {
                       userIO.WriteString(TEXT("KeyCombo"), hotkeyList[i]->GetHotkeyString());
+                      ELRelativePathFromAbsPath(hotkeyList[i]->GetHotkeyAction());
                       userIO.WriteString(TEXT("Action"), hotkeyList[i]->GetHotkeyAction());
                     }
                 }
@@ -158,6 +161,7 @@ bool Settings::BuildList(bool backup)
               found = true;
               userIO.ReadString(TEXT("KeyCombo"), keyCombo, TEXT(""));
               userIO.ReadString(TEXT("Action"), action, TEXT(""));
+              ELAbsPathFromRelativePath(action);
 
               // Add the hotkey definition to the appropriate vector
               if (backup)

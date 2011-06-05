@@ -1,7 +1,7 @@
 //---
 //
 //  This file is part of Emerge Desktop.
-//  Copyright (C) 2004-2007  The Emerge Desktop Development Team
+//  Copyright (C) 2004-2011  The Emerge Desktop Development Team
 //
 //  Emerge Desktop is free software; you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -51,7 +51,7 @@ public:
   RECT *GetRect();
   void SetIcon(int iconSize, WCHAR *orientation);
   void SetRect(RECT rect);
-  void CreateNewIcon(BYTE foregroundAlpha);
+  void CreateNewIcon(BYTE foregroundAlpha, BYTE backgroundAlpha);
   WCHAR *GetApp();
   WCHAR *GetTip();
   int GetType();

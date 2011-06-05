@@ -19,7 +19,7 @@
 //----  --------------------------------------------------------------------------------------------------------
 //
 // Note: The message handling routine is based on MessageManager which is part
-// of the BB4Win source code copyright 2001-2004 - 2007 The Blackbox for Windows
+// of the BB4Win source code copyright 2001 - 2007 The Blackbox for Windows
 // Development Team.
 //
 //----  --------------------------------------------------------------------------------------------------------

@@ -30,9 +30,9 @@
 #include "ShellChanger.h"
 #include "Settings.h"
 #include "LaunchEditor.h"
-//#include "DDEService.h"
 #include "Desktop.h"
 #include "ThemeSelector.h"
+#include "Config.h"
 
 typedef std::map<std::wstring, HWND> LaunchMap;
 
@@ -41,7 +41,6 @@ class Core
 private:
   std::tr1::shared_ptr<ShellChanger> pShellChanger;
   std::tr1::shared_ptr<Settings> pSettings;
-  //std::tr1::shared_ptr<DDEService> pDDEService;
   std::tr1::shared_ptr<Shell> pShell;
   std::tr1::shared_ptr<MessageControl> pMessageControl;
   std::tr1::shared_ptr<Desktop> pDesktop;
@@ -53,15 +52,18 @@ private:
   static LRESULT CALLBACK CoreProcedure (HWND, UINT, WPARAM, LPARAM);
   static BOOL CALLBACK LaunchMapEnum(HWND hwnd, LPARAM lParam);
   bool RunLaunchItems();
+  void ConvertTheme();
   bool CheckLaunchList();
   bool BuildLaunchList();
   void CheckLaunchItem(LaunchMap *launchMap, const WCHAR *item);
+  void StartExplorer(bool showDesktop);
   std::wstring xmlFile;
 
 public:
   Core(HINSTANCE hInstance);
   ~Core();
   void About();
+  void ShowConfig(UINT startPage);
   bool Initialize(WCHAR *commandLine);
   LRESULT DoWTSSessionChange(UINT message);
   LRESULT DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);

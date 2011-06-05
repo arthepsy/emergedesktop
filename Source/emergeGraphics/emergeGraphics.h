@@ -1,7 +1,7 @@
 //---
 //
 //  This file is part of Emerge Desktop.
-//  Copyright (C) 2004-2007  The Emerge Desktop Development Team
+//  Copyright (C) 2004-2011  The Emerge Desktop Development Team
 //
 //  Emerge Desktop is free software; you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -154,13 +154,15 @@ typedef struct _GUIINFO
 }
 GUIINFO, *LPGUIINFO;
 
+static const UINT TASK_ICON = RegisterWindowMessage(TEXT("TaskIcon"));
+
 // Declaration of functions to import
 DLL_EXPORT HICON EGConvertIcon(HICON sourceIcon, BYTE foregroundAlpha);
 DLL_EXPORT HBRUSH EGCreateBrush(BYTE alpha, COLORREF colour);
 DLL_EXPORT HPEN EGCreatePen(DWORD style, DWORD width, BYTE alpha, COLORREF colour);
 DLL_EXPORT HBITMAP EGCreateBitmap(BYTE alpha, COLORREF colour, RECT wndRect);
-DLL_EXPORT HICON EGGetFileIcon(WCHAR *file, UINT iconSize);
-DLL_EXPORT HICON EGGetWindowIcon(HWND hwnd, bool smallIcon, bool force);
+DLL_EXPORT HICON EGGetFileIcon(const WCHAR *file, UINT iconSize);
+DLL_EXPORT HICON EGGetWindowIcon(HWND callerWnd, HWND hwnd, bool smallIcon, bool force);
 DLL_EXPORT HICON EGGetSpecialFolderIcon(int csidl, UINT iconSize);
 DLL_EXPORT HICON EGGetSystemIcon(UINT iconIndex, UINT iconSize);
 DLL_EXPORT HICON EGExtractIcon(const WCHAR *iconLocation, int iconIndex, int iconSize);

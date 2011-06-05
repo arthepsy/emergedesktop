@@ -259,7 +259,10 @@ void Settings::BuildHistoryList()
           while (userIO.GetElement())
             {
               if (userIO.ReadString(TEXT("Command"), data, TEXT("")))
-                historyList.push_back(data);
+                {
+                  ELAbsPathFromRelativePath(data);
+                  historyList.push_back(data);
+                }
             }
         }
     }
@@ -282,7 +285,10 @@ void Settings::WriteHistoryList()
           for (UINT i = 0; i < historyList.size(); i++)
             {
               if (userIO.SetElement(TEXT("item")))
-                userIO.WriteString(TEXT("Command"), (WCHAR*)historyList[i].c_str());
+                {
+                  ELRelativePathFromAbsPath((WCHAR*)historyList[i].c_str());
+                  userIO.WriteString(TEXT("Command"), (WCHAR*)historyList[i].c_str());
+                }
             }
         }
 

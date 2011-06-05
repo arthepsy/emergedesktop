@@ -2,7 +2,7 @@
 //---
 //
 //  This file is part of Emerge Desktop.
-//  Copyright (C) 2004-2007  The Emerge Desktop Development Team
+//  Copyright (C) 2004-2011  The Emerge Desktop Development Team
 //
 //  Emerge Desktop is free software; you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -73,7 +73,7 @@ void Settings::PopulateItems()
       settingsSection = ELGetXMLSection(configXML.get(), (WCHAR*)TEXT("Settings"), false);
       if (settingsSection)
         {
-          launchSection = ELGetFirstXMLElementByName(settingsSection, (WCHAR*)TEXT("Launch"));
+          launchSection = ELGetFirstXMLElementByName(settingsSection, (WCHAR*)TEXT("Launch"), false);
 
           if (launchSection)
             {
@@ -84,9 +84,11 @@ void Settings::PopulateItems()
                   found = true; // Existing user settings found
                   userIO.ReadInt(TEXT("Type"), type, IT_EXECUTABLE);
                   userIO.ReadString(TEXT("Command"), app, TEXT(""));
+                  ELAbsPathFromRelativePath(app);
                   userIO.ReadString(TEXT("Icon"), icon, TEXT(""));
                   userIO.ReadString(TEXT("Tip"), tip, TEXT(""));
                   userIO.ReadString(TEXT("WorkingDir"), workingDir, TEXT(""));
+                  ELAbsPathFromRelativePath(workingDir);
 
                   // Convert the iconValue to a full path if relative
                   if (ELPathIsRelative(icon))
@@ -132,18 +134,18 @@ void Settings::DeleteItems(bool clearXML)
       configXML = ELOpenXMLConfig(xmlFile, false);
       if (configXML)
         {
-          settingsSection = ELGetXMLSection(configXML.get(), (WCHAR*)TEXT("Settings"), true);
+          settingsSection = ELGetXMLSection(configXML.get(), (WCHAR*)TEXT("Settings"), false);
           if (settingsSection)
             {
-              launchSection = ELGetFirstXMLElementByName(settingsSection, (WCHAR*)TEXT("Launch"));
+              launchSection = ELGetFirstXMLElementByName(settingsSection, (WCHAR*)TEXT("Launch"), false);
               if (launchSection)
                 {
                   IOHelper userIO(launchSection);
                   userIO.Clear();
+
+                  ELWriteXMLConfig(configXML.get());
                 }
             }
-
-          ELWriteXMLConfig(configXML.get());
         }
     }
 
@@ -163,7 +165,7 @@ void Settings::WriteItem(int type, WCHAR *command, WCHAR *iconPath, WCHAR *tip, 
       settingsSection = ELGetXMLSection(configXML.get(), (WCHAR*)TEXT("Settings"), true);
       if (settingsSection)
         {
-          launchSection = ELGetFirstXMLElementByName(settingsSection, (WCHAR*)TEXT("Launch"));
+          launchSection = ELGetFirstXMLElementByName(settingsSection, (WCHAR*)TEXT("Launch"), true);
 
           if (launchSection)
             {
@@ -171,9 +173,11 @@ void Settings::WriteItem(int type, WCHAR *command, WCHAR *iconPath, WCHAR *tip, 
               if (userIO.SetElement(TEXT("item")))
                 {
                   userIO.WriteInt(TEXT("Type"), type);
+                  ELRelativePathFromAbsPath(command);
                   userIO.WriteString(TEXT("Command"), command);
                   userIO.WriteString(TEXT("Icon"), iconPath);
                   userIO.WriteString(TEXT("Tip"), tip);
+                  ELRelativePathFromAbsPath(workingDir);
                   userIO.WriteString(TEXT("WorkingDir"), workingDir);
                   ELWriteXMLConfig(configXML.get());
                 }

@@ -35,6 +35,12 @@
 #include "../emergeStyleEngine/emergeStyleEngine.h"
 #include <shlwapi.h>
 
+typedef struct _SORTINFO
+{
+  bool ascending;
+  int subItem;
+} SORTINFO, *PSORTINFO;
+
 class DLL_EXPORT BaseSettings
 {
 public:
@@ -117,6 +123,8 @@ public:
   bool GetModified();
   bool CopyTheme();
   bool CopyStyle();
+  bool GetSortInfo(WCHAR *editorName, PSORTINFO sortInfo);
+  bool SetSortInfo(WCHAR *editorName, PSORTINFO sortInfo);
 
 protected:
   virtual void DoReadSettings(IOHelper& helper);
@@ -130,11 +138,11 @@ protected:
   bool autoSize, snapMove, snapSize, dynamicPositioning;
   WCHAR anchorPoint[MAX_LINE_LENGTH];
   WCHAR zPosition[MAX_LINE_LENGTH];
+  WCHAR appletName[MAX_LINE_LENGTH];
 
 private:
   HWND appletWnd;
   WCHAR keyString[MAX_LINE_LENGTH];
-  WCHAR appletName[MAX_LINE_LENGTH];
   bool allowAutoSize;
   WCHAR styleFile[MAX_PATH];
   bool modifiedFlag;

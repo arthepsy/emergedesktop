@@ -1,7 +1,7 @@
 //---
 //
 //  This file is part of Emerge Desktop.
-//  Copyright (C) 2004-2007  The Emerge Desktop Development Team
+//  Copyright (C) 2004-2011  The Emerge Desktop Development Team
 //
 //  Emerge Desktop is free software; you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -59,7 +59,7 @@ public:
   RECT *GetReferenceRect();
   void SetReferenceRect(RECT referenceRect);
   void UpdateDimensions(UINT currentColumn, UINT currentRow, UINT maxColumns, UINT maxRows, GUIINFO guiInfo);
-  WCHAR *GetAppName();
+  std::wstring GetAppName();
   void SetMinimized(bool minimized);
   bool GetMinimized();
 
@@ -67,7 +67,7 @@ private:
   HWND taskWnd, mainWnd;
   HINSTANCE mainInst;
   RECT taskRect, referenceRect;
-  WCHAR appName[MAX_PATH];
+  std::wstring appName;
   bool minimized;
 };
 

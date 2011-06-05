@@ -52,7 +52,9 @@ bool Core::Initialize(WCHAR *commandLine)
 
   // Initialize Settings
   pSettings = std::tr1::shared_ptr<Settings>(new Settings());
+  pSettings->Init(mainWnd, (WCHAR*)TEXT("emergeCore"));
   pSettings->ReadSettings();
+  pSettings->ReadUserSettings();
 
   if (wcsstr(commandLine, TEXT("/shellchanger")) != 0)
     {
@@ -116,23 +118,41 @@ bool Core::Initialize(WCHAR *commandLine)
 
   pMessageControl = std::tr1::shared_ptr<MessageControl>(new MessageControl());
 
-  // Start the shell functions
-  pShell->ShellServicesInit();
+  StartExplorer(pSettings->GetShowExplorerDesktop());
 
   // Create desktop window
   pDesktop = std::tr1::shared_ptr<Desktop>(new Desktop(mainInst, pMessageControl));
-  pDesktop->Initialize();
+  pDesktop->Initialize(pSettings->GetShowExplorerDesktop());
+
+  if (!ELIsEmergeShell()) // Running on top of Explorer; hide the Taskbar
+    {
+      //get the Taskbar window
+      HWND taskBarWnd = FindWindow(TEXT("Shell_TrayWnd"), NULL);
+
+      //get the start button window
+      HWND startWnd = FindWindow(TEXT("Button"), NULL);
+
+      if (taskBarWnd)
+        ShowWindow(taskBarWnd, SW_HIDE);
+      if (startWnd)
+        ShowWindow(startWnd, SW_HIDE);
+    }
 
   // Launch additional Emerge Desktop applets
+  ConvertTheme();
   RunLaunchItems();
 
   pShell->RegisterShell(mainWnd, true);
   pShell->BuildTaskList();
-  pShell->LoadSSO();
+
+  /**< Only load SSO objects if not running on top of Explorer */
+  if (!ELIsExplorerShell())
+    pShell->LoadSSO();
 
   // Load the start up entries in the registry and the startup
   // folders only if the startup items have not already been started
-  if (pShell->FirstRunCheck())
+  // and explorer.exe is not running as the shell
+  if (pShell->FirstRunCheck() && !ELIsExplorerShell())
     {
       if (!ELIsKeyDown(VK_SHIFT))
         pShell->RunFolderStartup(pSettings->GetShowStartupErrors());
@@ -175,11 +195,26 @@ Core::~Core()
             wtsursn(mainWnd);
           FreeLibrary(wtslib);
         }
-      //pDDEService->Stop();
-      pShell->UnloadSSO();
+
+      if (!ELIsEmergeShell()) // Running on top of Explorer; show the Taskbar before exiting
+        {
+          //get the Taskbar window
+          HWND taskBarWnd = FindWindow(TEXT("Shell_TrayWnd"), NULL);
+
+          //get the start button window
+          HWND startWnd = FindWindow(TEXT("Button"), NULL);
+
+          if (taskBarWnd)
+            ShowWindow(taskBarWnd, SW_SHOW);
+          if (startWnd)
+            ShowWindow(startWnd, SW_SHOW);
+        }
+
+      /**< Only unload SSO objects if not running on top of Explorer */
+      if (!ELIsExplorerShell())
+        pShell->UnloadSSO();
       pShell->RegisterShell(mainWnd, false);
       pShell->ClearSessionInformation();
-      pShell->ShellServicesTerminate();
 
       OleUninitialize();
 
@@ -192,10 +227,10 @@ Core::~Core()
 
 bool Core::RunLaunchItems()
 {
-  bool found = false, writeXML = false;
+  bool found = false;
   WCHAR path[MAX_PATH], data[MAX_LINE_LENGTH], installDir[MAX_PATH];
   std::tr1::shared_ptr<TiXmlDocument> configXML;
-  TiXmlElement *first, *sibling, *section;
+  TiXmlElement *first, *sibling, *section = NULL, *settings;
   std::wstring theme = ELToLower(ELGetThemeName()), defaultTheme = TEXT("default");
 
   if (theme != defaultTheme)
@@ -203,8 +238,9 @@ bool Core::RunLaunchItems()
       configXML = ELOpenXMLConfig(xmlFile, false);
       if (configXML)
         {
-          section = ELGetXMLSection(configXML.get(), (WCHAR*)TEXT("Launch"), false);
-
+          settings = ELGetXMLSection(configXML.get(), (WCHAR*)TEXT("Settings"), false);
+          if (settings)
+            section = ELGetFirstXMLElementByName(settings, (WCHAR*)TEXT("Launch"), false);
           if (section)
             {
               first = ELGetFirstXMLElement(section);
@@ -213,11 +249,6 @@ bool Core::RunLaunchItems()
                   if (ELReadXMLStringValue(first, TEXT("Command"), data, TEXT("")))
                     {
                       found = true;
-                      if (ELStringReplace(data, TEXT("emergeDesktop"), TEXT("emergeWorkspace"), true) != 0)
-                        {
-                          writeXML = true;
-                          ELWriteXMLStringValue(first, TEXT("Command"), data);
-                        }
                       ELExecute(data);
                     }
 
@@ -227,22 +258,12 @@ bool Core::RunLaunchItems()
                       first = sibling;
 
                       if (ELReadXMLStringValue(first, TEXT("Command"), data, TEXT("")))
-                        {
-                          if (ELStringReplace(data, TEXT("emergeDesktop"), TEXT("emergeWorkspace"), true) != 0)
-                            {
-                              writeXML = true;
-                              ELWriteXMLStringValue(first, TEXT("Command"), data);
-                            }
-                          ELExecute(data);
-                        }
+                        ELExecute(data);
 
                       sibling = ELGetSiblingXMLElement(first);
                     }
                 }
             }
-
-          if (writeXML)
-            ELWriteXMLConfig(configXML.get());
         }
     }
 
@@ -384,20 +405,25 @@ LRESULT Core::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
     {
       switch (lParam)
         {
-        case CORE_LAUNCH:
-          pLaunchEditor->Show();
-          break;
-
         case CORE_SHELL:
           if (pShellChanger->Show() == IDOK)
-            pSettings->ReadSettings();
+            pSettings->ReadUserSettings();
           break;
 
         case CORE_THEMESELECT:
           if (pThemeSelector->Show() == IDOK)
             {
+              bool oldShowExplorerDesktop = pSettings->GetShowExplorerDesktop();
+
+              ConvertTheme();
+              pSettings->ReadSettings();
               CheckLaunchList();
               pMessageControl->DispatchMessage(EMERGE_CORE, CORE_RECONFIGURE);
+              if (oldShowExplorerDesktop != pSettings->GetShowExplorerDesktop())
+                {
+                  StartExplorer(pSettings->GetShowExplorerDesktop());
+                  pDesktop->ShowDesktop(!pSettings->GetShowExplorerDesktop());
+                }
             }
           break;
 
@@ -448,6 +474,19 @@ LRESULT Core::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 
         case CORE_ABOUT:
           About();
+          break;
+
+        case CORE_CONFIGURE:
+          ShowConfig(0);
+          break;
+
+        case CORE_ALIAS:
+          ShowConfig(2);
+          break;
+
+        case CORE_LAUNCH:
+          ShowConfig(1);
+          break;
         }
 
       return 0;
@@ -458,6 +497,21 @@ LRESULT Core::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
     return DefWindowProc(hwnd, message, wParam, lParam);
 
   return 0;
+}
+
+void Core::ShowConfig(UINT startPage)
+{
+  Config config(mainInst, mainWnd, pSettings);
+  bool oldShowExplorerDesktop = pSettings->GetShowExplorerDesktop();
+
+  if (config.Show(startPage) == IDOK)
+    {
+      if (oldShowExplorerDesktop != pSettings->GetShowExplorerDesktop())
+        {
+          StartExplorer(pSettings->GetShowExplorerDesktop());
+          pDesktop->ShowDesktop(!pSettings->GetShowExplorerDesktop());
+        }
+    }
 }
 
 LRESULT Core::DoWTSSessionChange(UINT message)
@@ -511,7 +565,7 @@ bool Core::BuildLaunchList()
   LaunchMap launchMap;
   LaunchMap::iterator iter;
   std::tr1::shared_ptr<TiXmlDocument> configXML;
-  TiXmlElement *section, *item;
+  TiXmlElement *section = NULL, *item, *settings;
   WCHAR program[MAX_PATH], arguments[MAX_LINE_LENGTH], command[MAX_LINE_LENGTH];
   bool found;
   std::wstring theme = ELToLower(ELGetThemeName()), defaultTheme = TEXT("default");
@@ -524,8 +578,9 @@ bool Core::BuildLaunchList()
   configXML = ELOpenXMLConfig(xmlFile, true);
   if (configXML)
     {
-      section = ELGetXMLSection(configXML.get(), (WCHAR*)TEXT("Launch"), true);
-
+      settings = ELGetXMLSection(configXML.get(), (WCHAR*)TEXT("Settings"), true);
+      if (settings)
+        section = ELSetFirstXMLElement(settings, (WCHAR*)TEXT("Launch"));
       if (section)
         {
           while (!launchMap.empty())
@@ -548,22 +603,82 @@ bool Core::BuildLaunchList()
   return found;
 }
 
+void Core::StartExplorer(bool showDesktop)
+{
+  HWND explorerWnd = NULL;
+  WCHAR explorerCmd[MAX_LINE_LENGTH];
+
+  ELGetCurrentPath(explorerCmd);
+  wcscat(explorerCmd, TEXT("\\Explorer.exe"));
+  if (showDesktop)
+    wcscat(explorerCmd, TEXT(" /showdesktop"));
+
+  explorerWnd = FindWindow(TEXT("EmergeDesktopExplorer"), NULL);
+  if (explorerWnd)
+    SendMessage(explorerWnd, WM_NCDESTROY, 0, 0);
+
+  ELExecute(explorerCmd);
+}
+
+void Core::ConvertTheme()
+{
+  std::tr1::shared_ptr<TiXmlDocument> configXML;
+  TiXmlElement *first, *tmp, *section, *settings, *oldSection = NULL;
+  WCHAR data[MAX_LINE_LENGTH];
+
+  configXML = ELOpenXMLConfig(xmlFile, false);
+  if (configXML)
+    {
+      oldSection = ELGetXMLSection(configXML.get(), (WCHAR*)TEXT("Launch"), false);
+      if (oldSection)
+        {
+          settings = ELGetXMLSection(configXML.get(), (WCHAR*)TEXT("Settings"), true);
+          if (settings)
+            {
+              section = ELGetFirstXMLElementByName(settings, (WCHAR*)TEXT("Launch"), true);
+              if (section)
+                {
+                  first = ELGetFirstXMLElement(oldSection);
+
+                  while (first)
+                    {
+                      if (ELReadXMLStringValue(first, TEXT("Command"), data, TEXT("")))
+                        {
+                          ELStringReplace(data, TEXT("emergeDesktop"), TEXT("emergeWorkspace"), true);
+                          tmp = ELSetFirstXMLElement(section, TEXT("item"));
+                          if (tmp)
+                            ELWriteXMLStringValue(tmp, TEXT("Command"), data);
+                        }
+
+                      tmp = first;
+                      first = ELGetSiblingXMLElement(tmp);
+                    }
+
+                  ELRemoveXMLElement(oldSection);
+                  ELWriteXMLConfig(configXML.get());
+                }
+            }
+        }
+    }
+}
+
 bool Core::CheckLaunchList()
 {
   LaunchMap launchMap;
   LaunchMap::iterator iter;
   std::tr1::shared_ptr<TiXmlDocument> configXML;
-  TiXmlElement *first, *tmp, *section;
+  TiXmlElement *first, *tmp, *section = NULL, *settings;
   WCHAR data[MAX_LINE_LENGTH];
-  bool found = false, writeXML = false;
+  bool found = false;
 
   EnumWindows(LaunchMapEnum, (LPARAM)&launchMap);
 
   configXML = ELOpenXMLConfig(xmlFile, false);
   if (configXML)
     {
-      section = ELGetXMLSection(configXML.get(), (WCHAR*)TEXT("Launch"), false);
-
+      settings = ELGetXMLSection(configXML.get(), (WCHAR*)TEXT("Settings"), false);
+      if (settings)
+        section = ELGetFirstXMLElementByName(settings, (WCHAR*)TEXT("Launch"), false);
       if (section)
         {
           first = ELGetFirstXMLElement(section);
@@ -573,11 +688,6 @@ bool Core::CheckLaunchList()
               if (ELReadXMLStringValue(first, TEXT("Command"), data, TEXT("")))
                 {
                   found = true;
-                  if (ELStringReplace(data, TEXT("emergeDesktop"), TEXT("emergeWorkspace"), true) != 0)
-                    {
-                      writeXML = true;
-                      ELWriteXMLStringValue(first, TEXT("Command"), data);
-                    }
                   CheckLaunchItem(&launchMap, data);
                 }
 
@@ -585,9 +695,6 @@ bool Core::CheckLaunchList()
               first = ELGetSiblingXMLElement(tmp);
             }
         }
-
-      if (writeXML)
-        ELWriteXMLConfig(configXML.get());
     }
 
   if (!found)
@@ -637,18 +744,16 @@ void Core::CheckLaunchItem(LaunchMap *launchMap, const WCHAR *item)
 
 BOOL Core::LaunchMapEnum(HWND hwnd, LPARAM lParam)
 {
-  WCHAR windowClass[MAX_LINE_LENGTH], windowName[MAX_LINE_LENGTH];
-  std::wstring workingName;
+  WCHAR windowClass[MAX_LINE_LENGTH];
+  std::wstring windowName;
 
   if (RealGetWindowClass(hwnd, windowClass, MAX_LINE_LENGTH) != 0)
     {
       if ((_wcsicmp(windowClass, TEXT("EmergeDesktopApplet")) == 0) ||
           (_wcsicmp(windowClass, TEXT("EmergeDesktopMenuBuilder")) == 0))
         {
-          ELGetWindowApp(hwnd, windowName, true);
-          _wcslwr(windowName);
-          workingName = windowName;
-          ((LaunchMap*)lParam)->insert(std::pair<std::wstring, HWND>(workingName, hwnd));
+          windowName = ELToLower(ELGetWindowApp(hwnd, true));
+          ((LaunchMap*)lParam)->insert(std::pair<std::wstring, HWND>(windowName, hwnd));
         }
     }
 

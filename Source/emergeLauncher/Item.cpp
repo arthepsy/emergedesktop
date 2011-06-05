@@ -48,16 +48,32 @@ Item::Item(int type, LPCTSTR app, LPCTSTR icon, LPCTSTR tip, LPCTSTR workingDir)
   rect.bottom = 0;
 }
 
-void Item::CreateNewIcon(BYTE foregroundAlpha)
+void Item::CreateNewIcon(BYTE foregroundAlpha, BYTE backgroundAlpha)
 {
   HICON tmpIcon = NULL;
+
+  /**< Don't bother converting NULL icons, just set newIcon and return */
+  if (origIcon == NULL)
+    {
+      newIcon = NULL;
+      return;
+    }
+
   if (convertIcon)
     {
       convertIcon = false;
 
-      tmpIcon = EGConvertIcon(origIcon, foregroundAlpha);
-      if (tmpIcon != NULL)
+      // If the background if fully opaque, don't bother converting the icon, simply copy it
+      if (backgroundAlpha == 0xff)
         {
+          if (newIcon != NULL)
+            DestroyIcon(newIcon);
+          newIcon = CopyIcon(origIcon);
+        }
+      else
+        {
+          /**< Don't bail if EGConvertIcon returns a NULL icon, since in this case it may be valid (icon flashing) */
+          tmpIcon = EGConvertIcon(origIcon, foregroundAlpha);
           if (newIcon != NULL)
             DestroyIcon(newIcon);
           newIcon = CopyIcon(tmpIcon);
@@ -127,6 +143,7 @@ int Item::GetType()
 void Item::SetIcon(int iconSize, WCHAR *orientation)
 {
   WCHAR source[MAX_LINE_LENGTH], tmp[MAX_LINE_LENGTH], *lwrApp = _wcslwr(_wcsdup(app));
+  std::wstring workingApp = app;
 
   if (origIcon)
     DestroyIcon(origIcon);
@@ -161,18 +178,20 @@ void Item::SetIcon(int iconSize, WCHAR *orientation)
           UINT specialFolder = ELIsSpecialFolder(app);
           if (specialFolder == 0)
             {
-              UINT internalCommand = ELIsInternalCommand(app);
+              workingApp = workingApp.substr(0, workingApp.find_first_of(TEXT(" \t")));
+              UINT internalCommand = ELIsInternalCommand(workingApp.c_str());
               if (internalCommand == 0)
                 {
-                  if ((wcsstr(lwrApp, TEXT("%documents%")) != NULL) ||
-                      (wcsstr(lwrApp, TEXT("%commondocuments%")) != NULL))
+                  if ((wcsicmp(lwrApp, TEXT("%documents%")) == 0) ||
+                      (wcsicmp(lwrApp, TEXT("%commondocuments%")) == 0))
                     origIcon = EGGetSpecialFolderIcon(CSIDL_PERSONAL, 16);
-                  else if ((wcsstr(lwrApp, TEXT("%desktop%")) != NULL) ||
-                           (wcsstr(lwrApp, TEXT("%commondesktop%")) != NULL))
+                  else if ((wcsicmp(lwrApp, TEXT("%desktop%")) == 0) ||
+                           (wcsicmp(lwrApp, TEXT("%commondesktop%")) == 0))
                     origIcon = EGGetSpecialFolderIcon(CSIDL_DESKTOP, 16);
                   else
                     {
-                      ELParseCommand(app, source, tmp);
+                      ELAbsPathFromRelativePath(lwrApp);
+                      ELParseCommand(lwrApp, source, tmp);
                       origIcon = EGGetFileIcon(source, iconSize);
                     }
                 }

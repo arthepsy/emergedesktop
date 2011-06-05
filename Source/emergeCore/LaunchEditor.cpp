@@ -21,14 +21,16 @@
 
 #include "LaunchEditor.h"
 
-BOOL CALLBACK LaunchEditor::LaunchDlgProc(HWND hwndDlg, UINT message, WPARAM wParam, LPARAM lParam)
+INT_PTR CALLBACK LaunchEditor::LaunchDlgProc(HWND hwndDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
   static LaunchEditor *pLaunchEditor = NULL;
+  PROPSHEETPAGE *psp;
 
   switch (message)
     {
     case WM_INITDIALOG:
-      pLaunchEditor = reinterpret_cast<LaunchEditor*>(lParam);
+      psp = (PROPSHEETPAGE*)lParam;
+      pLaunchEditor = reinterpret_cast<LaunchEditor*>(psp->lParam);
       if (!pLaunchEditor)
         break;
       return pLaunchEditor->DoInitDialog(hwndDlg);
@@ -46,12 +48,12 @@ BOOL CALLBACK LaunchEditor::LaunchDlgProc(HWND hwndDlg, UINT message, WPARAM wPa
 BOOL CALLBACK LaunchEditor::AppletCheck(HWND hwnd, LPARAM lParam)
 {
   LaunchEditor *pLaunchEditor = reinterpret_cast<LaunchEditor*>(lParam);
-  WCHAR fileName[MAX_PATH];
+  std::wstring fileName = ELGetWindowApp(hwnd, true);
 
-  if (!ELGetWindowApp(hwnd, fileName, true))
+  if (fileName.empty())
     return true;
 
-  if (_wcsicmp(fileName, pLaunchEditor->GetSelectedApplet().c_str()) == 0)
+  if (ELToLower(fileName) == ELToLower(pLaunchEditor->GetSelectedApplet()))
     SendMessage(hwnd, WM_NCDESTROY, 0, 0);
 
   return true;
@@ -60,17 +62,17 @@ BOOL CALLBACK LaunchEditor::AppletCheck(HWND hwnd, LPARAM lParam)
 BOOL CALLBACK LaunchEditor::GatherApplet(HWND hwnd, LPARAM lParam)
 {
   LaunchEditor *pLaunchEditor = reinterpret_cast<LaunchEditor*>(lParam);
-  WCHAR fileName[MAX_PATH];
+  std::wstring fileName = ELGetWindowApp(hwnd, true);
   POINT cursorPt;
   RECT appletRect;
 
-  if (!ELGetWindowApp(hwnd, fileName, true))
+  if (fileName.empty())
     return true;
 
   GetCursorPos(&cursorPt);
   GetClientRect(hwnd, &appletRect);
 
-  if (_wcsicmp(fileName, pLaunchEditor->GetSelectedApplet().c_str()) == 0)
+  if (ELToLower(fileName) == ELToLower(pLaunchEditor->GetSelectedApplet()))
     SetWindowPos(hwnd, HWND_TOPMOST, cursorPt.x - (appletRect.right / 2),
                  cursorPt.y - (appletRect.bottom / 2), 0, 0,
                  SWP_NOSIZE|SWP_NOSENDCHANGING);
@@ -91,16 +93,16 @@ LaunchEditor::LaunchEditor(HINSTANCE hInstance, HWND mainWnd)
   InitCommonControls();
 
   toolWnd = CreateWindowEx(
-                           0,
-                           TOOLTIPS_CLASS,
-                           NULL,
-                           TTS_ALWAYSTIP|WS_POPUP|TTS_NOPREFIX,
-                           CW_USEDEFAULT, CW_USEDEFAULT,
-                           CW_USEDEFAULT, CW_USEDEFAULT,
-                           NULL,
-                           NULL,
-                           hInstance,
-                           NULL);
+              0,
+              TOOLTIPS_CLASS,
+              NULL,
+              TTS_ALWAYSTIP|WS_POPUP|TTS_NOPREFIX,
+              CW_USEDEFAULT, CW_USEDEFAULT,
+              CW_USEDEFAULT, CW_USEDEFAULT,
+              NULL,
+              NULL,
+              hInstance,
+              NULL);
 
   if (toolWnd)
     {
@@ -147,11 +149,6 @@ LaunchEditor::~LaunchEditor()
     DestroyIcon(stopIcon);
 
   DestroyWindow(toolWnd);
-}
-
-int LaunchEditor::Show()
-{
-  return (int)DialogBoxParam(hInstance, MAKEINTRESOURCE(IDD_LAUNCH), mainWnd, (DLGPROC)LaunchDlgProc, (LPARAM)this);
 }
 
 BOOL LaunchEditor::DoInitDialog(HWND hwndDlg)
@@ -358,20 +355,6 @@ BOOL LaunchEditor::DoLaunchCommand(HWND hwndDlg, WPARAM wParam, LPARAM lParam UN
 {
   switch (LOWORD(wParam))
     {
-    case IDOK:
-      if (!CheckFields(hwndDlg))
-        break;
-      if (!UpdateLaunch(hwndDlg))
-        break;
-      EndDialog(hwndDlg, wParam);
-      return TRUE;
-    case IDCANCEL:
-      if (!CheckFields(hwndDlg))
-        break;
-      if (!CheckSaveCount(hwndDlg))
-        break;
-      EndDialog(hwndDlg, wParam);
-      return TRUE;
     case IDC_DELAPP:
       return DoLaunchDelete(hwndDlg);
     case IDC_ADDAPP:
@@ -599,7 +582,7 @@ bool LaunchEditor::UpdateLaunch(HWND hwndDlg)
   HWND listWnd = GetDlgItem(hwndDlg, IDC_APPLETLIST);
   WCHAR applet[MAX_PATH];
   std::tr1::shared_ptr<TiXmlDocument> configXML;
-  TiXmlElement *first, *section;
+  TiXmlElement *first, *section = NULL, *settings;
   std::wstring theme = ELGetThemeName(), oldTheme, newThemePath, oldThemePath;
 
   if ((saveCount == 0) && (deleteCount == 0))
@@ -623,30 +606,36 @@ bool LaunchEditor::UpdateLaunch(HWND hwndDlg)
   configXML = ELOpenXMLConfig(xmlFile, true);
   if (configXML)
     {
+      /**< Remove the old 'Launch' top level section */
+      section = ELGetXMLSection(configXML.get(), (WCHAR*)TEXT("Launch"), false);
+      if (section)
+        ELRemoveXMLElement(section);
+
       int i = 0;
-      section = ELGetXMLSection(configXML.get(), (WCHAR*)TEXT("Launch"), true);
+      settings = ELGetXMLSection(configXML.get(), (WCHAR*)TEXT("Settings"), true);
+      if (settings)
+        {
+          /**< Remove existing Launch list */
+          section = ELGetFirstXMLElementByName(settings, (WCHAR*)TEXT("Launch"), false);
+          if (section)
+            ELRemoveXMLElement(section);
+          section = ELSetFirstXMLElement(settings, (WCHAR*)TEXT("Launch"));
+        }
 
       if (section)
         {
-          first = ELGetFirstXMLElement(section);
-          while (first)
+          // Loop while there are entries in the key
+          while (i < ListView_GetItemCount(listWnd))
             {
-              ELRemoveXMLElement(first);
-              first = ELGetFirstXMLElement(section);
+              ListView_GetItemText(listWnd, i, 1, applet, MAX_PATH);
+              first = ELSetFirstXMLElement(section, TEXT("item"));
+              if (first)
+                ELWriteXMLStringValue(first, TEXT("Command"), applet);
+
+              i++;
             }
+          ELWriteXMLConfig(configXML.get());
         }
-
-      // Loop while there are entries in the key
-      while (i < ListView_GetItemCount(listWnd))
-        {
-          ListView_GetItemText(listWnd, i, 1, applet, MAX_PATH);
-          first = ELSetFirstXMLElement(section, TEXT("item"));
-          if (first)
-            ELWriteXMLStringValue(first, TEXT("Command"), applet);
-
-          i++;
-        }
-      ELWriteXMLConfig(configXML.get());
     }
 
   return true;
@@ -657,13 +646,14 @@ bool LaunchEditor::PopulateList(HWND listWnd)
   bool found = false;
   WCHAR data[MAX_LINE_LENGTH];
   std::tr1::shared_ptr<TiXmlDocument> configXML;
-  TiXmlElement *first, *sibling, *section;
+  TiXmlElement *first, *sibling, *section = NULL, *settings;
 
   configXML = ELOpenXMLConfig(xmlFile, false);
   if (configXML)
     {
-      section = ELGetXMLSection(configXML.get(), (WCHAR*)TEXT("Launch"), false);
-
+      settings = ELGetXMLSection(configXML.get(), (WCHAR*)TEXT("Settings"), false);
+      if (settings)
+        section = ELGetFirstXMLElementByName(settings, (WCHAR*)TEXT("Launch"), false);
       if (section)
         {
           first = ELGetFirstXMLElement(section);
@@ -814,6 +804,7 @@ bool LaunchEditor::DoLaunchDelete(HWND hwndDlg)
 
 bool LaunchEditor::DoLaunchAdd(HWND hwndDlg)
 {
+  HWND listWnd = GetDlgItem(hwndDlg, IDC_APPLETLIST);
   HWND appletWnd = GetDlgItem(hwndDlg, IDC_APPLET);
   HWND browseWnd = GetDlgItem(hwndDlg, IDC_BROWSE);
   HWND saveWnd = GetDlgItem(hwndDlg, IDC_SAVEAPP);
@@ -823,6 +814,7 @@ bool LaunchEditor::DoLaunchAdd(HWND hwndDlg)
   EnableWindow(browseWnd, true);
   EnableWindow(saveWnd, true);
   EnableWindow(abortWnd, true);
+  EnableWindow(listWnd, false);
 
   SetDlgItemText(hwndDlg, IDC_APPLET, TEXT(""));
 
@@ -831,6 +823,7 @@ bool LaunchEditor::DoLaunchAdd(HWND hwndDlg)
 
 bool LaunchEditor::DoLaunchAbort(HWND hwndDlg)
 {
+  HWND listWnd = GetDlgItem(hwndDlg, IDC_APPLETLIST);
   HWND appletWnd = GetDlgItem(hwndDlg, IDC_APPLET);
   HWND browseWnd = GetDlgItem(hwndDlg, IDC_BROWSE);
   HWND saveWnd = GetDlgItem(hwndDlg, IDC_SAVEAPP);
@@ -841,8 +834,28 @@ bool LaunchEditor::DoLaunchAbort(HWND hwndDlg)
   EnableWindow(browseWnd, false);
   EnableWindow(saveWnd, false);
   EnableWindow(abortWnd, false);
+  EnableWindow(listWnd, true);
 
   return true;
+}
+
+bool LaunchEditor::FindListSubItem(HWND listWnd, int subItem, WCHAR *searchString)
+{
+  int listSize = ListView_GetItemCount(listWnd), i = 0;
+  WCHAR item[MAX_LINE_LENGTH];
+  bool ret = false;
+
+  for (i = 0; i < listSize; i++)
+    {
+      ListView_GetItemText(listWnd, i, subItem, item, MAX_LINE_LENGTH);
+      if (_wcsicmp(item, searchString) == 0)
+        {
+          ret = true;
+          break;
+        }
+    }
+
+  return ret;
 }
 
 bool LaunchEditor::DoLaunchSave(HWND hwndDlg)
@@ -853,22 +866,17 @@ bool LaunchEditor::DoLaunchSave(HWND hwndDlg)
   HWND appletWnd = GetDlgItem(hwndDlg, IDC_APPLET);
   HWND browseWnd = GetDlgItem(hwndDlg, IDC_BROWSE);
   bool ret = false;
-  LVFINDINFO lvFI;
   LVITEM lvItem;
   WCHAR tmp[MAX_LINE_LENGTH], error[MAX_LINE_LENGTH];
   VERSIONINFO versionInfo;
 
   ZeroMemory(tmp, MAX_LINE_LENGTH);
-
-  lvFI.flags = LVFI_STRING;
   lvItem.mask = LVIF_TEXT;
 
   GetDlgItemText(hwndDlg, IDC_APPLET, tmp, MAX_LINE_LENGTH);
   if (wcslen(tmp) > 0)
     {
-      lvFI.psz = tmp;
-
-      if (ListView_FindItem(listWnd, 0, &lvFI) == -1)
+      if (!FindListSubItem(listWnd, 1, tmp))
         {
           lvItem.iItem = ListView_GetItemCount(listWnd);
           lvItem.iSubItem = 0;
@@ -901,6 +909,7 @@ bool LaunchEditor::DoLaunchSave(HWND hwndDlg)
   EnableWindow(abortWnd, false);
   EnableWindow(appletWnd, false);
   EnableWindow(browseWnd, false);
+  EnableWindow(listWnd, true);
 
   return ret;
 }
@@ -979,6 +988,34 @@ BOOL LaunchEditor::DoNotify(HWND hwndDlg, LPARAM lParam)
       // Disable Right click menu for now
       //case NM_RCLICK:
       //return DoRightClick(hwndDlg, ((LPNMITEMACTIVATE)lParam)->iItem);
+
+    case PSN_APPLY:
+      if (!CheckFields(hwndDlg))
+        {
+          SetWindowLongPtr(hwndDlg, DWLP_MSGRESULT, PSNRET_INVALID);
+          return 1;
+        }
+
+      if (UpdateLaunch(hwndDlg))
+        SetWindowLongPtr(hwndDlg, DWLP_MSGRESULT, PSNRET_NOERROR);
+      else
+        SetWindowLongPtr(hwndDlg, DWLP_MSGRESULT, PSNRET_INVALID);
+      return 1;
+
+    case PSN_SETACTIVE:
+      SetWindowLongPtr(hwndDlg, DWLP_MSGRESULT, 0);
+      return 1;
+
+    case PSN_KILLACTIVE:
+      SetWindowLongPtr(hwndDlg, DWLP_MSGRESULT, FALSE);
+      return 1;
+
+    case PSN_QUERYCANCEL:
+      if (CheckFields(hwndDlg) && CheckSaveCount(hwndDlg))
+        SetWindowLong(hwndDlg,DWLP_MSGRESULT,FALSE);
+      else
+        SetWindowLong(hwndDlg,DWLP_MSGRESULT,TRUE);
+      return TRUE;
     }
 
   return FALSE;

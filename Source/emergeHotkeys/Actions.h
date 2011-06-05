@@ -32,6 +32,13 @@
 #include <shlobj.h>
 #include <stdio.h>
 
+typedef struct tagLISTVIEWSORTINFO
+{
+  HWND listWnd;
+  SORTINFO sortInfo;
+}
+LISTVIEWSORTINFO, *PLISTVIEWSORTINFO;
+
 class Actions
 {
 public:
@@ -42,6 +49,7 @@ public:
   BOOL DoCommand(HWND hwndDlg, WPARAM wParam, LPARAM lParam);
   BOOL DoNotify(HWND hwndDlg, LPARAM lParam);
   void RegisterHotkeyList(bool showError);
+  static int CALLBACK ListViewCompareProc (LPARAM lParam1, LPARAM lParam2, LPARAM lParamSort);
 
 private:
   std::tr1::shared_ptr<Settings> pSettings;
@@ -70,10 +78,12 @@ private:
   std::vector<HotkeyCombo *> addList;
   bool CheckSaveCount(HWND hwndDlg);
   UINT saveCount, deleteCount;
-  bool edit;
+  bool edit, toggleSort[2];
   bool dialogVisible;
   UINT editIndex;
   static BOOL CALLBACK ActionsDlgProc(HWND hwndDlg, UINT message, WPARAM wParam, LPARAM lParam);
+  LISTVIEWSORTINFO lvSortInfo;
+  WCHAR myName[MAX_LINE_LENGTH];
 };
 
 #endif

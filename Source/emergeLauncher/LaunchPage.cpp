@@ -609,14 +609,32 @@ void LaunchPage::PopulateComboBoxes(HWND hwndDlg)
   SendMessage(separatorWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Double"));
   SendMessage(separatorWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Single"));
 
-  SendMessage(internalWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("RightDeskMenu"));
+  SendMessage(internalWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("About"));
+  SendMessage(internalWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("AliasEditor"));
+  SendMessage(internalWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("CoreSettings"));
+  SendMessage(internalWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Disconnect"));
+  SendMessage(internalWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("EmptyBin"));
+  SendMessage(internalWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Halt"));
+  SendMessage(internalWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Hibernate"));
+  SendMessage(internalWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Hide"));
+  SendMessage(internalWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Homepage"));
+  SendMessage(internalWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("LaunchEditor"));
+  SendMessage(internalWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Lock"));
+  SendMessage(internalWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Logoff"));
   SendMessage(internalWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("MidDeskMenu"));
   SendMessage(internalWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Quit"));
+  SendMessage(internalWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Reboot"));
+  SendMessage(internalWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("RightDeskMenu"));
   SendMessage(internalWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Run"));
-  SendMessage(internalWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Shutdown"));
-  SendMessage(internalWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Lock"));
-  SendMessage(internalWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Hide"));
+  SendMessage(internalWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("ShellChanger"));
   SendMessage(internalWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Show"));
+  SendMessage(internalWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("ShowDesktop"));
+  SendMessage(internalWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Suspend"));
+  SendMessage(internalWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Shutdown"));
+  SendMessage(internalWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Tutorial"));
+  SendMessage(internalWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("VolumeUp"));
+  SendMessage(internalWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("VolumeDown"));
+  SendMessage(internalWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("VolumeMute"));
   SendMessage(internalWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("VWM_1"));
   SendMessage(internalWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("VWM_2"));
   SendMessage(internalWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("VWM_3"));
@@ -626,27 +644,12 @@ void LaunchPage::PopulateComboBoxes(HWND hwndDlg)
   SendMessage(internalWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("VWM_7"));
   SendMessage(internalWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("VWM_8"));
   SendMessage(internalWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("VWM_9"));
-  SendMessage(internalWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("VWMUp"));
   SendMessage(internalWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("VWMDown"));
+  SendMessage(internalWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("VWMGather"));
   SendMessage(internalWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("VWMLeft"));
   SendMessage(internalWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("VWMRight"));
-  SendMessage(internalWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("VWMGather"));
-  SendMessage(internalWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("EmptyBin"));
-  SendMessage(internalWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Logoff"));
-  SendMessage(internalWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Reboot"));
-  SendMessage(internalWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Halt"));
-  SendMessage(internalWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Suspend"));
-  SendMessage(internalWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Hibernate"));
-  SendMessage(internalWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Disconnect"));
-  SendMessage(internalWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("ShowDesktop"));
-  SendMessage(internalWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("VolumeUp"));
-  SendMessage(internalWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("VolumeDown"));
-  SendMessage(internalWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("VolumeMute"));
+  SendMessage(internalWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("VWMUp"));
   SendMessage(internalWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("WorkspaceSettings"));
-  SendMessage(internalWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("CoreLaunchEditor"));
-  SendMessage(internalWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("CoreShellChanger"));
-  SendMessage(internalWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Homepage"));
-  SendMessage(internalWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Tutorial"));
 }
 
 bool LaunchPage::DoExeCom(HWND hwndDlg, bool exeButton)
@@ -889,11 +892,13 @@ bool LaunchPage::DoAdd(HWND hwndDlg)
   HWND typeWnd = GetDlgItem(hwndDlg, IDC_TYPE);
   HWND typeLabelWnd = GetDlgItem(hwndDlg, IDC_STATIC9);
   HWND abortWnd = GetDlgItem(hwndDlg, IDC_ABORTITEM);
+  HWND listWnd = GetDlgItem(hwndDlg, IDC_APPLIST);
 
   EnableFields(hwndDlg, false);
   EnableWindow(typeWnd, true);
   EnableWindow(typeLabelWnd, true);
   EnableWindow(abortWnd, true);
+  EnableWindow(listWnd, false);
 
   SendDlgItemMessage(hwndDlg, IDC_TYPE, CB_SETCURSEL, (WPARAM)-1, 0);
   SendDlgItemMessage(hwndDlg, IDC_INTERNAL, CB_SETCURSEL, (WPARAM)-1, 0);
@@ -1098,6 +1103,9 @@ bool LaunchPage::SaveItem(HWND hwndDlg)
     }
   else
     ZeroMemory(command, MAX_LINE_LENGTH);
+
+  if (command != NULL)
+    ELUnExpandVars(command);
 
   GetDlgItemText(hwndDlg, IDC_ICONPATH, iconPath, MAX_LINE_LENGTH);
   GetDlgItemText(hwndDlg, IDC_TIP, tip, MAX_LINE_LENGTH);

@@ -6,8 +6,6 @@ LIBS += -lshlwapi \
 				-lwinmm \
 				-lpowrprof \
 				-lgdi32 \
-				-lzip32z64 \
-				-lunzip32 \
 				-ladvapi32
 ifneq ($(BTYPE), 4)
 LIBS += -lwtsapi32
@@ -23,4 +21,4 @@ include ../globals.in
 include ../lib_globals.in
 include ../hg_file.in
 
-CFLAGS += -DTIXML_USE_STL
+CXXFLAGS += -DTIXML_USE_STL -Wno-long-long -Wno-unused-value -Wno-strict-aliasing

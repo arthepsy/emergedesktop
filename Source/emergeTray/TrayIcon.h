@@ -89,7 +89,7 @@ public:
   void SetRect(RECT rect);
   void SetHidden(bool hidden);
   void SetShared(bool shared);
-  void CreateNewIcon(BYTE foregroundAlpha);
+  void CreateNewIcon(BYTE foregroundAlpha, BYTE backgroundAlpha);
   void UpdateIcon();
   BOOL SendMessage(LPARAM lParam);
   void ShowBalloon(WCHAR *infoTitle, WCHAR *info, DWORD infoFlags, HICON icon);

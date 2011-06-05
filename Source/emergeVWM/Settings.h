@@ -1,7 +1,7 @@
 //---
 //
 //  This file is part of Emerge Desktop.
-//  Copyright (C) 2004-2007  The Emerge Desktop Development Team
+//  Copyright (C) 2004-2011  The Emerge Desktop Development Team
 //
 //  Emerge Desktop is free software; you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -38,7 +38,7 @@ public:
   UINT GetStickyListSize();
   WCHAR *GetStickyListItem(UINT item);
   void DeleteStickyListItem(UINT item);
-  bool CheckSticky(WCHAR *appName);
+  bool CheckSticky(std::wstring appName);
   void AddStickyListItem(WCHAR *item);
   void WriteStickyList();
   bool GetHideSticky();

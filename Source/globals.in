@@ -7,16 +7,18 @@ RCFLAGS = -O COFF
 BIN_DIR = ../bin
 OBJ_DIR = .objs
 DEPS_DIR = .deps
-OBJS = $(patsubst %.cpp,../$(OBJ_DIR)/$(BUILD)/$(TARGET)/%.o,$(wildcard *.cpp)) $(patsubst %.rc,../$(OBJ_DIR)/$(BUILD)/$(TARGET)/%.o,$(TARGET).rc) $(patsubst %.c,../$(OBJ_DIR)/$(BUILD)/$(TARGET)/%.o,$(wildcard *.c))
-DEPS = $(subst ../$(OBJ_DIR)/$(BUILD),../$(DEPS_DIR),$(OBJS:.o=.d)) $(subst ../$(OBJ_DIR)/$(BUILD),../$(DEPS_DIR),$(RES:.res=.d))
+OBJS = $(patsubst %.cpp,../$(OBJ_DIR)/$(BUILD)/$(TARGET)/%.o,$(wildcard *.cpp)) $(patsubst %.c,../$(OBJ_DIR)/$(BUILD)/$(TARGET)/%.o,$(wildcard *.c))
+RES = $(patsubst %.rc,../$(OBJ_DIR)/$(BUILD)/$(TARGET)/%.res,$(TARGET).rc)
+DEPS = $(subst ../$(OBJ_DIR)/$(BUILD),../$(DEPS_DIR),$(OBJS:.o=.o.d)) $(subst ../$(OBJ_DIR)/$(BUILD),../$(DEPS_DIR),$(RES:.res=.res.d))
 TINY_DIR = ../$(OBJ_DIR)/$(BUILD)/tinyxml
-TARGET_OBJS += $(OBJS)
+TARGET_OBJS += $(OBJS) $(RES)
 TINYOBJS = $(patsubst ../tinyxml/%.cpp,../$(OBJ_DIR)/$(BUILD)/tinyxml/%.o,$(wildcard ../tinyxml/*.cpp))
 BUILD = Release
 HG_FILE = ../hgversion.h
 HG_SED = ../hgversion.sed
 LDFLAGS = -Wl,--subsystem,windows -shared-libgcc -Wl,--enable-auto-import
 CXXFLAGS = -W -Wall -Werror -pedantic -D_GLIBCXX_DLL
+CFLAGS = -W -Wall -Werror -pedantic
 
 ifeq ($(ARCH), 64)
 		BIN_DIR = ../bin64
@@ -71,19 +73,19 @@ makedep: $(DEPS)
 ../$(OBJ_DIR)/$(BUILD)/$(TARGET)/%.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
-../$(DEPS_DIR)/$(TARGET)/%.d: %.cpp
+../$(DEPS_DIR)/$(TARGET)/%.o.d: %.cpp
 	$(CXX) -MM -MF $@ -MT ../$(OBJ_DIR)/$(BUILD)/$(TARGET)/$(*F).o $<
 
-../$(DEPS_DIR)/$(TARGET)/%.d: %.c
+../$(DEPS_DIR)/$(TARGET)/%.o.d: %.c
 	$(CC) -MM -MF $@ -MT ../$(OBJ_DIR)/$(BUILD)/$(TARGET)/$(*F).o $<
 
-../$(DEPS_DIR)/$(TARGET)/%.d: %.rc $(HG_FILE)
+../$(DEPS_DIR)/$(TARGET)/%.res.d: %.rc $(HG_FILE)
 	$(CXX) $(RCOPS) -MM -MF $@ -MT ../$(OBJ_DIR)/$(BUILD)/$(TARGET)/$(*F).o $<
 
-../$(DEPS_DIR)/tinyxml/%.d: $(TINYCXXPS)
+../$(DEPS_DIR)/tinyxml/%.o..d: $(TINYCXXPS)
 	$(CXX) -MM -MF $@ -MT ../$(OBJ_DIR)/$(BUILD)/$(TARGET)/$(*F).o $<
 
-../$(OBJ_DIR)/$(BUILD)/$(TARGET)/%.o: %.rc $(HG_FILE)
+../$(OBJ_DIR)/$(BUILD)/$(TARGET)/%.res: %.rc $(HG_FILE)
 	$(RC) --preprocessor="$(CXX) $(RCOPS)" $(RCFLAGS) -i $< -o $@
 
 ../$(OBJ_DIR)/$(BUILD)/tinyxml/%.o: ../tinyxml/%.cpp

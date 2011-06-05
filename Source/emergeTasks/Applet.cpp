@@ -188,7 +188,7 @@ void Applet::UpdateIcons()
 
   EnterCriticalSection(&vectorLock);
   iter = taskList.begin();
-  while (iter != taskList.end())
+  while (iter < taskList.end())
     {
       (*iter)->UpdateIcon();
       iter++;
@@ -216,7 +216,7 @@ bool Applet::PaintItem(HDC hdc, UINT index, int x, int y, RECT rect)
   SendMessageTimeout((*iter)->GetWnd(), WM_GETTEXT, MAX_LINE_LENGTH, reinterpret_cast<LPARAM>(windowTitle), SMTO_ABORTIFHUNG, 100, &response);
   if (response != 0)
     (*iter)->UpdateTip(mainWnd, toolWnd, windowTitle);
-  (*iter)->CreateNewIcon(guiInfo.alphaForeground);
+  (*iter)->CreateNewIcon(guiInfo.alphaForeground, guiInfo.alphaBackground);
 
   if ((*iter)->GetVisible())
     {
@@ -243,7 +243,7 @@ bool Applet::PaintItem(HDC hdc, UINT index, int x, int y, RECT rect)
 LRESULT Applet::AddTask(HWND task)
 {
   TaskVector::iterator iter = FindTask(task);
-  HICON icon;
+  HICON icon = NULL;
   RECT wndRect;
   UINT SWPFlags = SWP_NOZORDER | SWP_NOACTIVATE;
 
@@ -251,11 +251,12 @@ LRESULT Applet::AddTask(HWND task)
     return 1;
 
   if (pSettings->GetIconSize() == 32)
-    icon = EGGetWindowIcon(task, false, true);
+    icon = EGGetWindowIcon(mainWnd, task, false, false);
   else
-    icon = EGGetWindowIcon(task, true, true);
+    icon = EGGetWindowIcon(mainWnd, task, true, false);
 
-  TaskPtr taskPtr(new Task(task, icon, mainInst));
+  TaskPtr taskPtr(new Task(task, mainInst));
+  taskPtr->SetIcon(icon, pSettings->GetIconSize());
   EnterCriticalSection(&vectorLock);
   taskList.push_back(taskPtr);
   LeaveCriticalSection(&vectorLock);
@@ -289,17 +290,17 @@ LRESULT Applet::AddTask(HWND task)
 LRESULT Applet::ModifyTask(HWND task)
 {
   TaskVector::iterator iter = FindTask(task);
-  HICON icon;
+  HICON icon = NULL;
 
   if (iter == taskList.end())
     return 1;
 
   if (pSettings->GetIconSize() == 32)
-    icon = EGGetWindowIcon(task, false, false);
+    icon = EGGetWindowIcon(mainWnd, task, false, false);
   else
-    icon = EGGetWindowIcon(task, true, false);
+    icon = EGGetWindowIcon(mainWnd, task, true, false);
 
-  (*iter)->SetIcon(icon);
+  (*iter)->SetIcon(icon, pSettings->GetIconSize());
   DrawAlphaBlend();
 
   return 0;
@@ -359,7 +360,7 @@ bool Applet::CleanTasks()
   UINT SWPFlags = SWP_NOZORDER | SWP_NOACTIVATE;
 
   // Go through each of the elements in the trayIcons array
-  while (iter != taskList.end())
+  while (iter < taskList.end())
     {
       // If the icon does not have a valid window handle, remove it
       if (!IsWindow((*iter)->GetWnd()))
@@ -414,7 +415,7 @@ LRESULT Applet::TaskMouseEvent(UINT message, LPARAM lParam)
   // Traverse the valid icon vector to see if the mouse is in the bounding rectangle
   // of the current icon
   iter = taskList.begin();
-  while (iter != taskList.end())
+  while (iter < taskList.end())
     {
       if (PtInRect((*iter)->GetRect(), pt))
         {
@@ -552,7 +553,7 @@ TaskVector::iterator Applet::FindTask(HWND hwnd)
   // Go through each of the elements in the trayIcons array
   EnterCriticalSection(&vectorLock);
   iter = taskList.begin();
-  while (iter != taskList.end())
+  while (iter < taskList.end())
     {
       if ((*iter)->GetWnd() == hwnd)
         break;
@@ -678,6 +679,8 @@ LRESULT Applet::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
   std::map<HWND, UINT>::iterator mapIter;
   UINT modifyIndex = modifyMap.size() + 1;
   std::pair<std::map<HWND,UINT>::iterator, bool> pr;
+  TaskVector::iterator iter;
+  HICON icon = NULL;
 
   if (message == ShellMessage)
     {
@@ -703,12 +706,25 @@ LRESULT Applet::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
           // A "task" was activated
         case HSHELL_RUDEAPPACTIVATED:
         case HSHELL_WINDOWACTIVATED:
+          SetFlash(task, false);
+
+          /**< Set the icon when the task is activiated to address issues with some apps (like Outlook) */
+          iter = FindTask(task);
+          if (iter != taskList.end())
+            {
+              if (pSettings->GetIconSize() == 32)
+                icon = EGGetWindowIcon(mainWnd, task, false, false);
+              else
+                icon = EGGetWindowIcon(mainWnd, task, true, false);
+
+              (*iter)->SetIcon(icon, pSettings->GetIconSize());
+            }
+
           if ((task != mainWnd) && (task != activeWnd))
             {
               activeWnd = task;
               DrawAlphaBlend();
             }
-          SetFlash(task, false);
           break;
 
           // A "task" was flashed
@@ -721,22 +737,38 @@ LRESULT Applet::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
   if (message == EMERGE_NOTIFY)
     return DoEmergeNotify(shellMessage, (UINT)lParam);
 
+  if (message == TASK_ICON)
+    return DoTaskIcon((HWND)wParam, (HICON)lParam);
+
   return BaseApplet::DoDefault(hwnd, message, wParam, lParam);
+}
+
+LRESULT Applet::DoTaskIcon(HWND task, HICON icon)
+{
+  TaskVector::iterator iter = FindTask(task);
+
+  if (iter == taskList.end())
+    return 1;
+
+  (*iter)->SetIcon(icon, pSettings->GetIconSize());
+  DrawAlphaBlend();
+
+  return 0;
 }
 
 void Applet::ResetTaskIcons()
 {
   TaskVector::iterator iter = taskList.begin();
-  HICON icon;
+  HICON icon = NULL;
 
-  while (iter != taskList.end())
+  while (iter < taskList.end())
     {
       if (pSettings->GetIconSize() == 32)
-        icon = EGGetWindowIcon((*iter)->GetWnd(), false, true);
+        icon = EGGetWindowIcon(mainWnd, (*iter)->GetWnd(), false, false);
       else
-        icon = EGGetWindowIcon((*iter)->GetWnd(), true, true);
+        icon = EGGetWindowIcon(mainWnd, (*iter)->GetWnd(), true, false);
 
-      (*iter)->SetIcon(icon);
+      (*iter)->SetIcon(icon, pSettings->GetIconSize());
 
       iter++;
     }
@@ -758,7 +790,7 @@ void Applet::AppletUpdate()
     }
 
   iter = taskList.begin();
-  while (iter != taskList.end())
+  while (iter < taskList.end())
     {
       if ((*iter)->GetFlash())
         {

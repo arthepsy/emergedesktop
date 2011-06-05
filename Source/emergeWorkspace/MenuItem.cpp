@@ -39,7 +39,10 @@ MenuItem::MenuItem(WCHAR *name, UINT type, WCHAR* value, WCHAR *workingDir, TiXm
     wcscpy(this->name, (WCHAR*)TEXT("\0"));
 
   if (value)
-    wcscpy(this->value, value);
+    {
+      wcscpy(this->value, value);
+      ELAbsPathFromRelativePath(this->value);
+    }
   else
     wcscpy(this->value, (WCHAR*)TEXT("\0"));
 
@@ -94,36 +97,50 @@ HICON MenuItem::GetIcon()
 
 void MenuItem::SetIcon()
 {
-  WCHAR app[MAX_PATH], args[MAX_PATH], *lwrValue = _wcslwr(_wcsdup(value));
+  WCHAR command[MAX_PATH], args[MAX_PATH], *lwrValue = _wcslwr(_wcsdup(value));
+  HWND task;
+  std::wstring app;
 
   switch (type)
     {
     case IT_SEPARATOR:
-      icon = EGGetWindowIcon((HWND)_wtoi(value), true, true);
+      task = (HWND)_wtoi(value);
+      icon = EGGetWindowIcon(NULL, task, true, true);
+      /* If the task icon is NULL, generate a default icon using the
+       * application's icon.
+       */
+      if (icon == NULL)
+        {
+          app = ELGetWindowApp(task, true);
+          icon = EGGetFileIcon(app.c_str(), 16);
+        }
       break;
     case IT_EXECUTABLE:
-      if ((wcsstr(lwrValue, TEXT("%documents%")) != NULL) ||
-          (wcsstr(lwrValue, TEXT("%commondocuments%")) != NULL))
+      if ((wcsicmp(lwrValue, TEXT("%documents%")) == 0) ||
+          (wcsicmp(lwrValue, TEXT("%commondocuments%")) == 0))
         icon = EGGetSpecialFolderIcon(CSIDL_PERSONAL, 16);
-      else if ((wcsstr(lwrValue, TEXT("%desktop%")) != NULL) ||
-               (wcsstr(lwrValue, TEXT("%commondesktop%")) != NULL))
+      else if ((wcsicmp(lwrValue, TEXT("%desktop%")) == 0) ||
+               (wcsicmp(lwrValue, TEXT("%commondesktop%")) == 0))
         icon = EGGetSpecialFolderIcon(CSIDL_DESKTOP, 16);
       else
         {
-          ELParseCommand(value, app, args);
-          icon = EGGetFileIcon(app, 16);
+          ELAbsPathFromRelativePath(lwrValue);
+          ELParseCommand(lwrValue, command, args);
+          icon = EGGetFileIcon(command, 16);
         }
       break;
     case IT_INTERNAL_COMMAND:
-      if (_wcsicmp(value, TEXT("logoff")) == 0)
+      app = value;
+      app = ELToLower(app.substr(0, app.find_first_of(TEXT(" \t"))));
+      if (app == TEXT("logoff"))
         icon = EGGetSystemIcon(ICON_LOGOFF, 16);
-      else if (_wcsicmp(value, TEXT("shutdown")) == 0)
+      else if (app == TEXT("shutdown"))
         icon = EGGetSystemIcon(ICON_SHUTDOWN, 16);
-      else if (_wcsicmp(value, TEXT("run")) == 0)
+      else if (app == TEXT("run"))
         icon = EGGetSystemIcon(ICON_RUN, 16);
-      else if (_wcsicmp(value, TEXT("quit")) == 0)
+      else if (app == TEXT("quit"))
         icon = EGGetSystemIcon(ICON_QUIT, 16);
-      else if (_wcsicmp(value, TEXT("lock")) == 0)
+      else if (app == TEXT("lock"))
         icon = EGGetSystemIcon(ICON_LOCK, 16);
       break;
     case IT_SPECIAL_FOLDER:
@@ -133,20 +150,23 @@ void MenuItem::SetIcon()
         }
       break;
     case IT_FILE_MENU:
-      if ((wcsstr(lwrValue, TEXT("%documents%")) != NULL) ||
-          (wcsstr(lwrValue, TEXT("%commondocuments%")) != NULL))
+      if ((wcsicmp(lwrValue, TEXT("%documents%")) == 0) ||
+          (wcsicmp(lwrValue, TEXT("%commondocuments%")) == 0))
         icon = EGGetSpecialFolderIcon(CSIDL_PERSONAL, 16);
-      else if ((wcsstr(lwrValue, TEXT("%desktop%")) != NULL) ||
-               (wcsstr(lwrValue, TEXT("%commondesktop%")) != NULL))
+      else if ((wcsicmp(lwrValue, TEXT("%desktop%")) == 0) ||
+               (wcsicmp(lwrValue, TEXT("%commondesktop%")) == 0))
         icon = EGGetSpecialFolderIcon(CSIDL_DESKTOP, 16);
       else
-        icon = EGGetFileIcon(value, 16);
+        {
+          ELAbsPathFromRelativePath(lwrValue);
+          icon = EGGetFileIcon(lwrValue, 16);
+        }
       if (icon != NULL)
         break;
     case IT_XML_MENU:
     case IT_TASKS_MENU:
-      ELGetCurrentPath(app);
-      icon = EGGetFileIcon(app, 16);
+      ELGetCurrentPath(command);
+      icon = EGGetFileIcon(command, 16);
       break;
     case IT_SETTINGS_MENU:
       icon = EGGetSystemIcon(ICON_EMERGE, 16);
@@ -161,10 +181,11 @@ void MenuItem::SetIcon()
 
 void MenuItem::SetValue(WCHAR *value)
 {
-  wcscpy((*this).value, value);
+  wcscpy(this->value, value);
+  ELAbsPathFromRelativePath(this->value);
 }
 
 void MenuItem::SetName(WCHAR *name)
 {
-  wcscpy((*this).name, name);
+  wcscpy(this->name, name);
 }

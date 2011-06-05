@@ -1,7 +1,7 @@
 //---
 //
 //  This file is part of Emerge Desktop.
-//  Copyright (C) 2004-2007  The Emerge Desktop Development Team
+//  Copyright (C) 2004-2011  The Emerge Desktop Development Team
 //
 //  Emerge Desktop is free software; you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -19,8 +19,6 @@
 //---
 
 #include "Settings.h"
-
-extern WCHAR myName[];
 
 Settings::Settings()
   :BaseSettings(false)
@@ -144,19 +142,18 @@ void Settings::BuildStickyList()
 // Returns:	bool
 // Purpose:	Checks to see if the window should be sticky
 //-----
-bool Settings::CheckSticky(WCHAR *appName)
+bool Settings::CheckSticky(std::wstring appName)
 {
   UINT i;
   bool titleMatch = false;
-  WCHAR *tmp = _wcslwr(_wcsdup(appName));
+  std::wstring tmp = ELToLower(appName);
 
   for (i = 0; i < stickyList.size(); i++)
     {
-      if (wcsstr(appName, ELToLower(stickyList[i]).c_str()))
+      if (appName == ELToLower(stickyList[i]))
         titleMatch = true;
     }
 
-  free(tmp);
   return titleMatch;
 }
 

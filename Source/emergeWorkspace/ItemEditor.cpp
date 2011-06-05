@@ -218,14 +218,32 @@ BOOL ItemEditor::DoInitDialog(HWND hwndDlg)
 
 void ItemEditor::PopulateCommands(HWND commandWnd)
 {
-  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("RightDeskMenu"));
+  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("About"));
+  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("AliasEditor"));
+  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("CoreSettings"));
+  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Disconnect"));
+  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("EmptyBin"));
+  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Halt"));
+  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Hibernate"));
+  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Hide"));
+  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Homepage"));
+  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("LaunchEditor"));
+  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Lock"));
+  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Logoff"));
   SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("MidDeskMenu"));
   SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Quit"));
+  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Reboot"));
+  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("RightDeskMenu"));
   SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Run"));
-  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Shutdown"));
-  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Lock"));
-  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Hide"));
+  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("ShellChanger"));
   SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Show"));
+  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("ShowDesktop"));
+  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Suspend"));
+  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Shutdown"));
+  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Tutorial"));
+  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("VolumeUp"));
+  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("VolumeDown"));
+  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("VolumeMute"));
   SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("VWM_1"));
   SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("VWM_2"));
   SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("VWM_3"));
@@ -235,28 +253,12 @@ void ItemEditor::PopulateCommands(HWND commandWnd)
   SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("VWM_7"));
   SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("VWM_8"));
   SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("VWM_9"));
-  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("VWMUp"));
   SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("VWMDown"));
+  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("VWMGather"));
   SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("VWMLeft"));
   SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("VWMRight"));
-  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("VWMGather"));
-  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("EmptyBin"));
-  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Logoff"));
-  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Reboot"));
-  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Halt"));
-  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Suspend"));
-  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Hibernate"));
-  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Disconnect"));
-  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("ShowDesktop"));
-  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("VolumeUp"));
-  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("VolumeDown"));
-  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("VolumeMute"));
+  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("VWMUp"));
   SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("WorkspaceSettings"));
-  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("CoreLaunchEditor"));
-  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("CoreShellChanger"));
-  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("CoreAbout"));
-  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Homepage"));
-  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Tutorial"));
 }
 
 void ItemEditor::PopulateSpecialFolders(HWND specialFoldersWnd)
@@ -712,9 +714,15 @@ bool ItemEditor::DoSaveItem(HWND hwndDlg)
   ELWriteXMLStringValue(section, (WCHAR*)TEXT("Name"), name);
   ELWriteXMLIntValue(section, (WCHAR*)TEXT("Type"), type);
   if (wcslen(value) > 0)
-    ELWriteXMLStringValue(section, (WCHAR*)TEXT("Value"), value);
+    {
+      ELRelativePathFromAbsPath(value);
+      ELWriteXMLStringValue(section, (WCHAR*)TEXT("Value"), value);
+    }
   if (wcslen(workingDir) > 0)
-    ELWriteXMLStringValue(section, (WCHAR*)TEXT("WorkingDir"), workingDir);
+    {
+      ELRelativePathFromAbsPath(workingDir);
+      ELWriteXMLStringValue(section, (WCHAR*)TEXT("WorkingDir"), workingDir);
+    }
 
   TiXmlDocument *configXML = ELGetXMLConfig(section);
   if (configXML)

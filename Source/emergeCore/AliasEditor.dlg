@@ -1,0 +1,43 @@
+//----  --------------------------------------------------------------------------------------------------------
+//
+//  This file is part of Emerge Desktop.
+//  Copyright (C) 2004-2011  The Emerge Desktop Development Team
+//
+//  Emerge Desktop is free software; you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation; either version 3 of the License, or
+//  (at your option) any later version.
+//
+//  Emerge Desktop is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//
+//  You should have received a copy of the GNU General Public License
+//  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+//
+//----  --------------------------------------------------------------------------------------------------------
+
+IDD_ALIAS DIALOGEX 0, 0, CONFIG_WIDTH, CONFIG_HEIGHT
+STYLE WS_POPUP | WS_VISIBLE | WS_CAPTION
+CAPTION "Launch Applets"
+FONT 8, "MS Shell Dlg"
+BEGIN
+	CONTROL		"StickyList",IDC_APPLETLIST,"SysListView32",LVS_REPORT|LVS_SHOWSELALWAYS|
+			WS_BORDER|WS_TABSTOP,5,5,CONFIG_WIDTH-32,CONFIG_HEIGHT-75
+
+	PUSHBUTTON	"",IDC_ADDAPP,CONFIG_WIDTH-23,5,16,14,BS_ICON|BS_FLAT
+	PUSHBUTTON	"",IDC_DELAPP,CONFIG_WIDTH-23,21,16,14,BS_ICON|BS_FLAT
+	PUSHBUTTON	"",IDC_EDITAPP,CONFIG_WIDTH-23,37,16,14,BS_ICON|BS_FLAT
+
+	LTEXT		"Alias:",IDC_ALIASTEXT,10,CONFIG_HEIGHT-57,35,10
+	EDITTEXT	IDC_ALIAS,35,CONFIG_HEIGHT-59,CONFIG_WIDTH-46,12,ES_AUTOHSCROLL
+
+	LTEXT		"Action:",IDC_ACTIONTEXT,10,CONFIG_HEIGHT-42,35,10
+	EDITTEXT	IDC_APPLET,35,CONFIG_HEIGHT-44,CONFIG_WIDTH-60,12,ES_AUTOHSCROLL
+	PUSHBUTTON	"",IDC_BROWSE,CONFIG_WIDTH-25,CONFIG_HEIGHT-44,14,12,BS_ICON|BS_FLAT
+
+	PUSHBUTTON	"",IDC_SAVEAPP,CONFIG_WIDTH-41,CONFIG_HEIGHT-20,16,14,BS_ICON|BS_FLAT
+	PUSHBUTTON	"",IDC_ABORTAPP,CONFIG_WIDTH-23,CONFIG_HEIGHT-20,16,14,BS_ICON|BS_FLAT
+END
+

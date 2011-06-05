@@ -336,20 +336,9 @@ void ThemeSelector::DoImport(HWND hwndDlg)
   if (GetOpenFileName(&ofn))
     {
       workingZip = tmp;
-      themeName = workingZip.substr(workingZip.rfind('\\') + 1);
-      themeName = themeName.substr(0, themeName.rfind('.'));
-      themePath = themesPath + TEXT("\\") + themeName;
-      themePath = ELExpandVars(themePath);
-      if (PathIsDirectory(themePath.c_str()))
-        {
-          swprintf(message, TEXT("Do you want to overwrite the '%s' theme?"), themeName.c_str());
-          if (ELMessageBox(hwndDlg, message, TEXT("emergeCore"),
-                           ELMB_YESNO|ELMB_ICONQUESTION) == IDNO)
-            return;
-        }
       if (ELExtractZip(workingZip, themesPath) == 0)
         {
-          swprintf(message, TEXT("Successfully imported '%s'."), themeName.c_str());
+          swprintf(message, TEXT("Successfully imported '%s'."), workingZip.c_str());
           PopulateThemes(themeWnd, (WCHAR*)ELGetThemeName().c_str());
         }
       else

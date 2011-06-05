@@ -66,6 +66,8 @@
 #define ABM_SETSTATE  10
 #endif
 
+static const UINT TRAYHOOK_MSGPROC_ATTACH = RegisterWindowMessage(TEXT("TrayHook_MsgProc_Attach"));
+
 //====================
 // this is the versions of NOTIFYICONDATA
 typedef struct
@@ -105,10 +107,10 @@ typedef struct
   DWORD dwStateMask;
   CHAR szInfo[256];
   union
-  {
-    UINT uTimeout;
-    UINT uVersion;
-  } DUMMYUNIONNAME;
+    {
+      UINT uTimeout;
+      UINT uVersion;
+    } DUMMYUNIONNAME;
   CHAR szInfoTitle[64];
   DWORD dwInfoFlags;
 }
@@ -127,10 +129,10 @@ typedef struct
   DWORD dwStateMask;
   WCHAR szInfo[256];
   union
-  {
-    UINT uTimeout;
-    UINT uVersion;
-  } DUMMYUNIONNAME;
+    {
+      UINT uTimeout;
+      UINT uVersion;
+    } DUMMYUNIONNAME;
   WCHAR szInfoTitle[64];
   DWORD dwInfoFlags;
 }
@@ -149,10 +151,10 @@ typedef struct
   DWORD dwStateMask;
   CHAR szInfo[256];
   union
-  {
-    UINT uTimeout;
-    UINT uVersion;
-  } DUMMYUNIONNAME;
+    {
+      UINT uTimeout;
+      UINT uVersion;
+    } DUMMYUNIONNAME;
   CHAR szInfoTitle[64];
   DWORD dwInfoFlags;
   GUID guidItem;
@@ -173,10 +175,10 @@ typedef struct
   DWORD dwStateMask;
   WCHAR szInfo[256];
   union
-  {
-    UINT uTimeout;
-    UINT uVersion;
-  } DUMMYUNIONNAME;
+    {
+      UINT uTimeout;
+      UINT uVersion;
+    } DUMMYUNIONNAME;
   WCHAR szInfoTitle[64];
   DWORD dwInfoFlags;
   GUID guidItem;
@@ -197,10 +199,10 @@ typedef struct
   DWORD dwStateMask;
   CHAR szInfo[256];
   union
-  {
-    UINT uTimeout;
-    UINT uVersion;
-  } DUMMYUNIONNAME;
+    {
+      UINT uTimeout;
+      UINT uVersion;
+    } DUMMYUNIONNAME;
   CHAR szInfoTitle[64];
   DWORD dwInfoFlags;
   GUID guidItem;
@@ -220,10 +222,10 @@ typedef struct
   DWORD dwStateMask;
   WCHAR szInfo[256];
   union
-  {
-    UINT uTimeout;
-    UINT uVersion;
-  } DUMMYUNIONNAME;
+    {
+      UINT uTimeout;
+      UINT uVersion;
+    } DUMMYUNIONNAME;
   WCHAR szInfoTitle[64];
   DWORD dwInfoFlags;
   GUID guidItem;
@@ -267,10 +269,10 @@ typedef struct
   DWORD dwStateMask;
   CHAR szInfo[256];
   union
-  {
-    UINT uTimeout;
-    UINT uVersion;
-  } DUMMYUNIONNAME;
+    {
+      UINT uTimeout;
+      UINT uVersion;
+    } DUMMYUNIONNAME;
   CHAR szInfoTitle[64];
   DWORD dwInfoFlags;
 }
@@ -289,10 +291,10 @@ typedef struct
   DWORD dwStateMask;
   WCHAR szInfo[256];
   union
-  {
-    UINT uTimeout;
-    UINT uVersion;
-  } DUMMYUNIONNAME;
+    {
+      UINT uTimeout;
+      UINT uVersion;
+    } DUMMYUNIONNAME;
   WCHAR szInfoTitle[64];
   DWORD dwInfoFlags;
 }
@@ -311,10 +313,10 @@ typedef struct
   DWORD dwStateMask;
   CHAR szInfo[256];
   union
-  {
-    UINT uTimeout;
-    UINT uVersion;
-  } DUMMYUNIONNAME;
+    {
+      UINT uTimeout;
+      UINT uVersion;
+    } DUMMYUNIONNAME;
   CHAR szInfoTitle[64];
   DWORD dwInfoFlags;
   GUID guidItem;
@@ -335,10 +337,10 @@ typedef struct
   DWORD dwStateMask;
   WCHAR szInfo[256];
   union
-  {
-    UINT uTimeout;
-    UINT uVersion;
-  } DUMMYUNIONNAME;
+    {
+      UINT uTimeout;
+      UINT uVersion;
+    } DUMMYUNIONNAME;
   WCHAR szInfoTitle[64];
   DWORD dwInfoFlags;
   GUID guidItem;
@@ -359,10 +361,10 @@ typedef struct
   DWORD dwStateMask;
   CHAR szInfo[256];
   union
-  {
-    UINT uTimeout;
-    UINT uVersion;
-  } DUMMYUNIONNAME;
+    {
+      UINT uTimeout;
+      UINT uVersion;
+    } DUMMYUNIONNAME;
   CHAR szInfoTitle[64];
   DWORD dwInfoFlags;
   GUID guidItem;
@@ -382,10 +384,10 @@ typedef struct
   DWORD dwStateMask;
   WCHAR szInfo[256];
   union
-  {
-    UINT uTimeout;
-    UINT uVersion;
-  } DUMMYUNIONNAME;
+    {
+      UINT uTimeout;
+      UINT uVersion;
+    } DUMMYUNIONNAME;
   WCHAR szInfoTitle[64];
   DWORD dwInfoFlags;
   GUID guidItem;
@@ -451,6 +453,22 @@ typedef struct ICONIDENTIFIERDATA
 }
 ICONIDENTIFIERDATA, *PICONIDENTIFIERDATA;
 
+typedef struct _TRAYICONDATA{
+  HWND hWnd;
+  UINT uID;
+  UINT uCallbackMessage;
+  DWORD dwState;
+  UINT uVersion;
+  HICON hIcon;
+  ULONG uIconDemoteTimerID;
+  DWORD dwUserPref;
+  DWORD dwLastSoundTime;
+  TCHAR sExeName[MAX_PATH];
+  TCHAR sIconText[MAX_PATH];
+  UINT uNumSeconds;
+  GUID guidItem;
+  } TRAYICONDATA;
+
 class Applet: public BaseApplet
 {
 private:
@@ -459,12 +477,13 @@ private:
   std::vector< std::tr1::shared_ptr<TrayIcon> > trayIconList;
   std::vector<IOleCommandTarget*> ssoIconList;
   bool movesizeinprogress;
-  HWND trayWnd, notifyWnd;
+  HWND trayWnd, notifyWnd, clockWnd, rebarWnd, taskWnd;
   bool baseClassRegistered, trayClassRegistered, notifyClassRegistered;
   RECT HoverRect;
   void UpdateIcons();
   static LRESULT CALLBACK WindowProcedure (HWND, UINT, WPARAM, LPARAM);
   static LRESULT CALLBACK TrayProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
+  bool AcquireExplorerTrayIconList();
   bool IsIconVisible(TrayIcon *pTrayIcon);
   TrayIcon *activeIcon;
   bool SetAutoHideEdge(UINT edge);
@@ -475,6 +494,7 @@ public:
   Applet(HINSTANCE hInstance);
   ~Applet();
   UINT Initialize();
+  UINT portableInitialize();
   TrayIcon *GetTrayIconListItem(UINT index);
   size_t GetTrayIconListSize();
   LRESULT DoTimer(UINT timerID);

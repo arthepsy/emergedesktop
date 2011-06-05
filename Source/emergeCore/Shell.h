@@ -48,8 +48,6 @@ public:
   void RegisterShell(HWND hwnd, bool enable);
   void BuildTaskList();
   void CountTask(HWND hwnd);
-  void ShellServicesInit();
-  void ShellServicesTerminate();
   void UnloadSSO();
   void LoadSSO();
 

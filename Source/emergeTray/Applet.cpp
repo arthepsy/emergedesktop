@@ -32,9 +32,20 @@
 
 #include "Applet.h"
 
+/**< Tray related class names */
 WCHAR szTrayName[ ] = TEXT("Shell_TrayWnd");
 WCHAR szNotifyName[ ] = TEXT("TrayNotifyWnd");
+WCHAR szReBarName[ ] = TEXT("ReBarWindow32");
+WCHAR szClockName[ ] = TEXT("TrayClockWClass");
+WCHAR szTaskSwName[ ] = TEXT("MSTaskSwWClass");
+
+WCHAR edTrayName[ ] = TEXT("ed_Shell_TrayWnd");
+
 WCHAR myName[] = TEXT("emergeTray");
+
+HMODULE hookDLLaddr;
+DWORD taskBarThreadId, notifyWndThreadId, trayWndThreadId, clockWndThreadId, rebarWndThreadId, taskWndThreadId;
+HHOOK taskBarCallWndRetHook, notifyWndCallWndRetHook, trayWndCallWndRetHook, clockWndCallWndRetHook, rebarWndCallWndRetHook, taskWndCallWndRetHook;
 
 LRESULT CALLBACK Applet::TrayProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
@@ -193,7 +204,7 @@ LRESULT CALLBACK Applet::WindowProcedure (HWND hwnd, UINT message, WPARAM wParam
 }
 
 Applet::Applet(HINSTANCE hInstance)
-:BaseApplet(hInstance, myName, true)
+  :BaseApplet(hInstance, myName, true)
 {
   mainInst = hInstance;
 
@@ -207,13 +218,220 @@ Applet::Applet(HINSTANCE hInstance)
   autoHideBottom = false;
   autoHideTop = false;
 
-  //  activeIcon = NULL;
+  activeIcon = NULL;
+}
+
+bool injectExplorerTrayHook(HWND messageHandler)
+{
+  WCHAR szLibPath[MAX_PATH];
+  ELGetCurrentPath(szLibPath);
+  wcscat(szLibPath, TEXT("\\emergeTrayExplorerHook.dll"));
+  hookDLLaddr = LoadLibrary(szLibPath);
+  if (!hookDLLaddr)
+    return false;
+
+  HOOKPROC CallWndRetProcAddr = (HOOKPROC)GetProcAddress(hookDLLaddr, "CallWndRetProc");
+  if (!CallWndRetProcAddr)
+    {
+      FreeLibrary(hookDLLaddr);
+      hookDLLaddr = NULL;
+      return false;
+    }
+
+  HWND taskBarhWnd = FindWindow(szTrayName, NULL);
+
+  if (taskBarhWnd)
+    {
+      taskBarThreadId = GetWindowThreadProcessId(taskBarhWnd, NULL);
+
+      HWND notifyhWnd = FindWindowEx(taskBarhWnd, NULL, szNotifyName, NULL);
+      if (notifyhWnd)
+        {
+          notifyWndThreadId = GetWindowThreadProcessId(notifyhWnd, NULL);
+
+          HWND sysPagerhWnd = FindWindowEx(notifyhWnd, NULL, TEXT("SysPager"), NULL);
+          if (sysPagerhWnd)
+            {
+              HWND trayhWnd = FindWindowEx(sysPagerhWnd, NULL, TEXT("ToolbarWindow32"), NULL);
+              if (trayhWnd)
+                {
+                  trayWndThreadId = GetWindowThreadProcessId(trayhWnd, NULL);
+                }
+            }
+
+          HWND clockhWnd = FindWindowEx(notifyhWnd, NULL, szClockName, NULL);
+          if (clockhWnd)
+            {
+              clockWndThreadId = GetWindowThreadProcessId(clockhWnd, NULL);
+            }
+        }
+
+      HWND rebarhWnd = FindWindowEx(taskBarhWnd, NULL, szReBarName, NULL);
+      if (rebarhWnd)
+        {
+          rebarWndThreadId = GetWindowThreadProcessId(rebarhWnd, NULL);
+
+          HWND taskhWnd = FindWindowEx(rebarhWnd, NULL, szTaskSwName, NULL);
+          if (taskhWnd)
+            {
+              taskWndThreadId = GetWindowThreadProcessId(taskhWnd, NULL);
+            }
+        }
+    }
+
+  if (taskBarThreadId)
+    taskBarCallWndRetHook = SetWindowsHookEx(WH_CALLWNDPROCRET, CallWndRetProcAddr, hookDLLaddr, taskBarThreadId);
+
+  if (notifyWndThreadId)
+    notifyWndCallWndRetHook = SetWindowsHookEx(WH_CALLWNDPROCRET, CallWndRetProcAddr, hookDLLaddr, notifyWndThreadId);
+
+  if (trayWndThreadId)
+    trayWndCallWndRetHook = SetWindowsHookEx(WH_CALLWNDPROCRET, CallWndRetProcAddr, hookDLLaddr, trayWndThreadId);
+
+  if (clockWndThreadId)
+    clockWndCallWndRetHook = SetWindowsHookEx(WH_CALLWNDPROCRET, CallWndRetProcAddr, hookDLLaddr, clockWndThreadId);
+
+  if (rebarWndThreadId)
+    rebarWndCallWndRetHook = SetWindowsHookEx(WH_CALLWNDPROCRET, CallWndRetProcAddr, hookDLLaddr, rebarWndThreadId);
+
+  if (taskWndThreadId)
+    taskWndCallWndRetHook = SetWindowsHookEx(WH_CALLWNDPROCRET, CallWndRetProcAddr, hookDLLaddr, taskWndThreadId);
+
+  SendMessage(taskBarhWnd, TRAYHOOK_MSGPROC_ATTACH, (WPARAM)NULL, (LPARAM)messageHandler);
+
+  return true;
+}
+
+bool removeExplorerTrayHook()
+{
+  if (!hookDLLaddr)
+    return false;
+
+  if (taskBarCallWndRetHook)
+    UnhookWindowsHookEx(taskBarCallWndRetHook);
+
+  if (notifyWndCallWndRetHook)
+    UnhookWindowsHookEx(notifyWndCallWndRetHook);
+
+  if (trayWndCallWndRetHook)
+    UnhookWindowsHookEx(trayWndCallWndRetHook);
+
+  if (clockWndCallWndRetHook)
+    UnhookWindowsHookEx(clockWndCallWndRetHook);
+
+  if (rebarWndCallWndRetHook)
+    UnhookWindowsHookEx(rebarWndCallWndRetHook);
+
+  if (taskWndCallWndRetHook)
+    UnhookWindowsHookEx(taskWndCallWndRetHook);
+
+  FreeLibrary(hookDLLaddr);
+
+  return true;
+}
+
+bool Applet::AcquireExplorerTrayIconList()
+{
+  HWND taskBarhWnd = FindWindow(szTrayName, NULL);
+  if (!taskBarhWnd)
+    return false;
+
+  HWND notifyhWnd = FindWindowEx(taskBarhWnd, NULL, szNotifyName, NULL);
+  if (!notifyhWnd)
+    return false;
+
+  HWND sysPagerhWnd = FindWindowEx(notifyhWnd, NULL, TEXT("SysPager"), NULL);
+  if (!sysPagerhWnd)
+    return false;
+
+  HWND trayhWnd = FindWindowEx(sysPagerhWnd, NULL, TEXT("ToolbarWindow32"), NULL);
+  if (!trayhWnd)
+    return false;
+
+  DWORD processId;
+  DWORD threadId = GetWindowThreadProcessId(taskBarhWnd, &processId);
+  if ((!threadId) || (!processId))
+    return false;
+
+  int trayButtonCount = SendMessage(trayhWnd, TB_BUTTONCOUNT, 0, 0);
+  if (trayButtonCount == 0)
+    return false;
+
+  HANDLE hProcess = OpenProcess(PROCESS_VM_OPERATION|PROCESS_VM_WRITE|PROCESS_VM_READ, false, processId);
+  if (!hProcess)
+    return false;
+
+  TRAYICONDATA trayIconData;
+  TBBUTTONINFO trayIconTBButtonInfo;
+  void* tbButtonInfoRemote;
+  void* sTipRemote;
+  bool hidden;
+  bool shared;
+  WCHAR sTipText[1024];
+  UINT uFlags = 0;
+  int counter;
+
+  for (counter=0; counter<trayButtonCount; counter++)
+    {
+      tbButtonInfoRemote = VirtualAllocEx(hProcess, NULL, sizeof(TBBUTTONINFO), MEM_COMMIT, PAGE_READWRITE);
+      if (!tbButtonInfoRemote)
+        break;
+
+      sTipRemote = VirtualAllocEx(hProcess, NULL, (sizeof(WCHAR)*(wcslen(sTipText) + 1)), MEM_COMMIT, PAGE_READWRITE);
+      if (!sTipRemote)
+        break;
+
+      trayIconTBButtonInfo.cbSize = sizeof(TBBUTTONINFO);
+      trayIconTBButtonInfo.dwMask = TBIF_BYINDEX|TBIF_STYLE|TBIF_LPARAM|TBIF_COMMAND;
+      if (!WriteProcessMemory(hProcess, tbButtonInfoRemote, &trayIconTBButtonInfo, sizeof(TBBUTTONINFO), NULL))
+        break;
+
+      SendMessage(trayhWnd, TB_GETBUTTONINFO, counter, (LPARAM)tbButtonInfoRemote);
+
+      if (!ReadProcessMemory(hProcess, tbButtonInfoRemote, (LPVOID)&trayIconTBButtonInfo, sizeof(TBBUTTONINFO), NULL))
+        break;
+
+      if (!ReadProcessMemory(hProcess, (void *)trayIconTBButtonInfo.lParam, (LPVOID)&trayIconData, sizeof(TRAYICONDATA), NULL))
+        break;
+
+      VirtualFreeEx(hProcess, tbButtonInfoRemote, 0, MEM_RELEASE);
+
+      SendMessage(trayhWnd, TB_GETBUTTONTEXT, trayIconTBButtonInfo.idCommand, (LPARAM)sTipRemote);
+
+      if (!ReadProcessMemory(hProcess, sTipRemote, (LPVOID)&sTipText, sizeof(sTipText), NULL))
+        break;
+
+      VirtualFreeEx(hProcess, sTipRemote, 0, MEM_RELEASE);
+
+      hidden = ((trayIconData.dwState & NIS_HIDDEN) == NIS_HIDDEN);
+      shared = ((trayIconData.dwState & NIS_SHAREDICON) == NIS_SHAREDICON);
+
+      if (trayIconData.hIcon)
+        uFlags = uFlags|NIF_ICON;
+      if (trayIconData.uCallbackMessage)
+        uFlags = uFlags|NIF_MESSAGE;
+      if (wcslen(sTipText) > 0)
+        uFlags = uFlags|NIF_TIP;
+
+      AddTrayIcon(trayIconData.hWnd, trayIconData.uID, uFlags,
+                  trayIconData.uCallbackMessage, trayIconData.hIcon,
+                  (LPTSTR)sTipText, NULL, NULL, 0, hidden, shared);
+    }
+
+  CloseHandle(hProcess);
+
+  return (counter == trayButtonCount);
 }
 
 Applet::~Applet()
 {
-  // A quit message was recieved, so unload the 2K/XP system icons
-  UnloadSSO();
+  // A quit message was received, so unload the 2K/XP system icons and the Explorer tray hook
+
+  if (ELIsExplorerShell()) //we're probably running on top of Explorer
+    removeExplorerTrayHook();
+  else
+    UnloadSSO();
+
   DestroyWindow(trayWnd);
 
   // Cleanup the icon vectors
@@ -222,6 +440,9 @@ Applet::~Applet()
       trayIconList.front()->DeleteTip();
       trayIconList.erase(trayIconList.begin());
     }
+
+  // Return control to the default shell
+  SendNotifyMessage(HWND_BROADCAST, RegisterWindowMessage(TEXT("TaskbarCreated")), 0, 0);
 }
 
 UINT Applet::Initialize()
@@ -243,11 +464,24 @@ UINT Applet::Initialize()
   wincl.hIcon = LoadIcon (NULL, IDI_APPLICATION);
   wincl.hIconSm = LoadIcon (NULL, IDI_APPLICATION);
   wincl.hCursor = LoadCursor (NULL, IDC_ARROW);
+  wincl.hbrBackground = NULL;
 
   if (!RegisterClassEx (&wincl))
     return 0;
 
   wincl.lpszClassName = szNotifyName;
+  if (!RegisterClassEx (&wincl))
+    return 0;
+
+  wincl.lpszClassName = szClockName;
+  if (!RegisterClassEx (&wincl))
+    return 0;
+
+  wincl.lpszClassName = szTaskSwName;
+  if (!RegisterClassEx (&wincl))
+    return 0;
+
+  wincl.lpszClassName = szReBarName;
   if (!RegisterClassEx (&wincl))
     return 0;
 
@@ -259,6 +493,21 @@ UINT Applet::Initialize()
   notifyWnd = CreateWindowEx(0, szNotifyName, NULL, WS_CHILDWINDOW,
                              0, 0, 0, 0, trayWnd, NULL, mainInst, reinterpret_cast<LPVOID>(this));
   if (!notifyWnd)
+    return 0;
+
+  clockWnd = CreateWindowEx(0, szClockName, NULL, WS_CHILDWINDOW,
+                            0, 0, 0, 0, notifyWnd, NULL, mainInst, reinterpret_cast<LPVOID>(this));
+  if (!clockWnd)
+    return 0;
+
+  rebarWnd = CreateWindowEx(0, szReBarName, NULL, WS_CHILDWINDOW,
+                            0, 0, 0, 0, trayWnd, NULL, mainInst, reinterpret_cast<LPVOID>(this));
+  if (!rebarWnd)
+    return 0;
+
+  taskWnd = CreateWindowEx(0, szTaskSwName, NULL, WS_CHILDWINDOW,
+                           0, 0, 0, 0, rebarWnd, NULL, mainInst, reinterpret_cast<LPVOID>(this));
+  if (!rebarWnd)
     return 0;
 
   SetProp(trayWnd, TEXT("AllowConsentToStealFocus"), (HANDLE)1);
@@ -277,6 +526,88 @@ UINT Applet::Initialize()
 
   // Load the 2K/XP system icons
   LoadSSO();
+
+  return 1;
+}
+
+UINT Applet::portableInitialize()
+{
+  HWND explorerTrayWnd;
+
+  WNDCLASSEX wincl;
+  ZeroMemory(&wincl, sizeof(WNDCLASSEX));
+
+  pSettings = std::tr1::shared_ptr<Settings>(new Settings(reinterpret_cast<LPARAM>(this)));
+  UINT ret = BaseApplet::Initialize(WindowProcedure, this, pSettings);
+  if (ret == 0)
+    return ret;
+
+  // Register the window class
+  wincl.hInstance = mainInst;
+  wincl.lpszClassName = edTrayName;
+  wincl.lpfnWndProc = TrayProcedure;
+  wincl.cbSize = sizeof (WNDCLASSEX);
+  wincl.style = CS_DBLCLKS;
+  wincl.hIcon = LoadIcon (NULL, IDI_APPLICATION);
+  wincl.hIconSm = LoadIcon (NULL, IDI_APPLICATION);
+  wincl.hCursor = LoadCursor (NULL, IDC_ARROW);
+  wincl.hbrBackground = NULL;
+
+  if (!RegisterClassEx (&wincl))
+    return 0;
+
+  trayWnd = CreateWindowEx(WS_EX_TOOLWINDOW, edTrayName, NULL, WS_POPUP,
+                           0, 0, 0, 0, NULL, NULL, mainInst, reinterpret_cast<LPVOID>(this));
+  if (!trayWnd)
+    return 0;
+
+  AcquireExplorerTrayIconList(); //it's likely the 2K/XP system icons are already showing in the Explorer tray; load them from Explorer
+
+  injectExplorerTrayHook(trayWnd);
+
+  explorerTrayWnd = FindWindow(szTrayName, NULL);
+  SetProp(explorerTrayWnd, TEXT("AllowConsentToStealFocus"), (HANDLE)1);
+  SetProp(explorerTrayWnd, TEXT("TaskBandHWND"), trayWnd);
+
+  // In Windows 7 (and possibly Vista) Explorer seems to keep it's hidden tray
+  // icons in a separate location.  In order for emergeTray to pull them from
+  // Explorer, they must first all be made visible.
+  /*DWORD enableAutoTray = 0;
+  ULONG_PTR result = 0;
+  HKEY explorerKey;
+  HWND trayWnd = FindWindow(szTrayName, NULL);
+  if (trayWnd)
+    {
+      if (RegOpenKeyEx(HKEY_CURRENT_USER,
+                       TEXT("Software\\Microsoft\\Windows\\CurrentVersion\\Explorer"),
+                       0,
+                       KEY_ALL_ACCESS,
+                       &explorerKey) == ERROR_SUCCESS)
+        {
+          if (RegSetValueEx(explorerKey,
+                            TEXT("EnableAutoTray"),
+                            0,
+                            REG_DWORD,
+                            (BYTE*)&enableAutoTray,
+                            sizeof(enableAutoTray)) == ERROR_SUCCESS)
+            {
+              // TODO (Chris#1#): Figure out a way to have Explorer take the EnableAutoTray settings change into effect.
+              SendMessage(trayWnd, WM_WININICHANGE, 0, 0);
+              SendMessageTimeout(HWND_BROADCAST, WM_SETTINGCHANGE, 0, 0,
+                                 SMTO_ABORTIFHUNG, 2000, &result);
+            }
+
+          RegCloseKey(explorerKey);
+        }
+    }*/
+
+  movesizeinprogress = false;
+
+  // Set the window transparency
+  UpdateGUI();
+
+  // Build the sticky list only after reading the settings (in UpdateGUI())
+  pSettings->BuildHideList();
 
   return 1;
 }
@@ -301,7 +632,7 @@ bool Applet::PaintItem(HDC hdc, UINT index, int x, int y, RECT rect)
   pTrayIcon->UpdateTip();
 
   // Convert the icon
-  pTrayIcon->CreateNewIcon(guiInfo.alphaForeground);
+  pTrayIcon->CreateNewIcon(guiInfo.alphaForeground, guiInfo.alphaBackground);
 
   // Draw the icon
   DrawIconEx(hdc, x, y, pTrayIcon->GetIcon(),
@@ -370,7 +701,7 @@ LRESULT Applet::MyMove()
   movesizeinprogress = false;
 
   GetWindowRect(mainWnd, &winRect);
-  SetWindowPos(trayWnd, NULL, winRect.left, winRect.top, 0, 0, SWP_NOZORDER | SWP_NOACTIVATE | SWP_NOSIZE);
+  SetWindowPos(trayWnd, NULL, winRect.left, winRect.top, (winRect.right - winRect.left), (winRect.bottom - winRect.top), SWP_NOZORDER | SWP_NOACTIVATE);
 
   return 0;
 }
@@ -663,8 +994,6 @@ LRESULT Applet::ModifyTrayIcon(HWND hwnd, UINT uID, UINT uFlags, UINT uCallbackM
   if (!pTrayIcon)
     return 0;
 
-  bool isHide = pSettings->CheckHide(pTrayIcon->GetTip());
-
   if ((uFlags & NIF_ICON) == NIF_ICON)
     {
       if (pTrayIcon->SetIcon(icon))
@@ -675,7 +1004,36 @@ LRESULT Applet::ModifyTrayIcon(HWND hwnd, UINT uID, UINT uFlags, UINT uCallbackM
         }
     }
 
-  if (!isHide)
+  /* Some icons (i.e. network icons) will be displayed when they shouldn't be,
+   * at least until a WM_MOUSEOVER.  They seem to have no TIP, so proactively
+   * send icons with no tip the WM_MOUSEOVER message.
+   */
+  if ((uFlags & NIF_TIP) == NIF_TIP)
+    {
+      if (pTrayIcon->SetTip(newTip))
+        {
+          pTrayIcon->SetFlags(pTrayIcon->GetFlags() | NIF_TIP);
+          changed = true;
+        }
+    }
+  else
+    pTrayIcon->SendMessage(LPARAM(WM_MOUSEMOVE));
+
+  /* Due to some tray icons getting their tip text delayed (i.e. network icons)
+   * check to see if they should be hidden based on tip text prior to using the
+   * 'hidden' value.  However, do not re-hide them if the mouse is over the
+   * applet.
+   */
+  if (pSettings->CheckHide(pTrayIcon->GetTip()))
+    {
+      if (!pSettings->GetUnhideIcons() || (!mouseOver && pSettings->GetUnhideIcons()))
+        {
+          pTrayIcon->SetHidden(true);
+          adjust = true;
+          changed = true;
+        }
+    }
+  else
     {
       if (hidden != pTrayIcon->GetHidden())
         {
@@ -702,18 +1060,6 @@ LRESULT Applet::ModifyTrayIcon(HWND hwnd, UINT uID, UINT uFlags, UINT uCallbackM
       pTrayIcon->SetFlags(pTrayIcon->GetFlags() | NIF_INFO);
     }
 
-  if ((uFlags & NIF_TIP) == NIF_TIP)
-    {
-      if (!isHide || (isHide && (wcslen(newTip) != 0)))
-        {
-          if (pTrayIcon->SetTip(newTip))
-            {
-              pTrayIcon->SetFlags(pTrayIcon->GetFlags() | NIF_TIP);
-              changed = true;
-            }
-        }
-    }
-
   if (adjust)
     {
       SortIcons();
@@ -732,8 +1078,7 @@ LRESULT Applet::ModifyTrayIcon(HWND hwnd, UINT uID, UINT uFlags, UINT uCallbackM
         }
     }
 
-  // ELWriteDebug(towstring<UINT>(uFlags));
-  if ((!isHide) && (changed))
+  if (changed)
     DrawAlphaBlend();
 
   return 1;
@@ -767,10 +1112,14 @@ LRESULT Applet::AddTrayIcon(HWND hwnd, UINT uID, UINT uFlags, UINT uCallbackMess
   if ((uFlags & NIF_INFO) == NIF_INFO)
     pTrayIcon->ShowBalloon(szInfoTitle, szInfo, dwInfoFlags, icon);
 
+  /* Some icons (i.e. network icons) will be displayed when they shouldn't be,
+   * at least until a WM_MOUSEOVER.  They seem to have no TIP, so proactively
+   * send icons with no tip the WM_MOUSEOVER message.
+   */
   if ((uFlags & NIF_TIP) == NIF_TIP)
     pTrayIcon->SetTip(szTip);
   else
-    PostMessage(hwnd, uCallbackMessage, WPARAM(uID), LPARAM(WM_MOUSEMOVE));
+    pTrayIcon->SendMessage(LPARAM(WM_MOUSEMOVE));
 
   pTrayIcon->SetFlags(uFlags);
   if (pSettings->CheckHide(szTip))
@@ -867,72 +1216,35 @@ bool Applet::TrayMouseEvent(UINT message, LPARAM lParam)
           GetWindowThreadProcessId((*iter)->GetWnd(), &processID);
           AllowSetForegroundWindow(processID);
 
-          /*          if (activeIcon != NULL)
-                      {
-                      if (activeIcon->GetWnd() != (*iter)->GetWnd())
-                      {
-                      SendMessage(activeIcon->GetWnd(), activeIcon->GetCallback(), MAKEWPARAM(0, 0),
-                      MAKELPARAM(NIN_POPUPCLOSE, activeIcon->GetID()));
-                      activeIcon = NULL;
-                      }
-                      }*/
-
-          //std::wstring debug;
           switch (message)
             {
-              /*                case WM_MOUSEMOVE:
-                                if (activeIcon == NULL)
-                                {
-                                message = NIN_POPUPOPEN;
-                                activeIcon = (*iter);
-                                }
-                                break;*/
+            case WM_MOUSEMOVE:
+              if ((ELVersionInfo() >= 6.0) && (((*iter)->GetFlags() & NIF_INFO) == NIF_INFO))
+                {
+                  if (activeIcon != NULL)
+                    {
+                      if( activeIcon->GetWnd() != (*iter)->GetWnd())
+                        {
+                          activeIcon->SendMessage(NIN_POPUPCLOSE);
+                          activeIcon = (*iter).get();
+                        }
+                    }
+                  message = NIN_POPUPOPEN;
+                }
+              break;
 
-              /*if (ELVersionInfo() >= 7.0)
-                {
-                case WM_LBUTTONDOWN:
-                debug = TEXT("LBUTTONDOWN");
-                ELWriteDebug(debug);
-                return 0;
-                case WM_LBUTTONUP:
-                debug = TEXT("LBUTTONUP");
-                ELWriteDebug(debug);
-                SendNotifyMessage((*iter)->GetWnd(), (*iter)->GetCallback(), MAKEWPARAM(cursorPT.x, cursorPT.y),
-                MAKELPARAM(NIN_POPUPCLOSE, (*iter)->GetID()));
-                SendNotifyMessage((*iter)->GetWnd(), (*iter)->GetCallback(), MAKEWPARAM(cursorPT.x, cursorPT.y),
-                MAKELPARAM(WM_LBUTTONDOWN, (*iter)->GetID()));
-                SendNotifyMessage((*iter)->GetWnd(), (*iter)->GetCallback(), MAKEWPARAM(cursorPT.x, cursorPT.y),
-                MAKELPARAM(message, (*iter)->GetID()));
-                return 0;
-                case WM_LBUTTONDBLCLK:
-                debug = TEXT("LBUTTONDBLCLK");
-                ELWriteDebug(debug);
-                return 0;
-                }*/
-
-              // Second attempt at NIN_POPOPEN:
-              /*case WM_MOUSEMOVE:
-                if ((ELVersionInfo() >= 6.0) && (((*iter)->GetFlags() & NIF_INFO) == NIF_INFO))
-                {
-                if (activeIcon != NULL)
-                {
-                if( activeIcon->GetWnd() != (*iter)->GetWnd())
-                {
-                activeIcon->SendMessage(NIN_POPUPCLOSE);
-                activeIcon = (*iter).get();
-                }
-                }
-                message = NIN_POPUPOPEN;
-                }
-                (*iter)->SendMessage(message);
-                break;*/
+              /**< For some reason some icons require WM_USER being passed to activate the left click action */
+            case WM_LBUTTONUP:
+              (*iter)->SendMessage(WM_USER);
+              break;
 
             case WM_RBUTTONUP:
               (*iter)->SendMessage(message);
               message = WM_CONTEXTMENU;
-            default:
-              (*iter)->SendMessage(message);
+              break;
             }
+
+          (*iter)->SendMessage(message);
           return 0;
         }
     }
@@ -1051,6 +1363,8 @@ bool Applet::ClearAutoHideEdge(UINT edge)
   return true;
 }
 
+// TODO (Chris#1#): Wrong AppBar implementation - check SharpE SVN to see how
+// it should be handled.
 LRESULT Applet::AppBarEvent(COPYDATASTRUCT *cpData)
 {
   DWORD message = 0, dataSize;
@@ -1083,10 +1397,22 @@ LRESULT Applet::AppBarEvent(COPYDATASTRUCT *cpData)
       return 1;
 
     case ABM_GETSTATE:
-      if (_wcsicmp(pSettings->GetZPosition(), TEXT("Top")) == 0)
-        return ABS_ALWAYSONTOP;
+    {
+      LRESULT result = 0;
+
+      if (!IsWindowVisible(mainWnd))
+        result = ABS_AUTOHIDE;
+
+      if (ELVersionInfo() >= 7.0)
+        result |= ABS_ALWAYSONTOP;
       else
-        return 0;
+        {
+          if (_wcsicmp(pSettings->GetZPosition(), TEXT("Top")) == 0)
+            result |= ABS_ALWAYSONTOP;
+        }
+
+      return result;
+    }
 
     case ABM_SETSTATE:
       return 1;

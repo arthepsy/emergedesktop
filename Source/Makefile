@@ -1,12 +1,15 @@
-# Note: The 'src' and 'bin' targets require the zip program.  For a Windows command prompt, you
-# can download zip from http://gnuwin32.sourceforge.net/packages/zip.htm.
+# Note: The 'src' and 'bin' targets require the zip program.  For a Windows
+# command prompt, you can download zip from
+# http://gnuwin32.sourceforge.net/packages/zip.htm.
 
 include functions.in
 
-LIBS = zip unzip emergeLib emergeGraphics emergeAppletEngine emergeStyleEngine emergeBaseClasses emergeIcons
-APPLETS = emergeCore emergeWorkspace emergeHotkeys emergeTasks emergeCommand emergeLauncher \
-					emergeVWM emergeTray emerge emergePower emergeSysMon reg2xml
-VERSION = 4.1
+LIBS = emergeLib emergeGraphics emergeAppletEngine emergeStyleEngine \
+			 emergeBaseClasses emergeIcons emergeTrayExplorerHook
+APPLETS = emergeCore emergeWorkspace emergeHotkeys emergeTasks emergeCommand \
+					emergeLauncher emergeVWM emergeTray emerge emergePower emergeSysMon \
+					Explorer
+VERSION = 6.0
 PACKAGE = EmergeDesktop
 BIN_DIR = bin
 SHELL_BREAK = &
@@ -38,16 +41,12 @@ makedep: all
 $(APPLETS): $(LIBS)
 	$(MAKE) -C $@ ARCH=$(ARCH) $(MAKECMDGOALS)
 
-.PHONY: zip
-zip:
-	$(MAKE) -C $@ ARCH=$(ARCH) $(MAKECMDGOALS)
-
-.PHONY: unzip
-unzip:
-	$(MAKE) -C $@ ARCH=$(ARCH) $(MAKECMDGOALS)
-
 .PHONY: emergeLib
-emergeLib: zip unzip
+emergeLib:
+	$(MAKE) -C $@ ARCH=$(ARCH) $(MAKECMDGOALS)
+
+.PHONY: emergeTrayExplorerHook
+emergeTrayExplorerHook:
 	$(MAKE) -C $@ ARCH=$(ARCH) $(MAKECMDGOALS)
 
 .PHONY: emergeIcons

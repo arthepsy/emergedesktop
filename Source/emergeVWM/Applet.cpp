@@ -148,7 +148,7 @@ LRESULT Applet::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 }
 
 Applet::Applet(HINSTANCE hInstance)
-  :BaseApplet(hInstance, myName, false)
+:BaseApplet(hInstance, myName, false)
 {
   // Set current row and column
   currentRow = 0;
@@ -240,7 +240,7 @@ bool Applet::AddTasks(HWND hwnd)
 
   iter = taskList.begin();
 
-  while (iter != taskList.end())
+  while (iter < taskList.end())
     {
       if ((*iter)->GetTaskWnd() == hwnd)
         {
@@ -346,6 +346,9 @@ bool Applet::IsWindowValidTask(HWND hwnd)
   if (ELIsApplet(hwnd))
     return false;
 
+  if (ELIsExplorer(hwnd))
+    return false;
+
   // Ignore toolwindows
   /*  if((GetWindowLongPtr(hwnd, GWL_EXSTYLE) & WS_EX_TOOLWINDOW) == WS_EX_TOOLWINDOW)
       return false;*/
@@ -404,7 +407,7 @@ void Applet::SwitchDesktop(int row, int column, bool gather)
       dwp = BeginDeferWindowPos((int)taskList.size());
 
       iter = taskList.begin();
-      while (iter != taskList.end())
+      while (iter < taskList.end())
         {
           // VERY IMPORTANT: Only modify a valid window
           if (GetWindowRect((*iter)->GetTaskWnd(), &r))
@@ -431,7 +434,7 @@ void Applet::SwitchDesktop(int row, int column, bool gather)
   dwp = BeginDeferWindowPos((int)taskList.size());
 
   iter = taskList.begin();
-  while (iter != taskList.end())
+  while (iter < taskList.end())
     {
       // VERY IMPORTANT: Only modify a valid window
       if (GetWindowRect((*iter)->GetTaskWnd(), &r))
@@ -469,7 +472,7 @@ void Applet::SwitchDesktop(int row, int column, bool gather)
                 }
 
               dwp = DeferWindowPos(dwp, (*iter)->GetTaskWnd(), NULL,
-                                   r.left,	r.top,
+                                   r.left, r.top,
                                    0, 0,
                                    SWP_NOZORDER | SWP_NOACTIVATE | SWP_NOSIZE);
             }
@@ -480,9 +483,12 @@ void Applet::SwitchDesktop(int row, int column, bool gather)
 
   oldActiveWindow = NULL;
 
-  EndDeferWindowPos(dwp);
+  dwp = DeferWindowPos(dwp, FindWindow(TEXT("EmergeDesktopProgman"), NULL), HWND_BOTTOM,
+                       0, 0,
+                       0, 0,
+                       SWP_NOMOVE | SWP_NOACTIVATE | SWP_NOSIZE);
 
-  DrawAlphaBlend();
+  EndDeferWindowPos(dwp);
 }
 
 //----  --------------------------------------------------------------------------------------------------------
@@ -501,7 +507,7 @@ LRESULT Applet::DesktopMouseEvent(HWND hwnd, UINT message, LPARAM lParam)
   HWND popupWnd;
   UINT dragBorder = guiInfo.dragBorder + guiInfo.bevelWidth + guiInfo.padding;
   int screenWidth = GetSystemMetrics(SM_CXVIRTUALSCREEN),
-                    screenHeight = GetSystemMetrics(SM_CYVIRTUALSCREEN);
+      screenHeight = GetSystemMetrics(SM_CYVIRTUALSCREEN);
 
   pt.x = LOWORD(lParam);
   pt.y = HIWORD(lParam);
@@ -543,10 +549,10 @@ LRESULT Applet::DesktopMouseEvent(HWND hwnd, UINT message, LPARAM lParam)
               GetClientRect(mainWnd, &clientRect);
 
               rowScalar = (float)(clientRect.bottom - (2 * dragBorder)) /
-                          (float)pSettings->GetDesktopRows();
+                (float)pSettings->GetDesktopRows();
               rowScalar = (float)screenHeight / rowScalar;
               columnScalar = (float)(clientRect.right - (2 * dragBorder)) /
-                             (float)pSettings->GetDesktopColumns();
+                (float)pSettings->GetDesktopColumns();
               columnScalar = (float)screenWidth / columnScalar;
 
               xOffset = (float)pt.x - (float)referencePt.x;
@@ -595,9 +601,9 @@ LRESULT Applet::DesktopMouseEvent(HWND hwnd, UINT message, LPARAM lParam)
           for (column = 0; column < pSettings->GetDesktopColumns(); column++)
             {
               float rowScalar = (float)(clientRect.bottom - (2 * dragBorder)) /
-                                (float)pSettings->GetDesktopRows();
+                (float)pSettings->GetDesktopRows();
               float columnScalar = (float)(clientRect.right - (2 * dragBorder)) /
-                                   (float)pSettings->GetDesktopColumns();
+                (float)pSettings->GetDesktopColumns();
 
               desktopRect.top = dragBorder + (int)(row * rowScalar);
               desktopRect.bottom = desktopRect.top + (int)rowScalar;
@@ -712,7 +718,7 @@ LRESULT Applet::DoTimer(UINT timerID)
       // Remove and invalid tasks
       std::vector< std::tr1::shared_ptr<Task> >::iterator iter = taskList.begin(), tmpIter;
 
-      while (iter != taskList.end())
+      while (iter < taskList.end())
         {
           if ((!IsWindow((*iter)->GetTaskWnd())) ||
               (!IsWindowVisible((*iter)->GetTaskWnd())))

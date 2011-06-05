@@ -65,16 +65,16 @@ MenuEditor::MenuEditor(HINSTANCE hInstance)
   InitCommonControls();
 
   toolWnd = CreateWindowEx(
-                           0,
-                           TOOLTIPS_CLASS,
-                           NULL,
-                           TTS_ALWAYSTIP|WS_POPUP|TTS_NOPREFIX,
-                           CW_USEDEFAULT, CW_USEDEFAULT,
-                           CW_USEDEFAULT, CW_USEDEFAULT,
-                           NULL,
-                           NULL,
-                           hInstance,
-                           NULL);
+              0,
+              TOOLTIPS_CLASS,
+              NULL,
+              TTS_ALWAYSTIP|WS_POPUP|TTS_NOPREFIX,
+              CW_USEDEFAULT, CW_USEDEFAULT,
+              CW_USEDEFAULT, CW_USEDEFAULT,
+              NULL,
+              NULL,
+              hInstance,
+              NULL);
 
   if (toolWnd)
     {
@@ -253,14 +253,32 @@ BOOL MenuEditor::DoInitDialog(HWND hwndDlg)
 
 void MenuEditor::PopulateCommands(HWND commandWnd)
 {
-  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("RightDeskMenu"));
+  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("About"));
+  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("AliasEditor"));
+  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("CoreSettings"));
+  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Disconnect"));
+  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("EmptyBin"));
+  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Halt"));
+  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Hibernate"));
+  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Hide"));
+  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Homepage"));
+  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("LaunchEditor"));
+  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Lock"));
+  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Logoff"));
   SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("MidDeskMenu"));
   SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Quit"));
+  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Reboot"));
+  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("RightDeskMenu"));
   SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Run"));
-  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Shutdown"));
-  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Lock"));
-  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Hide"));
+  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("ShellChanger"));
   SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Show"));
+  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("ShowDesktop"));
+  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Suspend"));
+  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Shutdown"));
+  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Tutorial"));
+  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("VolumeUp"));
+  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("VolumeDown"));
+  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("VolumeMute"));
   SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("VWM_1"));
   SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("VWM_2"));
   SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("VWM_3"));
@@ -270,28 +288,12 @@ void MenuEditor::PopulateCommands(HWND commandWnd)
   SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("VWM_7"));
   SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("VWM_8"));
   SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("VWM_9"));
-  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("VWMUp"));
   SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("VWMDown"));
+  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("VWMGather"));
   SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("VWMLeft"));
   SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("VWMRight"));
-  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("VWMGather"));
-  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("EmptyBin"));
-  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Logoff"));
-  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Reboot"));
-  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Halt"));
-  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Suspend"));
-  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Hibernate"));
-  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Disconnect"));
-  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("ShowDesktop"));
-  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("VolumeUp"));
-  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("VolumeDown"));
-  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("VolumeMute"));
+  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("VWMUp"));
   SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("WorkspaceSettings"));
-  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("CoreLaunchEditor"));
-  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("CoreShellChanger"));
-  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("CoreAbout"));
-  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Homepage"));
-  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Tutorial"));
 }
 
 void MenuEditor::PopulateSpecialFolders(HWND specialFoldersWnd)
@@ -345,7 +347,9 @@ bool MenuEditor::BuildMenuTreeHelper (HWND treeWnd, HTREEITEM parent, TiXmlEleme
       ELReadXMLStringValue(xmlItem, (WCHAR*)TEXT("Name"), name, (WCHAR*)TEXT("\0"));
       ELReadXMLIntValue(xmlItem, (WCHAR*)TEXT("Type"), &type, 0);
       ELReadXMLStringValue(xmlItem, (WCHAR*)TEXT("Value"), value, (WCHAR*)TEXT("\0"));
+      ELAbsPathFromRelativePath(value);
       ELReadXMLStringValue(xmlItem, (WCHAR*)TEXT("WorkingDir"), workingDir, (WCHAR*)TEXT("\0"));
+      ELAbsPathFromRelativePath(workingDir);
 
       wcscpy(menuItem.name, name);
       menuItem.type = type;
@@ -368,7 +372,7 @@ bool MenuEditor::BuildMenuTreeHelper (HWND treeWnd, HTREEITEM parent, TiXmlEleme
 
       if (type == IT_XML_MENU)
         {
-          subMenu = ELGetFirstXMLElementByName(xmlItem, (WCHAR*)TEXT("Submenu"));
+          subMenu = ELGetFirstXMLElementByName(xmlItem, (WCHAR*)TEXT("Submenu"), false);
           if (subMenu)
             BuildMenuTreeHelper(treeWnd, child, subMenu);
         }
@@ -392,7 +396,7 @@ bool MenuEditor::BuildMenuTree(HWND treeWnd, HTREEITEM parent, WCHAR *rootElemen
       section = ELGetXMLSection(configXML.get(), (WCHAR*)TEXT("Menus"), false);
       if (section)
         {
-          rootXML = ELGetFirstXMLElementByName(section, rootElement);
+          rootXML = ELGetFirstXMLElementByName(section, rootElement, false);
           if (rootXML)
             ret = BuildMenuTreeHelper(treeWnd, parent, rootXML);
         }
@@ -538,11 +542,17 @@ bool MenuEditor::WriteMenuHelper(TiXmlElement *section, HWND treeWnd, HTREEITEM 
                                       iter->second.name);
               ELWriteXMLIntValue(item, (WCHAR*)TEXT("Type"), iter->second.type);
               if (wcslen(iter->second.value) > 0)
-                ELWriteXMLStringValue(item, (WCHAR*)TEXT("Value"),
-                                      iter->second.value);
+                {
+                  ELRelativePathFromAbsPath(iter->second.value);
+                  ELWriteXMLStringValue(item, (WCHAR*)TEXT("Value"),
+                                        iter->second.value);
+                }
               if (wcslen(iter->second.workingDir) > 0)
-                ELWriteXMLStringValue(item, (WCHAR*)TEXT("WorkingDir"),
-                                      iter->second.workingDir);
+                {
+                  ELRelativePathFromAbsPath(iter->second.workingDir);
+                  ELWriteXMLStringValue(item, (WCHAR*)TEXT("WorkingDir"),
+                                        iter->second.workingDir);
+                }
 
               if (iter->second.type == IT_XML_MENU)
                 {
@@ -577,7 +587,7 @@ bool MenuEditor::WriteMenu(HWND treeWnd, HTREEITEM parent, WCHAR *menu)
 
       if (section)
         {
-          menuRoot = ELGetFirstXMLElementByName(section, menu);
+          menuRoot = ELGetFirstXMLElementByName(section, menu, true);
 
           if (menuRoot)
             {
@@ -610,82 +620,88 @@ BOOL MenuEditor::DoMenuNotify(HWND hwndDlg, WPARAM wParam UNUSED, LPARAM lParam)
   switch (((LPNMHDR)lParam)->code)
     {
     case TVN_SELCHANGING:
+    {
+      selected = ((LPNMTREEVIEW)lParam)->itemNew.hItem;
+
+      iter = treeMap.find(selected);
+
+      if ((selected == rightRoot) || (selected == midRoot))
         {
-          selected = ((LPNMTREEVIEW)lParam)->itemNew.hItem;
-
-          iter = treeMap.find(selected);
-
-          if ((selected == rightRoot) || (selected == midRoot))
+          if (TreeView_SelectDropTarget(treeWnd, selected))
             {
-              if (TreeView_SelectDropTarget(treeWnd, selected))
+              if (IsWindowEnabled(treeWnd))
                 {
                   EnableWindow(addWnd, true);
                   EnableWindow(editWnd, false);
                   EnableWindow(delWnd, false);
                 }
             }
-          else if (iter != treeMap.end())
+        }
+      else if (iter != treeMap.end())
+        {
+          if (IsWindowEnabled(treeWnd))
             {
               EnableWindow(addWnd, true);
               EnableWindow(editWnd, true);
               EnableWindow(delWnd, true);
+            }
 
-              if (TreeView_SelectDropTarget(treeWnd, iter->first))
+          if (TreeView_SelectDropTarget(treeWnd, iter->first))
+            {
+              SetDlgItemText(hwndDlg, IDC_ITEMNAME, iter->second.name);
+              SetDlgItemText(hwndDlg, IDC_ITEMVALUE, iter->second.value);
+              SetDlgItemText(hwndDlg, IDC_WORKINGDIR, iter->second.workingDir);
+              SendMessage(typeWnd, CB_SETCURSEL,
+                          (WPARAM)GetTypeValue(iter->second.type), 0);
+              ShowFields(hwndDlg, GetTypeValue(iter->second.type));
+              if (iter->second.type == IT_INTERNAL_COMMAND)
                 {
-                  SetDlgItemText(hwndDlg, IDC_ITEMNAME, iter->second.name);
+                  SendMessage(commandWnd, CB_SETCURSEL,
+                              SendMessage(commandWnd,
+                                          CB_FINDSTRINGEXACT,
+                                          (WPARAM)-1,
+                                          (LPARAM)iter->second.value),
+                              0);
+                }
+              else if (iter->second.type == IT_SPECIAL_FOLDER)
+                {
+                  int folder = ELIsSpecialFolder(iter->second.value);
+                  if (ELGetSpecialFolder(folder, value))
+                    SendMessage(specialFoldersWnd, CB_SETCURSEL,
+                                SendMessage(specialFoldersWnd,
+                                            CB_FINDSTRINGEXACT,
+                                            (WPARAM)-1,
+                                            (LPARAM)value),
+                                0);
+                }
+              else
+                {
                   SetDlgItemText(hwndDlg, IDC_ITEMVALUE, iter->second.value);
-                  SetDlgItemText(hwndDlg, IDC_WORKINGDIR, iter->second.workingDir);
-                  SendMessage(typeWnd, CB_SETCURSEL,
-                              (WPARAM)GetTypeValue(iter->second.type), 0);
-                  ShowFields(hwndDlg, GetTypeValue(iter->second.type));
-                  if (iter->second.type == IT_INTERNAL_COMMAND)
-                    {
-                      SendMessage(commandWnd, CB_SETCURSEL,
-                                  SendMessage(commandWnd,
-                                              CB_FINDSTRINGEXACT,
-                                              (WPARAM)-1,
-                                              (LPARAM)iter->second.value),
-                                  0);
-                    }
-                  else if (iter->second.type == IT_SPECIAL_FOLDER)
-                    {
-                      int folder = ELIsSpecialFolder(iter->second.value);
-                      if (ELGetSpecialFolder(folder, value))
-                        SendMessage(specialFoldersWnd, CB_SETCURSEL,
-                                    SendMessage(specialFoldersWnd,
-                                                CB_FINDSTRINGEXACT,
-                                                (WPARAM)-1,
-                                                (LPARAM)value),
-                                    0);
-                    }
-                  else
-                    {
-                      SetDlgItemText(hwndDlg, IDC_ITEMVALUE, iter->second.value);
-                      SetTooltip(browseWnd, iter->second.type);
-                    }
+                  SetTooltip(browseWnd, iter->second.type);
                 }
             }
         }
-      break;
+    }
+    break;
 
     case TVN_BEGINDRAG:
-        {
-          selected = ((LPNMTREEVIEW)lParam)->itemNew.hItem;
+    {
+      selected = ((LPNMTREEVIEW)lParam)->itemNew.hItem;
 
-          if ((selected == rightRoot) || (selected == midRoot))
-            return FALSE;
+      if ((selected == rightRoot) || (selected == midRoot))
+        return FALSE;
 
-          pItem.mask = TVIF_STATE | TVIF_HANDLE;
-          pItem.stateMask = TVIS_BOLD;
-          pItem.hItem = selected;
-          pItem.state = TVIS_BOLD;
-          SendMessage(treeWnd, TVM_SETITEM, 0, (LPARAM)&pItem);
+      pItem.mask = TVIF_STATE | TVIF_HANDLE;
+      pItem.stateMask = TVIS_BOLD;
+      pItem.hItem = selected;
+      pItem.state = TVIS_BOLD;
+      SendMessage(treeWnd, TVM_SETITEM, 0, (LPARAM)&pItem);
 
-          SetCapture(hwndDlg);
-          dragging = true;
+      SetCapture(hwndDlg);
+      dragging = true;
 
-          return TRUE;
-        }
+      return TRUE;
+    }
 
     case PSN_APPLY:
       if (!CheckFields(hwndDlg))
@@ -1236,6 +1252,8 @@ bool MenuEditor::DoSaveItem(HWND hwndDlg)
         }
     }
 
+  if (ELUnExpandVars(value))
+    SetDlgItemText(hwndDlg, IDC_ITEMVALUE, value);
   wcscpy(iter->second.value, value);
   wcscpy(iter->second.workingDir, workingDir);
 
@@ -1374,6 +1392,7 @@ bool MenuEditor::DoAddItem(HWND hwndDlg)
   EnableWindow(addWnd, false);
   EnableWindow(editWnd, false);
   EnableWindow(delWnd, false);
+  EnableWindow(treeWnd, false);
 
   edit = false;
 

@@ -499,9 +499,9 @@ UINT32 EGGetPixel(BYTE alpha, COLORREF colour)
   fAlphaFactor = (float)alpha / (float)0xff;
 
   pixel = (alpha << 24) |
-    ((UCHAR)(GetRValue(colour) * fAlphaFactor) << 16) |
-    ((UCHAR)(GetGValue(colour) * fAlphaFactor) << 8) |
-    (UCHAR)(GetBValue(colour) * fAlphaFactor);
+          ((UCHAR)(GetRValue(colour) * fAlphaFactor) << 16) |
+          ((UCHAR)(GetGValue(colour) * fAlphaFactor) << 8) |
+          (UCHAR)(GetBValue(colour) * fAlphaFactor);
 
   return pixel;
 }
@@ -550,7 +550,7 @@ HBITMAP EGCreateBitmap(BYTE alpha, COLORREF colour, RECT wndRect)
   return bmp;
 }
 
-HICON EGGetFileIcon(WCHAR *file, UINT iconSize)
+HICON EGGetFileIcon(const WCHAR *file, UINT iconSize)
 {
   HICON icon = NULL;
   HICON tmpIcon = NULL;
@@ -618,19 +618,19 @@ HICON EGGetFileIcon(WCHAR *file, UINT iconSize)
       return icon;
     }
 
-  pidlRelative = ELILClone(ELILFindLastID(pidlLocal));
-  ELILRemoveLastID(pidlLocal);
+  pidlRelative = ILClone(ILFindLastID(pidlLocal));
+  ILRemoveLastID(pidlLocal);
 
   hr = deskFolder->BindToObject(pidlLocal, NULL, IID_IShellFolder, &lpVoid);
   if (FAILED(hr))
     {
       deskFolder->Release();
-      ELILFree(pidlLocal);
+      ILFree(pidlLocal);
       return icon;
     }
   appObject = reinterpret_cast <IShellFolder*> (lpVoid);
 
-  ELILFree(pidlLocal);
+  ILFree(pidlLocal);
 
   hr = appObject->GetUIObjectOf(NULL, 1, (LPCITEMIDLIST*)&pidlRelative,
                                 IID_IExtractIcon, NULL, &lpVoid);
@@ -638,12 +638,12 @@ HICON EGGetFileIcon(WCHAR *file, UINT iconSize)
     {
       deskFolder->Release();
       appObject->Release();
-      ELILFree(pidlRelative);
+      ILFree(pidlRelative);
       return icon;
     }
   extractIcon = reinterpret_cast <IExtractIcon*> (lpVoid);
 
-  ELILFree(pidlRelative);
+  ILFree(pidlRelative);
 
   hr = extractIcon->GetIconLocation(0, iconLocation, MAX_PATH, &iconIndex, &iconFlags);
   if (FAILED(hr))
@@ -706,80 +706,69 @@ bool EGGetIconDialogue(HWND hwnd, WCHAR *iconPath, int iconIndex)
   return false;
 }
 
+VOID CALLBACK GetSmallIconCallBack(HWND hwnd, UINT uMsg UNUSED, ULONG_PTR dwData, LRESULT lResult)
+{
+  HICON icon = (HICON)lResult;
+
+  if (!icon)
+    icon = (HICON)GetClassLongPtr(hwnd, GCLP_HICONSM);
+
+  if (icon)
+    PostMessage((HWND)dwData, TASK_ICON, (WPARAM)hwnd, (LPARAM)icon);
+}
+
+VOID CALLBACK GetIconCallBack(HWND hwnd, UINT uMsg UNUSED, ULONG_PTR dwData, LRESULT lResult)
+{
+  HICON icon = (HICON)lResult;
+
+  if (!icon)
+    icon = (HICON)GetClassLongPtr(hwnd, GCLP_HICON);
+
+  if (icon)
+    PostMessage((HWND)dwData, TASK_ICON, (WPARAM)hwnd, (LPARAM)icon);
+}
+
 //----  --------------------------------------------------------------------------------------------------------
 // Function:	EGGetWindowIcon
 // Required:	HWND task - handle to the task's window
 // Returns:	HICON
 // Purpose:	Retrieve the icon for the task
 //----  --------------------------------------------------------------------------------------------------------
-HICON EGGetWindowIcon(HWND hwnd, bool smallIcon, bool force)
+HICON EGGetWindowIcon(HWND callerWnd, HWND hwnd, bool smallIcon, bool force)
 {
+  /* Set icon to NULL to return a NULL value in the case where an icon cannot
+   * be found.  Leave it to the applet to create a default icon in this case.
+   */
   HICON icon = NULL;
-  UINT iconSize = 32;
-  WCHAR applicationName[MAX_LINE_LENGTH];
 
-  if (smallIcon)
+  if (force)
     {
-      iconSize = 16;
-
-      if (force)
+      if (smallIcon)
         {
-          icon = (HICON)SendMessage(hwnd, WM_GETICON, ICON_SMALL2, 0);
+          SendMessageTimeout(hwnd, WM_GETICON, ICON_SMALL2, 0,
+                             SMTO_ABORTIFHUNG, ICON_LOOKUP_TIMEOUT,
+                             reinterpret_cast<ULONG_PTR*>(&icon));
           if (!icon)
-            icon = (HICON)SendMessage(hwnd, WM_GETICON, ICON_SMALL, 0);
-          if (!icon)
-            icon = (HICON)SendMessage(hwnd, WM_GETICON, ICON_BIG, 0);
+            icon = (HICON)GetClassLongPtr(hwnd, GCLP_HICONSM);
         }
       else
         {
-          SendMessageTimeout(hwnd, WM_GETICON, ICON_SMALL2, 0, SMTO_ABORTIFHUNG, ICON_LOOKUP_TIMEOUT,
+          SendMessageTimeout(hwnd, WM_GETICON, ICON_BIG, 0, SMTO_ABORTIFHUNG,
+                             ICON_LOOKUP_TIMEOUT,
                              reinterpret_cast<ULONG_PTR*>(&icon));
           if (!icon)
-            SendMessageTimeout(hwnd, WM_GETICON, ICON_SMALL, 0, SMTO_ABORTIFHUNG, ICON_LOOKUP_TIMEOUT,
-                               reinterpret_cast<ULONG_PTR*>(&icon));
-          if (!icon)
-            SendMessageTimeout(hwnd, WM_GETICON, ICON_BIG, 0, SMTO_ABORTIFHUNG, ICON_LOOKUP_TIMEOUT,
-                               reinterpret_cast<ULONG_PTR*>(&icon));
+            icon = (HICON)GetClassLongPtr(hwnd, GCLP_HICON);
         }
-      if (!icon)
-        icon = (HICON)GetClassLongPtr(hwnd, GCLP_HICONSM);
-      if (!icon)
-        icon = (HICON)GetClassLongPtr(hwnd, GCLP_HICON);
     }
   else
     {
-      if (force)
-        {
-          icon = (HICON)SendMessage(hwnd, WM_GETICON, ICON_BIG, 0);
-          if (!icon)
-            icon = (HICON)SendMessage(hwnd, WM_GETICON, ICON_SMALL2, 0);
-          if (!icon)
-            icon = (HICON)SendMessage(hwnd, WM_GETICON, ICON_SMALL, 0);
-        }
+      if (smallIcon)
+        SendMessageCallback(hwnd, WM_GETICON, ICON_SMALL2, 0,
+                            GetSmallIconCallBack, (ULONG_PTR)callerWnd);
       else
-        {
-          SendMessageTimeout(hwnd, WM_GETICON, ICON_BIG, 0, SMTO_ABORTIFHUNG, ICON_LOOKUP_TIMEOUT,
-                             reinterpret_cast<ULONG_PTR*>(&icon));
-          if (!icon)
-            SendMessageTimeout(hwnd, WM_GETICON, ICON_SMALL2, 0, SMTO_ABORTIFHUNG, ICON_LOOKUP_TIMEOUT,
-                               reinterpret_cast<ULONG_PTR*>(&icon));
-          if (!icon)
-            SendMessageTimeout(hwnd, WM_GETICON, ICON_SMALL, 0, SMTO_ABORTIFHUNG, ICON_LOOKUP_TIMEOUT,
-                               reinterpret_cast<ULONG_PTR*>(&icon));
-        }
-      if (!icon)
-        icon = (HICON)GetClassLongPtr(hwnd, GCLP_HICON);
-      if (!icon)
-        icon = (HICON)GetClassLongPtr(hwnd, GCLP_HICONSM);
+        SendMessageCallback(hwnd, WM_GETICON, ICON_BIG, 0, GetIconCallBack,
+                            (ULONG_PTR)callerWnd);
     }
-
-  if (!icon)
-    {
-      ELGetWindowApp(hwnd, applicationName, true);
-      icon = EGGetFileIcon(applicationName, iconSize);
-    }
-  if (!icon)
-    icon = LoadIcon(NULL, IDI_APPLICATION);
 
   return icon;
 }
@@ -791,9 +780,6 @@ HICON EGGetSpecialFolderIcon(int csidl, UINT iconSize)
   SHFILEINFO fileInfo;
   WCHAR iconLocation[MAX_LINE_LENGTH];
 
-  if ((csidl == CSIDL_PERSONAL) && (ELVersionInfo() == 5.0))
-    return EGExtractIcon(TEXT("%SystemRoot%\\system32\\mydocs.dll"), 0, iconSize);
-
   if (SUCCEEDED(SHGetSpecialFolderLocation(NULL, csidl, &pidl)))
     {
       if (SHGetFileInfo((LPCTSTR)pidl, 0, &fileInfo, sizeof(fileInfo), SHGFI_PIDL|SHGFI_ICONLOCATION) != 0)
@@ -802,7 +788,7 @@ HICON EGGetSpecialFolderIcon(int csidl, UINT iconSize)
           icon = EGGetFileIcon(iconLocation, iconSize);
         }
 
-      ELILFree(pidl);
+      ILFree(pidl);
     }
 
   return icon;
@@ -978,7 +964,7 @@ bool EGDrawAlphaText(BYTE alpha, CLIENTINFO clientInfo, FORMATINFO formatInfo, W
     for (x = 0; x < bmi.bmiHeader.biWidth; x++)
       {
         pixel = ((UINT32 *)maskBits)
-          [x + ((bmi.bmiHeader.biHeight - (y + 1)) * bmi.bmiHeader.biWidth)];
+                [x + ((bmi.bmiHeader.biHeight - (y + 1)) * bmi.bmiHeader.biWidth)];
 
         if (pixel != 0)
           {

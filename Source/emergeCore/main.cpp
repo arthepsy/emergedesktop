@@ -40,7 +40,12 @@ int WINAPI WinMain (HINSTANCE hInstance,
   HANDLE hMutex = NULL;
   bool abort = true, block = false;
 
-  ELParseCommand(GetCommandLine(), app, argsTmp);
+  if (!ELParseCommand(GetCommandLine(), app, argsTmp))
+    {
+      ELMessageBox(GetDesktopWindow(), (WCHAR*)TEXT("Failed to parse command line"), (WCHAR*)TEXT("emergeCore"),
+                   ELMB_OK|ELMB_ICONERROR|ELMB_MODAL);
+      return 1;
+    }
 
   token = wcstok(argsTmp, TEXT(" \t"));
 

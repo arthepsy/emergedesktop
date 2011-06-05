@@ -1,7 +1,7 @@
 //---
 //
 //  This file is part of Emerge Desktop.
-//  Copyright (C) 2004-2007  The Emerge Desktop Development Team
+//  Copyright (C) 2004-2011  The Emerge Desktop Development Team
 //
 //  Emerge Desktop is free software; you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -20,8 +20,6 @@
 
 #include "Settings.h"
 #include <stdio.h>
-
-WCHAR appletName[] = TEXT("emergeTasks");
 
 Settings::Settings()
 :BaseSettings(true)

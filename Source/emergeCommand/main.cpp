@@ -1,7 +1,7 @@
 //---
 //
 //  This file is part of Emerge Desktop.
-//  Copyright (C) 2004-2007  The Emerge Desktop Development Team
+//  Copyright (C) 2004-2011  The Emerge Desktop Development Team
 //
 //  Emerge Desktop is free software; you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -22,13 +22,9 @@
 
 BOOL CALLBACK FocusWindowEnum(HWND hwnd, LPARAM lParam UNUSED)
 {
-  WCHAR window[MAX_PATH];
+  std::wstring window = ELToLower(ELGetWindowApp(hwnd, false));
 
-  ZeroMemory(window, MAX_PATH);
-  ELGetWindowApp(hwnd, window, false);
-  _wcslwr(window);
-
-  if (wcscmp(window, TEXT("emergecommand.exe")) == 0)
+  if (window == TEXT("emergecommand.exe"))
     {
       if (!IsWindowVisible(hwnd))
         return true;

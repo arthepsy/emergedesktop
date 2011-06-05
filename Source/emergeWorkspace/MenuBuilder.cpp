@@ -31,6 +31,7 @@ MenuBuilder::MenuBuilder(HINSTANCE desktopInst)
   MButtonDown = false;
   registered = false;
   winVersion = ELVersionInfo();
+  SetRectEmpty(&explorerWorkArea);
 }
 
 bool MenuBuilder::Initialize()
@@ -124,6 +125,9 @@ void MenuBuilder::RenameConfigFile()
 
 MenuBuilder::~MenuBuilder()
 {
+  if (!IsRectEmpty(&explorerWorkArea))
+    SystemParametersInfo(SPI_SETWORKAREA, 0, &explorerWorkArea, SPIF_SENDCHANGE);
+
   if (registered)
     {
       // Unregister the specified Emerge Desktop messages
@@ -239,15 +243,15 @@ LRESULT MenuBuilder::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lP
       switch (lParam)
         {
         case CORE_SETTINGS:
+        {
+          Config config(mainInst, pSettings);
+          if (config.Show() == IDOK)
             {
-              Config config(mainInst, pSettings);
-              if (config.Show() == IDOK)
-                {
-                  UpdateMenuHook();
-                  SetWorkArea();
-                }
+              UpdateMenuHook();
+              SetWorkArea();
             }
-          break;
+        }
+        break;
 
         case CORE_RIGHTMENU:
           return DoButtonDown(WM_RBUTTONDOWN);
@@ -442,32 +446,32 @@ LRESULT MenuBuilder::DoContextMenu(POINT pt)
         SendMessage(menuWnd, WM_CANCELMODE, 0, 0);
       break;
     case IT_TASKS_MENU:
+    {
+      HWND task = (HWND)_wtoi(value);
+      res = EAEDisplayMenu(menuWnd, task);
+      switch (res)
         {
-          HWND task = (HWND)_wtoi(value);
-          res = EAEDisplayMenu(menuWnd, task);
-          switch (res)
-            {
-            case SC_CLOSE:
-              DeleteMenu(iter->first, index, MF_BYPOSITION);
-              break;
-            case SC_SIZE:
-            case SC_MOVE:
-            case SC_MAXIMIZE:
-            case SC_RESTORE:
-              ELSwitchToThisWindow(task);
-              SendMessage(menuWnd, WM_CANCELMODE, 0, 0);
-              break;
-            }
-          if (res)
-            PostMessage(task, WM_SYSCOMMAND, (WPARAM)res, MAKELPARAM(pt.x, pt.y));
+        case SC_CLOSE:
+          DeleteMenu(iter->first, index, MF_BYPOSITION);
+          break;
+        case SC_SIZE:
+        case SC_MOVE:
+        case SC_MAXIMIZE:
+        case SC_RESTORE:
+          ELSwitchToThisWindow(task);
+          SendMessage(menuWnd, WM_CANCELMODE, 0, 0);
+          break;
         }
-      break;
-      /*case IT_SETTINGS_MENU:
-        ExecuteSettingsMenuItem(itemID);
-        break;*/
-      /*case IT_HELP_MENU:
-        ExecuteSettingsMenuItem(itemID);
-        break;*/
+      if (res)
+        PostMessage(task, WM_SYSCOMMAND, (WPARAM)res, MAKELPARAM(pt.x, pt.y));
+    }
+    break;
+    /*case IT_SETTINGS_MENU:
+      ExecuteSettingsMenuItem(itemID);
+      break;*/
+    /*case IT_HELP_MENU:
+      ExecuteSettingsMenuItem(itemID);
+      break;*/
     }
 
   return 1;
@@ -529,10 +533,10 @@ bool MenuBuilder::AddMenuItem(MenuMap::iterator iter, int index)
         {
           if (type == IT_XML_MENU)
             {
-              subMenu = ELGetFirstXMLElementByName(newElement, (WCHAR*)TEXT("Submenu"));
+              subMenu = ELGetFirstXMLElementByName(newElement, (WCHAR*)TEXT("Submenu"), true);
               if (subMenu)
                 {
-                  subItem = ELGetFirstXMLElementByName(subMenu, (WCHAR*)TEXT("item"));
+                  subItem = ELGetFirstXMLElementByName(subMenu, (WCHAR*)TEXT("item"), true);
                   if (subItem)
                     {
                       ELWriteXMLIntValue(subItem, (WCHAR*)TEXT("Type"), 0);
@@ -661,20 +665,20 @@ LRESULT CALLBACK MenuBuilder::HookCallWndProc(int nCode, WPARAM wParam, LPARAM l
       switch (cwps.message)
         {
         case WM_CREATE:
+        {
+          WCHAR szClass[128];
+          GetClassName(cwps.hwnd, szClass, 127);
+          if (_wcsicmp(szClass, TEXT("#32768"))==0)
             {
-              WCHAR szClass[128];
-              GetClassName(cwps.hwnd, szClass, 127);
-              if (_wcsicmp(szClass, TEXT("#32768"))==0)
-                {
-                  SetWindowLongPtr(cwps.hwnd,
-                                   GWL_EXSTYLE,
-                                   GetWindowLongPtr(cwps.hwnd, GWL_EXSTYLE) | WS_EX_LAYERED);
-                  SetLayeredWindowAttributes(cwps.hwnd,
-                                             0,
-                                             (BYTE)((255 * globalMenuAlpha) / 100), LWA_ALPHA);
-                }
+              SetWindowLongPtr(cwps.hwnd,
+                               GWL_EXSTYLE,
+                               GetWindowLongPtr(cwps.hwnd, GWL_EXSTYLE) | WS_EX_LAYERED);
+              SetLayeredWindowAttributes(cwps.hwnd,
+                                         0,
+                                         (BYTE)((255 * globalMenuAlpha) / 100), LWA_ALPHA);
             }
-          break;
+        }
+        break;
         }
     }
 
@@ -927,7 +931,7 @@ void MenuBuilder::BuildXMLMenu(MenuMap::iterator iter)
       if (type == IT_XML_MENU)
         {
           ELReadXMLStringValue(child, (WCHAR*)TEXT("Name"), name, (WCHAR*)TEXT("\0"));
-          subSection = ELGetFirstXMLElementByName(child, (WCHAR*)TEXT("Submenu"));
+          subSection = ELGetFirstXMLElementByName(child, (WCHAR*)TEXT("Submenu"), false);
           subMenu = CreatePopupMenu();
           NoPrefixString(name);
           MenuItem *menuItem = new MenuItem(name, type, NULL, NULL, child);
@@ -1365,10 +1369,10 @@ void MenuBuilder::BuildFileMenuFromString(MenuMap::iterator iter, WCHAR *parsedV
           MenuItem *menuItem;
           wcscpy(extension, PathFindExtension(tmp));
           bool isShortcut = (_wcsicmp(extension, TEXT(".lnk")) == 0) ||
-            (_wcsicmp(extension, TEXT(".pif")) == 0) ||
-            (_wcsicmp(extension, TEXT(".scf")) == 0) ||
-            (_wcsicmp(extension, TEXT(".pnagent")) == 0) ||
-            (_wcsicmp(extension, TEXT(".url")) == 0);
+                            (_wcsicmp(extension, TEXT(".pif")) == 0) ||
+                            (_wcsicmp(extension, TEXT(".scf")) == 0) ||
+                            (_wcsicmp(extension, TEXT(".pnagent")) == 0) ||
+                            (_wcsicmp(extension, TEXT(".url")) == 0);
 
           wcscpy(entry, tmp);
           wcscpy(tmp, findData.cFileName);
@@ -1601,6 +1605,7 @@ LRESULT MenuBuilder::DoButtonDown(UINT button)
   GetCursorPos(&mousePT);
 
   ELStealFocus(menuWnd);
+  SetWindowPos(menuWnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
   SendMessage(menuWnd, WM_CANCELMODE, 0, 0);
 
   if (button == WM_LBUTTONDOWN)
@@ -1624,7 +1629,7 @@ LRESULT MenuBuilder::DoButtonDown(UINT button)
               break;
             }
 
-          menu = ELGetFirstXMLElementByName(section, menuName);
+          menu = ELGetFirstXMLElementByName(section, menuName, true);
           if (menu)
             {
               ClearAllMenus();
@@ -1819,9 +1824,8 @@ bool MenuBuilder::GetPos(MenuMap::iterator iter, WCHAR *input, bool directory, U
 
 void MenuBuilder::BuildSettingsMenu(MenuMap::iterator iter)
 {
-  AddSettingsItem(iter, (WCHAR*)TEXT("Configure"), BSM_CONFIGURE);
-  AddSettingsItem(iter, (WCHAR*)TEXT("Edit Launch Applets"), BSM_LAUNCH);
-  AddSettingsItem(iter, (WCHAR*)TEXT("Edit Aliases"), BSM_ALIAS);
+  AddSettingsItem(iter, (WCHAR*)TEXT("Configure Workspace"), BSM_CONFIGURE);
+  AddSettingsItem(iter, (WCHAR*)TEXT("Configure Core"), BSM_CORE);
   AddSettingsItem(iter, (WCHAR*)TEXT("\0"), BSM_SEPARATOR);
   AddSettingsItem(iter, (WCHAR*)TEXT("Theme Manager"), BSM_SELECTTHEME);
   AddSettingsItem(iter, (WCHAR*)TEXT("\0"), BSM_SEPARATOR);
@@ -1895,7 +1899,6 @@ void MenuBuilder::ExecuteSettingsMenuItem(UINT index)
 {
   std::wstring aliasFile;
   Config config(mainInst, pSettings);
-  HANDLE cmdFile;
 
   switch (++index)
     {
@@ -1908,34 +1911,14 @@ void MenuBuilder::ExecuteSettingsMenuItem(UINT index)
           UpdateMenuHook();
         }
       break;
-    case BSM_LAUNCH:
-      ELExecuteInternal((WCHAR*)TEXT("CoreLaunchEditor"));
+    case BSM_CORE:
+      ELExecuteInternal((WCHAR*)TEXT("CoreSettings"));
       break;
     case BSM_SHELL:
-      ELExecuteInternal((WCHAR*)TEXT("CoreShellChanger"));
-      break;
-    case BSM_ALIAS:
-      aliasFile = TEXT("%EmergeDir%\\files\\");
-      if (!PathIsDirectory(aliasFile.c_str()))
-        ELCreateDirectory(aliasFile);
-      aliasFile += TEXT("cmd.txt");
-      if (!ELPathFileExists(aliasFile.c_str()))
-        {
-          aliasFile = ELExpandVars(aliasFile);
-          cmdFile = CreateFile(aliasFile.c_str(),
-                               GENERIC_ALL,
-                               0,
-                               NULL,
-                               CREATE_NEW,
-                               FILE_ATTRIBUTE_NORMAL,
-                               NULL);
-          if (cmdFile != INVALID_HANDLE_VALUE)
-            CloseHandle(cmdFile);
-        }
-      ELExecute((WCHAR*)aliasFile.c_str());
+      ELExecuteInternal((WCHAR*)TEXT("ShellChanger"));
       break;
     case BSM_SELECTTHEME:
-      ELExecuteInternal((WCHAR*)TEXT("CoreThemeSelector"));
+      ELExecuteInternal((WCHAR*)TEXT("ThemeManager"));
       break;
     case BSM_QUIT:
       ELQuit(true);
@@ -1948,7 +1931,7 @@ void MenuBuilder::ExecuteHelpMenuItem(UINT index)
   switch (++index)
     {
     case BHM_ABOUT:
-      ELExecuteInternal((WCHAR*)TEXT("CoreAbout"));
+      ELExecuteInternal((WCHAR*)TEXT("About"));
       break;
     case BHM_OFFLINE:
       ELExecute((WCHAR*)TEXT("%AppletDir%\\Documentation\\Emerge Desktop.chm"));
@@ -1993,6 +1976,8 @@ BOOL CALLBACK MenuBuilder::SetMonitorArea(HMONITOR hMonitor, HDC hdcMonitor UNUS
 void MenuBuilder::SetWorkArea()
 {
   HDC hdc = GetDC(NULL);
+  SystemParametersInfo(SPI_GETWORKAREA, 0, &explorerWorkArea, 0);
+
   if (GetSystemMetrics(SM_CMONITORS) < 2)
     {
       RECT areaRect;

@@ -21,10 +21,8 @@
 #include "Desktop.h"
 
 std::deque<HWND> hwndDeque;
-typedef void *(WINAPI *SHCREATEDESKTOP)(void *);
-typedef bool (WINAPI *SHDESKTOPMESSAGELOOP)(void *);
 
-WCHAR desktopClass[] = TEXT("EmergeDesktop_progman");
+WCHAR desktopClass[] = TEXT("EmergeDesktopProgman");
 
 BOOL CALLBACK Desktop::MinimizeWindowsEnum(HWND hwnd, LPARAM lParam)
 {
@@ -44,13 +42,14 @@ Desktop::Desktop(HINSTANCE hInstance, std::tr1::shared_ptr<MessageControl> pMess
   this->pMessageControl = pMessageControl;
   mainInst = hInstance;
   registered = false;
-  m_hThread = NULL;
 }
 
-bool Desktop::Initialize()
+bool Desktop::Initialize(bool explorerDesktop)
 {
-  /*WNDCLASSEX wincl;
-    ZeroMemory(&wincl, sizeof(WNDCLASSEX));
+  WNDCLASSEX wincl;
+  ZeroMemory(&wincl, sizeof(WNDCLASSEX));
+  UINT SWPFlags = 0;
+  this->explorerDesktop = explorerDesktop;
 
   // Register the window class
   wincl.hInstance = mainInst;
@@ -63,58 +62,54 @@ bool Desktop::Initialize()
 
   // Register the window class, and if it fails quit the program
   if (!RegisterClassEx (&wincl))
-  return false;
+    return false;
 
   // The class is registered, let's create the window
   mainWnd = CreateWindowEx(WS_EX_TOOLWINDOW, desktopClass, NULL, WS_POPUP,
-  0, 0, 0, 0, NULL, NULL, mainInst, reinterpret_cast<LPVOID>(this));
+                           0, 0, 0, 0, NULL, NULL, mainInst, reinterpret_cast<LPVOID>(this));
 
   // If the window failed to get created, unregister the class and quit the program
   if (!mainWnd)
-  {
-  ELMessageBox(GetDesktopWindow(),
-  (WCHAR*)TEXT("Failed to create desktop window"),
-  (WCHAR*)TEXT("emergeDesktop"),
-  ELMB_OK|ELMB_ICONERROR|ELMB_MODAL);
-  return false;
-  }
+    {
+      ELMessageBox(GetDesktopWindow(),
+                   (WCHAR*)TEXT("Failed to create desktop window"),
+                   (WCHAR*)TEXT("emergeDesktop"),
+                   ELMB_OK|ELMB_ICONERROR|ELMB_MODAL);
+      return false;
+    }
+
+  if (explorerDesktop)
+    SWPFlags = SWP_HIDEWINDOW;
+  else
+    SWPFlags = SWP_SHOWWINDOW;
 
   SetWindowPos(mainWnd, HWND_BOTTOM, GetSystemMetrics(SM_XVIRTUALSCREEN), GetSystemMetrics(SM_YVIRTUALSCREEN),
-  GetSystemMetrics(SM_CXVIRTUALSCREEN), GetSystemMetrics(SM_CYVIRTUALSCREEN),
-  SWP_SHOWWINDOW);
+               GetSystemMetrics(SM_CXVIRTUALSCREEN), GetSystemMetrics(SM_CYVIRTUALSCREEN),
+               SWPFlags);
 
   SetBackgroundImage();
 
   if (ELRegisterShellHook(mainWnd, RSH_PROGMAN))
-  ShellMessage = RegisterWindowMessage(TEXT("SHELLHOOK"));*/
-
-  // Create Desktop thread
-  m_hThread = CreateThread(NULL, 0, ThreadFunc, NULL, 0, &m_dwThreadID);
+    ShellMessage = RegisterWindowMessage(TEXT("SHELLHOOK"));
 
   return true;
 }
 
 Desktop::~Desktop()
 {
-  // Send quit message to SHDesktopMessageLoop
-  if(m_dwThreadID)
-    PostThreadMessage(m_dwThreadID, WM_QUIT, 0, 0);
-
-  // Terminate thread
-  if (m_hThread)
-    {
-      if (WaitForSingleObject(m_hThread, 1000) != WAIT_OBJECT_0)
-        TerminateThread(m_hThread, 0);
-
-      CloseHandle(m_hThread);
-      m_hThread = 0;
-    }
-
   if (registered)
     {
       // Unregister the window class
       UnregisterClass(desktopClass, mainInst);
     }
+}
+
+void Desktop::ShowDesktop(bool show)
+{
+  if (show)
+    ShowWindow(mainWnd, SW_SHOW);
+  else
+    ShowWindow(mainWnd, SW_HIDE);
 }
 
 //----  --------------------------------------------------------------------------------------------------------
@@ -208,11 +203,15 @@ LRESULT CALLBACK Desktop::DesktopProcedure (HWND hwnd, UINT message, WPARAM wPar
  */
 LRESULT Desktop::DoDisplayChange(HWND hwnd)
 {
+  UINT SWPFlags = SWP_SHOWWINDOW;
+  if (explorerDesktop)
+    SWPFlags = SWP_HIDEWINDOW;
+
   /**< Adjust the window position to cover the desktop */
   SetWindowPos(hwnd, HWND_BOTTOM,
                GetSystemMetrics(SM_XVIRTUALSCREEN), GetSystemMetrics(SM_YVIRTUALSCREEN),
                GetSystemMetrics(SM_CXVIRTUALSCREEN), GetSystemMetrics(SM_CYVIRTUALSCREEN),
-               SWP_SHOWWINDOW);
+               SWPFlags);
 
   /**< Set the background image again so that the user doesn't end up with a blank background */
   SetBackgroundImage();
@@ -267,12 +266,14 @@ void Desktop::ToggleDesktop()
       for (iter = minimizedWindowDeque.begin(); iter != minimizedWindowDeque.end(); ++iter)
         ShowWindow(*iter, SW_SHOWNOACTIVATE);
       minimizedWindowDeque.clear();
-      SetWindowPos(mainWnd, HWND_BOTTOM, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOSENDCHANGING | SWP_NOACTIVATE);
+      if (!explorerDesktop)
+        SetWindowPos(mainWnd, HWND_BOTTOM, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOSENDCHANGING | SWP_NOACTIVATE);
     }
   else
     {
       EnumWindows(MinimizeWindowsEnum, (LPARAM)&minimizedWindowDeque);
-      SetWindowPos(mainWnd, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOSENDCHANGING);
+      if (!explorerDesktop)
+        SetWindowPos(mainWnd, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOSENDCHANGING);
       for (iter = minimizedWindowDeque.begin(); iter != minimizedWindowDeque.end(); ++iter)
         ShowWindow(*iter, SW_SHOWMINNOACTIVE);
     }
@@ -314,59 +315,3 @@ bool Desktop::SetBackgroundImage()
   return ret;
 }
 
-DWORD WINAPI Desktop::ThreadFunc(LPVOID pvParam UNUSED)
-{
-  LPVOID lpVoid;
-  DWORD registerCookie;
-  TShellDesktopTrayFactory *explorerFactory = new TShellDesktopTrayFactory();
-  TShellDesktopTray *explorerTray = NULL;
-  HMODULE shell32DLL = ELLoadSystemLibrary(TEXT("shell32.dll"));
-  if (!shell32DLL)
-	  return 1;
-
-  // Initialize COM for this thread
-  CoInitializeEx(NULL, COINIT_APARTMENTTHREADED);
-
-  // Register the IShellDesktopTray COM Object
-  if (FAILED(CoRegisterClassObject(IID_IShellDesktopTray,
-                                   LPUNKNOWN(explorerFactory),
-                                   CLSCTX_LOCAL_SERVER,
-                                   REGCLS_MULTIPLEUSE,
-                                   &registerCookie)))
-    return 1;
-
-  // Create the ShellDesktopTray interface
-  explorerTray = new TShellDesktopTray();
-  explorerTray->QueryInterface(IID_IShellDesktopTray, &lpVoid);
-  IShellDesktopTray *iTray = reinterpret_cast <IShellDesktopTray*> (lpVoid);
-
-  SetPriorityClass(GetCurrentProcess(), HIGH_PRIORITY_CLASS);
-
-  SHCREATEDESKTOP SHCreateDesktop = (SHCREATEDESKTOP)GetProcAddress(shell32DLL, (LPCSTR)200);
-  SHDESKTOPMESSAGELOOP SHDesktopMessageLoop = (SHDESKTOPMESSAGELOOP)GetProcAddress(shell32DLL, (LPCSTR)201);
-
-  if (SHCreateDesktop && SHDesktopMessageLoop)
-    {
-      // Create the desktop
-      HANDLE hDesktop = SHCreateDesktop(iTray);
-
-      SendMessage(GetDesktopWindow(), 0x400, 0, 0);
-
-      // Run the desktop message loop
-      if (hDesktop)
-        SHDesktopMessageLoop(hDesktop);
-    }
-
-  explorerTray->Release();
-
-  explorerFactory->Release();
-
-  // Revoke the COM object
-  CoRevokeClassObject(registerCookie);
-
-  CoUninitialize();
-
-  FreeLibrary(shell32DLL);
-
-  return 0;
-}

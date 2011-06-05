@@ -33,12 +33,11 @@
 // Returns:	Nothing
 // Purpose:	Creates TrayIcon Class Object
 //----  --------------------------------------------------------------------------------------------------------
-Task::Task(HWND task, HICON icon, HINSTANCE mainInstance)
+Task::Task(HWND task, HINSTANCE mainInstance)
 {
   (*this).mainInstance = mainInstance;
-  origIcon = CopyIcon(icon);
   newIcon = NULL;
-  (*this).wnd = task;
+  wnd = task;
   rect.left = 0;
   rect.right = 0;
   rect.top = 0;
@@ -46,21 +45,37 @@ Task::Task(HWND task, HICON icon, HINSTANCE mainInstance)
   flash = false;
   visible = true;
   flashCount = 0;
+  origIcon = NULL;
 
   convertIcon = true;
 }
 
-void Task::CreateNewIcon(BYTE foregroundAlpha)
+void Task::CreateNewIcon(BYTE foregroundAlpha, BYTE backgroundAlpha)
 {
   HICON tmpIcon = NULL;
+
+  /**< Don't bother converting NULL icons, just set newIcon and return */
+  if (origIcon == NULL)
+    {
+      newIcon = NULL;
+      return;
+    }
 
   if (convertIcon)
     {
       convertIcon = false;
 
-      tmpIcon = EGConvertIcon(origIcon, foregroundAlpha);
-      if (tmpIcon != NULL)
+      // If the background if fully opaque, don't bother converting the icon, simply copy it
+      if (backgroundAlpha == 0xff)
         {
+          if (newIcon != NULL)
+            DestroyIcon(newIcon);
+          newIcon = CopyIcon(origIcon);
+        }
+      else
+        {
+          /**< Don't bail if EGConvertIcon returns a NULL icon, since in this case it may be valid (icon flashing) */
+          tmpIcon = EGConvertIcon(origIcon, foregroundAlpha);
           if (newIcon != NULL)
             DestroyIcon(newIcon);
           newIcon = CopyIcon(tmpIcon);
@@ -142,14 +157,30 @@ RECT *Task::GetRect()
 // Returns:	Nothing
 // Purpose:	Replaces existing task icon with new icon
 //----  --------------------------------------------------------------------------------------------------------
-void Task::SetIcon(HICON icon)
+void Task::SetIcon(HICON icon, int iconSize)
 {
-  if (origIcon)
-    DestroyIcon(origIcon);
+  std::wstring applicationName;
 
-  origIcon = CopyIcon(icon);
+  if (icon)
+    {
+      if (origIcon)
+        DestroyIcon(origIcon);
 
-  convertIcon = true;
+      origIcon = CopyIcon(icon);
+
+      convertIcon = true;
+    }
+  /* if the passed icon is NULL and origIcon is also NULL, generate a default
+   * icon using the application's icon.
+   */
+  else
+    {
+      if (origIcon == NULL)
+        {
+          applicationName = ELGetWindowApp(wnd, true);
+          origIcon = EGGetFileIcon(applicationName.c_str(), iconSize);
+        }
+    }
 }
 
 //----  --------------------------------------------------------------------------------------------------------

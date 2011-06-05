@@ -110,32 +110,36 @@ static const UINT EMERGE_MESSAGE = RegisterWindowMessage(TEXT("EmergeMessage"));
 #define EMERGE_VWM      0x02
 
 // EMERGE_CORE Messages
-#define CORE_QUIT           100
-#define CORE_SHOW           101
-#define CORE_HIDE           102
-#define CORE_LAUNCH         103
-#define CORE_SETTINGS       104
-#define CORE_MENU           105
-#define CORE_SHELL          106
-#define CORE_RIGHTMENU      107
-#define CORE_MIDMENU        108
-#define CORE_RUN            109
-#define CORE_SHUTDOWN       110
-#define CORE_EMPTYBIN       111
-#define CORE_LOGOFF         112
-#define CORE_REBOOT         113
-#define CORE_HALT           114
-#define CORE_SUSPEND        115
-#define CORE_HIBERNATE      116
-#define CORE_DESKTOP        117
-#define CORE_REFRESH        118
-#define CORE_DISCONNECT     119
-#define CORE_ABOUT          120
-#define CORE_RECONFIGURE    121
-#define CORE_THEMESELECT    122
-#define CORE_WRITESETTINGS  123
-#define CORE_LEFTMENU       124
-#define CORE_REPOSITION     125
+typedef enum _COREMESSAGES {
+  CORE_QUIT = 100,
+  CORE_SHOW,
+  CORE_HIDE,
+  CORE_LAUNCH,
+  CORE_SETTINGS,
+  CORE_MENU,
+  CORE_SHELL,
+  CORE_RIGHTMENU,
+  CORE_MIDMENU,
+  CORE_RUN,
+  CORE_SHUTDOWN,
+  CORE_EMPTYBIN,
+  CORE_LOGOFF,
+  CORE_REBOOT,
+  CORE_HALT,
+  CORE_SUSPEND,
+  CORE_HIBERNATE,
+  CORE_DESKTOP,
+  CORE_REFRESH,
+  CORE_DISCONNECT,
+  CORE_ABOUT,
+  CORE_RECONFIGURE,
+  CORE_THEMESELECT,
+  CORE_WRITESETTINGS,
+  CORE_LEFTMENU,
+  CORE_REPOSITION,
+  CORE_CONFIGURE,
+  CORE_ALIAS
+} COREMESSAGES;
 
 // EMERGE_VWM Messages
 #define VWM_UP          200
@@ -296,6 +300,7 @@ DLL_EXPORT bool ELExecuteSpecialFolder(LPTSTR folder);
 DLL_EXPORT bool ELExecuteAll(WCHAR *command, WCHAR *workingDir);
 DLL_EXPORT bool ELGetCurrentPath(LPTSTR path);
 DLL_EXPORT std::wstring ELGetUserDataPath();
+DLL_EXPORT std::wstring ELGetPortableMode();
 DLL_EXPORT HWND ELGetCoreWindow();
 DLL_EXPORT bool ELRun();
 DLL_EXPORT bool ELRegisterShellHook(HWND hwnd, DWORD method);
@@ -323,17 +328,18 @@ DLL_EXPORT bool ELWriteFileInt(const WCHAR *fileName, WCHAR *keyword, int value)
 DLL_EXPORT bool ELWriteFileString(const WCHAR *fileName, WCHAR *keyword, WCHAR *value);
 DLL_EXPORT bool ELWriteFileBool(const WCHAR *fileName, WCHAR *keyword, bool value);
 DLL_EXPORT bool ELWriteFileColor(const WCHAR *fileName, WCHAR *keyword, COLORREF value);
-DLL_EXPORT float ELVersionInfo();
+DLL_EXPORT double ELVersionInfo();
 DLL_EXPORT bool ELAppletVersionInfo(HWND appWnd, LPVERSIONINFO versionInfo);
-DLL_EXPORT bool ELAppletFileVersion(WCHAR *applet, LPVERSIONINFO versionInfo);
-DLL_EXPORT bool ELGetWindowApp(HWND hWnd, WCHAR *processName, bool fullName);
+DLL_EXPORT bool ELAppletFileVersion(const WCHAR *applet, LPVERSIONINFO versionInfo);
+DLL_EXPORT std::wstring ELGetWindowApp(HWND hWnd, bool fullName);
 DLL_EXPORT bool ELIsFullScreen(HWND appletWnd, HWND appWnd);
 DLL_EXPORT bool ELIsApplet(HWND hwnd);
+DLL_EXPORT bool ELIsExplorer(HWND hwnd);
 DLL_EXPORT bool ELParseCommand(const WCHAR *application, WCHAR *program, WCHAR *arguments);
 DLL_EXPORT int ELIsSpecialFolder(WCHAR *folder);
 DLL_EXPORT bool ELSpecialFolderValue(WCHAR *folder, WCHAR *value);
 DLL_EXPORT int ELSpecialFolderID(WCHAR *folder);
-DLL_EXPORT UINT ELIsInternalCommand(WCHAR *command);
+DLL_EXPORT UINT ELIsInternalCommand(const WCHAR *command);
 DLL_EXPORT bool ELGetSpecialFolder(int folder, WCHAR *folderPath);
 DLL_EXPORT void ELWriteDebug(std::wstring debugText);
 DLL_EXPORT void ELDisplayChange(HWND hwnd);
@@ -365,7 +371,7 @@ DLL_EXPORT bool ELReadXMLStringValue(TiXmlElement *section, const WCHAR *item, W
 DLL_EXPORT bool ELWriteXMLStringValue(TiXmlElement *section, const WCHAR *item, const WCHAR *value);
 DLL_EXPORT TiXmlElement *ELGetXMLSection(TiXmlDocument *configXML, WCHAR *section, bool createSection);
 DLL_EXPORT TiXmlElement *ELGetFirstXMLElement(TiXmlElement *xmlSection);
-DLL_EXPORT TiXmlElement *ELGetFirstXMLElementByName(TiXmlElement *xmlSection, WCHAR *elementName);
+DLL_EXPORT TiXmlElement *ELGetFirstXMLElementByName(TiXmlElement *xmlSection, WCHAR *elementName, bool createElement);
 DLL_EXPORT TiXmlElement *ELSetFirstXMLElement(TiXmlElement *xmlSection, const WCHAR *elementName);
 DLL_EXPORT TiXmlElement *ELGetSiblingXMLElement(TiXmlElement *xmlElement);
 DLL_EXPORT TiXmlElement *ELSetSibilingXMLElement(TiXmlElement *xmlElement, const WCHAR *elementName);
@@ -382,6 +388,8 @@ DLL_EXPORT TiXmlDocument *ELGetXMLConfig(TiXmlElement *element);
 DLL_EXPORT bool ELConvertThemePath(WCHAR *styleFile, DWORD flags);
 DLL_EXPORT bool ELConvertUserPath(WCHAR *styleFile, DWORD flags);
 DLL_EXPORT bool ELConvertAppletPath(WCHAR *styleFile, DWORD flags);
+DLL_EXPORT bool ELRelativePathFromAbsPath(WCHAR *destPath, LPCTSTR sourcePath = TEXT("%AppletDir%\\"));
+DLL_EXPORT bool ELAbsPathFromRelativePath(WCHAR *destPath, LPCTSTR sourcePath = TEXT("%AppletDir%\\"));
 DLL_EXPORT int ELGetAppletMonitor(HWND hwnd);
 DLL_EXPORT RECT ELGetMonitorRect(int monitor);
 //DLL_EXPORT bool ELIsKeyDown(UINT virtualKey);
@@ -429,10 +437,6 @@ DLL_EXPORT bool ELSetTheme(std::wstring theme);
 DLL_EXPORT std::wstring ELToLower(std::wstring workingString);
 DLL_EXPORT bool ELSetAppletsTheme(std::wstring theme);
 DLL_EXPORT bool ELFileOp(HWND appletWnd, UINT function, std::wstring source, std::wstring destination = TEXT(""));
-DLL_EXPORT void ELILFree(LPITEMIDLIST pidl);
-DLL_EXPORT LPITEMIDLIST ELILClone(LPITEMIDLIST pidl);
-DLL_EXPORT LPITEMIDLIST ELILFindLastID(LPITEMIDLIST pidl);
-DLL_EXPORT BOOL ELILRemoveLastID(LPITEMIDLIST pidl);
 DLL_EXPORT std::wstring ELGetProcessIDApp(DWORD processID, bool fullName);
 DLL_EXPORT int ELMakeZip(std::wstring zipFile, std::wstring zipRoot, std::wstring zipPath);
 DLL_EXPORT int ELExtractZip(std::wstring zipFile, std::wstring unzipPath);
@@ -444,5 +448,12 @@ DLL_EXPORT HANDLE ELActivateActCtxForDll(LPCTSTR pszDll, PULONG_PTR pulCookie);
 DLL_EXPORT HANDLE ELActivateActCtxForClsid(REFCLSID rclsid, PULONG_PTR pulCookie);
 DLL_EXPORT void ELDeactivateActCtx(HANDLE hActCtx, ULONG_PTR* pulCookie);
 DLL_EXPORT IOleCommandTarget *ELStartSSO(CLSID clsid);
+DLL_EXPORT void ELStripLeadingSpaces(LPTSTR input);
+inline bool ELPathIsCLSID(const WCHAR *path)
+{
+  return (path[0] == ':' && path[1] == ':' && path[2] == '{');
+}
+DLL_EXPORT bool ELIsExplorerShell();
+DLL_EXPORT bool ELIsEmergeShell();
 
 #endif
