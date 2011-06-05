@@ -129,8 +129,8 @@ private:
   bool EditMenuItem(MenuMap::iterator iter, int index);
   void ElevatedExecute(MenuItem *menuItem);
   float winVersion;
-//    CustomDropTarget *customDropTarget;
-//    IDropTarget *dropTarget;
+  CustomDropTarget *customDropTarget;
+  IDropTarget *dropTarget;
 
 public:
   MenuBuilder(HINSTANCE desktopInst);

@@ -99,13 +99,13 @@ bool MenuBuilder::Initialize()
   // Register to recieve the specified Emerge Desktop messages
   PostMessage(ELGetCoreWindow(), EMERGE_REGISTER, (WPARAM)menuWnd, (LPARAM)EMERGE_CORE);
 
-  //  LPVOID lpVoid;
-  //  customDropTarget = new CustomDropTarget(menuWnd);
-  //  customDropTarget->QueryInterface(IID_IDropTarget, &lpVoid);
-  //  dropTarget = reinterpret_cast <IDropTarget*> (lpVoid);
+  /*LPVOID lpVoid;
+  customDropTarget = new CustomDropTarget();
+  customDropTarget->QueryInterface(IID_IDropTarget, &lpVoid);
+  dropTarget = reinterpret_cast <IDropTarget*> (lpVoid);
 
-  //  if (RegisterDragDrop(menuWnd, dropTarget) != S_OK)
-  //    return false;
+  if (RegisterDragDrop(menuWnd, dropTarget) != S_OK)
+    return false;*/
 
   return true;
 }
@@ -133,8 +133,8 @@ MenuBuilder::~MenuBuilder()
       // Unregister the specified Emerge Desktop messages
       PostMessage(ELGetCoreWindow(), EMERGE_UNREGISTER, (WPARAM)menuWnd, (LPARAM)EMERGE_CORE);
 
-      //      dropTarget->Release();
-      //      RevokeDragDrop(menuWnd);
+      /*dropTarget->Release();
+      RevokeDragDrop(menuWnd);*/
 
       // Clear the menu hook
       if (menuHook)
@@ -202,9 +202,17 @@ LRESULT CALLBACK MenuBuilder::MenuProcedure (HWND hwnd, UINT message, WPARAM wPa
       break;
 
     case WM_MENUDRAG:
+        {
+          std::wstring debug = L"Got MENUDRAG";
+          ELWriteDebug(debug);
+        }
       return pMenuBuilder->DoMenuDrag(hwnd, (HMENU)lParam);
 
     case WM_MENUGETOBJECT:
+        {
+          std::wstring debug = L"Got MENUGETOBJECT";
+          ELWriteDebug(debug);
+        }
       return pMenuBuilder->DoMenuGetObject(hwnd, (MENUGETOBJECTINFO*)lParam);
 
     case WM_DISPLAYCHANGE:
@@ -328,7 +336,7 @@ LRESULT MenuBuilder::DoMenuGetObject(HWND hwnd UNUSED, MENUGETOBJECTINFO *mgoInf
 
 LRESULT MenuBuilder::DoMenuDrag(HWND hwnd, HMENU menu)
 {
-  DWORD /*effect,*/ dropEffects;
+  DWORD effect, dropEffects;
   LPVOID lpVoid;
   IDropSource *dropSource;
   IDataObject *dataObject;
@@ -342,8 +350,11 @@ LRESULT MenuBuilder::DoMenuDrag(HWND hwnd, HMENU menu)
   customDataObject->QueryInterface(IID_IDataObject, &lpVoid);
   dataObject = reinterpret_cast <IDataObject*> (lpVoid);
 
-  /*if (DoDragDrop(dataObject, dropSource, dropEffects, &effect) == DRAGDROP_S_DROP)
-    OutputDebugString((WCHAR*)TEXT("Drop successfull"));*/
+  if (DoDragDrop(dataObject, dropSource, dropEffects, &effect) == DRAGDROP_S_DROP)
+    {
+      std::wstring debug = TEXT("Drop successfull");
+      ELWriteDebug(debug);
+    }
 
   dropSource->Release();
   dataObject->Release();
@@ -1677,10 +1688,13 @@ LRESULT MenuBuilder::DoInitMenu(HMENU menu)
   menuInfo.cbSize = sizeof(MENUINFO);
   menuInfo.fMask = MIM_MAXHEIGHT | MIM_STYLE;
   menuInfo.cyMax = monitorHeight;
-  // Temporarily disable Drag-and-Drop until it does something useful
-  //menuInfo.dwStyle |= MNS_DRAGDROP;
-  menuInfo.dwStyle = MNS_CHECKORBMP;
-  SetMenuInfo(menu, &menuInfo);
+  menuInfo.dwStyle = MNS_CHECKORBMP | MNS_DRAGDROP;
+  std::wstring debug;
+  if (SetMenuInfo(menu, &menuInfo))
+    debug = L"SetMenuInfo Worked";
+  else
+    debug = L"SetMenuInfo Failed";
+  ELWriteDebug(debug);
 
   BuildMenu(iter);
 
