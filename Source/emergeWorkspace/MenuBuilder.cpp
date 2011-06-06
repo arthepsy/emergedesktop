@@ -202,17 +202,9 @@ LRESULT CALLBACK MenuBuilder::MenuProcedure (HWND hwnd, UINT message, WPARAM wPa
       break;
 
     case WM_MENUDRAG:
-        {
-          std::wstring debug = L"Got MENUDRAG";
-          ELWriteDebug(debug);
-        }
       return pMenuBuilder->DoMenuDrag(hwnd, (HMENU)lParam);
 
     case WM_MENUGETOBJECT:
-        {
-          std::wstring debug = L"Got MENUGETOBJECT";
-          ELWriteDebug(debug);
-        }
       return pMenuBuilder->DoMenuGetObject(hwnd, (MENUGETOBJECTINFO*)lParam);
 
     case WM_DISPLAYCHANGE:
@@ -1650,6 +1642,16 @@ LRESULT MenuBuilder::DoButtonDown(UINT button)
                              shared_ptr<MenuListItem> >(rootMenu, mli));
               iter = menuMap.begin();
 
+              // MNS_DRAGDROG must be set before the menu is visible.
+              MENUINFO menuInfo;
+              menuInfo.cbSize = sizeof(menuInfo);
+              menuInfo.fMask = MIM_STYLE;
+              if (GetMenuInfo(rootMenu, &menuInfo))
+              {
+                menuInfo.dwStyle |= MNS_DRAGDROP;
+                SetMenuInfo(rootMenu, &menuInfo);
+              }
+
               UINT itemID = TrackPopupMenuEx(rootMenu, TPM_RETURNCMD|TPM_RECURSE, mousePT.x, mousePT.y, menuWnd, NULL);
               if (itemID != 0)
                 ExecuteMenuItem(itemID);
@@ -1688,13 +1690,8 @@ LRESULT MenuBuilder::DoInitMenu(HMENU menu)
   menuInfo.cbSize = sizeof(MENUINFO);
   menuInfo.fMask = MIM_MAXHEIGHT | MIM_STYLE;
   menuInfo.cyMax = monitorHeight;
-  menuInfo.dwStyle = MNS_CHECKORBMP | MNS_DRAGDROP;
-  std::wstring debug;
-  if (SetMenuInfo(menu, &menuInfo))
-    debug = L"SetMenuInfo Worked";
-  else
-    debug = L"SetMenuInfo Failed";
-  ELWriteDebug(debug);
+  menuInfo.dwStyle = MNS_CHECKORBMP;
+  SetMenuInfo(menu, &menuInfo);
 
   BuildMenu(iter);
 
