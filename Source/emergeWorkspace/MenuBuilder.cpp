@@ -100,11 +100,11 @@ bool MenuBuilder::Initialize()
   PostMessage(ELGetCoreWindow(), EMERGE_REGISTER, (WPARAM)menuWnd, (LPARAM)EMERGE_CORE);
 
   /*LPVOID lpVoid;
-  customDropTarget = new CustomDropTarget();
-  customDropTarget->QueryInterface(IID_IDropTarget, &lpVoid);
-  dropTarget = reinterpret_cast <IDropTarget*> (lpVoid);
+    customDropTarget = new CustomDropTarget();
+    customDropTarget->QueryInterface(IID_IDropTarget, &lpVoid);
+    dropTarget = reinterpret_cast <IDropTarget*> (lpVoid);
 
-  if (RegisterDragDrop(menuWnd, dropTarget) != S_OK)
+    if (RegisterDragDrop(menuWnd, dropTarget) != S_OK)
     return false;*/
 
   return true;
@@ -134,7 +134,7 @@ MenuBuilder::~MenuBuilder()
       PostMessage(ELGetCoreWindow(), EMERGE_UNREGISTER, (WPARAM)menuWnd, (LPARAM)EMERGE_CORE);
 
       /*dropTarget->Release();
-      RevokeDragDrop(menuWnd);*/
+        RevokeDragDrop(menuWnd);*/
 
       // Clear the menu hook
       if (menuHook)
@@ -202,7 +202,7 @@ LRESULT CALLBACK MenuBuilder::MenuProcedure (HWND hwnd, UINT message, WPARAM wPa
       break;
 
     case WM_MENUDRAG:
-      return pMenuBuilder->DoMenuDrag(hwnd, (HMENU)lParam);
+      return pMenuBuilder->DoMenuDrag(hwnd, (UINT)wParam, (HMENU)lParam);
 
     case WM_MENUGETOBJECT:
       return pMenuBuilder->DoMenuGetObject(hwnd, (MENUGETOBJECTINFO*)lParam);
@@ -243,15 +243,15 @@ LRESULT MenuBuilder::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lP
       switch (lParam)
         {
         case CORE_SETTINGS:
-        {
-          Config config(mainInst, pSettings);
-          if (config.Show() == IDOK)
             {
-              UpdateMenuHook();
-              SetWorkArea();
+              Config config(mainInst, pSettings);
+              if (config.Show() == IDOK)
+                {
+                  UpdateMenuHook();
+                  SetWorkArea();
+                }
             }
-        }
-        break;
+          break;
 
         case CORE_RIGHTMENU:
           return DoButtonDown(WM_RBUTTONDOWN);
@@ -326,7 +326,7 @@ LRESULT MenuBuilder::DoMenuGetObject(HWND hwnd UNUSED, MENUGETOBJECTINFO *mgoInf
   return MNGO_NOERROR;
 }
 
-LRESULT MenuBuilder::DoMenuDrag(HWND hwnd, HMENU menu)
+LRESULT MenuBuilder::DoMenuDrag(HWND hwnd, UINT pos, HMENU menu)
 {
   DWORD effect, dropEffects;
   LPVOID lpVoid;
@@ -334,8 +334,28 @@ LRESULT MenuBuilder::DoMenuDrag(HWND hwnd, HMENU menu)
   IDataObject *dataObject;
   std::tr1::shared_ptr<CustomDropSource> customDropSource(new CustomDropSource(hwnd));
   std::tr1::shared_ptr<CustomDataObject> customDataObject(new CustomDataObject(menu));
+  MENUITEMINFO itemInfo;
+  UINT itemID;
 
-  dropEffects = DROPEFFECT_COPY;
+  itemInfo.cbSize = sizeof(itemInfo);
+  itemInfo.fMask = MIIM_ID;
+
+  ELWriteDebug(towstring(pos));
+
+  if (!GetMenuItemInfo(menu, pos, TRUE, &itemInfo))
+    return 1;
+
+  MenuMap::iterator iter = menuMap.find(menu);
+  if (iter == menuMap.end())
+    return 1;
+
+  itemID = itemInfo.wID;
+  itemID--;
+
+  std::wstring debug = iter->second->GetMenuItem(itemID)->GetName();
+  ELWriteDebug(debug);
+
+  dropEffects = DROPEFFECT_MOVE;
 
   customDropSource->QueryInterface(IID_IDropSource, &lpVoid);
   dropSource = reinterpret_cast <IDropSource*> (lpVoid);
@@ -449,32 +469,32 @@ LRESULT MenuBuilder::DoContextMenu(POINT pt)
         SendMessage(menuWnd, WM_CANCELMODE, 0, 0);
       break;
     case IT_TASKS_MENU:
-    {
-      HWND task = (HWND)_wtoi(value);
-      res = EAEDisplayMenu(menuWnd, task);
-      switch (res)
         {
-        case SC_CLOSE:
-          DeleteMenu(iter->first, index, MF_BYPOSITION);
-          break;
-        case SC_SIZE:
-        case SC_MOVE:
-        case SC_MAXIMIZE:
-        case SC_RESTORE:
-          ELSwitchToThisWindow(task);
-          SendMessage(menuWnd, WM_CANCELMODE, 0, 0);
-          break;
+          HWND task = (HWND)_wtoi(value);
+          res = EAEDisplayMenu(menuWnd, task);
+          switch (res)
+            {
+            case SC_CLOSE:
+              DeleteMenu(iter->first, index, MF_BYPOSITION);
+              break;
+            case SC_SIZE:
+            case SC_MOVE:
+            case SC_MAXIMIZE:
+            case SC_RESTORE:
+              ELSwitchToThisWindow(task);
+              SendMessage(menuWnd, WM_CANCELMODE, 0, 0);
+              break;
+            }
+          if (res)
+            PostMessage(task, WM_SYSCOMMAND, (WPARAM)res, MAKELPARAM(pt.x, pt.y));
         }
-      if (res)
-        PostMessage(task, WM_SYSCOMMAND, (WPARAM)res, MAKELPARAM(pt.x, pt.y));
-    }
-    break;
-    /*case IT_SETTINGS_MENU:
-      ExecuteSettingsMenuItem(itemID);
-      break;*/
-    /*case IT_HELP_MENU:
-      ExecuteSettingsMenuItem(itemID);
-      break;*/
+      break;
+      /*case IT_SETTINGS_MENU:
+        ExecuteSettingsMenuItem(itemID);
+        break;*/
+      /*case IT_HELP_MENU:
+        ExecuteSettingsMenuItem(itemID);
+        break;*/
     }
 
   return 1;
@@ -668,20 +688,20 @@ LRESULT CALLBACK MenuBuilder::HookCallWndProc(int nCode, WPARAM wParam, LPARAM l
       switch (cwps.message)
         {
         case WM_CREATE:
-        {
-          WCHAR szClass[128];
-          GetClassName(cwps.hwnd, szClass, 127);
-          if (_wcsicmp(szClass, TEXT("#32768"))==0)
             {
-              SetWindowLongPtr(cwps.hwnd,
-                               GWL_EXSTYLE,
-                               GetWindowLongPtr(cwps.hwnd, GWL_EXSTYLE) | WS_EX_LAYERED);
-              SetLayeredWindowAttributes(cwps.hwnd,
-                                         0,
-                                         (BYTE)((255 * globalMenuAlpha) / 100), LWA_ALPHA);
+              WCHAR szClass[128];
+              GetClassName(cwps.hwnd, szClass, 127);
+              if (_wcsicmp(szClass, TEXT("#32768"))==0)
+                {
+                  SetWindowLongPtr(cwps.hwnd,
+                                   GWL_EXSTYLE,
+                                   GetWindowLongPtr(cwps.hwnd, GWL_EXSTYLE) | WS_EX_LAYERED);
+                  SetLayeredWindowAttributes(cwps.hwnd,
+                                             0,
+                                             (BYTE)((255 * globalMenuAlpha) / 100), LWA_ALPHA);
+                }
             }
-        }
-        break;
+          break;
         }
     }
 
@@ -1372,10 +1392,10 @@ void MenuBuilder::BuildFileMenuFromString(MenuMap::iterator iter, WCHAR *parsedV
           MenuItem *menuItem;
           wcscpy(extension, PathFindExtension(tmp));
           bool isShortcut = (_wcsicmp(extension, TEXT(".lnk")) == 0) ||
-                            (_wcsicmp(extension, TEXT(".pif")) == 0) ||
-                            (_wcsicmp(extension, TEXT(".scf")) == 0) ||
-                            (_wcsicmp(extension, TEXT(".pnagent")) == 0) ||
-                            (_wcsicmp(extension, TEXT(".url")) == 0);
+            (_wcsicmp(extension, TEXT(".pif")) == 0) ||
+            (_wcsicmp(extension, TEXT(".scf")) == 0) ||
+            (_wcsicmp(extension, TEXT(".pnagent")) == 0) ||
+            (_wcsicmp(extension, TEXT(".url")) == 0);
 
           wcscpy(entry, tmp);
           wcscpy(tmp, findData.cFileName);
@@ -1643,14 +1663,25 @@ LRESULT MenuBuilder::DoButtonDown(UINT button)
               iter = menuMap.begin();
 
               // MNS_DRAGDROG must be set before the menu is visible.
+              MONITORINFO monitorInfo;
+              HMONITOR monitor;
+              UINT monitorHeight;
               MENUINFO menuInfo;
+
+              monitor = MonitorFromPoint(mousePT, MONITOR_DEFAULTTONEAREST);
+              monitorInfo.cbSize = sizeof(MONITORINFO);
+              GetMonitorInfo(monitor, &monitorInfo);
+              monitorHeight = abs(monitorInfo.rcMonitor.bottom - monitorInfo.rcMonitor.top);
+
               menuInfo.cbSize = sizeof(menuInfo);
-              menuInfo.fMask = MIM_STYLE;
+              menuInfo.fMask = MIM_MAXHEIGHT | MIM_STYLE;
               if (GetMenuInfo(rootMenu, &menuInfo))
-              {
-                menuInfo.dwStyle |= MNS_DRAGDROP;
-                SetMenuInfo(rootMenu, &menuInfo);
-              }
+                {
+                  menuInfo.fMask |= MIM_APPLYTOSUBMENUS;
+                  menuInfo.cyMax = monitorHeight;
+                  menuInfo.dwStyle |= MNS_DRAGDROP | MNS_CHECKORBMP;
+                  SetMenuInfo(rootMenu, &menuInfo);
+                }
 
               UINT itemID = TrackPopupMenuEx(rootMenu, TPM_RETURNCMD|TPM_RECURSE, mousePT.x, mousePT.y, menuWnd, NULL);
               if (itemID != 0)
@@ -1670,28 +1701,10 @@ LRESULT MenuBuilder::DoButtonDown(UINT button)
 LRESULT MenuBuilder::DoInitMenu(HMENU menu)
 {
   MenuMap::iterator iter;
-  POINT mousePT;
-  MONITORINFO monitorInfo;
-  MENUINFO menuInfo;
-  HMONITOR monitor;
-  UINT monitorHeight;
 
   iter = menuMap.find(menu);
   if (iter == menuMap.end())
     return 1;
-
-  GetCursorPos(&mousePT);
-
-  monitor = MonitorFromPoint(mousePT, MONITOR_DEFAULTTONEAREST);
-  monitorInfo.cbSize = sizeof(MONITORINFO);
-  GetMonitorInfo(monitor, &monitorInfo);
-  monitorHeight = abs(monitorInfo.rcMonitor.bottom - monitorInfo.rcMonitor.top);
-
-  menuInfo.cbSize = sizeof(MENUINFO);
-  menuInfo.fMask = MIM_MAXHEIGHT | MIM_STYLE;
-  menuInfo.cyMax = monitorHeight;
-  menuInfo.dwStyle = MNS_CHECKORBMP;
-  SetMenuInfo(menu, &menuInfo);
 
   BuildMenu(iter);
 

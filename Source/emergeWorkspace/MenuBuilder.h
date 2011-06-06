@@ -137,7 +137,7 @@ public:
   ~MenuBuilder();
   bool Initialize();
   LRESULT DoButtonDown(UINT button);
-  LRESULT DoMenuDrag(HWND hwnd, HMENU menu);
+  LRESULT DoMenuDrag(HWND hwnd, UINT pos, HMENU menu);
   LRESULT DoMenuGetObject(HWND hwnd, MENUGETOBJECTINFO *mgoInfo);
   LRESULT DoInitMenu(HMENU menu);
   LRESULT ExecuteMenuItem(UINT itemID);
