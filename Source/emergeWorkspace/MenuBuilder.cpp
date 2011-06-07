@@ -32,6 +32,7 @@ MenuBuilder::MenuBuilder(HINSTANCE desktopInst)
   registered = false;
   winVersion = ELVersionInfo();
   SetRectEmpty(&explorerWorkArea);
+  dragPos = 0;
 }
 
 bool MenuBuilder::Initialize()
@@ -323,6 +324,10 @@ LRESULT MenuBuilder::DoMenuGetObject(HWND hwnd UNUSED, MENUGETOBJECTINFO *mgoInf
   mgoInfo->riid = &menuInterface;
   mgoInfo->pvObj = dropTarget;
 
+  dragPos = mgoInfo->uPos;
+  if ((mgoInfo->dwFlags == MNGOF_TOPGAP) && (dragPos > 0))
+    dragPos--;
+
   return MNGO_NOERROR;
 }
 
@@ -335,12 +340,13 @@ LRESULT MenuBuilder::DoMenuDrag(HWND hwnd, UINT pos, HMENU menu)
   std::tr1::shared_ptr<CustomDropSource> customDropSource(new CustomDropSource(hwnd));
   std::tr1::shared_ptr<CustomDataObject> customDataObject(new CustomDataObject(menu));
   MENUITEMINFO itemInfo;
-  UINT itemID;
+  WCHAR name[MAX_LINE_LENGTH];
 
+  ZeroMemory(&itemInfo, sizeof(itemInfo));
   itemInfo.cbSize = sizeof(itemInfo);
-  itemInfo.fMask = MIIM_ID;
-
-  ELWriteDebug(towstring(pos));
+  itemInfo.fMask = MIIM_ID | MIIM_STRING | MIIM_BITMAP;
+  itemInfo.cch = MAX_LINE_LENGTH;
+  itemInfo.dwTypeData = name;
 
   if (!GetMenuItemInfo(menu, pos, TRUE, &itemInfo))
     return 1;
@@ -348,12 +354,6 @@ LRESULT MenuBuilder::DoMenuDrag(HWND hwnd, UINT pos, HMENU menu)
   MenuMap::iterator iter = menuMap.find(menu);
   if (iter == menuMap.end())
     return 1;
-
-  itemID = itemInfo.wID;
-  itemID--;
-
-  std::wstring debug = iter->second->GetMenuItem(itemID)->GetName();
-  ELWriteDebug(debug);
 
   dropEffects = DROPEFFECT_MOVE;
 
@@ -364,8 +364,8 @@ LRESULT MenuBuilder::DoMenuDrag(HWND hwnd, UINT pos, HMENU menu)
 
   if (DoDragDrop(dataObject, dropSource, dropEffects, &effect) == DRAGDROP_S_DROP)
     {
-      std::wstring debug = TEXT("Drop successfull");
-      ELWriteDebug(debug);
+      DeleteMenu(menu, pos, MF_BYPOSITION);
+      InsertMenuItem(menu, dragPos, TRUE, &itemInfo);
     }
 
   dropSource->Release();

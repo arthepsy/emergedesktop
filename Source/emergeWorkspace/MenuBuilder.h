@@ -131,6 +131,7 @@ private:
   float winVersion;
   CustomDropTarget *customDropTarget;
   IDropTarget *dropTarget;
+  UINT dragPos;
 
 public:
   MenuBuilder(HINSTANCE desktopInst);
