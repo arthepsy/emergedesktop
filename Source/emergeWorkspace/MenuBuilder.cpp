@@ -1679,7 +1679,7 @@ LRESULT MenuBuilder::DoButtonDown(UINT button)
                 {
                   menuInfo.fMask |= MIM_APPLYTOSUBMENUS;
                   menuInfo.cyMax = monitorHeight;
-                  menuInfo.dwStyle |= MNS_DRAGDROP | MNS_CHECKORBMP;
+                  menuInfo.dwStyle |= MNS_DRAGDROP;
                   SetMenuInfo(rootMenu, &menuInfo);
                 }
 
@@ -1701,10 +1701,21 @@ LRESULT MenuBuilder::DoButtonDown(UINT button)
 LRESULT MenuBuilder::DoInitMenu(HMENU menu)
 {
   MenuMap::iterator iter;
+  MENUINFO menuInfo;
 
   iter = menuMap.find(menu);
   if (iter == menuMap.end())
     return 1;
+
+  // MNS_CHECKORBMP needs to be set per menu as setting in DoButtonDown causes
+  // odd spacing in the menu.
+  menuInfo.cbSize = sizeof(MENUINFO);
+  menuInfo.fMask = MIM_STYLE;
+  if (GetMenuInfo(rootMenu, &menuInfo))
+    {
+      menuInfo.dwStyle |= MNS_CHECKORBMP;
+      SetMenuInfo(menu, &menuInfo);
+    }
 
   BuildMenu(iter);
 
