@@ -243,9 +243,10 @@ LRESULT MenuBuilder::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lP
   if (message == EMERGE_MENUDROP)
     {
       MENUITEMINFO dragItemInfo, dropItemInfo;
-      WCHAR name[MAX_LINE_LENGTH];
       MenuItem *dragItem, *dropItem;
+      WCHAR name[MAX_LINE_LENGTH];
 
+      // Get the menu item ID for the drop target
       ZeroMemory(&dropItemInfo, sizeof(dropItemInfo));
       dropItemInfo.cbSize = sizeof(dropItemInfo);
       dropItemInfo.fMask = MIIM_ID;
@@ -253,11 +254,12 @@ LRESULT MenuBuilder::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lP
       if (!GetMenuItemInfo((HMENU)wParam, (UINT)lParam, TRUE, &dropItemInfo))
         return 1;
 
+      // Get the menu item info for the drag object
       ZeroMemory(&dragItemInfo, sizeof(dragItemInfo));
       dragItemInfo.cbSize = sizeof(dragItemInfo);
       dragItemInfo.fMask = MIIM_ID | MIIM_STRING | MIIM_BITMAP;
-      dragItemInfo.cch = MAX_LINE_LENGTH;
       dragItemInfo.dwTypeData = name;
+      dragItemInfo.cch = MAX_LINE_LENGTH;
 
       if (!GetMenuItemInfo(dragMenu, dragPos, TRUE, &dragItemInfo))
         return 1;
@@ -270,10 +272,13 @@ LRESULT MenuBuilder::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lP
       if (dragIter == menuMap.end())
         return 1;
 
+      // Retrieve the drag menu item and XML element based on the menu item ID
       UINT dragItemID = dragItemInfo.wID;
       dragItemID--;
       dragItem = dragIter->second->GetMenuItem(dragItemID);
       TiXmlElement *dragElement = dragItem->GetElement();
+
+      // Retrieve the drop menu item and XML element based on the menu item ID
       UINT dropItemID = dropItemInfo.wID;
       dropItemID--;
       dropItem = dropIter->second->GetMenuItem(dropItemID);
@@ -281,21 +286,29 @@ LRESULT MenuBuilder::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lP
 
       TiXmlDocument *configXML = ELGetXMLConfig(dragElement);
       TiXmlElement *newElement = NULL;
-      if ((UINT)lParam == dragPos)
+      // If both the drag and drop objects are the same just return
+      if ((dragMenu == (HMENU)wParam) && ((UINT)lParam == dragPos))
         return 0;
+      // If the drop pos is less than the drag pos, insert the new element
+      // above the drop element
       else if ((UINT)lParam < dragPos)
         newElement = ELSetSibilingXMLElement(dropElement, (WCHAR*)TEXT("item"), false);
+      // Default to inserting the new element after the drop element
       else
         newElement = ELSetSibilingXMLElement(dropElement, (WCHAR*)TEXT("item"), true);
       if (newElement)
         {
-          ELWriteXMLStringValue(newElement, TEXT("Name"), name);
+          // Set the new element attributes based on the drag item attributes
+          ELWriteXMLStringValue(newElement, TEXT("Name"), dragItem->GetName());
           ELWriteXMLIntValue(newElement, TEXT("Type"), dragItem->GetType());
           ELWriteXMLStringValue(newElement, TEXT("Value"), dragItem->GetValue());
           ELWriteXMLStringValue(newElement, TEXT("WorkingDir"), dragItem->GetWorkingDir());
 
+          // Remove the drag element
           if (ELRemoveXMLElement(dragElement))
             DeleteMenu(dragMenu, dragPos, MF_BYPOSITION);
+
+          // Insert the new element
           InsertMenuItem((HMENU)wParam, (UINT)lParam, TRUE, &dragItemInfo);
           ELWriteXMLConfig(configXML);
         }
