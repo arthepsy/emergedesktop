@@ -127,6 +127,7 @@ std::tr1::shared_ptr<TiXmlDocument> OpenXMLConfig(std::string filename, bool cre
 BOOL CALLBACK AppletMonitorEnum(HMONITOR hMonitor, HDC hdcMonitor, LPRECT lprcMonitor, LPARAM dwData);
 BOOL CALLBACK MonitorRectEnum(HMONITOR hMonitor, HDC hdcMonitor, LPRECT lprcMonitor, LPARAM dwData);
 bool ConvertPath(WCHAR *styleFile, DWORD flags, DWORD path);
+std::wstring GetCustomDataPath();
 BOOL CALLBACK ThemeEnum(HWND hwnd, LPARAM lParam);
 
 typedef struct _APPLETMONITORINFO
@@ -247,12 +248,10 @@ void ELGetThemeInfo(LPTHEMEINFO themeInfo)
   workingPath = xmlPath;
   userPath = workingPath + TEXT("\\theme.xml");
 
-  if (ELGetPortableMode() == TEXT("PAF"))
+  std::wstring tempCustomDataPath = GetCustomDataPath();
+  if ((ELGetPortableMode() == TEXT("Custom")) && (!tempCustomDataPath.empty()))
     {
-      //if we're in PortableApps Format, we're in EmergeDesktopPortable\App\Emerge Desktop; we need to go up two levels (to EmergeDesktopPortable) and then into Data\Emerge Desktop
-      workingPath = workingPath.substr(0, workingPath.rfind(TEXT("\\")));
-      workingPath = workingPath.substr(0, workingPath.rfind(TEXT("\\")));
-      workingPath = workingPath + TEXT("\\Data\\Emerge Desktop");
+      workingPath = tempCustomDataPath;
       userPath = workingPath + TEXT("\\theme.xml");
     }
 
@@ -2701,10 +2700,9 @@ std::wstring ELGetUserDataPath()
 
 std::wstring ELGetPortableMode()
 {
-  WCHAR xmlPath[MAX_PATH];
+  WCHAR xmlPath[MAX_PATH], customDataPath[MAX_PATH];
   std::tr1::shared_ptr<TiXmlDocument> configXML;
   TiXmlElement *section;
-  bool PAF;
   std::wstring portablePath, workingPath, portableMode;
 
   ELGetCurrentPath(xmlPath);
@@ -2722,15 +2720,53 @@ std::wstring ELGetPortableMode()
       section = ELGetXMLSection(configXML.get(), (WCHAR*)TEXT("Portable"), false);
       if (section)
         {
-          if (ELReadXMLBoolValue(section, TEXT("PAF"), &PAF, false))
+          if (ELReadXMLStringValue(section, TEXT("CustomDataPath"), customDataPath, (WCHAR*)TEXT("")))
             {
-              if (PAF == true)
-                portableMode = TEXT("PAF");
+              if (_wcsicmp(customDataPath, TEXT("")) != 0)
+                {
+                  ELAbsPathFromRelativePath(customDataPath);
+                  portableMode = TEXT("Custom");
+                }
             }
         }
     }
 
   return portableMode;
+}
+
+std::wstring GetCustomDataPath()
+{
+  WCHAR xmlPath[MAX_PATH], customDataPath[MAX_PATH];
+  std::tr1::shared_ptr<TiXmlDocument> configXML;
+  TiXmlElement *section;
+  std::wstring portablePath, workingPath;
+
+  ELGetCurrentPath(xmlPath);
+  workingPath = xmlPath;
+  portablePath = workingPath + TEXT("\\portable.xml");
+
+  if (!ELPathFileExists(portablePath.c_str()))
+    return TEXT("");
+
+  configXML = ELOpenXMLConfig(portablePath, false);
+  if (configXML)
+    {
+      section = ELGetXMLSection(configXML.get(), (WCHAR*)TEXT("Portable"), false);
+      if (section)
+        {
+          if (ELReadXMLStringValue(section, TEXT("CustomDataPath"), customDataPath, (WCHAR*)TEXT("")))
+            {
+              if (_wcsicmp(customDataPath, TEXT("")) != 0)
+                {
+                  ELAbsPathFromRelativePath(customDataPath);
+                  MessageBox(NULL, customDataPath, TEXT("DataPath"), MB_OK);
+                  return customDataPath;
+                }
+            }
+        }
+    }
+
+  return TEXT("");
 }
 
 void ELStripLeadingSpaces(LPTSTR input)
