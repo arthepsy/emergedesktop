@@ -280,7 +280,13 @@ LRESULT MenuBuilder::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lP
       TiXmlElement *dropElement = dropItem->GetElement();
 
       TiXmlDocument *configXML = ELGetXMLConfig(dragElement);
-      TiXmlElement *newElement = ELSetSibilingXMLElement(dropElement, (WCHAR*)TEXT("item"));
+      TiXmlElement *newElement = NULL;
+      if ((UINT)lParam == dragPos)
+        return 0;
+      else if ((UINT)lParam < dragPos)
+        newElement = ELSetSibilingXMLElement(dropElement, (WCHAR*)TEXT("item"), false);
+      else
+        newElement = ELSetSibilingXMLElement(dropElement, (WCHAR*)TEXT("item"), true);
       if (newElement)
         {
           ELWriteXMLStringValue(newElement, TEXT("Name"), name);
