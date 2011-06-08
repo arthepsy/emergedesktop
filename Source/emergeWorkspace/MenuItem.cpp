@@ -189,3 +189,9 @@ void MenuItem::SetName(WCHAR *name)
 {
   wcscpy(this->name, name);
 }
+
+void MenuItem::SetElement(TiXmlElement *element)
+{
+  this->element = element;
+}
+

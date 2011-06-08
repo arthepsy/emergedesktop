@@ -272,6 +272,12 @@ LRESULT MenuBuilder::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lP
       if (dragIter == menuMap.end())
         return 1;
 
+      std::wstring debug = L"dragPos: ";
+      debug += towstring(dragPos);
+      debug += L" dropPos: ";
+      debug += towstring(lParam);
+      ELWriteDebug(debug);
+
       // Retrieve the drag menu item and XML element based on the menu item ID
       UINT dragItemID = dragItemInfo.wID;
       dragItemID--;
@@ -307,6 +313,9 @@ LRESULT MenuBuilder::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lP
           // Remove the drag element
           if (ELRemoveXMLElement(dragElement))
             DeleteMenu(dragMenu, dragPos, MF_BYPOSITION);
+
+          // Update drag item's XML element
+          dragItem->SetElement(newElement);
 
           // Insert the new element
           InsertMenuItem((HMENU)wParam, (UINT)lParam, TRUE, &dragItemInfo);
