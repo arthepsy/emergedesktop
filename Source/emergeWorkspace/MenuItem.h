@@ -28,7 +28,7 @@
 class MenuItem
 {
 public:
-  MenuItem(WCHAR *name, UINT type, WCHAR *value, WCHAR *workingDir, TiXmlElement *element);
+  MenuItem(WCHAR *name, UINT type, WCHAR *value, WCHAR *workingDir, TiXmlElement *element, HMENU menu, UINT pos);
   ~MenuItem();
   UINT GetType();
   WCHAR *GetName();

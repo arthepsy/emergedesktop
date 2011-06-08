@@ -131,6 +131,7 @@ private:
   float winVersion;
   CustomDropTarget *customDropTarget;
   IDropTarget *dropTarget;
+  HMENU dragMenu;
   UINT dragPos;
 
 public:
