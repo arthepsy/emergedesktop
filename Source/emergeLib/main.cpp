@@ -2759,7 +2759,6 @@ std::wstring GetCustomDataPath()
               if (_wcsicmp(customDataPath, TEXT("")) != 0)
                 {
                   ELAbsPathFromRelativePath(customDataPath);
-                  MessageBox(NULL, customDataPath, TEXT("DataPath"), MB_OK);
                   return customDataPath;
                 }
             }
