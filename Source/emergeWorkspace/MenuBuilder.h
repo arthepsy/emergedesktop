@@ -129,15 +129,17 @@ private:
   bool EditMenuItem(MenuMap::iterator iter, int index);
   void ElevatedExecute(MenuItem *menuItem);
   float winVersion;
-//    CustomDropTarget *customDropTarget;
-//    IDropTarget *dropTarget;
+  CustomDropTarget *customDropTarget;
+  IDropTarget *dropTarget;
+  HMENU dragMenu;
+  UINT dragPos;
 
 public:
   MenuBuilder(HINSTANCE desktopInst);
   ~MenuBuilder();
   bool Initialize();
   LRESULT DoButtonDown(UINT button);
-  LRESULT DoMenuDrag(HWND hwnd, HMENU menu);
+  LRESULT DoMenuDrag(HWND hwnd, UINT pos, HMENU menu);
   LRESULT DoMenuGetObject(HWND hwnd, MENUGETOBJECTINFO *mgoInfo);
   LRESULT DoInitMenu(HMENU menu);
   LRESULT ExecuteMenuItem(UINT itemID);

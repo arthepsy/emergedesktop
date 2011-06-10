@@ -20,8 +20,10 @@
 
 #include "CustomDropTarget.h"
 
-CustomDropTarget::CustomDropTarget()
+CustomDropTarget::CustomDropTarget(HMENU menu, UINT pos)
 {
+  this->menu = menu;
+  this->pos = pos;
   refCount = 0;
 }
 
@@ -101,15 +103,15 @@ STDMETHODIMP CustomDropTarget::DragLeave()
 
 STDMETHODIMP CustomDropTarget::Drop(IDataObject *pDataObj UNUSED, DWORD grfKeyState, POINTL pt UNUSED, DWORD *pdwEffect)
 {
+  HWND menuBuilderWnd = FindWindow(TEXT("EmergeDesktopMenuBuilder"), NULL);
+  SendMessage(menuBuilderWnd, EMERGE_MENUDROP, (WPARAM)menu, (LPARAM)pos);
+
   if ((grfKeyState & (MK_CONTROL | MK_SHIFT)) == (MK_CONTROL | MK_SHIFT))
     *pdwEffect = DROPEFFECT_LINK;
   else if ((grfKeyState & MK_CONTROL) == MK_CONTROL)
     *pdwEffect = DROPEFFECT_COPY;
   else
-    {
-      //OutputDebugStr((WCHAR*)TEXT("Drop: DROPEFFECTMOVE"));
-      *pdwEffect = DROPEFFECT_MOVE;
-    }
+    *pdwEffect = DROPEFFECT_MOVE;
 
   return S_OK;
 }

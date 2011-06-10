@@ -21,11 +21,11 @@
 
 #include "MenuItem.h"
 
-MenuItem::MenuItem(WCHAR *name, UINT type, WCHAR* value, WCHAR *workingDir, TiXmlElement *element)
+MenuItem::MenuItem(WCHAR *name, UINT type, WCHAR* value, WCHAR *workingDir, TiXmlElement *element, HMENU menu, UINT pos)
 {
   LPVOID lpVoid;
 
-  customDropTarget = new CustomDropTarget();
+  customDropTarget = new CustomDropTarget(menu, pos);
   customDropTarget->QueryInterface(IID_IDropTarget, &lpVoid);
   dropTarget = reinterpret_cast <IDropTarget*> (lpVoid);
 
@@ -189,3 +189,9 @@ void MenuItem::SetName(WCHAR *name)
 {
   wcscpy(this->name, name);
 }
+
+void MenuItem::SetElement(TiXmlElement *element)
+{
+  this->element = element;
+}
+
