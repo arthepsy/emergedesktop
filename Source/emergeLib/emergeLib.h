@@ -147,6 +147,8 @@ typedef enum _COREMESSAGES {
 #define VWM_LEFT        202
 #define VWM_RIGHT       203
 #define VWM_GATHER      204
+#define VWM_PREV        205
+#define VWM_NEXT        206
 #define VWM_1           211
 #define VWM_2           212
 #define VWM_3           213
