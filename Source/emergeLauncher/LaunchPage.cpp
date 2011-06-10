@@ -649,6 +649,8 @@ void LaunchPage::PopulateComboBoxes(HWND hwndDlg)
   SendMessage(internalWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("VWMLeft"));
   SendMessage(internalWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("VWMRight"));
   SendMessage(internalWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("VWMUp"));
+  SendMessage(internalWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("VWMPrev"));
+  SendMessage(internalWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("VWMNext"));
   SendMessage(internalWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("WorkspaceSettings"));
 }
 

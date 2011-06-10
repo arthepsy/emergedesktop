@@ -258,6 +258,8 @@ void ItemEditor::PopulateCommands(HWND commandWnd)
   SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("VWMLeft"));
   SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("VWMRight"));
   SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("VWMUp"));
+  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("VWMPrev"));
+  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("VWMNext"));
   SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("WorkspaceSettings"));
 }
 

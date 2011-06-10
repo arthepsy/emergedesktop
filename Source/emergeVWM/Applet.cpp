@@ -811,6 +811,36 @@ LRESULT Applet::DoEmergeNotify(UINT messageClass, UINT message)
         }
       else if (message == VWM_GATHER)
         SwitchDesktop(currentRow, currentColumn, true);
+      else if (message == VWM_PREV)
+        {
+          UINT windowsNumber = pSettings->GetDesktopRows() * pSettings->GetDesktopColumns() ;
+          UINT currentWindow = pSettings->GetDesktopColumns() * currentRow + currentColumn ;
+          UINT selectedWindow ;
+
+          if (currentWindow > 0)
+            selectedWindow = currentWindow - 1 ;
+          else
+            selectedWindow = windowsNumber - 1 ;
+
+          UINT newRow = (UINT)(selectedWindow / pSettings->GetDesktopColumns()) ;
+          UINT newColumn = selectedWindow % pSettings->GetDesktopColumns() ;
+          SwitchDesktop(newRow, newColumn, false);
+        }
+      else if (message == VWM_NEXT)
+        {
+          UINT windowsNumber = pSettings->GetDesktopRows() * pSettings->GetDesktopColumns() ;
+          UINT currentWindow = pSettings->GetDesktopColumns() * currentRow + currentColumn ;
+          UINT selectedWindow ;
+
+          if (currentWindow < windowsNumber - 1)
+            selectedWindow = currentWindow + 1 ;
+          else
+            selectedWindow = 0 ;
+
+          UINT newRow = (UINT)(selectedWindow / pSettings->GetDesktopColumns()) ;
+          UINT newColumn = selectedWindow % pSettings->GetDesktopColumns() ;
+          SwitchDesktop(newRow, newColumn, false);
+        }
 
       return 0;
     }

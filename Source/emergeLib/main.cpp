@@ -1150,6 +1150,18 @@ bool ELExecuteInternal(LPTSTR command)
       PostMessage(ELGetCoreWindow(), EMERGE_DISPATCH, (WPARAM)EMERGE_VWM, (LPARAM)VWM_GATHER);
       return true;
     }
+  else if (_wcsicmp(command, TEXT("VWMPrev")) == 0)
+    {
+      ELSwitchToThisWindow(ELGetCoreWindow());
+      PostMessage(ELGetCoreWindow(), EMERGE_DISPATCH, (WPARAM)EMERGE_VWM, (LPARAM)VWM_PREV);
+      return true;
+    }
+  else if (_wcsicmp(command, TEXT("VWMNext")) == 0)
+    {
+      ELSwitchToThisWindow(ELGetCoreWindow());
+      PostMessage(ELGetCoreWindow(), EMERGE_DISPATCH, (WPARAM)EMERGE_VWM, (LPARAM)VWM_NEXT);
+      return true;
+    }
   else if (_wcsicmp(command, TEXT("EmptyBin")) == 0)
     {
       SHEmptyRecycleBin(NULL, NULL, 0);
