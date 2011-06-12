@@ -20,9 +20,8 @@
 
 #include "CustomDropSource.h"
 
-CustomDropSource::CustomDropSource(HWND wnd)
+CustomDropSource::CustomDropSource()
 {
-  (*this).wnd = wnd;
   refCount = 0;
 }
 

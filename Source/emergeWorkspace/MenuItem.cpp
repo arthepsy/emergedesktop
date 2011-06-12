@@ -21,13 +21,17 @@
 
 #include "MenuItem.h"
 
-MenuItem::MenuItem(WCHAR *name, UINT type, WCHAR* value, WCHAR *workingDir, TiXmlElement *element, HMENU menu, UINT pos)
+MenuItem::MenuItem(WCHAR *name, UINT type, WCHAR* value, WCHAR *workingDir, TiXmlElement *element)
 {
   LPVOID lpVoid;
 
-  customDropTarget = new CustomDropTarget(menu, pos);
+  customDropTarget = new CustomDropTarget();
   customDropTarget->QueryInterface(IID_IDropTarget, &lpVoid);
   dropTarget = reinterpret_cast <IDropTarget*> (lpVoid);
+
+  customDropSource = new CustomDropSource();
+  customDropSource->QueryInterface(IID_IDropSource, &lpVoid);
+  dropSource = reinterpret_cast <IDropSource*> (lpVoid);
 
   this->element = element;
   this->type = type;
@@ -57,6 +61,9 @@ MenuItem::~MenuItem()
   if (dropTarget)
     dropTarget->Release();
 
+  if (dropSource)
+    dropSource->Release();
+
   DestroyIcon(icon);
 }
 
@@ -83,6 +90,11 @@ WCHAR *MenuItem::GetName()
 IDropTarget *MenuItem::GetDropTarget()
 {
   return dropTarget;
+}
+
+IDropSource *MenuItem::GetDropSource()
+{
+  return dropSource;
 }
 
 WCHAR *MenuItem::GetWorkingDir()

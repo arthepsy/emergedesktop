@@ -23,12 +23,10 @@
 
 #include "../emergeLib/emergeLib.h"
 
-static const UINT EMERGE_MENUDROP = RegisterWindowMessage(TEXT("EmergeMenuDrop"));
-
 class CustomDropTarget : public IDropTarget
 {
 public:
-  CustomDropTarget(HMENU menu, UINT pos);
+  CustomDropTarget();
   virtual ~CustomDropTarget();
   STDMETHODIMP_(ULONG) AddRef();
   STDMETHODIMP_(ULONG) Release();
@@ -40,8 +38,6 @@ public:
 
 private:
   UINT refCount;
-  HMENU menu;
-  UINT pos;
 };
 
 #endif

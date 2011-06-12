@@ -131,8 +131,9 @@ private:
   float winVersion;
   CustomDropTarget *customDropTarget;
   IDropTarget *dropTarget;
-  HMENU dragMenu;
-  UINT dragPos;
+  HMENU dropMenu;
+  UINT dropPos;
+  bool MenuDrop(HMENU dragMenu, UINT dragPos);
 
 public:
   MenuBuilder(HINSTANCE desktopInst);

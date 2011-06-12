@@ -20,13 +20,17 @@
 
 #include "MenuListItem.h"
 
-MenuListItem::MenuListItem(WCHAR *name, UINT type, WCHAR *value, TiXmlElement *section, HMENU menu, UINT pos)
+MenuListItem::MenuListItem(WCHAR *name, UINT type, WCHAR *value, TiXmlElement *section)
 {
   LPVOID lpVoid;
 
-  customDropTarget = std::tr1::shared_ptr<CustomDropTarget>(new CustomDropTarget(menu, pos));
+  customDropTarget = std::tr1::shared_ptr<CustomDropTarget>(new CustomDropTarget());
   customDropTarget->QueryInterface(IID_IDropTarget, &lpVoid);
   dropTarget = reinterpret_cast <IDropTarget*> (lpVoid);
+
+  customDropSource = std::tr1::shared_ptr<CustomDropSource>(new CustomDropSource());
+  customDropSource->QueryInterface(IID_IDropSource, &lpVoid);
+  dropSource = reinterpret_cast <IDropSource*> (lpVoid);
 
   this->type = type;
   this->section = section;
@@ -66,6 +70,11 @@ WCHAR *MenuListItem::GetName()
 IDropTarget *MenuListItem::GetDropTarget()
 {
   return dropTarget;
+}
+
+IDropSource *MenuListItem::GetDropSource()
+{
+  return dropSource;
 }
 
 void MenuListItem::SetValue(WCHAR *value)

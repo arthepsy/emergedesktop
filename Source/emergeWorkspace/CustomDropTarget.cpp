@@ -20,10 +20,8 @@
 
 #include "CustomDropTarget.h"
 
-CustomDropTarget::CustomDropTarget(HMENU menu, UINT pos)
+CustomDropTarget::CustomDropTarget()
 {
-  this->menu = menu;
-  this->pos = pos;
   refCount = 0;
 }
 
@@ -46,13 +44,10 @@ STDMETHODIMP_(ULONG) CustomDropTarget::Release()
 
 STDMETHODIMP CustomDropTarget::QueryInterface(REFIID riid, void ** ppvObject)
 {
-  //OutputDebugStr((WCHAR*)TEXT("Target: Got QueryInterface"));
-
   if (IsEqualIID(riid, IID_IUnknown) || IsEqualIID(riid, IID_IDropTarget))
     {
       AddRef();
       *ppvObject = this;
-      //OutputDebugStr((WCHAR*)TEXT("Returning S_OK"));
       return S_OK;
     }
   else
@@ -64,34 +59,24 @@ STDMETHODIMP CustomDropTarget::QueryInterface(REFIID riid, void ** ppvObject)
 
 STDMETHODIMP CustomDropTarget::DragEnter(IDataObject *pDataObj UNUSED, DWORD grfKeyState, POINTL pt UNUSED, DWORD *pdwEffect)
 {
-  //OutputDebugStr((WCHAR*)TEXT("Got DragEnter"));
-
   if ((grfKeyState & (MK_CONTROL | MK_SHIFT)) == (MK_CONTROL | MK_SHIFT))
     *pdwEffect = DROPEFFECT_LINK;
   else if ((grfKeyState & MK_CONTROL) == MK_CONTROL)
     *pdwEffect = DROPEFFECT_COPY;
   else
-    {
-      //OutputDebugStr((WCHAR*)TEXT("DragEnter: DROPEFFECTMOVE"));
-      *pdwEffect = DROPEFFECT_MOVE;
-    }
+    *pdwEffect = DROPEFFECT_MOVE;
 
   return S_OK;
 }
 
 STDMETHODIMP CustomDropTarget::DragOver(DWORD grfKeyState, POINTL pt UNUSED, DWORD *pdwEffect)
 {
-  //OutputDebugStr((WCHAR*)TEXT("Got DragOver"));
-
   if ((grfKeyState & (MK_CONTROL | MK_SHIFT)) == (MK_CONTROL | MK_SHIFT))
     *pdwEffect = DROPEFFECT_LINK;
   else if ((grfKeyState & MK_CONTROL) == MK_CONTROL)
     *pdwEffect = DROPEFFECT_COPY;
   else
-    {
-      //OutputDebugStr((WCHAR*)TEXT("DragOver: DROPEFFECTMOVE"));
-      *pdwEffect = DROPEFFECT_MOVE;
-    }
+    *pdwEffect = DROPEFFECT_MOVE;
 
   return S_OK;
 }
@@ -103,9 +88,6 @@ STDMETHODIMP CustomDropTarget::DragLeave()
 
 STDMETHODIMP CustomDropTarget::Drop(IDataObject *pDataObj UNUSED, DWORD grfKeyState, POINTL pt UNUSED, DWORD *pdwEffect)
 {
-  HWND menuBuilderWnd = FindWindow(TEXT("EmergeDesktopMenuBuilder"), NULL);
-  SendMessage(menuBuilderWnd, EMERGE_MENUDROP, (WPARAM)menu, (LPARAM)pos);
-
   if ((grfKeyState & (MK_CONTROL | MK_SHIFT)) == (MK_CONTROL | MK_SHIFT))
     *pdwEffect = DROPEFFECT_LINK;
   else if ((grfKeyState & MK_CONTROL) == MK_CONTROL)

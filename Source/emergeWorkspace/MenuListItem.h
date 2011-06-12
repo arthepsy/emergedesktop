@@ -28,7 +28,7 @@
 class MenuListItem
 {
 public:
-  MenuListItem(WCHAR *name, UINT type, WCHAR *value, TiXmlElement *section, HMENU menu, UINT pos);
+  MenuListItem(WCHAR *name, UINT type, WCHAR *value, TiXmlElement *section);
   ~MenuListItem();
   WCHAR *GetName();
   WCHAR *GetValue();
@@ -42,12 +42,15 @@ public:
   void AddMenuItem(MenuItem *menuItem);
   void DeleteMenuItem(UINT index);
   IDropTarget *GetDropTarget();
+  IDropSource *GetDropSource();
 
 private:
   WCHAR value[MAX_LINE_LENGTH], name[MAX_LINE_LENGTH];
   UINT type;
   IDropTarget *dropTarget;
+  IDropSource *dropSource;
   std::tr1::shared_ptr<CustomDropTarget> customDropTarget;
+  std::tr1::shared_ptr<CustomDropSource> customDropSource;
   TiXmlElement *section;
   std::vector< std::tr1::shared_ptr<MenuItem> > menuItems;
 };
