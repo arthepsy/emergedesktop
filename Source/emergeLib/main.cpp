@@ -1509,7 +1509,7 @@ bool ELExecuteSpecialFolder(LPTSTR folder)
     {
       ZeroMemory(&sei, sizeof(sei));
       sei.cbSize = sizeof(sei);
-      sei.fMask = SEE_MASK_IDLIST | SEE_MASK_NOASYNC | SEE_MASK_FLAG_NO_UI | SEE_MASK_UNICODE;
+      sei.fMask = SEE_MASK_IDLIST | SEE_MASK_FLAG_NO_UI | SEE_MASK_UNICODE;
       sei.nShow = SW_SHOW;
       sei.lpIDList = pidl;
       ret = (ShellExecuteEx(&sei) == TRUE);
