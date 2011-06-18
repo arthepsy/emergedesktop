@@ -101,7 +101,7 @@ BOOL ThemeSelector::DoInitDialog(HWND hwndDlg)
   TOOLINFO ti;
   ZeroMemory(&ti, sizeof(TOOLINFO));
 
-  GetWindowRect(hwndDlg, &rect);
+  ELGetWindowRect(hwndDlg, &rect);
 
   HWND themeWnd = GetDlgItem(hwndDlg, IDC_THEMEITEM);
   HWND saveasWnd = GetDlgItem(hwndDlg, IDC_SAVEAS);

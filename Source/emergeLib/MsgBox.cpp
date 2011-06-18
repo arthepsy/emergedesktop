@@ -108,7 +108,7 @@ LRESULT MsgBox::DoInitDialog(HWND hwndDlg)
   HDC hdc;
   HFONT oldFont;
 
-  GetWindowRect(hwndDlg, &rect);
+  ELGetWindowRect(hwndDlg, &rect);
   GetClientRect(textWnd, &textRect);
   GetClientRect(iconWnd, &iconRect);
 

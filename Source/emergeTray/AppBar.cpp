@@ -30,7 +30,7 @@ AppBar::AppBar(HWND wnd, APPBARDATA abd, bool autoHide)
   CopyMemory(&localABD, &abd, sizeof(APPBARDATA));
   localAutoHide = autoHide;
 
-  GetWindowRect(localWnd, &localABD.rc);
+  ELGetWindowRect(localWnd, &localABD.rc);
   localABD.uEdge = ABE_BOTTOM;
 
   if (GetMonitorInfo(appletMonitor, &appletMonitorInfo))

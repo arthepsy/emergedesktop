@@ -143,6 +143,7 @@ int enumCount = 0;
 static HMODULE shell32DLL = NULL;
 static HMODULE user32DLL = NULL;
 static HMODULE kernel32DLL = NULL;
+static HMODULE dwmapiDLL = NULL;
 static HINSTANCE emergeLibInstance = NULL;
 
 // Globally shared data
@@ -173,6 +174,28 @@ static lpfnMSRegisterShellHookWindow MSRegisterShellHookWindow = NULL;
 typedef BOOL (WINAPI *lpfnIsWow64Process)(HANDLE, PBOOL);
 static lpfnIsWow64Process MSIsWow64Process = NULL;
 
+typedef HRESULT (WINAPI *fnDwmIsCompositionEnabled)(BOOL *);
+static fnDwmIsCompositionEnabled MSDwmIsCompositionEnabled = NULL;
+
+typedef HRESULT (WINAPI *fnDwmGetWindowAttribute)(HWND, DWORD, PVOID, DWORD);
+static fnDwmGetWindowAttribute MSDwmGetWindowAttribute = NULL;
+
+typedef enum _DWMWINDOWATTRIBUTE {
+  DWMWA_NCRENDERING_ENABLED           = 1,
+  DWMWA_NCRENDERING_POLICY,
+  DWMWA_TRANSITIONS_FORCEDISABLED,
+  DWMWA_ALLOW_NCPAINT,
+  DWMWA_CAPTION_BUTTON_BOUNDS,
+  DWMWA_NONCLIENT_RTL_LAYOUT,
+  DWMWA_FORCE_ICONIC_REPRESENTATION,
+  DWMWA_FLIP3D_POLICY,
+  DWMWA_EXTENDED_FRAME_BOUNDS,
+  DWMWA_HAS_ICONIC_BITMAP,
+  DWMWA_DISALLOW_PEEK,
+  DWMWA_EXCLUDED_FROM_PEEK,
+  DWMWA_LAST
+} DWMWINDOWATTRIBUTE;
+
 extern "C" BOOL WINAPI DllMain(HINSTANCE hinstDLL UNUSED, DWORD fdwReason, LPVOID lpvReserved UNUSED)
 {
   switch (fdwReason)
@@ -185,6 +208,8 @@ extern "C" BOOL WINAPI DllMain(HINSTANCE hinstDLL UNUSED, DWORD fdwReason, LPVOI
         user32DLL = ELLoadSystemLibrary(TEXT("user32.dll"));
       if (kernel32DLL == NULL)
         kernel32DLL = ELLoadSystemLibrary(TEXT("kernel32.dll"));
+      if (dwmapiDLL == NULL)
+        dwmapiDLL = ELLoadSystemLibrary(TEXT("dwmapi.dll"));
       break;
     case DLL_PROCESS_DETACH:
       if (shell32DLL != NULL)
@@ -206,6 +231,36 @@ extern "C" BOOL WINAPI DllMain(HINSTANCE hinstDLL UNUSED, DWORD fdwReason, LPVOI
     }
 
   return TRUE;
+}
+
+BOOL ELGetWindowRect(HWND hwnd, RECT *rect)
+{
+  BOOL check = FALSE;
+
+  if (dwmapiDLL)
+    {
+      if (MSDwmIsCompositionEnabled == NULL)
+        MSDwmIsCompositionEnabled = (fnDwmIsCompositionEnabled)GetProcAddress(dwmapiDLL, "DwmIsCompositionEnabled");
+      if (MSDwmGetWindowAttribute == NULL)
+        MSDwmGetWindowAttribute = (fnDwmGetWindowAttribute)GetProcAddress(dwmapiDLL, "DwmGetWindowAttribute");
+    }
+
+  if (MSDwmIsCompositionEnabled && MSDwmGetWindowAttribute)
+    {
+      if (SUCCEEDED(MSDwmIsCompositionEnabled(&check)))
+        {
+          if (check)
+            {
+              if (SUCCEEDED(MSDwmGetWindowAttribute(hwnd, DWMWA_EXTENDED_FRAME_BOUNDS, (PVOID)rect, sizeof(RECT))))
+                return TRUE;
+            }
+        }
+    }
+
+  if (!check)
+    return GetWindowRect(hwnd, rect);
+
+  return check;
 }
 
 std::tr1::shared_ptr<TiXmlDocument> OpenXMLConfig(std::string filename, bool create)
@@ -2001,10 +2056,10 @@ BOOL CALLBACK FullscreenEnum(HWND hwnd, LPARAM lParam)
   if (!IsWindowVisible(hwnd))
     return true;
 
-  /*  if (IsZoomed(hwnd))
+  /*if (IsZoomed(hwnd))
       return true;*/
 
-  GetWindowRect(hwnd, &wndRect);
+  ELGetWindowRect(hwnd, &wndRect);
   hwndMonitorInfo.cbSize = sizeof(MONITORINFO);
 
   hwndPt.x = ELMid(wndRect.right, wndRect.left);
@@ -2084,7 +2139,7 @@ BOOL CALLBACK SnapMoveEnum(HWND hwnd, LPARAM lParam)
   if (_wcsicmp(hwndClass, TEXT("EmergeDesktopApplet")) != 0)
     return true;
 
-  GetWindowRect(hwnd, &hwndRect);
+  ELGetWindowRect(hwnd, &hwndRect);
 
   if (SnapMoveToEdge((LPSNAPMOVEINFO)lParam, hwndRect))
     {
@@ -2100,7 +2155,7 @@ void ELDisplayChange(HWND hwnd)
   SNAPMOVEINFO snapMove;
   RECT rect;
   POINT pt = {0, 0};
-  GetWindowRect(hwnd, &rect);
+  ELGetWindowRect(hwnd, &rect);
 
   snapMove.AppletWindow = hwnd;
   snapMove.AppletRect = &rect;
@@ -2271,7 +2326,7 @@ BOOL CALLBACK SnapSizeEnum(HWND hwnd, LPARAM lParam)
   if (_wcsicmp(hwndClass, TEXT("EmergeDesktopApplet")) != 0)
     return true;
 
-  GetWindowRect(hwnd, &hwndRect);
+  ELGetWindowRect(hwnd, &hwndRect);
 
   if (SnapSizeToEdge((LPSNAPSIZEINFO)lParam, hwndRect))
     {
@@ -2566,7 +2621,7 @@ POINT ELGetAnchorPoint(HWND hwnd)
   POINT pt;
   RECT wndRect;
 
-  GetWindowRect(hwnd, &wndRect);
+  ELGetWindowRect(hwnd, &wndRect);
   GetCursorPos(&pt);
 
   pt.x -= wndRect.left;
@@ -4359,7 +4414,7 @@ bool ELRelativePathFromAbsPath(WCHAR *destPath, LPCTSTR sourcePath)
     return true; //the path is already relative; there's nothing for us to do!
 
   if (ELUnExpandVars(destPath)) //the unexpanded path contains an environment variable, so we don't want to manipulate the string any further.
-	return true;
+    return true;
 
   if (PathIsDirectory(destPath))
     flags = FILE_ATTRIBUTE_DIRECTORY;

@@ -128,7 +128,7 @@ LRESULT BaseApplet::DoMoving(HWND hwnd, RECT *lpRect)
 
 LRESULT BaseApplet::DoEnterSizeMove(HWND hwnd)
 {
-  GetWindowRect(hwnd, &referenceRect);
+  ELGetWindowRect(hwnd, &referenceRect);
   anchor = ELGetAnchorPoint(hwnd);
 
   SetWindowPos(hwnd, HWND_TOPMOST, 0, 0, 0, 0,
@@ -142,7 +142,7 @@ LRESULT BaseApplet::DoExitSizeMove(HWND hwnd)
   RECT currentRect;
   int currentHeight, currentWidth, referenceHeight, referenceWidth;
 
-  GetWindowRect(hwnd, &currentRect);
+  ELGetWindowRect(hwnd, &currentRect);
 
   currentWidth = currentRect.right - currentRect.left;
   currentHeight = currentRect.bottom - currentRect.top;
@@ -723,7 +723,7 @@ LRESULT BaseApplet::DoTimer(UINT_PTR timerID)
   if (timerID == MOUSE_TIMER)
     {
       GetCursorPos(&pt);
-      GetWindowRect(mainWnd, &rc);
+      ELGetWindowRect(mainWnd, &rc);
       if (!PtInRect(&rc, pt))
         {
           mouseOver = false;

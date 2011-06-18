@@ -85,7 +85,7 @@ BOOL ConfigPage::DoInitDialog(HWND hwndDlg)
   HWND sliderWnd = GetDlgItem(hwndDlg, IDC_SLIDER);
   HWND aeroMenuWnd = GetDlgItem(hwndDlg, IDC_AEROMENUS);
 
-  GetWindowRect(hwndDlg, &rect);
+  ELGetWindowRect(hwndDlg, &rect);
 
   x = (GetSystemMetrics(SM_CXSCREEN) / 2) - ((rect.right - rect.left) / 2);
   y = (GetSystemMetrics(SM_CYSCREEN) / 2) - ((rect.bottom - rect.top) / 2);
