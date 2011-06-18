@@ -63,7 +63,7 @@ HRESULT AddContextMenu(WCHAR *file);
 LRESULT EAEHitTest(HWND hwnd, int guiBorder, bool autoSize, int x, int y)
 {
   RECT r;
-  GetWindowRect(hwnd, &r);
+  ELGetWindowRect(hwnd, &r);
   int dragBorder = guiBorder;
 
   if (dragBorder <= 0)

@@ -75,7 +75,7 @@ BOOL Shutdown::DoInitDialog(HWND hwndDlg)
   DWORD cbReturned = 0;
 #endif
 
-  GetWindowRect(hwndDlg, &rect);
+  ELGetWindowRect(hwndDlg, &rect);
 
   x = (GetSystemMetrics(SM_CXSCREEN) / 2) - ((rect.right - rect.left) / 2);
   y = (GetSystemMetrics(SM_CYSCREEN) / 2) - ((rect.bottom - rect.top) / 2);

@@ -457,5 +457,6 @@ inline bool ELPathIsCLSID(const WCHAR *path)
 }
 DLL_EXPORT bool ELIsExplorerShell();
 DLL_EXPORT bool ELIsEmergeShell();
+DLL_EXPORT BOOL ELGetWindowRect(HWND hwnd, RECT *rect);
 
 #endif

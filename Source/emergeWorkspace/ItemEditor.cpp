@@ -101,7 +101,7 @@ BOOL ItemEditor::DoInitDialog(HWND hwndDlg)
   TOOLINFO ti;
 
   ZeroMemory(&ti, sizeof(TOOLINFO));
-  GetWindowRect(hwndDlg, &rect);
+  ELGetWindowRect(hwndDlg, &rect);
 
   HWND nameWnd = GetDlgItem(hwndDlg, IDC_ITEMNAME);
   HWND nameTextWnd = GetDlgItem(hwndDlg, IDC_NAMETEXT);

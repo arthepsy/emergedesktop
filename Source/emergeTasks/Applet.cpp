@@ -263,7 +263,7 @@ LRESULT Applet::AddTask(HWND task)
 
   if (pSettings->GetAutoSize())
     {
-      if (GetWindowRect(mainWnd, &wndRect))
+      if (ELGetWindowRect(mainWnd, &wndRect))
         {
           AdjustRect(&wndRect);
           UpdateIcons();
@@ -328,7 +328,7 @@ LRESULT Applet::RemoveTask(HWND task)
 
   if (pSettings->GetAutoSize())
     {
-      if (GetWindowRect(mainWnd, &wndRect))
+      if (ELGetWindowRect(mainWnd, &wndRect))
         {
           AdjustRect(&wndRect);
           UpdateIcons();
@@ -380,7 +380,7 @@ bool Applet::CleanTasks()
 
   if (refresh && pSettings->GetAutoSize())
     {
-      if (GetWindowRect(mainWnd, &wndRect))
+      if (ELGetWindowRect(mainWnd, &wndRect))
         {
           AdjustRect(&wndRect);
           UpdateIcons();

@@ -70,7 +70,7 @@ BOOL ThemeSaver::DoInitDialog(HWND hwndDlg)
   RECT rect;
   int x, y;
 
-  GetWindowRect(hwndDlg, &rect);
+  ELGetWindowRect(hwndDlg, &rect);
 
   SetWindowText(hwndDlg, title);
 

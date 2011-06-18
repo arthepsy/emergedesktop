@@ -112,7 +112,7 @@ BOOL ShellChanger::DoInitDialog(HWND hwndDlg)
   TOOLINFO ti;
 
   ZeroMemory(&ti, sizeof(TOOLINFO));
-  GetWindowRect(hwndDlg, &rect);
+  ELGetWindowRect(hwndDlg, &rect);
 
   HWND nameWnd = GetDlgItem(hwndDlg, IDC_SHELLNAME);
   HWND nameTextWnd = GetDlgItem(hwndDlg, IDC_NAMETEXT);

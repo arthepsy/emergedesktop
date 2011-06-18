@@ -307,7 +307,7 @@ void Applet::MakeCurrent(HWND taskWnd)
         return;
     }
 
-  GetWindowRect(taskWnd, &r);
+  ELGetWindowRect(taskWnd, &r);
 
   while (r.top < screenTop)
     r.top += screenHeight;
@@ -410,7 +410,7 @@ void Applet::SwitchDesktop(int row, int column, bool gather)
       while (iter < taskList.end())
         {
           // VERY IMPORTANT: Only modify a valid window
-          if (GetWindowRect((*iter)->GetTaskWnd(), &r))
+          if (ELGetWindowRect((*iter)->GetTaskWnd(), &r))
             {
               // Ignore the window if it's sticky
               if (!pSettings->CheckSticky((*iter)->GetAppName()))
@@ -437,7 +437,7 @@ void Applet::SwitchDesktop(int row, int column, bool gather)
   while (iter < taskList.end())
     {
       // VERY IMPORTANT: Only modify a valid window
-      if (GetWindowRect((*iter)->GetTaskWnd(), &r))
+      if (ELGetWindowRect((*iter)->GetTaskWnd(), &r))
         {
           // Ignore the window if it's sticky
           if (!pSettings->CheckSticky((*iter)->GetAppName()))
@@ -545,7 +545,7 @@ LRESULT Applet::DesktopMouseEvent(HWND hwnd, UINT message, LPARAM lParam)
               float xOffset, yOffset, rowScalar, columnScalar;
               RECT windowRect, clientRect;
 
-              GetWindowRect(selectedWindow, &windowRect);
+              ELGetWindowRect(selectedWindow, &windowRect);
               GetClientRect(mainWnd, &clientRect);
 
               rowScalar = (float)(clientRect.bottom - (2 * dragBorder)) /
@@ -889,7 +889,7 @@ LRESULT Applet::DoNotify(HWND hwnd, LPARAM lParam)
       LPTOOLTIPTEXT lpttt = (LPTOOLTIPTEXT) lParam ;
       std::vector< std::tr1::shared_ptr<Task> >::reverse_iterator iter;
 
-      GetWindowRect(hwnd, &rt);
+      ELGetWindowRect(hwnd, &rt);
 
       for (iter = taskList.rbegin(); iter != taskList.rend(); iter++)
         {
@@ -940,7 +940,7 @@ bool Applet::GetTaskRowColumn(HWND hwnd, int *row, int *column)
   int titleHeight = GetSystemMetrics(SM_CYSIZE);
   int titleWidth, titleVerticalCentre, titleHorizontalCentre;
 
-  GetWindowRect(hwnd, &winRect);
+  ELGetWindowRect(hwnd, &winRect);
   desktopRect.left = screenLeft;
   desktopRect.right = screenLeft + screenWidth;
   desktopRect.top = screenTop;

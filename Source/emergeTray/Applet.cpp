@@ -700,7 +700,7 @@ LRESULT Applet::MyMove()
   RECT winRect;
   movesizeinprogress = false;
 
-  GetWindowRect(mainWnd, &winRect);
+  ELGetWindowRect(mainWnd, &winRect);
   SetWindowPos(trayWnd, NULL, winRect.left, winRect.top, (winRect.right - winRect.left), (winRect.bottom - winRect.top), SWP_NOZORDER | SWP_NOACTIVATE);
 
   return 0;
@@ -812,7 +812,7 @@ void Applet::ShowHiddenIcons(bool cmd, bool force)
 
       if (pSettings->GetAutoSize())
         {
-          if (GetWindowRect(mainWnd, &wndRect))
+          if (ELGetWindowRect(mainWnd, &wndRect))
             {
               AdjustRect(&wndRect);
               SetWindowPos(mainWnd, NULL, wndRect.left, wndRect.top,
@@ -856,7 +856,7 @@ void Applet::CleanTray()
             {
               if (pSettings->GetAutoSize())
                 {
-                  if (GetWindowRect(mainWnd, &wndRect))
+                  if (ELGetWindowRect(mainWnd, &wndRect))
                     {
                       AdjustRect(&wndRect);
                       if (GetVisibleIconCount() == 0)
@@ -939,7 +939,7 @@ LRESULT Applet::RemoveTrayIcon(HWND hwnd, UINT uID)
     {
       if (pSettings->GetAutoSize())
         {
-          if (GetWindowRect(mainWnd, &wndRect))
+          if (ELGetWindowRect(mainWnd, &wndRect))
             {
               AdjustRect(&wndRect);
               if (GetVisibleIconCount() == 0)
@@ -1065,7 +1065,7 @@ LRESULT Applet::ModifyTrayIcon(HWND hwnd, UINT uID, UINT uFlags, UINT uCallbackM
       SortIcons();
       if (pSettings->GetAutoSize())
         {
-          if (GetWindowRect(mainWnd, &wndRect))
+          if (ELGetWindowRect(mainWnd, &wndRect))
             {
               AdjustRect(&wndRect);
               if ((GetVisibleIconCount() > 0) && !appletHidden)
@@ -1139,7 +1139,7 @@ LRESULT Applet::AddTrayIcon(HWND hwnd, UINT uID, UINT uFlags, UINT uCallbackMess
     {
       if (pSettings->GetAutoSize())
         {
-          if (GetWindowRect(mainWnd, &wndRect))
+          if (ELGetWindowRect(mainWnd, &wndRect))
             {
               AdjustRect(&wndRect);
               if ((GetVisibleIconCount() > 0) && !appletHidden)

@@ -257,7 +257,7 @@ BOOL StyleEditor::DoInitDialog(HWND hwndDlg, bool updatePos)
 
   if (updatePos)
     {
-      GetWindowRect(hwndDlg, &rect);
+      ELGetWindowRect(hwndDlg, &rect);
 
       int x = (GetSystemMetrics(SM_CXSCREEN) / 2) - ((rect.right - rect.left) / 2);
       int y = (GetSystemMetrics(SM_CYSCREEN) / 2) - ((rect.bottom - rect.top) / 2);

@@ -285,7 +285,7 @@ bool BaseSettings::SetPosition()
   int tmpx, tmpy;
   RECT appletRect;
 
-  if (!GetWindowRect(appletWnd, &appletRect))
+  if (!ELGetWindowRect(appletWnd, &appletRect))
     return false;
 
   if (_wcsicmp(verticalDirection, TEXT("up")) == 0)
