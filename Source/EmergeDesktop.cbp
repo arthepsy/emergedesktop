@@ -475,6 +475,19 @@
 					<Add directory=".\bin" />
 				</Linker>
 			</Target>
+			<Target title="WindowTitleTest - Release">
+				<Option platforms="Windows;" />
+				<Option output="bin\WindowTitleTest" prefix_auto="1" extension_auto="1" />
+				<Option object_output=".objs\Release" />
+				<Option external_deps="bin\emergeLib.dll;" />
+				<Option type="0" />
+				<Option compiler="gcc" />
+				<Linker>
+					<Add option="-s" />
+					<Add library="emergeLib" />
+					<Add directory=".\bin" />
+				</Linker>
+			</Target>
 			<Target title="emergeLib - Debug">
 				<Option platforms="Windows;" />
 				<Option output="bin\emergeLib" prefix_auto="1" extension_auto="1" />
@@ -743,6 +756,22 @@
 		</Unit>
 		<Unit filename="MinGWInterfaces.h">
 			<Option target="emergeLib - Release" />
+		</Unit>
+		<Unit filename="WindowTitleTest\TestDialog.cpp">
+			<Option target="WindowTitleTest - Release" />
+		</Unit>
+		<Unit filename="WindowTitleTest\TestDialog.h">
+			<Option target="WindowTitleTest - Release" />
+		</Unit>
+		<Unit filename="WindowTitleTest\WindowTitleTest.rc">
+			<Option compilerVar="WINDRES" />
+			<Option target="WindowTitleTest - Release" />
+		</Unit>
+		<Unit filename="WindowTitleTest\main.cpp">
+			<Option target="WindowTitleTest - Release" />
+		</Unit>
+		<Unit filename="WindowTitleTest\resource.h">
+			<Option target="WindowTitleTest - Release" />
 		</Unit>
 		<Unit filename="emergeAppletEngine\emergeAppletEngine.h">
 			<Option target="emergeAppletEngine - Release" />
