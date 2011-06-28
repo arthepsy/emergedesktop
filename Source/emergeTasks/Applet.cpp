@@ -315,6 +315,7 @@ LRESULT Applet::ModifyTask(HWND task)
 LRESULT Applet::RemoveTask(HWND task)
 {
   TaskVector::iterator iter = FindTask(task);
+  std::map<HWND, HANDLE>::iterator modifyIter = modifyMap.find(task);
   RECT wndRect;
   UINT SWPFlags = SWP_NOZORDER | SWP_NOACTIVATE;
 
@@ -325,6 +326,10 @@ LRESULT Applet::RemoveTask(HWND task)
   EnterCriticalSection(&vectorLock);
   taskList.erase(iter);
   LeaveCriticalSection(&vectorLock);
+
+  // Remove the task (if found) from modifyMap
+  if (modifyIter != modifyMap.end())
+    modifyMap.erase(modifyIter);
 
   if (pSettings->GetAutoSize())
     {
@@ -357,6 +362,7 @@ bool Applet::CleanTasks()
   RECT wndRect;
   bool refresh = false;
   TaskVector::iterator iter = taskList.begin();
+  std::map<HWND, HANDLE>::iterator modifyIter;
   UINT SWPFlags = SWP_NOZORDER | SWP_NOACTIVATE;
 
   // Go through each of the elements in the trayIcons array
@@ -373,6 +379,11 @@ bool Applet::CleanTasks()
           // known state.
           iter = taskList.begin();
           LeaveCriticalSection(&vectorLock);
+
+          // Remove the task (if found) from modifyMap
+          modifyIter = modifyMap.find((*iter)->GetWnd());
+          if (modifyIter != modifyMap.end())
+            modifyMap.erase(modifyIter);
         }
       else
         iter++;
@@ -595,25 +606,6 @@ LRESULT Applet::DoEmergeNotify(UINT messageClass, UINT message)
   return BaseApplet::DoEmergeNotify(messageClass, message);
 }
 
-void Applet::DoTaskModify(UINT id)
-{
-  std::map<HWND, UINT>::iterator mapIter;
-
-  mapIter = modifyMap.begin();
-  while (mapIter != modifyMap.end())
-    {
-      if (mapIter->second == id)
-        {
-          ModifyTask(mapIter->first);
-          KillTimer(mainWnd, mapIter->second);
-          modifyMap.erase(mapIter);
-
-          return;
-        }
-      mapIter++;
-    }
-}
-
 void Applet::DoTaskFlash(UINT id)
 {
   std::map<HWND, UINT>::iterator mapIter;
@@ -658,13 +650,6 @@ void Applet::DoTaskFlash(UINT id)
     }
 }
 
-VOID CALLBACK Applet::ModifyTimerProc(HWND hwnd, UINT uMsg UNUSED, UINT_PTR idEvent, DWORD dwTime UNUSED)
-{
-  Applet *pApplet = reinterpret_cast<Applet*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
-
-  pApplet->DoTaskModify(idEvent);
-}
-
 VOID CALLBACK Applet::FlashTimerProc(HWND hwnd, UINT uMsg UNUSED, UINT_PTR idEvent, DWORD dwTime UNUSED)
 {
   Applet *pApplet = reinterpret_cast<Applet*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
@@ -672,15 +657,33 @@ VOID CALLBACK Applet::FlashTimerProc(HWND hwnd, UINT uMsg UNUSED, UINT_PTR idEve
   pApplet->DoTaskFlash(idEvent);
 }
 
+DWORD WINAPI Applet::ModifyThreadProc(LPVOID lpParameter)
+{
+  // reinterpret lpParameter as a Applet*,HWND pair
+  std::pair<Applet*, HWND> *modifyPair = reinterpret_cast< std::pair<Applet*, HWND>* >(lpParameter);
+
+  // Pause the thread for 100 ms to mitigate an HSHELL_REDRAW message flood
+  WaitForSingleObject(GetCurrentThread(), 100);
+
+  // using modifyPair, call ModifyTask with the passed task hwnd
+  DWORD ret = modifyPair->first->ModifyTask(modifyPair->second);
+
+  // Clean-up memory allocation
+  delete modifyPair;
+
+  return ret;
+}
+
 LRESULT Applet::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
   HWND task = (HWND)lParam;
   UINT shellMessage = (UINT)wParam;
   std::map<HWND, UINT>::iterator mapIter;
-  UINT modifyIndex = modifyMap.size() + 1;
-  std::pair<std::map<HWND,UINT>::iterator, bool> pr;
+  std::pair<Applet*, HWND> *modifyPair;
   TaskVector::iterator iter;
+  std::map<HWND, HANDLE>::iterator modifyIter;
   HICON icon = NULL;
+  DWORD threadID, threadState;
 
   if (message == ShellMessage)
     {
@@ -693,9 +696,21 @@ LRESULT Applet::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 
           // A "task" was modified
         case HSHELL_REDRAW:
-          pr = modifyMap.insert(std::pair<HWND, UINT>(task, modifyIndex));
-          if (pr.second)
-            SetTimer(hwnd, modifyIndex, MODIFY_POLL_TIME, (TIMERPROC)ModifyTimerProc);
+          modifyIter = modifyMap.find(task);
+          if (modifyIter == modifyMap.end())
+            {
+              modifyPair = new std::pair<Applet*, HWND>(this, task);
+              modifyMap.insert(std::pair<HWND, HANDLE>(task, CreateThread(NULL, 0, ModifyThreadProc, modifyPair, 0, &threadID)));
+            }
+          else
+            {
+              GetExitCodeThread(modifyIter->second, &threadState);
+              if (threadState != STILL_ACTIVE)
+                {
+                  modifyPair = new std::pair<Applet*, HWND>(this, task);
+                  modifyIter->second = CreateThread(NULL, 0, ModifyThreadProc, modifyPair, 0, &threadID);
+                }
+            }
           break;
 
           // A "task" was ended

@@ -59,16 +59,16 @@ private:
   std::tr1::shared_ptr<Settings> pSettings;
   TaskVector taskList;
   std::map<HWND, UINT> flashMap;
-  std::map<HWND, UINT> modifyMap;
+  std::map<HWND, HANDLE> modifyMap;
   HWND activeWnd;
   void ResetTaskIcons();
   void UpdateIcons();
   static LRESULT CALLBACK WindowProcedure (HWND, UINT, WPARAM, LPARAM);
   static BOOL CALLBACK EnumTasksList(HWND hwnd, LPARAM lParam);
-  static VOID CALLBACK ModifyTimerProc(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime);
   static VOID CALLBACK FlashTimerProc(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime);
   CRITICAL_SECTION vectorLock;
   LRESULT DoTaskIcon(HWND task, HICON icon);
+  static DWORD WINAPI ModifyThreadProc(LPVOID lpParameter);
 
 protected:
   virtual std::tr1::shared_ptr<BaseSettings> createSettings();
@@ -96,7 +96,6 @@ public:
   void ShowConfig();
   bool PaintItem(HDC hdc, UINT index, int x, int y, RECT rect);
   size_t GetIconCount();
-  void DoTaskModify(UINT id);
   void DoTaskFlash(UINT id);
 };
 
