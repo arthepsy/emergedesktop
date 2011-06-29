@@ -435,19 +435,19 @@ LRESULT Applet::TaskMouseEvent(UINT message, LPARAM lParam)
               windowHandle = (*iter)->GetWnd();
 
               if (ELIsModal(windowHandle))
-                ELSwitchToThisWindow(GetLastActivePopup(windowHandle));
+                windowHandle = GetLastActivePopup(windowHandle);
+
+              if (((GetWindowLongPtr(windowHandle, GWL_STYLE) &
+                    WS_MINIMIZEBOX) == WS_MINIMIZEBOX) && // Check to see if the
+                                                          // window is capable
+                                                          // of being minimized.
+                  !IsIconic(windowHandle) &&  // Check if the window is already
+                                              // minimized.
+                  (windowHandle == activeWnd))  // Check to see if it is the
+                                                // active window
+                PostMessage(windowHandle, WM_SYSCOMMAND, SC_MINIMIZE, lParam);
               else
-                {
-                  if (windowHandle == activeWnd)
-                    ShowWindow(windowHandle, SW_MINIMIZE);
-                  else
-                    {
-                      if (IsIconic(windowHandle))
-                        ShowWindow(windowHandle, SW_RESTORE);
-                      else
-                        SetForegroundWindow(windowHandle);
-                    }
-                }
+                ELSwitchToThisWindow(windowHandle); // If not activate it
             }
           else if (message == WM_RBUTTONUP)
             (*iter)->DisplayMenu(mainWnd);
