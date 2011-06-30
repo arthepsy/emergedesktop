@@ -193,7 +193,7 @@ BOOL Actions::DoInitDialog(HWND hwndDlg)
 
   PopulateList(listWnd);
   PopulateKeys(keyWnd);
-  PopulateCommands(commandWnd);
+  ELPopulateInternalCommandList(commandWnd);
 
   SendDlgItemMessage(hwndDlg, IDC_EXTERNAL, BM_CLICK, 0, 0);
 
@@ -966,53 +966,6 @@ bool Actions::DoExternal(HWND hwndDlg)
   EnableWindow(commandWnd, false);
 
   return true;
-}
-
-void Actions::PopulateCommands(HWND commandWnd)
-{
-  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("About"));
-  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("AliasEditor"));
-  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("CoreSettings"));
-  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Disconnect"));
-  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("EmptyBin"));
-  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Halt"));
-  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Hibernate"));
-  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Hide"));
-  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Homepage"));
-  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("LaunchEditor"));
-  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Lock"));
-  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Logoff"));
-  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("MidDeskMenu"));
-  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Quit"));
-  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Reboot"));
-  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("RightDeskMenu"));
-  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Run"));
-  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("ShellChanger"));
-  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Show"));
-  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("ShowDesktop"));
-  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Suspend"));
-  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Shutdown"));
-  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Tutorial"));
-  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("VolumeUp"));
-  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("VolumeDown"));
-  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("VolumeMute"));
-  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("VWM_1"));
-  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("VWM_2"));
-  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("VWM_3"));
-  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("VWM_4"));
-  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("VWM_5"));
-  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("VWM_6"));
-  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("VWM_7"));
-  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("VWM_8"));
-  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("VWM_9"));
-  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("VWMDown"));
-  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("VWMGather"));
-  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("VWMLeft"));
-  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("VWMRight"));
-  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("VWMUp"));
-  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("VWMPrev"));
-  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("VWMNext"));
-  SendMessage(commandWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("WorkspaceSettings"));
 }
 
 bool Actions::DoBrowse(HWND hwndDlg, bool folder)

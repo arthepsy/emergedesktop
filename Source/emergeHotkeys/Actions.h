@@ -65,7 +65,6 @@ private:
   bool EnableFields(HWND hwndDlg, bool enable);
   bool PopulateList(HWND listWnd);
   void PopulateKeys(HWND keyWnd);
-  void PopulateCommands(HWND commandWnd);
   bool DoInternal(HWND hwndDlg);
   bool DoExternal(HWND hwndDlg);
   bool DoBrowse(HWND hwndDlg, bool folder);
