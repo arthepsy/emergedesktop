@@ -4877,3 +4877,62 @@ IOleCommandTarget *ELStartSSO(CLSID clsid)
 
   return target;
 }
+
+bool ELPopulateInternalCommandList(HWND hwnd)
+{
+  if (!IsWindow(hwnd))
+    return false;
+
+  SendMessage(hwnd, CB_ADDSTRING, 0, (LPARAM)TEXT("About"));
+  SendMessage(hwnd, CB_ADDSTRING, 0, (LPARAM)TEXT("AliasEditor"));
+  SendMessage(hwnd, CB_ADDSTRING, 0, (LPARAM)TEXT("CoreSettings"));
+  SendMessage(hwnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Disconnect"));
+  SendMessage(hwnd, CB_ADDSTRING, 0, (LPARAM)TEXT("EmptyBin"));
+  SendMessage(hwnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Halt"));
+  SendMessage(hwnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Halt /silent"));
+  SendMessage(hwnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Hibernate"));
+  SendMessage(hwnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Hibernate /silent"));
+  SendMessage(hwnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Hide"));
+  SendMessage(hwnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Homepage"));
+  SendMessage(hwnd, CB_ADDSTRING, 0, (LPARAM)TEXT("LaunchEditor"));
+  SendMessage(hwnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Lock"));
+  SendMessage(hwnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Logoff"));
+  SendMessage(hwnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Logoff /silent"));
+  SendMessage(hwnd, CB_ADDSTRING, 0, (LPARAM)TEXT("MidDeskMenu"));
+  SendMessage(hwnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Quit"));
+  SendMessage(hwnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Quit /silent"));
+  SendMessage(hwnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Reboot"));
+  SendMessage(hwnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Reboot /silent"));
+  SendMessage(hwnd, CB_ADDSTRING, 0, (LPARAM)TEXT("RightDeskMenu"));
+  SendMessage(hwnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Run"));
+  SendMessage(hwnd, CB_ADDSTRING, 0, (LPARAM)TEXT("ShellChanger"));
+  SendMessage(hwnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Show"));
+  SendMessage(hwnd, CB_ADDSTRING, 0, (LPARAM)TEXT("ShowDesktop"));
+  SendMessage(hwnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Suspend"));
+  SendMessage(hwnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Suspend /silent"));
+  SendMessage(hwnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Shutdown"));
+  SendMessage(hwnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Shutdown /silent"));
+  SendMessage(hwnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Tutorial"));
+  SendMessage(hwnd, CB_ADDSTRING, 0, (LPARAM)TEXT("VolumeUp"));
+  SendMessage(hwnd, CB_ADDSTRING, 0, (LPARAM)TEXT("VolumeDown"));
+  SendMessage(hwnd, CB_ADDSTRING, 0, (LPARAM)TEXT("VolumeMute"));
+  SendMessage(hwnd, CB_ADDSTRING, 0, (LPARAM)TEXT("VWM_1"));
+  SendMessage(hwnd, CB_ADDSTRING, 0, (LPARAM)TEXT("VWM_2"));
+  SendMessage(hwnd, CB_ADDSTRING, 0, (LPARAM)TEXT("VWM_3"));
+  SendMessage(hwnd, CB_ADDSTRING, 0, (LPARAM)TEXT("VWM_4"));
+  SendMessage(hwnd, CB_ADDSTRING, 0, (LPARAM)TEXT("VWM_5"));
+  SendMessage(hwnd, CB_ADDSTRING, 0, (LPARAM)TEXT("VWM_6"));
+  SendMessage(hwnd, CB_ADDSTRING, 0, (LPARAM)TEXT("VWM_7"));
+  SendMessage(hwnd, CB_ADDSTRING, 0, (LPARAM)TEXT("VWM_8"));
+  SendMessage(hwnd, CB_ADDSTRING, 0, (LPARAM)TEXT("VWM_9"));
+  SendMessage(hwnd, CB_ADDSTRING, 0, (LPARAM)TEXT("VWMDown"));
+  SendMessage(hwnd, CB_ADDSTRING, 0, (LPARAM)TEXT("VWMGather"));
+  SendMessage(hwnd, CB_ADDSTRING, 0, (LPARAM)TEXT("VWMLeft"));
+  SendMessage(hwnd, CB_ADDSTRING, 0, (LPARAM)TEXT("VWMRight"));
+  SendMessage(hwnd, CB_ADDSTRING, 0, (LPARAM)TEXT("VWMUp"));
+  SendMessage(hwnd, CB_ADDSTRING, 0, (LPARAM)TEXT("VWMPrev"));
+  SendMessage(hwnd, CB_ADDSTRING, 0, (LPARAM)TEXT("VWMNext"));
+  SendMessage(hwnd, CB_ADDSTRING, 0, (LPARAM)TEXT("WorkspaceSettings"));
+
+  return true;
+}

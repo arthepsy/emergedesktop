@@ -47,7 +47,6 @@ public:
 
 private:
   bool PopulateList(HWND listWnd);
-  void PopulateCommands(HWND commandWnd);
   void PopulateSpecialFolders(HWND specialFoldersWnd);
   WCHAR name[MAX_LINE_LENGTH], value[MAX_LINE_LENGTH], workingDir[MAX_LINE_LENGTH];
   TiXmlElement *section;

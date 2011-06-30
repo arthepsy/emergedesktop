@@ -89,7 +89,6 @@ private:
   bool WriteMenuHelper(TiXmlElement *section, HWND treeWnd, HTREEITEM parent);
   bool DeleteItem(HWND treeWnd, HTREEITEM item);
   int GetTypeValue(UINT type);
-  void PopulateCommands(HWND commandWnd);
   void PopulateSpecialFolders(HWND specialFoldersWnd);
   void SetTooltip(HWND browseWnd, UINT type);
   void MoveSubmenu(HWND treeWnd, HTREEITEM target, HTREEITEM source);
