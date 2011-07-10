@@ -33,8 +33,7 @@
 #undef WINVER
 #define WINVER 0x0501
 
-#define NEW_TASK_TIMER 100
-#define NEW_TASK_POLL_TIME 250
+#define TASK_WAIT_TIME 250
 
 #include "../emergeGraphics/emergeGraphics.h"
 #include "../emergeAppletEngine/emergeAppletEngine.h"
@@ -65,12 +64,14 @@ private:
   LRESULT PaintContent(HDC hdc, RECT clientrt);
   void ShowConfig();
   LRESULT MySize();
+  HANDLE taskThread;
+  static DWORD WINAPI TaskThreadProc(LPVOID lpParameter);
+  void RemoveInvalidTasks();
 
 public:
   Applet(HINSTANCE hInstance);
   ~Applet();
   UINT Initialize();
-  LRESULT DoTimer(UINT timerID);
   LRESULT DoEmergeNotify(UINT messageClass, UINT message);
   LRESULT DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
   LRESULT DesktopMouseEvent(HWND hwnd, UINT message, LPARAM lParam);

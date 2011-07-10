@@ -148,7 +148,7 @@ LRESULT Applet::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 }
 
 Applet::Applet(HINSTANCE hInstance)
-:BaseApplet(hInstance, myName, false)
+  :BaseApplet(hInstance, myName, false)
 {
   // Set current row and column
   currentRow = 0;
@@ -166,8 +166,8 @@ Applet::~Applet()
 {
   PostMessage(ELGetCoreWindow(), EMERGE_UNREGISTER, (WPARAM)mainWnd, (LPARAM)EMERGE_VWM);
 
-  // Kill Task timer
-  KillTimer(mainWnd, NEW_TASK_TIMER);
+  // Kill Task thread
+  TerminateThread(taskThread, 0);
 
   // Gather all the windows onto one desktop
   SwitchDesktop(0, 0, true);
@@ -209,9 +209,55 @@ UINT Applet::Initialize()
   SwitchDesktop(0, 0, true);
 
   // Check to see if there are any new tasks and remove any defunt tasks
-  SetTimer(mainWnd, NEW_TASK_TIMER, NEW_TASK_POLL_TIME, NULL);
+  DWORD threadID;
+  taskThread = CreateThread(NULL, 0, TaskThreadProc, this, 0, &threadID);
 
   return ret;
+}
+
+void Applet::RemoveInvalidTasks()
+{
+  std::vector< std::tr1::shared_ptr<Task> >::iterator iter = taskList.begin(), tmpIter;
+
+  // traverse the taskList vector looking for invalid tasks
+  while (iter < taskList.end())
+    {
+      // Check to see if the task is not a valid window or if it is no longer
+      // visible
+      if ((!IsWindow((*iter)->GetTaskWnd())) ||
+          (!IsWindowVisible((*iter)->GetTaskWnd())))
+        {
+          // If not erase the task
+          tmpIter = taskList.erase(iter);
+          iter = tmpIter;
+        }
+      else
+        iter++;
+    }
+}
+
+DWORD WINAPI Applet::TaskThreadProc(LPVOID lpParameter)
+{
+  // reinterpret lpParameter as a BaseApplet*
+  Applet *pApplet = reinterpret_cast< Applet* >(lpParameter);
+
+  // loop infinitely
+  while (true)
+    {
+      // Pause the current thread for TASK_WAIT_TIME
+      WaitForSingleObject(GetCurrentThread(), TASK_WAIT_TIME);
+
+      // Remove invalid tasks
+      pApplet->RemoveInvalidTasks();
+
+      // Add new tasks
+      EnumWindows(pApplet->BuildTasksList, (LPARAM)pApplet);
+
+      // Redraw the main window
+      pApplet->DrawAlphaBlend();
+    }
+
+  return 0;
 }
 
 //----  --------------------------------------------------------------------------------------------------------
@@ -549,10 +595,10 @@ LRESULT Applet::DesktopMouseEvent(HWND hwnd, UINT message, LPARAM lParam)
               GetClientRect(mainWnd, &clientRect);
 
               rowScalar = (float)(clientRect.bottom - (2 * dragBorder)) /
-                (float)pSettings->GetDesktopRows();
+                          (float)pSettings->GetDesktopRows();
               rowScalar = (float)screenHeight / rowScalar;
               columnScalar = (float)(clientRect.right - (2 * dragBorder)) /
-                (float)pSettings->GetDesktopColumns();
+                             (float)pSettings->GetDesktopColumns();
               columnScalar = (float)screenWidth / columnScalar;
 
               xOffset = (float)pt.x - (float)referencePt.x;
@@ -601,9 +647,9 @@ LRESULT Applet::DesktopMouseEvent(HWND hwnd, UINT message, LPARAM lParam)
           for (column = 0; column < pSettings->GetDesktopColumns(); column++)
             {
               float rowScalar = (float)(clientRect.bottom - (2 * dragBorder)) /
-                (float)pSettings->GetDesktopRows();
+                                (float)pSettings->GetDesktopRows();
               float columnScalar = (float)(clientRect.right - (2 * dragBorder)) /
-                (float)pSettings->GetDesktopColumns();
+                                   (float)pSettings->GetDesktopColumns();
 
               desktopRect.top = dragBorder + (int)(row * rowScalar);
               desktopRect.bottom = desktopRect.top + (int)rowScalar;
@@ -704,43 +750,6 @@ bool Applet::PaintTask(Task *task)
     return false;
 
   return true;
-}
-
-LRESULT Applet::DoTimer(UINT timerID)
-{
-  if (BaseApplet::DoTimer(timerID) == 0)
-    return 0;
-
-  if (timerID == NEW_TASK_TIMER)
-    {
-      KillTimer(mainWnd, NEW_TASK_TIMER);
-
-      // Remove and invalid tasks
-      std::vector< std::tr1::shared_ptr<Task> >::iterator iter = taskList.begin(), tmpIter;
-
-      while (iter < taskList.end())
-        {
-          if ((!IsWindow((*iter)->GetTaskWnd())) ||
-              (!IsWindowVisible((*iter)->GetTaskWnd())))
-            {
-              tmpIter = taskList.erase(iter);
-              iter = tmpIter;
-            }
-          else
-            iter++;
-        }
-
-      // Add new tasks
-      EnumWindows(BuildTasksList, (LPARAM)this);
-
-      DrawAlphaBlend();
-
-      SetTimer(mainWnd, NEW_TASK_TIMER, NEW_TASK_POLL_TIME, NULL);
-
-      return 0;
-    }
-
-  return 1;
 }
 
 void Applet::ShowConfig()
