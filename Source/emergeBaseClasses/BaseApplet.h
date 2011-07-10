@@ -87,12 +87,15 @@ public:
   LRESULT DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
   void SetFullScreen(bool value);
   bool GetFullScreen();
+  HWND GetMainWnd();
 
 private:
   WCHAR appletName[MAX_LINE_LENGTH];
-  static VOID CALLBACK FullScreenTimer(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime);
   bool fullScreen, allowAutoSize;
   RECT referenceRect;
+  HANDLE displayChangeThread, fullScreenThread;
+  static DWORD WINAPI DisplayChangeThreadProc(LPVOID lpParameter);
+  static DWORD WINAPI FullScreenThreadProc(LPVOID lpParameter);
 
 protected:
   HWND mainWnd, toolWnd;

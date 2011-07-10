@@ -23,8 +23,6 @@
 #include "../emergeAppletEngine/emergeAppletEngine.h"
 #include <stdio.h>
 
-BaseApplet *pBaseApplet = NULL;
-
 BaseApplet::BaseApplet(HINSTANCE hInstance, WCHAR *appletName, bool allowAutoSize)
 {
   mainInst = hInstance;
@@ -37,7 +35,8 @@ BaseApplet::BaseApplet(HINSTANCE hInstance, WCHAR *appletName, bool allowAutoSiz
   activeBackgroundDC = NULL;
   inactiveBackgroundDC = NULL;
 
-  pBaseApplet = this;
+  displayChangeThread = NULL;
+  fullScreenThread = NULL;
 
   ZeroMemory(&oldrt, sizeof(RECT));
 }
@@ -377,12 +376,33 @@ LRESULT BaseApplet::DoSize(DWORD width, DWORD height)
   return 0;
 }
 
-LRESULT BaseApplet::DoDisplayChange(HWND hwnd)
+DWORD WINAPI BaseApplet::DisplayChangeThreadProc(LPVOID lpParameter)
 {
-  if (!ELIsFullScreen(hwnd, GetForegroundWindow()))
+  // reinterpret lpParameter as a BaseApplet*
+  BaseApplet *pBaseApplet = reinterpret_cast< BaseApplet* >(lpParameter);
+
+  // Pause the thread for 500 ms to mitigate an fullscreen app changing the
+  // display resolution prior to taking full screen
+  WaitForSingleObject(GetCurrentThread(), 500);
+
+  // If not and Dynamic Positioning is enabled, adjust the applet position
+  if (pBaseApplet->pBaseSettings->GetDynamicPositioning())
+    pBaseApplet->UpdateGUI();
+
+  return 0;
+}
+
+LRESULT BaseApplet::DoDisplayChange(HWND hwnd UNUSED)
+{
+  DWORD threadID, threadState;
+
+  if (!displayChangeThread)
+    displayChangeThread = CreateThread(NULL, 0, DisplayChangeThreadProc, this, 0, &threadID);
+  else
     {
-      if (pBaseSettings->GetDynamicPositioning())
-        UpdateGUI();
+      GetExitCodeThread(displayChangeThread, &threadState);
+      if (threadState != STILL_ACTIVE)
+        displayChangeThread = CreateThread(NULL, 0, DisplayChangeThreadProc, this, 0, &threadID);
     }
 
   return 0;
@@ -803,13 +823,13 @@ LRESULT BaseApplet::DoEmergeNotify(UINT messageClass, UINT message)
           break;
 
         case CORE_REPOSITION:
-            {
-              HWND hwndInsertBehind = NULL;
-              if (_wcsicmp(pBaseSettings->GetZPosition(), TEXT("top")) != 0)
-                hwndInsertBehind = ELGetDesktopWindow();
-              SetWindowPos(mainWnd, hwndInsertBehind, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
-            }
-          break;
+        {
+          HWND hwndInsertBehind = NULL;
+          if (_wcsicmp(pBaseSettings->GetZPosition(), TEXT("top")) != 0)
+            hwndInsertBehind = ELGetDesktopWindow();
+          SetWindowPos(mainWnd, hwndInsertBehind, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
+        }
+        break;
 
         case CORE_RECONFIGURE:
           UpdateGUI();
@@ -845,20 +865,40 @@ LRESULT BaseApplet::DoHitTest(LPARAM lParam UNUSED)
   return 0;
 }
 
-VOID CALLBACK BaseApplet::FullScreenTimer(HWND hwnd, UINT uMsg UNUSED, UINT_PTR idEvent UNUSED, DWORD dwTime UNUSED)
+HWND BaseApplet::GetMainWnd()
 {
-  KillTimer(hwnd, FULLSCREEN_TIMER);
-  if (ELIsFullScreen(hwnd, GetForegroundWindow()))
+  return mainWnd;
+}
+
+DWORD WINAPI BaseApplet::FullScreenThreadProc(LPVOID lpParameter)
+{
+  // reinterpret lpParameter as a BaseApplet*
+  BaseApplet *pBaseApplet = reinterpret_cast< BaseApplet* >(lpParameter);
+
+  // loop infinitely
+  while (true)
     {
-      pBaseApplet->SetFullScreen(true);
-      pBaseApplet->DoEmergeNotify(EMERGE_CORE, CORE_HIDE);
+      // Pause the current thread for FULLSCREEN_POLL_TIME
+      WaitForSingleObject(GetCurrentThread(), FULLSCREEN_POLL_TIME);
+
+      // Check if the current foreground window is full screen
+      if (ELIsFullScreen(pBaseApplet->GetMainWnd(), GetForegroundWindow()))
+        {
+          // if so set fullscreen to true...
+          pBaseApplet->SetFullScreen(true);
+          // and hide the applet
+          pBaseApplet->DoEmergeNotify(EMERGE_CORE, CORE_HIDE);
+        }
+      else if (pBaseApplet->GetFullScreen())
+        {
+          // if not and fullscreen is set to true then set fullscreen false...
+          pBaseApplet->SetFullScreen(false);
+          // and show the applet
+          pBaseApplet->DoEmergeNotify(EMERGE_CORE, CORE_SHOW);
+        }
     }
-  else if (pBaseApplet->GetFullScreen())
-    {
-      pBaseApplet->SetFullScreen(false);
-      pBaseApplet->DoEmergeNotify(EMERGE_CORE, CORE_SHOW);
-    }
-  SetTimer(hwnd, FULLSCREEN_TIMER, FULLSCREEN_POLL_TIME, (TIMERPROC)FullScreenTimer);
+
+  return 0;
 }
 
 LRESULT BaseApplet::DoSysCommand(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
@@ -888,6 +928,7 @@ bool BaseApplet::GetFullScreen()
 LRESULT BaseApplet::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
   UINT shellMessage = (UINT)wParam;
+  DWORD threadID, threadState;
 
   if (message == ShellMessage)
     {
@@ -895,13 +936,21 @@ LRESULT BaseApplet::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
         {
           // A "task" was activated
         case HSHELL_RUDEAPPACTIVATED:
-          SetTimer(mainWnd, FULLSCREEN_TIMER, FULLSCREEN_POLL_TIME, (TIMERPROC)FullScreenTimer);
+          TerminateThread(displayChangeThread, 0);
+          if (!fullScreenThread)
+            fullScreenThread = CreateThread(NULL, 0, FullScreenThreadProc, this, 0, &threadID);
+          else
+            {
+              GetExitCodeThread(fullScreenThread, &threadState);
+              if (threadState != STILL_ACTIVE)
+                fullScreenThread = CreateThread(NULL, 0, FullScreenThreadProc, this, 0, &threadID);
+            }
           return 1;
 
         case HSHELL_WINDOWACTIVATED:
           if (fullScreen)
             {
-              KillTimer(mainWnd, FULLSCREEN_TIMER);
+              TerminateThread(fullScreenThread, 0);
               fullScreen = false;
               DoEmergeNotify(EMERGE_CORE, CORE_SHOW);
             }
