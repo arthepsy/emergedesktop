@@ -383,7 +383,7 @@ DWORD WINAPI BaseApplet::DisplayChangeThreadProc(LPVOID lpParameter)
 
   // Pause the thread for 500 ms to mitigate an fullscreen app changing the
   // display resolution prior to taking full screen
-  WaitForSingleObject(GetCurrentThread(), 500);
+  WaitForSingleObject(GetCurrentThread(), DISPLAYCHANGE_WAIT_TIME);
 
   // If not and Dynamic Positioning is enabled, adjust the applet position
   if (pBaseApplet->pBaseSettings->GetDynamicPositioning())
@@ -879,7 +879,7 @@ DWORD WINAPI BaseApplet::FullScreenThreadProc(LPVOID lpParameter)
   while (true)
     {
       // Pause the current thread for FULLSCREEN_POLL_TIME
-      WaitForSingleObject(GetCurrentThread(), FULLSCREEN_POLL_TIME);
+      WaitForSingleObject(GetCurrentThread(), FULLSCREEN_WAIT_TIME);
 
       // Check if the current foreground window is full screen
       if (ELIsFullScreen(pBaseApplet->GetMainWnd(), GetForegroundWindow()))
