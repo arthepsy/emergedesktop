@@ -386,7 +386,7 @@ DWORD WINAPI BaseApplet::DisplayChangeThreadProc(LPVOID lpParameter)
   WaitForSingleObject(GetCurrentThread(), DISPLAYCHANGE_WAIT_TIME);
 
   // If not and Dynamic Positioning is enabled, adjust the applet position
-  if (pBaseApplet->pBaseSettings->GetDynamicPositioning())
+  if (pBaseApplet->pBaseSettings->GetDynamicPositioning() && !pBaseApplet->GetFullScreen())
     pBaseApplet->UpdateGUI();
 
   return 0;
