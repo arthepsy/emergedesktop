@@ -523,7 +523,7 @@ public:
                       HICON icon, LPTSTR szTip, LPTSTR szInfo,
                       LPTSTR szInfoTitle, DWORD dwInfoFlags, bool hidden,
                       bool shared);
-  bool TrayMouseEvent(UINT message, LPARAM lParam);
+  LRESULT TrayMouseEvent(UINT message, LPARAM lParam);
   LRESULT TrayIconEvent(COPYDATASTRUCT *cpData);
   LRESULT AppBarEvent(COPYDATASTRUCT *cpData);
   LRESULT IconIdentifierEvent(COPYDATASTRUCT *cpData);

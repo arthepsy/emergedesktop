@@ -1163,7 +1163,7 @@ LRESULT Applet::AddTrayIcon(HWND hwnd, UINT uID, UINT uFlags, UINT uCallbackMess
 // Returns:	bool
 // Purpose:	Forwards the mouse message to the icon window
 //----  --------------------------------------------------------------------------------------------------------
-bool Applet::TrayMouseEvent(UINT message, LPARAM lParam)
+LRESULT Applet::TrayMouseEvent(UINT message, LPARAM lParam)
 {
   std::vector< std::tr1::shared_ptr<TrayIcon> >::iterator iter;
   POINT lparamPT, cursorPT;
