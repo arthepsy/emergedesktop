@@ -60,6 +60,8 @@ TrayIcon::TrayIcon(HINSTANCE appInstance, HWND wnd, UINT id, HWND mainWnd, HWND 
 
   pBalloon = std::tr1::shared_ptr<Balloon>(new Balloon(appInstance, this, pSettings));
   pBalloon->Initialize();
+
+  lbuttonDown = false;
 }
 
 void TrayIcon::CreateNewIcon(BYTE foregroundAlpha, BYTE backgroundAlpha)
@@ -306,6 +308,20 @@ void TrayIcon::HideBalloon()
 
 BOOL TrayIcon::SendMessage(LPARAM lParam)
 {
+  // Only send an WM_LBUTTONUP message if there has been a previous
+  // WM_LBUTTONDOWN or WM_LBUTTONDBLCLK message sent
+  if (lParam == WM_LBUTTONUP)
+    {
+      if (!lbuttonDown)
+        return TRUE;
+      else
+        lbuttonDown = false;
+    }
+
+  // Set lbuttonDown based on WM_LBUTTONDOWN or WM_LBUTTONDBLCLK
+  if ((lParam == WM_LBUTTONDOWN) || (lParam == WM_LBUTTONDBLCLK))
+    lbuttonDown = true;
+
   if (iconVersion == NOTIFYICON_VERSION_4)
     {
       POINT messagePt;
