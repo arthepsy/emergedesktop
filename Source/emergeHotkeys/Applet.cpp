@@ -135,10 +135,21 @@ LRESULT CALLBACK Applet::WindowProcedure (HWND hwnd, UINT message, WPARAM wParam
 
       // If not handled just forward the message on to MessageControl
     default:
-      return DefWindowProc (hwnd, message, wParam, lParam);
+      return pApplet->DoDefault(hwnd, message, wParam, lParam);
     }
 
   return 0;
+}
+
+LRESULT Applet::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
+{
+  if ((message == EMERGE_NOTIFY) && (((UINT)wParam && EMERGE_CORE) == EMERGE_CORE) && ((UINT)lParam == CORE_SHOWCONFIG))
+  {
+    ExecuteAction(0);
+    return 0;
+  }
+
+  return DefWindowProc(hwnd, message, wParam, lParam);
 }
 
 LRESULT Applet::DoCopyData(COPYDATASTRUCT *cds)

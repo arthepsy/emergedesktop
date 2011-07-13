@@ -243,6 +243,7 @@ LRESULT MenuBuilder::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lP
       switch (lParam)
         {
         case CORE_SETTINGS:
+        case CORE_SHOWCONFIG:
         {
           Config config(mainInst, pSettings);
           if (config.Show() == IDOK)

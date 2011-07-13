@@ -16,6 +16,10 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
+//
+//  The icon "config.ico" was created by Deleket (Jojo Mendoza) and released
+//  under the Creative Commons Attribution Non-commercial (by-nc) license.
+//  It can be found online at <http://findicons.com/icon/24996/gear_01>.
 //----  --------------------------------------------------------------------------------------------------------
 
 #include "resource.h"
@@ -74,3 +78,4 @@ IDI_FILE              ICON  "file.ico"
 IDI_QUIT              ICON  "unemerge.ico"
 IDI_EXPORT            ICON  "export.ico"
 IDI_IMPORT            ICON  "import.ico"
+IDI_CONFIG            ICON  "config.ico"

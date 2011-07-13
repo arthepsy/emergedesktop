@@ -47,6 +47,7 @@
 #define IDC_ABORTAPP        510
 #define IDC_INFOAPP         511
 #define IDC_GATHERAPP       512
+#define IDC_CONFIGAPP       513
 
 #define IDC_SHELLITEM       600
 #define IDC_SHELLNAME       601

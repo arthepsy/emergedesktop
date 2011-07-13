@@ -42,3 +42,4 @@
 #define IDI_QUIT                19
 #define IDI_EXPORT              20
 #define IDI_IMPORT              21
+#define IDI_CONFIG              22

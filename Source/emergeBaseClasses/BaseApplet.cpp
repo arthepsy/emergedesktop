@@ -831,6 +831,10 @@ LRESULT BaseApplet::DoEmergeNotify(UINT messageClass, UINT message)
         }
         break;
 
+        case CORE_SHOWCONFIG:
+          ShowConfig();
+          break;
+
         case CORE_RECONFIGURE:
           UpdateGUI();
           break;

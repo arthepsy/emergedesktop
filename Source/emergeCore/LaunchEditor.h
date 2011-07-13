@@ -64,6 +64,7 @@ private:
   BOOL DoMultiStart(HWND hwndDlg);
   BOOL DoMultiStop(HWND hwndDlg);
   BOOL DoMultiGather(HWND hwndDlg);
+  BOOL DoMultiConfig(HWND hwndDlg);
   BOOL DoMultiInfo(HWND hwndDlg);
   bool DoLaunchMove(HWND listWnd, bool up);
   bool CheckSaveCount(HWND hwndDlg);
@@ -75,9 +76,10 @@ private:
   HINSTANCE hInstance;
   HWND mainWnd, toolWnd, dlgWnd;
   HICON addIcon, delIcon, upIcon, downIcon, browseIcon, saveIcon, abortIcon, startIcon, stopIcon;
-  HICON infoIcon, gatherIcon;
+  HICON infoIcon, gatherIcon, configIcon;
   static BOOL CALLBACK AppletCheck(HWND hwnd, LPARAM lParam);
   static BOOL CALLBACK GatherApplet(HWND hwnd, LPARAM lParam);
+  static BOOL CALLBACK ConfigureApplet(HWND hwnd, LPARAM lParam);
   std::wstring xmlFile;
   std::wstring selectedApplet;
   bool FindListSubItem(HWND listWnd, int subItem, WCHAR *searchString);
