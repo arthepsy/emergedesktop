@@ -29,6 +29,7 @@ UINT Applet::virtualKey = 0;
 
 Applet::Applet(HINSTANCE hInstance)
 {
+  mainWnd = NULL;
   mainInst = hInstance;
 }
 
@@ -48,15 +49,6 @@ UINT Applet::Initialize()
 
   SetWindowPos(mainWnd, NULL, 0, 0, 0, 0, SWP_NOACTIVATE);
   ShowWindow(mainWnd, SW_SHOW);
-
-  if (!RegisterHotKey(mainWnd, 0, MOD_SHIFT, VK_ESCAPE))
-    {
-      ELMessageBox(GetDesktopWindow(),
-                   (WCHAR*)TEXT("Failed to register Hotkey combination Shift+Escape\n required for Actions Dialog."),
-                   (WCHAR*)TEXT("emergeHotkeys"),
-                   ELMB_OK|ELMB_ICONERROR|ELMB_MODAL);
-      return 0;
-    }
 
   pSettings = std::tr1::shared_ptr<Settings>(new Settings(mainWnd));
   pSettings->BuildList(false);
@@ -144,10 +136,10 @@ LRESULT CALLBACK Applet::WindowProcedure (HWND hwnd, UINT message, WPARAM wParam
 LRESULT Applet::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
   if ((message == EMERGE_NOTIFY) && (((UINT)wParam && EMERGE_CORE) == EMERGE_CORE) && ((UINT)lParam == CORE_SHOWCONFIG))
-  {
-    ExecuteAction(0);
-    return 0;
-  }
+    {
+      pActions->Show();
+      return 0;
+    }
 
   return DefWindowProc(hwnd, message, wParam, lParam);
 }
@@ -192,26 +184,21 @@ LRESULT Applet::DoTimer(UINT index)
   HotkeyCombo *hc = NULL;
   int key;
 
-  if (index == 0)
-    key = VK_ESCAPE;
-  else
+  UINT item = pSettings->FindHotkeyListItem(index);
+  if (item == pSettings->GetHotkeyListSize())
+    return 0;
+  hc = pSettings->GetHotkeyListItem(item);
+  key = hc->GetHotkeyKey();
+  if ((key == VK_LWIN) || (key = VK_RWIN))
     {
-      UINT item = pSettings->FindHotkeyListItem(index);
-      if (item == pSettings->GetHotkeyListSize())
-        return 0;
-      hc = pSettings->GetHotkeyListItem(item);
-      key = hc->GetHotkeyKey();
-      if ((key == VK_LWIN) || (key = VK_RWIN))
+      virtualKey = key;
+      if (keyID != index)
         {
-          virtualKey = key;
-          if (keyID != index)
-            {
-              if (keyID != 0)
-                KillTimer(mainWnd, keyID);
-              keyID = index;
-            }
-          keyHook = SetWindowsHookEx(WH_KEYBOARD_LL, LowLevelKeyboardProc, mainInst, 0);
+          if (keyID != 0)
+            KillTimer(mainWnd, keyID);
+          keyID = index;
         }
+      keyHook = SetWindowsHookEx(WH_KEYBOARD_LL, LowLevelKeyboardProc, mainInst, 0);
     }
 
   if (!ELIsKeyDown(key))
@@ -235,14 +222,9 @@ LRESULT Applet::DoTimer(UINT index)
 //----  --------------------------------------------------------------------------------------------------------
 void Applet::ExecuteAction(UINT index)
 {
-  if (index == 0)
-    pActions->Show();
-  else
-    {
-      UINT item = pSettings->FindHotkeyListItem(index);
-      if (item == pSettings->GetHotkeyListSize())
-        return;
+  UINT item = pSettings->FindHotkeyListItem(index);
+  if (item == pSettings->GetHotkeyListSize())
+    return;
 
-      ELExecuteAll(pSettings->GetHotkeyListItem(item)->GetHotkeyAction(), (WCHAR*)TEXT("\0"));
-    }
+  ELExecuteAll(pSettings->GetHotkeyListItem(item)->GetHotkeyAction(), (WCHAR*)TEXT("\0"));
 }

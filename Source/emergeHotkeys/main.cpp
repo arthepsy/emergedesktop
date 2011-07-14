@@ -20,6 +20,24 @@
 
 #include "Applet.h"
 
+BOOL CALLBACK FocusWindowEnum(HWND hwnd, LPARAM lParam UNUSED)
+{
+  // Get the app name for the window and convert it to lower case
+  std::wstring window = ELToLower(ELGetWindowApp(hwnd, false));
+
+  // check to see if it's emergeHotkeys.exe
+  if (window == TEXT("emergehotkeys.exe"))
+    {
+      // Activate the window and pass the SHOW_CONFIG message
+      SetForegroundWindow(hwnd);
+      SendMessage(hwnd, EMERGE_NOTIFY, EMERGE_CORE, CORE_SHOWCONFIG);
+
+      return FALSE;
+    }
+
+  return TRUE;
+}
+
 //----  --------------------------------------------------------------------------------------------------------
 // Function:	WinMain
 // Required:	HINSTANCE hThisInstance - the instance of this application
@@ -37,16 +55,17 @@ int WINAPI WinMain (HINSTANCE hInstance,
 
 {
   MSG messages;
+  Applet applet(hInstance);
 
   // Check to see if iTray is already running, if so exit
   HANDLE hMutex = CreateMutex(NULL, false, TEXT("emergeHotkeys"));
   if (GetLastError() == ERROR_ALREADY_EXISTS)
     {
+      // Since emergeHotkeys is already running, find it's window
+      EnumWindows(FocusWindowEnum, 0);
       CloseHandle(hMutex);
       return 0;
     }
-
-  Applet applet(hInstance);
 
   if (!applet.Initialize())
     return 0;
