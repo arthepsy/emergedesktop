@@ -22,7 +22,7 @@
 #include "Settings.h"
 
 Settings::Settings(HWND mainWnd)
-:BaseSettings(true)
+  :BaseSettings(true)
 {
   (*this).mainWnd = mainWnd;
   xmlFile = TEXT("%EmergeDir%\\files\\emergeHotkeys.xml");
@@ -129,14 +129,7 @@ bool Settings::BuildList(bool backup)
   WCHAR keyCombo[MAX_LINE_LENGTH], action[MAX_LINE_LENGTH];
 
   if (backup)
-    {
-      for (i = 0; i < backupList.size(); i++)
-        {
-          UnregisterHotKey(mainWnd, backupList[i]->GetHotkeyID());
-          backupList.erase(backupList.begin() + i);
-        }
-      backupList.clear();
-    }
+    backupList.clear();
   else
     {
       for (i = 0; i < hotkeyList.size(); i++)
@@ -165,9 +158,9 @@ bool Settings::BuildList(bool backup)
 
               // Add the hotkey definition to the appropriate vector
               if (backup)
-                backupList.push_back( std::tr1::shared_ptr<HotkeyCombo>(new HotkeyCombo(keyCombo, action)) );
+                backupList.push_back( std::tr1::shared_ptr<HotkeyCombo>(new HotkeyCombo(keyCombo, action, true)) );
               else
-                hotkeyList.push_back( std::tr1::shared_ptr<HotkeyCombo>(new HotkeyCombo(keyCombo, action)) );
+                hotkeyList.push_back( std::tr1::shared_ptr<HotkeyCombo>(new HotkeyCombo(keyCombo, action, false)) );
             }
         }
     }
@@ -176,27 +169,27 @@ bool Settings::BuildList(bool backup)
     {
       if (backup)
         {
-          backupList.push_back( std::tr1::shared_ptr<HotkeyCombo>(new HotkeyCombo((WCHAR*)L"Win+R", (WCHAR*)L"Run")) );
-          backupList.push_back( std::tr1::shared_ptr<HotkeyCombo>(new HotkeyCombo((WCHAR*)L"Win+D", (WCHAR*)L"ShowDesktop")) );
-          backupList.push_back( std::tr1::shared_ptr<HotkeyCombo>(new HotkeyCombo((WCHAR*)L"Win+E", (WCHAR*)L"explorer /e")) );
-          backupList.push_back( std::tr1::shared_ptr<HotkeyCombo>(new HotkeyCombo((WCHAR*)L"VolumeMute", (WCHAR*)L"VolumeMute")) );
-          backupList.push_back( std::tr1::shared_ptr<HotkeyCombo>(new HotkeyCombo((WCHAR*)L"VolumeUp", (WCHAR*)L"VolumeUp")) );
-          backupList.push_back( std::tr1::shared_ptr<HotkeyCombo>(new HotkeyCombo((WCHAR*)L"VolumeDown", (WCHAR*)L"VolumeDown")) );
-          backupList.push_back( std::tr1::shared_ptr<HotkeyCombo>(new HotkeyCombo((WCHAR*)L"LeftWinKey", (WCHAR*)L"RightDeskMenu")) );
+          backupList.push_back( std::tr1::shared_ptr<HotkeyCombo>(new HotkeyCombo((WCHAR*)L"Win+R", (WCHAR*)L"Run", true)) );
+          backupList.push_back( std::tr1::shared_ptr<HotkeyCombo>(new HotkeyCombo((WCHAR*)L"Win+D", (WCHAR*)L"ShowDesktop", true)) );
+          backupList.push_back( std::tr1::shared_ptr<HotkeyCombo>(new HotkeyCombo((WCHAR*)L"Win+E", (WCHAR*)L"explorer /e", true)) );
+          backupList.push_back( std::tr1::shared_ptr<HotkeyCombo>(new HotkeyCombo((WCHAR*)L"VolumeMute", (WCHAR*)L"VolumeMute", true)) );
+          backupList.push_back( std::tr1::shared_ptr<HotkeyCombo>(new HotkeyCombo((WCHAR*)L"VolumeUp", (WCHAR*)L"VolumeUp", true)) );
+          backupList.push_back( std::tr1::shared_ptr<HotkeyCombo>(new HotkeyCombo((WCHAR*)L"VolumeDown", (WCHAR*)L"VolumeDown", true)) );
+          backupList.push_back( std::tr1::shared_ptr<HotkeyCombo>(new HotkeyCombo((WCHAR*)L"LeftWinKey", (WCHAR*)L"RightDeskMenu", true)) );
         }
       else
         {
-          hotkeyList.push_back( std::tr1::shared_ptr<HotkeyCombo>(new HotkeyCombo((WCHAR*)L"Win+R", (WCHAR*)L"Run")) );
-          hotkeyList.push_back( std::tr1::shared_ptr<HotkeyCombo>(new HotkeyCombo((WCHAR*)L"Win+D", (WCHAR*)L"ShowDesktop")) );
-          hotkeyList.push_back( std::tr1::shared_ptr<HotkeyCombo>(new HotkeyCombo((WCHAR*)L"Win+E", (WCHAR*)L"explorer /e")) );
-          hotkeyList.push_back( std::tr1::shared_ptr<HotkeyCombo>(new HotkeyCombo((WCHAR*)L"VolumeMute", (WCHAR*)L"VolumeMute")) );
-          hotkeyList.push_back( std::tr1::shared_ptr<HotkeyCombo>(new HotkeyCombo((WCHAR*)L"VolumeUp", (WCHAR*)L"VolumeUp")) );
-          hotkeyList.push_back( std::tr1::shared_ptr<HotkeyCombo>(new HotkeyCombo((WCHAR*)L"VolumeDown", (WCHAR*)L"VolumeDown")) );
-          hotkeyList.push_back( std::tr1::shared_ptr<HotkeyCombo>(new HotkeyCombo((WCHAR*)L"LeftWinKey", (WCHAR*)L"RightDeskMenu")) );
+          hotkeyList.push_back( std::tr1::shared_ptr<HotkeyCombo>(new HotkeyCombo((WCHAR*)L"Win+R", (WCHAR*)L"Run", false)) );
+          hotkeyList.push_back( std::tr1::shared_ptr<HotkeyCombo>(new HotkeyCombo((WCHAR*)L"Win+D", (WCHAR*)L"ShowDesktop", false)) );
+          hotkeyList.push_back( std::tr1::shared_ptr<HotkeyCombo>(new HotkeyCombo((WCHAR*)L"Win+E", (WCHAR*)L"explorer /e", false)) );
+          hotkeyList.push_back( std::tr1::shared_ptr<HotkeyCombo>(new HotkeyCombo((WCHAR*)L"VolumeMute", (WCHAR*)L"VolumeMute", false)) );
+          hotkeyList.push_back( std::tr1::shared_ptr<HotkeyCombo>(new HotkeyCombo((WCHAR*)L"VolumeUp", (WCHAR*)L"VolumeUp", false)) );
+          hotkeyList.push_back( std::tr1::shared_ptr<HotkeyCombo>(new HotkeyCombo((WCHAR*)L"VolumeDown", (WCHAR*)L"VolumeDown", false)) );
+          hotkeyList.push_back( std::tr1::shared_ptr<HotkeyCombo>(new HotkeyCombo((WCHAR*)L"LeftWinKey", (WCHAR*)L"RightDeskMenu", false)) );
         }
     }
 
-    return found;
+  return found;
 }
 
 UINT Settings::FindHotkeyListItem(WCHAR *tmpKey, WCHAR *tmpAction)
@@ -215,6 +208,11 @@ UINT Settings::FindHotkeyListItem(WCHAR *tmpKey, WCHAR *tmpAction)
     }
 
   return i;
+}
+
+bool Settings::IsValidHotkey(UINT index)
+{
+  return hotkeyList[index]->GetValid();
 }
 
 UINT Settings::FindHotkeyListItem(UINT index)

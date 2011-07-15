@@ -32,18 +32,21 @@
 class HotkeyCombo
 {
 public:
-  HotkeyCombo(WCHAR *keyCombo, WCHAR *action);
+  HotkeyCombo(WCHAR *keyCombo, WCHAR *action, bool backup);
   ~HotkeyCombo();
   WCHAR *GetHotkeyAction();
   UINT GetHotkeyModifiers();
   UINT GetHotkeyID();
   WCHAR GetHotkeyKey();
   WCHAR *GetHotkeyString();
+  void SetValid(bool valid);
+  bool GetValid();
 
 private:
   WCHAR keyCombo[MAX_LINE_LENGTH], action[MAX_LINE_LENGTH], key;
   UINT modifiers, ID;
   void ParseKeyCombo();
+  bool valid;
 };
 
 #endif

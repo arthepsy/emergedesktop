@@ -40,6 +40,7 @@ public:
   UINT FindHotkeyListItem(WCHAR *tmpKey, WCHAR *tmpAction);
   UINT FindHotkeyListItem(UINT index);
   void WriteList(bool backup);
+  bool IsValidHotkey(UINT index);
 
 private:
   std::vector< std::tr1::shared_ptr<HotkeyCombo> > hotkeyList;

@@ -38,7 +38,11 @@ BOOL CALLBACK Actions::ActionsDlgProc(HWND hwndDlg, UINT message, WPARAM wParam,
       return pActions->DoCommand(hwndDlg, wParam, lParam);
 
     case WM_NOTIFY:
-      return pActions->DoNotify(hwndDlg, lParam);
+    {
+      long lResult = pActions->DoNotify(hwndDlg, lParam);
+      SetWindowLongPtr(hwndDlg, DWLP_MSGRESULT, lResult);
+      return TRUE;
+    }
     }
 
   return FALSE;
@@ -109,24 +113,25 @@ Actions::~Actions()
 
 void Actions::RegisterHotkeyList(bool showError)
 {
-  WCHAR error[MAX_LINE_LENGTH];
+  bool failedHotkeys = false;
+  HotkeyCombo *pHotkeyCombo;
 
   for (UINT i = 0; i < pSettings->GetHotkeyListSize(); i++)
     {
-      if (!RegisterHotKey(mainWnd, pSettings->GetHotkeyListItem(i)->GetHotkeyID(),
-                          pSettings->GetHotkeyListItem(i)->GetHotkeyModifiers(),
-                          pSettings->GetHotkeyListItem(i)->GetHotkeyKey()))
+      pHotkeyCombo = pSettings->GetHotkeyListItem(i);
+      if (!RegisterHotKey(mainWnd, pHotkeyCombo->GetHotkeyID(),
+                          pHotkeyCombo->GetHotkeyModifiers(),
+                          pHotkeyCombo->GetHotkeyKey()))
         {
-          if (showError)
-            {
-              swprintf(error, TEXT("Failed to register Hotkey combination %s."),
-                       pSettings->GetHotkeyListItem(i)->GetHotkeyString());
-
-              ELMessageBox(GetDesktopWindow(), error, (WCHAR*)TEXT("emergeHotkeys"),
-                           ELMB_OK|ELMB_ICONERROR|ELMB_MODAL);
-            }
+          failedHotkeys = true;
+          pHotkeyCombo->SetValid(false);
         }
     }
+
+  if (failedHotkeys && showError)
+    ELMessageBox(GetDesktopWindow(), TEXT("Some Hotkeys failed to register"),
+                 (WCHAR*)TEXT("emergeHotkeys"),
+                 ELMB_OK|ELMB_ICONERROR|ELMB_MODAL);
 }
 
 int Actions::Show()
@@ -779,7 +784,7 @@ bool Actions::DoSave(HWND hwndDlg)
   if ((wcslen(tmpKey) > 0) && (wcslen(tmpAction) > 0))
     {
       ELUnExpandVars(tmpAction);
-      hc = new HotkeyCombo(tmpKey, tmpAction);
+      hc = new HotkeyCombo(tmpKey, tmpAction, false);
       if (RegisterHotKey(mainWnd, hc->GetHotkeyID(), hc->GetHotkeyModifiers(),
                          hc->GetHotkeyKey()))
         {
@@ -1114,15 +1119,16 @@ bool Actions::KeyCheck(HWND hwndDlg, WPARAM wParam, LPARAM lParam)
   return false;
 }
 
-BOOL Actions::DoNotify(HWND hwndDlg, LPARAM lParam)
+BOOL Actions::DoNotify(HWND hwndDlg UNUSED, LPARAM lParam)
 {
   HWND delWnd = GetDlgItem(hwndDlg, IDC_DELAPP);
   HWND editWnd = GetDlgItem(hwndDlg, IDC_MODAPP);
   HWND listWnd = GetDlgItem(hwndDlg, IDC_ACTIONSLIST);
   int subItem;
   BOOL ret;
+  WCHAR tmpKey[MAX_LINE_LENGTH], tmpAction[MAX_LINE_LENGTH];
 
-  switch (((LPNMITEMACTIVATE)lParam)->hdr.code)
+  switch (((LPNMHDR)lParam)->code)
     {
     case LVN_ITEMCHANGED:
       EnableWindow(delWnd, true);
@@ -1140,6 +1146,33 @@ BOOL Actions::DoNotify(HWND hwndDlg, LPARAM lParam)
       pSettings->SetSortInfo(myName, &lvSortInfo.sortInfo);
       ret = ListView_SortItemsEx(listWnd, ListViewCompareProc, (LPARAM)&lvSortInfo);
       return ret;
+
+      // Handle the NM_CUSTOMDRAW to change the text colour of invalid hotkeys to
+      // red
+    case NM_CUSTOMDRAW:
+      LPNMLVCUSTOMDRAW lpLvCustomDraw = (LPNMLVCUSTOMDRAW)lParam;
+      switch (lpLvCustomDraw->nmcd.dwDrawStage)
+        {
+          // In the CDDS_PREPAINT stage tell the OS that we want to custom paint
+          // the entry
+        case CDDS_PREPAINT:
+          return CDRF_NOTIFYITEMDRAW; // Instruct the OS to send the
+          // CDDS_ITEMPREPAINT message
+        case CDDS_ITEMPREPAINT:
+          return CDRF_NOTIFYSUBITEMDRAW;  // Instruct the OS that we want to
+          // handle subitems
+        case CDDS_ITEMPREPAINT|CDDS_SUBITEM:
+          ListView_GetItemText(listWnd, lpLvCustomDraw->nmcd.dwItemSpec, 0,
+                               tmpKey, MAX_LINE_LENGTH);
+          ListView_GetItemText(listWnd, lpLvCustomDraw->nmcd.dwItemSpec, 1,
+                               tmpAction, MAX_LINE_LENGTH);
+          if (!pSettings->IsValidHotkey(pSettings->FindHotkeyListItem(tmpKey,
+                                        tmpAction)))
+            lpLvCustomDraw->clrText = RGB(255,0,0);
+          return CDRF_NEWFONT;
+        default:
+          return CDRF_DODEFAULT;
+        }
     }
 
   return FALSE;

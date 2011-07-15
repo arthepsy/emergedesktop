@@ -21,26 +21,43 @@
 #include "HotkeyCombo.h"
 #include <stdio.h>
 
-HotkeyCombo::HotkeyCombo(WCHAR *keyCombo, WCHAR *action)
+HotkeyCombo::HotkeyCombo(WCHAR *keyCombo, WCHAR *action, bool backup)
 {
-  wcscpy((*this).keyCombo, keyCombo);
-  wcscpy((*this).action, action);
+  wcscpy(this->keyCombo, keyCombo);
+  wcscpy(this->action, action);
 
   modifiers = 0;
 
   ParseKeyCombo();
 
-  ID = GlobalAddAtom(keyCombo);
+  ID = 0;
+  // The backup list is only used to write the original hotkey combinations to
+  // the XML file in the event the user cancels, so don't generate an ID
+  if (backup)
+    ID = GlobalAddAtom(keyCombo);
+
+  valid = true;
 }
 
 HotkeyCombo::~HotkeyCombo()
 {
-  GlobalDeleteAtom(ID);
+  if (ID)
+    GlobalDeleteAtom(ID);
 }
 
 WCHAR *HotkeyCombo::GetHotkeyAction()
 {
   return action;
+}
+
+void HotkeyCombo::SetValid(bool valid)
+{
+  this->valid = valid;
+}
+
+bool HotkeyCombo::GetValid()
+{
+  return valid;
 }
 
 UINT HotkeyCombo::GetHotkeyModifiers()
