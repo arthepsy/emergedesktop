@@ -1156,11 +1156,11 @@ BOOL Actions::DoNotify(HWND hwndDlg UNUSED, LPARAM lParam)
           // In the CDDS_PREPAINT stage tell the OS that we want to custom paint
           // the entry
         case CDDS_PREPAINT:
-          return CDRF_NOTIFYITEMDRAW; // Instruct the OS to send the
-          // CDDS_ITEMPREPAINT message
+          // Instruct the OS to send the CDDS_ITEMPREPAINT message
+          return CDRF_NOTIFYITEMDRAW;
         case CDDS_ITEMPREPAINT:
-          return CDRF_NOTIFYSUBITEMDRAW;  // Instruct the OS that we want to
-          // handle subitems
+          // Instruct the OS that we want to handle subitems
+          return CDRF_NOTIFYSUBITEMDRAW;
         case CDDS_ITEMPREPAINT|CDDS_SUBITEM:
           ListView_GetItemText(listWnd, lpLvCustomDraw->nmcd.dwItemSpec, 0,
                                tmpKey, MAX_LINE_LENGTH);

@@ -33,7 +33,7 @@ HotkeyCombo::HotkeyCombo(WCHAR *keyCombo, WCHAR *action, bool backup)
   ID = 0;
   // The backup list is only used to write the original hotkey combinations to
   // the XML file in the event the user cancels, so don't generate an ID
-  if (backup)
+  if (!backup)
     ID = GlobalAddAtom(keyCombo);
 
   valid = true;

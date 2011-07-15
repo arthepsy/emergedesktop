@@ -133,10 +133,7 @@ bool Settings::BuildList(bool backup)
   else
     {
       for (i = 0; i < hotkeyList.size(); i++)
-        {
-          UnregisterHotKey(mainWnd, hotkeyList[i]->GetHotkeyID());
-          hotkeyList.erase(hotkeyList.begin() + i);
-        }
+        UnregisterHotKey(mainWnd, hotkeyList[i]->GetHotkeyID());
       hotkeyList.clear();
     }
 
