@@ -129,9 +129,12 @@ void Actions::RegisterHotkeyList(bool showError)
     }
 
   if (failedHotkeys && showError)
-    ELMessageBox(GetDesktopWindow(), TEXT("Some Hotkeys failed to register"),
-                 (WCHAR*)TEXT("emergeHotkeys"),
-                 ELMB_OK|ELMB_ICONERROR|ELMB_MODAL);
+    {
+      if (ELMessageBox(GetDesktopWindow(), TEXT("Some Hotkeys failed to register"),
+                       (WCHAR*)TEXT("emergeHotkeys"),
+                       ELMB_OK|ELMB_ICONERROR|ELMB_MODAL) == IDOK)
+        Show();
+    }
 }
 
 int Actions::Show()
