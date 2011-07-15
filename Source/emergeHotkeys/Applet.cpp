@@ -31,13 +31,11 @@ Applet::Applet(HINSTANCE hInstance)
 {
   mainWnd = NULL;
   mainInst = hInstance;
+  hotkeyCount = 0;
 }
 
 UINT Applet::Initialize()
 {
-  // Retrieve the window dimension attributes out of the registry
-  hotkeyCount = 0;
-
   mainWnd = EAEInitializeAppletWindow(mainInst, WindowProcedure, this);
 
   // If the window failed to get created, unregister the class and quit the program

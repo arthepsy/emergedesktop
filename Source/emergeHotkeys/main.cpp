@@ -28,10 +28,15 @@ BOOL CALLBACK FocusWindowEnum(HWND hwnd, LPARAM lParam UNUSED)
   // check to see if it's emergeHotkeys.exe
   if (window == TEXT("emergehotkeys.exe"))
     {
+      // If it's hidden, it's not the window we are looking for
+      if (!IsWindowVisible(hwnd))
+        return TRUE;
+
       // Activate the window and pass the SHOW_CONFIG message
       SetForegroundWindow(hwnd);
       SendMessage(hwnd, EMERGE_NOTIFY, EMERGE_CORE, CORE_SHOWCONFIG);
 
+      // Return FALSE to break out of the ENUM
       return FALSE;
     }
 
