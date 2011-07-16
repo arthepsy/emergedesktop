@@ -69,28 +69,28 @@ INT_PTR Config::DoInitDialog(HWND hwndDlg)
   psp[0].dwSize = sizeof(PROPSHEETPAGE);
   psp[0].dwFlags = PSP_USETITLE;
   psp[0].hInstance = hInstance;
-  psp[0].pszTemplate = MAKEINTRESOURCE(IDD_CONFIG_PAGE);
-  psp[0].pfnDlgProc = pConfigPage->ConfigPageDlgProc;
-  psp[0].pszTitle = TEXT("General");
-  psp[0].lParam = reinterpret_cast<LPARAM>(pConfigPage.get());
+  psp[0].pszTemplate = MAKEINTRESOURCE(IDD_LAUNCH);
+  psp[0].pfnDlgProc = pLaunchEditor->LaunchDlgProc;
+  psp[0].pszTitle = TEXT("Launch Editor");
+  psp[0].lParam = reinterpret_cast<LPARAM>(pLaunchEditor.get());
   psp[0].pfnCallback = NULL;
 
   psp[1].dwSize = sizeof(PROPSHEETPAGE);
   psp[1].dwFlags = PSP_USETITLE;
   psp[1].hInstance = hInstance;
-  psp[1].pszTemplate = MAKEINTRESOURCE(IDD_LAUNCH);
-  psp[1].pfnDlgProc = pLaunchEditor->LaunchDlgProc;
-  psp[1].pszTitle = TEXT("Launch Editor");
-  psp[1].lParam = reinterpret_cast<LPARAM>(pLaunchEditor.get());
+  psp[1].pszTemplate = MAKEINTRESOURCE(IDD_ALIAS);
+  psp[1].pfnDlgProc = pAliasEditor->AliasDlgProc;
+  psp[1].pszTitle = TEXT("Alias Editor");
+  psp[1].lParam = reinterpret_cast<LPARAM>(pAliasEditor.get());
   psp[1].pfnCallback = NULL;
 
   psp[2].dwSize = sizeof(PROPSHEETPAGE);
   psp[2].dwFlags = PSP_USETITLE;
   psp[2].hInstance = hInstance;
-  psp[2].pszTemplate = MAKEINTRESOURCE(IDD_ALIAS);
-  psp[2].pfnDlgProc = pAliasEditor->AliasDlgProc;
-  psp[2].pszTitle = TEXT("Alias Editor");
-  psp[2].lParam = reinterpret_cast<LPARAM>(pAliasEditor.get());
+  psp[2].pszTemplate = MAKEINTRESOURCE(IDD_CONFIG_PAGE);
+  psp[2].pfnDlgProc = pConfigPage->ConfigPageDlgProc;
+  psp[2].pszTitle = TEXT("Advanced");
+  psp[2].lParam = reinterpret_cast<LPARAM>(pConfigPage.get());
   psp[2].pfnCallback = NULL;
 
   psh.dwSize = sizeof(PROPSHEETHEADER);
