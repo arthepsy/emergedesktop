@@ -148,7 +148,7 @@ LRESULT Applet::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 }
 
 Applet::Applet(HINSTANCE hInstance)
-  :BaseApplet(hInstance, myName, false)
+  :BaseApplet(hInstance, myName, false, false)
 {
   // Set current row and column
   currentRow = 0;

@@ -122,7 +122,7 @@ LRESULT CALLBACK Applet::WindowProcedure (HWND hwnd, UINT message, WPARAM wParam
 }
 
 Applet::Applet(HINSTANCE hInstance)
-  :BaseApplet(hInstance, myName, true)
+  :BaseApplet(hInstance, myName, true, false)
 {
   mainFont = NULL;
 }

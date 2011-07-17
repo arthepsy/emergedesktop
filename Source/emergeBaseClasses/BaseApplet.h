@@ -58,7 +58,7 @@
 class DLL_EXPORT BaseApplet
 {
 public:
-  BaseApplet(HINSTANCE hInstance, WCHAR *appletName, bool allowAutoSize);
+  BaseApplet(HINSTANCE hInstance, WCHAR *appletName, bool allowAutoSize, bool allowMultipleInstances);
   virtual ~BaseApplet();
   UINT Initialize(WNDPROC WindowProcedure, LPVOID lpParam, std::tr1::shared_ptr<BaseSettings> pSettings);
   LRESULT DoMoving(HWND hwnd, RECT *lpRect);
@@ -90,12 +90,15 @@ public:
   HWND GetMainWnd();
 
 private:
-  WCHAR appletName[MAX_LINE_LENGTH];
-  bool fullScreen, allowAutoSize;
+  WCHAR appletName[MAX_LINE_LENGTH], baseAppletName[MAX_LINE_LENGTH];
+  int appletCount;
+  bool fullScreen, allowAutoSize, allowMultipleInstances;
   RECT referenceRect;
-  HANDLE displayChangeThread, fullScreenThread;
+  HANDLE displayChangeThread, fullScreenThread, multiInstanceLock;
   static DWORD WINAPI DisplayChangeThreadProc(LPVOID lpParameter);
   static DWORD WINAPI FullScreenThreadProc(LPVOID lpParameter);
+  int ReadAppletCount(int defaultValue = -1);
+  bool WriteAppletCount(int value, bool forceCreate = true);
 
 protected:
   HWND mainWnd, toolWnd;

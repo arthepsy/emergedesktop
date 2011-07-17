@@ -38,21 +38,10 @@ int WINAPI WinMain (HINSTANCE hInstance,
 {
   MSG messages;
 
-  // Check to see if iTray is already running, if so exit
-  HANDLE hMutex = CreateMutex(NULL, false, TEXT("emergeTasks"));
-  if (GetLastError() == ERROR_ALREADY_EXISTS)
-    {
-      CloseHandle(hMutex);
-      return 0;
-    }
-
   std::tr1::shared_ptr<Applet> pApplet(new Applet(hInstance));
 
   if (!pApplet->Initialize())
-    {
-      CloseHandle(hMutex);
-      return 0;
-    }
+    return 0;
 
   // Run the message loop. It will run until GetMessage() returns 0
   while (GetMessage (&messages, NULL, 0, 0))
@@ -62,9 +51,6 @@ int WINAPI WinMain (HINSTANCE hInstance,
       // Send message to WindowProcedure
       DispatchMessage(&messages);
     }
-
-  // Clean-up the Mutex
-  CloseHandle(hMutex);
 
   // The program return-value is 0 - The value that PostQuitMessage() gave
   return (int)messages.wParam;

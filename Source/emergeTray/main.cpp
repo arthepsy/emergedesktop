@@ -46,7 +46,7 @@ int WINAPI WinMain (HINSTANCE hInstance,
   }
   else
   {
-      if (!applet.portableInitialize())
+      if (!applet.PortableInitialize())
         return 0;
   }
 

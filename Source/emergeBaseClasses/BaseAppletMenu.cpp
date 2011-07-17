@@ -63,13 +63,14 @@ LRESULT CALLBACK BaseAppletMenu::HookCallWndProc(int nCode, WPARAM wParam, LPARA
   return CallNextHookEx((HHOOK)WH_CALLWNDPROC, nCode, wParam, lParam);
 }
 
-BaseAppletMenu::BaseAppletMenu(HWND mainWnd, HINSTANCE hInstance, WCHAR *appletName)
+BaseAppletMenu::BaseAppletMenu(HWND mainWnd, HINSTANCE hInstance, WCHAR *appletName, bool allowMultipleInstances)
 {
   (*this).hInstance = hInstance;
 
   (*this).mainWnd = mainWnd;
   menuHook = NULL;
   wcscpy((*this).appletName, appletName);
+  (*this).allowMultipleInstances = allowMultipleInstances;
 }
 
 BaseAppletMenu::~BaseAppletMenu()
@@ -111,6 +112,11 @@ void BaseAppletMenu::BuildMenu()
   AppendMenu(appletMenu, MF_SEPARATOR, 0, NULL);
   AppendMenu(appletMenu, MF_STRING, EBC_CONFIGURE, TEXT("Configure"));
   AppendMenu(appletMenu, MF_SEPARATOR, 0, NULL);
+  if ((*this).allowMultipleInstances)
+  {
+    AppendMenu(appletMenu, MF_STRING, EBC_NEWINSTANCE, TEXT("New Instance"));
+    AppendMenu(appletMenu, MF_SEPARATOR, 0, NULL);
+  }
   AppendMenu(appletMenu, MF_STRING, EBC_EXIT, TEXT("Exit"));
 }
 

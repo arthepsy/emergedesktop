@@ -494,7 +494,7 @@ public:
   Applet(HINSTANCE hInstance);
   ~Applet();
   UINT Initialize();
-  UINT portableInitialize();
+  UINT PortableInitialize();
   TrayIcon *GetTrayIconListItem(UINT index);
   size_t GetTrayIconListSize();
   LRESULT DoTimer(UINT timerID);

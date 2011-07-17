@@ -23,14 +23,18 @@
 #include "../emergeAppletEngine/emergeAppletEngine.h"
 #include <stdio.h>
 
-BaseApplet::BaseApplet(HINSTANCE hInstance, WCHAR *appletName, bool allowAutoSize)
+std::wstring instanceManagementPath = TEXT("%EmergeDir%\\files\\InstanceManagement.xml");
+
+BaseApplet::BaseApplet(HINSTANCE hInstance, WCHAR *appletName, bool allowAutoSize, bool allowMultipleInstances)
 {
   mainInst = hInstance;
   wcscpy((*this).appletName, appletName);
+  wcscpy((*this).baseAppletName, appletName);
   mouseOver = false;
   fullScreen = false;
   appletHidden = false;
   (*this).allowAutoSize = allowAutoSize;
+  (*this).allowMultipleInstances = allowMultipleInstances;
 
   activeBackgroundDC = NULL;
   inactiveBackgroundDC = NULL;
@@ -52,6 +56,16 @@ BaseApplet::~BaseApplet()
   if (inactiveBackgroundDC != NULL)
     DeleteDC(inactiveBackgroundDC);
 
+  CloseHandle((*this).multiInstanceLock);
+
+  if ((*this).allowMultipleInstances)
+  {
+    (*this).multiInstanceLock = CreateMutex(NULL, false, (*this).baseAppletName);
+    if (GetLastError() != ERROR_ALREADY_EXISTS)
+      (*this).WriteAppletCount(-1, false);
+    CloseHandle((*this).multiInstanceLock);
+  }
+
   OleUninitialize();
 
   ELClearEmergeVars();
@@ -59,12 +73,47 @@ BaseApplet::~BaseApplet()
 
 UINT BaseApplet::Initialize(WNDPROC WindowProcedure, LPVOID lpParam, std::tr1::shared_ptr<BaseSettings> pSettings)
 {
+  (*this).multiInstanceLock = CreateMutex(NULL, false, (*this).baseAppletName);
+  DWORD err = GetLastError();
+
+  if ((*this).allowMultipleInstances)
+  {
+    if (err != ERROR_ALREADY_EXISTS)
+        (*this).WriteAppletCount(-1, false); /*this is the first instance of this applet, so reset its applet count */
+
+    (*this).appletCount = (*this).ReadAppletCount(-1) + 1;
+    swprintf((*this).appletName, TEXT("%s%d"), (*this).appletName, (*this).appletCount);
+
+    std::wstring tempSettingsFile;
+    tempSettingsFile = TEXT("%ThemeDir%\\");
+    tempSettingsFile += (*this).appletName;
+    tempSettingsFile += TEXT(".xml");
+    tempSettingsFile = ELExpandVars(tempSettingsFile);
+    if ((appletCount != 0) && (!ELPathFileExists(tempSettingsFile.c_str())))
+      return 0;
+
+    (*this).WriteAppletCount((*this).appletCount);
+
+    WCHAR appletPath[MAX_PATH];
+    if (GetModuleFileName(0, appletPath, MAX_PATH))
+      ELExecute(appletPath);
+  }
+  else
+  {
+    //(*this).multiInstanceLock = CreateMutex(NULL, false, (*this).baseAppletName);
+    if (err == ERROR_ALREADY_EXISTS)
+    {
+      CloseHandle((*this).multiInstanceLock);
+      return 0;
+    }
+  }
+
   // Set the Emerge Vars irregardless of them being set already to handle the scenario where
   // the applets are started from another application that has the ThemeDir set previously.
   if (!ELSetEmergeVars())
     {
       ELMessageBox(GetDesktopWindow(), TEXT("Failed to initialize Environment variables."),
-                   appletName, ELMB_ICONERROR|ELMB_MODAL|ELMB_OK);
+                   baseAppletName, ELMB_ICONERROR|ELMB_MODAL|ELMB_OK);
       return 0;
     }
 
@@ -73,7 +122,7 @@ UINT BaseApplet::Initialize(WNDPROC WindowProcedure, LPVOID lpParam, std::tr1::s
 
   if (FAILED(OleInitialize(NULL)))
     {
-      ELMessageBox(GetDesktopWindow(), (WCHAR*)TEXT("COM initialization failed"), appletName,
+      ELMessageBox(GetDesktopWindow(), (WCHAR*)TEXT("COM initialization failed"), baseAppletName,
                    ELMB_ICONERROR|ELMB_OK|ELMB_MODAL);
       return 0;
     }
@@ -93,14 +142,14 @@ UINT BaseApplet::Initialize(WNDPROC WindowProcedure, LPVOID lpParam, std::tr1::s
     ShellMessage = RegisterWindowMessage(TEXT("SHELLHOOK"));
   else
     {
-      ELMessageBox(GetDesktopWindow(), (WCHAR*)TEXT("Failed to register as a shell window"), appletName,
+      ELMessageBox(GetDesktopWindow(), (WCHAR*)TEXT("Failed to register as a shell window"), baseAppletName,
                    ELMB_ICONERROR|ELMB_OK|ELMB_MODAL);
       return 0;
     }
 
   pBaseSettings = pSettings;
-  pBaseSettings->Init(mainWnd, appletName);
-  pBaseAppletMenu = std::tr1::shared_ptr<BaseAppletMenu>(new BaseAppletMenu(mainWnd, mainInst, appletName));
+  pBaseSettings->Init(mainWnd, (*this).appletName);
+  pBaseAppletMenu = std::tr1::shared_ptr<BaseAppletMenu>(new BaseAppletMenu(mainWnd, mainInst, (*this).appletName, (*this).allowMultipleInstances));
   pBaseAppletMenu->Initialize();
 
   // Register to recieve the specified Emerge Desktop messages
@@ -783,6 +832,30 @@ LRESULT BaseApplet::DoNCRButtonUp()
     case EBC_CONFIGURE:
       ShowConfig();
       break;
+
+    case EBC_NEWINSTANCE:
+      WCHAR strAppletCount[sizeof(int) + sizeof(WCHAR)];
+      std::wstring tempSettingsFile;
+      int tempAppletCount = (*this).ReadAppletCount(-1) + 1;
+      swprintf(strAppletCount, TEXT("%d"), tempAppletCount);
+
+      tempSettingsFile = TEXT("%ThemeDir%\\");
+      tempSettingsFile += (*this).baseAppletName;
+      tempSettingsFile += strAppletCount;
+      tempSettingsFile += TEXT(".xml");
+      tempSettingsFile = ELExpandVars(tempSettingsFile);
+      if (!ELPathFileExists(tempSettingsFile.c_str()))
+      {
+        //create a new settings file for the new applet instance
+        HANDLE newSettingsFile = CreateFile(tempSettingsFile.c_str(), GENERIC_WRITE, 0, NULL, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, NULL);
+        CloseHandle(newSettingsFile);
+      }
+
+      WCHAR appletPath[MAX_PATH];
+      if (GetModuleFileName(0, appletPath, MAX_PATH))
+        ELExecute(appletPath);
+
+      break;
     }
 
   return 0;
@@ -988,3 +1061,73 @@ size_t BaseApplet::GetIconCount()
   return 0;
 }
 
+int BaseApplet::ReadAppletCount(int defaultValue)
+{
+  int tempAppletCount = defaultValue;
+  std::tr1::shared_ptr<TiXmlDocument> configXML;
+  TiXmlElement *section = NULL;
+
+  HANDLE instanceManagementMutex = CreateMutex(NULL, false, TEXT("InstanceManagement"));
+  while (GetLastError() == ERROR_ALREADY_EXISTS)
+  {
+    instanceManagementMutex = OpenMutex(SYNCHRONIZE, false, TEXT("InstanceManagement"));
+    if (instanceManagementMutex == NULL)
+      instanceManagementMutex = CreateMutex(NULL, false, TEXT("InstanceManagement"));
+    else
+      WaitForSingleObject(instanceManagementMutex, INFINITE);
+  }
+
+  instanceManagementPath = ELExpandVars(instanceManagementPath);
+
+  if (ELPathFileExists(instanceManagementPath.c_str()))
+  {
+    configXML = ELOpenXMLConfig(instanceManagementPath, false);
+    if (configXML)
+    {
+      section = ELGetXMLSection(configXML.get(), (*this).baseAppletName, false);
+      if (section)
+        ELReadXMLIntValue(section, TEXT("AppletCount"), &tempAppletCount, defaultValue);
+    }
+  }
+
+  CloseHandle(instanceManagementMutex);
+  return tempAppletCount;
+}
+
+bool BaseApplet::WriteAppletCount(int value, bool forceCreate)
+{
+  std::tr1::shared_ptr<TiXmlDocument> configXML;
+  TiXmlElement *section = NULL;
+
+  HANDLE instanceManagementMutex = CreateMutex(NULL, false, TEXT("InstanceManagement"));
+  while (GetLastError() == ERROR_ALREADY_EXISTS)
+  {
+    instanceManagementMutex = OpenMutex(SYNCHRONIZE, false, TEXT("InstanceManagement"));
+    if (instanceManagementMutex == NULL)
+      instanceManagementMutex = CreateMutex(NULL, false, TEXT("InstanceManagement"));
+    else
+      WaitForSingleObject(instanceManagementMutex, INFINITE);
+  }
+
+  instanceManagementPath = ELExpandVars(instanceManagementPath);
+
+  configXML = ELOpenXMLConfig(instanceManagementPath, forceCreate);
+  if (configXML)
+  {
+    section = ELGetXMLSection(configXML.get(), (*this).baseAppletName, forceCreate);
+    if (section)
+    {
+      if (ELWriteXMLIntValue(section, TEXT("AppletCount"), value))
+      {
+        if (ELWriteXMLConfig(configXML.get()) == true)
+        {
+          CloseHandle(instanceManagementMutex);
+          return true;
+        }
+      }
+    }
+  }
+
+  CloseHandle(instanceManagementMutex);
+  return false;
+}

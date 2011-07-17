@@ -42,11 +42,12 @@
 #define EBC_RELOADSTYLE   202
 #define EBC_CONFIGURE     400
 #define EBC_EXIT          500
+#define EBC_NEWINSTANCE   600
 
 class DLL_EXPORT BaseAppletMenu
 {
 public:
-  BaseAppletMenu(HWND mainWnd, HINSTANCE hInstance, WCHAR *appletName);
+  BaseAppletMenu(HWND mainWnd, HINSTANCE hInstance, WCHAR *appletName, bool allowMultipleInstances);
   ~BaseAppletMenu();
   void Initialize();
   void BuildMenu();
@@ -59,6 +60,7 @@ private:
   HHOOK menuHook;
   HINSTANCE hInstance;
   WCHAR appletName[MAX_LINE_LENGTH];
+  bool allowMultipleInstances;
   static LRESULT CALLBACK HookCallWndProc(int nCode, WPARAM wParam, LPARAM lParam);
 };
 

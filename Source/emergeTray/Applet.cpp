@@ -32,6 +32,8 @@
 
 #include "Applet.h"
 
+bool InjectExplorerTrayHook(HWND messageHandler);
+
 /**< Tray related class names */
 WCHAR szTrayName[ ] = TEXT("Shell_TrayWnd");
 WCHAR szNotifyName[ ] = TEXT("TrayNotifyWnd");
@@ -46,6 +48,7 @@ WCHAR myName[] = TEXT("emergeTray");
 HMODULE hookDLLaddr;
 DWORD taskBarThreadId, notifyWndThreadId, trayWndThreadId, clockWndThreadId, rebarWndThreadId, taskWndThreadId;
 HHOOK taskBarCallWndRetHook, notifyWndCallWndRetHook, trayWndCallWndRetHook, clockWndCallWndRetHook, rebarWndCallWndRetHook, taskWndCallWndRetHook;
+
 
 LRESULT CALLBACK Applet::TrayProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
@@ -204,7 +207,7 @@ LRESULT CALLBACK Applet::WindowProcedure (HWND hwnd, UINT message, WPARAM wParam
 }
 
 Applet::Applet(HINSTANCE hInstance)
-  :BaseApplet(hInstance, myName, true)
+  :BaseApplet(hInstance, myName, true, false)
 {
   mainInst = hInstance;
 
@@ -221,7 +224,7 @@ Applet::Applet(HINSTANCE hInstance)
   activeIcon = NULL;
 }
 
-bool injectExplorerTrayHook(HWND messageHandler)
+bool InjectExplorerTrayHook(HWND messageHandler)
 {
   WCHAR szLibPath[MAX_PATH];
   ELGetCurrentPath(szLibPath);
@@ -530,7 +533,7 @@ UINT Applet::Initialize()
   return 1;
 }
 
-UINT Applet::portableInitialize()
+UINT Applet::PortableInitialize()
 {
   HWND explorerTrayWnd;
 
@@ -563,7 +566,7 @@ UINT Applet::portableInitialize()
 
   AcquireExplorerTrayIconList(); //it's likely the 2K/XP system icons are already showing in the Explorer tray; load them from Explorer
 
-  injectExplorerTrayHook(trayWnd);
+  InjectExplorerTrayHook(trayWnd);
 
   explorerTrayWnd = FindWindow(szTrayName, NULL);
   SetProp(explorerTrayWnd, TEXT("AllowConsentToStealFocus"), (HANDLE)1);
