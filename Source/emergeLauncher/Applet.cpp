@@ -21,8 +21,6 @@
 
 #include "Applet.h"
 
-WCHAR myName[] = TEXT("emergeLauncher");
-
 //----  --------------------------------------------------------------------------------------------------------
 // Function:	WindowProcedure
 // Required:	HWND hwnd - window handle that message was sent to
@@ -129,7 +127,7 @@ LRESULT CALLBACK Applet::WindowProcedure (HWND hwnd, UINT message, WPARAM wParam
 }
 
 Applet::Applet(HINSTANCE hInstance)
-:BaseApplet(hInstance, myName, true, true)
+:BaseApplet(hInstance, TEXT("emergeLauncher"), true, true)
 {
   activeWnd = NULL;
   iconSize = 16;

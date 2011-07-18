@@ -21,13 +21,11 @@
 
 #include "Settings.h"
 
-extern WCHAR myName[];
-
 Settings::Settings(): BaseSettings(true)
 {
-  swprintf(keyString, TEXT("%s\\Settings"), myName);
+  swprintf(keyString, TEXT("%s\\Settings"), appletName);
   xmlFile = TEXT("%ThemeDir%\\");
-  xmlFile += myName;
+  xmlFile += appletName;
   xmlFile += TEXT(".xml");
 }
 
