@@ -31,16 +31,6 @@ Settings::~Settings()
     itemList.erase(itemList.begin());
 }
 
-/*void Settings::Init(HWND appletWnd, WCHAR *appletName)
-{
-  BaseSettings::Init(appletWnd, appletName);
-  swprintf(keyString, TEXT("%s\\Settings"), appletName);
-  xmlFile = TEXT("%ThemeDir%\\");
-  xmlFile += appletName;
-  xmlFile += TEXT(".xml");
-  ELWriteDebug(xmlFile);
-}*/
-
 void Settings::ResetDefaults()
 {
   BaseSettings::ResetDefaults();
