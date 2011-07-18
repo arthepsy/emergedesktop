@@ -25,7 +25,7 @@
 
 std::wstring instanceManagementPath = TEXT("%EmergeDir%\\files\\InstanceManagement.xml");
 
-BaseApplet::BaseApplet(HINSTANCE hInstance, WCHAR *appletName, bool allowAutoSize, bool allowMultipleInstances)
+BaseApplet::BaseApplet(HINSTANCE hInstance, const WCHAR *appletName, bool allowAutoSize, bool allowMultipleInstances)
 {
   mainInst = hInstance;
   wcscpy((*this).appletName, appletName);

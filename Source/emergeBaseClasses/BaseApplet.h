@@ -58,7 +58,7 @@
 class DLL_EXPORT BaseApplet
 {
 public:
-  BaseApplet(HINSTANCE hInstance, WCHAR *appletName, bool allowAutoSize, bool allowMultipleInstances);
+  BaseApplet(HINSTANCE hInstance, const WCHAR *appletName, bool allowAutoSize, bool allowMultipleInstances);
   virtual ~BaseApplet();
   UINT Initialize(WNDPROC WindowProcedure, LPVOID lpParam, std::tr1::shared_ptr<BaseSettings> pSettings);
   LRESULT DoMoving(HWND hwnd, RECT *lpRect);
