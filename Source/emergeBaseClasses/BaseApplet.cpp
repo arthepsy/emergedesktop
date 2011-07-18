@@ -58,14 +58,6 @@ BaseApplet::~BaseApplet()
 
   CloseHandle((*this).multiInstanceLock);
 
-  if ((*this).allowMultipleInstances)
-  {
-    (*this).multiInstanceLock = CreateMutex(NULL, false, (*this).baseAppletName);
-    if (GetLastError() != ERROR_ALREADY_EXISTS)
-      (*this).WriteAppletCount(-1, false);
-    CloseHandle((*this).multiInstanceLock);
-  }
-
   OleUninitialize();
 
   ELClearEmergeVars();
@@ -82,7 +74,8 @@ UINT BaseApplet::Initialize(WNDPROC WindowProcedure, LPVOID lpParam, std::tr1::s
         (*this).WriteAppletCount(-1, false); /*this is the first instance of this applet, so reset its applet count */
 
     (*this).appletCount = (*this).ReadAppletCount(-1) + 1;
-    swprintf((*this).appletName, TEXT("%s%d"), (*this).appletName, (*this).appletCount);
+    if ((*this).appletCount > 0)
+      swprintf((*this).appletName, TEXT("%s%d"), (*this).appletName, (*this).appletCount);
 
     std::wstring tempSettingsFile;
     tempSettingsFile = TEXT("%ThemeDir%\\");
