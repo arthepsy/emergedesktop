@@ -42,7 +42,6 @@ protected:
 
 private:
   std::vector< std::tr1::shared_ptr<Item> > itemList;
-  std::wstring xmlFile;
   WCHAR keyString[MAX_LINE_LENGTH];
 };
 

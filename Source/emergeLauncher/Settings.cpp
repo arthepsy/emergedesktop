@@ -23,10 +23,6 @@
 
 Settings::Settings(): BaseSettings(true)
 {
-  swprintf(keyString, TEXT("%s\\Settings"), appletName);
-  xmlFile = TEXT("%ThemeDir%\\");
-  xmlFile += appletName;
-  xmlFile += TEXT(".xml");
 }
 
 Settings::~Settings()
@@ -34,6 +30,16 @@ Settings::~Settings()
   while (!itemList.empty())
     itemList.erase(itemList.begin());
 }
+
+/*void Settings::Init(HWND appletWnd, WCHAR *appletName)
+{
+  BaseSettings::Init(appletWnd, appletName);
+  swprintf(keyString, TEXT("%s\\Settings"), appletName);
+  xmlFile = TEXT("%ThemeDir%\\");
+  xmlFile += appletName;
+  xmlFile += TEXT(".xml");
+  ELWriteDebug(xmlFile);
+}*/
 
 void Settings::ResetDefaults()
 {
@@ -64,6 +70,9 @@ void Settings::PopulateItems()
   TiXmlElement *settingsSection, *launchSection;
   bool found = false;
   int type;
+  std::wstring xmlFile = TEXT("%ThemeDir%\\");
+  xmlFile += appletName;
+  xmlFile += TEXT(".xml");
 
   configXML = ELOpenXMLConfig(xmlFile, false);
   if (configXML)
@@ -126,6 +135,9 @@ void Settings::DeleteItems(bool clearXML)
 {
   std::tr1::shared_ptr<TiXmlDocument> configXML;
   TiXmlElement *settingsSection, *launchSection;
+  std::wstring xmlFile = TEXT("%ThemeDir%\\");
+  xmlFile += appletName;
+  xmlFile += TEXT(".xml");
 
   if (clearXML)
     {
@@ -155,6 +167,9 @@ void Settings::WriteItem(int type, WCHAR *command, WCHAR *iconPath, WCHAR *tip, 
 {
   std::tr1::shared_ptr<TiXmlDocument> configXML;
   TiXmlElement *settingsSection, *launchSection;
+  std::wstring xmlFile = TEXT("%ThemeDir%\\");
+  xmlFile += appletName;
+  xmlFile += TEXT(".xml");
 
   configXML = ELOpenXMLConfig(xmlFile, true);
 
