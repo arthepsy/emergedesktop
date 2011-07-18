@@ -40,14 +40,6 @@ int WINAPI WinMain (HINSTANCE hInstance,
 {
   MSG messages;
 
-  // Check to see if iTray is already running, if so exit
-  HANDLE hMutex = CreateMutex(NULL, false, TEXT("emergePower"));
-  if (GetLastError() == ERROR_ALREADY_EXISTS)
-    {
-      CloseHandle(hMutex);
-      return 0;
-    }
-
   Applet applet(hInstance);
 
   if (!applet.Initialize())
@@ -61,9 +53,6 @@ int WINAPI WinMain (HINSTANCE hInstance,
       // Send message to WindowProcedure
       DispatchMessage(&messages);
     }
-
-  // Clean-up the Mutex
-  CloseHandle(hMutex);
 
   // The program return-value is 0 - The value that PostQuitMessage() gave
   return (int)messages.wParam;
