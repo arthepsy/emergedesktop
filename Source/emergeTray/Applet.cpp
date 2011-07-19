@@ -1057,7 +1057,8 @@ LRESULT Applet::ModifyTrayIcon(HWND hwnd, UINT uID, UINT uFlags, UINT uCallbackM
         }
     }
 
-  if ((uFlags & NIF_INFO) == NIF_INFO)
+  // Only show balloon messages if not running on top of Explorer.
+  if (((uFlags & NIF_INFO) == NIF_INFO) && !ELIsExplorerShell())
     {
       pTrayIcon->ShowBalloon(newInfoTitle, newInfo, newInfoFlags, icon);
       pTrayIcon->SetFlags(pTrayIcon->GetFlags() | NIF_INFO);
