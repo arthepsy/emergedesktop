@@ -115,6 +115,7 @@ void BaseAppletMenu::BuildMenu()
   if ((*this).allowMultipleInstances)
   {
     AppendMenu(appletMenu, MF_STRING, EBC_NEWINSTANCE, TEXT("New Instance"));
+    AppendMenu(appletMenu, MF_STRING, EBC_DELETEINSTANCE, TEXT("Delete Instance"));
     AppendMenu(appletMenu, MF_SEPARATOR, 0, NULL);
   }
   AppendMenu(appletMenu, MF_STRING, EBC_EXIT, TEXT("Exit"));

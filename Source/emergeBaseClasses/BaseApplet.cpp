@@ -71,7 +71,10 @@ UINT BaseApplet::Initialize(WNDPROC WindowProcedure, LPVOID lpParam, std::tr1::s
   if ((*this).allowMultipleInstances)
   {
     if (err != ERROR_ALREADY_EXISTS)
-        (*this).WriteAppletCount(-1, false); /*this is the first instance of this applet, so reset its applet count */
+    {
+      (*this).WriteAppletCount(-1, false); /*this is the first instance of this applet, so reset its applet count */
+      RenameSettingsFiles();
+    }
 
     (*this).appletCount = (*this).ReadAppletCount(-1) + 1;
     if ((*this).appletCount > 0)
@@ -809,6 +812,11 @@ LRESULT BaseApplet::DoNCRButtonUp()
   POINT pt;
   WCHAR styleFile[MAX_LINE_LENGTH];
 
+  WCHAR strAppletCount[sizeof(int) + sizeof(WCHAR)];
+  std::wstring tempSettingsFile;
+  int tempAppletCount;
+
+
   GetCursorPos(&pt);
   switch (pBaseAppletMenu->ActivateMenu(pt.x, pt.y, styleFile))
     {
@@ -827,9 +835,7 @@ LRESULT BaseApplet::DoNCRButtonUp()
       break;
 
     case EBC_NEWINSTANCE:
-      WCHAR strAppletCount[sizeof(int) + sizeof(WCHAR)];
-      std::wstring tempSettingsFile;
-      int tempAppletCount = (*this).ReadAppletCount(-1) + 1;
+      tempAppletCount = (*this).ReadAppletCount(-1) + 1;
       swprintf(strAppletCount, TEXT("%d"), tempAppletCount);
 
       tempSettingsFile = TEXT("%ThemeDir%\\");
@@ -837,6 +843,7 @@ LRESULT BaseApplet::DoNCRButtonUp()
       tempSettingsFile += strAppletCount;
       tempSettingsFile += TEXT(".xml");
       tempSettingsFile = ELExpandVars(tempSettingsFile);
+
       if (!ELPathFileExists(tempSettingsFile.c_str()))
       {
         //create a new settings file for the new applet instance
@@ -849,6 +856,22 @@ LRESULT BaseApplet::DoNCRButtonUp()
         ELExecute(appletPath);
 
       break;
+
+    case EBC_DELETEINSTANCE:
+
+      tempSettingsFile = TEXT("%ThemeDir%\\");
+      tempSettingsFile += (*this).baseAppletName;
+      if ((*this).appletCount > 0)
+      {
+        swprintf(strAppletCount, TEXT("%d"), (*this).appletCount);
+        tempSettingsFile += strAppletCount;
+      }
+      tempSettingsFile += TEXT(".xml");
+      tempSettingsFile = ELExpandVars(tempSettingsFile);
+
+      if (ELPathFileExists(tempSettingsFile.c_str()))
+        DeleteFile(tempSettingsFile.c_str());
+      PostQuitMessage(0);
     }
 
   return 0;
@@ -1123,4 +1146,43 @@ bool BaseApplet::WriteAppletCount(int value, bool forceCreate)
 
   CloseHandle(instanceManagementMutex);
   return false;
+}
+
+void BaseApplet::RenameSettingsFiles()
+{
+  std::wstring searchDirectory = ELExpandVars(TEXT("%ThemeDir%\\"));
+  std::wstring searchFileName = searchDirectory;
+  searchFileName += (*this).baseAppletName;
+  searchFileName += TEXT("?.xml");
+  WIN32_FIND_DATA fileInfo;
+  HANDLE searchHandle;
+  std::vector< std::wstring > fileList;
+  UINT counter = 0;
+  std::wstring srcFile;
+  WCHAR dstFile[MAX_PATH];
+
+  searchHandle = FindFirstFile(searchFileName.c_str(), &fileInfo);
+  if (searchHandle == INVALID_HANDLE_VALUE)
+    return;
+
+  do
+  {
+    if ((wcscmp(fileInfo.cFileName, TEXT(".")) != 0) && (wcscmp(fileInfo.cFileName, TEXT("..")) != 0))
+      fileList.push_back(fileInfo.cFileName);
+  } while (FindNextFile(searchHandle, &fileInfo) != 0);
+  FindClose(searchHandle);
+
+  for (counter = 0; counter < fileList.size(); counter++)
+  {
+    srcFile = searchDirectory;
+    srcFile += fileList[counter];
+    swprintf(dstFile, TEXT("%s%s"), searchDirectory.c_str(), (*this).baseAppletName);
+    if (counter)
+      swprintf(dstFile, TEXT("%s%d"), dstFile, counter);
+    swprintf(dstFile, TEXT("%s%s"), dstFile, TEXT(".xml"));
+
+    MoveFile(srcFile.c_str(), dstFile);
+  }
+
+  fileList.clear();
 }

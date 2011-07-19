@@ -32,6 +32,7 @@
 #include "../emergeStyleEngine/emergeStyleEngine.h"
 #include "BaseSettings.h"
 #include "BaseAppletMenu.h"
+#include <vector>
 
 #ifdef __GNUC__
 #include <tr1/memory>
@@ -99,6 +100,7 @@ private:
   static DWORD WINAPI FullScreenThreadProc(LPVOID lpParameter);
   int ReadAppletCount(int defaultValue = -1);
   bool WriteAppletCount(int value, bool forceCreate = true);
+  void RenameSettingsFiles();
 
 protected:
   HWND mainWnd, toolWnd;

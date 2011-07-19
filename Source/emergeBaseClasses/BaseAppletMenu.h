@@ -43,6 +43,7 @@
 #define EBC_CONFIGURE     400
 #define EBC_EXIT          500
 #define EBC_NEWINSTANCE   600
+#define EBC_DELETEINSTANCE 602
 
 class DLL_EXPORT BaseAppletMenu
 {
