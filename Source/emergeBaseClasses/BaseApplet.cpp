@@ -24,6 +24,7 @@
 #include <stdio.h>
 
 std::wstring instanceManagementPath = TEXT("%EmergeDir%\\files\\InstanceManagement.xml");
+BYTE oldAlphaForeground = 0;
 
 BaseApplet::BaseApplet(HINSTANCE hInstance, const WCHAR *appletName, bool allowAutoSize, bool allowMultipleInstances)
 {
@@ -65,45 +66,6 @@ BaseApplet::~BaseApplet()
 
 UINT BaseApplet::Initialize(WNDPROC WindowProcedure, LPVOID lpParam, std::tr1::shared_ptr<BaseSettings> pSettings)
 {
-  (*this).multiInstanceLock = CreateMutex(NULL, false, (*this).baseAppletName);
-  DWORD err = GetLastError();
-
-  if ((*this).allowMultipleInstances)
-  {
-    if (err != ERROR_ALREADY_EXISTS)
-    {
-      (*this).WriteAppletCount(-1, false); /*this is the first instance of this applet, so reset its applet count */
-      RenameSettingsFiles();
-    }
-
-    (*this).appletCount = (*this).ReadAppletCount(-1) + 1;
-    if ((*this).appletCount > 0)
-      swprintf((*this).appletName, TEXT("%s%d"), (*this).appletName, (*this).appletCount);
-
-    std::wstring tempSettingsFile;
-    tempSettingsFile = TEXT("%ThemeDir%\\");
-    tempSettingsFile += (*this).appletName;
-    tempSettingsFile += TEXT(".xml");
-    tempSettingsFile = ELExpandVars(tempSettingsFile);
-    if ((appletCount != 0) && (!ELPathFileExists(tempSettingsFile.c_str())))
-      return 0;
-
-    (*this).WriteAppletCount((*this).appletCount);
-
-    WCHAR appletPath[MAX_PATH];
-    if (GetModuleFileName(0, appletPath, MAX_PATH))
-      ELExecute(appletPath);
-  }
-  else
-  {
-    //(*this).multiInstanceLock = CreateMutex(NULL, false, (*this).baseAppletName);
-    if (err == ERROR_ALREADY_EXISTS)
-    {
-      CloseHandle((*this).multiInstanceLock);
-      return 0;
-    }
-  }
-
   // Set the Emerge Vars irregardless of them being set already to handle the scenario where
   // the applets are started from another application that has the ThemeDir set previously.
   if (!ELSetEmergeVars())
@@ -111,6 +73,45 @@ UINT BaseApplet::Initialize(WNDPROC WindowProcedure, LPVOID lpParam, std::tr1::s
       ELMessageBox(GetDesktopWindow(), TEXT("Failed to initialize Environment variables."),
                    baseAppletName, ELMB_ICONERROR|ELMB_MODAL|ELMB_OK);
       return 0;
+    }
+
+  (*this).multiInstanceLock = CreateMutex(NULL, false, (*this).baseAppletName);
+  DWORD err = GetLastError();
+
+  if ((*this).allowMultipleInstances)
+    {
+      if (err != ERROR_ALREADY_EXISTS)
+        {
+          (*this).WriteAppletCount(-1, false); /*this is the first instance of this applet, so reset its applet count */
+          RenameSettingsFiles();
+        }
+
+      (*this).appletCount = (*this).ReadAppletCount(-1) + 1;
+      if ((*this).appletCount > 0)
+        swprintf((*this).appletName, TEXT("%s%d"), (*this).appletName, (*this).appletCount);
+
+      std::wstring tempSettingsFile;
+      tempSettingsFile = TEXT("%ThemeDir%\\");
+      tempSettingsFile += (*this).appletName;
+      tempSettingsFile += TEXT(".xml");
+      tempSettingsFile = ELExpandVars(tempSettingsFile);
+      if ((appletCount != 0) && (!ELPathFileExists(tempSettingsFile.c_str())))
+        return 0;
+
+      (*this).WriteAppletCount((*this).appletCount);
+
+      WCHAR appletPath[MAX_PATH];
+      if (GetModuleFileName(0, appletPath, MAX_PATH))
+        ELExecute(appletPath);
+    }
+  else
+    {
+      //(*this).multiInstanceLock = CreateMutex(NULL, false, (*this).baseAppletName);
+      if (err == ERROR_ALREADY_EXISTS)
+        {
+          CloseHandle((*this).multiInstanceLock);
+          return 0;
+        }
     }
 
   // Set the non-critical evnvironment variables - do not popup warning messages.
@@ -228,6 +229,10 @@ void BaseApplet::UpdateGUI(WCHAR *styleFile)
   if (styleFile == NULL)
     styleFile = pBaseSettings->GetStyleFile();
   ESELoadStyle(styleFile, &guiInfo);
+
+  std::wstring debug = L"Read alphaForeground: ";
+  debug += towstring(guiInfo.alphaForeground);
+  //ELWriteDebug(debug);
 
   if (pBaseSettings->GetClickThrough() == 2)
     guiInfo.alphaBackground = 0;
@@ -432,7 +437,10 @@ DWORD WINAPI BaseApplet::DisplayChangeThreadProc(LPVOID lpParameter)
 
   // If not and Dynamic Positioning is enabled, adjust the applet position
   if (pBaseApplet->pBaseSettings->GetDynamicPositioning() && !pBaseApplet->GetFullScreen())
-    pBaseApplet->UpdateGUI();
+    {
+      //ELWriteDebug(L"Display Change - UpdateGUI");
+      pBaseApplet->UpdateGUI();
+    }
 
   return 0;
 }
@@ -530,6 +538,15 @@ void BaseApplet::DrawAlphaBlend()
     bf.SourceConstantAlpha = guiInfo.alphaActive;
   else
     bf.SourceConstantAlpha = guiInfo.alphaInactive;
+
+  if (oldAlphaForeground != guiInfo.alphaForeground)
+    {
+      std::wstring debug = L"Painted alphaForeground: ";
+      debug += towstring(guiInfo.alphaForeground);
+      //ELWriteDebug(debug);
+      oldAlphaForeground = guiInfo.alphaForeground;
+    }
+
 
   wndSz.cx = clientrt.right;
   wndSz.cy = clientrt.bottom;
@@ -845,11 +862,11 @@ LRESULT BaseApplet::DoNCRButtonUp()
       tempSettingsFile = ELExpandVars(tempSettingsFile);
 
       if (!ELPathFileExists(tempSettingsFile.c_str()))
-      {
-        //create a new settings file for the new applet instance
-        HANDLE newSettingsFile = CreateFile(tempSettingsFile.c_str(), GENERIC_WRITE, 0, NULL, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, NULL);
-        CloseHandle(newSettingsFile);
-      }
+        {
+          //create a new settings file for the new applet instance
+          HANDLE newSettingsFile = CreateFile(tempSettingsFile.c_str(), GENERIC_WRITE, 0, NULL, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, NULL);
+          CloseHandle(newSettingsFile);
+        }
 
       WCHAR appletPath[MAX_PATH];
       if (GetModuleFileName(0, appletPath, MAX_PATH))
@@ -862,10 +879,10 @@ LRESULT BaseApplet::DoNCRButtonUp()
       tempSettingsFile = TEXT("%ThemeDir%\\");
       tempSettingsFile += (*this).baseAppletName;
       if ((*this).appletCount > 0)
-      {
-        swprintf(strAppletCount, TEXT("%d"), (*this).appletCount);
-        tempSettingsFile += strAppletCount;
-      }
+        {
+          swprintf(strAppletCount, TEXT("%d"), (*this).appletCount);
+          tempSettingsFile += strAppletCount;
+        }
       tempSettingsFile += TEXT(".xml");
       tempSettingsFile = ELExpandVars(tempSettingsFile);
 
@@ -1085,26 +1102,26 @@ int BaseApplet::ReadAppletCount(int defaultValue)
 
   HANDLE instanceManagementMutex = CreateMutex(NULL, false, TEXT("InstanceManagement"));
   while (GetLastError() == ERROR_ALREADY_EXISTS)
-  {
-    instanceManagementMutex = OpenMutex(SYNCHRONIZE, false, TEXT("InstanceManagement"));
-    if (instanceManagementMutex == NULL)
-      instanceManagementMutex = CreateMutex(NULL, false, TEXT("InstanceManagement"));
-    else
-      WaitForSingleObject(instanceManagementMutex, INFINITE);
-  }
+    {
+      instanceManagementMutex = OpenMutex(SYNCHRONIZE, false, TEXT("InstanceManagement"));
+      if (instanceManagementMutex == NULL)
+        instanceManagementMutex = CreateMutex(NULL, false, TEXT("InstanceManagement"));
+      else
+        WaitForSingleObject(instanceManagementMutex, INFINITE);
+    }
 
   instanceManagementPath = ELExpandVars(instanceManagementPath);
 
   if (ELPathFileExists(instanceManagementPath.c_str()))
-  {
-    configXML = ELOpenXMLConfig(instanceManagementPath, false);
-    if (configXML)
     {
-      section = ELGetXMLSection(configXML.get(), (*this).baseAppletName, false);
-      if (section)
-        ELReadXMLIntValue(section, TEXT("AppletCount"), &tempAppletCount, defaultValue);
+      configXML = ELOpenXMLConfig(instanceManagementPath, false);
+      if (configXML)
+        {
+          section = ELGetXMLSection(configXML.get(), (*this).baseAppletName, false);
+          if (section)
+            ELReadXMLIntValue(section, TEXT("AppletCount"), &tempAppletCount, defaultValue);
+        }
     }
-  }
 
   CloseHandle(instanceManagementMutex);
   return tempAppletCount;
@@ -1117,32 +1134,32 @@ bool BaseApplet::WriteAppletCount(int value, bool forceCreate)
 
   HANDLE instanceManagementMutex = CreateMutex(NULL, false, TEXT("InstanceManagement"));
   while (GetLastError() == ERROR_ALREADY_EXISTS)
-  {
-    instanceManagementMutex = OpenMutex(SYNCHRONIZE, false, TEXT("InstanceManagement"));
-    if (instanceManagementMutex == NULL)
-      instanceManagementMutex = CreateMutex(NULL, false, TEXT("InstanceManagement"));
-    else
-      WaitForSingleObject(instanceManagementMutex, INFINITE);
-  }
+    {
+      instanceManagementMutex = OpenMutex(SYNCHRONIZE, false, TEXT("InstanceManagement"));
+      if (instanceManagementMutex == NULL)
+        instanceManagementMutex = CreateMutex(NULL, false, TEXT("InstanceManagement"));
+      else
+        WaitForSingleObject(instanceManagementMutex, INFINITE);
+    }
 
   instanceManagementPath = ELExpandVars(instanceManagementPath);
 
   configXML = ELOpenXMLConfig(instanceManagementPath, forceCreate);
   if (configXML)
-  {
-    section = ELGetXMLSection(configXML.get(), (*this).baseAppletName, forceCreate);
-    if (section)
     {
-      if (ELWriteXMLIntValue(section, TEXT("AppletCount"), value))
-      {
-        if (ELWriteXMLConfig(configXML.get()) == true)
+      section = ELGetXMLSection(configXML.get(), (*this).baseAppletName, forceCreate);
+      if (section)
         {
-          CloseHandle(instanceManagementMutex);
-          return true;
+          if (ELWriteXMLIntValue(section, TEXT("AppletCount"), value))
+            {
+              if (ELWriteXMLConfig(configXML.get()) == true)
+                {
+                  CloseHandle(instanceManagementMutex);
+                  return true;
+                }
+            }
         }
-      }
     }
-  }
 
   CloseHandle(instanceManagementMutex);
   return false;
@@ -1166,23 +1183,24 @@ void BaseApplet::RenameSettingsFiles()
     return;
 
   do
-  {
-    if ((wcscmp(fileInfo.cFileName, TEXT(".")) != 0) && (wcscmp(fileInfo.cFileName, TEXT("..")) != 0))
-      fileList.push_back(fileInfo.cFileName);
-  } while (FindNextFile(searchHandle, &fileInfo) != 0);
+    {
+      if ((wcscmp(fileInfo.cFileName, TEXT(".")) != 0) && (wcscmp(fileInfo.cFileName, TEXT("..")) != 0))
+        fileList.push_back(fileInfo.cFileName);
+    }
+  while (FindNextFile(searchHandle, &fileInfo) != 0);
   FindClose(searchHandle);
 
   for (counter = 0; counter < fileList.size(); counter++)
-  {
-    srcFile = searchDirectory;
-    srcFile += fileList[counter];
-    swprintf(dstFile, TEXT("%s%s"), searchDirectory.c_str(), (*this).baseAppletName);
-    if (counter)
-      swprintf(dstFile, TEXT("%s%d"), dstFile, counter);
-    swprintf(dstFile, TEXT("%s%s"), dstFile, TEXT(".xml"));
+    {
+      srcFile = searchDirectory;
+      srcFile += fileList[counter];
+      swprintf(dstFile, TEXT("%s%s"), searchDirectory.c_str(), (*this).baseAppletName);
+      if (counter)
+        swprintf(dstFile, TEXT("%s%d"), dstFile, counter);
+      swprintf(dstFile, TEXT("%s%s"), dstFile, TEXT(".xml"));
 
-    MoveFile(srcFile.c_str(), dstFile);
-  }
+      MoveFile(srcFile.c_str(), dstFile);
+    }
 
   fileList.clear();
 }
