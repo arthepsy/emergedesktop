@@ -39,11 +39,12 @@ BaseSettings::BaseSettings(bool allowAutoSize)
 BaseSettings::~BaseSettings()
 {}
 
-void BaseSettings::Init(HWND appletWnd, WCHAR *appletName)
+void BaseSettings::Init(HWND appletWnd, WCHAR *appletName, int appletCount)
 {
   wcscpy(this->appletName, appletName);
   swprintf(keyString, TEXT("%s\\Settings"), appletName);
   this->appletWnd = appletWnd;
+  this->appletCount = appletCount;
 }
 
 void BaseSettings::ReadSettings()

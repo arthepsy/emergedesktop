@@ -28,13 +28,13 @@ std::wstring instanceManagementPath = TEXT("%EmergeDir%\\files\\InstanceManageme
 BaseApplet::BaseApplet(HINSTANCE hInstance, const WCHAR *appletName, bool allowAutoSize, bool allowMultipleInstances)
 {
   mainInst = hInstance;
-  wcscpy((*this).appletName, appletName);
-  wcscpy((*this).baseAppletName, appletName);
+  wcscpy(this->appletName, appletName);
+  wcscpy(this->baseAppletName, appletName);
   mouseOver = false;
   fullScreen = false;
   appletHidden = false;
-  (*this).allowAutoSize = allowAutoSize;
-  (*this).allowMultipleInstances = allowMultipleInstances;
+  this->allowAutoSize = allowAutoSize;
+  this->allowMultipleInstances = allowMultipleInstances;
 
   activeBackgroundDC = NULL;
   inactiveBackgroundDC = NULL;
@@ -56,7 +56,7 @@ BaseApplet::~BaseApplet()
   if (inactiveBackgroundDC != NULL)
     DeleteDC(inactiveBackgroundDC);
 
-  CloseHandle((*this).multiInstanceLock);
+  CloseHandle(multiInstanceLock);
 
   OleUninitialize();
 
@@ -74,30 +74,30 @@ UINT BaseApplet::Initialize(WNDPROC WindowProcedure, LPVOID lpParam, std::tr1::s
       return 0;
     }
 
-  (*this).multiInstanceLock = CreateMutex(NULL, false, (*this).baseAppletName);
+  multiInstanceLock = CreateMutex(NULL, false, baseAppletName);
   DWORD err = GetLastError();
 
-  if ((*this).allowMultipleInstances)
+  if (allowMultipleInstances)
     {
       if (err != ERROR_ALREADY_EXISTS)
         {
-          (*this).WriteAppletCount(-1, false); /*this is the first instance of this applet, so reset its applet count */
+          WriteAppletCount(-1, false); /*this is the first instance of this applet, so reset its applet count */
           RenameSettingsFiles();
         }
 
-      (*this).appletCount = (*this).ReadAppletCount(-1) + 1;
-      if ((*this).appletCount > 0)
-        swprintf((*this).appletName, TEXT("%s%d"), (*this).appletName, (*this).appletCount);
+      appletCount = ReadAppletCount(-1) + 1;
+      if (appletCount > 0)
+        swprintf(appletName, TEXT("%s%d"), appletName, appletCount);
 
       std::wstring tempSettingsFile;
       tempSettingsFile = TEXT("%ThemeDir%\\");
-      tempSettingsFile += (*this).appletName;
+      tempSettingsFile += appletName;
       tempSettingsFile += TEXT(".xml");
       tempSettingsFile = ELExpandVars(tempSettingsFile);
       if ((appletCount != 0) && (!ELPathFileExists(tempSettingsFile.c_str())))
         return 0;
 
-      (*this).WriteAppletCount((*this).appletCount);
+      WriteAppletCount(appletCount);
 
       WCHAR appletPath[MAX_PATH];
       if (GetModuleFileName(0, appletPath, MAX_PATH))
@@ -105,10 +105,9 @@ UINT BaseApplet::Initialize(WNDPROC WindowProcedure, LPVOID lpParam, std::tr1::s
     }
   else
     {
-      //(*this).multiInstanceLock = CreateMutex(NULL, false, (*this).baseAppletName);
       if (err == ERROR_ALREADY_EXISTS)
         {
-          CloseHandle((*this).multiInstanceLock);
+          CloseHandle(multiInstanceLock);
           return 0;
         }
     }
@@ -144,8 +143,8 @@ UINT BaseApplet::Initialize(WNDPROC WindowProcedure, LPVOID lpParam, std::tr1::s
     }
 
   pBaseSettings = pSettings;
-  pBaseSettings->Init(mainWnd, (*this).appletName);
-  pBaseAppletMenu = std::tr1::shared_ptr<BaseAppletMenu>(new BaseAppletMenu(mainWnd, mainInst, (*this).appletName, (*this).allowMultipleInstances));
+  pBaseSettings->Init(mainWnd, appletName, appletCount);
+  pBaseAppletMenu = std::tr1::shared_ptr<BaseAppletMenu>(new BaseAppletMenu(mainWnd, mainInst, appletName, allowMultipleInstances));
   pBaseAppletMenu->Initialize();
 
   // Register to recieve the specified Emerge Desktop messages
@@ -835,11 +834,11 @@ LRESULT BaseApplet::DoNCRButtonUp()
       break;
 
     case EBC_NEWINSTANCE:
-      tempAppletCount = (*this).ReadAppletCount(-1) + 1;
+      tempAppletCount = ReadAppletCount(-1) + 1;
       swprintf(strAppletCount, TEXT("%d"), tempAppletCount);
 
       tempSettingsFile = TEXT("%ThemeDir%\\");
-      tempSettingsFile += (*this).baseAppletName;
+      tempSettingsFile += baseAppletName;
       tempSettingsFile += strAppletCount;
       tempSettingsFile += TEXT(".xml");
       tempSettingsFile = ELExpandVars(tempSettingsFile);
@@ -860,10 +859,10 @@ LRESULT BaseApplet::DoNCRButtonUp()
     case EBC_DELETEINSTANCE:
 
       tempSettingsFile = TEXT("%ThemeDir%\\");
-      tempSettingsFile += (*this).baseAppletName;
-      if ((*this).appletCount > 0)
+      tempSettingsFile += baseAppletName;
+      if (appletCount > 0)
         {
-          swprintf(strAppletCount, TEXT("%d"), (*this).appletCount);
+          swprintf(strAppletCount, TEXT("%d"), appletCount);
           tempSettingsFile += strAppletCount;
         }
       tempSettingsFile += TEXT(".xml");
@@ -1100,7 +1099,7 @@ int BaseApplet::ReadAppletCount(int defaultValue)
       configXML = ELOpenXMLConfig(instanceManagementPath, false);
       if (configXML)
         {
-          section = ELGetXMLSection(configXML.get(), (*this).baseAppletName, false);
+          section = ELGetXMLSection(configXML.get(), baseAppletName, false);
           if (section)
             ELReadXMLIntValue(section, TEXT("AppletCount"), &tempAppletCount, defaultValue);
         }
@@ -1130,7 +1129,7 @@ bool BaseApplet::WriteAppletCount(int value, bool forceCreate)
   configXML = ELOpenXMLConfig(instanceManagementPath, forceCreate);
   if (configXML)
     {
-      section = ELGetXMLSection(configXML.get(), (*this).baseAppletName, forceCreate);
+      section = ELGetXMLSection(configXML.get(), baseAppletName, forceCreate);
       if (section)
         {
           if (ELWriteXMLIntValue(section, TEXT("AppletCount"), value))
@@ -1152,7 +1151,7 @@ void BaseApplet::RenameSettingsFiles()
 {
   std::wstring searchDirectory = ELExpandVars(TEXT("%ThemeDir%\\"));
   std::wstring searchFileName = searchDirectory;
-  searchFileName += (*this).baseAppletName;
+  searchFileName += baseAppletName;
   searchFileName += TEXT("?.xml");
   WIN32_FIND_DATA fileInfo;
   HANDLE searchHandle;
@@ -1177,7 +1176,7 @@ void BaseApplet::RenameSettingsFiles()
     {
       srcFile = searchDirectory;
       srcFile += fileList[counter];
-      swprintf(dstFile, TEXT("%s%s"), searchDirectory.c_str(), (*this).baseAppletName);
+      swprintf(dstFile, TEXT("%s%s"), searchDirectory.c_str(), baseAppletName);
       if (counter)
         swprintf(dstFile, TEXT("%s%d"), dstFile, counter);
       swprintf(dstFile, TEXT("%s%s"), dstFile, TEXT(".xml"));

@@ -78,7 +78,7 @@ public:
 
   BaseSettings(bool allowAutoSize);
   virtual ~BaseSettings();
-  void Init(HWND appletWnd, WCHAR *appletName);
+  void Init(HWND appletWnd, WCHAR *appletName, int appletCount);
   void ReadSettings();
   int GetIconSize();
   int GetIconSpacing();
@@ -139,6 +139,7 @@ protected:
   WCHAR anchorPoint[MAX_LINE_LENGTH];
   WCHAR zPosition[MAX_LINE_LENGTH];
   WCHAR appletName[MAX_LINE_LENGTH];
+  int appletCount;
 
 private:
   HWND appletWnd;

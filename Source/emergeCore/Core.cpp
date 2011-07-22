@@ -52,7 +52,7 @@ bool Core::Initialize(WCHAR *commandLine)
 
   // Initialize Settings
   pSettings = std::tr1::shared_ptr<Settings>(new Settings());
-  pSettings->Init(mainWnd, (WCHAR*)TEXT("emergeCore"));
+  pSettings->Init(mainWnd, (WCHAR*)TEXT("emergeCore"), 0);
   pSettings->ReadSettings();
   pSettings->ReadUserSettings();
 
