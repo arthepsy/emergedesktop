@@ -24,7 +24,6 @@
 #include <stdio.h>
 
 std::wstring instanceManagementPath = TEXT("%EmergeDir%\\files\\InstanceManagement.xml");
-BYTE oldAlphaForeground = 0;
 
 BaseApplet::BaseApplet(HINSTANCE hInstance, const WCHAR *appletName, bool allowAutoSize, bool allowMultipleInstances)
 {
@@ -230,10 +229,6 @@ void BaseApplet::UpdateGUI(WCHAR *styleFile)
     styleFile = pBaseSettings->GetStyleFile();
   ESELoadStyle(styleFile, &guiInfo);
 
-  std::wstring debug = L"Read alphaForeground: ";
-  debug += towstring(guiInfo.alphaForeground);
-  //ELWriteDebug(debug);
-
   if (pBaseSettings->GetClickThrough() == 2)
     guiInfo.alphaBackground = 0;
 
@@ -437,10 +432,7 @@ DWORD WINAPI BaseApplet::DisplayChangeThreadProc(LPVOID lpParameter)
 
   // If not and Dynamic Positioning is enabled, adjust the applet position
   if (pBaseApplet->pBaseSettings->GetDynamicPositioning() && !pBaseApplet->GetFullScreen())
-    {
-      //ELWriteDebug(L"Display Change - UpdateGUI");
-      pBaseApplet->UpdateGUI();
-    }
+    pBaseApplet->UpdateGUI();
 
   return 0;
 }
@@ -538,15 +530,6 @@ void BaseApplet::DrawAlphaBlend()
     bf.SourceConstantAlpha = guiInfo.alphaActive;
   else
     bf.SourceConstantAlpha = guiInfo.alphaInactive;
-
-  if (oldAlphaForeground != guiInfo.alphaForeground)
-    {
-      std::wstring debug = L"Painted alphaForeground: ";
-      debug += towstring(guiInfo.alphaForeground);
-      //ELWriteDebug(debug);
-      oldAlphaForeground = guiInfo.alphaForeground;
-    }
-
 
   wndSz.cx = clientrt.right;
   wndSz.cy = clientrt.bottom;
