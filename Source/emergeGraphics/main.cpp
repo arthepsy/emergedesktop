@@ -54,6 +54,18 @@ static fnDwmIsCompositionEnabled MSDwmIsCompositionEnabled = NULL;
 typedef HRESULT (WINAPI *fnDwmEnableBlurBehindWindow)(HWND, const DWM_BLURBEHIND *);
 static fnDwmEnableBlurBehindWindow MSDwmEnableBlurBehindWindow = NULL;
 
+typedef HRESULT (WINAPI *fnDwmRegisterThumbnail)(HWND, HWND, PHTHUMBNAIL);
+static fnDwmRegisterThumbnail MSDwmRegisterThumbnail = NULL;
+
+typedef HRESULT (WINAPI *fnDwmUpdateThumbnailProperties)(HTHUMBNAIL, const DWM_THUMBNAIL_PROPERTIES *);
+static fnDwmUpdateThumbnailProperties MSDwmUpdateThumbnailProperties = NULL;
+
+typedef HRESULT (WINAPI *fnDwmUnregisterThumbnail)(HTHUMBNAIL);
+static fnDwmUnregisterThumbnail MSDwmUnregisterThumbnail = NULL;
+
+typedef HRESULT (WINAPI *fnDwmQueryThumbnailSourceSize)(HTHUMBNAIL, PSIZE);
+static fnDwmQueryThumbnailSourceSize MSDwmQueryThumbnailSourceSize = NULL;
+
 // Globals
 HDC hdc = NULL;
 HBITMAP hbitmap = NULL;
@@ -1309,6 +1321,66 @@ HRESULT EGBlurWindow(HWND hwnd, bool enable)
 
   if (bb.hRgnBlur != NULL)
     DeleteObject(bb.hRgnBlur);
+
+  return hr;
+}
+
+HRESULT EGDwmRegisterThumbnail(HWND hwndDestination, HWND hwndSource, PHTHUMBNAIL phThumbnailId)
+{
+  HRESULT hr = E_FAIL;
+
+  if (dwmapiDLL == NULL)
+    return hr;
+
+  if (MSDwmRegisterThumbnail == NULL)
+    MSDwmRegisterThumbnail = (fnDwmRegisterThumbnail)GetProcAddress(dwmapiDLL, "DwmRegisterThumbnail");
+  if (MSDwmRegisterThumbnail)
+    hr = MSDwmRegisterThumbnail(hwndDestination, hwndSource, phThumbnailId);
+
+  return hr;
+}
+
+HRESULT EGDwmUpdateThumbnailProperties(HTHUMBNAIL hThumbnailId, const DWM_THUMBNAIL_PROPERTIES *ptnProperties)
+{
+  HRESULT hr = E_FAIL;
+
+  if (dwmapiDLL == NULL)
+    return hr;
+
+  if (MSDwmUpdateThumbnailProperties == NULL)
+    MSDwmUpdateThumbnailProperties = (fnDwmUpdateThumbnailProperties)GetProcAddress(dwmapiDLL, "DwmUpdateThumbnailProperties");
+  if (MSDwmUpdateThumbnailProperties)
+    hr = MSDwmUpdateThumbnailProperties(hThumbnailId, ptnProperties);
+
+  return hr;
+}
+
+HRESULT EGDwmUnregisterThumbnail(HTHUMBNAIL hThumbnailId)
+{
+  HRESULT hr = E_FAIL;
+
+  if (dwmapiDLL == NULL)
+    return hr;
+
+  if (MSDwmUnregisterThumbnail == NULL)
+    MSDwmUnregisterThumbnail = (fnDwmUnregisterThumbnail)GetProcAddress(dwmapiDLL, "DwmUnregisterThumbnail");
+  if (MSDwmUnregisterThumbnail)
+    hr = MSDwmUnregisterThumbnail(hThumbnailId);
+
+  return hr;
+}
+
+HRESULT EGDwmQueryThumbnailSourceSize(HTHUMBNAIL hThumbnailId, PSIZE pSize)
+{
+  HRESULT hr = E_FAIL;
+
+  if (dwmapiDLL == NULL)
+    return hr;
+
+  if (MSDwmQueryThumbnailSourceSize == NULL)
+    MSDwmQueryThumbnailSourceSize = (fnDwmQueryThumbnailSourceSize)GetProcAddress(dwmapiDLL, "DwmQueryThumbnailSourceSize");
+  if (MSDwmQueryThumbnailSourceSize)
+    hr = MSDwmQueryThumbnailSourceSize(hThumbnailId, pSize);
 
   return hr;
 }
