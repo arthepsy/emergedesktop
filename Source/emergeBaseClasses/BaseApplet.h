@@ -101,6 +101,7 @@ private:
   int ReadAppletCount(int defaultValue = -1);
   bool WriteAppletCount(int value, bool forceCreate = true);
   void RenameSettingsFiles();
+  bool SpawnInstance();
 
 protected:
   HWND mainWnd, toolWnd;
