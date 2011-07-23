@@ -85,7 +85,10 @@ UINT BaseApplet::Initialize(WNDPROC WindowProcedure, LPVOID lpParam, std::tr1::s
           RenameSettingsFiles();
         }
 
-      appletCount = ReadAppletCount(-1) + 1;
+      if (!SpawnInstance())
+        return 0;
+
+      /*appletCount = ReadAppletCount(-1) + 1;
       if (appletCount > 0)
         swprintf(appletName, TEXT("%s%d"), appletName, appletCount);
 
@@ -101,7 +104,7 @@ UINT BaseApplet::Initialize(WNDPROC WindowProcedure, LPVOID lpParam, std::tr1::s
 
       WCHAR appletPath[MAX_PATH];
       if (GetModuleFileName(0, appletPath, MAX_PATH))
-        ELExecute(appletPath);
+        ELExecute(appletPath);*/
     }
   else
     {
@@ -151,6 +154,29 @@ UINT BaseApplet::Initialize(WNDPROC WindowProcedure, LPVOID lpParam, std::tr1::s
   PostMessage(ELGetCoreWindow(), EMERGE_REGISTER, (WPARAM)mainWnd, (LPARAM)EMERGE_CORE);
 
   return 1;
+}
+
+bool BaseApplet::SpawnInstance()
+{
+  appletCount = ReadAppletCount(-1) + 1;
+  if (appletCount > 0)
+    swprintf(appletName, TEXT("%s%d"), appletName, appletCount);
+
+  std::wstring tempSettingsFile;
+  tempSettingsFile = TEXT("%ThemeDir%\\");
+  tempSettingsFile += appletName;
+  tempSettingsFile += TEXT(".xml");
+  tempSettingsFile = ELExpandVars(tempSettingsFile);
+  if ((appletCount != 0) && (!ELPathFileExists(tempSettingsFile.c_str())))
+    return false;
+
+  WriteAppletCount(appletCount);
+
+  WCHAR appletPath[MAX_PATH];
+  if (GetModuleFileName(0, appletPath, MAX_PATH))
+    ELExecute(appletPath);
+
+  return true;
 }
 
 LRESULT BaseApplet::DoMoving(HWND hwnd, RECT *lpRect)
@@ -924,7 +950,20 @@ LRESULT BaseApplet::DoEmergeNotify(UINT messageClass, UINT message)
           break;
 
         case CORE_RECONFIGURE:
-          UpdateGUI();
+          if (allowMultipleInstances)
+            {
+              // Kill any instances other than the initial instance.
+              if (appletCount > 0)
+                PostQuitMessage(0);
+              else
+                {
+                  UpdateGUI(); // Update initial instance
+                  WriteAppletCount(-1, false); // Reset the Applet Count
+                  SpawnInstance(); // Spawn any additional instances
+                }
+            }
+          else
+            UpdateGUI();
           break;
 
         case CORE_WRITESETTINGS:

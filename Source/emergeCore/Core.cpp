@@ -714,8 +714,6 @@ bool Core::CheckLaunchList()
       launchMap.erase(iter);
     }
 
-  pMessageControl->DispatchMessage(EMERGE_CORE, CORE_RECONFIGURE);
-
   return true;
 }
 
