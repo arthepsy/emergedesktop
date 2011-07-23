@@ -84,7 +84,7 @@ bool MenuBuilder::Initialize()
 
   pSettings = std::tr1::shared_ptr<Settings>(new Settings());
   RenameConfigFile();
-  pSettings->Init(menuWnd, (WCHAR*)TEXT("emergeWorkspace"));
+  pSettings->Init(menuWnd, (WCHAR*)TEXT("emergeWorkspace"), 0);
   pSettings->ReadSettings();
   pMenuEditor = std::tr1::shared_ptr<MenuEditor>(new MenuEditor(mainInst));
   pItemEditor = std::tr1::shared_ptr<ItemEditor>(new ItemEditor(mainInst, menuWnd));
