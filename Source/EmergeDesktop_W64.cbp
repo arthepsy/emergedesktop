@@ -522,6 +522,88 @@
 					<Add directory=".\bin64" />
 				</Linker>
 			</Target>
+			<Target title="emergeLib - Debug">
+				<Option output="bin64\emergeLib" prefix_auto="1" extension_auto="1" />
+				<Option object_output=".objs64\Debug" />
+				<Option type="3" />
+				<Option compiler="gnu_gcc_compiler_for_mingw64" />
+				<Option createDefFile="1" />
+				<Option createStaticLib="1" />
+				<Compiler>
+					<Add option="-g" />
+					<Add option="-DEMERGELIB_EXPORTS" />
+					<Add option="-DTIXML_USE_STL" />
+				</Compiler>
+				<ResourceCompiler>
+					<Add directory=".\emergeLib" />
+				</ResourceCompiler>
+				<Linker>
+					<Add option="-Wl,--enable-auto-image-base" />
+					<Add library="shlwapi" />
+					<Add library="version" />
+					<Add library="psapi" />
+					<Add library="ole32" />
+					<Add library="uuid" />
+					<Add library="gdi32" />
+					<Add library="winmm" />
+					<Add library="powrprof" />
+					<Add library="zip32z64" />
+					<Add library="unzip32" />
+					<Add directory=".\bin64" />
+				</Linker>
+			</Target>
+			<Target title="emergeGraphics - Debug">
+				<Option output="bin64\emergeGraphics" prefix_auto="1" extension_auto="1" />
+				<Option object_output=".objs64\Release" />
+				<Option type="3" />
+				<Option compiler="gnu_gcc_compiler_for_mingw64" />
+				<Option createDefFile="1" />
+				<Option createStaticLib="1" />
+				<Compiler>
+					<Add option="-O2" />
+					<Add option="-g" />
+					<Add option="-DEMERGEGRAPHICS_EXPORTS" />
+				</Compiler>
+				<ResourceCompiler>
+					<Add directory=".\emergeGraphics" />
+				</ResourceCompiler>
+				<Linker>
+					<Add option="-s" />
+					<Add option="-Wl,--enable-auto-image-base" />
+					<Add library="emergeLib" />
+					<Add library="gdi32" />
+					<Add library="msimg32" />
+					<Add library="ole32" />
+					<Add library="shlwapi" />
+					<Add directory=".\bin64" />
+				</Linker>
+			</Target>
+			<Target title="emergeBaseClasses - Debug">
+				<Option output="bin64\emergeBaseClasses" prefix_auto="1" extension_auto="1" />
+				<Option object_output=".objs64\Debug" />
+				<Option type="3" />
+				<Option compiler="gnu_gcc_compiler_for_mingw64" />
+				<Option createDefFile="1" />
+				<Option createStaticLib="1" />
+				<Compiler>
+					<Add option="-g" />
+					<Add option="-DEMERGEBASECLASSES_EXPORTS" />
+				</Compiler>
+				<Linker>
+					<Add option="-Wl,--enable-auto-image-base" />
+					<Add option="-Wl,--export-all-symbols" />
+					<Add library="emergeGraphics" />
+					<Add library="emergeLib" />
+					<Add library="emergeStyleEngine" />
+					<Add library="emergeAppletEngine" />
+					<Add library="gdi32" />
+					<Add library="msimg32" />
+					<Add library="comdlg32" />
+					<Add library="shlwapi" />
+					<Add library="ole32" />
+					<Add directory=".\bin64" />
+				</Linker>
+			</Target>
 			<Target title="emergeTray - Debug">
 				<Option output="bin64\emergeTray" prefix_auto="1" extension_auto="1" />
 				<Option object_output=".objs64\Debug" />
@@ -567,62 +649,6 @@
 					<Add library="ole32" />
 					<Add library="uuid" />
 					<Add library="emergeBaseClasses" />
-					<Add directory=".\bin64" />
-				</Linker>
-			</Target>
-			<Target title="emergeBaseClasses - Debug">
-				<Option output="bin64\emergeBaseClasses" prefix_auto="1" extension_auto="1" />
-				<Option object_output=".objs64\Debug" />
-				<Option type="3" />
-				<Option compiler="gnu_gcc_compiler_for_mingw64" />
-				<Option createDefFile="1" />
-				<Option createStaticLib="1" />
-				<Compiler>
-					<Add option="-g" />
-					<Add option="-DEMERGEBASECLASSES_EXPORTS" />
-				</Compiler>
-				<Linker>
-					<Add option="-Wl,--enable-auto-image-base" />
-					<Add option="-Wl,--export-all-symbols" />
-					<Add library="emergeGraphics" />
-					<Add library="emergeLib" />
-					<Add library="emergeStyleEngine" />
-					<Add library="emergeAppletEngine" />
-					<Add library="gdi32" />
-					<Add library="msimg32" />
-					<Add library="comdlg32" />
-					<Add library="shlwapi" />
-					<Add library="ole32" />
-					<Add directory=".\bin64" />
-				</Linker>
-			</Target>
-			<Target title="emergeLib - Debug">
-				<Option output="bin64\emergeLib" prefix_auto="1" extension_auto="1" />
-				<Option object_output=".objs64\Debug" />
-				<Option type="3" />
-				<Option compiler="gnu_gcc_compiler_for_mingw64" />
-				<Option createDefFile="1" />
-				<Option createStaticLib="1" />
-				<Compiler>
-					<Add option="-g" />
-					<Add option="-DEMERGELIB_EXPORTS" />
-					<Add option="-DTIXML_USE_STL" />
-				</Compiler>
-				<ResourceCompiler>
-					<Add directory=".\emergeLib" />
-				</ResourceCompiler>
-				<Linker>
-					<Add option="-Wl,--enable-auto-image-base" />
-					<Add library="shlwapi" />
-					<Add library="version" />
-					<Add library="psapi" />
-					<Add library="ole32" />
-					<Add library="uuid" />
-					<Add library="gdi32" />
-					<Add library="winmm" />
-					<Add library="powrprof" />
-					<Add library="zip32z64" />
-					<Add library="unzip32" />
 					<Add directory=".\bin64" />
 				</Linker>
 			</Target>
@@ -695,7 +721,7 @@
 			</Target>
 		</Build>
 		<VirtualTargets>
-			<Add alias="All - Release" targets="emergeLib - Release;emergeGraphics - Release;emergeAppletEngine - Release;emergeStyleEngine - Release;emergeBaseClasses - Release;emergeTrayExplorerHook - Release;emergeCore - Release;emergeCommand - Release;emergeWorkspace - Release;emergeHotkeys - Release;emergeLauncher - Release;emergeTasks - Release;emergeTray - Release;emergeVWM - Release;emerge - Release;emergePower - Release;emergeSysMon - Release;emergeIcons - Release;Explorer - Release;" />
+			<Add alias="All - Release" targets="emergeLib - Release;emergeGraphics - Release;emergeAppletEngine - Release;emergeStyleEngine - Release;emergeBaseClasses - Release;emergeTrayExplorerHook - Release;emergeCore - Release;emergeCommand - Release;emergeWorkspace - Release;emergeHotkeys - Release;emergeLauncher - Release;emergeTasks - Release;emergeTray - Release;emergeVWM - Release;emerge - Release;emergePower - Release;emergeSysMon - Release;Explorer - Release;emergeIcons - Release;" />
 		</VirtualTargets>
 		<Compiler>
 			<Add option="-pedantic" />
@@ -983,22 +1009,28 @@
 		</Unit>
 		<Unit filename="emergeGraphics\BImage.cpp">
 			<Option target="emergeGraphics - Release" />
+			<Option target="emergeGraphics - Debug" />
 		</Unit>
 		<Unit filename="emergeGraphics\BImage.h">
 			<Option target="emergeGraphics - Release" />
+			<Option target="emergeGraphics - Debug" />
 		</Unit>
 		<Unit filename="emergeGraphics\emergeGraphics.h">
 			<Option target="emergeGraphics - Release" />
+			<Option target="emergeGraphics - Debug" />
 		</Unit>
 		<Unit filename="emergeGraphics\emergeGraphics.rc">
 			<Option compilerVar="WINDRES" />
 			<Option target="emergeGraphics - Release" />
+			<Option target="emergeGraphics - Debug" />
 		</Unit>
 		<Unit filename="emergeGraphics\main.cpp">
 			<Option target="emergeGraphics - Release" />
+			<Option target="emergeGraphics - Debug" />
 		</Unit>
 		<Unit filename="emergeGraphics\resource.h">
 			<Option target="emergeGraphics - Release" />
+			<Option target="emergeGraphics - Debug" />
 		</Unit>
 		<Unit filename="emergeHelloWorld\Applet.cpp">
 			<Option target="emergeHelloWorld - Release" />

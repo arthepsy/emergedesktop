@@ -682,12 +682,15 @@ TiXmlElement *ELGetSiblingXMLElement(TiXmlElement *xmlElement)
   return xmlElement->NextSiblingElement();
 }
 
-TiXmlElement *ELSetSibilingXMLElement(TiXmlElement *xmlElement, const WCHAR *elementName)
+TiXmlElement *ELSetSibilingXMLElement(TiXmlElement *xmlElement, const WCHAR *elementName, bool insertAfter)
 {
   std::string narrowElement = ELwstringTostring(elementName);
   TiXmlElement *sibling, newSibling(narrowElement.c_str());
 
-  sibling = xmlElement->Parent()->InsertAfterChild(xmlElement, newSibling)->ToElement();
+  if (insertAfter)
+    sibling = xmlElement->Parent()->InsertAfterChild(xmlElement, newSibling)->ToElement();
+  else
+    sibling = xmlElement->Parent()->InsertBeforeChild(xmlElement, newSibling)->ToElement();
 
   return sibling;
 }

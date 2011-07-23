@@ -80,25 +80,6 @@ BOOL CALLBACK LaunchEditor::GatherApplet(HWND hwnd, LPARAM lParam)
   return true;
 }
 
-BOOL CALLBACK LaunchEditor::ConfigureApplet(HWND hwnd, LPARAM lParam)
-{
-  LaunchEditor *pLaunchEditor = reinterpret_cast<LaunchEditor*>(lParam);
-  std::wstring fileName = ELGetWindowApp(hwnd, true);
-  POINT cursorPt;
-  RECT appletRect;
-
-  if (fileName.empty())
-    return true;
-
-  GetCursorPos(&cursorPt);
-  GetClientRect(hwnd, &appletRect);
-
-  if (ELToLower(fileName) == ELToLower(pLaunchEditor->GetSelectedApplet()))
-    SendMessage(hwnd, EMERGE_NOTIFY, EMERGE_CORE, CORE_SHOWCONFIG);
-
-  return true;
-}
-
 std::wstring LaunchEditor::GetSelectedApplet()
 {
   return selectedApplet;
@@ -141,7 +122,6 @@ LaunchEditor::LaunchEditor(HINSTANCE hInstance, HWND mainWnd)
   ExtractIconEx(TEXT("emergeIcons.dll"), 12, NULL, &stopIcon, 1);
   ExtractIconEx(TEXT("emergeIcons.dll"), 8, NULL, &infoIcon, 1);
   ExtractIconEx(TEXT("emergeIcons.dll"), 7, NULL, &gatherIcon, 1);
-  ExtractIconEx(TEXT("emergeIcons.dll"), 22, NULL, &configIcon, 1);
 
   xmlFile = TEXT("%ThemeDir%\\");
   xmlFile += TEXT("emergeCore.xml");
@@ -194,7 +174,6 @@ BOOL LaunchEditor::DoInitDialog(HWND hwndDlg)
   HWND stopWnd = GetDlgItem(hwndDlg, IDC_STOPAPP);
   HWND infoWnd = GetDlgItem(hwndDlg, IDC_INFOAPP);
   HWND gatherWnd = GetDlgItem(hwndDlg, IDC_GATHERAPP);
-  HWND configWnd = GetDlgItem(hwndDlg, IDC_CONFIGAPP);
 
   saveCount = 0;
   deleteCount = 0;
@@ -247,8 +226,6 @@ BOOL LaunchEditor::DoInitDialog(HWND hwndDlg)
     SendMessage(infoWnd, BM_SETIMAGE, IMAGE_ICON, (LPARAM)infoIcon);
   if (gatherIcon)
     SendMessage(gatherWnd, BM_SETIMAGE, IMAGE_ICON, (LPARAM)gatherIcon);
-  if (configIcon)
-    SendMessage(configWnd, BM_SETIMAGE, IMAGE_ICON, (LPARAM)configIcon);
 
   ti.cbSize = TTTOOLINFOW_V2_SIZE;
   ti.uFlags = TTF_SUBCLASS;
@@ -307,12 +284,6 @@ BOOL LaunchEditor::DoInitDialog(HWND hwndDlg)
   GetClientRect(downWnd, &ti.rect);
   SendMessage(toolWnd, TTM_ADDTOOL, 0, (LPARAM)(LPTOOLINFO)&ti);
 
-  ti.hwnd = configWnd;
-  ti.uId = (ULONG_PTR)configWnd;
-  ti.lpszText = (WCHAR*)TEXT("Configure Applet");
-  GetClientRect(configWnd, &ti.rect);
-  SendMessage(toolWnd, TTM_ADDTOOL, 0, (LPARAM)(LPTOOLINFO)&ti);
-
   ti.hwnd = saveWnd;
   ti.uId = (ULONG_PTR)saveWnd;
   ti.lpszText = (WCHAR*)TEXT("Save Changes");
@@ -338,7 +309,6 @@ BOOL LaunchEditor::DoInitDialog(HWND hwndDlg)
   EnableWindow(stopWnd, false);
   EnableWindow(infoWnd, false);
   EnableWindow(gatherWnd, false);
-  EnableWindow(configWnd, false);
 
   return TRUE;
 }
@@ -405,35 +375,11 @@ BOOL LaunchEditor::DoLaunchCommand(HWND hwndDlg, WPARAM wParam, LPARAM lParam UN
       return DoMultiStop(hwndDlg);
     case IDC_GATHERAPP:
       return DoMultiGather(hwndDlg);
-    case IDC_CONFIGAPP:
-      return DoMultiConfig(hwndDlg);
     case IDC_INFOAPP:
       return DoMultiInfo(hwndDlg);
     }
 
   return FALSE;
-}
-
-BOOL LaunchEditor::DoMultiConfig(HWND hwndDlg)
-{
-  HWND listWnd = GetDlgItem(hwndDlg, IDC_APPLETLIST);
-  int listCount = ListView_GetItemCount(listWnd);
-  WCHAR name[MAX_PATH];
-  BOOL ret = FALSE;
-
-  for (int i = 0; i < listCount; i++)
-    {
-      if (ListView_GetItemState(listWnd, i, LVIS_SELECTED))
-        {
-          ListView_GetItemText(listWnd, i, 1, name, MAX_PATH);
-          selectedApplet = name;
-          selectedApplet = ELExpandVars(selectedApplet);
-          EnumWindows(ConfigureApplet, reinterpret_cast<LPARAM>(this));
-          ret = TRUE;
-        }
-    }
-
-  return ret;
 }
 
 BOOL LaunchEditor::DoMultiInfo(HWND hwndDlg)
@@ -804,7 +750,6 @@ bool LaunchEditor::DoLaunchDelete(HWND hwndDlg)
   HWND stopWnd = GetDlgItem(hwndDlg, IDC_STOPAPP);
   HWND infoWnd = GetDlgItem(hwndDlg, IDC_INFOAPP);
   HWND gatherWnd = GetDlgItem(hwndDlg, IDC_GATHERAPP);
-  HWND configWnd = GetDlgItem(hwndDlg, IDC_CONFIGAPP);
   bool ret = false;
   int i = 0, prevItem = 0;
 
@@ -852,7 +797,6 @@ bool LaunchEditor::DoLaunchDelete(HWND hwndDlg)
       EnableWindow(stopWnd, false);
       EnableWindow(infoWnd, false);
       EnableWindow(gatherWnd, false);
-      EnableWindow(configWnd, false);
     }
 
   return ret;
@@ -1028,7 +972,6 @@ BOOL LaunchEditor::DoNotify(HWND hwndDlg, LPARAM lParam)
   HWND stopWnd = GetDlgItem(hwndDlg, IDC_STOPAPP);
   HWND infoWnd = GetDlgItem(hwndDlg, IDC_INFOAPP);
   HWND gatherWnd = GetDlgItem(hwndDlg, IDC_GATHERAPP);
-  HWND configWnd = GetDlgItem(hwndDlg, IDC_CONFIGAPP);
 
   switch (((LPNMITEMACTIVATE)lParam)->hdr.code)
     {
@@ -1040,7 +983,6 @@ BOOL LaunchEditor::DoNotify(HWND hwndDlg, LPARAM lParam)
       EnableWindow(stopWnd, true);
       EnableWindow(infoWnd, true);
       EnableWindow(gatherWnd, true);
-      EnableWindow(configWnd, true);
       return PopulateFields(hwndDlg, ((LPNMLISTVIEW)lParam)->iItem);
 
       // Disable Right click menu for now
