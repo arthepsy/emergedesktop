@@ -665,7 +665,8 @@ void Core::ConvertTheme()
 bool Core::CheckLaunchList()
 {
   LaunchMap launchMap;
-  LaunchMap::iterator iter;
+  LaunchMap::iterator mapIter;
+  WindowSet::iterator setIter;
   std::tr1::shared_ptr<TiXmlDocument> configXML;
   TiXmlElement *first, *tmp, *section = NULL, *settings;
   WCHAR data[MAX_LINE_LENGTH];
@@ -709,9 +710,15 @@ bool Core::CheckLaunchList()
 
   while (!launchMap.empty())
     {
-      iter = launchMap.begin();
-      PostMessage(iter->second, WM_NCDESTROY, 0, 0);
-      launchMap.erase(iter);
+      mapIter = launchMap.begin();
+      ELWriteDebug(mapIter->first);
+      setIter = mapIter->second.begin();
+      while (setIter != mapIter->second.end())
+        {
+          SendMessage((HWND)*setIter, WM_NCDESTROY, 0, 0);
+          setIter++;
+        }
+      launchMap.erase(mapIter);
     }
 
   return true;
@@ -744,6 +751,8 @@ BOOL Core::LaunchMapEnum(HWND hwnd, LPARAM lParam)
 {
   WCHAR windowClass[MAX_LINE_LENGTH];
   std::wstring windowName;
+  LaunchMap *launchMap = (LaunchMap*)lParam;
+  LaunchMap::iterator mapIter;
 
   if (RealGetWindowClass(hwnd, windowClass, MAX_LINE_LENGTH) != 0)
     {
@@ -751,7 +760,15 @@ BOOL Core::LaunchMapEnum(HWND hwnd, LPARAM lParam)
           (_wcsicmp(windowClass, TEXT("EmergeDesktopMenuBuilder")) == 0))
         {
           windowName = ELToLower(ELGetWindowApp(hwnd, true));
-          ((LaunchMap*)lParam)->insert(std::pair<std::wstring, HWND>(windowName, hwnd));
+          mapIter = launchMap->find(windowName);
+          if (mapIter == launchMap->end())
+            {
+              WindowSet windowSet;
+              windowSet.insert(windowSet.begin(), hwnd);
+              launchMap->insert(std::pair<std::wstring, WindowSet>(windowName, windowSet));
+            }
+          else
+            mapIter->second.insert(mapIter->second.begin(), hwnd);
         }
     }
 

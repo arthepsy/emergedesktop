@@ -25,6 +25,7 @@
 #include <process.h>
 #include <string>
 #include <map>
+#include <set>
 #include "Shell.h"
 #include "MessageControl.h"
 #include "ShellChanger.h"
@@ -34,7 +35,8 @@
 #include "ThemeSelector.h"
 #include "Config.h"
 
-typedef std::map<std::wstring, HWND> LaunchMap;
+typedef std::set<HWND> WindowSet;
+typedef std::map< std::wstring, WindowSet > LaunchMap;
 
 class Core
 {
