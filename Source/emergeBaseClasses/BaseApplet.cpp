@@ -58,6 +58,9 @@ BaseApplet::~BaseApplet()
 
   CloseHandle(multiInstanceLock);
 
+  // Close the InstanceManagement.xml file mutex
+  CloseHandle(instanceManagementMutex);
+
   OleUninitialize();
 
   ELClearEmergeVars();
@@ -74,6 +77,8 @@ UINT BaseApplet::Initialize(WNDPROC WindowProcedure, LPVOID lpParam, std::tr1::s
       return 0;
     }
 
+  // Create the InstanceManagement.xml mutex initially as un-owned
+  instanceManagementMutex = CreateMutex(NULL, FALSE, TEXT("InstanceManagement"));
   multiInstanceLock = CreateMutex(NULL, false, baseAppletName);
   DWORD err = GetLastError();
 
@@ -1121,16 +1126,8 @@ int BaseApplet::ReadAppletCount(int defaultValue)
   std::tr1::shared_ptr<TiXmlDocument> configXML;
   TiXmlElement *section = NULL;
 
-  HANDLE instanceManagementMutex = CreateMutex(NULL, TRUE, TEXT("InstanceManagement"));
+  // Take control of the InstanceManagement.xml Mutex
   WaitForSingleObject(instanceManagementMutex, INFINITE);
-  /*while (GetLastError() == ERROR_ALREADY_EXISTS)
-    {
-      instanceManagementMutex = OpenMutex(SYNCHRONIZE, false, TEXT("InstanceManagement"));
-      if (instanceManagementMutex == NULL)
-        instanceManagementMutex = CreateMutex(NULL, false, TEXT("InstanceManagement"));
-      else
-        WaitForSingleObject(instanceManagementMutex, INFINITE);
-    }*/
 
   instanceManagementPath = ELExpandVars(instanceManagementPath);
 
@@ -1145,7 +1142,8 @@ int BaseApplet::ReadAppletCount(int defaultValue)
         }
     }
 
-  CloseHandle(instanceManagementMutex);
+  // Release the InstanceManagement.xml Mutex
+  ReleaseMutex(instanceManagementMutex);
   return tempAppletCount;
 }
 
@@ -1153,17 +1151,10 @@ bool BaseApplet::WriteAppletCount(int value, bool forceCreate)
 {
   std::tr1::shared_ptr<TiXmlDocument> configXML;
   TiXmlElement *section = NULL;
+  bool ret = false;
 
-  HANDLE instanceManagementMutex = CreateMutex(NULL, TRUE, TEXT("InstanceManagement"));
+  // Take control of the InstanceManagement.xml Mutex
   WaitForSingleObject(instanceManagementMutex, INFINITE);
-  /*while (GetLastError() == ERROR_ALREADY_EXISTS)
-    {
-      instanceManagementMutex = OpenMutex(SYNCHRONIZE, false, TEXT("InstanceManagement"));
-      if (instanceManagementMutex == NULL)
-        instanceManagementMutex = CreateMutex(NULL, false, TEXT("InstanceManagement"));
-      else
-        WaitForSingleObject(instanceManagementMutex, INFINITE);
-    }*/
 
   instanceManagementPath = ELExpandVars(instanceManagementPath);
 
@@ -1176,16 +1167,14 @@ bool BaseApplet::WriteAppletCount(int value, bool forceCreate)
           if (ELWriteXMLIntValue(section, TEXT("AppletCount"), value))
             {
               if (ELWriteXMLConfig(configXML.get()) == true)
-                {
-                  CloseHandle(instanceManagementMutex);
-                  return true;
-                }
+                ret = true;
             }
         }
     }
 
-  CloseHandle(instanceManagementMutex);
-  return false;
+  // Release the InstanceManagement.xml Mutex
+  ReleaseMutex(instanceManagementMutex);
+  return ret;
 }
 
 void BaseApplet::RenameSettingsFiles()

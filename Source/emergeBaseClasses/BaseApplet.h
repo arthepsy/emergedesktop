@@ -96,6 +96,7 @@ private:
   bool fullScreen, allowAutoSize, allowMultipleInstances;
   RECT referenceRect;
   HANDLE displayChangeThread, fullScreenThread, multiInstanceLock;
+  HANDLE instanceManagementMutex;
   static DWORD WINAPI DisplayChangeThreadProc(LPVOID lpParameter);
   static DWORD WINAPI FullScreenThreadProc(LPVOID lpParameter);
   int ReadAppletCount(int defaultValue = -1);
