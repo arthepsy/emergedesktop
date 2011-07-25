@@ -40,7 +40,16 @@ Settings::Settings(): BaseSettings(false)
 void Settings::ResetDefaults()
 {
   BaseSettings::ResetDefaults();
-  updateInterval = 2000;
+   // If the appletCount is > 0 then assume this is a new instance and place it
+  // at the current mouse position.
+  if (appletCount > 0)
+    {
+      POINT cursorPt;
+      GetCursorPos(&cursorPt);
+      x = cursorPt.x;
+      y = cursorPt.y;
+    }
+ updateInterval = 2000;
   monitorCPU = true;
   monitorCommitCharge = true;
   monitorPhysicalMem = false;

@@ -124,7 +124,7 @@ LRESULT CALLBACK Applet::WindowProcedure (HWND hwnd, UINT message, WPARAM wParam
 }
 
 Applet::Applet(HINSTANCE hInstance)
-:BaseApplet(hInstance, myName, false, false)
+:BaseApplet(hInstance, myName, false, true)
 {
   requiredTextHeight = 0;
   requiredTextWidth = 0;
