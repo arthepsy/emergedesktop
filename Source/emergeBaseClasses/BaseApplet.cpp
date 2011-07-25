@@ -1121,15 +1121,16 @@ int BaseApplet::ReadAppletCount(int defaultValue)
   std::tr1::shared_ptr<TiXmlDocument> configXML;
   TiXmlElement *section = NULL;
 
-  HANDLE instanceManagementMutex = CreateMutex(NULL, false, TEXT("InstanceManagement"));
-  while (GetLastError() == ERROR_ALREADY_EXISTS)
+  HANDLE instanceManagementMutex = CreateMutex(NULL, TRUE, TEXT("InstanceManagement"));
+  WaitForSingleObject(instanceManagementMutex, INFINITE);
+  /*while (GetLastError() == ERROR_ALREADY_EXISTS)
     {
       instanceManagementMutex = OpenMutex(SYNCHRONIZE, false, TEXT("InstanceManagement"));
       if (instanceManagementMutex == NULL)
         instanceManagementMutex = CreateMutex(NULL, false, TEXT("InstanceManagement"));
       else
         WaitForSingleObject(instanceManagementMutex, INFINITE);
-    }
+    }*/
 
   instanceManagementPath = ELExpandVars(instanceManagementPath);
 
@@ -1153,15 +1154,16 @@ bool BaseApplet::WriteAppletCount(int value, bool forceCreate)
   std::tr1::shared_ptr<TiXmlDocument> configXML;
   TiXmlElement *section = NULL;
 
-  HANDLE instanceManagementMutex = CreateMutex(NULL, false, TEXT("InstanceManagement"));
-  while (GetLastError() == ERROR_ALREADY_EXISTS)
+  HANDLE instanceManagementMutex = CreateMutex(NULL, TRUE, TEXT("InstanceManagement"));
+  WaitForSingleObject(instanceManagementMutex, INFINITE);
+  /*while (GetLastError() == ERROR_ALREADY_EXISTS)
     {
       instanceManagementMutex = OpenMutex(SYNCHRONIZE, false, TEXT("InstanceManagement"));
       if (instanceManagementMutex == NULL)
         instanceManagementMutex = CreateMutex(NULL, false, TEXT("InstanceManagement"));
       else
         WaitForSingleObject(instanceManagementMutex, INFINITE);
-    }
+    }*/
 
   instanceManagementPath = ELExpandVars(instanceManagementPath);
 
