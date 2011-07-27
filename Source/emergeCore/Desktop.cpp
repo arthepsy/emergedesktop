@@ -281,7 +281,7 @@ void Desktop::ToggleDesktop()
 
 void Desktop::ShowMenu(UINT menu)
 {
-  pMessageControl->DispatchMessage(EMERGE_CORE, menu);
+  pMessageControl->DispatchMessage(EMERGE_CORE, menu, NULL);
 }
 
 bool Desktop::SetBackgroundImage()

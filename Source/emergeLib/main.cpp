@@ -129,6 +129,7 @@ BOOL CALLBACK MonitorRectEnum(HMONITOR hMonitor, HDC hdcMonitor, LPRECT lprcMoni
 bool ConvertPath(WCHAR *styleFile, DWORD flags, DWORD path);
 std::wstring GetCustomDataPath();
 BOOL CALLBACK ThemeEnum(HWND hwnd, LPARAM lParam);
+void DispatchCoreMessage(DWORD type, DWORD message, WCHAR *instanceName);
 
 typedef struct _APPLETMONITORINFO
 {
@@ -180,7 +181,8 @@ static fnDwmIsCompositionEnabled MSDwmIsCompositionEnabled = NULL;
 typedef HRESULT (WINAPI *fnDwmGetWindowAttribute)(HWND, DWORD, PVOID, DWORD);
 static fnDwmGetWindowAttribute MSDwmGetWindowAttribute = NULL;
 
-typedef enum _DWMWINDOWATTRIBUTE {
+typedef enum _DWMWINDOWATTRIBUTE
+{
   DWMWA_NCRENDERING_ENABLED           = 1,
   DWMWA_NCRENDERING_POLICY,
   DWMWA_TRANSITIONS_FORCEDISABLED,
@@ -1052,6 +1054,25 @@ void ELWriteDebug(std::wstring debugText)
   out.close();
 }
 
+void DispatchCoreMessage(DWORD type, DWORD message, WCHAR *instanceName = NULL)
+{
+  NOTIFYINFO notifyInfo;
+  COPYDATASTRUCT cds;
+
+  ZeroMemory(&notifyInfo, sizeof(notifyInfo));
+  notifyInfo.Type = type;
+  notifyInfo.Message = message;
+  if ((instanceName != NULL) && wcslen(instanceName))
+    wcsncpy(notifyInfo.InstanceName, instanceName, MAX_LINE_LENGTH - 1);
+
+  cds.dwData = EMERGE_DISPATCH;
+  cds.cbData = sizeof(notifyInfo);
+  cds.lpData = &notifyInfo;
+
+  SendMessageTimeout(ELGetCoreWindow(), WM_COPYDATA, 0, (LPARAM)&cds,
+                     SMTO_ABORTIFHUNG, 500, NULL);
+}
+
 //----  --------------------------------------------------------------------------------------------------------
 // Function:	ELExecuteInternal
 // Requires:	LPTSTR command - internal command
@@ -1084,14 +1105,14 @@ bool ELExecuteInternal(LPTSTR command)
     {
       /// TODO (Chris#1#): Find better implementation that doesn't rely on finding the desktop window
       ELSwitchToThisWindow(FindWindow(TEXT("EmergeDesktopMenuBuilder"), NULL));/**< Needed to address keyboard focus issue with Launcher */
-      PostMessage(ELGetCoreWindow(), EMERGE_DISPATCH, (WPARAM)EMERGE_CORE, (LPARAM)CORE_RIGHTMENU);
+      DispatchCoreMessage(EMERGE_CORE, CORE_RIGHTMENU);
       return true;
     }
   else if (_wcsicmp(command, TEXT("MidDeskMenu")) == 0)
     {
       /// TODO (Chris#1#): Find better implementation that doesn't rely on finding the desktop window
       ELSwitchToThisWindow(FindWindow(TEXT("EmergeDesktopMenuBuilder"), NULL));/**< Needed to address keyboard focus issue with Launcher */
-      PostMessage(ELGetCoreWindow(), EMERGE_DISPATCH, (WPARAM)EMERGE_CORE, (LPARAM)CORE_MIDMENU);
+      DispatchCoreMessage(EMERGE_CORE, CORE_MIDMENU);
       return true;
     }
   else if (_wcsicmp(command, TEXT("Quit")) == 0)
@@ -1112,109 +1133,109 @@ bool ELExecuteInternal(LPTSTR command)
   else if (_wcsicmp(command, TEXT("Hide")) == 0)
     {
       ELSwitchToThisWindow(ELGetCoreWindow());
-      PostMessage(ELGetCoreWindow(), EMERGE_DISPATCH, (WPARAM)EMERGE_CORE, (LPARAM)CORE_HIDE);
+      DispatchCoreMessage(EMERGE_CORE, CORE_HIDE);
       return true;
     }
   else if (_wcsicmp(command, TEXT("Show")) == 0)
     {
       ELSwitchToThisWindow(ELGetCoreWindow());
-      PostMessage(ELGetCoreWindow(), EMERGE_DISPATCH, (WPARAM)EMERGE_CORE, (LPARAM)CORE_SHOW);
+      DispatchCoreMessage(EMERGE_CORE, CORE_SHOW);
       return true;
     }
   else if(_wcsicmp(command,TEXT("VWM_1")) == 0)
     {
       ELSwitchToThisWindow(ELGetCoreWindow());
-      PostMessage(ELGetCoreWindow(),EMERGE_DISPATCH, (WPARAM)EMERGE_VWM,(LPARAM)VWM_1);
+      DispatchCoreMessage(EMERGE_VWM, VWM_1);
       return true;
     }
   else if(_wcsicmp(command,TEXT("VWM_2")) == 0)
     {
       ELSwitchToThisWindow(ELGetCoreWindow());
-      PostMessage(ELGetCoreWindow(),EMERGE_DISPATCH, (WPARAM)EMERGE_VWM,(LPARAM)VWM_2);
+      DispatchCoreMessage(EMERGE_VWM, VWM_2);
       return true;
     }
   else if(_wcsicmp(command,TEXT("VWM_3")) == 0)
     {
       ELSwitchToThisWindow(ELGetCoreWindow());
-      PostMessage(ELGetCoreWindow(),EMERGE_DISPATCH, (WPARAM)EMERGE_VWM,(LPARAM)VWM_3);
+      DispatchCoreMessage(EMERGE_VWM, VWM_3);
       return true;
     }
   else if(_wcsicmp(command,TEXT("VWM_4")) == 0)
     {
       ELSwitchToThisWindow(ELGetCoreWindow());
-      PostMessage(ELGetCoreWindow(),EMERGE_DISPATCH, (WPARAM)EMERGE_VWM,(LPARAM)VWM_4);
+      DispatchCoreMessage(EMERGE_VWM, VWM_4);
       return true;
     }
   else if(_wcsicmp(command,TEXT("VWM_5")) == 0)
     {
       ELSwitchToThisWindow(ELGetCoreWindow());
-      PostMessage(ELGetCoreWindow(),EMERGE_DISPATCH, (WPARAM)EMERGE_VWM,(LPARAM)VWM_5);
+      DispatchCoreMessage(EMERGE_VWM, VWM_5);
       return true;
     }
   else if(_wcsicmp(command,TEXT("VWM_6")) == 0)
     {
       ELSwitchToThisWindow(ELGetCoreWindow());
-      PostMessage(ELGetCoreWindow(),EMERGE_DISPATCH, (WPARAM)EMERGE_VWM,(LPARAM)VWM_6);
+      DispatchCoreMessage(EMERGE_VWM, VWM_6);
       return true;
     }
   else if(_wcsicmp(command,TEXT("VWM_7")) == 0)
     {
       ELSwitchToThisWindow(ELGetCoreWindow());
-      PostMessage(ELGetCoreWindow(),EMERGE_DISPATCH, (WPARAM)EMERGE_VWM,(LPARAM)VWM_7);
+      DispatchCoreMessage(EMERGE_VWM, VWM_7);
       return true;
     }
   else if(_wcsicmp(command,TEXT("VWM_8")) == 0)
     {
       ELSwitchToThisWindow(ELGetCoreWindow());
-      PostMessage(ELGetCoreWindow(),EMERGE_DISPATCH, (WPARAM)EMERGE_VWM,(LPARAM)VWM_8);
+      DispatchCoreMessage(EMERGE_VWM, VWM_8);
       return true;
     }
   else if(_wcsicmp(command,TEXT("VWM_9")) == 0)
     {
       ELSwitchToThisWindow(ELGetCoreWindow());
-      PostMessage(ELGetCoreWindow(),EMERGE_DISPATCH, (WPARAM)EMERGE_VWM,(LPARAM)VWM_9);
+      DispatchCoreMessage(EMERGE_VWM, VWM_9);
       return true;
     }
   else if (_wcsicmp(command, TEXT("VWMUp")) == 0)
     {
       ELSwitchToThisWindow(ELGetCoreWindow());
-      PostMessage(ELGetCoreWindow(), EMERGE_DISPATCH, (WPARAM)EMERGE_VWM, (LPARAM)VWM_UP);
+      DispatchCoreMessage(EMERGE_VWM, VWM_UP);
       return true;
     }
   else if (_wcsicmp(command, TEXT("VWMDown")) == 0)
     {
       ELSwitchToThisWindow(ELGetCoreWindow());
-      PostMessage(ELGetCoreWindow(), EMERGE_DISPATCH, (WPARAM)EMERGE_VWM, (LPARAM)VWM_DOWN);
+      DispatchCoreMessage(EMERGE_VWM, VWM_DOWN);
       return true;
     }
   else if (_wcsicmp(command, TEXT("VWMLeft")) == 0)
     {
       ELSwitchToThisWindow(ELGetCoreWindow());
-      PostMessage(ELGetCoreWindow(), EMERGE_DISPATCH, (WPARAM)EMERGE_VWM, (LPARAM)VWM_LEFT);
+      DispatchCoreMessage(EMERGE_VWM, VWM_LEFT);
       return true;
     }
   else if (_wcsicmp(command, TEXT("VWMRight")) == 0)
     {
       ELSwitchToThisWindow(ELGetCoreWindow());
-      PostMessage(ELGetCoreWindow(), EMERGE_DISPATCH, (WPARAM)EMERGE_VWM, (LPARAM)VWM_RIGHT);
+      DispatchCoreMessage(EMERGE_VWM, VWM_RIGHT);
       return true;
     }
   else if (_wcsicmp(command, TEXT("VWMGather")) == 0)
     {
       ELSwitchToThisWindow(ELGetCoreWindow());
-      PostMessage(ELGetCoreWindow(), EMERGE_DISPATCH, (WPARAM)EMERGE_VWM, (LPARAM)VWM_GATHER);
+      DispatchCoreMessage(EMERGE_VWM, VWM_GATHER);
       return true;
     }
   else if (_wcsicmp(command, TEXT("VWMPrev")) == 0)
     {
       ELSwitchToThisWindow(ELGetCoreWindow());
-      PostMessage(ELGetCoreWindow(), EMERGE_DISPATCH, (WPARAM)EMERGE_VWM, (LPARAM)VWM_PREV);
+      DispatchCoreMessage(EMERGE_VWM, VWM_PREV);
       return true;
     }
   else if (_wcsicmp(command, TEXT("VWMNext")) == 0)
     {
       ELSwitchToThisWindow(ELGetCoreWindow());
-      PostMessage(ELGetCoreWindow(), EMERGE_DISPATCH, (WPARAM)EMERGE_VWM, (LPARAM)VWM_NEXT);
+      DispatchCoreMessage(EMERGE_VWM, VWM_NEXT);
       return true;
     }
   else if (_wcsicmp(command, TEXT("EmptyBin")) == 0)
@@ -1257,49 +1278,49 @@ bool ELExecuteInternal(LPTSTR command)
   else if (_wcsicmp(command, TEXT("ShowDesktop")) == 0)
     {
       ELSwitchToThisWindow(ELGetCoreWindow());
-      PostMessage(ELGetCoreWindow(), EMERGE_DISPATCH, (WPARAM)EMERGE_CORE, (LPARAM)CORE_DESKTOP);
+      DispatchCoreMessage(EMERGE_CORE, CORE_DESKTOP);
       return true;
     }
   else if (_wcsicmp(command, TEXT("WorkspaceSettings")) == 0)
     {
       ELSwitchToThisWindow(ELGetCoreWindow());
-      PostMessage(ELGetCoreWindow(), EMERGE_DISPATCH, (WPARAM)EMERGE_CORE, (LPARAM)CORE_SETTINGS);
+      DispatchCoreMessage(EMERGE_CORE, CORE_SETTINGS);
       return true;
     }
   else if (_wcsicmp(command, TEXT("CoreSettings")) == 0)
     {
       ELSwitchToThisWindow(ELGetCoreWindow());
-      PostMessage(ELGetCoreWindow(), EMERGE_DISPATCH, (WPARAM)EMERGE_CORE, (LPARAM)CORE_CONFIGURE);
+      DispatchCoreMessage(EMERGE_CORE, CORE_CONFIGURE);
       return true;
     }
   else if (_wcsicmp(command, TEXT("AliasEditor")) == 0)
     {
       ELSwitchToThisWindow(ELGetCoreWindow());
-      PostMessage(ELGetCoreWindow(), EMERGE_DISPATCH, (WPARAM)EMERGE_CORE, (LPARAM)CORE_ALIAS);
+      DispatchCoreMessage(EMERGE_CORE, CORE_ALIAS);
       return true;
     }
   else if ((_wcsicmp(command, TEXT("LaunchEditor")) == 0) || (_wcsicmp(command, TEXT("CoreLaunchEditor")) == 0))
     {
       ELSwitchToThisWindow(ELGetCoreWindow());
-      PostMessage(ELGetCoreWindow(), EMERGE_DISPATCH, (WPARAM)EMERGE_CORE, (LPARAM)CORE_LAUNCH);
+      DispatchCoreMessage(EMERGE_CORE, CORE_LAUNCH);
       return true;
     }
   else if ((_wcsicmp(command, TEXT("ShellChanger")) == 0) || (_wcsicmp(command, TEXT("CoreShellChanger")) == 0))
     {
       ELSwitchToThisWindow(ELGetCoreWindow());
-      PostMessage(ELGetCoreWindow(), EMERGE_DISPATCH, (WPARAM)EMERGE_CORE, (LPARAM)CORE_SHELL);
+      DispatchCoreMessage(EMERGE_CORE, CORE_SHELL);
       return true;
     }
   else if ((_wcsicmp(command, TEXT("ThemeManager")) == 0) || (_wcsicmp(command, TEXT("CoreThemeSelector")) == 0))
     {
       ELSwitchToThisWindow(ELGetCoreWindow());
-      PostMessage(ELGetCoreWindow(), EMERGE_DISPATCH, (WPARAM)EMERGE_CORE, (LPARAM)CORE_THEMESELECT);
+      DispatchCoreMessage(EMERGE_CORE, CORE_THEMESELECT);
       return true;
     }
   else if ((_wcsicmp(command, TEXT("About")) == 0) || (_wcsicmp(command, TEXT("CoreAbout")) == 0))
     {
       ELSwitchToThisWindow(ELGetCoreWindow());
-      PostMessage(ELGetCoreWindow(), EMERGE_DISPATCH, (WPARAM)EMERGE_CORE, (LPARAM)CORE_ABOUT);
+      DispatchCoreMessage(EMERGE_CORE, CORE_ABOUT);
       return true;
     }
   else if (_wcsicmp(command, TEXT("VolumeUp")) == 0)
@@ -1928,7 +1949,7 @@ bool ELQuit(bool prompt)
 
   if (response == IDYES)
     {
-      PostMessage(ELGetCoreWindow(), EMERGE_DISPATCH, EMERGE_CORE, CORE_QUIT);
+      DispatchCoreMessage(EMERGE_CORE, CORE_QUIT);
       return true;
     }
 

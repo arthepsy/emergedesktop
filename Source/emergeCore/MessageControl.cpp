@@ -126,7 +126,7 @@ void MessageControl::DoRemove(HWND window, UINT type)
 // Returns:	Nothing
 // Purpose:	Sends the message to the windows that have requested it
 //----  --------------------------------------------------------------------------------------------------------
-void MessageControl::DispatchMessage(UINT type, UINT message)
+void MessageControl::DispatchMessage(UINT type, UINT message, WCHAR *instanceName)
 {
   WindowSet *winSet;
   TypeMap::iterator iter1;
@@ -155,6 +155,8 @@ void MessageControl::DispatchMessage(UINT type, UINT message)
       ZeroMemory(&notifyInfo, sizeof(notifyInfo));
       notifyInfo.Type = type;
       notifyInfo.Message = message;
+      if ((instanceName != NULL) && wcslen(instanceName))
+        wcsncpy(notifyInfo.InstanceName, instanceName, MAX_LINE_LENGTH - 1);
 
       cds.dwData = EMERGE_NOTIFY;
       cds.cbData = sizeof(notifyInfo);

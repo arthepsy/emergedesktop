@@ -806,7 +806,7 @@ LRESULT BaseApplet::DoCopyData(COPYDATASTRUCT *cds)
       return 1;
     }
 
-  if ((cds->dwData == EMERGE_NOTIFY) && (cds->cbData = sizeof(NOTIFYINFO)))
+  if ((cds->dwData == EMERGE_NOTIFY) && (cds->cbData == sizeof(NOTIFYINFO)))
     {
       LPNOTIFYINFO notifyInfo = reinterpret_cast<LPNOTIFYINFO>(cds->lpData);
 

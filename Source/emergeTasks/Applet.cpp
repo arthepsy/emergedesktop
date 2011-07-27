@@ -591,7 +591,7 @@ LRESULT Applet::DoSizing(HWND hwnd, UINT edge, LPRECT rect)
 
 LRESULT Applet::DoCopyData(COPYDATASTRUCT *cds)
 {
-  if ((cds->dwData == EMERGE_NOTIFY) && (cds->cbData = sizeof(NOTIFYINFO)))
+  if ((cds->dwData == EMERGE_NOTIFY) && (cds->cbData == sizeof(NOTIFYINFO)))
     {
       LPNOTIFYINFO notifyInfo = reinterpret_cast<LPNOTIFYINFO>(cds->lpData);
 

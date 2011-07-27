@@ -373,7 +373,16 @@ LRESULT Core::DoCopyData(COPYDATASTRUCT *cds)
       return 1;
     }
 
-  if ((cds->dwData == EMERGE_NOTIFY) && (cds->cbData = sizeof(NOTIFYINFO)))
+  if ((cds->dwData == EMERGE_DISPATCH) && (cds->cbData == sizeof(NOTIFYINFO)))
+    {
+      LPNOTIFYINFO notifyInfo = reinterpret_cast<LPNOTIFYINFO>(cds->lpData);
+
+      pMessageControl->DispatchMessage(notifyInfo->Type, notifyInfo->Message, notifyInfo->InstanceName);
+
+      return 1;
+    }
+
+  if ((cds->dwData == EMERGE_NOTIFY) && (cds->cbData == sizeof(NOTIFYINFO)))
     {
       LPNOTIFYINFO notifyInfo = reinterpret_cast<LPNOTIFYINFO>(cds->lpData);
 
@@ -394,7 +403,7 @@ LRESULT Core::DoCopyData(COPYDATASTRUCT *cds)
                   ConvertTheme();
                   pSettings->ReadSettings();
                   CheckLaunchList();
-                  pMessageControl->DispatchMessage(EMERGE_CORE, CORE_RECONFIGURE);
+                  pMessageControl->DispatchMessage(EMERGE_CORE, CORE_RECONFIGURE, NULL);
                   if (oldShowExplorerDesktop != pSettings->GetShowExplorerDesktop())
                     {
                       StartExplorer(pSettings->GetShowExplorerDesktop());
@@ -445,7 +454,7 @@ LRESULT Core::DoCopyData(COPYDATASTRUCT *cds)
 
             case CORE_DESKTOP:
               pDesktop->ToggleDesktop();
-              pMessageControl->DispatchMessage(EMERGE_CORE, CORE_REPOSITION);
+              pMessageControl->DispatchMessage(EMERGE_CORE, CORE_REPOSITION, NULL);
               break;
 
             case CORE_ABOUT:
@@ -483,12 +492,6 @@ LRESULT Core::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
   if (message ==  EMERGE_UNREGISTER)
     {
       pMessageControl->RemoveType((HWND)wParam, (UINT)lParam);
-      return 0;
-    }
-
-  if (message ==  EMERGE_DISPATCH)
-    {
-      pMessageControl->DispatchMessage((UINT)wParam, (UINT)lParam);
       return 0;
     }
 
