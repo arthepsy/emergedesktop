@@ -149,7 +149,6 @@ MenuBuilder::~MenuBuilder()
 
 LRESULT CALLBACK MenuBuilder::MenuProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-  COPYDATASTRUCT *cpData;
   CREATESTRUCT *cs;
   static MenuBuilder *pMenuBuilder = NULL;
 
@@ -166,10 +165,7 @@ LRESULT CALLBACK MenuBuilder::MenuProcedure (HWND hwnd, UINT message, WPARAM wPa
   switch (message)
     {
     case WM_COPYDATA:
-      cpData = (COPYDATASTRUCT *)lParam;
-      if (cpData->dwData == EMERGE_MESSAGE)
-        return pMenuBuilder->DoCopyData(cpData);
-      break;
+      return pMenuBuilder->DoCopyData((COPYDATASTRUCT *)lParam);
 
     case WM_SYSCOMMAND:
       switch (wParam)
@@ -225,12 +221,57 @@ LRESULT CALLBACK MenuBuilder::MenuProcedure (HWND hwnd, UINT message, WPARAM wPa
 
 LRESULT MenuBuilder::DoCopyData(COPYDATASTRUCT *cds)
 {
-  std::wstring theme = reinterpret_cast<WCHAR*>(cds->lpData);
 
   if (cds->dwData == EMERGE_MESSAGE)
     {
+      std::wstring theme = reinterpret_cast<WCHAR*>(cds->lpData);
       SetEnvironmentVariable(TEXT("ThemeDir"), theme.c_str());
       return 1;
+    }
+
+  if ((cds->dwData == EMERGE_NOTIFY) && (cds->cbData = sizeof(NOTIFYINFO)))
+    {
+      LPNOTIFYINFO notifyInfo = reinterpret_cast<LPNOTIFYINFO>(cds->lpData);
+
+      if ((notifyInfo->Type & EMERGE_CORE) == EMERGE_CORE)
+        {
+          switch (notifyInfo->Message)
+            {
+            case CORE_SETTINGS:
+            case CORE_SHOWCONFIG:
+            {
+              Config config(mainInst, pSettings);
+              if (config.Show() == IDOK)
+                {
+                  UpdateMenuHook();
+                  SetWorkArea();
+                }
+            }
+            break;
+
+            case CORE_RIGHTMENU:
+              return DoButtonDown(WM_RBUTTONDOWN);
+
+            case CORE_MIDMENU:
+              return DoButtonDown(WM_MBUTTONDOWN);
+
+            case CORE_LEFTMENU:
+              return DoButtonDown(WM_LBUTTONDOWN);
+
+            case CORE_WRITESETTINGS:
+              pSettings->WriteSettings();
+              break;
+
+            case CORE_RECONFIGURE:
+              RenameConfigFile();
+              pSettings->ReadSettings();
+              UpdateMenuHook();
+              SetWorkArea();
+              break;
+            }
+
+          return 1;
+        }
     }
 
   return 0;
@@ -238,46 +279,6 @@ LRESULT MenuBuilder::DoCopyData(COPYDATASTRUCT *cds)
 
 LRESULT MenuBuilder::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-  if ((message == EMERGE_NOTIFY) && (wParam == EMERGE_CORE))
-    {
-      switch (lParam)
-        {
-        case CORE_SETTINGS:
-        case CORE_SHOWCONFIG:
-        {
-          Config config(mainInst, pSettings);
-          if (config.Show() == IDOK)
-            {
-              UpdateMenuHook();
-              SetWorkArea();
-            }
-        }
-        break;
-
-        case CORE_RIGHTMENU:
-          return DoButtonDown(WM_RBUTTONDOWN);
-
-        case CORE_MIDMENU:
-          return DoButtonDown(WM_MBUTTONDOWN);
-
-        case CORE_LEFTMENU:
-          return DoButtonDown(WM_LBUTTONDOWN);
-
-        case CORE_WRITESETTINGS:
-          pSettings->WriteSettings();
-          break;
-
-        case CORE_RECONFIGURE:
-          RenameConfigFile();
-          pSettings->ReadSettings();
-          UpdateMenuHook();
-          SetWorkArea();
-          break;
-        }
-
-      return 0;
-    }
-
   return DefWindowProc(hwnd, message, wParam, lParam);
 }
 

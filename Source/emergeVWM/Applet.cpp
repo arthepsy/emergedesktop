@@ -34,7 +34,6 @@ WCHAR myName[ ] = TEXT("emergeVWM");
 //----  --------------------------------------------------------------------------------------------------------
 LRESULT CALLBACK Applet::WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-  COPYDATASTRUCT *cpData;
   CREATESTRUCT *cs;
   static Applet *pApplet = NULL;
 
@@ -51,10 +50,7 @@ LRESULT CALLBACK Applet::WindowProcedure (HWND hwnd, UINT message, WPARAM wParam
   switch (message)
     {
     case WM_COPYDATA:
-      cpData = (COPYDATASTRUCT *)lParam;
-      if (cpData->dwData == EMERGE_MESSAGE)
-        return pApplet->DoCopyData(cpData);
-      break;
+      return pApplet->DoCopyData((COPYDATASTRUCT *)lParam);
 
       // Needed to handle changing the system colors.  It forces
       // a repaint of the window as well as the frame.
@@ -125,9 +121,6 @@ LRESULT CALLBACK Applet::WindowProcedure (HWND hwnd, UINT message, WPARAM wParam
       PostQuitMessage(0);
       break;
 
-    case WM_NOTIFY:
-      return pApplet->DoNotify(hwnd, lParam);
-
       // If not handled just forward the message on
     default:
       return pApplet->DoDefault(hwnd, message, wParam, lParam);
@@ -138,12 +131,6 @@ LRESULT CALLBACK Applet::WindowProcedure (HWND hwnd, UINT message, WPARAM wParam
 
 LRESULT Applet::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-  if (message == EMERGE_NOTIFY)
-    {
-      if (DoEmergeNotify((UINT)wParam, (UINT)lParam) == 0)
-        return 0;
-    }
-
   return BaseApplet::DoDefault(hwnd, message, wParam, lParam);
 }
 
@@ -775,86 +762,91 @@ LRESULT Applet::MySize()
   return 0;
 }
 
-LRESULT Applet::DoEmergeNotify(UINT messageClass, UINT message)
+LRESULT Applet::DoCopyData(COPYDATASTRUCT *cds)
 {
-  //This modified code simply removed the edges of the VWM
-  //When at an edge, it now loops back to the first or last virtual desktop
-  //Modified by Jason "Teshadael" Price, 28/02/07
-  if (messageClass & EMERGE_VWM)
+  UINT windowsNumber, currentWindow, selectedWindow, newRow, newColumn;
+
+  if ((cds->dwData == EMERGE_NOTIFY) && (cds->cbData = sizeof(NOTIFYINFO)))
     {
-      if (message >= VWM_1 && message <= VWM_9)
-        {
-          UINT windowsNumber = pSettings->GetDesktopRows() * pSettings->GetDesktopColumns() ;
-          UINT selectedWindow = (message-VWM_1) % windowsNumber ;
-          UINT newRow = (UINT)(selectedWindow / pSettings->GetDesktopColumns()) ;
-          UINT newColumn = selectedWindow % pSettings->GetDesktopColumns() ;
-          SwitchDesktop(newRow, newColumn, false);
-        }
-      else if (message == VWM_UP)
-        {
-          if (currentRow > 0)
-            SwitchDesktop(currentRow - 1, currentColumn, false);
-          else
-            SwitchDesktop((pSettings->GetDesktopRows() - 1), currentColumn, false);
-        }
-      else if (message == VWM_DOWN)
-        {
-          if (currentRow < (pSettings->GetDesktopRows() - 1))
-            SwitchDesktop(currentRow + 1, currentColumn, false);
-          else
-            SwitchDesktop(0, currentColumn, false);  //If 0 doesn't work, perhaps try currentRow - currentRow?
-        }
-      else if (message == VWM_LEFT)
-        {
-          if (currentColumn > 0)
-            SwitchDesktop(currentRow, currentColumn -1, false);
-          else
-            SwitchDesktop(currentRow, (pSettings->GetDesktopColumns() - 1), false);
-        }
-      else if (message == VWM_RIGHT)
-        {
-          if (currentColumn < (pSettings->GetDesktopColumns() - 1))
-            SwitchDesktop(currentRow, currentColumn + 1, false);
-          else
-            SwitchDesktop(currentRow, 0, false);  //If 0 doesn't work, perhaps try currentColumn - currentColumn?
-        }
-      else if (message == VWM_GATHER)
-        SwitchDesktop(currentRow, currentColumn, true);
-      else if (message == VWM_PREV)
-        {
-          UINT windowsNumber = pSettings->GetDesktopRows() * pSettings->GetDesktopColumns() ;
-          UINT currentWindow = pSettings->GetDesktopColumns() * currentRow + currentColumn ;
-          UINT selectedWindow ;
+      LPNOTIFYINFO notifyInfo = reinterpret_cast<LPNOTIFYINFO>(cds->lpData);
 
-          if (currentWindow > 0)
-            selectedWindow = currentWindow - 1 ;
-          else
-            selectedWindow = windowsNumber - 1 ;
-
-          UINT newRow = (UINT)(selectedWindow / pSettings->GetDesktopColumns()) ;
-          UINT newColumn = selectedWindow % pSettings->GetDesktopColumns() ;
-          SwitchDesktop(newRow, newColumn, false);
-        }
-      else if (message == VWM_NEXT)
+      //This modified code simply removed the edges of the VWM
+      //When at an edge, it now loops back to the first or last virtual desktop
+      //Modified by Jason "Teshadael" Price, 28/02/07
+      if ((notifyInfo->Type & EMERGE_VWM) == EMERGE_VWM)
         {
-          UINT windowsNumber = pSettings->GetDesktopRows() * pSettings->GetDesktopColumns() ;
-          UINT currentWindow = pSettings->GetDesktopColumns() * currentRow + currentColumn ;
-          UINT selectedWindow ;
-
-          if (currentWindow < windowsNumber - 1)
-            selectedWindow = currentWindow + 1 ;
+          if (notifyInfo->Message >= VWM_1 && notifyInfo->Message <= VWM_9)
+            {
+              UINT windowsNumber = pSettings->GetDesktopRows() * pSettings->GetDesktopColumns() ;
+              UINT selectedWindow = (notifyInfo->Message - VWM_1) % windowsNumber ;
+              UINT newRow = (UINT)(selectedWindow / pSettings->GetDesktopColumns()) ;
+              UINT newColumn = selectedWindow % pSettings->GetDesktopColumns() ;
+              SwitchDesktop(newRow, newColumn, false);
+            }
           else
-            selectedWindow = 0 ;
+            {
+              switch (notifyInfo->Message)
+                {
+                case VWM_UP:
+                  if (currentRow > 0)
+                    SwitchDesktop(currentRow - 1, currentColumn, false);
+                  else
+                    SwitchDesktop((pSettings->GetDesktopRows() - 1), currentColumn, false);
+                  break;
+                case VWM_DOWN:
+                  if (currentRow < (pSettings->GetDesktopRows() - 1))
+                    SwitchDesktop(currentRow + 1, currentColumn, false);
+                  else
+                    SwitchDesktop(0, currentColumn, false);  //If 0 doesn't work, perhaps try currentRow - currentRow?
+                  break;
+                case VWM_LEFT:
+                  if (currentColumn > 0)
+                    SwitchDesktop(currentRow, currentColumn -1, false);
+                  else
+                    SwitchDesktop(currentRow, (pSettings->GetDesktopColumns() - 1), false);
+                  break;
+                case VWM_RIGHT:
+                  if (currentColumn < (pSettings->GetDesktopColumns() - 1))
+                    SwitchDesktop(currentRow, currentColumn + 1, false);
+                  else
+                    SwitchDesktop(currentRow, 0, false);  //If 0 doesn't work, perhaps try currentColumn - currentColumn?
+                  break;
+                case VWM_GATHER:
+                  SwitchDesktop(currentRow, currentColumn, true);
+                  break;
+                case VWM_PREV:
+                  windowsNumber = pSettings->GetDesktopRows() * pSettings->GetDesktopColumns() ;
+                  currentWindow = pSettings->GetDesktopColumns() * currentRow + currentColumn ;
 
-          UINT newRow = (UINT)(selectedWindow / pSettings->GetDesktopColumns()) ;
-          UINT newColumn = selectedWindow % pSettings->GetDesktopColumns() ;
-          SwitchDesktop(newRow, newColumn, false);
+                  if (currentWindow > 0)
+                    selectedWindow = currentWindow - 1 ;
+                  else
+                    selectedWindow = windowsNumber - 1 ;
+
+                  newRow = (UINT)(selectedWindow / pSettings->GetDesktopColumns()) ;
+                  newColumn = selectedWindow % pSettings->GetDesktopColumns() ;
+                  SwitchDesktop(newRow, newColumn, false);
+                  break;
+                case VWM_NEXT:
+                  windowsNumber = pSettings->GetDesktopRows() * pSettings->GetDesktopColumns() ;
+                  currentWindow = pSettings->GetDesktopColumns() * currentRow + currentColumn ;
+
+                  if (currentWindow < windowsNumber - 1)
+                    selectedWindow = currentWindow + 1 ;
+                  else
+                    selectedWindow = 0 ;
+
+                  newRow = (UINT)(selectedWindow / pSettings->GetDesktopColumns()) ;
+                  newColumn = selectedWindow % pSettings->GetDesktopColumns() ;
+                  SwitchDesktop(newRow, newColumn, false);
+                  break;
+                }
+            }
+          return 1;
         }
-
-      return 0;
     }
 
-  return 1;
+  return BaseApplet::DoCopyData(cds);
 }
 
 void Applet::AppletUpdate()

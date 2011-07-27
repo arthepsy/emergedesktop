@@ -75,7 +75,6 @@ public:
   LRESULT DoSetCursor();
   LRESULT DoTimer(UINT_PTR timerID);
   LRESULT DoNCRButtonUp();
-  LRESULT DoEmergeNotify(UINT messageClass, UINT message);
   LRESULT DoSysColorChange();
   LRESULT DoSysCommand(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
   LRESULT DoHitTest(LPARAM lParam);
@@ -89,6 +88,7 @@ public:
   void SetFullScreen(bool value);
   bool GetFullScreen();
   HWND GetMainWnd();
+  void HideApplet(bool hide);
 
 private:
   WCHAR appletName[MAX_LINE_LENGTH], baseAppletName[MAX_LINE_LENGTH];

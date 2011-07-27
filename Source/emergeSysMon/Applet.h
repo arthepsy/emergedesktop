@@ -144,7 +144,6 @@ public:
   ~Applet();
   UINT Initialize();
   LRESULT DoTimer(UINT_PTR timerID);
-  LRESULT DoEmergeNotify(UINT messageClass, UINT message);
   LRESULT DoNCRButtonUp();
   LRESULT DoMoving(HWND hwnd, RECT *lpRect);
   LRESULT DoSizing(HWND hwnd, UINT edge, LPRECT rect);

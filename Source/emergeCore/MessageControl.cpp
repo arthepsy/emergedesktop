@@ -131,6 +131,11 @@ void MessageControl::DispatchMessage(UINT type, UINT message)
   WindowSet *winSet;
   TypeMap::iterator iter1;
   WindowSet::iterator iter2;
+  UINT Msg = 0;
+  WPARAM wParam = 0;
+  LPARAM lParam = 0;
+  NOTIFYINFO notifyInfo;
+  COPYDATASTRUCT cds;
 
   iter1 = types.find(type);
 
@@ -141,13 +146,27 @@ void MessageControl::DispatchMessage(UINT type, UINT message)
 
   iter2 = winSet->begin();
 
+  if (type == EMERGE_CORE && message == CORE_QUIT)
+    Msg = WM_NCDESTROY;
+  else
+    {
+      Msg = WM_COPYDATA;
+
+      ZeroMemory(&notifyInfo, sizeof(notifyInfo));
+      notifyInfo.Type = type;
+      notifyInfo.Message = message;
+
+      cds.dwData = EMERGE_NOTIFY;
+      cds.cbData = sizeof(notifyInfo);
+      cds.lpData = &notifyInfo;
+
+      lParam = reinterpret_cast<LPARAM>(&cds);
+    }
+
   while (iter2 != winSet->end())
     {
-      if (type == EMERGE_CORE && message == CORE_QUIT)
-        PostMessage((HWND)*iter2, WM_NCDESTROY, 0, 0);
-      else
-        PostMessage((HWND)*iter2, EMERGE_NOTIFY, (WPARAM)type, (LPARAM)message);
-
+      SendMessageTimeout((HWND)*iter2, Msg, wParam, lParam, SMTO_ABORTIFHUNG,
+                         500, NULL);
       iter2++;
     }
 }

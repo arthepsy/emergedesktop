@@ -36,7 +36,6 @@ WCHAR myName[] = TEXT("emergeSysMon");
 //----  --------------------------------------------------------------------------------------------------------
 LRESULT CALLBACK Applet::WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-  COPYDATASTRUCT *cpData;
   CREATESTRUCT *cs;
   static Applet *pApplet = NULL;
 
@@ -53,10 +52,7 @@ LRESULT CALLBACK Applet::WindowProcedure (HWND hwnd, UINT message, WPARAM wParam
   switch (message)
     {
     case WM_COPYDATA:
-      cpData = (COPYDATASTRUCT *)lParam;
-      if (cpData->dwData == EMERGE_MESSAGE)
-        return pApplet->DoCopyData(cpData);
-      break;
+      return pApplet->DoCopyData((COPYDATASTRUCT *)lParam);
 
       // Needed to handle changing the system colors.  It forces
       // a repaint of the window as well as the frame.
