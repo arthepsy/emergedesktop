@@ -40,15 +40,6 @@ Settings::Settings(): BaseSettings(false)
 void Settings::ResetDefaults()
 {
   BaseSettings::ResetDefaults();
-  // If the appletCount is > 0 then assume this is a new instance and place it
-  // at the current mouse position.
-  if (appletCount > 0)
-    {
-      POINT cursorPt;
-      GetCursorPos(&cursorPt);
-      x = cursorPt.x;
-      y = cursorPt.y;
-    }
   updateInterval = 2000;
   monitorCPU = true;
   monitorCommitCharge = true;
@@ -65,6 +56,22 @@ void Settings::ResetDefaults()
   wcscpy(MemGradientMethod, (WCHAR*)TEXT("Vertical"));
   MemGradientFrom = RGB(255, 0, 0);
   MemGradientTo = RGB(113, 255, 113);
+  // If appletCount > 0 assume this is a new instance and place it at the centre
+  // of the screen.
+  if (appletCount > 0)
+    {
+      POINT origin;
+      SIZE appletSize;
+
+      appletSize.cx = width;
+      appletSize.cy = height;
+
+      origin = InstancePosition(appletSize);
+      x = origin.x;
+      y = origin.y;
+    }
+  else
+    x = 108;
 }
 
 void Settings::DoReadSettings(IOHelper& helper)

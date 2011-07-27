@@ -203,6 +203,40 @@ void BaseSettings::DoInitialize()
   // nothing to be initialized here. Maybe in the derived classes.
 }
 
+POINT BaseSettings::InstancePosition(SIZE appletSize)
+{
+  HMONITOR cursorMonitor;
+  MONITORINFO cursorMonitorInfo;
+  POINT cursorPt;
+
+  // Get the current position of the cursor
+  GetCursorPos(&cursorPt);
+
+  // Determine which monitor the cursor is on
+  cursorMonitor = MonitorFromPoint(cursorPt, MONITOR_DEFAULTTONEAREST);
+
+  // Get the dimentions of the monitor
+  cursorMonitorInfo.cbSize = sizeof(MONITORINFO);
+  GetMonitorInfo(cursorMonitor, &cursorMonitorInfo);
+
+  // Initially set the x and y values to be the cursor position,
+  // incorporating the dimensions of the applet
+  cursorPt.x -= (appletSize.cx / 2);
+  cursorPt.y -= (appletSize.cy / 2);
+
+  // Make sure the applet is on the same monitor as the cursor
+  if ((cursorPt.x + appletSize.cx) > cursorMonitorInfo.rcMonitor.right)
+    cursorPt.x = cursorMonitorInfo.rcMonitor.right - appletSize.cx;
+  if (cursorPt.x < cursorMonitorInfo.rcMonitor.left)
+    cursorPt.x = cursorMonitorInfo.rcMonitor.left;
+  if ((cursorPt.y + appletSize.cy) > cursorMonitorInfo.rcMonitor.bottom)
+    x = cursorMonitorInfo.rcMonitor.bottom - appletSize.cy;
+  if (cursorPt.y < cursorMonitorInfo.rcMonitor.top)
+    cursorPt.y = cursorMonitorInfo.rcMonitor.top;
+
+  return cursorPt;
+}
+
 void BaseSettings::ResetDefaults()
 {
   x = 0;
