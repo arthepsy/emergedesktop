@@ -376,7 +376,6 @@ LRESULT Core::DoCopyData(COPYDATASTRUCT *cds)
   if ((cds->dwData == EMERGE_DISPATCH) && (cds->cbData == sizeof(NOTIFYINFO)))
     {
       LPNOTIFYINFO notifyInfo = reinterpret_cast<LPNOTIFYINFO>(cds->lpData);
-
       pMessageControl->DispatchMessage(notifyInfo->Type, notifyInfo->Message, notifyInfo->InstanceName);
 
       return 1;
@@ -714,7 +713,6 @@ bool Core::CheckLaunchList()
   while (!launchMap.empty())
     {
       mapIter = launchMap.begin();
-      ELWriteDebug(mapIter->first);
       setIter = mapIter->second.begin();
       while (setIter != mapIter->second.end())
         {

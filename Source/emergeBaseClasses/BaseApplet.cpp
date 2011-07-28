@@ -815,11 +815,23 @@ LRESULT BaseApplet::DoCopyData(COPYDATASTRUCT *cds)
           switch (notifyInfo->Message)
             {
             case CORE_HIDE:
-              HideApplet(true);
+              if ((notifyInfo->InstanceName != NULL) && wcslen(notifyInfo->InstanceName))
+                {
+                  if (_wcsicmp(notifyInfo->InstanceName, appletName) == 0)
+                    HideApplet(true);
+                }
+              else
+                HideApplet(true);
               break;
 
             case CORE_SHOW:
-              HideApplet(false);
+              if ((notifyInfo->InstanceName != NULL) && wcslen(notifyInfo->InstanceName))
+                {
+                  if (_wcsicmp(notifyInfo->InstanceName, appletName) == 0)
+                    HideApplet(false);
+                }
+              else
+                HideApplet(false);
               break;
 
             case CORE_REFRESH:

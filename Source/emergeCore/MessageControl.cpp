@@ -156,7 +156,7 @@ void MessageControl::DispatchMessage(UINT type, UINT message, WCHAR *instanceNam
       notifyInfo.Type = type;
       notifyInfo.Message = message;
       if ((instanceName != NULL) && wcslen(instanceName))
-        wcsncpy(notifyInfo.InstanceName, instanceName, MAX_LINE_LENGTH - 1);
+        wcsncpy(notifyInfo.InstanceName, instanceName, MAX_PATH - 1);
 
       cds.dwData = EMERGE_NOTIFY;
       cds.cbData = sizeof(notifyInfo);
