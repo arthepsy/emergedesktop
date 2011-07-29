@@ -117,6 +117,7 @@ bool Core::Initialize(WCHAR *commandLine)
   registered = true;
 
   pMessageControl = std::tr1::shared_ptr<MessageControl>(new MessageControl());
+  pMessageControl->AddType(mainWnd, EMERGE_CORE);
 
   StartExplorer(pSettings->GetShowExplorerDesktop());
 
@@ -160,8 +161,6 @@ bool Core::Initialize(WCHAR *commandLine)
       if (!ELIsKeyDown(VK_CONTROL))
         pShell->RunRegStartup(pSettings->GetShowStartupErrors());
     }
-
-  pMessageControl->AddType(mainWnd, EMERGE_CORE);
 
   pLaunchEditor = std::tr1::shared_ptr<LaunchEditor>(new LaunchEditor(mainInst, mainWnd));
   pShellChanger = std::tr1::shared_ptr<ShellChanger>(new ShellChanger(mainInst, mainWnd, pSettings));

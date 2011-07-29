@@ -74,12 +74,7 @@ void MessageControl::DoAdd(HWND window, UINT type)
   iter = types.find(type);
 
   if (iter != types.end())
-    {
-      if (window == ELGetCoreWindow())
-        iter->second->insert(iter->second->end(), window);
-      else
-        iter->second->insert(iter->second->begin(), window);
-    }
+    iter->second->insert(iter->second->end(), window);
 }
 
 //----  --------------------------------------------------------------------------------------------------------
@@ -140,10 +135,6 @@ void MessageControl::DispatchMessage(UINT type, UINT message, WCHAR *instanceNam
   if (iter1 == types.end())
     return;
 
-  winSet = iter1->second.get();
-
-  iter2 = winSet->begin();
-
   if (type == EMERGE_CORE && message == CORE_QUIT)
     Msg = WM_NCDESTROY;
   else
@@ -163,10 +154,26 @@ void MessageControl::DispatchMessage(UINT type, UINT message, WCHAR *instanceNam
       lParam = reinterpret_cast<LPARAM>(&cds);
     }
 
+  winSet = iter1->second.get();
+  iter2 = winSet->begin();
+  HWND coreWnd = ELGetCoreWindow();
   while (iter2 != winSet->end())
     {
+      // if CORE_QUIT, bypass coreWnd so that all the other applets are sent
+      // the WM_NCDESTORY message.
+      if ((Msg == WM_NCDESTROY) && (((HWND)*iter2) == coreWnd))
+        {
+          iter2++;
+          continue;
+        }
       SendMessageTimeout((HWND)*iter2, Msg, wParam, lParam, SMTO_ABORTIFHUNG,
                          500, NULL);
       iter2++;
     }
+
+  // if CORE_QUIT, kill coreWnd after all other applets have been passed the
+  // WM_NCDESTORY message.
+  if (Msg == WM_NCDESTROY)
+    SendMessageTimeout(coreWnd, Msg, wParam, lParam, SMTO_ABORTIFHUNG, 500,
+                       NULL);
 }
