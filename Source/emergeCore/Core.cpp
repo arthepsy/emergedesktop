@@ -318,7 +318,6 @@ bool Core::RunLaunchItems()
 //----  --------------------------------------------------------------------------------------------------------
 LRESULT CALLBACK Core::CoreProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-  COPYDATASTRUCT *cpData;
   CREATESTRUCT *cs;
   static Core *pCore = NULL;
 
@@ -335,10 +334,7 @@ LRESULT CALLBACK Core::CoreProcedure (HWND hwnd, UINT message, WPARAM wParam, LP
   switch (message)
     {
     case WM_COPYDATA:
-      cpData = (COPYDATASTRUCT *)lParam;
-      if (cpData->dwData == EMERGE_MESSAGE)
-        return pCore->DoCopyData(cpData);
-      break;
+      return pCore->DoCopyData((COPYDATASTRUCT *)lParam);
 
     case WM_SYSCOMMAND:
       switch (wParam)
@@ -371,12 +367,115 @@ LRESULT CALLBACK Core::CoreProcedure (HWND hwnd, UINT message, WPARAM wParam, LP
 
 LRESULT Core::DoCopyData(COPYDATASTRUCT *cds)
 {
-  std::wstring theme = reinterpret_cast<WCHAR*>(cds->lpData);
-
   if (cds->dwData == EMERGE_MESSAGE)
     {
+      std::wstring theme = reinterpret_cast<WCHAR*>(cds->lpData);
       SetEnvironmentVariable(TEXT("ThemeDir"), theme.c_str());
       return 1;
+    }
+
+  if ((cds->dwData == EMERGE_DISPATCH) && (cds->cbData == sizeof(NOTIFYINFO)))
+    {
+      LPNOTIFYINFO notifyInfo = reinterpret_cast<LPNOTIFYINFO>(cds->lpData);
+      pMessageControl->DispatchMessage(notifyInfo->Type, notifyInfo->Message, notifyInfo->InstanceName);
+
+      return 1;
+    }
+
+  if ((cds->dwData == EMERGE_NOTIFY) && (cds->cbData == sizeof(NOTIFYINFO)))
+    {
+      LPNOTIFYINFO notifyInfo = reinterpret_cast<LPNOTIFYINFO>(cds->lpData);
+
+      if ((notifyInfo->Type & EMERGE_CORE) == EMERGE_CORE)
+        {
+          switch (notifyInfo->Message)
+            {
+            case CORE_SHELL:
+              if (pShellChanger->Show() == IDOK)
+                pSettings->ReadUserSettings();
+              break;
+
+            case CORE_THEMESELECT:
+              if (pThemeSelector->Show() == IDOK)
+                {
+                  bool oldShowExplorerDesktop = pSettings->GetShowExplorerDesktop();
+
+                  ConvertTheme();
+                  pSettings->ReadSettings();
+                  CheckLaunchList();
+                  pMessageControl->DispatchMessage(EMERGE_CORE, CORE_RECONFIGURE, NULL);
+                  if (oldShowExplorerDesktop != pSettings->GetShowExplorerDesktop())
+                    {
+                      StartExplorer(pSettings->GetShowExplorerDesktop());
+                      pDesktop->ShowDesktop(!pSettings->GetShowExplorerDesktop());
+                    }
+                }
+              break;
+
+            case CORE_WRITESETTINGS:
+              BuildLaunchList();
+              break;
+
+            case CORE_RUN:
+              ELRun();
+              break;
+
+            case CORE_SHUTDOWN:
+              ELShutdown(mainWnd);
+              break;
+
+            case CORE_EMPTYBIN:
+              SHEmptyRecycleBin(NULL, NULL, 0);
+              break;
+
+            case CORE_LOGOFF:
+              ELExit(EWX_LOGOFF, true);
+              break;
+
+            case CORE_REBOOT:
+              ELExit(EWX_REBOOT, true);
+              break;
+
+            case CORE_HALT:
+              ELExit(EWX_POWEROFF, true);
+              break;
+
+            case CORE_SUSPEND:
+              ELExit(EMERGE_SUSPEND, true);
+              break;
+
+            case CORE_HIBERNATE:
+              ELExit(EMERGE_HIBERNATE, true);
+              break;
+
+            case CORE_DISCONNECT:
+              ELExit(EMERGE_DISCONNECT, true);
+              break;
+
+            case CORE_DESKTOP:
+              pDesktop->ToggleDesktop();
+              pMessageControl->DispatchMessage(EMERGE_CORE, CORE_REPOSITION, NULL);
+              break;
+
+            case CORE_ABOUT:
+              About();
+              break;
+
+            case CORE_CONFIGURE:
+              ShowConfig(2);
+              break;
+
+            case CORE_ALIAS:
+              ShowConfig(1);
+              break;
+
+            case CORE_LAUNCH:
+              ShowConfig(0);
+              break;
+            }
+
+          return 1;
+        }
     }
 
   return 0;
@@ -393,103 +492,6 @@ LRESULT Core::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
   if (message ==  EMERGE_UNREGISTER)
     {
       pMessageControl->RemoveType((HWND)wParam, (UINT)lParam);
-      return 0;
-    }
-
-  if (message ==  EMERGE_DISPATCH)
-    {
-      pMessageControl->DispatchMessage((UINT)wParam, (UINT)lParam);
-      return 0;
-    }
-
-  if ((message ==  EMERGE_NOTIFY) && (wParam == EMERGE_CORE))
-    {
-      switch (lParam)
-        {
-        case CORE_SHELL:
-          if (pShellChanger->Show() == IDOK)
-            pSettings->ReadUserSettings();
-          break;
-
-        case CORE_THEMESELECT:
-          if (pThemeSelector->Show() == IDOK)
-            {
-              bool oldShowExplorerDesktop = pSettings->GetShowExplorerDesktop();
-
-              ConvertTheme();
-              pSettings->ReadSettings();
-              CheckLaunchList();
-              pMessageControl->DispatchMessage(EMERGE_CORE, CORE_RECONFIGURE);
-              if (oldShowExplorerDesktop != pSettings->GetShowExplorerDesktop())
-                {
-                  StartExplorer(pSettings->GetShowExplorerDesktop());
-                  pDesktop->ShowDesktop(!pSettings->GetShowExplorerDesktop());
-                }
-            }
-          break;
-
-        case CORE_WRITESETTINGS:
-          BuildLaunchList();
-          break;
-
-        case CORE_RUN:
-          ELRun();
-          break;
-
-        case CORE_SHUTDOWN:
-          ELShutdown(hwnd);
-          break;
-
-        case CORE_EMPTYBIN:
-          SHEmptyRecycleBin(NULL, NULL, 0);
-          break;
-
-        case CORE_LOGOFF:
-          ELExit(EWX_LOGOFF, true);
-          break;
-
-        case CORE_REBOOT:
-          ELExit(EWX_REBOOT, true);
-          break;
-
-        case CORE_HALT:
-          ELExit(EWX_POWEROFF, true);
-          break;
-
-        case CORE_SUSPEND:
-          ELExit(EMERGE_SUSPEND, true);
-          break;
-
-        case CORE_HIBERNATE:
-          ELExit(EMERGE_HIBERNATE, true);
-          break;
-
-        case CORE_DISCONNECT:
-          ELExit(EMERGE_DISCONNECT, true);
-          break;
-
-        case CORE_DESKTOP:
-          pDesktop->ToggleDesktop();
-          pMessageControl->DispatchMessage(EMERGE_CORE, CORE_REPOSITION);
-          break;
-
-        case CORE_ABOUT:
-          About();
-          break;
-
-        case CORE_CONFIGURE:
-          ShowConfig(2);
-          break;
-
-        case CORE_ALIAS:
-          ShowConfig(1);
-          break;
-
-        case CORE_LAUNCH:
-          ShowConfig(0);
-          break;
-        }
-
       return 0;
     }
 
@@ -666,7 +668,8 @@ void Core::ConvertTheme()
 bool Core::CheckLaunchList()
 {
   LaunchMap launchMap;
-  LaunchMap::iterator iter;
+  LaunchMap::iterator mapIter;
+  WindowSet::iterator setIter;
   std::tr1::shared_ptr<TiXmlDocument> configXML;
   TiXmlElement *first, *tmp, *section = NULL, *settings;
   WCHAR data[MAX_LINE_LENGTH];
@@ -710,9 +713,14 @@ bool Core::CheckLaunchList()
 
   while (!launchMap.empty())
     {
-      iter = launchMap.begin();
-      PostMessage(iter->second, WM_NCDESTROY, 0, 0);
-      launchMap.erase(iter);
+      mapIter = launchMap.begin();
+      setIter = mapIter->second.begin();
+      while (setIter != mapIter->second.end())
+        {
+          SendMessage((HWND)*setIter, WM_NCDESTROY, 0, 0);
+          setIter++;
+        }
+      launchMap.erase(mapIter);
     }
 
   return true;
@@ -745,6 +753,8 @@ BOOL Core::LaunchMapEnum(HWND hwnd, LPARAM lParam)
 {
   WCHAR windowClass[MAX_LINE_LENGTH];
   std::wstring windowName;
+  LaunchMap *launchMap = (LaunchMap*)lParam;
+  LaunchMap::iterator mapIter;
 
   if (RealGetWindowClass(hwnd, windowClass, MAX_LINE_LENGTH) != 0)
     {
@@ -752,7 +762,15 @@ BOOL Core::LaunchMapEnum(HWND hwnd, LPARAM lParam)
           (_wcsicmp(windowClass, TEXT("EmergeDesktopMenuBuilder")) == 0))
         {
           windowName = ELToLower(ELGetWindowApp(hwnd, true));
-          ((LaunchMap*)lParam)->insert(std::pair<std::wstring, HWND>(windowName, hwnd));
+          mapIter = launchMap->find(windowName);
+          if (mapIter == launchMap->end())
+            {
+              WindowSet windowSet;
+              windowSet.insert(windowSet.begin(), hwnd);
+              launchMap->insert(std::pair<std::wstring, WindowSet>(windowName, windowSet));
+            }
+          else
+            mapIter->second.insert(mapIter->second.begin(), hwnd);
         }
     }
 

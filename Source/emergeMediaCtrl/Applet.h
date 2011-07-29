@@ -71,7 +71,6 @@ public:
   ~Applet();
   UINT Initialize();
   LRESULT DoTimer(UINT_PTR timerID);
-  LRESULT DoEmergeNotify(UINT messageClass, UINT message);
   void AppletUpdate();
   void ShowConfig();
   LRESULT PaintContent(HDC hdc, RECT clientrt);

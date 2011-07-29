@@ -72,13 +72,13 @@ public:
   Applet(HINSTANCE hInstance);
   ~Applet();
   UINT Initialize();
-  LRESULT DoEmergeNotify(UINT messageClass, UINT message);
+  LRESULT DoNotify(HWND hwnd, LPARAM lParam);
   LRESULT DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
   LRESULT DesktopMouseEvent(HWND hwnd, UINT message, LPARAM lParam);
   void AppletUpdate();
   bool IsWindowValidTask(HWND hwnd);
   void SwitchDesktop(int row, int column, bool gather);
-  LRESULT DoNotify(HWND hwnd, LPARAM lParam);
+  LRESULT DoCopyData(COPYDATASTRUCT *cds);
   bool AddTasks(HWND hwnd);
   bool GetTaskRowColumn(HWND hwnd, int *row, int *column);
   GUIINFO GetGUIInfo();

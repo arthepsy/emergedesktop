@@ -151,7 +151,6 @@ MenuBuilder::~MenuBuilder()
 
 LRESULT CALLBACK MenuBuilder::MenuProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-  COPYDATASTRUCT *cpData;
   CREATESTRUCT *cs;
   static MenuBuilder *pMenuBuilder = NULL;
 
@@ -168,10 +167,7 @@ LRESULT CALLBACK MenuBuilder::MenuProcedure (HWND hwnd, UINT message, WPARAM wPa
   switch (message)
     {
     case WM_COPYDATA:
-      cpData = (COPYDATASTRUCT *)lParam;
-      if (cpData->dwData == EMERGE_MESSAGE)
-        return pMenuBuilder->DoCopyData(cpData);
-      break;
+      return pMenuBuilder->DoCopyData((COPYDATASTRUCT *)lParam);
 
     case WM_SYSCOMMAND:
       switch (wParam)
@@ -227,106 +223,24 @@ LRESULT CALLBACK MenuBuilder::MenuProcedure (HWND hwnd, UINT message, WPARAM wPa
 
 LRESULT MenuBuilder::DoCopyData(COPYDATASTRUCT *cds)
 {
-  std::wstring theme = reinterpret_cast<WCHAR*>(cds->lpData);
 
   if (cds->dwData == EMERGE_MESSAGE)
     {
+      std::wstring theme = reinterpret_cast<WCHAR*>(cds->lpData);
       SetEnvironmentVariable(TEXT("ThemeDir"), theme.c_str());
       return 1;
     }
 
-  return 0;
-}
-
-bool MenuBuilder::MenuDrop(HMENU dragMenu, UINT dragPos)
-{
-  MENUITEMINFO dragItemInfo, dropItemInfo;
-  MenuItem *dragItem, *dropItem;
-  WCHAR name[MAX_LINE_LENGTH];
-
-  // If drop menu is NULL return false
-  if (!dropMenu)
-    return false;
-
-  // Get the menu item ID for the drop target
-  ZeroMemory(&dropItemInfo, sizeof(dropItemInfo));
-  dropItemInfo.cbSize = sizeof(dropItemInfo);
-  dropItemInfo.fMask = MIIM_ID;
-
-  if (!GetMenuItemInfo(dropMenu, dropPos, TRUE, &dropItemInfo))
-    return false;
-
-  // Get the menu item info for the drag object
-  ZeroMemory(&dragItemInfo, sizeof(dragItemInfo));
-  dragItemInfo.cbSize = sizeof(dragItemInfo);
-  dragItemInfo.fMask = MIIM_ID | MIIM_STRING | MIIM_BITMAP;
-  dragItemInfo.dwTypeData = name;
-  dragItemInfo.cch = MAX_LINE_LENGTH;
-
-  if (!GetMenuItemInfo(dragMenu, dragPos, TRUE, &dragItemInfo))
-    return false;
-
-  MenuMap::iterator dropIter = menuMap.find(dropMenu);
-  if (dropIter == menuMap.end())
-    return false;
-
-  MenuMap::iterator dragIter = menuMap.find(dragMenu);
-  if (dragIter == menuMap.end())
-    return false;
-
-  // Retrieve the drag menu item and XML element based on the menu item ID
-  UINT dragItemID = dragItemInfo.wID;
-  dragItemID--;
-  dragItem = dragIter->second->GetMenuItem(dragItemID);
-  TiXmlElement *dragElement = dragItem->GetElement();
-
-  // Retrieve the drop menu item and XML element based on the menu item ID
-  UINT dropItemID = dropItemInfo.wID;
-  dropItemID--;
-  dropItem = dropIter->second->GetMenuItem(dropItemID);
-  TiXmlElement *dropElement = dropItem->GetElement();
-
-  TiXmlDocument *configXML = ELGetXMLConfig(dragElement);
-  TiXmlElement *newElement = NULL;
-  // If both the drag and drop objects are the same just return
-  if ((dragMenu == dropMenu) && (dropPos == dragPos))
-    return true;
-  // If the drop pos is less than the drag pos, insert the new element
-  // above the drop element
-  else if (dropPos < dragPos)
-    newElement = ELSetSibilingXMLElement(dropElement, (WCHAR*)TEXT("item"), false);
-  // Default to inserting the new element after the drop element
-  else
-    newElement = ELSetSibilingXMLElement(dropElement, (WCHAR*)TEXT("item"), true);
-  if (newElement)
+  if ((cds->dwData == EMERGE_NOTIFY) && (cds->cbData == sizeof(NOTIFYINFO)))
     {
-      // Set the new element attributes based on the drag item attributes
-      ELWriteXMLStringValue(newElement, TEXT("Name"), dragItem->GetName());
-      ELWriteXMLIntValue(newElement, TEXT("Type"), dragItem->GetType());
-      ELWriteXMLStringValue(newElement, TEXT("Value"), dragItem->GetValue());
-      ELWriteXMLStringValue(newElement, TEXT("WorkingDir"), dragItem->GetWorkingDir());
+      LPNOTIFYINFO notifyInfo = reinterpret_cast<LPNOTIFYINFO>(cds->lpData);
 
-      // Remove the drag element
-      if (ELRemoveXMLElement(dragElement))
-        DeleteMenu(dragMenu, dragPos, MF_BYPOSITION);
-
-      // Update drag item's XML element
-      dragItem->SetElement(newElement);
-
-      // Insert the new element
-      InsertMenuItem(dropMenu, dropPos, TRUE, &dragItemInfo);
-      ELWriteXMLConfig(configXML);
-    }
-  return true;
-}
-
-LRESULT MenuBuilder::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
-{
-  if ((message == EMERGE_NOTIFY) && (wParam == EMERGE_CORE))
-    {
-      switch (lParam)
+      if ((notifyInfo->Type & EMERGE_CORE) == EMERGE_CORE)
         {
-        case CORE_SETTINGS:
+          switch (notifyInfo->Message)
+            {
+            case CORE_SETTINGS:
+            case CORE_SHOWCONFIG:
             {
               Config config(mainInst, pSettings);
               if (config.Show() == IDOK)
@@ -335,32 +249,38 @@ LRESULT MenuBuilder::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lP
                   SetWorkArea();
                 }
             }
-          break;
+            break;
 
-        case CORE_RIGHTMENU:
-          return DoButtonDown(WM_RBUTTONDOWN);
+            case CORE_RIGHTMENU:
+              return DoButtonDown(WM_RBUTTONDOWN);
 
-        case CORE_MIDMENU:
-          return DoButtonDown(WM_MBUTTONDOWN);
+            case CORE_MIDMENU:
+              return DoButtonDown(WM_MBUTTONDOWN);
 
-        case CORE_LEFTMENU:
-          return DoButtonDown(WM_LBUTTONDOWN);
+            case CORE_LEFTMENU:
+              return DoButtonDown(WM_LBUTTONDOWN);
 
-        case CORE_WRITESETTINGS:
-          pSettings->WriteSettings();
-          break;
+            case CORE_WRITESETTINGS:
+              pSettings->WriteSettings();
+              break;
 
-        case CORE_RECONFIGURE:
-          RenameConfigFile();
-          pSettings->ReadSettings();
-          UpdateMenuHook();
-          SetWorkArea();
-          break;
+            case CORE_RECONFIGURE:
+              RenameConfigFile();
+              pSettings->ReadSettings();
+              UpdateMenuHook();
+              SetWorkArea();
+              break;
+            }
+
+          return 1;
         }
-
-      return 0;
     }
 
+  return 0;
+}
+
+LRESULT MenuBuilder::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
+{
   return DefWindowProc(hwnd, message, wParam, lParam);
 }
 
@@ -554,32 +474,32 @@ LRESULT MenuBuilder::DoContextMenu(POINT pt)
         SendMessage(menuWnd, WM_CANCELMODE, 0, 0);
       break;
     case IT_TASKS_MENU:
+    {
+      HWND task = (HWND)wcstoll(value, NULL, 10);
+      res = EAEDisplayMenu(menuWnd, task);
+      switch (res)
         {
-          HWND task = (HWND)_wtoi(value);
-          res = EAEDisplayMenu(menuWnd, task);
-          switch (res)
-            {
-            case SC_CLOSE:
-              DeleteMenu(iter->first, index, MF_BYPOSITION);
-              break;
-            case SC_SIZE:
-            case SC_MOVE:
-            case SC_MAXIMIZE:
-            case SC_RESTORE:
-              ELSwitchToThisWindow(task);
-              SendMessage(menuWnd, WM_CANCELMODE, 0, 0);
-              break;
-            }
-          if (res)
-            PostMessage(task, WM_SYSCOMMAND, (WPARAM)res, MAKELPARAM(pt.x, pt.y));
+        case SC_CLOSE:
+          DeleteMenu(iter->first, index, MF_BYPOSITION);
+          break;
+        case SC_SIZE:
+        case SC_MOVE:
+        case SC_MAXIMIZE:
+        case SC_RESTORE:
+          ELSwitchToThisWindow(task);
+          SendMessage(menuWnd, WM_CANCELMODE, 0, 0);
+          break;
         }
-      break;
-      /*case IT_SETTINGS_MENU:
-        ExecuteSettingsMenuItem(itemID);
-        break;*/
-      /*case IT_HELP_MENU:
-        ExecuteSettingsMenuItem(itemID);
-        break;*/
+      if (res)
+        PostMessage(task, WM_SYSCOMMAND, (WPARAM)res, MAKELPARAM(pt.x, pt.y));
+    }
+    break;
+    /*case IT_SETTINGS_MENU:
+      ExecuteSettingsMenuItem(itemID);
+      break;*/
+    /*case IT_HELP_MENU:
+      ExecuteSettingsMenuItem(itemID);
+      break;*/
     }
 
   return 1;
@@ -773,20 +693,20 @@ LRESULT CALLBACK MenuBuilder::HookCallWndProc(int nCode, WPARAM wParam, LPARAM l
       switch (cwps.message)
         {
         case WM_CREATE:
+        {
+          WCHAR szClass[128];
+          GetClassName(cwps.hwnd, szClass, 127);
+          if (_wcsicmp(szClass, TEXT("#32768"))==0)
             {
-              WCHAR szClass[128];
-              GetClassName(cwps.hwnd, szClass, 127);
-              if (_wcsicmp(szClass, TEXT("#32768"))==0)
-                {
-                  SetWindowLongPtr(cwps.hwnd,
-                                   GWL_EXSTYLE,
-                                   GetWindowLongPtr(cwps.hwnd, GWL_EXSTYLE) | WS_EX_LAYERED);
-                  SetLayeredWindowAttributes(cwps.hwnd,
-                                             0,
-                                             (BYTE)((255 * globalMenuAlpha) / 100), LWA_ALPHA);
-                }
+              SetWindowLongPtr(cwps.hwnd,
+                               GWL_EXSTYLE,
+                               GetWindowLongPtr(cwps.hwnd, GWL_EXSTYLE) | WS_EX_LAYERED);
+              SetLayeredWindowAttributes(cwps.hwnd,
+                                         0,
+                                         (BYTE)((255 * globalMenuAlpha) / 100), LWA_ALPHA);
             }
-          break;
+        }
+        break;
         }
     }
 
@@ -1477,10 +1397,10 @@ void MenuBuilder::BuildFileMenuFromString(MenuMap::iterator iter, WCHAR *parsedV
           MenuItem *menuItem;
           wcscpy(extension, PathFindExtension(tmp));
           bool isShortcut = (_wcsicmp(extension, TEXT(".lnk")) == 0) ||
-            (_wcsicmp(extension, TEXT(".pif")) == 0) ||
-            (_wcsicmp(extension, TEXT(".scf")) == 0) ||
-            (_wcsicmp(extension, TEXT(".pnagent")) == 0) ||
-            (_wcsicmp(extension, TEXT(".url")) == 0);
+                            (_wcsicmp(extension, TEXT(".pif")) == 0) ||
+                            (_wcsicmp(extension, TEXT(".scf")) == 0) ||
+                            (_wcsicmp(extension, TEXT(".pnagent")) == 0) ||
+                            (_wcsicmp(extension, TEXT(".url")) == 0);
 
           wcscpy(entry, tmp);
           wcscpy(tmp, findData.cFileName);
@@ -1833,7 +1753,7 @@ LRESULT MenuBuilder::ExecuteMenuItem(UINT itemID)
         ELMessageBox(GetDesktopWindow(), error, (WCHAR*)TEXT("emergeWorkspace"), ELMB_ICONWARNING|ELMB_OK);
       break;
     case IT_TASKS_MENU:
-      ELSwitchToThisWindow((HWND)_wtoi(menuItem->GetValue()));
+      ELSwitchToThisWindow((HWND)wcstoll(menuItem->GetValue(), NULL, 10));
       break;
     case IT_SETTINGS_MENU:
       ExecuteSettingsMenuItem(itemID);

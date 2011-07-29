@@ -34,6 +34,9 @@
 typedef DWORD HWND32;
 typedef DWORD HICON32;
 
+#define MAKEHWND(a) ((HWND)((DWORD_PTR)(a)))
+#define MAKEHICON(a) ((HICON)((DWORD_PTR)(a)))
+
 typedef struct
 {
   DWORD cbSize;

@@ -116,7 +116,7 @@ void MenuItem::SetIcon()
   switch (type)
     {
     case IT_SEPARATOR:
-      task = (HWND)_wtoi(value);
+      task = (HWND)wcstoll(value, NULL, 10);
       icon = EGGetWindowIcon(NULL, task, true, true);
       /* If the task icon is NULL, generate a default icon using the
        * application's icon.

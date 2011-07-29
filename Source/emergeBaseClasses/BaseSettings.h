@@ -31,6 +31,9 @@
 #define DLL_EXPORT  __declspec(dllimport)
 #endif
 
+#undef _WIN32_WINNT
+#define _WIN32_WINNT 0x501
+
 #include "../emergeLib/emergeLib.h"
 #include "../emergeStyleEngine/emergeStyleEngine.h"
 #include <shlwapi.h>
@@ -125,6 +128,7 @@ public:
   bool CopyStyle();
   bool GetSortInfo(WCHAR *editorName, PSORTINFO sortInfo);
   bool SetSortInfo(WCHAR *editorName, PSORTINFO sortInfo);
+  POINT InstancePosition(SIZE appletSize);
 
 protected:
   virtual void DoReadSettings(IOHelper& helper);

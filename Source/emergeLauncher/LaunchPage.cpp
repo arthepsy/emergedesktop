@@ -153,11 +153,9 @@ bool LaunchPage::CheckFields(HWND hwndDlg)
 
 BOOL LaunchPage::DoInitDialog(HWND hwndDlg)
 {
-  int iRet;
   LVCOLUMN lvCol;
   TOOLINFO ti;
   ZeroMemory(&ti, sizeof(TOOLINFO));
-  DWORD dwRet;
 
   saveCount = 0;
   deleteCount = 0;
@@ -215,25 +213,25 @@ BOOL LaunchPage::DoInitDialog(HWND hwndDlg)
   lvCol.mask = LVCF_TEXT | LVCF_WIDTH;
   lvCol.pszText = (WCHAR*)TEXT("Type");
   lvCol.cx = 160;
-  iRet = ListView_InsertColumn(listWnd, 0, &lvCol);
+  (void)ListView_InsertColumn(listWnd, 0, &lvCol);
 
   lvCol.pszText = (WCHAR*)TEXT("Command");
   lvCol.cx = 160;
-  iRet = ListView_InsertColumn(listWnd, 1, &lvCol);
+  (void)ListView_InsertColumn(listWnd, 1, &lvCol);
 
   lvCol.pszText = (WCHAR*)TEXT("Working Directory");
   lvCol.cx = 160;
-  iRet = ListView_InsertColumn(listWnd, 2, &lvCol);
+  (void)ListView_InsertColumn(listWnd, 2, &lvCol);
 
   lvCol.pszText = (WCHAR*)TEXT("Icon");
   lvCol.cx = 100;
-  iRet = ListView_InsertColumn(listWnd, 3, &lvCol);
+  (void)ListView_InsertColumn(listWnd, 3, &lvCol);
 
   lvCol.pszText = (WCHAR*)TEXT("Tip");
   lvCol.cx = 160;
-  iRet = ListView_InsertColumn(listWnd, 4, &lvCol);
+  (void)ListView_InsertColumn(listWnd, 4, &lvCol);
 
-  dwRet = ListView_SetExtendedListViewStyle(listWnd,  LVS_EX_FULLROWSELECT);
+  (void)ListView_SetExtendedListViewStyle(listWnd,  LVS_EX_FULLROWSELECT);
 
   PopulateList(listWnd);
   PopulateComboBoxes(hwndDlg);
@@ -697,7 +695,6 @@ void LaunchPage::PopulateList(HWND listWnd)
 {
   LVITEM lvItem;
   lvItem.mask = LVIF_TEXT;
-  int iRet;
   WCHAR tmp[MAX_LINE_LENGTH];
 
   for (UINT i = 0; i < pSettings->GetItemListSize(); i++)
@@ -720,7 +717,7 @@ void LaunchPage::PopulateList(HWND listWnd)
           break;
         }
       lvItem.cchTextMax = (int)wcslen(lvItem.pszText);
-      iRet = ListView_InsertItem(listWnd, &lvItem);
+      (void)ListView_InsertItem(listWnd, &lvItem);
       if (pSettings->GetItem(i)->GetType() == IT_SPECIAL_FOLDER)
         {
           if (ELGetSpecialFolder(ELSpecialFolderID(pSettings->GetItem(i)->GetApp()), tmp))
@@ -739,7 +736,6 @@ bool LaunchPage::DelItem(HWND hwndDlg)
   HWND listWnd = GetDlgItem(hwndDlg, IDC_APPLIST);
   bool ret = false;
   int i = 0, prevItem = 0;
-  BOOL bRet;
 
   if (ListView_GetSelectedCount(listWnd) > 1)
     {
@@ -755,7 +751,7 @@ bool LaunchPage::DelItem(HWND hwndDlg)
         {
           ret = true;
           prevItem = ListView_GetNextItem(listWnd, i, LVNI_ABOVE);
-          bRet = ListView_DeleteItem(listWnd, i);
+          (void)ListView_DeleteItem(listWnd, i);
           deleteCount++;
 
           ListView_SetItemState(listWnd, i, LVIS_SELECTED,
@@ -766,7 +762,7 @@ bool LaunchPage::DelItem(HWND hwndDlg)
                 {
                   ListView_SetItemState(listWnd, prevItem, LVIS_SELECTED,
                                         LVIS_SELECTED);
-                  bRet = ListView_EnsureVisible(listWnd, prevItem, FALSE);
+                  (void)ListView_EnsureVisible(listWnd, prevItem, FALSE);
                 }
             }
 
@@ -789,8 +785,6 @@ bool LaunchPage::MoveItem(HWND hwndDlg, bool up)
   bool ret = false;
   LVITEM lvItem;
   WCHAR command[MAX_PATH], workingDir[MAX_PATH], icon[MAX_PATH], tip[MAX_LINE_LENGTH], typeName[MAX_LINE_LENGTH];
-  BOOL bRet;
-  int iRet;
 
   if (ListView_GetSelectedCount(listWnd) > 1)
     {
@@ -826,17 +820,17 @@ bool LaunchPage::MoveItem(HWND hwndDlg, bool up)
           lvItem.pszText = typeName;
           lvItem.cchTextMax = MAX_PATH;
 
-          bRet = ListView_DeleteItem(listWnd, i);
+          (void)ListView_DeleteItem(listWnd, i);
 
           itemMoved = true;
-          iRet = ListView_InsertItem(listWnd, &lvItem);
+          (void)ListView_InsertItem(listWnd, &lvItem);
           ListView_SetItemText(listWnd, lvItem.iItem, 1, command);
           ListView_SetItemText(listWnd, lvItem.iItem, 2, workingDir);
           ListView_SetItemText(listWnd, lvItem.iItem, 3, icon);
           ListView_SetItemText(listWnd, lvItem.iItem, 4, tip);
 
           ListView_SetItemState(listWnd, lvItem.iItem, LVIS_SELECTED, LVIS_SELECTED);
-          bRet = ListView_EnsureVisible(listWnd, lvItem.iItem, FALSE);
+          (void)ListView_EnsureVisible(listWnd, lvItem.iItem, FALSE);
 
           break;
         }
@@ -1012,9 +1006,8 @@ bool LaunchPage::SaveItem(HWND hwndDlg)
   HWND listWnd = GetDlgItem(hwndDlg, IDC_APPLIST);
   WCHAR command[MAX_LINE_LENGTH], iconPath[MAX_LINE_LENGTH], tip[MAX_LINE_LENGTH], workingDir[MAX_LINE_LENGTH];
   WCHAR typeName[MAX_LINE_LENGTH];
-  int i = 0, iRet;
+  int i = 0;
   LVITEM lvItem;
-  BOOL bRet;
 
   lvItem.mask = LVIF_TEXT;
 
@@ -1080,13 +1073,13 @@ bool LaunchPage::SaveItem(HWND hwndDlg)
     }
 
   if (edit)
-    bRet = ListView_DeleteItem(listWnd, i);
+    (void)ListView_DeleteItem(listWnd, i);
 
   lvItem.iItem = i;
   lvItem.iSubItem = 0;
   lvItem.pszText = typeName;
   lvItem.cchTextMax = (int)wcslen(command);
-  iRet = ListView_InsertItem(listWnd, &lvItem);
+  (void)ListView_InsertItem(listWnd, &lvItem);
   ListView_SetItemText(listWnd, lvItem.iItem, 1, command);
   ListView_SetItemText(listWnd, lvItem.iItem, 2, workingDir);
   ListView_SetItemText(listWnd, lvItem.iItem, 3, iconPath);

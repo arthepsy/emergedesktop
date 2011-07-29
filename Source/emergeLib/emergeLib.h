@@ -285,6 +285,18 @@ typedef struct _THEMEINFO
 }
 THEMEINFO, *LPTHEMEINFO;
 
+/*!
+  @struct _SHORTCUTINFO
+  @brief structure that contains shortcut information
+  */
+typedef struct _NOTIFYINFO
+{
+  DWORD Type;
+  DWORD Message;
+  WCHAR InstanceName[MAX_PATH]; /*!< Path to the executable defined by the shortcut */
+}
+NOTIFYINFO, *LPNOTIFYINFO;
+
 // Declaration of functions to import
 DLL_EXPORT bool ELReadRegDWord(HKEY key, LPCTSTR value, DWORD *target, DWORD notFound);
 DLL_EXPORT bool ELWriteRegDWord(HKEY key, LPTSTR value, DWORD *source);

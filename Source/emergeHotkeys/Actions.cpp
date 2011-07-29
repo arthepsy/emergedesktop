@@ -149,7 +149,7 @@ BOOL Actions::DoInitDialog(HWND hwndDlg)
 {
   RECT rect;
   LVCOLUMN lvCol;
-  int x, y, ret;
+  int x, y;
   TOOLINFO ti;
 
   dialogVisible = true;
@@ -172,7 +172,6 @@ BOOL Actions::DoInitDialog(HWND hwndDlg)
   HWND appWnd = GetDlgItem(hwndDlg, IDC_APPLICATION);
   HWND inWnd = GetDlgItem(hwndDlg, IDC_INTERNAL);
   HWND exWnd = GetDlgItem(hwndDlg, IDC_EXTERNAL);
-  DWORD dwRet;
 
   ZeroMemory(&ti, sizeof(TOOLINFO));
   ELGetWindowRect(hwndDlg, &rect);
@@ -191,13 +190,13 @@ BOOL Actions::DoInitDialog(HWND hwndDlg)
   lvCol.mask = LVCF_TEXT | LVCF_WIDTH;
   lvCol.pszText = (WCHAR*)TEXT("Key Combination");
   lvCol.cx = 160;
-  ret = ListView_InsertColumn(listWnd, 0, &lvCol);
+  (void)ListView_InsertColumn(listWnd, 0, &lvCol);
 
   lvCol.pszText = (WCHAR*)TEXT("Action");
   lvCol.cx = 160;
-  ret = ListView_InsertColumn(listWnd, 1, &lvCol);
+  (void)ListView_InsertColumn(listWnd, 1, &lvCol);
 
-  dwRet = ListView_SetExtendedListViewStyle(listWnd,  LVS_EX_FULLROWSELECT);
+  (void)ListView_SetExtendedListViewStyle(listWnd,  LVS_EX_FULLROWSELECT);
 
   PopulateList(listWnd);
   PopulateKeys(keyWnd);
@@ -285,9 +284,8 @@ BOOL Actions::DoInitDialog(HWND hwndDlg)
   GetClientRect(abortWnd, &ti.rect);
   SendMessage(toolWnd, TTM_ADDTOOL, 0, (LPARAM)(LPTOOLINFO)&ti);
 
-  bool ignored;
   lvSortInfo.listWnd = listWnd;
-  ignored = ListView_SortItemsEx(listWnd, ListViewCompareProc, (LPARAM)&lvSortInfo);
+  (void)ListView_SortItemsEx(listWnd, ListViewCompareProc, (LPARAM)&lvSortInfo);
 
   return TRUE;
 }
@@ -424,7 +422,6 @@ bool Actions::PopulateList(HWND listWnd)
 {
   bool ret = false;
   LVITEM lvItem;
-  int iRet;
 
   lvItem.mask = LVIF_TEXT;
 
@@ -436,7 +433,7 @@ bool Actions::PopulateList(HWND listWnd)
       lvItem.iSubItem = 0;
       lvItem.pszText = pSettings->GetHotkeyListItem(i)->GetHotkeyString();
       lvItem.cchTextMax = (int)wcslen(pSettings->GetHotkeyListItem(i)->GetHotkeyString());
-      iRet = ListView_InsertItem(listWnd, &lvItem);
+      (void)ListView_InsertItem(listWnd, &lvItem);
       ListView_SetItemText(listWnd, i, 1, pSettings->GetHotkeyListItem(i)->GetHotkeyAction());
     }
 
@@ -450,7 +447,6 @@ bool Actions::DoDelete(HWND hwndDlg)
   int i = 0, prevItem = 0;
   UINT index;
   WCHAR tmpKey[MAX_LINE_LENGTH], tmpAction[MAX_LINE_LENGTH];
-  BOOL bRet;
 
   if (ListView_GetSelectedCount(listWnd) > 1)
     {
@@ -478,7 +474,7 @@ bool Actions::DoDelete(HWND hwndDlg)
               pSettings->DeleteHotkeyListItem(index);
             }
 
-          bRet = ListView_DeleteItem(listWnd, i);
+          (void)ListView_DeleteItem(listWnd, i);
 
           ListView_SetItemState(listWnd, i, LVIS_SELECTED,
                                 LVIS_SELECTED);
@@ -488,7 +484,7 @@ bool Actions::DoDelete(HWND hwndDlg)
                 {
                   ListView_SetItemState(listWnd, prevItem, LVIS_SELECTED,
                                         LVIS_SELECTED);
-                  bRet = ListView_EnsureVisible(listWnd, prevItem, FALSE);
+                  (void)ListView_EnsureVisible(listWnd, prevItem, FALSE);
                 }
             }
 
@@ -736,7 +732,6 @@ bool Actions::DoSave(HWND hwndDlg)
 {
   HWND listWnd = GetDlgItem(hwndDlg, IDC_ACTIONSLIST);
   bool ret = false;
-  LVFINDINFO lvFI;
   LVITEM lvItem;
   WCHAR tmpKey[MAX_LINE_LENGTH], tmpAction[MAX_LINE_LENGTH], tmp[MAX_LINE_LENGTH],
         error[MAX_LINE_LENGTH];
@@ -745,8 +740,6 @@ bool Actions::DoSave(HWND hwndDlg)
 
   ZeroMemory(tmpAction, MAX_LINE_LENGTH);
   ZeroMemory(tmpKey, MAX_LINE_LENGTH);
-
-  lvFI.flags = LVFI_STRING;
 
   if (SendDlgItemMessage(hwndDlg, IDC_EXTERNAL, BM_GETCHECK, 0, 0) == BST_CHECKED)
     GetDlgItemText(hwndDlg, IDC_APPLICATION, tmpAction, MAX_LINE_LENGTH);

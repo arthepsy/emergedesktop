@@ -129,6 +129,7 @@ BOOL CALLBACK MonitorRectEnum(HMONITOR hMonitor, HDC hdcMonitor, LPRECT lprcMoni
 bool ConvertPath(WCHAR *styleFile, DWORD flags, DWORD path);
 std::wstring GetCustomDataPath();
 BOOL CALLBACK ThemeEnum(HWND hwnd, LPARAM lParam);
+void DispatchCoreMessage(DWORD type, DWORD message, WCHAR *instanceName);
 
 typedef struct _APPLETMONITORINFO
 {
@@ -180,7 +181,8 @@ static fnDwmIsCompositionEnabled MSDwmIsCompositionEnabled = NULL;
 typedef HRESULT (WINAPI *fnDwmGetWindowAttribute)(HWND, DWORD, PVOID, DWORD);
 static fnDwmGetWindowAttribute MSDwmGetWindowAttribute = NULL;
 
-typedef enum _DWMWINDOWATTRIBUTE {
+typedef enum _DWMWINDOWATTRIBUTE
+{
   DWMWA_NCRENDERING_ENABLED           = 1,
   DWMWA_NCRENDERING_POLICY,
   DWMWA_TRANSITIONS_FORCEDISABLED,
@@ -1055,6 +1057,25 @@ void ELWriteDebug(std::wstring debugText)
   out.close();
 }
 
+void DispatchCoreMessage(DWORD type, DWORD message, WCHAR *instanceName = NULL)
+{
+  NOTIFYINFO notifyInfo;
+  COPYDATASTRUCT cds;
+
+  ZeroMemory(&notifyInfo, sizeof(notifyInfo));
+  notifyInfo.Type = type;
+  notifyInfo.Message = message;
+  if ((instanceName != NULL) && wcslen(instanceName))
+    wcsncpy(notifyInfo.InstanceName, instanceName, MAX_PATH - 1);
+
+  cds.dwData = EMERGE_DISPATCH;
+  cds.cbData = sizeof(notifyInfo);
+  cds.lpData = &notifyInfo;
+
+  SendMessageTimeout(ELGetCoreWindow(), WM_COPYDATA, 0, (LPARAM)&cds,
+                     SMTO_ABORTIFHUNG, 500, NULL);
+}
+
 //----  --------------------------------------------------------------------------------------------------------
 // Function:	ELExecuteInternal
 // Requires:	LPTSTR command - internal command
@@ -1063,270 +1084,395 @@ void ELWriteDebug(std::wstring debugText)
 //----  --------------------------------------------------------------------------------------------------------
 bool ELExecuteInternal(LPTSTR command)
 {
-  std::wstring tempCmd = command;
   bool confirm = true;
+  std::wstring tempCmd = command, tempArg;
+  WCHAR * arg = NULL;
 
-  while (tempCmd.find(TEXT("/")) != std::wstring::npos)
-    tempCmd.replace(tempCmd.find(TEXT("/")), 1, TEXT(""));
-
-  if (tempCmd.find(TEXT("silent")) != std::wstring::npos)
+  size_t pos = tempCmd.find_first_of(TEXT(" \t"));
+  if (pos != std::wstring::npos)
     {
-      confirm = false;
-      tempCmd.replace(tempCmd.find(TEXT("silent")), 6, TEXT(""));
+      tempArg = tempCmd.substr(tempCmd.find_first_not_of(TEXT(" \t"), pos));
+      tempArg = ELToLower(tempArg);
+      if (tempArg == TEXT("/silent"))
+        confirm = false;
+      else
+        arg = (WCHAR*)tempArg.c_str();
+      tempCmd = tempCmd.substr(0, pos);
+      command = (WCHAR*)tempCmd.c_str();
     }
-
-  if (tempCmd.find_first_not_of(TEXT(" \t")) != std::wstring::npos)
-    tempCmd = tempCmd.substr(tempCmd.find_first_not_of(TEXT(" \t")), tempCmd.length() - tempCmd.find_first_not_of(TEXT(" \t")));
-
-  if (tempCmd.find_last_not_of(TEXT(" \t")) != std::wstring::npos)
-    tempCmd = tempCmd.substr(0, tempCmd.find_last_not_of(TEXT(" \t")) + 1);
-
-  command = (WCHAR*)tempCmd.c_str();
 
   if (_wcsicmp(command, TEXT("RightDeskMenu")) == 0)
     {
+      if (!tempArg.empty())
+        return false;
+
       /// TODO (Chris#1#): Find better implementation that doesn't rely on finding the desktop window
       ELSwitchToThisWindow(FindWindow(TEXT("EmergeDesktopMenuBuilder"), NULL));/**< Needed to address keyboard focus issue with Launcher */
-      PostMessage(ELGetCoreWindow(), EMERGE_DISPATCH, (WPARAM)EMERGE_CORE, (LPARAM)CORE_RIGHTMENU);
+      DispatchCoreMessage(EMERGE_CORE, CORE_RIGHTMENU);
       return true;
     }
   else if (_wcsicmp(command, TEXT("MidDeskMenu")) == 0)
     {
+      if (!tempArg.empty())
+        return false;
+
       /// TODO (Chris#1#): Find better implementation that doesn't rely on finding the desktop window
       ELSwitchToThisWindow(FindWindow(TEXT("EmergeDesktopMenuBuilder"), NULL));/**< Needed to address keyboard focus issue with Launcher */
-      PostMessage(ELGetCoreWindow(), EMERGE_DISPATCH, (WPARAM)EMERGE_CORE, (LPARAM)CORE_MIDMENU);
+      DispatchCoreMessage(EMERGE_CORE, CORE_MIDMENU);
       return true;
     }
   else if (_wcsicmp(command, TEXT("Quit")) == 0)
     {
+      if (!tempArg.empty() && confirm)
+        return false;
+
       ELQuit(confirm);
       return true;
     }
   else if (_wcsicmp(command, TEXT("Run")) == 0)
     {
+      if (!tempArg.empty())
+        return false;
+
       ELRun();
       return true;
     }
   else if (_wcsicmp(command, TEXT("Shutdown")) == 0)
     {
+      if (!tempArg.empty())
+        return false;
+
       ELShutdown(ELGetCoreWindow());
       return true;
     }
   else if (_wcsicmp(command, TEXT("Hide")) == 0)
     {
       ELSwitchToThisWindow(ELGetCoreWindow());
-      PostMessage(ELGetCoreWindow(), EMERGE_DISPATCH, (WPARAM)EMERGE_CORE, (LPARAM)CORE_HIDE);
+      DispatchCoreMessage(EMERGE_CORE, CORE_HIDE, arg);
       return true;
     }
   else if (_wcsicmp(command, TEXT("Show")) == 0)
     {
       ELSwitchToThisWindow(ELGetCoreWindow());
-      PostMessage(ELGetCoreWindow(), EMERGE_DISPATCH, (WPARAM)EMERGE_CORE, (LPARAM)CORE_SHOW);
+      DispatchCoreMessage(EMERGE_CORE, CORE_SHOW, arg);
       return true;
     }
   else if(_wcsicmp(command,TEXT("VWM_1")) == 0)
     {
+      if (!tempArg.empty())
+        return false;
+
       ELSwitchToThisWindow(ELGetCoreWindow());
-      PostMessage(ELGetCoreWindow(),EMERGE_DISPATCH, (WPARAM)EMERGE_VWM,(LPARAM)VWM_1);
+      DispatchCoreMessage(EMERGE_VWM, VWM_1);
       return true;
     }
   else if(_wcsicmp(command,TEXT("VWM_2")) == 0)
     {
+      if (!tempArg.empty())
+        return false;
+
       ELSwitchToThisWindow(ELGetCoreWindow());
-      PostMessage(ELGetCoreWindow(),EMERGE_DISPATCH, (WPARAM)EMERGE_VWM,(LPARAM)VWM_2);
+      DispatchCoreMessage(EMERGE_VWM, VWM_2);
       return true;
     }
   else if(_wcsicmp(command,TEXT("VWM_3")) == 0)
     {
+      if (!tempArg.empty())
+        return false;
+
       ELSwitchToThisWindow(ELGetCoreWindow());
-      PostMessage(ELGetCoreWindow(),EMERGE_DISPATCH, (WPARAM)EMERGE_VWM,(LPARAM)VWM_3);
+      DispatchCoreMessage(EMERGE_VWM, VWM_3);
       return true;
     }
   else if(_wcsicmp(command,TEXT("VWM_4")) == 0)
     {
+      if (!tempArg.empty())
+        return false;
+
       ELSwitchToThisWindow(ELGetCoreWindow());
-      PostMessage(ELGetCoreWindow(),EMERGE_DISPATCH, (WPARAM)EMERGE_VWM,(LPARAM)VWM_4);
+      DispatchCoreMessage(EMERGE_VWM, VWM_4);
       return true;
     }
   else if(_wcsicmp(command,TEXT("VWM_5")) == 0)
     {
+      if (!tempArg.empty())
+        return false;
+
       ELSwitchToThisWindow(ELGetCoreWindow());
-      PostMessage(ELGetCoreWindow(),EMERGE_DISPATCH, (WPARAM)EMERGE_VWM,(LPARAM)VWM_5);
+      DispatchCoreMessage(EMERGE_VWM, VWM_5);
       return true;
     }
   else if(_wcsicmp(command,TEXT("VWM_6")) == 0)
     {
+      if (!tempArg.empty())
+        return false;
+
       ELSwitchToThisWindow(ELGetCoreWindow());
-      PostMessage(ELGetCoreWindow(),EMERGE_DISPATCH, (WPARAM)EMERGE_VWM,(LPARAM)VWM_6);
+      DispatchCoreMessage(EMERGE_VWM, VWM_6);
       return true;
     }
   else if(_wcsicmp(command,TEXT("VWM_7")) == 0)
     {
+      if (!tempArg.empty())
+        return false;
+
       ELSwitchToThisWindow(ELGetCoreWindow());
-      PostMessage(ELGetCoreWindow(),EMERGE_DISPATCH, (WPARAM)EMERGE_VWM,(LPARAM)VWM_7);
+      DispatchCoreMessage(EMERGE_VWM, VWM_7);
       return true;
     }
   else if(_wcsicmp(command,TEXT("VWM_8")) == 0)
     {
+      if (!tempArg.empty())
+        return false;
+
       ELSwitchToThisWindow(ELGetCoreWindow());
-      PostMessage(ELGetCoreWindow(),EMERGE_DISPATCH, (WPARAM)EMERGE_VWM,(LPARAM)VWM_8);
+      DispatchCoreMessage(EMERGE_VWM, VWM_8);
       return true;
     }
   else if(_wcsicmp(command,TEXT("VWM_9")) == 0)
     {
+      if (!tempArg.empty())
+        return false;
+
       ELSwitchToThisWindow(ELGetCoreWindow());
-      PostMessage(ELGetCoreWindow(),EMERGE_DISPATCH, (WPARAM)EMERGE_VWM,(LPARAM)VWM_9);
+      DispatchCoreMessage(EMERGE_VWM, VWM_9);
       return true;
     }
   else if (_wcsicmp(command, TEXT("VWMUp")) == 0)
     {
+      if (!tempArg.empty())
+        return false;
+
       ELSwitchToThisWindow(ELGetCoreWindow());
-      PostMessage(ELGetCoreWindow(), EMERGE_DISPATCH, (WPARAM)EMERGE_VWM, (LPARAM)VWM_UP);
+      DispatchCoreMessage(EMERGE_VWM, VWM_UP);
       return true;
     }
   else if (_wcsicmp(command, TEXT("VWMDown")) == 0)
     {
+      if (!tempArg.empty())
+        return false;
+
       ELSwitchToThisWindow(ELGetCoreWindow());
-      PostMessage(ELGetCoreWindow(), EMERGE_DISPATCH, (WPARAM)EMERGE_VWM, (LPARAM)VWM_DOWN);
+      DispatchCoreMessage(EMERGE_VWM, VWM_DOWN);
       return true;
     }
   else if (_wcsicmp(command, TEXT("VWMLeft")) == 0)
     {
+      if (!tempArg.empty())
+        return false;
+
       ELSwitchToThisWindow(ELGetCoreWindow());
-      PostMessage(ELGetCoreWindow(), EMERGE_DISPATCH, (WPARAM)EMERGE_VWM, (LPARAM)VWM_LEFT);
+      DispatchCoreMessage(EMERGE_VWM, VWM_LEFT);
       return true;
     }
   else if (_wcsicmp(command, TEXT("VWMRight")) == 0)
     {
+      if (!tempArg.empty())
+        return false;
+
       ELSwitchToThisWindow(ELGetCoreWindow());
-      PostMessage(ELGetCoreWindow(), EMERGE_DISPATCH, (WPARAM)EMERGE_VWM, (LPARAM)VWM_RIGHT);
+      DispatchCoreMessage(EMERGE_VWM, VWM_RIGHT);
       return true;
     }
   else if (_wcsicmp(command, TEXT("VWMGather")) == 0)
     {
+      if (!tempArg.empty())
+        return false;
+
       ELSwitchToThisWindow(ELGetCoreWindow());
-      PostMessage(ELGetCoreWindow(), EMERGE_DISPATCH, (WPARAM)EMERGE_VWM, (LPARAM)VWM_GATHER);
+      DispatchCoreMessage(EMERGE_VWM, VWM_GATHER);
       return true;
     }
   else if (_wcsicmp(command, TEXT("VWMPrev")) == 0)
     {
+      if (!tempArg.empty())
+        return false;
+
       ELSwitchToThisWindow(ELGetCoreWindow());
-      PostMessage(ELGetCoreWindow(), EMERGE_DISPATCH, (WPARAM)EMERGE_VWM, (LPARAM)VWM_PREV);
+      DispatchCoreMessage(EMERGE_VWM, VWM_PREV);
       return true;
     }
   else if (_wcsicmp(command, TEXT("VWMNext")) == 0)
     {
+      if (!tempArg.empty())
+        return false;
+
       ELSwitchToThisWindow(ELGetCoreWindow());
-      PostMessage(ELGetCoreWindow(), EMERGE_DISPATCH, (WPARAM)EMERGE_VWM, (LPARAM)VWM_NEXT);
+      DispatchCoreMessage(EMERGE_VWM, VWM_NEXT);
       return true;
     }
   else if (_wcsicmp(command, TEXT("EmptyBin")) == 0)
     {
+      if (!tempArg.empty())
+        return false;
+
       SHEmptyRecycleBin(NULL, NULL, 0);
       return true;
     }
   else if (_wcsicmp(command, TEXT("Lock")) == 0)
-    return (LockWorkStation() == TRUE);
+    {
+      if (!tempArg.empty())
+        return false;
+
+      return (LockWorkStation() == TRUE);
+    }
   else if (_wcsicmp(command, TEXT("Logoff")) == 0)  //allelimo 05/28/2004
     {
+      if (!tempArg.empty() && confirm)
+        return false;
+
       ELExit(EMERGE_LOGOFF, confirm);
       return true;
     }
   else if (_wcsicmp(command, TEXT("Disconnect")) == 0)
     {
+      if (!tempArg.empty() && confirm)
+        return false;
+
       ELExit(EMERGE_DISCONNECT, confirm);
       return true;
     }
   else if (_wcsicmp(command, TEXT("Reboot")) == 0)
     {
+      if (!tempArg.empty() && confirm)
+        return false;
+
       ELExit(EMERGE_REBOOT, confirm);
       return true;
     }
   else if (_wcsicmp(command, TEXT("Halt")) == 0)
     {
+      if (!tempArg.empty() && confirm)
+        return false;
+
       ELExit(EMERGE_HALT, confirm);
       return true;
     }
   else if (_wcsicmp(command, TEXT("Suspend")) == 0)
     {
+      if (!tempArg.empty() && confirm)
+        return false;
+
       ELExit(EMERGE_SUSPEND, confirm);
       return true;
     }
   else if (_wcsicmp(command, TEXT("Hibernate")) == 0)
     {
+      if (!tempArg.empty() && confirm)
+        return false;
+
       ELExit(EMERGE_HIBERNATE, confirm);
       return true;
     }
   else if (_wcsicmp(command, TEXT("ShowDesktop")) == 0)
     {
+      if (!tempArg.empty())
+        return false;
+
       ELSwitchToThisWindow(ELGetCoreWindow());
-      PostMessage(ELGetCoreWindow(), EMERGE_DISPATCH, (WPARAM)EMERGE_CORE, (LPARAM)CORE_DESKTOP);
+      DispatchCoreMessage(EMERGE_CORE, CORE_DESKTOP);
       return true;
     }
   else if (_wcsicmp(command, TEXT("WorkspaceSettings")) == 0)
     {
+      if (!tempArg.empty())
+        return false;
+
       ELSwitchToThisWindow(ELGetCoreWindow());
-      PostMessage(ELGetCoreWindow(), EMERGE_DISPATCH, (WPARAM)EMERGE_CORE, (LPARAM)CORE_SETTINGS);
+      DispatchCoreMessage(EMERGE_CORE, CORE_SETTINGS);
       return true;
     }
   else if (_wcsicmp(command, TEXT("CoreSettings")) == 0)
     {
+      if (!tempArg.empty())
+        return false;
+
       ELSwitchToThisWindow(ELGetCoreWindow());
-      PostMessage(ELGetCoreWindow(), EMERGE_DISPATCH, (WPARAM)EMERGE_CORE, (LPARAM)CORE_CONFIGURE);
+      DispatchCoreMessage(EMERGE_CORE, CORE_CONFIGURE);
       return true;
     }
   else if (_wcsicmp(command, TEXT("AliasEditor")) == 0)
     {
+      if (!tempArg.empty())
+        return false;
+
       ELSwitchToThisWindow(ELGetCoreWindow());
-      PostMessage(ELGetCoreWindow(), EMERGE_DISPATCH, (WPARAM)EMERGE_CORE, (LPARAM)CORE_ALIAS);
+      DispatchCoreMessage(EMERGE_CORE, CORE_ALIAS);
       return true;
     }
   else if ((_wcsicmp(command, TEXT("LaunchEditor")) == 0) || (_wcsicmp(command, TEXT("CoreLaunchEditor")) == 0))
     {
+      if (!tempArg.empty())
+        return false;
+
       ELSwitchToThisWindow(ELGetCoreWindow());
-      PostMessage(ELGetCoreWindow(), EMERGE_DISPATCH, (WPARAM)EMERGE_CORE, (LPARAM)CORE_LAUNCH);
+      DispatchCoreMessage(EMERGE_CORE, CORE_LAUNCH);
       return true;
     }
   else if ((_wcsicmp(command, TEXT("ShellChanger")) == 0) || (_wcsicmp(command, TEXT("CoreShellChanger")) == 0))
     {
+      if (!tempArg.empty())
+        return false;
+
       ELSwitchToThisWindow(ELGetCoreWindow());
-      PostMessage(ELGetCoreWindow(), EMERGE_DISPATCH, (WPARAM)EMERGE_CORE, (LPARAM)CORE_SHELL);
+      DispatchCoreMessage(EMERGE_CORE, CORE_SHELL);
       return true;
     }
   else if ((_wcsicmp(command, TEXT("ThemeManager")) == 0) || (_wcsicmp(command, TEXT("CoreThemeSelector")) == 0))
     {
+      if (!tempArg.empty())
+        return false;
+
       ELSwitchToThisWindow(ELGetCoreWindow());
-      PostMessage(ELGetCoreWindow(), EMERGE_DISPATCH, (WPARAM)EMERGE_CORE, (LPARAM)CORE_THEMESELECT);
+      DispatchCoreMessage(EMERGE_CORE, CORE_THEMESELECT);
       return true;
     }
   else if ((_wcsicmp(command, TEXT("About")) == 0) || (_wcsicmp(command, TEXT("CoreAbout")) == 0))
     {
+      if (!tempArg.empty())
+        return false;
+
       ELSwitchToThisWindow(ELGetCoreWindow());
-      PostMessage(ELGetCoreWindow(), EMERGE_DISPATCH, (WPARAM)EMERGE_CORE, (LPARAM)CORE_ABOUT);
+      DispatchCoreMessage(EMERGE_CORE, CORE_ABOUT);
       return true;
     }
   else if (_wcsicmp(command, TEXT("VolumeUp")) == 0)
     {
+      if (!tempArg.empty())
+        return false;
+
       ELAdjustVolume(ELAV_VOLUMEUP);
       return true;
     }
   else if (_wcsicmp(command, TEXT("VolumeDown")) == 0)
     {
+      if (!tempArg.empty())
+        return false;
+
       ELAdjustVolume(ELAV_VOLUMEDOWN);
       return true;
     }
   else if (_wcsicmp(command, TEXT("VolumeMute")) == 0)
     {
+      if (!tempArg.empty())
+        return false;
+
       ELAdjustVolume(ELAV_MUTE);
       return true;
     }
   else if (_wcsicmp(command, TEXT("Homepage")) == 0)
     {
+      if (!tempArg.empty())
+        return false;
+
       ELExecute((WCHAR*)TEXT("http://emergedesktop.org"));
       return true;
     }
   else if (_wcsicmp(command, TEXT("Tutorial")) == 0)
     {
+      if (!tempArg.empty())
+        return false;
+
       ELExecute((WCHAR*)TEXT("http://sites.google.com/site/emergedesktop/Home/getting-started/the-basics"));
       return true;
     }
@@ -1931,7 +2077,7 @@ bool ELQuit(bool prompt)
 
   if (response == IDYES)
     {
-      PostMessage(ELGetCoreWindow(), EMERGE_DISPATCH, EMERGE_CORE, CORE_QUIT);
+      DispatchCoreMessage(EMERGE_CORE, CORE_QUIT);
       return true;
     }
 

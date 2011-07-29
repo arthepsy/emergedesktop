@@ -421,14 +421,11 @@ void Shell::LoadSSO()
 {
   HKEY key, subkey;
   int i = 0;
-  WCHAR valueName[32];
   WCHAR data[40];
-  DWORD valueSize;
   DWORD dataSize;
   CLSID clsid, trayclsid;
   IOleCommandTarget *target = NULL;
 
-  valueSize = 32 * sizeof(WCHAR);
   dataSize = 40 * sizeof(WCHAR);
   i = 0;
 
@@ -454,7 +451,6 @@ void Shell::LoadSSO()
               RegCloseKey(subkey);
             }
 
-          valueSize = 32 * sizeof(valueName[0]);
           dataSize = 40 * sizeof(data[0]);
           i++;
         }

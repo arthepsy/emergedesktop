@@ -34,21 +34,6 @@ Settings::~Settings()
 void Settings::ResetDefaults()
 {
   BaseSettings::ResetDefaults();
-  // If the appletCount is > 0 then assume this is a new instance and place it
-  // at the current mouse position.
-  if (appletCount > 0)
-    {
-      POINT cursorPt;
-      GetCursorPos(&cursorPt);
-      x = cursorPt.x;
-      y = cursorPt.y;
-    }
-  else
-    {
-      x = 0;
-      y = -40;
-      wcscpy(anchorPoint, TEXT("BottomLeft"));
-    }
   width = 281;
   height = 32;
   wcscpy(zPosition, TEXT("Top"));
@@ -63,6 +48,26 @@ void Settings::ResetDefaults()
   dynamicPositioning = true;
   clickThrough = 0;
   appletMonitor = 0;
+  // If appletCount > 0 assume this is a new instance and place it at the centre
+  // of the screen.
+  if (appletCount > 0)
+    {
+      POINT origin;
+      SIZE appletSize;
+
+      appletSize.cx = width;
+      appletSize.cy = height;
+
+      origin = InstancePosition(appletSize);
+      x = origin.x;
+      y = origin.y;
+    }
+  else
+    {
+      x = 0;
+      y = -40;
+      wcscpy(anchorPoint, TEXT("BottomLeft"));
+    }
 }
 
 void Settings::PopulateItems()

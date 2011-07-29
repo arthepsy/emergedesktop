@@ -1141,7 +1141,7 @@ HBITMAP EGGetIconBitmap(HICON sourceIcon)
   UINT32 x, y;
   HDC maskDC, bmpDC, targetDC;
   HBITMAP hbitmap;
-  bool foundPixel = false, hasAlpha = false;
+  bool hasAlpha = false;
 
   if (!GetIconInfo(sourceIcon, &iconInfo))
     return NULL;
@@ -1228,8 +1228,6 @@ HBITMAP EGGetIconBitmap(HICON sourceIcon)
         {
           if (!GetPixel(maskDC, x, (mask.bmHeight - 1) - y))
             {
-              foundPixel = true;
-
               pixel = ((UINT32*)bmpBits)[x + y * mask.bmWidth] << 4;
               pixel = pixel >> 4;
 

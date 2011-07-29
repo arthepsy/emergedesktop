@@ -218,9 +218,8 @@ BOOL AliasEditor::DoInitDialog(HWND hwndDlg)
   EnableWindow(actionTextWnd, false);
   EnableWindow(editWnd, false);
 
-  bool ret;
   lvSortInfo.listWnd = listWnd;
-  ret = ListView_SortItemsEx(listWnd, ListViewCompareProc, (LPARAM)&lvSortInfo);
+  (void)ListView_SortItemsEx(listWnd, ListViewCompareProc, (LPARAM)&lvSortInfo);
 
   WNDPROC oldAliasProc;
   oldAliasProc = (WNDPROC)SetWindowLongPtr(aliasWnd,GWLP_WNDPROC,(LONG_PTR)AliasProc);

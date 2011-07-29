@@ -56,7 +56,22 @@ void Settings::ResetDefaults()
   wcscpy(MemGradientMethod, (WCHAR*)TEXT("Vertical"));
   MemGradientFrom = RGB(255, 0, 0);
   MemGradientTo = RGB(113, 255, 113);
-  x = 108;
+  // If appletCount > 0 assume this is a new instance and place it at the centre
+  // of the screen.
+  if (appletCount > 0)
+    {
+      POINT origin;
+      SIZE appletSize;
+
+      appletSize.cx = width;
+      appletSize.cy = height;
+
+      origin = InstancePosition(appletSize);
+      x = origin.x;
+      y = origin.y;
+    }
+  else
+    x = 108;
 }
 
 void Settings::DoReadSettings(IOHelper& helper)

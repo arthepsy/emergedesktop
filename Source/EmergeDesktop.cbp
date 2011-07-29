@@ -559,7 +559,10 @@
 				<Option createStaticLib="1" />
 				<Compiler>
 					<Add option="-g" />
+					<Add option="-Wno-unused-value" />
+					<Add option="-Wno-strict-aliasing" />
 					<Add option="-DEMERGELIB_EXPORTS" />
+					<Add option="-DTIXML_USE_STL" />
 				</Compiler>
 				<ResourceCompiler>
 					<Add directory=".\emergeLib" />
@@ -575,8 +578,6 @@
 					<Add library="wtsapi32" />
 					<Add library="winmm" />
 					<Add library="powrprof" />
-					<Add library="zip32z64" />
-					<Add library="unzip32" />
 					<Add directory=".\bin" />
 				</Linker>
 			</Target>
@@ -821,6 +822,7 @@
 			</Target>
 		</Build>
 		<VirtualTargets>
+			<Add alias="All - Debug" targets="emergeLib - Debug;emergeAppletEngine - Debug;emergeBaseClasses - Debug;emergeWorkspace - Debug;emergeCore - Debug;emergeCommand - Debug;emergeTrayExplorerHook - Debug;emergeTray - Debug;emergeTasks - Debug;emergeHotkeys - Debug;emergeLauncher - Debug;" />
 			<Add alias="All - Release" targets="emergeLib - Release;emergeGraphics - Release;emergeAppletEngine - Release;emergeStyleEngine - Release;emergeBaseClasses - Release;emergeTrayExplorerHook - Release;emergeCore - Release;emergeCommand - Release;emergeWorkspace - Release;emergeHotkeys - Release;emergeLauncher - Release;emergeTasks - Release;emergeTray - Release;emergeVWM - Release;emerge - Release;emergePower - Release;emergeSysMon - Release;Explorer - Release;emergeIcons - Release;" />
 		</VirtualTargets>
 		<Compiler>
