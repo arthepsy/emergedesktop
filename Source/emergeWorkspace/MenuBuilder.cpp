@@ -330,22 +330,16 @@ LRESULT MenuBuilder::DoMenuGetObject(HWND hwnd UNUSED, MENUGETOBJECTINFO *mgoInf
 
 LRESULT MenuBuilder::DoMenuDrag(HWND hwnd, HMENU menu)
 {
-  DWORD /*effect,*/ dropEffects;
   LPVOID lpVoid;
   IDropSource *dropSource;
   IDataObject *dataObject;
   std::tr1::shared_ptr<CustomDropSource> customDropSource(new CustomDropSource(hwnd));
   std::tr1::shared_ptr<CustomDataObject> customDataObject(new CustomDataObject(menu));
 
-  dropEffects = DROPEFFECT_COPY;
-
   customDropSource->QueryInterface(IID_IDropSource, &lpVoid);
   dropSource = reinterpret_cast <IDropSource*> (lpVoid);
   customDataObject->QueryInterface(IID_IDataObject, &lpVoid);
   dataObject = reinterpret_cast <IDataObject*> (lpVoid);
-
-  /*if (DoDragDrop(dataObject, dropSource, dropEffects, &effect) == DRAGDROP_S_DROP)
-    OutputDebugString((WCHAR*)TEXT("Drop successfull"));*/
 
   dropSource->Release();
   dataObject->Release();
@@ -449,7 +443,7 @@ LRESULT MenuBuilder::DoContextMenu(POINT pt)
       break;
     case IT_TASKS_MENU:
     {
-      HWND task = (HWND)_wtoi(value);
+      HWND task = (HWND)wcstoll(value, NULL, 10);
       res = EAEDisplayMenu(menuWnd, task);
       switch (res)
         {
@@ -1715,7 +1709,7 @@ LRESULT MenuBuilder::ExecuteMenuItem(UINT itemID)
         ELMessageBox(GetDesktopWindow(), error, (WCHAR*)TEXT("emergeWorkspace"), ELMB_ICONWARNING|ELMB_OK);
       break;
     case IT_TASKS_MENU:
-      ELSwitchToThisWindow((HWND)_wtoi(menuItem->GetValue()));
+      ELSwitchToThisWindow((HWND)wcstoll(menuItem->GetValue(), NULL, 10));
       break;
     case IT_SETTINGS_MENU:
       ExecuteSettingsMenuItem(itemID);

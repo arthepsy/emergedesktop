@@ -1141,7 +1141,6 @@ bool MenuEditor::DoSaveItem(HWND hwndDlg)
   ZeroMemory(name, MAX_LINE_LENGTH);
   ZeroMemory(workingDir, MAX_LINE_LENGTH);
   ZeroMemory(tmp, MAX_LINE_LENGTH);
-  BOOL ret;
 
   iter = treeMap.find(TreeView_GetSelection(treeWnd));
 
@@ -1212,7 +1211,7 @@ bool MenuEditor::DoSaveItem(HWND hwndDlg)
   wcscpy(iter->second.value, value);
   wcscpy(iter->second.workingDir, workingDir);
 
-  ret = TreeView_SetItem(treeWnd, &pItem);
+  (void)TreeView_SetItem(treeWnd, &pItem);
 
   saveCount++;
   deleteCount++;
@@ -1321,7 +1320,6 @@ bool MenuEditor::DoAddItem(HWND hwndDlg)
   MENUTREEITEM menuItem;
   TreeItemMap::iterator iter;
   HTREEITEM item, parent, prev;
-  BOOL ret;
 
   HWND treeWnd = GetDlgItem(hwndDlg, IDC_MENUTREE);
   HWND nameWnd = GetDlgItem(hwndDlg, IDC_ITEMNAME);
@@ -1381,7 +1379,7 @@ bool MenuEditor::DoAddItem(HWND hwndDlg)
 
   item = TreeView_InsertItem(treeWnd, &tvInsert);
   treeMap.insert(TreeItem(item, menuItem));
-  ret = TreeView_SelectItem(treeWnd, item);
+  (void)TreeView_SelectItem(treeWnd, item);
 
   return EnableFields(hwndDlg, (UINT)SendMessage(typeWnd, CB_GETCURSEL, 0, 0));
 }

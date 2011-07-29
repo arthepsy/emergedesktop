@@ -1380,7 +1380,7 @@ LRESULT Applet::AppBarEvent(COPYDATASTRUCT *cpData)
     {
       abd32 = (APPBARDATA_WOW32*)cpData->lpData;
       abd.cbSize = abd32->cbSize;
-      abd.hWnd = (HWND)abd32->hWnd;
+      abd.hWnd = MAKEHWND(abd32->hWnd);
       abd.uCallbackMessage = abd32->uCallbackMessage;
       abd.uEdge = abd32->uEdge;
       abd.rc = abd32->rc;
@@ -1534,14 +1534,13 @@ LRESULT Applet::TrayIconEvent(COPYDATASTRUCT *cpData)
   DWORD iconDataSize = 0;
   void* iconData = NULL;
 
-  //OutputDebugString(TEXT("TrayIconEvent with tooltip: "));
   if (IsWindow(((PSHELLTRAYDATA)cpData->lpData)->iconData.hWnd))
     {
       message = ((PSHELLTRAYDATA)cpData->lpData)->dwMessage;
       iconDataSize = ((PSHELLTRAYDATA)cpData->lpData)->iconData.cbSize;
       iconData = &((PSHELLTRAYDATA)cpData->lpData)->iconData;
     }
-  else if (IsWindow((HWND)((PSHELLTRAYDATAWOW32)cpData->lpData)->iconData.hWnd))
+  else if (IsWindow(MAKEHWND(((PSHELLTRAYDATAWOW32)cpData->lpData)->iconData.hWnd)))
     {
       message = ((PSHELLTRAYDATAWOW32)cpData->lpData)->dwMessage;
       iconDataSize = ((PSHELLTRAYDATAWOW32)cpData->lpData)->iconData.cbSize;
@@ -1578,7 +1577,7 @@ LRESULT Applet::TrayIconEvent(COPYDATASTRUCT *cpData)
         }
 
       if ((uFlags & NIF_ICON) == NIF_ICON)
-        icon = (HICON)iconData5W->hIcon;
+        icon = MAKEHICON(iconData5W->hIcon);
 
       if ((uFlags & NIF_STATE) == NIF_STATE)
         {
@@ -1615,7 +1614,7 @@ LRESULT Applet::TrayIconEvent(COPYDATASTRUCT *cpData)
         }
 
       if ((uFlags & NIF_ICON) == NIF_ICON)
-        icon = (HICON)iconData5A->hIcon;
+        icon = MAKEHICON(iconData5A->hIcon);
 
       if ((uFlags & NIF_STATE) == NIF_STATE)
         {
@@ -1634,7 +1633,7 @@ LRESULT Applet::TrayIconEvent(COPYDATASTRUCT *cpData)
       uFlags = iconData4W->uFlags;
 
       if ((uFlags & NIF_ICON) == NIF_ICON)
-        icon = (HICON)iconData4W->hIcon;
+        icon = MAKEHICON(iconData4W->hIcon);
 
       if ((uFlags & NIF_TIP) == NIF_TIP)
         {
@@ -1651,7 +1650,7 @@ LRESULT Applet::TrayIconEvent(COPYDATASTRUCT *cpData)
       uFlags = iconData4A->uFlags;
 
       if ((uFlags & NIF_ICON) == NIF_ICON)
-        icon = (HICON)iconData4A->hIcon;
+        icon = MAKEHICON(iconData4A->hIcon);
 
       if ((uFlags & NIF_TIP) == NIF_TIP)
         {
@@ -1672,7 +1671,7 @@ LRESULT Applet::TrayIconEvent(COPYDATASTRUCT *cpData)
         case sizeof(NID_7W_WOW32):
           iconData5W32 = (NID_5W_WOW32*)iconData;
           iconVersion = iconData5W32->uVersion;
-          hwnd = (HWND)iconData5W32->hWnd;
+          hwnd = MAKEHWND(iconData5W32->hWnd);
           uID = iconData5W32->uID;
           uCallbackMessage = iconData5W32->uCallbackMessage;
           uFlags = iconData5W32->uFlags;
@@ -1693,7 +1692,7 @@ LRESULT Applet::TrayIconEvent(COPYDATASTRUCT *cpData)
             }
 
           if ((uFlags & NIF_ICON) == NIF_ICON)
-            icon = (HICON)iconData5W32->hIcon;
+            icon = MAKEHICON(iconData5W32->hIcon);
 
           if ((uFlags & NIF_STATE) == NIF_STATE)
             {
@@ -1709,7 +1708,7 @@ LRESULT Applet::TrayIconEvent(COPYDATASTRUCT *cpData)
         case sizeof(NID_7A_WOW32):
           iconData5A32 = (NID_5A_WOW32*)iconData;
           iconVersion = iconData5A32->uVersion;
-          hwnd = (HWND)iconData5A32->hWnd;
+          hwnd = MAKEHWND(iconData5A32->hWnd);
           uID = iconData5A32->uID;
           uCallbackMessage = iconData5A32->uCallbackMessage;
           uFlags = iconData5A32->uFlags;
@@ -1730,7 +1729,7 @@ LRESULT Applet::TrayIconEvent(COPYDATASTRUCT *cpData)
             }
 
           if ((uFlags & NIF_ICON) == NIF_ICON)
-            icon = (HICON)iconData5A32->hIcon;
+            icon = MAKEHICON(iconData5A32->hIcon);
 
           if ((uFlags & NIF_STATE) == NIF_STATE)
             {
@@ -1743,13 +1742,13 @@ LRESULT Applet::TrayIconEvent(COPYDATASTRUCT *cpData)
 
         case sizeof(NID_4W_WOW32):
           iconData4W32 = (NID_4W_WOW32*)iconData;
-          hwnd = (HWND)iconData4W32->hWnd;
+          hwnd = MAKEHWND(iconData4W32->hWnd);
           uID = iconData4W32->uID;
           uCallbackMessage = iconData4W32->uCallbackMessage;
           uFlags = iconData4W32->uFlags;
 
           if ((uFlags & NIF_ICON) == NIF_ICON)
-            icon = (HICON)iconData4W32->hIcon;
+            icon = MAKEHICON(iconData4W32->hIcon);
 
           if ((uFlags & NIF_TIP) == NIF_TIP)
             {
@@ -1760,13 +1759,13 @@ LRESULT Applet::TrayIconEvent(COPYDATASTRUCT *cpData)
 
         case sizeof(NID_4A_WOW32):
           iconData4A32 = (NID_4A_WOW32*)iconData;
-          hwnd = (HWND)iconData4A32->hWnd;
+          hwnd = MAKEHWND(iconData4A32->hWnd);
           uID = iconData4A32->uID;
           uCallbackMessage = iconData4A32->uCallbackMessage;
           uFlags = iconData4A32->uFlags;
 
           if ((uFlags & NIF_ICON) == NIF_ICON)
-            icon = (HICON)iconData4A32->hIcon;
+            icon = MAKEHICON(iconData4A32->hIcon);
 
           if ((uFlags & NIF_TIP) == NIF_TIP)
             {

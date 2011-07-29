@@ -38,8 +38,6 @@ MessageControl::MessageControl()
 
 MessageControl::~MessageControl()
 {
-  TypeMap::iterator iter = types.begin();
-
   while (types.empty())
     types.erase(types.begin());
 
