@@ -1783,7 +1783,7 @@ bool ELExecute(LPTSTR application, LPTSTR workingDir, int nShow, WCHAR *verb)
         wcscpy(directory, workingDir);
       else
         {
-          wcscpy(directory, program);
+          wcscpy(directory, workingString.c_str());
           PathRemoveFileSpec(directory);
         }
     }
@@ -1921,10 +1921,10 @@ bool ELIsExecutable(WCHAR *extension)
   return false;
 }
 
-bool ELGetAppPath(const WCHAR *program, WCHAR *path)
+bool ELGetAppPath(const WCHAR *program, WCHAR *path, DWORD pathSize)
 {
   std::wstring appString;
-  DWORD size;
+  DWORD size = pathSize;
   HKEY key;
   bool ret = false;
 
@@ -2126,7 +2126,7 @@ bool PathTokenCheck(WCHAR *path)
   std::wstring working = path;
 
   working = ELExpandVars(working);
-  if (!ELGetAppPath(working.c_str(), tmp))
+  if (!ELGetAppPath(working.c_str(), tmp, MAX_LINE_LENGTH))
     wcscpy(tmp, working.c_str());
 
   // Strip quotes since the system 'Path...' functions don't seem to like them

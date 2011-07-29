@@ -394,7 +394,7 @@ DLL_EXPORT bool ELGetXMLElementText(TiXmlElement *xmlElement, WCHAR* xmlString);
 DLL_EXPORT bool ELGetXMLElementLabel(TiXmlElement *xmlElement, WCHAR* xmlString);
 DLL_EXPORT bool ELRemoveXMLElement(TiXmlElement *xmlElement);
 DLL_EXPORT bool ELPlaySound(const WCHAR *sound);
-DLL_EXPORT bool ELGetAppPath(const WCHAR *program, WCHAR *path);
+DLL_EXPORT bool ELGetAppPath(const WCHAR *program, WCHAR *path, DWORD pathSize);
 DLL_EXPORT bool ELIsExecutable(WCHAR *extension);
 DLL_EXPORT bool ELFileTypeCommand(WCHAR *document, WCHAR *docArgs, WCHAR *commandLine);
 DLL_EXPORT bool ELCreateDirectory(std::wstring directory);
