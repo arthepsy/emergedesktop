@@ -34,7 +34,6 @@ WCHAR myName[] = TEXT("emergeTasks");
 //----  --------------------------------------------------------------------------------------------------------
 LRESULT CALLBACK Applet::WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-  COPYDATASTRUCT *cpData;
   static Applet *pApplet = NULL;
 
   if (message == WM_CREATE)
@@ -52,10 +51,7 @@ LRESULT CALLBACK Applet::WindowProcedure (HWND hwnd, UINT message, WPARAM wParam
   switch (message)
     {
     case WM_COPYDATA:
-      cpData = (COPYDATASTRUCT *)lParam;
-      if (cpData->dwData == EMERGE_MESSAGE)
-        return pApplet->DoCopyData(cpData);
-      break;
+      return pApplet->DoCopyData((COPYDATASTRUCT *)lParam);
 
       // Needed to handle changing the system colors.  It forces
       // a repaint of the window as well as the frame.
@@ -444,12 +440,12 @@ LRESULT Applet::TaskMouseEvent(UINT message, LPARAM lParam)
 
               if (((GetWindowLongPtr(windowHandle, GWL_STYLE) &
                     WS_MINIMIZEBOX) == WS_MINIMIZEBOX) && // Check to see if the
-                                                          // window is capable
-                                                          // of being minimized.
+                  // window is capable
+                  // of being minimized.
                   !IsIconic(windowHandle) &&  // Check if the window is already
-                                              // minimized.
+                  // minimized.
                   (windowHandle == activeWnd))  // Check to see if it is the
-                                                // active window
+                // active window
                 PostMessage(windowHandle, WM_SYSCOMMAND, SC_MINIMIZE, lParam);
               else
                 ELSwitchToThisWindow(windowHandle); // If not activate it
@@ -617,17 +613,22 @@ LRESULT Applet::DoSizing(HWND hwnd, UINT edge, LPRECT rect)
   return BaseApplet::DoSizing(hwnd, edge, rect);
 }
 
-LRESULT Applet::DoEmergeNotify(UINT messageClass, UINT message)
+LRESULT Applet::DoCopyData(COPYDATASTRUCT *cds)
 {
-  if ((messageClass & EMERGE_VWM) == EMERGE_VWM)
+  if ((cds->dwData == EMERGE_NOTIFY) && (cds->cbData == sizeof(NOTIFYINFO)))
     {
-      activeWnd = NULL;
-      DrawAlphaBlend();
+      LPNOTIFYINFO notifyInfo = reinterpret_cast<LPNOTIFYINFO>(cds->lpData);
 
-      return 0;
+      if ((notifyInfo->Type & EMERGE_VWM) == EMERGE_VWM)
+        {
+          activeWnd = NULL;
+          DrawAlphaBlend();
+
+          return 1;
+        }
     }
 
-  return BaseApplet::DoEmergeNotify(messageClass, message);
+  return BaseApplet::DoCopyData(cds);
 }
 
 void Applet::DoTaskFlash(UINT id)
@@ -796,9 +797,6 @@ LRESULT Applet::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
           break;
         }
     }
-
-  if (message == EMERGE_NOTIFY)
-    return DoEmergeNotify(shellMessage, (UINT)lParam);
 
   if (message == TASK_ICON)
     return DoTaskIcon((HWND)wParam, (HICON)lParam);

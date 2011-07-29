@@ -116,7 +116,6 @@ int CALLBACK IconHidePage::ListViewCompareProc (LPARAM lParam1, LPARAM lParam2, 
 BOOL IconHidePage::DoInitPage(HWND hwndDlg)
 {
   RECT rect;
-  int iRet;
   HWND listWnd = GetDlgItem(hwndDlg, IDC_HIDELIST);
   HWND addWnd = GetDlgItem(hwndDlg, IDC_ADDTIP);
   HWND editWnd = GetDlgItem(hwndDlg, IDC_EDITTIP);
@@ -126,7 +125,6 @@ BOOL IconHidePage::DoInitPage(HWND hwndDlg)
   HWND appWnd = GetDlgItem(hwndDlg, IDC_ICONTEXT);
   LVCOLUMN lvCol;
   TOOLINFO ti;
-  DWORD dwRet;
 
   ZeroMemory(&ti, sizeof(TOOLINFO));
   ELGetWindowRect(hwndDlg, &rect);
@@ -158,8 +156,8 @@ BOOL IconHidePage::DoInitPage(HWND hwndDlg)
   lvCol.pszText = (WCHAR*)TEXT("Icon Text");
   lvCol.cx = 300;
 
-  iRet = ListView_InsertColumn(listWnd, 0, &lvCol);
-  dwRet = ListView_SetExtendedListViewStyle(listWnd,  LVS_EX_FULLROWSELECT);
+  (void)ListView_InsertColumn(listWnd, 0, &lvCol);
+  (void)ListView_SetExtendedListViewStyle(listWnd,  LVS_EX_FULLROWSELECT);
 
   ti.cbSize = TTTOOLINFOW_V2_SIZE;
   ti.uFlags = TTF_SUBCLASS;
@@ -196,9 +194,8 @@ BOOL IconHidePage::DoInitPage(HWND hwndDlg)
 
   PopulateList(listWnd);
 
-  bool ret;
   lvSortInfo.listWnd = listWnd;
-  ret = ListView_SortItemsEx(listWnd, ListViewCompareProc, (LPARAM)&lvSortInfo);
+  (void)ListView_SortItemsEx(listWnd, ListViewCompareProc, (LPARAM)&lvSortInfo);
 
   return TRUE;
 }
@@ -223,7 +220,6 @@ bool IconHidePage::PopulateList(HWND listWnd)
 {
   bool ret = false;
   LVITEM lvItem;
-  int iRet;
 
   lvItem.mask = LVIF_TEXT;
 
@@ -236,7 +232,7 @@ bool IconHidePage::PopulateList(HWND listWnd)
       lvItem.pszText = pSettings->GetHideListItem(i);
       lvItem.cchTextMax = (int)wcslen(pSettings->GetHideListItem(i));
 
-      iRet = ListView_InsertItem(listWnd, &lvItem);
+      (void)ListView_InsertItem(listWnd, &lvItem);
     }
 
   return ret;
@@ -477,7 +473,6 @@ bool IconHidePage::DoDelete(HWND hwndDlg)
   bool ret = false;
   UINT i = 0;
   int prevItem = 0;
-  BOOL bRet;
   WCHAR itemText[MAX_LINE_LENGTH];
 
   if (ListView_GetSelectedCount(listWnd) > 1)
@@ -496,7 +491,7 @@ bool IconHidePage::DoDelete(HWND hwndDlg)
           ret = true;
           prevItem = ListView_GetNextItem(listWnd, i, LVNI_ABOVE);
           ListView_GetItemText(listWnd, i, 0, itemText, MAX_LINE_LENGTH);
-          bRet = ListView_DeleteItem(listWnd, i);
+          (void)ListView_DeleteItem(listWnd, i);
           pSettings->DeleteHideListItem(itemText);
 
           ListView_SetItemState(listWnd, i, LVIS_SELECTED,
@@ -507,7 +502,7 @@ bool IconHidePage::DoDelete(HWND hwndDlg)
                 {
                   ListView_SetItemState(listWnd, prevItem, LVIS_SELECTED,
                                         LVIS_SELECTED);
-                  bRet = ListView_EnsureVisible(listWnd, prevItem, FALSE);
+                  (void)ListView_EnsureVisible(listWnd, prevItem, FALSE);
                 }
             }
 

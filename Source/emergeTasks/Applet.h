@@ -81,13 +81,13 @@ public:
   UINT Initialize();
   LRESULT DoTimer(UINT_PTR timerID);
   LRESULT DoSizing(HWND hwnd, UINT edge, LPRECT rect);
-  LRESULT DoEmergeNotify(UINT messageClass, UINT message);
   LRESULT DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
   LRESULT TaskMouseEvent(UINT message, LPARAM lParam);
   LRESULT AddTask(HWND task);
   LRESULT ModifyTask(HWND task);
   LRESULT RemoveTask(HWND task);
   LRESULT SetFlash(HWND task, bool flash);
+  LRESULT DoCopyData(COPYDATASTRUCT *cds);
   void CreateBrushes();
   void DestroyBrushes();
   bool CleanTasks();

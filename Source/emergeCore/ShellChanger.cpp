@@ -354,7 +354,6 @@ bool ShellChanger::DoSetShell(HWND hwndDlg)
   HKEY key;
   DWORD result;
   WCHAR name[MAX_LINE_LENGTH], command[MAX_LINE_LENGTH];
-  DWORD process;
   REGSAM regMask = 0;
   bool success = false;
   HWND startErrorWnd = GetDlgItem(hwndDlg, IDC_STARTERROR);
@@ -380,10 +379,7 @@ bool ShellChanger::DoSetShell(HWND hwndDlg)
                      TEXT("Software\\Microsoft\\Windows\\CurrentVersion\\Explorer"), 0, NULL,
                      REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS | regMask, NULL, &key, &result) == ERROR_SUCCESS)
     {
-      process = 1;
       wcscpy(command, TEXT("yes"));
-      //RegSetValueEx(key, TEXT("DesktopProcess"), 0, REG_DWORD, (BYTE*)&process,
-      //sizeof(DWORD));
       RegSetValueEx(key, TEXT("BrowseNewProcess"), 0, REG_SZ, (BYTE*)command,
                     (DWORD)wcslen(command) * sizeof(command[0]));
 

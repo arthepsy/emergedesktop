@@ -58,6 +58,9 @@ BaseApplet::~BaseApplet()
 
   CloseHandle(multiInstanceLock);
 
+  // Close the InstanceManagement.xml file mutex
+  CloseHandle(instanceManagementMutex);
+
   OleUninitialize();
 
   ELClearEmergeVars();
@@ -74,6 +77,8 @@ UINT BaseApplet::Initialize(WNDPROC WindowProcedure, LPVOID lpParam, std::tr1::s
       return 0;
     }
 
+  // Create the InstanceManagement.xml mutex initially as un-owned
+  instanceManagementMutex = CreateMutex(NULL, FALSE, TEXT("InstanceManagement"));
   multiInstanceLock = CreateMutex(NULL, false, baseAppletName);
   DWORD err = GetLastError();
 
@@ -794,12 +799,84 @@ LRESULT BaseApplet::DoSetCursor()
 
 LRESULT BaseApplet::DoCopyData(COPYDATASTRUCT *cds)
 {
-  std::wstring theme = reinterpret_cast<WCHAR*>(cds->lpData);
-
   if (cds->dwData == EMERGE_MESSAGE)
     {
+      std::wstring theme = reinterpret_cast<WCHAR*>(cds->lpData);
       SetEnvironmentVariable(TEXT("ThemeDir"), theme.c_str());
       return 1;
+    }
+
+  if ((cds->dwData == EMERGE_NOTIFY) && (cds->cbData == sizeof(NOTIFYINFO)))
+    {
+      LPNOTIFYINFO notifyInfo = reinterpret_cast<LPNOTIFYINFO>(cds->lpData);
+
+      if ((notifyInfo->Type & EMERGE_CORE) == EMERGE_CORE)
+        {
+          switch (notifyInfo->Message)
+            {
+            case CORE_HIDE:
+              if ((notifyInfo->InstanceName != NULL) && wcslen(notifyInfo->InstanceName))
+                {
+                  if (_wcsicmp(notifyInfo->InstanceName, appletName) == 0)
+                    HideApplet(true);
+                }
+              else
+                HideApplet(true);
+              break;
+
+            case CORE_SHOW:
+              if ((notifyInfo->InstanceName != NULL) && wcslen(notifyInfo->InstanceName))
+                {
+                  if (_wcsicmp(notifyInfo->InstanceName, appletName) == 0)
+                    HideApplet(false);
+                }
+              else
+                HideApplet(false);
+              break;
+
+            case CORE_REFRESH:
+              ZeroMemory(&oldrt, sizeof(RECT));
+              UpdateGUI(ESEGetStyle());
+              break;
+
+            case CORE_REPOSITION:
+            {
+              HWND hwndInsertBehind = NULL;
+              if (_wcsicmp(pBaseSettings->GetZPosition(), TEXT("top")) != 0)
+                hwndInsertBehind = ELGetDesktopWindow();
+              SetWindowPos(mainWnd, hwndInsertBehind, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
+            }
+            break;
+
+            case CORE_SHOWCONFIG:
+              ShowConfig();
+              break;
+
+            case CORE_RECONFIGURE:
+              if (allowMultipleInstances)
+                {
+                  // Kill any instances other than the initial instance.
+                  if (appletCount > 0)
+                    PostQuitMessage(0);
+                  else
+                    {
+                      UpdateGUI(); // Update initial instance
+                      WriteAppletCount(-1, false); // Reset the Applet Count
+                      SpawnInstance(); // Spawn any additional instances
+                    }
+                }
+              else
+                UpdateGUI();
+              break;
+
+            case CORE_WRITESETTINGS:
+              pBaseSettings->SetModified();
+              pBaseSettings->WriteSettings();
+              break;
+            }
+
+          return 1;
+        }
     }
 
   return 0;
@@ -907,77 +984,6 @@ void BaseApplet::ShowConfig()
   return;
 }
 
-LRESULT BaseApplet::DoEmergeNotify(UINT messageClass, UINT message)
-{
-  if ((messageClass & EMERGE_CORE) == EMERGE_CORE)
-    {
-      switch (message)
-        {
-        case CORE_HIDE:
-          if (!appletHidden)
-            {
-              appletHidden = true;
-              SetWindowPos(mainWnd, NULL, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOZORDER |
-                           SWP_NOACTIVATE | SWP_HIDEWINDOW);
-            }
-          break;
-
-        case CORE_SHOW:
-          if (appletHidden)
-            {
-              appletHidden = false;
-              SetWindowPos(mainWnd, NULL, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOZORDER |
-                           SWP_NOACTIVATE | SWP_SHOWWINDOW);
-            }
-          break;
-
-        case CORE_REFRESH:
-          ZeroMemory(&oldrt, sizeof(RECT));
-          UpdateGUI(ESEGetStyle());
-          break;
-
-        case CORE_REPOSITION:
-        {
-          HWND hwndInsertBehind = NULL;
-          if (_wcsicmp(pBaseSettings->GetZPosition(), TEXT("top")) != 0)
-            hwndInsertBehind = ELGetDesktopWindow();
-          SetWindowPos(mainWnd, hwndInsertBehind, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
-        }
-        break;
-
-        case CORE_SHOWCONFIG:
-          ShowConfig();
-          break;
-
-        case CORE_RECONFIGURE:
-          if (allowMultipleInstances)
-            {
-              // Kill any instances other than the initial instance.
-              if (appletCount > 0)
-                PostQuitMessage(0);
-              else
-                {
-                  UpdateGUI(); // Update initial instance
-                  WriteAppletCount(-1, false); // Reset the Applet Count
-                  SpawnInstance(); // Spawn any additional instances
-                }
-            }
-          else
-            UpdateGUI();
-          break;
-
-        case CORE_WRITESETTINGS:
-          pBaseSettings->SetModified();
-          pBaseSettings->WriteSettings();
-          break;
-        }
-
-      return 0;
-    }
-
-  return 1;
-}
-
 LRESULT BaseApplet::DoSysColorChange()
 {
   UpdateGUI();
@@ -1001,6 +1007,28 @@ HWND BaseApplet::GetMainWnd()
   return mainWnd;
 }
 
+void BaseApplet::HideApplet(bool hide)
+{
+  if (hide)
+    {
+      if (!appletHidden)
+        {
+          appletHidden = true;
+          SetWindowPos(mainWnd, NULL, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOZORDER |
+                       SWP_NOACTIVATE | SWP_HIDEWINDOW);
+        }
+    }
+  else
+    {
+      if (appletHidden)
+        {
+          appletHidden = false;
+          SetWindowPos(mainWnd, NULL, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOZORDER |
+                       SWP_NOACTIVATE | SWP_SHOWWINDOW);
+        }
+    }
+}
+
 DWORD WINAPI BaseApplet::FullScreenThreadProc(LPVOID lpParameter)
 {
   // reinterpret lpParameter as a BaseApplet*
@@ -1018,14 +1046,14 @@ DWORD WINAPI BaseApplet::FullScreenThreadProc(LPVOID lpParameter)
           // if so set fullscreen to true...
           pBaseApplet->SetFullScreen(true);
           // and hide the applet
-          pBaseApplet->DoEmergeNotify(EMERGE_CORE, CORE_HIDE);
+          pBaseApplet->HideApplet(true);
         }
       else if (pBaseApplet->GetFullScreen())
         {
           // if not and fullscreen is set to true then set fullscreen false...
           pBaseApplet->SetFullScreen(false);
           // and show the applet
-          pBaseApplet->DoEmergeNotify(EMERGE_CORE, CORE_SHOW);
+          pBaseApplet->HideApplet(false);
         }
     }
 
@@ -1083,7 +1111,12 @@ LRESULT BaseApplet::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
             {
               TerminateThread(fullScreenThread, 0);
               fullScreen = false;
-              DoEmergeNotify(EMERGE_CORE, CORE_SHOW);
+              if (appletHidden)
+                {
+                  appletHidden = false;
+                  SetWindowPos(mainWnd, NULL, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOZORDER |
+                               SWP_NOACTIVATE | SWP_SHOWWINDOW);
+                }
             }
           return 1;
 
@@ -1098,9 +1131,6 @@ LRESULT BaseApplet::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
           return 0;
         }
     }
-
-  if (message == EMERGE_NOTIFY)
-    return DoEmergeNotify(shellMessage, (UINT)lParam);
 
   return DefWindowProc(hwnd, message, wParam, lParam);
 }
@@ -1121,15 +1151,8 @@ int BaseApplet::ReadAppletCount(int defaultValue)
   std::tr1::shared_ptr<TiXmlDocument> configXML;
   TiXmlElement *section = NULL;
 
-  HANDLE instanceManagementMutex = CreateMutex(NULL, false, TEXT("InstanceManagement"));
-  while (GetLastError() == ERROR_ALREADY_EXISTS)
-    {
-      instanceManagementMutex = OpenMutex(SYNCHRONIZE, false, TEXT("InstanceManagement"));
-      if (instanceManagementMutex == NULL)
-        instanceManagementMutex = CreateMutex(NULL, false, TEXT("InstanceManagement"));
-      else
-        WaitForSingleObject(instanceManagementMutex, INFINITE);
-    }
+  // Take control of the InstanceManagement.xml Mutex
+  WaitForSingleObject(instanceManagementMutex, INFINITE);
 
   instanceManagementPath = ELExpandVars(instanceManagementPath);
 
@@ -1144,7 +1167,8 @@ int BaseApplet::ReadAppletCount(int defaultValue)
         }
     }
 
-  CloseHandle(instanceManagementMutex);
+  // Release the InstanceManagement.xml Mutex
+  ReleaseMutex(instanceManagementMutex);
   return tempAppletCount;
 }
 
@@ -1152,16 +1176,10 @@ bool BaseApplet::WriteAppletCount(int value, bool forceCreate)
 {
   std::tr1::shared_ptr<TiXmlDocument> configXML;
   TiXmlElement *section = NULL;
+  bool ret = false;
 
-  HANDLE instanceManagementMutex = CreateMutex(NULL, false, TEXT("InstanceManagement"));
-  while (GetLastError() == ERROR_ALREADY_EXISTS)
-    {
-      instanceManagementMutex = OpenMutex(SYNCHRONIZE, false, TEXT("InstanceManagement"));
-      if (instanceManagementMutex == NULL)
-        instanceManagementMutex = CreateMutex(NULL, false, TEXT("InstanceManagement"));
-      else
-        WaitForSingleObject(instanceManagementMutex, INFINITE);
-    }
+  // Take control of the InstanceManagement.xml Mutex
+  WaitForSingleObject(instanceManagementMutex, INFINITE);
 
   instanceManagementPath = ELExpandVars(instanceManagementPath);
 
@@ -1174,16 +1192,14 @@ bool BaseApplet::WriteAppletCount(int value, bool forceCreate)
           if (ELWriteXMLIntValue(section, TEXT("AppletCount"), value))
             {
               if (ELWriteXMLConfig(configXML.get()) == true)
-                {
-                  CloseHandle(instanceManagementMutex);
-                  return true;
-                }
+                ret = true;
             }
         }
     }
 
-  CloseHandle(instanceManagementMutex);
-  return false;
+  // Release the InstanceManagement.xml Mutex
+  ReleaseMutex(instanceManagementMutex);
+  return ret;
 }
 
 void BaseApplet::RenameSettingsFiles()

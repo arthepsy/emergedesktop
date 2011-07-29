@@ -38,8 +38,6 @@ MessageControl::MessageControl()
 
 MessageControl::~MessageControl()
 {
-  TypeMap::iterator iter = types.begin();
-
   while (types.empty())
     types.erase(types.begin());
 
@@ -126,11 +124,16 @@ void MessageControl::DoRemove(HWND window, UINT type)
 // Returns:	Nothing
 // Purpose:	Sends the message to the windows that have requested it
 //----  --------------------------------------------------------------------------------------------------------
-void MessageControl::DispatchMessage(UINT type, UINT message)
+void MessageControl::DispatchMessage(UINT type, UINT message, WCHAR *instanceName)
 {
   WindowSet *winSet;
   TypeMap::iterator iter1;
   WindowSet::iterator iter2;
+  UINT Msg = 0;
+  WPARAM wParam = 0;
+  LPARAM lParam = 0;
+  NOTIFYINFO notifyInfo;
+  COPYDATASTRUCT cds;
 
   iter1 = types.find(type);
 
@@ -141,13 +144,29 @@ void MessageControl::DispatchMessage(UINT type, UINT message)
 
   iter2 = winSet->begin();
 
+  if (type == EMERGE_CORE && message == CORE_QUIT)
+    Msg = WM_NCDESTROY;
+  else
+    {
+      Msg = WM_COPYDATA;
+
+      ZeroMemory(&notifyInfo, sizeof(notifyInfo));
+      notifyInfo.Type = type;
+      notifyInfo.Message = message;
+      if ((instanceName != NULL) && wcslen(instanceName))
+        wcsncpy(notifyInfo.InstanceName, instanceName, MAX_PATH - 1);
+
+      cds.dwData = EMERGE_NOTIFY;
+      cds.cbData = sizeof(notifyInfo);
+      cds.lpData = &notifyInfo;
+
+      lParam = reinterpret_cast<LPARAM>(&cds);
+    }
+
   while (iter2 != winSet->end())
     {
-      if (type == EMERGE_CORE && message == CORE_QUIT)
-        PostMessage((HWND)*iter2, WM_NCDESTROY, 0, 0);
-      else
-        PostMessage((HWND)*iter2, EMERGE_NOTIFY, (WPARAM)type, (LPARAM)message);
-
+      SendMessageTimeout((HWND)*iter2, Msg, wParam, lParam, SMTO_ABORTIFHUNG,
+                         500, NULL);
       iter2++;
     }
 }

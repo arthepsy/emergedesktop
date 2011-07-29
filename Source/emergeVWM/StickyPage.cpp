@@ -121,7 +121,6 @@ int CALLBACK StickyPage::ListViewCompareProc (LPARAM lParam1, LPARAM lParam2, LP
 
 BOOL StickyPage::DoInitDialog(HWND hwndDlg)
 {
-  int iRet;
   LVCOLUMN lvCol;
   HWND listWnd = GetDlgItem(hwndDlg, IDC_STICKYLIST);
   HWND addWnd = GetDlgItem(hwndDlg, IDC_ADDAPP);
@@ -132,7 +131,6 @@ BOOL StickyPage::DoInitDialog(HWND hwndDlg)
   HWND abortWnd = GetDlgItem(hwndDlg, IDC_ABORTAPP);
   HWND appWnd = GetDlgItem(hwndDlg, IDC_APPLICATION);
   TOOLINFO ti;
-  DWORD dwRet;
 
   edit = false;
   saveCount = 0;
@@ -164,8 +162,8 @@ BOOL StickyPage::DoInitDialog(HWND hwndDlg)
   lvCol.pszText = (WCHAR*)TEXT("Application");
   lvCol.cx = 160;
 
-  iRet = ListView_InsertColumn(listWnd, 0, &lvCol);
-  dwRet = ListView_SetExtendedListViewStyle(listWnd,  LVS_EX_FULLROWSELECT);
+  (void)ListView_InsertColumn(listWnd, 0, &lvCol);
+  (void)ListView_SetExtendedListViewStyle(listWnd,  LVS_EX_FULLROWSELECT);
 
   if (pSettings->GetHideSticky())
     SendDlgItemMessage(hwndDlg, IDC_HIDESTICKY, BM_SETCHECK, BST_CHECKED, 0);
@@ -211,9 +209,8 @@ BOOL StickyPage::DoInitDialog(HWND hwndDlg)
 
   PopulateList(listWnd);
 
-  bool ret;
   lvSortInfo.listWnd = listWnd;
-  ret = ListView_SortItemsEx(listWnd, ListViewCompareProc, (LPARAM)&lvSortInfo);
+  (void)ListView_SortItemsEx(listWnd, ListViewCompareProc, (LPARAM)&lvSortInfo);
 
   return TRUE;
 }
@@ -337,7 +334,6 @@ bool StickyPage::PopulateList(HWND listWnd)
 {
   bool ret = false;
   LVITEM lvItem;
-  int iRet;
 
   lvItem.mask = LVIF_TEXT;
 
@@ -350,7 +346,7 @@ bool StickyPage::PopulateList(HWND listWnd)
       lvItem.pszText = pSettings->GetStickyListItem(i);
       lvItem.cchTextMax = (int)wcslen(pSettings->GetStickyListItem(i));
 
-      iRet = ListView_InsertItem(listWnd, &lvItem);
+      (void)ListView_InsertItem(listWnd, &lvItem);
     }
 
   return ret;
@@ -362,7 +358,6 @@ bool StickyPage::DoDelete(HWND hwndDlg)
   HWND delWnd = GetDlgItem(hwndDlg, IDC_DELAPP);
   bool ret = false;
   int prevItem = 0, i = 0;
-  BOOL bRet;
 
   if (ListView_GetSelectedCount(listWnd) > 1)
     {
@@ -379,7 +374,7 @@ bool StickyPage::DoDelete(HWND hwndDlg)
           ret = true;
           prevItem = ListView_GetNextItem(listWnd, i, LVNI_ABOVE);
           deleteCount++;
-          bRet = ListView_DeleteItem(listWnd, i);
+          (void)ListView_DeleteItem(listWnd, i);
 
           ListView_SetItemState(listWnd, i, LVIS_SELECTED,
                                 LVIS_SELECTED);
@@ -389,7 +384,7 @@ bool StickyPage::DoDelete(HWND hwndDlg)
                 {
                   ListView_SetItemState(listWnd, prevItem, LVIS_SELECTED,
                                         LVIS_SELECTED);
-                  bRet = ListView_EnsureVisible(listWnd, prevItem, FALSE);
+                  (void)ListView_EnsureVisible(listWnd, prevItem, FALSE);
                 }
             }
 
