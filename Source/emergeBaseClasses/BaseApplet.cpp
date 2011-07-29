@@ -1009,17 +1009,23 @@ HWND BaseApplet::GetMainWnd()
 
 void BaseApplet::HideApplet(bool hide)
 {
-  if (hide && !appletHidden)
+  if (hide)
     {
-      appletHidden = true;
-      SetWindowPos(mainWnd, NULL, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOZORDER |
-                   SWP_NOACTIVATE | SWP_HIDEWINDOW);
+      if (!appletHidden)
+        {
+          appletHidden = true;
+          SetWindowPos(mainWnd, NULL, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOZORDER |
+                       SWP_NOACTIVATE | SWP_HIDEWINDOW);
+        }
     }
-  else if (appletHidden)
+  else
     {
-      appletHidden = false;
-      SetWindowPos(mainWnd, NULL, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOZORDER |
-                   SWP_NOACTIVATE | SWP_SHOWWINDOW);
+      if (appletHidden)
+        {
+          appletHidden = false;
+          SetWindowPos(mainWnd, NULL, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOZORDER |
+                       SWP_NOACTIVATE | SWP_SHOWWINDOW);
+        }
     }
 }
 
