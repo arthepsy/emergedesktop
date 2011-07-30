@@ -94,21 +94,21 @@ UINT BaseApplet::Initialize(WNDPROC WindowProcedure, LPVOID lpParam, std::tr1::s
         return 0;
 
       /*appletCount = ReadAppletCount(-1) + 1;
-      if (appletCount > 0)
+        if (appletCount > 0)
         swprintf(appletName, TEXT("%s%d"), appletName, appletCount);
 
-      std::wstring tempSettingsFile;
-      tempSettingsFile = TEXT("%ThemeDir%\\");
-      tempSettingsFile += appletName;
-      tempSettingsFile += TEXT(".xml");
-      tempSettingsFile = ELExpandVars(tempSettingsFile);
-      if ((appletCount != 0) && (!ELPathFileExists(tempSettingsFile.c_str())))
+        std::wstring tempSettingsFile;
+        tempSettingsFile = TEXT("%ThemeDir%\\");
+        tempSettingsFile += appletName;
+        tempSettingsFile += TEXT(".xml");
+        tempSettingsFile = ELExpandVars(tempSettingsFile);
+        if ((appletCount != 0) && (!ELPathFileExists(tempSettingsFile.c_str())))
         return 0;
 
-      WriteAppletCount(appletCount);
+        WriteAppletCount(appletCount);
 
-      WCHAR appletPath[MAX_PATH];
-      if (GetModuleFileName(0, appletPath, MAX_PATH))
+        WCHAR appletPath[MAX_PATH];
+        if (GetModuleFileName(0, appletPath, MAX_PATH))
         ELExecute(appletPath);*/
     }
   else
@@ -840,13 +840,13 @@ LRESULT BaseApplet::DoCopyData(COPYDATASTRUCT *cds)
               break;
 
             case CORE_REPOSITION:
-            {
-              HWND hwndInsertBehind = NULL;
-              if (_wcsicmp(pBaseSettings->GetZPosition(), TEXT("top")) != 0)
-                hwndInsertBehind = ELGetDesktopWindow();
-              SetWindowPos(mainWnd, hwndInsertBehind, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
-            }
-            break;
+                {
+                  HWND hwndInsertBehind = NULL;
+                  if (_wcsicmp(pBaseSettings->GetZPosition(), TEXT("top")) != 0)
+                    hwndInsertBehind = ELGetDesktopWindow();
+                  SetWindowPos(mainWnd, hwndInsertBehind, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
+                }
+              break;
 
             case CORE_SHOWCONFIG:
               ShowConfig();
@@ -937,6 +937,10 @@ LRESULT BaseApplet::DoNCRButtonUp()
       break;
 
     case EBC_NEWINSTANCE:
+      // Set the theme to modified
+      pBaseSettings->SetModified();
+      pBaseSettings->WriteSettings();
+
       tempAppletCount = ReadAppletCount(-1) + 1;
       swprintf(strAppletCount, TEXT("%d"), tempAppletCount);
 
@@ -960,6 +964,9 @@ LRESULT BaseApplet::DoNCRButtonUp()
       break;
 
     case EBC_DELETEINSTANCE:
+      // Set the theme to modified
+      pBaseSettings->SetModified();
+      pBaseSettings->WriteSettings();
 
       tempSettingsFile = TEXT("%ThemeDir%\\");
       tempSettingsFile += baseAppletName;
