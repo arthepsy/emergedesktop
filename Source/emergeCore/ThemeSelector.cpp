@@ -54,16 +54,16 @@ ThemeSelector::ThemeSelector(HINSTANCE hInstance, HWND mainWnd)
   InitCommonControls();
 
   toolWnd = CreateWindowEx(
-              0,
-              TOOLTIPS_CLASS,
-              NULL,
-              TTS_ALWAYSTIP|WS_POPUP|TTS_NOPREFIX,
-              CW_USEDEFAULT, CW_USEDEFAULT,
-              CW_USEDEFAULT, CW_USEDEFAULT,
-              NULL,
-              NULL,
-              hInstance,
-              NULL);
+                           0,
+                           TOOLTIPS_CLASS,
+                           NULL,
+                           TTS_ALWAYSTIP|WS_POPUP|TTS_NOPREFIX,
+                           CW_USEDEFAULT, CW_USEDEFAULT,
+                           CW_USEDEFAULT, CW_USEDEFAULT,
+                           NULL,
+                           NULL,
+                           hInstance,
+                           NULL);
 
   if (toolWnd)
     {
@@ -331,7 +331,7 @@ void ThemeSelector::DoImport(HWND hwndDlg)
   ofn.lpstrFile = tmp;
   ofn.lpstrTitle = TEXT("Browse For Theme File");
   ofn.Flags = OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST | OFN_EXPLORER |
-              OFN_DONTADDTORECENT | OFN_NOCHANGEDIR | OFN_NODEREFERENCELINKS;
+    OFN_DONTADDTORECENT | OFN_NOCHANGEDIR | OFN_NODEREFERENCELINKS;
 
   if (GetOpenFileName(&ofn))
     {
@@ -363,8 +363,11 @@ void ThemeSelector::DoSave(HWND hwndDlg)
   destTheme = TEXT("%EmergeDir%\\themes\\");
   destTheme += theme;
 
-  if (!PathIsDirectory(destTheme.c_str()))
-    ELCreateDirectory(destTheme);
+  // If the destTheme directory exists, remove it and re-create it (to make
+  // sure its empty.
+  if (PathIsDirectory(ELExpandVars(destTheme).c_str()))
+    ELFileOp(hwndDlg, FO_DELETE, destTheme);
+  ELCreateDirectory(destTheme);
 
   if (ELFileOp(hwndDlg, FO_COPY, copySource, destTheme))
     {
