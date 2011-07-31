@@ -89,6 +89,7 @@ public:
   bool GetFullScreen();
   HWND GetMainWnd();
   void HideApplet(bool hide);
+  WCHAR *GetInstanceName();
 
 private:
   WCHAR appletName[MAX_LINE_LENGTH], baseAppletName[MAX_LINE_LENGTH];

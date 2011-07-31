@@ -840,13 +840,13 @@ LRESULT BaseApplet::DoCopyData(COPYDATASTRUCT *cds)
               break;
 
             case CORE_REPOSITION:
-                {
-                  HWND hwndInsertBehind = NULL;
-                  if (_wcsicmp(pBaseSettings->GetZPosition(), TEXT("top")) != 0)
-                    hwndInsertBehind = ELGetDesktopWindow();
-                  SetWindowPos(mainWnd, hwndInsertBehind, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
-                }
-              break;
+            {
+              HWND hwndInsertBehind = NULL;
+              if (_wcsicmp(pBaseSettings->GetZPosition(), TEXT("top")) != 0)
+                hwndInsertBehind = ELGetDesktopWindow();
+              SetWindowPos(mainWnd, hwndInsertBehind, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
+            }
+            break;
 
             case CORE_SHOWCONFIG:
               ShowConfig();
@@ -1036,6 +1036,11 @@ void BaseApplet::HideApplet(bool hide)
     }
 }
 
+WCHAR *BaseApplet::GetInstanceName()
+{
+  return appletName;
+}
+
 DWORD WINAPI BaseApplet::FullScreenThreadProc(LPVOID lpParameter)
 {
   // reinterpret lpParameter as a BaseApplet*
@@ -1047,7 +1052,7 @@ DWORD WINAPI BaseApplet::FullScreenThreadProc(LPVOID lpParameter)
       // Pause the current thread for FULLSCREEN_POLL_TIME
       WaitForSingleObject(GetCurrentThread(), FULLSCREEN_WAIT_TIME);
 
-      // Check if the current foreground window is full screen
+      // Check if the current foreground window is full screen...
       if (ELIsFullScreen(pBaseApplet->GetMainWnd(), GetForegroundWindow()))
         {
           // if so set fullscreen to true...
@@ -1055,13 +1060,17 @@ DWORD WINAPI BaseApplet::FullScreenThreadProc(LPVOID lpParameter)
           // and hide the applet
           pBaseApplet->HideApplet(true);
         }
+      // If not and in fullscreen mode...
       else if (pBaseApplet->GetFullScreen())
         {
-          // if not and fullscreen is set to true then set fullscreen false...
+          // set fullscreen false...
           pBaseApplet->SetFullScreen(false);
           // and show the applet
           pBaseApplet->HideApplet(false);
         }
+      else
+        // Fail safe to kill runaway threads
+        ExitThread(0);
     }
 
   return 0;
@@ -1102,28 +1111,24 @@ LRESULT BaseApplet::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
         {
           // A "task" was activated
         case HSHELL_RUDEAPPACTIVATED:
+          // Kill the display change thread
           TerminateThread(displayChangeThread, 0);
-          if (!fullScreenThread)
+          // Create the fullscreen thread
+          GetExitCodeThread(fullScreenThread, &threadState);
+          if (threadState != STILL_ACTIVE)
             fullScreenThread = CreateThread(NULL, 0, FullScreenThreadProc, this, 0, &threadID);
-          else
-            {
-              GetExitCodeThread(fullScreenThread, &threadState);
-              if (threadState != STILL_ACTIVE)
-                fullScreenThread = CreateThread(NULL, 0, FullScreenThreadProc, this, 0, &threadID);
-            }
           return 1;
 
         case HSHELL_WINDOWACTIVATED:
+          // Kill the fullscreen thread
+          TerminateThread(fullScreenThread, 0);
+          // If in fullscreen mode...
           if (fullScreen)
             {
-              TerminateThread(fullScreenThread, 0);
+              // set fullScreen to false...
               fullScreen = false;
-              if (appletHidden)
-                {
-                  appletHidden = false;
-                  SetWindowPos(mainWnd, NULL, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOZORDER |
-                               SWP_NOACTIVATE | SWP_SHOWWINDOW);
-                }
+              // and show the applet
+              HideApplet(false);
             }
           return 1;
 
