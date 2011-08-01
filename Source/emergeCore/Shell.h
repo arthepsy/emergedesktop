@@ -21,6 +21,9 @@
 #ifndef __EC_SHELL_H
 #define __EC_SHELL_H
 
+#undef _WIN32_WINNT
+#define _WIN32_WINNT 0x501
+
 #include "../emergeLib/emergeLib.h"
 #include <vector>
 #include <string>
