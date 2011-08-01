@@ -125,19 +125,8 @@ bool Core::Initialize(WCHAR *commandLine)
   pDesktop = std::tr1::shared_ptr<Desktop>(new Desktop(mainInst, pMessageControl));
   pDesktop->Initialize(pSettings->GetShowExplorerDesktop());
 
-  if (!ELIsEmergeShell()) // Running on top of Explorer; hide the Taskbar
-    {
-      //get the Taskbar window
-      HWND taskBarWnd = FindWindow(TEXT("Shell_TrayWnd"), NULL);
-
-      //get the start button window
-      HWND startWnd = FindWindow(TEXT("Button"), NULL);
-
-      if (taskBarWnd)
-        ShowWindow(taskBarWnd, SW_HIDE);
-      if (startWnd)
-        ShowWindow(startWnd, SW_HIDE);
-    }
+  // Hide Explorer's taskbar
+  pShell->HideExplorerBar();
 
   // Launch additional Emerge Desktop applets
   ConvertTheme();

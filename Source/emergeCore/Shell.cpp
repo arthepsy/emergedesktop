@@ -37,6 +37,25 @@ Shell::Shell()
 Shell::~Shell()
 {}
 
+LRESULT Shell::HideExplorerBar()
+{
+  if (!ELIsEmergeShell()) // Running on top of Explorer; hide the Taskbar
+    {
+      //get the Taskbar window
+      HWND taskBarWnd = FindWindow(TEXT("Shell_TrayWnd"), NULL);
+
+      //get the start button window
+      HWND startWnd = FindWindow(TEXT("Button"), NULL);
+
+      if (taskBarWnd)
+        ShowWindow(taskBarWnd, SW_HIDE);
+      if (startWnd)
+        ShowWindow(startWnd, SW_HIDE);
+    }
+
+  return 0;
+}
+
 //----  --------------------------------------------------------------------------------------------------------
 // Function:	RunRegEntries
 // Required:	HKEY key - registry whith entries to be executed
@@ -119,6 +138,9 @@ bool Shell::UpdateTaskCount(UINT message, UINT shellMessage, HWND task)
           return UpdateSessionInformation(false, task);
         case HSHELL_WINDOWCREATED:
           return UpdateSessionInformation(true, task);
+        case HSHELL_WINDOWACTIVATED:
+        case HSHELL_RUDEAPPACTIVATED:
+          return HideExplorerBar();
         }
     }
 

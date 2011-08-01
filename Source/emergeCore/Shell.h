@@ -50,6 +50,7 @@ public:
   void CountTask(HWND hwnd);
   void UnloadSSO();
   void LoadSSO();
+  LRESULT HideExplorerBar();
 
 private:
   std::vector<HWND> taskList;
