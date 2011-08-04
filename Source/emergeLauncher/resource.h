@@ -47,6 +47,7 @@
 #define IDC_CLICKTHROUGH        205
 #define IDC_ICONSPACINGUPDOWN   206
 #define IDC_CLICKTHROUGHMETHOD  207
+#define IDC_STARTHIDDEN         208
 
 #define IDC_APPLIST             300
 #define IDC_COMMAND             301

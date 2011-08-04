@@ -33,6 +33,7 @@ BaseApplet::BaseApplet(HINSTANCE hInstance, const WCHAR *appletName, bool allowA
   mouseOver = false;
   fullScreen = false;
   appletHidden = false;
+  firstRun = true;
   this->allowAutoSize = allowAutoSize;
   this->allowMultipleInstances = allowMultipleInstances;
 
@@ -92,24 +93,6 @@ UINT BaseApplet::Initialize(WNDPROC WindowProcedure, LPVOID lpParam, std::tr1::s
 
       if (!SpawnInstance())
         return 0;
-
-      /*appletCount = ReadAppletCount(-1) + 1;
-        if (appletCount > 0)
-        swprintf(appletName, TEXT("%s%d"), appletName, appletCount);
-
-        std::wstring tempSettingsFile;
-        tempSettingsFile = TEXT("%ThemeDir%\\");
-        tempSettingsFile += appletName;
-        tempSettingsFile += TEXT(".xml");
-        tempSettingsFile = ELExpandVars(tempSettingsFile);
-        if ((appletCount != 0) && (!ELPathFileExists(tempSettingsFile.c_str())))
-        return 0;
-
-        WriteAppletCount(appletCount);
-
-        WCHAR appletPath[MAX_PATH];
-        if (GetModuleFileName(0, appletPath, MAX_PATH))
-        ELExecute(appletPath);*/
     }
   else
     {
@@ -268,6 +251,12 @@ void BaseApplet::UpdateGUI(WCHAR *styleFile)
   ShowWindow(mainWnd, SW_HIDE);
 
   hWndInsertAfter = EAEUpdateGUI(mainWnd, guiInfo.windowShadow, pBaseSettings->GetZPosition());
+
+  if (firstRun)
+    {
+      firstRun = false;
+      appletHidden = pBaseSettings->GetStartHidden();
+    }
 
   AppletUpdate(); // Call any applet specific update
 
@@ -1045,6 +1034,9 @@ void BaseApplet::HideApplet(bool hide)
           appletHidden = false;
           SetWindowPos(mainWnd, NULL, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOZORDER |
                        SWP_NOACTIVATE | SWP_SHOWWINDOW);
+          // If there is not active or inactive background, create one
+          if (!activeBackgroundDC || !inactiveBackgroundDC)
+            DrawAlphaBlend();
         }
     }
 }

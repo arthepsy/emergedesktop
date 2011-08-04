@@ -174,6 +174,7 @@ void BaseSettings::DoReadSettings(IOHelper& helper)
   helper.ReadBool(TEXT("DynamicPositioning"), dynamicPositioning, true);
   helper.ReadInt(TEXT("ClickThrough"), clickThrough, 0);
   helper.ReadString(TEXT("AnchorPoint"), anchorPoint, (WCHAR*)TEXT("TopLeft"));
+  helper.ReadBool(TEXT("StartHidden"), startHidden, false);
 }
 
 void BaseSettings::DoWriteSettings(IOHelper& helper)
@@ -196,6 +197,7 @@ void BaseSettings::DoWriteSettings(IOHelper& helper)
   helper.WriteInt(TEXT("ClickThrough"), clickThrough);
   helper.WriteInt(TEXT("Monitor"), appletMonitor);
   helper.WriteString(TEXT("AnchorPoint"), anchorPoint);
+  helper.WriteBool(TEXT("StartHidden"), startHidden);
 }
 
 void BaseSettings::DoInitialize()
@@ -257,6 +259,7 @@ void BaseSettings::ResetDefaults()
   clickThrough = 0;
   appletMonitor = 0;
   wcscpy(anchorPoint, (WCHAR*)TEXT("TopLeft"));
+  startHidden = false;
 }
 
 void BaseSettings::SetModified()
@@ -446,6 +449,11 @@ WCHAR *BaseSettings::GetAnchorPoint()
   return anchorPoint;
 }
 
+bool BaseSettings::GetStartHidden()
+{
+  return startHidden;
+}
+
 WCHAR *BaseSettings::GetZPosition()
 {
   return zPosition;
@@ -545,6 +553,16 @@ bool BaseSettings::SetAnchorPoint(WCHAR *anchorPoint)
     {
       wcscpy(this->anchorPoint, anchorPoint);
       SetPosition();
+      SetModified();
+    }
+  return true;
+}
+
+bool BaseSettings::SetStartHidden(bool startHidden)
+{
+  if (this->startHidden != startHidden)
+    {
+      this->startHidden = startHidden;
       SetModified();
     }
   return true;

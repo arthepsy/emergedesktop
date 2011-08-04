@@ -76,6 +76,9 @@ BOOL ConfigPage::DoInitDialog(HWND hwndDlg)
   if (pSettings->GetClickThrough())
     SendDlgItemMessage(hwndDlg, IDC_CLICKTHROUGH, BM_SETCHECK, BST_CHECKED, 0);
 
+  if (pSettings->GetStartHidden())
+    SendDlgItemMessage(hwndDlg, IDC_STARTHIDDEN, BM_SETCHECK, BST_CHECKED, 0);
+
   SetDlgItemInt(hwndDlg, IDC_ICONSPACING, pSettings->GetIconSpacing(), false);
 
   SendMessage(iconSizeWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("16x16"));
@@ -125,6 +128,12 @@ bool ConfigPage::UpdateSettings(HWND hwndDlg)
   int i, result, size;
   HWND iconSizeWnd = GetDlgItem(hwndDlg, IDC_ICONSIZE);
   BOOL success;
+
+  if (SendDlgItemMessage(hwndDlg, IDC_STARTHIDDEN, BM_GETCHECK, 0, 0) == BST_CHECKED)
+    success = true;
+  else if (SendDlgItemMessage(hwndDlg, IDC_STARTHIDDEN, BM_GETCHECK, 0, 0) == BST_UNCHECKED)
+    success = false;
+  pSettings->SetStartHidden(success);
 
   if (SendDlgItemMessage(hwndDlg, IDC_SNAPMOVE, BM_GETCHECK, 0, 0) == BST_CHECKED)
     success = true;

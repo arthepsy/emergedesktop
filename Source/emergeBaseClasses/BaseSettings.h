@@ -129,6 +129,8 @@ public:
   bool GetSortInfo(WCHAR *editorName, PSORTINFO sortInfo);
   bool SetSortInfo(WCHAR *editorName, PSORTINFO sortInfo);
   POINT InstancePosition(SIZE appletSize);
+  bool GetStartHidden();
+  bool SetStartHidden(bool startHidden);
 
 protected:
   virtual void DoReadSettings(IOHelper& helper);
@@ -144,6 +146,7 @@ protected:
   WCHAR zPosition[MAX_LINE_LENGTH];
   WCHAR appletName[MAX_LINE_LENGTH];
   int appletCount;
+  bool startHidden;
 
 private:
   HWND appletWnd;

@@ -104,6 +104,7 @@ private:
   bool WriteAppletCount(int value, bool forceCreate = true);
   void RenameSettingsFiles();
   bool SpawnInstance();
+  bool firstRun;
 
 protected:
   HWND mainWnd, toolWnd;
