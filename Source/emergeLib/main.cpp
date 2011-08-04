@@ -1142,6 +1142,12 @@ bool ELExecuteInternal(LPTSTR command)
       ELShutdown(ELGetCoreWindow());
       return true;
     }
+  else if (_wcsicmp(command, TEXT("ShowApplet")) == 0)
+    {
+      ELSwitchToThisWindow(ELGetCoreWindow());
+      DispatchCoreMessage(EMERGE_CORE, CORE_SHOWAPPLET, arg);
+      return true;
+    }
   else if (_wcsicmp(command, TEXT("Hide")) == 0)
     {
       ELSwitchToThisWindow(ELGetCoreWindow());

@@ -814,6 +814,19 @@ LRESULT BaseApplet::DoCopyData(COPYDATASTRUCT *cds)
         {
           switch (notifyInfo->Message)
             {
+            case CORE_SHOWAPPLET:
+            {
+              bool toggle = IsWindowVisible(mainWnd);
+              if ((notifyInfo->InstanceName != NULL) && wcslen(notifyInfo->InstanceName))
+                {
+                  if (_wcsicmp(notifyInfo->InstanceName, appletName) == 0)
+                    HideApplet(toggle);
+                }
+              else
+                HideApplet(toggle);
+            }
+            break;
+
             case CORE_HIDE:
               if ((notifyInfo->InstanceName != NULL) && wcslen(notifyInfo->InstanceName))
                 {
