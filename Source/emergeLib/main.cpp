@@ -5056,6 +5056,7 @@ bool ELPopulateInternalCommandList(HWND hwnd)
   SendMessage(hwnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Run"));
   SendMessage(hwnd, CB_ADDSTRING, 0, (LPARAM)TEXT("ShellChanger"));
   SendMessage(hwnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Show"));
+  SendMessage(hwnd, CB_ADDSTRING, 0, (LPARAM)TEXT("ShowApplet"));
   SendMessage(hwnd, CB_ADDSTRING, 0, (LPARAM)TEXT("ShowDesktop"));
   SendMessage(hwnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Suspend"));
   SendMessage(hwnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Suspend /silent"));
