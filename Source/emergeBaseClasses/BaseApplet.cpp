@@ -312,6 +312,11 @@ void BaseApplet::AppletUpdate()
   return;
 }
 
+void BaseApplet::Activate()
+{
+  return;
+}
+
 void BaseApplet::AdjustRect(RECT *wndRect)
 {
   AUTOSIZEINFO autoSizeInfo;
@@ -803,6 +808,14 @@ LRESULT BaseApplet::DoCopyData(COPYDATASTRUCT *cds)
         {
           switch (notifyInfo->Message)
             {
+            case CORE_ACTIVATE:
+              if ((notifyInfo->InstanceName != NULL) && wcslen(notifyInfo->InstanceName))
+                {
+                  if (_wcsicmp(notifyInfo->InstanceName, appletName) == 0)
+                    Activate();
+                }
+              break;
+
             case CORE_SHOWAPPLET:
             {
               bool toggle = IsWindowVisible(mainWnd);

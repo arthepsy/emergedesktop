@@ -1142,6 +1142,15 @@ bool ELExecuteInternal(LPTSTR command)
       ELShutdown(ELGetCoreWindow());
       return true;
     }
+  else if (_wcsicmp(command, TEXT("Activate")) == 0)
+    {
+      if (tempArg.empty())
+        return false;
+
+      ELSwitchToThisWindow(ELGetCoreWindow());
+      DispatchCoreMessage(EMERGE_CORE, CORE_ACTIVATE, arg);
+      return true;
+    }
   else if (_wcsicmp(command, TEXT("ShowApplet")) == 0)
     {
       ELSwitchToThisWindow(ELGetCoreWindow());
@@ -5033,6 +5042,7 @@ bool ELPopulateInternalCommandList(HWND hwnd)
     return false;
 
   SendMessage(hwnd, CB_ADDSTRING, 0, (LPARAM)TEXT("About"));
+  SendMessage(hwnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Activate"));
   SendMessage(hwnd, CB_ADDSTRING, 0, (LPARAM)TEXT("AliasEditor"));
   SendMessage(hwnd, CB_ADDSTRING, 0, (LPARAM)TEXT("CoreSettings"));
   SendMessage(hwnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Disconnect"));

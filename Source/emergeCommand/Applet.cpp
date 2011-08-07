@@ -208,6 +208,11 @@ UINT Applet::Initialize()
   return 1;
 }
 
+void Applet::Activate()
+{
+  ShowCommand();
+}
+
 LRESULT Applet::PaintContent(HDC hdc, RECT clientrt)
 {
   CLIENTINFO clientInfo;

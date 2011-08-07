@@ -71,6 +71,7 @@ public:
   void SetCommandText(WCHAR *commandText);
   void UpdateTip(WCHAR *tip);
   LRESULT PaintContent(HDC hdc, RECT clientrt);
+  void Activate();
   void Show();
 };
 

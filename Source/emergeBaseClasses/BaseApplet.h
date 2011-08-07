@@ -119,6 +119,7 @@ protected:
   void DrawAlphaBlend();
   virtual LRESULT PaintContent(HDC hdc, RECT clientrt);
   virtual void AppletUpdate();
+  virtual void Activate();
   virtual void ShowConfig();
   virtual bool PaintItem(HDC hdc, UINT index, int x, int y, RECT rect);
   virtual size_t GetVisibleIconCount();
