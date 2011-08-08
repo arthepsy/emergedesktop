@@ -24,8 +24,9 @@
 #include "Actions.h"
 #include <process.h>
 #include "../emergeAppletEngine/emergeAppletEngine.h"
+#include "../emergeBaseClasses/BaseApplet.h"
 
-class Applet
+class Applet: public BaseApplet
 {
 private:
   static HWND mainWnd;
@@ -44,12 +45,12 @@ public:
   UINT Initialize();
   void ExecuteAction(UINT index);
   LRESULT DoTimer(UINT index);
-  LRESULT DoCopyData(COPYDATASTRUCT *cds);
   LRESULT DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
   LRESULT KeyboardProc(int nCode, WPARAM wParam, LPARAM lParam);
   static LRESULT CALLBACK WindowProcedure (HWND, UINT, WPARAM, LPARAM);
   static LRESULT CALLBACK LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM lParam);
   void ShowConfig();
+  void Activate();
 };
 
 #endif

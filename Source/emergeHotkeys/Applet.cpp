@@ -27,7 +27,10 @@ HWND Applet::mainWnd = NULL;
 UINT Applet::keyID = 0;
 UINT Applet::virtualKey = 0;
 
+WCHAR myName[ ] = TEXT("emergeHotkeys");
+
 Applet::Applet(HINSTANCE hInstance)
+  :BaseApplet(hInstance, myName, false, false)
 {
   mainWnd = NULL;
   mainInst = hInstance;
@@ -56,6 +59,11 @@ UINT Applet::Initialize()
   PostMessage(ELGetCoreWindow(), EMERGE_REGISTER, (WPARAM)mainWnd, (LPARAM)EMERGE_CORE);
 
   return 1;
+}
+
+void Applet::ShowConfig()
+{
+  pActions->Show();
 }
 
 Applet::~Applet()
@@ -127,28 +135,14 @@ LRESULT CALLBACK Applet::WindowProcedure (HWND hwnd, UINT message, WPARAM wParam
   return 0;
 }
 
-LRESULT Applet::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
+void Applet::Activate()
 {
-  if ((message == EMERGE_NOTIFY) && (((UINT)wParam && EMERGE_CORE) == EMERGE_CORE) && ((UINT)lParam == CORE_SHOWCONFIG))
-    {
-      pActions->Show();
-      return 0;
-    }
-
-  return DefWindowProc(hwnd, message, wParam, lParam);
+  pActions->Show();
 }
 
-LRESULT Applet::DoCopyData(COPYDATASTRUCT *cds)
+LRESULT Applet::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-  std::wstring theme = reinterpret_cast<WCHAR*>(cds->lpData);
-
-  if (cds->dwData == EMERGE_MESSAGE)
-    {
-      SetEnvironmentVariable(TEXT("ThemeDir"), theme.c_str());
-      return 1;
-    }
-
-  return 0;
+  return DefWindowProc(hwnd, message, wParam, lParam);
 }
 
 LRESULT CALLBACK Applet::LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM lParam)
