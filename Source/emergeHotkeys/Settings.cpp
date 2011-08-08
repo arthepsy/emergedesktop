@@ -166,6 +166,7 @@ bool Settings::BuildList(bool backup)
     {
       if (backup)
         {
+          backupList.push_back( std::tr1::shared_ptr<HotkeyCombo>(new HotkeyCombo((WCHAR*)L"Shift+Escape", (WCHAR*)L"activate emergeHotkeys", true)) );
           backupList.push_back( std::tr1::shared_ptr<HotkeyCombo>(new HotkeyCombo((WCHAR*)L"Win+R", (WCHAR*)L"Run", true)) );
           backupList.push_back( std::tr1::shared_ptr<HotkeyCombo>(new HotkeyCombo((WCHAR*)L"Win+D", (WCHAR*)L"ShowDesktop", true)) );
           backupList.push_back( std::tr1::shared_ptr<HotkeyCombo>(new HotkeyCombo((WCHAR*)L"Win+E", (WCHAR*)L"explorer /e", true)) );
@@ -176,6 +177,7 @@ bool Settings::BuildList(bool backup)
         }
       else
         {
+          hotkeyList.push_back( std::tr1::shared_ptr<HotkeyCombo>(new HotkeyCombo((WCHAR*)L"Shift+Escape", (WCHAR*)L"activate emergeHotkeys", false)) );
           hotkeyList.push_back( std::tr1::shared_ptr<HotkeyCombo>(new HotkeyCombo((WCHAR*)L"Win+R", (WCHAR*)L"Run", false)) );
           hotkeyList.push_back( std::tr1::shared_ptr<HotkeyCombo>(new HotkeyCombo((WCHAR*)L"Win+D", (WCHAR*)L"ShowDesktop", false)) );
           hotkeyList.push_back( std::tr1::shared_ptr<HotkeyCombo>(new HotkeyCombo((WCHAR*)L"Win+E", (WCHAR*)L"explorer /e", false)) );
