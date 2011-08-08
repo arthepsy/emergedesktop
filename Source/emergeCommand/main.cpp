@@ -20,24 +20,6 @@
 
 #include "Applet.h"
 
-BOOL CALLBACK FocusWindowEnum(HWND hwnd, LPARAM lParam UNUSED)
-{
-  std::wstring window = ELToLower(ELGetWindowApp(hwnd, false));
-
-  if (window == TEXT("emergecommand.exe"))
-    {
-      if (!IsWindowVisible(hwnd))
-        return true;
-
-      SetForegroundWindow(hwnd);
-      SendMessage(hwnd, WM_LBUTTONDOWN, 0, 0);
-
-      return false;
-    }
-
-  return true;
-}
-
 //-----
 // Function:	WinMain
 // Required:	HINSTANCE hThisInstance - the instance of this application
