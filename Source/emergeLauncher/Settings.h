@@ -38,7 +38,7 @@ public:
   void WriteItem(int type, WCHAR *command, WCHAR *iconPath, WCHAR *tip, WCHAR *workingDir);
 
 protected:
-  virtual void ResetDefaults();
+  void ResetDefaults();
 
 private:
   std::vector< std::tr1::shared_ptr<Item> > itemList;
