@@ -79,7 +79,6 @@ private:
   HICON infoIcon, gatherIcon, configIcon;
   static BOOL CALLBACK AppletCheck(HWND hwnd, LPARAM lParam);
   static BOOL CALLBACK GatherApplet(HWND hwnd, LPARAM lParam);
-  static BOOL CALLBACK ConfigureApplet(HWND hwnd, LPARAM lParam);
   std::wstring xmlFile;
   std::wstring selectedApplet;
   bool FindListSubItem(HWND listWnd, int subItem, WCHAR *searchString);

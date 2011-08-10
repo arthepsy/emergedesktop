@@ -864,7 +864,11 @@ LRESULT BaseApplet::DoCopyData(COPYDATASTRUCT *cds)
             break;
 
             case CORE_SHOWCONFIG:
-              ShowConfig();
+              if ((notifyInfo->InstanceName != NULL) && wcslen(notifyInfo->InstanceName))
+                {
+                  if (_wcsicmp(notifyInfo->InstanceName, appletName) == 0)
+                    ShowConfig();
+                }
               break;
 
             case CORE_RECONFIGURE:

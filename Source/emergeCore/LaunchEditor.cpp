@@ -80,25 +80,6 @@ BOOL CALLBACK LaunchEditor::GatherApplet(HWND hwnd, LPARAM lParam)
   return true;
 }
 
-BOOL CALLBACK LaunchEditor::ConfigureApplet(HWND hwnd, LPARAM lParam)
-{
-  LaunchEditor *pLaunchEditor = reinterpret_cast<LaunchEditor*>(lParam);
-  std::wstring fileName = ELGetWindowApp(hwnd, true);
-  POINT cursorPt;
-  RECT appletRect;
-
-  if (fileName.empty())
-    return true;
-
-  GetCursorPos(&cursorPt);
-  GetClientRect(hwnd, &appletRect);
-
-  if (ELToLower(fileName) == ELToLower(pLaunchEditor->GetSelectedApplet()))
-    SendMessage(hwnd, EMERGE_NOTIFY, EMERGE_CORE, CORE_SHOWCONFIG);
-
-  return true;
-}
-
 std::wstring LaunchEditor::GetSelectedApplet()
 {
   return selectedApplet;
@@ -420,15 +401,16 @@ BOOL LaunchEditor::DoMultiConfig(HWND hwndDlg)
   int listCount = ListView_GetItemCount(listWnd);
   WCHAR name[MAX_PATH];
   BOOL ret = FALSE;
+  std::wstring selectedName;
 
   for (int i = 0; i < listCount; i++)
     {
       if (ListView_GetItemState(listWnd, i, LVIS_SELECTED))
         {
           ListView_GetItemText(listWnd, i, 1, name, MAX_PATH);
-          selectedApplet = name;
-          selectedApplet = ELExpandVars(selectedApplet);
-          EnumWindows(ConfigureApplet, reinterpret_cast<LPARAM>(this));
+          selectedName = name;
+          selectedName = selectedName.substr(selectedName.rfind('\\') + 1, selectedName.rfind('.') - (selectedName.rfind('\\') + 1));
+          ELDispatchCoreMessage(EMERGE_CORE, CORE_SHOWCONFIG, selectedName.c_str());
           ret = TRUE;
         }
     }

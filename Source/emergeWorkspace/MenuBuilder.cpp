@@ -238,13 +238,29 @@ LRESULT MenuBuilder::DoCopyData(COPYDATASTRUCT *cds)
           switch (notifyInfo->Message)
             {
             case CORE_SETTINGS:
-            case CORE_SHOWCONFIG:
             {
               Config config(mainInst, pSettings);
               if (config.Show() == IDOK)
                 {
                   UpdateMenuHook();
                   SetWorkArea();
+                }
+            }
+            break;
+
+            case CORE_SHOWCONFIG:
+            {
+              if ((notifyInfo->InstanceName != NULL) && wcslen(notifyInfo->InstanceName))
+                {
+                  if (_wcsicmp(notifyInfo->InstanceName, TEXT("emergeWorkspace")) == 0)
+                    {
+                      Config config(mainInst, pSettings);
+                      if (config.Show() == IDOK)
+                        {
+                          UpdateMenuHook();
+                          SetWorkArea();
+                        }
+                    }
                 }
             }
             break;

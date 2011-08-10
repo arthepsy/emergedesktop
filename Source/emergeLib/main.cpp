@@ -129,7 +129,6 @@ BOOL CALLBACK MonitorRectEnum(HMONITOR hMonitor, HDC hdcMonitor, LPRECT lprcMoni
 bool ConvertPath(WCHAR *styleFile, DWORD flags, DWORD path);
 std::wstring GetCustomDataPath();
 BOOL CALLBACK ThemeEnum(HWND hwnd, LPARAM lParam);
-void DispatchCoreMessage(DWORD type, DWORD message, WCHAR *instanceName);
 
 typedef struct _APPLETMONITORINFO
 {
@@ -1054,7 +1053,7 @@ void ELWriteDebug(std::wstring debugText)
   out.close();
 }
 
-void DispatchCoreMessage(DWORD type, DWORD message, WCHAR *instanceName = NULL)
+void ELDispatchCoreMessage(DWORD type, DWORD message, const WCHAR *instanceName)
 {
   NOTIFYINFO notifyInfo;
   COPYDATASTRUCT cds;
@@ -1105,7 +1104,7 @@ bool ELExecuteInternal(LPTSTR command)
 
       /// TODO (Chris#1#): Find better implementation that doesn't rely on finding the desktop window
       ELSwitchToThisWindow(FindWindow(TEXT("EmergeDesktopMenuBuilder"), NULL));/**< Needed to address keyboard focus issue with Launcher */
-      DispatchCoreMessage(EMERGE_CORE, CORE_RIGHTMENU);
+      ELDispatchCoreMessage(EMERGE_CORE, CORE_RIGHTMENU);
       return true;
     }
   else if (_wcsicmp(command, TEXT("MidDeskMenu")) == 0)
@@ -1115,7 +1114,7 @@ bool ELExecuteInternal(LPTSTR command)
 
       /// TODO (Chris#1#): Find better implementation that doesn't rely on finding the desktop window
       ELSwitchToThisWindow(FindWindow(TEXT("EmergeDesktopMenuBuilder"), NULL));/**< Needed to address keyboard focus issue with Launcher */
-      DispatchCoreMessage(EMERGE_CORE, CORE_MIDMENU);
+      ELDispatchCoreMessage(EMERGE_CORE, CORE_MIDMENU);
       return true;
     }
   else if (_wcsicmp(command, TEXT("Quit")) == 0)
@@ -1148,25 +1147,25 @@ bool ELExecuteInternal(LPTSTR command)
         return false;
 
       ELSwitchToThisWindow(ELGetCoreWindow());
-      DispatchCoreMessage(EMERGE_CORE, CORE_ACTIVATE, arg);
+      ELDispatchCoreMessage(EMERGE_CORE, CORE_ACTIVATE, arg);
       return true;
     }
   else if (_wcsicmp(command, TEXT("ShowApplet")) == 0)
     {
       ELSwitchToThisWindow(ELGetCoreWindow());
-      DispatchCoreMessage(EMERGE_CORE, CORE_SHOWAPPLET, arg);
+      ELDispatchCoreMessage(EMERGE_CORE, CORE_SHOWAPPLET, arg);
       return true;
     }
   else if (_wcsicmp(command, TEXT("Hide")) == 0)
     {
       ELSwitchToThisWindow(ELGetCoreWindow());
-      DispatchCoreMessage(EMERGE_CORE, CORE_HIDE, arg);
+      ELDispatchCoreMessage(EMERGE_CORE, CORE_HIDE, arg);
       return true;
     }
   else if (_wcsicmp(command, TEXT("Show")) == 0)
     {
       ELSwitchToThisWindow(ELGetCoreWindow());
-      DispatchCoreMessage(EMERGE_CORE, CORE_SHOW, arg);
+      ELDispatchCoreMessage(EMERGE_CORE, CORE_SHOW, arg);
       return true;
     }
   else if(_wcsicmp(command,TEXT("VWM_1")) == 0)
@@ -1175,7 +1174,7 @@ bool ELExecuteInternal(LPTSTR command)
         return false;
 
       ELSwitchToThisWindow(ELGetCoreWindow());
-      DispatchCoreMessage(EMERGE_VWM, VWM_1);
+      ELDispatchCoreMessage(EMERGE_VWM, VWM_1);
       return true;
     }
   else if(_wcsicmp(command,TEXT("VWM_2")) == 0)
@@ -1184,7 +1183,7 @@ bool ELExecuteInternal(LPTSTR command)
         return false;
 
       ELSwitchToThisWindow(ELGetCoreWindow());
-      DispatchCoreMessage(EMERGE_VWM, VWM_2);
+      ELDispatchCoreMessage(EMERGE_VWM, VWM_2);
       return true;
     }
   else if(_wcsicmp(command,TEXT("VWM_3")) == 0)
@@ -1193,7 +1192,7 @@ bool ELExecuteInternal(LPTSTR command)
         return false;
 
       ELSwitchToThisWindow(ELGetCoreWindow());
-      DispatchCoreMessage(EMERGE_VWM, VWM_3);
+      ELDispatchCoreMessage(EMERGE_VWM, VWM_3);
       return true;
     }
   else if(_wcsicmp(command,TEXT("VWM_4")) == 0)
@@ -1202,7 +1201,7 @@ bool ELExecuteInternal(LPTSTR command)
         return false;
 
       ELSwitchToThisWindow(ELGetCoreWindow());
-      DispatchCoreMessage(EMERGE_VWM, VWM_4);
+      ELDispatchCoreMessage(EMERGE_VWM, VWM_4);
       return true;
     }
   else if(_wcsicmp(command,TEXT("VWM_5")) == 0)
@@ -1211,7 +1210,7 @@ bool ELExecuteInternal(LPTSTR command)
         return false;
 
       ELSwitchToThisWindow(ELGetCoreWindow());
-      DispatchCoreMessage(EMERGE_VWM, VWM_5);
+      ELDispatchCoreMessage(EMERGE_VWM, VWM_5);
       return true;
     }
   else if(_wcsicmp(command,TEXT("VWM_6")) == 0)
@@ -1220,7 +1219,7 @@ bool ELExecuteInternal(LPTSTR command)
         return false;
 
       ELSwitchToThisWindow(ELGetCoreWindow());
-      DispatchCoreMessage(EMERGE_VWM, VWM_6);
+      ELDispatchCoreMessage(EMERGE_VWM, VWM_6);
       return true;
     }
   else if(_wcsicmp(command,TEXT("VWM_7")) == 0)
@@ -1229,7 +1228,7 @@ bool ELExecuteInternal(LPTSTR command)
         return false;
 
       ELSwitchToThisWindow(ELGetCoreWindow());
-      DispatchCoreMessage(EMERGE_VWM, VWM_7);
+      ELDispatchCoreMessage(EMERGE_VWM, VWM_7);
       return true;
     }
   else if(_wcsicmp(command,TEXT("VWM_8")) == 0)
@@ -1238,7 +1237,7 @@ bool ELExecuteInternal(LPTSTR command)
         return false;
 
       ELSwitchToThisWindow(ELGetCoreWindow());
-      DispatchCoreMessage(EMERGE_VWM, VWM_8);
+      ELDispatchCoreMessage(EMERGE_VWM, VWM_8);
       return true;
     }
   else if(_wcsicmp(command,TEXT("VWM_9")) == 0)
@@ -1247,7 +1246,7 @@ bool ELExecuteInternal(LPTSTR command)
         return false;
 
       ELSwitchToThisWindow(ELGetCoreWindow());
-      DispatchCoreMessage(EMERGE_VWM, VWM_9);
+      ELDispatchCoreMessage(EMERGE_VWM, VWM_9);
       return true;
     }
   else if (_wcsicmp(command, TEXT("VWMUp")) == 0)
@@ -1256,7 +1255,7 @@ bool ELExecuteInternal(LPTSTR command)
         return false;
 
       ELSwitchToThisWindow(ELGetCoreWindow());
-      DispatchCoreMessage(EMERGE_VWM, VWM_UP);
+      ELDispatchCoreMessage(EMERGE_VWM, VWM_UP);
       return true;
     }
   else if (_wcsicmp(command, TEXT("VWMDown")) == 0)
@@ -1265,7 +1264,7 @@ bool ELExecuteInternal(LPTSTR command)
         return false;
 
       ELSwitchToThisWindow(ELGetCoreWindow());
-      DispatchCoreMessage(EMERGE_VWM, VWM_DOWN);
+      ELDispatchCoreMessage(EMERGE_VWM, VWM_DOWN);
       return true;
     }
   else if (_wcsicmp(command, TEXT("VWMLeft")) == 0)
@@ -1274,7 +1273,7 @@ bool ELExecuteInternal(LPTSTR command)
         return false;
 
       ELSwitchToThisWindow(ELGetCoreWindow());
-      DispatchCoreMessage(EMERGE_VWM, VWM_LEFT);
+      ELDispatchCoreMessage(EMERGE_VWM, VWM_LEFT);
       return true;
     }
   else if (_wcsicmp(command, TEXT("VWMRight")) == 0)
@@ -1283,7 +1282,7 @@ bool ELExecuteInternal(LPTSTR command)
         return false;
 
       ELSwitchToThisWindow(ELGetCoreWindow());
-      DispatchCoreMessage(EMERGE_VWM, VWM_RIGHT);
+      ELDispatchCoreMessage(EMERGE_VWM, VWM_RIGHT);
       return true;
     }
   else if (_wcsicmp(command, TEXT("VWMGather")) == 0)
@@ -1292,7 +1291,7 @@ bool ELExecuteInternal(LPTSTR command)
         return false;
 
       ELSwitchToThisWindow(ELGetCoreWindow());
-      DispatchCoreMessage(EMERGE_VWM, VWM_GATHER);
+      ELDispatchCoreMessage(EMERGE_VWM, VWM_GATHER);
       return true;
     }
   else if (_wcsicmp(command, TEXT("VWMPrev")) == 0)
@@ -1301,7 +1300,7 @@ bool ELExecuteInternal(LPTSTR command)
         return false;
 
       ELSwitchToThisWindow(ELGetCoreWindow());
-      DispatchCoreMessage(EMERGE_VWM, VWM_PREV);
+      ELDispatchCoreMessage(EMERGE_VWM, VWM_PREV);
       return true;
     }
   else if (_wcsicmp(command, TEXT("VWMNext")) == 0)
@@ -1310,7 +1309,7 @@ bool ELExecuteInternal(LPTSTR command)
         return false;
 
       ELSwitchToThisWindow(ELGetCoreWindow());
-      DispatchCoreMessage(EMERGE_VWM, VWM_NEXT);
+      ELDispatchCoreMessage(EMERGE_VWM, VWM_NEXT);
       return true;
     }
   else if (_wcsicmp(command, TEXT("EmptyBin")) == 0)
@@ -1382,7 +1381,7 @@ bool ELExecuteInternal(LPTSTR command)
         return false;
 
       ELSwitchToThisWindow(ELGetCoreWindow());
-      DispatchCoreMessage(EMERGE_CORE, CORE_DESKTOP);
+      ELDispatchCoreMessage(EMERGE_CORE, CORE_DESKTOP);
       return true;
     }
   else if (_wcsicmp(command, TEXT("WorkspaceSettings")) == 0)
@@ -1391,7 +1390,7 @@ bool ELExecuteInternal(LPTSTR command)
         return false;
 
       ELSwitchToThisWindow(ELGetCoreWindow());
-      DispatchCoreMessage(EMERGE_CORE, CORE_SETTINGS);
+      ELDispatchCoreMessage(EMERGE_CORE, CORE_SETTINGS);
       return true;
     }
   else if (_wcsicmp(command, TEXT("CoreSettings")) == 0)
@@ -1400,7 +1399,7 @@ bool ELExecuteInternal(LPTSTR command)
         return false;
 
       ELSwitchToThisWindow(ELGetCoreWindow());
-      DispatchCoreMessage(EMERGE_CORE, CORE_CONFIGURE);
+      ELDispatchCoreMessage(EMERGE_CORE, CORE_CONFIGURE);
       return true;
     }
   else if (_wcsicmp(command, TEXT("AliasEditor")) == 0)
@@ -1409,7 +1408,7 @@ bool ELExecuteInternal(LPTSTR command)
         return false;
 
       ELSwitchToThisWindow(ELGetCoreWindow());
-      DispatchCoreMessage(EMERGE_CORE, CORE_ALIAS);
+      ELDispatchCoreMessage(EMERGE_CORE, CORE_ALIAS);
       return true;
     }
   else if ((_wcsicmp(command, TEXT("LaunchEditor")) == 0) || (_wcsicmp(command, TEXT("CoreLaunchEditor")) == 0))
@@ -1418,7 +1417,7 @@ bool ELExecuteInternal(LPTSTR command)
         return false;
 
       ELSwitchToThisWindow(ELGetCoreWindow());
-      DispatchCoreMessage(EMERGE_CORE, CORE_LAUNCH);
+      ELDispatchCoreMessage(EMERGE_CORE, CORE_LAUNCH);
       return true;
     }
   else if ((_wcsicmp(command, TEXT("ShellChanger")) == 0) || (_wcsicmp(command, TEXT("CoreShellChanger")) == 0))
@@ -1427,7 +1426,7 @@ bool ELExecuteInternal(LPTSTR command)
         return false;
 
       ELSwitchToThisWindow(ELGetCoreWindow());
-      DispatchCoreMessage(EMERGE_CORE, CORE_SHELL);
+      ELDispatchCoreMessage(EMERGE_CORE, CORE_SHELL);
       return true;
     }
   else if ((_wcsicmp(command, TEXT("ThemeManager")) == 0) || (_wcsicmp(command, TEXT("CoreThemeSelector")) == 0))
@@ -1436,7 +1435,7 @@ bool ELExecuteInternal(LPTSTR command)
         return false;
 
       ELSwitchToThisWindow(ELGetCoreWindow());
-      DispatchCoreMessage(EMERGE_CORE, CORE_THEMESELECT);
+      ELDispatchCoreMessage(EMERGE_CORE, CORE_THEMESELECT);
       return true;
     }
   else if ((_wcsicmp(command, TEXT("About")) == 0) || (_wcsicmp(command, TEXT("CoreAbout")) == 0))
@@ -1445,7 +1444,7 @@ bool ELExecuteInternal(LPTSTR command)
         return false;
 
       ELSwitchToThisWindow(ELGetCoreWindow());
-      DispatchCoreMessage(EMERGE_CORE, CORE_ABOUT);
+      ELDispatchCoreMessage(EMERGE_CORE, CORE_ABOUT);
       return true;
     }
   else if (_wcsicmp(command, TEXT("VolumeUp")) == 0)
@@ -2089,7 +2088,7 @@ bool ELQuit(bool prompt)
 
   if (response == IDYES)
     {
-      DispatchCoreMessage(EMERGE_CORE, CORE_QUIT);
+      ELDispatchCoreMessage(EMERGE_CORE, CORE_QUIT);
       return true;
     }
 
