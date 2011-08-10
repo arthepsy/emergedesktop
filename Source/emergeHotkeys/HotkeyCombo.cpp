@@ -36,23 +36,13 @@ HotkeyCombo::HotkeyCombo(WCHAR *keyCombo, WCHAR *action, bool backup)
   if (!backup)
     ID = GlobalAddAtom(keyCombo);
 
-  if (ID)
-  {
-    ELWriteDebug(L"ctor");
-    ELWriteDebug(towstring(ID));
-  }
-
   valid = true;
 }
 
 HotkeyCombo::~HotkeyCombo()
 {
   if (ID)
-  {
-    ELWriteDebug(L"dtor");
-    ELWriteDebug(towstring(ID));
     GlobalDeleteAtom(ID);
-  }
 }
 
 WCHAR *HotkeyCombo::GetHotkeyAction()

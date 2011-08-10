@@ -141,10 +141,7 @@ bool Settings::BuildList(HWND mainWnd, bool backup)
   else
     {
       for (i = 0; i < hotkeyList.size(); i++)
-      {
-        if (!UnregisterHotKey(mainWnd, hotkeyList[i]->GetHotkeyID()))
-          ELWriteDebug(L"Unregister failed");
-      }
+        UnregisterHotKey(mainWnd, hotkeyList[i]->GetHotkeyID());
       hotkeyList.clear();
     }
 
