@@ -21,10 +21,9 @@
 
 #include "Settings.h"
 
-Settings::Settings(HWND mainWnd)
-  :BaseSettings(true)
+Settings::Settings()
+  :BaseSettings(false)
 {
-  (*this).mainWnd = mainWnd;
   xmlFile = TEXT("%EmergeDir%\\files\\emergeHotkeys.xml");
   wcscpy(appletName, TEXT("emergeHotkeys"));
 }
@@ -33,6 +32,15 @@ Settings::~Settings()
 {
   // Clear the hotkeyList vector
   hotkeyList.clear();
+}
+
+void Settings::ResetDefaults()
+{
+  BaseSettings::ResetDefaults();
+  width = 0;
+  height = 0;
+  x = 0;
+  y = 0;
 }
 
 UINT Settings::GetHotkeyListSize()
@@ -120,7 +128,7 @@ void Settings::WriteList(bool backup)
 // Returns:	bool
 // Purpose:	Enumerates the Actions key and builds the actionsList vector
 //----  --------------------------------------------------------------------------------------------------------
-bool Settings::BuildList(bool backup)
+bool Settings::BuildList(HWND mainWnd, bool backup)
 {
   bool found = false;
   UINT i;
@@ -133,7 +141,10 @@ bool Settings::BuildList(bool backup)
   else
     {
       for (i = 0; i < hotkeyList.size(); i++)
-        UnregisterHotKey(mainWnd, hotkeyList[i]->GetHotkeyID());
+      {
+        if (!UnregisterHotKey(mainWnd, hotkeyList[i]->GetHotkeyID()))
+          ELWriteDebug(L"Unregister failed");
+      }
       hotkeyList.clear();
     }
 

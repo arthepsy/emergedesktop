@@ -22,43 +22,32 @@
 
 #define VK_WIN 0x5B
 
-HHOOK Applet::keyHook = NULL;
-HWND Applet::mainWnd = NULL;
-UINT Applet::keyID = 0;
-UINT Applet::virtualKey = 0;
-
-WCHAR myName[ ] = TEXT("emergeHotkeys");
-
 Applet::Applet(HINSTANCE hInstance)
-  :BaseApplet(hInstance, myName, false, false)
+  :BaseApplet(hInstance, TEXT("emergeHotkeys"), false, false)
 {
-  mainWnd = NULL;
-  mainInst = hInstance;
   hotkeyCount = 0;
+  executeThread = NULL;
 }
 
 UINT Applet::Initialize()
 {
-  mainWnd = EAEInitializeAppletWindow(mainInst, WindowProcedure, this);
+  UINT ret = 1;
 
-  // If the window failed to get created, unregister the class and quit the program
-  if (!mainWnd)
-    return 0;
-
-  // Disable menu animation, as it overrides the alpha blending
-  SystemParametersInfo(SPI_SETMENUANIMATION, 0, (PVOID)false, SPIF_SENDCHANGE);
+  pSettings = std::tr1::shared_ptr<Settings>(new Settings());
+  ret = BaseApplet::Initialize(WindowProcedure, this, pSettings);
+  if (ret == 0)
+    return ret;
 
   SetWindowPos(mainWnd, NULL, 0, 0, 0, 0, SWP_NOACTIVATE);
   ShowWindow(mainWnd, SW_SHOW);
 
-  pSettings = std::tr1::shared_ptr<Settings>(new Settings(mainWnd));
-  pSettings->BuildList(false);
+  // Populate the hotkeyList vector
+  pSettings->BuildList(mainWnd, false);
+
   pActions = std::tr1::shared_ptr<Actions>(new Actions(mainInst, mainWnd, pSettings));
   pActions->RegisterHotkeyList(true);
 
-  PostMessage(ELGetCoreWindow(), EMERGE_REGISTER, (WPARAM)mainWnd, (LPARAM)EMERGE_CORE);
-
-  return 1;
+  return ret;
 }
 
 void Applet::ShowConfig()
@@ -68,9 +57,6 @@ void Applet::ShowConfig()
 
 Applet::~Applet()
 {
-  PostMessage(ELGetCoreWindow(), EMERGE_UNREGISTER, (WPARAM)mainWnd, (LPARAM)EMERGE_CORE);
-
-  UnregisterHotKey(mainWnd, 0);
 }
 
 //----  --------------------------------------------------------------------------------------------------------
@@ -84,13 +70,11 @@ Applet::~Applet()
 //----  --------------------------------------------------------------------------------------------------------
 LRESULT CALLBACK Applet::WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-  CREATESTRUCT *cs;
   static Applet *pApplet = NULL;
 
   if (message == WM_CREATE)
     {
-      cs = (CREATESTRUCT*)lParam;
-      pApplet = reinterpret_cast<Applet*>(cs->lpCreateParams);
+      pApplet = reinterpret_cast<Applet*>(((CREATESTRUCT*)lParam)->lpCreateParams);
       return DefWindowProc(hwnd, message, wParam, lParam);
     }
 
@@ -120,11 +104,8 @@ LRESULT CALLBACK Applet::WindowProcedure (HWND hwnd, UINT message, WPARAM wParam
         }
       break;
 
-    case WM_TIMER:
-      return pApplet->DoTimer((UINT)wParam);
-
     case WM_HOTKEY:
-      SetTimer(hwnd, (UINT)wParam, 50, NULL);
+      pApplet->ExecuteAction((UINT)wParam);
       break;
 
       // If not handled just forward the message on to MessageControl
@@ -145,74 +126,45 @@ LRESULT Applet::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
   return DefWindowProc(hwnd, message, wParam, lParam);
 }
 
-LRESULT CALLBACK Applet::LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM lParam)
+DWORD WINAPI Applet::ExecuteThreadProc(LPVOID lpParameter)
 {
-  if (nCode < 0)
-    return CallNextHookEx(keyHook, nCode, wParam, lParam);
+  // reinterpret lpParameter as a HotKeyCombo*
+  HotkeyCombo *hc = reinterpret_cast< HotkeyCombo* >(lpParameter);
 
-  PKBDLLHOOKSTRUCT pkbHookStruct = (PKBDLLHOOKSTRUCT)lParam;
-
-  if (wParam == WM_KEYUP)
+  while (1)
     {
-      if (pkbHookStruct->vkCode != virtualKey)
+      // Pause the thread for 50 ms
+      WaitForSingleObject(GetCurrentThread(), EXECUTE_WAIT_TIME);
+
+      if (!ELIsKeyDown(hc->GetHotkeyKey()))
         {
-          if (keyID != 0)
-            {
-              KillTimer(mainWnd, keyID);
-              keyID = 0;
-            }
+          ELExecuteAll(hc->GetHotkeyAction(), (WCHAR*)TEXT("\0"));
+          ExitThread(0);
         }
-    }
-
-  return CallNextHookEx(keyHook, nCode, wParam, lParam);
-}
-
-LRESULT Applet::DoTimer(UINT index)
-{
-  HotkeyCombo *hc = NULL;
-  int key;
-
-  UINT item = pSettings->FindHotkeyListItem(index);
-  if (item == pSettings->GetHotkeyListSize())
-    return 0;
-  hc = pSettings->GetHotkeyListItem(item);
-  key = hc->GetHotkeyKey();
-  if ((key == VK_LWIN) || (key = VK_RWIN))
-    {
-      virtualKey = key;
-      if (keyID != index)
-        {
-          if (keyID != 0)
-            KillTimer(mainWnd, keyID);
-          keyID = index;
-        }
-      keyHook = SetWindowsHookEx(WH_KEYBOARD_LL, LowLevelKeyboardProc, mainInst, 0);
-    }
-
-  if (!ELIsKeyDown(key))
-    {
-      KillTimer(mainWnd, index);
-      ExecuteAction(index);
-      if (keyHook)
-        UnhookWindowsHookEx(keyHook);
-      keyID = 0;
-      virtualKey = 0;
     }
 
   return 0;
 }
 
-//----  --------------------------------------------------------------------------------------------------------
-// Function:	ExecuteAction
-// Required:	int index - index of action to be taken
-// Returns:		Nothing
-// Purpose:		Execute specified hotkey action
-//----  --------------------------------------------------------------------------------------------------------
 void Applet::ExecuteAction(UINT index)
 {
+  DWORD threadID, threadState;
+  HotkeyCombo *hc;
+
   UINT item = pSettings->FindHotkeyListItem(index);
   if (item == pSettings->GetHotkeyListSize())
     return;
 
-  ELExecuteAll(pSettings->GetHotkeyListItem(item)->GetHotkeyAction(), (WCHAR*)TEXT("\0"));
+  GetExitCodeThread(executeThread, &threadState);
+  if (threadState != STILL_ACTIVE)
+    {
+      hc = pSettings->GetHotkeyListItem(item);
+      executeThread = CreateThread(NULL, 0, ExecuteThreadProc, hc, 0, &threadID);
+    }
+  else
+    {
+      TerminateThread(executeThread, 0);
+      hc = pSettings->GetHotkeyListItem(item);
+      executeThread = CreateThread(NULL, 0, ExecuteThreadProc, hc, 0, &threadID);
+    }
 }

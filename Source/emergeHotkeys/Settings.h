@@ -28,9 +28,9 @@
 class Settings : public BaseSettings
 {
 public:
-  Settings(HWND mainWnd);
+  Settings();
   ~Settings();
-  bool BuildList(bool backup);
+  bool BuildList(HWND mainWnd, bool backup);
   UINT GetHotkeyListSize();
   UINT GetBackupListSize();
   HotkeyCombo *GetHotkeyListItem(UINT item);
@@ -42,11 +42,13 @@ public:
   void WriteList(bool backup);
   bool IsValidHotkey(UINT index);
 
+protected:
+  void ResetDefaults();
+
 private:
   std::vector< std::tr1::shared_ptr<HotkeyCombo> > hotkeyList;
   std::vector< std::tr1::shared_ptr<HotkeyCombo> > backupList;
   std::wstring xmlFile;
-  HWND mainWnd;
 };
 
 #endif

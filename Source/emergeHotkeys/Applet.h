@@ -26,29 +26,32 @@
 #include "../emergeAppletEngine/emergeAppletEngine.h"
 #include "../emergeBaseClasses/BaseApplet.h"
 
+#define EXECUTE_WAIT_TIME 50
+
 class Applet: public BaseApplet
 {
 private:
-  static HWND mainWnd;
-  static HHOOK keyHook;
-  static UINT virtualKey;
-  static UINT keyID;
+  //static HHOOK keyHook;
+  //static UINT virtualKey;
+  //static UINT keyID;
   std::tr1::shared_ptr<Settings> pSettings;
   std::tr1::shared_ptr<Actions> pActions;
-  HINSTANCE mainInst;
-  HMENU mainMenu;
+  //HINSTANCE mainInst;
+  //HMENU mainMenu;
   UINT hotkeyCount;
+  HANDLE executeThread;
 
 public:
   Applet(HINSTANCE hInstance);
   ~Applet();
   UINT Initialize();
   void ExecuteAction(UINT index);
-  LRESULT DoTimer(UINT index);
+  //LRESULT DoTimer(UINT index);
   LRESULT DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
-  LRESULT KeyboardProc(int nCode, WPARAM wParam, LPARAM lParam);
+  //LRESULT KeyboardProc(int nCode, WPARAM wParam, LPARAM lParam);
   static LRESULT CALLBACK WindowProcedure (HWND, UINT, WPARAM, LPARAM);
-  static LRESULT CALLBACK LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM lParam);
+  static DWORD WINAPI ExecuteThreadProc(LPVOID lpParameter);
+  //static LRESULT CALLBACK LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM lParam);
   void ShowConfig();
   void Activate();
 };

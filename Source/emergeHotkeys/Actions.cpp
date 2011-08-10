@@ -204,7 +204,7 @@ BOOL Actions::DoInitDialog(HWND hwndDlg)
 
   SendDlgItemMessage(hwndDlg, IDC_EXTERNAL, BM_CLICK, 0, 0);
 
-  pSettings->BuildList(true);
+  pSettings->BuildList(mainWnd, true);
 
   if (addIcon)
     SendMessage(addWnd, BM_SETIMAGE, IMAGE_ICON, (LPARAM)addIcon);
@@ -1057,7 +1057,7 @@ bool Actions::DoCancel(HWND hwndDlg, WPARAM wParam)
     }
 
   pSettings->WriteList(true);
-  pSettings->BuildList(false);
+  pSettings->BuildList(mainWnd, false);
   RegisterHotkeyList(false);
 
   dialogVisible = false;

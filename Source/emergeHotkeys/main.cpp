@@ -39,15 +39,6 @@ int WINAPI WinMain (HINSTANCE hInstance,
   MSG messages;
   Applet applet(hInstance);
 
-  // Check to see if iTray is already running, if so exit
-  HANDLE hMutex = CreateMutex(NULL, false, TEXT("emergeHotkeys"));
-  if (GetLastError() == ERROR_ALREADY_EXISTS)
-    {
-      // Since emergeHotkeys is already running, find it's window
-      CloseHandle(hMutex);
-      return 0;
-    }
-
   if (!applet.Initialize())
     return 0;
 
@@ -59,9 +50,6 @@ int WINAPI WinMain (HINSTANCE hInstance,
       // Send message to WindowProcedure
       DispatchMessage(&messages);
     }
-
-  // Clean-up the Mutex
-  CloseHandle(hMutex);
 
   // The program return-value is 0 - The value that PostQuitMessage() gave
   return (int)messages.wParam;
