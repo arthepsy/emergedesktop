@@ -37,10 +37,8 @@ Settings::~Settings()
 void Settings::ResetDefaults()
 {
   BaseSettings::ResetDefaults();
-  width = 0;
-  height = 0;
-  x = 0;
-  y = 0;
+  x = GetSystemMetrics(SM_XVIRTUALSCREEN) - 200;
+  y = GetSystemMetrics(SM_YVIRTUALSCREEN) - 200;
 }
 
 UINT Settings::GetHotkeyListSize()
