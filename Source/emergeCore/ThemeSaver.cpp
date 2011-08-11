@@ -116,7 +116,7 @@ bool ThemeSaver::SaveTheme(HWND hwndDlg)
   copySource = themePath + theme;
   copySource += TEXT("\\*");
 
-  if (PathIsDirectory(copyDest.c_str()))
+  if (ELPathIsDirectory(copyDest.c_str()))
     {
       swprintf(errorText, TEXT("The theme '%s' already exists, overwrite?"), themeName);
       if (ELMessageBox(hwndDlg, errorText, (WCHAR*)TEXT("Theme Manager"),
@@ -124,7 +124,10 @@ bool ThemeSaver::SaveTheme(HWND hwndDlg)
         return false;
     }
   else
-    ELCreateDirectory(copyDest);
+    {
+      if (!ELCreateDirectory(copyDest))
+        return false;
+    }
 
   if (ELFileOp(hwndDlg, FO_COPY, copySource, copyDest))
     {
@@ -134,7 +137,7 @@ bool ThemeSaver::SaveTheme(HWND hwndDlg)
           ELFileOp(hwndDlg, FO_DELETE, copySource);
         }
     }
-  if (PathIsDirectory(copyDest.c_str()))
+  if (ELPathIsDirectory(copyDest.c_str()))
     ELSetTheme(copyDest);
 
   return true;

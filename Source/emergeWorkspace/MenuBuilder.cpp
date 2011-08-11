@@ -1293,7 +1293,7 @@ void MenuBuilder::BuildFileMenuFromString(MenuMap::iterator iter, WCHAR *parsedV
 
           if (ELParseShortcut(tmp, &shortcutInfo))
             {
-              if (PathIsDirectory(shortcutInfo.Path))
+              if (ELPathIsDirectory(shortcutInfo.Path))
                 {
                   iter->second->SetValue(shortcutInfo.Path);
                   BuildFileMenu(iter);
@@ -1601,7 +1601,7 @@ LRESULT MenuBuilder::DoButtonDown(UINT button)
   TiXmlElement *section = NULL, *menu = NULL;
   std::wstring xmlPath = TEXT("%EmergeDir%\\files\\");
   xmlPath = ELExpandVars(xmlPath);
-  if (!PathIsDirectory(xmlPath.c_str()))
+  if (!ELPathIsDirectory(xmlPath.c_str()))
     ELCreateDirectory(xmlPath);
   std::wstring xmlFile = xmlPath + TEXT("emergeWorkspace.xml");
   if (!PathFileExists(xmlFile.c_str()))

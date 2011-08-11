@@ -55,7 +55,7 @@ bool TraySettings::ConvertHide()
   if (RegOpenKeyEx(key, hideKeyName, 0, KEY_READ, &hideKey) != ERROR_SUCCESS)
     return false;
 
-  if (!PathIsDirectory(ELExpandVars(userFile).c_str()))
+  if (!ELPathIsDirectory(ELExpandVars(userFile).c_str()))
     ELCreateDirectory(userFile);
   userFile += TEXT("emergeTray.xml");
   xmlConfig = ELOpenXMLConfig(userFile, true);

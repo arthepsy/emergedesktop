@@ -54,16 +54,16 @@ ThemeSelector::ThemeSelector(HINSTANCE hInstance, HWND mainWnd)
   InitCommonControls();
 
   toolWnd = CreateWindowEx(
-                           0,
-                           TOOLTIPS_CLASS,
-                           NULL,
-                           TTS_ALWAYSTIP|WS_POPUP|TTS_NOPREFIX,
-                           CW_USEDEFAULT, CW_USEDEFAULT,
-                           CW_USEDEFAULT, CW_USEDEFAULT,
-                           NULL,
-                           NULL,
-                           hInstance,
-                           NULL);
+              0,
+              TOOLTIPS_CLASS,
+              NULL,
+              TTS_ALWAYSTIP|WS_POPUP|TTS_NOPREFIX,
+              CW_USEDEFAULT, CW_USEDEFAULT,
+              CW_USEDEFAULT, CW_USEDEFAULT,
+              NULL,
+              NULL,
+              hInstance,
+              NULL);
 
   if (toolWnd)
     {
@@ -230,7 +230,7 @@ BOOL ThemeSelector::DoThemeCommand(HWND hwndDlg, WPARAM wParam, LPARAM lParam UN
     case IDOK:
       SaveTheme(hwndDlg);
     case IDCANCEL:
-      if (!PathIsDirectory(themePath.c_str()))
+      if (!ELPathIsDirectory(themePath.c_str()))
         wParam = IDOK;
       EndDialog(hwndDlg, wParam);
       return TRUE;
@@ -331,7 +331,7 @@ void ThemeSelector::DoImport(HWND hwndDlg)
   ofn.lpstrFile = tmp;
   ofn.lpstrTitle = TEXT("Browse For Theme File");
   ofn.Flags = OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST | OFN_EXPLORER |
-    OFN_DONTADDTORECENT | OFN_NOCHANGEDIR | OFN_NODEREFERENCELINKS;
+              OFN_DONTADDTORECENT | OFN_NOCHANGEDIR | OFN_NODEREFERENCELINKS;
 
   if (GetOpenFileName(&ofn))
     {
@@ -365,15 +365,17 @@ void ThemeSelector::DoSave(HWND hwndDlg)
 
   // If the destTheme directory exists, remove it and re-create it (to make
   // sure its empty.
-  if (PathIsDirectory(ELExpandVars(destTheme).c_str()))
+  if (ELPathIsDirectory(ELExpandVars(destTheme).c_str()))
     ELFileOp(hwndDlg, FO_DELETE, destTheme);
-  ELCreateDirectory(destTheme);
-
-  if (ELFileOp(hwndDlg, FO_COPY, copySource, destTheme))
+  if (ELCreateDirectory(destTheme))
     {
-      ELFileOp(hwndDlg, FO_DELETE, sourceTheme);
-      ELSetTheme(destTheme);
+      if (ELFileOp(hwndDlg, FO_COPY, copySource, destTheme))
+        {
+          ELFileOp(hwndDlg, FO_DELETE, sourceTheme);
+          ELSetTheme(destTheme);
+        }
     }
+
   PopulateThemes(themeWnd, theme);
 }
 
@@ -434,7 +436,7 @@ BOOL ThemeSelector::DoThemeCheck(HWND hwndDlg)
   EnableWindow(saveWnd, (ELIsModifiedTheme(theme) && (_wcsicmp(theme, TEXT("Default (Modified)")) != 0)));
   EnableWindow(exportWnd, (_wcsicmp(theme, TEXT("Default")) != 0));
 
-  if (ELIsModifiedTheme(ELGetThemeName().c_str()) && PathIsDirectory(themePath.c_str()))
+  if (ELIsModifiedTheme(ELGetThemeName().c_str()) && ELPathIsDirectory(themePath.c_str()))
     {
       swprintf (errorText, TEXT("The existing '%s' theme will be lost, save it?"), ELGetThemeName().c_str());
       if (ELMessageBox(hwndDlg, errorText, TEXT("Theme Selector"),

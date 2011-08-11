@@ -633,10 +633,11 @@ bool LaunchEditor::UpdateLaunch(HWND hwndDlg)
       oldThemePath += TEXT("\\*");
       newThemePath = TEXT("%ThemeDir%");
 
-      if (!PathIsDirectory(newThemePath.c_str()))
-        ELCreateDirectory(newThemePath);
-
-      ELFileOp(mainWnd, FO_COPY, oldThemePath, newThemePath);
+      if (!ELPathIsDirectory(newThemePath.c_str()))
+        {
+          if (ELCreateDirectory(newThemePath))
+            ELFileOp(mainWnd, FO_COPY, oldThemePath, newThemePath);
+        }
     }
 
   configXML = ELOpenXMLConfig(xmlFile, true);

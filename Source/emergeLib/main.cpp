@@ -288,6 +288,9 @@ bool ELPathFileExists(const WCHAR *file)
 {
   std::wstring workingFile = file;
   workingFile = ELExpandVars(workingFile);
+  size_t firstQuote = workingFile.find_first_of('"');
+  if (firstQuote != std::wstring::npos)
+    workingFile = workingFile.substr(firstQuote + 1, workingFile.find_last_of('"') - (firstQuote + 1));
 
   return (PathFileExists(workingFile.c_str()) && !ELPathIsRelative(workingFile.c_str()));
 }
@@ -334,7 +337,7 @@ void ELGetThemeInfo(LPTHEMEINFO themeInfo)
             {
               swprintf(themeInfo->themePath, TEXT("%s\\themes\\%s"),
                        themeInfo->path, themeInfo->theme);
-              if (!PathIsDirectory(themeInfo->themePath))
+              if (!ELPathIsDirectory(themeInfo->themePath))
                 {
                   wcscpy(themeInfo->theme, TEXT("Default"));
                   ELWriteXMLStringValue(section, (WCHAR*)TEXT("Current"), themeInfo->theme);
@@ -425,20 +428,29 @@ std::tr1::shared_ptr<TiXmlDocument> ELOpenXMLConfig(std::wstring file, bool crea
 bool ELCreateDirectory(std::wstring directory)
 {
   size_t i = 0;
+  std::wstring subdir;
 
   directory = ELExpandVars(directory);
 
   i = directory.find_first_of(TEXT("\\"), i);
   while (i != std::wstring::npos)
     {
-      if (!PathIsDirectory(directory.substr(0, i).c_str()))
-        if (!CreateDirectory(directory.substr(0, i).c_str(), NULL))
-          return false;
+      subdir = directory.substr(0, i);
+
+      if (!subdir.empty())
+        {
+          if (!ELPathIsDirectory(subdir.c_str()))
+            {
+              if (!CreateDirectory(subdir.c_str(), NULL))
+                return false;
+            }
+
+        }
       i++;
       i = directory.find_first_of(TEXT("\\"), i);
     }
 
-  if (!PathIsDirectory(directory.c_str()))
+  if (!ELPathIsDirectory(directory.c_str()))
     {
       if (!CreateDirectory(directory.c_str(), NULL))
         return false;
@@ -1585,7 +1597,7 @@ int ELExtractZip(std::wstring zipFile, std::wstring unzipPath)
 
               if (ze.attr == FILE_ATTRIBUTE_DIRECTORY)
                 {
-                  if (PathIsDirectory(tmpPath.c_str()))
+                  if (ELPathIsDirectory(tmpPath.c_str()))
                     {
                       themeName = ze.name;
                       themeName = themeName.substr(0, themeName.rfind('/'));
@@ -1657,8 +1669,7 @@ bool ELParseCommand(const WCHAR *application, WCHAR *program, WCHAR *arguments)
     }
 
   // Bail if workingApp is a directory, UNC Path or it exists
-  if (PathIsDirectory(workingApp.c_str()) ||
-      PathIsUNC(workingApp.c_str()) ||
+  if (ELPathIsDirectory(workingApp.c_str()) ||
       PathIsURL(workingApp.c_str()) ||
       ELPathFileExists(workingApp.c_str()))
     {
@@ -1882,7 +1893,7 @@ bool ELFileTypeCommand(WCHAR *document, WCHAR *docArgs, WCHAR *commandLine)
   WCHAR *extension = PathFindExtension(document);
   WCHAR docExecutable[MAX_LINE_LENGTH], shortDoc[MAX_LINE_LENGTH], quotedDoc[MAX_LINE_LENGTH];
   DWORD size = MAX_LINE_LENGTH;
-  BOOL isDirectory = PathIsDirectory(document);
+  BOOL isDirectory = ELPathIsDirectory(document);
   UINT substitutions = 0;
 
   if (isDirectory)
@@ -2146,7 +2157,7 @@ bool PathTokenCheck(WCHAR *path)
   // Strip quotes since the system 'Path...' functions don't seem to like them
   stripQuotes(tmp);
 
-  if (ELPathFileExists(tmp) && !PathIsDirectory(tmp))
+  if (ELPathFileExists(tmp) && !ELPathIsDirectory(tmp))
     {
       wcscpy(path, tmp);
       return true;
@@ -2162,7 +2173,7 @@ bool PathTokenCheck(WCHAR *path)
                            (LPTSTR)sysWOW64,
                            MAX_PATH);
 
-  if (PathFindOnPath(tmp, corePathPtr) && !PathIsDirectory(tmp))
+  if (PathFindOnPath(tmp, corePathPtr) && !ELPathIsDirectory(tmp))
     {
       wcscpy(path, tmp);
       return true;
@@ -2173,7 +2184,7 @@ bool PathTokenCheck(WCHAR *path)
 
       /**< Check to see if tmp exists in sysWOW64 */
       swprintf(tmpCheck, TEXT("%s\\%s"), sysWOW64, tmp);
-      if (ELPathFileExists(tmpCheck) && !PathIsDirectory(tmpCheck))
+      if (ELPathFileExists(tmpCheck) && !ELPathIsDirectory(tmpCheck))
         {
           wcscpy(path, tmpCheck);
           return true;
@@ -2181,7 +2192,7 @@ bool PathTokenCheck(WCHAR *path)
 
       /**< Check to see if tmp exists in current working directory */
       swprintf(tmpCheck, TEXT("%s\\%s"), cwd, tmp);
-      if (ELPathFileExists(tmpCheck) && !PathIsDirectory(tmpCheck))
+      if (ELPathFileExists(tmpCheck) && !ELPathIsDirectory(tmpCheck))
         {
           wcscpy(path, tmpCheck);
           return true;
@@ -4575,7 +4586,7 @@ bool ELRelativePathFromAbsPath(WCHAR *destPath, LPCTSTR sourcePath)
   if (ELUnExpandVars(destPath)) //the unexpanded path contains an environment variable, so we don't want to manipulate the string any further.
     return true;
 
-  if (PathIsDirectory(destPath))
+  if (ELPathIsDirectory(destPath))
     flags = FILE_ATTRIBUTE_DIRECTORY;
   else
     flags = FILE_ATTRIBUTE_NORMAL;
@@ -4691,6 +4702,11 @@ BOOL CALLBACK AppletMonitorEnum(HMONITOR hMonitor, HDC hdcMonitor UNUSED, LPRECT
   return TRUE;
 }
 
+bool ELPathIsDirectory(const WCHAR *path)
+{
+  return (PathIsDirectory(path) || PathIsUNCServerShare(path) || PathIsUNCServer(path));
+}
+
 bool ELSetModifiedTheme(std::wstring theme)
 {
   bool ret = false;
@@ -4707,11 +4723,11 @@ bool ELSetModifiedTheme(std::wstring theme)
       themePath = ELExpandVars(themePath);
 
       // Create the theme directory if it doesn't exist
-      if (!PathIsDirectory(themePath.c_str()))
+      if (!ELPathIsDirectory(themePath.c_str()))
         ELCreateDirectory(themePath);
 
       // If the theme path is created, set it as the theme
-      if (PathIsDirectory(themePath.c_str()))
+      if (ELPathIsDirectory(themePath.c_str()))
         {
           ELSetTheme(themePath);
           ret = true;

@@ -72,7 +72,7 @@ bool CommandSettings::ConvertHistory()
   if (RegOpenKeyEx(key, historyKeyName, 0, KEY_READ, &historyKey) != ERROR_SUCCESS)
     return false;
 
-  if (!PathIsDirectory(ELExpandVars(userFile).c_str()))
+  if (!ELPathIsDirectory(ELExpandVars(userFile).c_str()))
     ELCreateDirectory(userFile);
   userFile += TEXT("emergeCommand.xml");
   xmlConfig = ELOpenXMLConfig(userFile, true);

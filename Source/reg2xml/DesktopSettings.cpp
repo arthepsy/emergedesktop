@@ -60,7 +60,7 @@ bool DesktopSettings::ConvertMenus()
   WCHAR menuKeyName[MAX_LINE_LENGTH];
   HKEY menuKey;
 
-  if (!PathIsDirectory(ELExpandVars(userFile).c_str()))
+  if (!ELPathIsDirectory(ELExpandVars(userFile).c_str()))
     ELCreateDirectory(userFile);
   userFile += TEXT("emergeWorkspace.xml");
   xmlConfig = ELOpenXMLConfig(userFile, true);

@@ -61,7 +61,7 @@ void AppletSettings::ConvertSettings(IOHelper &keyHelper, IOHelper &xmlHelper)
   wcscpy(origStyle, GetStyleFile());
   if (ELPathFileExists(origStyle))
     {
-      if (!PathIsDirectory(themeStyle.c_str()))
+      if (!ELPathIsDirectory(themeStyle.c_str()))
         ELCreateDirectory(themeStyle);
       wcscpy(styleFile, PathFindFileName(origStyle));
       themeStyle += styleFile;

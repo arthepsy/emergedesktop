@@ -39,7 +39,7 @@ bool HotkeysSettings::ConvertActions()
   WCHAR shellKeyName[MAX_LINE_LENGTH];
 
   wcscpy(shellKeyName, TEXT("Actions"));
-  if (!PathIsDirectory(ELExpandVars(userFile).c_str()))
+  if (!ELPathIsDirectory(ELExpandVars(userFile).c_str()))
     ELCreateDirectory(userFile);
   userFile += TEXT("emergeHotkeys.xml");
   xmlConfig = ELOpenXMLConfig(userFile, true);

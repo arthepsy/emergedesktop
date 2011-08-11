@@ -60,7 +60,7 @@ bool VWMSettings::ConvertSticky()
   if (RegOpenKeyEx(key, stickyKeyName, 0, KEY_READ, &stickyKey) != ERROR_SUCCESS)
     return false;
 
-  if (!PathIsDirectory(ELExpandVars(userFile).c_str()))
+  if (!ELPathIsDirectory(ELExpandVars(userFile).c_str()))
     ELCreateDirectory(userFile);
   userFile += TEXT("emergeVWM.xml");
   xmlConfig = ELOpenXMLConfig(userFile, true);

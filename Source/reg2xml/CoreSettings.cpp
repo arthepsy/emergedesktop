@@ -37,7 +37,7 @@ bool CoreSettings::ConvertShells()
   WCHAR shellKeyName[MAX_LINE_LENGTH];
 
   wcscpy(shellKeyName, TEXT("Shells"));
-  if (!PathIsDirectory(ELExpandVars(userFile).c_str()))
+  if (!ELPathIsDirectory(ELExpandVars(userFile).c_str()))
     ELCreateDirectory(userFile);
   userFile += TEXT("emergeCore.xml");
   xmlConfig = ELOpenXMLConfig(userFile, true);

@@ -738,7 +738,7 @@ void StyleEditor::DoSaveAs(HWND hwndDlg)
       oldThemePath = TEXT("%EmergeDir%\\themes\\") + oldTheme;
       oldThemePath += TEXT("\\*");
 
-      if (!PathIsDirectory(newThemePath.c_str()))
+      if (!ELPathIsDirectory(newThemePath.c_str()))
         ELCreateDirectory(newThemePath);
 
       ELFileOp(mainWnd, FO_COPY, oldThemePath, newThemePath);
@@ -753,7 +753,7 @@ void StyleEditor::DoSaveAs(HWND hwndDlg)
   ofn.lpstrTitle = TEXT("Save Style As");
   ofn.lpstrDefExt = extension;
   newThemePath += TEXT("\\Styles");
-  if (!PathIsDirectory(newThemePath.c_str()))
+  if (!ELPathIsDirectory(newThemePath.c_str()))
     ELCreateDirectory(newThemePath);
   newThemePath = ELExpandVars(newThemePath);
   ofn.lpstrInitialDir = newThemePath.c_str();

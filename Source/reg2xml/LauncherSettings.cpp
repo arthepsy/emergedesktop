@@ -70,7 +70,7 @@ void LauncherSettings::ConvertSettings(IOHelper &keyHelper, IOHelper &xmlHelper)
           if (ELPathFileExists(workingIconFile.c_str()))
             {
               themeMedia = TEXT("%ThemeDir%\\Media\\");
-              if (!PathIsDirectory(themeMedia.c_str()))
+              if (!ELPathIsDirectory(themeMedia.c_str()))
                 ELCreateDirectory(themeMedia);
               themeMedia += workingIconFile.substr(splitter + 1);
               CopyFile(ELExpandVars(workingIconFile).c_str(), ELExpandVars(themeMedia).c_str(), TRUE);

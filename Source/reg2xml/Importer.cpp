@@ -245,7 +245,7 @@ bool Importer::DoImport(HWND hwndDlg)
   std::wstring themeDir = TEXT("%EmergeDir%\\themes\\");
   themeDir += themeName;
   themeDir = ELExpandVars(themeDir);
-  if (!PathIsDirectory(themeDir.c_str()))
+  if (!ELPathIsDirectory(themeDir.c_str()))
     ELCreateDirectory(themeDir.c_str());
   SetEnvironmentVariable(TEXT("ThemeDir"), themeDir.c_str());
   ELSetTheme(themeDir);
@@ -305,7 +305,7 @@ bool Importer::DoImport(HWND hwndDlg)
 
   appletCmd = ELExpandVars(appletCmd);
   emergeCmd = ELExpandVars(emergeCmd);
-  if (!PathIsDirectory(emergeCmd.c_str()))
+  if (!ELPathIsDirectory(emergeCmd.c_str()))
     ELCreateDirectory(emergeCmd);
   emergeCmd += TEXT("cmd.txt");
   CopyFile(appletCmd.c_str(), emergeCmd.c_str(), TRUE);

@@ -475,4 +475,5 @@ DLL_EXPORT bool ELIsEmergeShell();
 DLL_EXPORT BOOL ELGetWindowRect(HWND hwnd, RECT *rect);
 DLL_EXPORT bool ELPopulateInternalCommandList(HWND hwnd);
 DLL_EXPORT void ELDispatchCoreMessage(DWORD type, DWORD message, const WCHAR *instanceName = NULL);
+DLL_EXPORT bool ELPathIsDirectory(const WCHAR *path);
 #endif

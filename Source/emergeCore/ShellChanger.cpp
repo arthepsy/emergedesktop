@@ -412,7 +412,7 @@ bool ShellChanger::DoSetShell(HWND hwndDlg)
   std::wstring appletCmd = TEXT("%AppletDir%\\files\\cmd.txt"), emergeCmd = TEXT("%EmergeDir%\\files\\");
   appletCmd = ELExpandVars(appletCmd);
   emergeCmd = ELExpandVars(emergeCmd);
-  if (!PathIsDirectory(emergeCmd.c_str()))
+  if (!ELPathIsDirectory(emergeCmd.c_str()))
     ELCreateDirectory(emergeCmd);
   emergeCmd += TEXT("cmd.txt");
   CopyFile(appletCmd.c_str(), emergeCmd.c_str(), TRUE);

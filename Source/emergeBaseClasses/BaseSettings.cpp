@@ -106,12 +106,16 @@ bool BaseSettings::CopyTheme()
   oldThemePath += TEXT("\\*");
   newThemePath = TEXT("%ThemeDir%");
 
-  if (!PathIsDirectory(newThemePath.c_str()))
-    ELCreateDirectory(newThemePath);
+  if (!ELPathIsDirectory(newThemePath.c_str()))
+    {
+      if (ELCreateDirectory(newThemePath))
+        {
+          if (ELFileOp(appletWnd, FO_COPY, oldThemePath, newThemePath))
+            return CopyStyle();
+        }
+    }
 
-  ELFileOp(appletWnd, FO_COPY, oldThemePath, newThemePath);
-
-  return CopyStyle();
+  return false;
 }
 
 bool BaseSettings::WriteSettings()
@@ -635,8 +639,9 @@ bool BaseSettings::CopyStyle()
   if (workingStyle.find(L"\\Styles\\") == std::wstring::npos)
     {
       destStyle = L"%ThemeDir%\\Styles";
-      if (!PathIsDirectory(destStyle.c_str()))
-        ELCreateDirectory(destStyle);
+      if (!ELPathIsDirectory(destStyle.c_str()))
+        if (!ELCreateDirectory(destStyle))
+          return false;
 
       if (ELFileOp(NULL, FO_COPY, workingStyle, destStyle) && !workingStyle.empty())
         {

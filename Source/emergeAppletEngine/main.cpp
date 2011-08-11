@@ -449,7 +449,7 @@ HRESULT AddContextMenu(WCHAR *file)
       return hr;
     }
 
-  if (!PathIsDirectory(file))
+  if (!ELPathIsDirectory(file))
     {
       AppendMenu(fileMenu, MF_SEPARATOR, 0x8000, NULL);
       AppendMenu(fileMenu, MF_STRING, 0x8001, TEXT("Open Folder"));
