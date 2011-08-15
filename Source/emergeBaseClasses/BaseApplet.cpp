@@ -465,14 +465,9 @@ LRESULT BaseApplet::DoDisplayChange(HWND hwnd UNUSED)
 {
   DWORD threadID, threadState;
 
-  if (!displayChangeThread)
+  GetExitCodeThread(displayChangeThread, &threadState);
+  if (threadState != STILL_ACTIVE)
     displayChangeThread = CreateThread(NULL, 0, DisplayChangeThreadProc, this, 0, &threadID);
-  else
-    {
-      GetExitCodeThread(displayChangeThread, &threadState);
-      if (threadState != STILL_ACTIVE)
-        displayChangeThread = CreateThread(NULL, 0, DisplayChangeThreadProc, this, 0, &threadID);
-    }
 
   return 0;
 }
