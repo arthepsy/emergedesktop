@@ -54,11 +54,10 @@
 class CustomDropSource : public IDropSource
 {
 private:
-  HWND wnd;
   ULONG refCount;
 
 public:
-  CustomDropSource(HWND wnd);
+  CustomDropSource();
   virtual ~CustomDropSource();
   STDMETHODIMP_(ULONG) AddRef();
   STDMETHODIMP_(ULONG) Release();
