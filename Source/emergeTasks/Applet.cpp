@@ -278,6 +278,31 @@ LRESULT Applet::AddTask(HWND task)
   return 0;
 }
 
+LRESULT Applet::ModifyTaskByThread(HANDLE threadID)
+{
+  std::map<HWND, HANDLE>::iterator iter = modifyMap.begin();
+  LRESULT result = 1;
+
+  // traverse modifyMap looking for the thread ID
+  while (iter != modifyMap.end())
+    {
+      // If found break
+      if (iter->second == threadID)
+        break;
+      iter++;
+    }
+
+  // If the thread ID was found...
+  if (iter != modifyMap.end())
+    {
+      // Call ModifyTask using the corresponding first map element
+      result = ModifyTask(iter->first);
+      modifyMap.erase(iter);
+    }
+
+  return result;
+}
+
 //----  --------------------------------------------------------------------------------------------------------
 // Function:	ModifyTask
 // Required:	HWND task - handle to the new task's window
@@ -684,17 +709,14 @@ VOID CALLBACK Applet::FlashTimerProc(HWND hwnd, UINT uMsg UNUSED, UINT_PTR idEve
 
 DWORD WINAPI Applet::ModifyThreadProc(LPVOID lpParameter)
 {
-  // reinterpret lpParameter as a Applet*,HWND pair
-  std::pair<Applet*, HWND> *modifyPair = reinterpret_cast< std::pair<Applet*, HWND>* >(lpParameter);
+  // reinterpret lpParameter as Applet*
+  Applet *pApplet = reinterpret_cast<Applet*>(lpParameter);
 
   // Pause the thread for 100 ms to mitigate an HSHELL_REDRAW message flood
   WaitForSingleObject(GetCurrentThread(), 100);
 
-  // using modifyPair, call ModifyTask with the passed task hwnd
-  DWORD ret = modifyPair->first->ModifyTask(modifyPair->second);
-
-  // Clean-up memory allocation
-  delete modifyPair;
+  // Modify the task based on the current thread ID
+  DWORD ret = pApplet->ModifyTaskByThread(GetCurrentThread());
 
   return ret;
 }
@@ -728,7 +750,6 @@ LRESULT Applet::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
   HWND task = (HWND)lParam;
   UINT shellMessage = (UINT)wParam;
   std::map<HWND, UINT>::iterator mapIter;
-  std::pair<Applet*, HWND> *modifyPair;
   TaskVector::iterator iter;
   std::map<HWND, HANDLE>::iterator modifyIter;
   HICON icon = NULL;
@@ -747,18 +768,12 @@ LRESULT Applet::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
         case HSHELL_REDRAW:
           modifyIter = modifyMap.find(task);
           if (modifyIter == modifyMap.end())
-            {
-              modifyPair = new std::pair<Applet*, HWND>(this, task);
-              modifyMap.insert(std::pair<HWND, HANDLE>(task, CreateThread(NULL, 0, ModifyThreadProc, modifyPair, 0, &threadID)));
-            }
+            modifyMap.insert(std::pair<HWND, HANDLE>(task, CreateThread(NULL, 0, ModifyThreadProc, this, 0, &threadID)));
           else
             {
               GetExitCodeThread(modifyIter->second, &threadState);
               if (threadState != STILL_ACTIVE)
-                {
-                  modifyPair = new std::pair<Applet*, HWND>(this, task);
-                  modifyIter->second = CreateThread(NULL, 0, ModifyThreadProc, modifyPair, 0, &threadID);
-                }
+                modifyIter->second = CreateThread(NULL, 0, ModifyThreadProc, this, 0, &threadID);
             }
           break;
 

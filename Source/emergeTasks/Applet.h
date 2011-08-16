@@ -99,6 +99,7 @@ public:
   bool PaintItem(HDC hdc, UINT index, int x, int y, RECT rect);
   size_t GetIconCount();
   void DoTaskFlash(UINT id);
+  LRESULT ModifyTaskByThread(HANDLE threadID);
 };
 
 #endif
