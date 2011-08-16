@@ -1924,7 +1924,7 @@ void MenuBuilder::ExecuteSettingsMenuItem(UINT index)
         }
       break;
     case BSM_CORE:
-      ELExecuteInternal((WCHAR*)TEXT("CoreSettings"));
+      ELExecuteInternal((WCHAR*)TEXT("LaunchEditor"));
       break;
     case BSM_SHELL:
       ELExecuteInternal((WCHAR*)TEXT("ShellChanger"));
