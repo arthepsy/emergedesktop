@@ -979,6 +979,8 @@ bool LaunchPage::EnableFields(HWND hwndDlg, bool enable)
       EnableWindow(specialFolderButtonWnd, false);
       EnableWindow(separatorWnd, false);
       EnableWindow(separatorButtonWnd, false);
+      // Set focus to listWnd to allow for keyboard operation
+      SetFocus(listWnd);
     }
 
   return true;
@@ -1009,7 +1011,7 @@ bool LaunchPage::SaveItem(HWND hwndDlg)
   int i = 0;
   LVITEM lvItem;
 
-  lvItem.mask = LVIF_TEXT;
+  lvItem.mask = LVIF_TEXT|LVIF_STATE;
 
   if (GetDlgItemText(hwndDlg, IDC_TYPE, typeName, MAX_LINE_LENGTH) == 0)
     {
@@ -1079,6 +1081,8 @@ bool LaunchPage::SaveItem(HWND hwndDlg)
   lvItem.iSubItem = 0;
   lvItem.pszText = typeName;
   lvItem.cchTextMax = (int)wcslen(command);
+  lvItem.state = LVIS_SELECTED;
+  lvItem.stateMask = LVIS_SELECTED;
   (void)ListView_InsertItem(listWnd, &lvItem);
   ListView_SetItemText(listWnd, lvItem.iItem, 1, command);
   ListView_SetItemText(listWnd, lvItem.iItem, 2, workingDir);
