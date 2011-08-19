@@ -723,24 +723,11 @@ bool BaseSettings::SetSortInfo(WCHAR *editorName, PSORTINFO sortInfo)
 
 BaseSettings::IOHelper::IOHelper(TiXmlElement *sec)
 {
-  key = NULL;
   section = sec;
   item = NULL;
   itemIndex = 0;
   readIndex = 0;
   target = section; // Set the target element to the section initially
-  targetKey = key; // Set the target key to the main key initially
-}
-
-BaseSettings::IOHelper::IOHelper(HKEY key)
-{
-  (*this).key = key;
-  section = NULL;
-  item = NULL;
-  itemIndex = 0;
-  readIndex = 0;
-  target = section; // Set the target element to the section initially
-  targetKey = key; // Set the target key to the main key initially
 }
 
 BaseSettings::IOHelper::~IOHelper()
@@ -767,8 +754,6 @@ void BaseSettings::IOHelper::Clear()
 bool BaseSettings::IOHelper::GetElement()
 {
   TiXmlElement *tmpItem = NULL;
-  WCHAR tmpkeyName[MAX_LINE_LENGTH];
-  DWORD size = 0;
 
   if (section)
     {
@@ -785,19 +770,6 @@ bool BaseSettings::IOHelper::GetElement()
         target = item;
 
       return (item != NULL);
-    }
-  if (key)
-    {
-      size = sizeof(WCHAR) * MAX_LINE_LENGTH;
-      if (RegEnumKeyEx(key, readIndex, tmpkeyName, &size, NULL, NULL, NULL, NULL) == ERROR_SUCCESS)
-        {
-          if (RegOpenKeyEx(key, tmpkeyName, 0, KEY_READ, &targetKey) == ERROR_SUCCESS)
-            {
-              subkeyName = tmpkeyName;
-              readIndex++;
-              return true;
-            }
-        }
     }
 
   return false;
@@ -825,9 +797,6 @@ void *BaseSettings::IOHelper::GetTarget()
   if (section)
     return reinterpret_cast<void*>(target);
 
-  if (key)
-    return reinterpret_cast<void*>(targetKey);
-
   return NULL;
 }
 
@@ -844,12 +813,6 @@ void *BaseSettings::IOHelper::GetElement(WCHAR *name)
       return reinterpret_cast<void*>(item);
     }
 
-  if (key)
-    {
-      if (RegOpenKeyEx(key, name, 0, KEY_READ, &targetKey) == ERROR_SUCCESS)
-        return reinterpret_cast<void*>(targetKey);
-    }
-
   return NULL;
 }
 
@@ -858,35 +821,15 @@ bool BaseSettings::IOHelper::GetElementText(WCHAR *text)
   if (section)
     return ELGetXMLElementText(item, text);
 
-  if (key)
-    {
-      if (!subkeyName.empty())
-        {
-          wcscpy(text, subkeyName.c_str());
-          return true;
-        }
-    }
-
   return false;
 }
 
 bool BaseSettings::IOHelper::ReadBool(const WCHAR* name, bool& data, bool def)
 {
   bool ret = false;
-  DWORD tmpData;
 
   if (target)
     return ELReadXMLBoolValue(target, name, &data, def);
-  else if (targetKey)
-    {
-      DWORD tmpDef = 0;
-      data = false;
-      if (def)
-        tmpDef = 1;
-      ret = ELReadRegDWord(targetKey, name, &tmpData, tmpDef);
-      if (tmpData == 1)
-        data = true;
-    }
 
   return ret;
 }
@@ -895,8 +838,6 @@ bool BaseSettings::IOHelper::ReadInt(const WCHAR* name, int& data, int def)
 {
   if (target)
     return ELReadXMLIntValue(target, name, &data, def);
-  else if (targetKey)
-    return ELReadRegDWord(targetKey, name, (DWORD*)&data, def);
 
   return false;
 }
@@ -913,8 +854,6 @@ bool BaseSettings::IOHelper::ReadString(const WCHAR* name, WCHAR* data, const WC
 {
   if (target)
     return ELReadXMLStringValue(target, name, data, def);
-  else if (targetKey)
-    return ELReadRegString(targetKey, name, data, def);
 
   return false;
 }
@@ -923,34 +862,16 @@ bool BaseSettings::IOHelper::ReadRect(const WCHAR* name, RECT& data, RECT& def)
 {
   if (target)
     return ELReadXMLRectValue(target, name, &data, def);
-  else if (targetKey)
-    return ELReadRegRect(targetKey, name, &data, &def);
 
   return false;
 }
 
 bool BaseSettings::IOHelper::ReadColor(const WCHAR* name, COLORREF& data, COLORREF def)
 {
-  bool ret = false;
-  int red = 0, green = 0, blue = 0;
-
   if (target)
     return ELReadXMLColorValue(target, name, &data, def);
-  else if (targetKey)
-    {
-      WCHAR tmpDef[MAX_LINE_LENGTH], tmpData[MAX_LINE_LENGTH];
-      swprintf(tmpDef, TEXT("%d,%d,%d"), red, green, blue);
-      ret = ELReadRegString(targetKey, name, tmpData, tmpDef);
-      if (swscanf(tmpData, TEXT("%d,%d,%d"), &red, &green, &blue) == 3)
-        {
-          if ((red >= 0 && red <= 255) &&
-              (green >= 0 && green <= 255) &&
-              (blue >= 0 && blue <= 255))
-            data = RGB(red, green, blue);
-        }
-    }
 
-  return ret;
+  return false;
 }
 
 bool BaseSettings::IOHelper::WriteBool(const WCHAR* name, bool data)

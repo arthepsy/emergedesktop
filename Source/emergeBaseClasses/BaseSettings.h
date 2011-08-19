@@ -50,13 +50,11 @@ public:
   class DLL_EXPORT IOHelper
   {
   private:
-    HKEY key, targetKey;
     std::wstring subkeyName;
     TiXmlElement *section, *item, *target;
     int itemIndex, readIndex;
   public:
     IOHelper(TiXmlElement *sec);
-    IOHelper(HKEY key);
     ~IOHelper();
 
     bool GetElement();
