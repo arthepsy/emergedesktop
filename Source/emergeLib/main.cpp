@@ -1699,6 +1699,7 @@ bool ELParseCommand(const WCHAR *application, WCHAR *program, WCHAR *arguments)
   if (ELCheckPathWithExtension(pathTmp))
     {
       wcscpy(program, pathTmp);
+      wcscpy(arguments, workingArgs.c_str());
       return true;
     }
 
