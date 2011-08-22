@@ -288,9 +288,8 @@ bool ELPathFileExists(const WCHAR *file)
 {
   std::wstring workingFile = file;
   workingFile = ELExpandVars(workingFile);
-  size_t firstQuote = workingFile.find_first_of('"');
-  if (firstQuote != std::wstring::npos)
-    workingFile = workingFile.substr(firstQuote + 1, workingFile.find_last_of('"') - (firstQuote + 1));
+  if ((*workingFile.begin() == '"') && (*workingFile.end() == '"'))
+    workingFile = workingFile.substr(1, workingFile.length() - 2);
 
   return (PathFileExists(workingFile.c_str()) && !ELPathIsRelative(workingFile.c_str()));
 }
@@ -976,12 +975,12 @@ std::string ELwstringTostring(std::wstring inString, UINT codePage)
   std::string returnString;
 
   size_t tmpStringLength = WideCharToMultiByte(codePage, 0, wideString.c_str(), wideString.length(), NULL, 0,
-                           NULL, NULL);
+                                               NULL, NULL);
   if (tmpStringLength != 0)
     {
       LPSTR tmpString = new char[tmpStringLength + 1];
       size_t writtenBytes = WideCharToMultiByte(codePage, 0, wideString.c_str(), wideString.length(), tmpString,
-                            tmpStringLength, NULL, NULL);
+                                                tmpStringLength, NULL, NULL);
       if (writtenBytes != 0)
         {
           if (writtenBytes <= tmpStringLength)
@@ -1003,7 +1002,7 @@ std::wstring ELstringTowstring(std::string inString, UINT codePage)
     {
       LPWSTR tmpString = new WCHAR[tmpStringLength + 1];
       size_t writtenBytes = MultiByteToWideChar(codePage, 0, narrowString.c_str(), narrowString.length(), tmpString,
-                            tmpStringLength);
+                                                tmpStringLength);
       if (writtenBytes != 0)
         {
           if (writtenBytes <= tmpStringLength)
@@ -1650,10 +1649,7 @@ bool ELParseCommand(const WCHAR *application, WCHAR *program, WCHAR *arguments)
   ZeroMemory(buildTmp, MAX_LINE_LENGTH);
   wcscpy(program, TEXT("\0"));
   wcscpy(arguments, TEXT("\0"));
-  bool valid = false;
-  UINT argIndex = 0, appIndex = 0;
-  size_t appLength = wcslen(application);
-  std::wstring workingApp = application;
+  std::wstring workingApp = application, workingArgs;
 
   if (!workingApp.empty())
     {
@@ -1668,12 +1664,34 @@ bool ELParseCommand(const WCHAR *application, WCHAR *program, WCHAR *arguments)
       return true;
     }
 
+  // Parse application string of form: "Command" arguments
+  if (workingApp.length() > 1)
+    {
+      // Check to see if the string starts with " and contains a second "
+      size_t nextQuote = workingApp.find_first_of('"', 2);
+      if ((*workingApp.begin() == '"') && (nextQuote != std::wstring::npos))
+        {
+          // If so, first define the arguments
+          if (nextQuote < (workingApp.length() - 1))
+            {
+              workingArgs = workingApp.substr(nextQuote + 1, workingApp.length() - nextQuote);
+              // Strip any leading spaces from the arguments
+              size_t firstNonSpace = workingArgs.find_first_not_of(L" \t");
+              if (firstNonSpace != std::wstring::npos)
+                workingArgs = workingArgs.substr(firstNonSpace, workingArgs.length() - firstNonSpace);
+            }
+          // Finally define the application
+          workingApp = workingApp.substr(1, nextQuote - 1);
+        }
+    }
+
   // Bail if workingApp is a directory, UNC Path or it exists
   if (ELPathIsDirectory(workingApp.c_str()) ||
       PathIsURL(workingApp.c_str()) ||
       ELPathFileExists(workingApp.c_str()))
     {
       wcscpy(program, workingApp.c_str());
+      wcscpy(arguments, workingArgs.c_str());
       return true;
     }
 
@@ -1683,39 +1701,28 @@ bool ELParseCommand(const WCHAR *application, WCHAR *program, WCHAR *arguments)
       wcscpy(program, pathTmp);
       return true;
     }
-  ZeroMemory(pathTmp, MAX_LINE_LENGTH);
 
-  while (appIndex < appLength)
+  // Check workingApp for any separator (space or comma)
+  size_t nextSeparator = workingApp.find_first_of(L" ,"), validSeparator = std::wstring::npos;
+  while (nextSeparator != std::wstring::npos)
     {
-      if ((application[appIndex] == ' ') || (application[appIndex] == ','))
+      // If a separator is found, check with extentsion to see if its valid
+      wcscpy(pathTmp, workingApp.substr(0, nextSeparator).c_str());
+      if (ELCheckPathWithExtension(pathTmp))
         {
-          wcscpy(pathTmp, buildTmp);
-
-          if (ELCheckPathWithExtension(pathTmp))
-            {
-              ZeroMemory(arguments, wcslen(arguments));
-              argIndex = 0;
-              wcscpy(program, pathTmp);
-              valid = true;
-            }
+          // If it is, copy it to program and set validSeparator
+          wcscpy(program, pathTmp);
+          validSeparator = nextSeparator;
         }
-
-      if (valid)
-        {
-          if ((appIndex + 1) <= appLength)
-            arguments[argIndex] = application[appIndex + 1];
-          argIndex++;
-        }
-
-      buildTmp[appIndex] = application[appIndex];
-
-      appIndex++;
+      // Loop to the next separator
+      nextSeparator = workingApp.find_first_of(L" ,", nextSeparator + 1);
     }
 
-  if (wcslen(program) > 0)
-    return true;
+  // If the validSeparator is set, copy the arguments based on its position
+  if (validSeparator != std::wstring::npos)
+    wcscpy(arguments, workingApp.substr(validSeparator, workingApp.length() - validSeparator).c_str());
 
-  return false;
+  return (wcslen(program) > 0);
 }
 
 bool ELExecuteSpecialFolder(LPTSTR folder)
@@ -2225,7 +2232,7 @@ BOOL CALLBACK FullscreenEnum(HWND hwnd, LPARAM lParam)
     return true;
 
   /*if (IsZoomed(hwnd))
-      return true;*/
+    return true;*/
 
   ELGetWindowRect(hwnd, &wndRect);
   hwndMonitorInfo.cbSize = sizeof(MONITORINFO);
@@ -4914,10 +4921,10 @@ HANDLE ELActivateActCtxForDll(LPCTSTR pszDll, PULONG_PTR pulCookie)
   typedef BOOL (WINAPI* ActivateActCtx_t)(HANDLE hCtx, ULONG_PTR* pCookie);
 
   CreateActCtx_t fnCreateActCtx = (CreateActCtx_t)
-                                  GetProcAddress(kernel32, "CreateActCtxW");
+    GetProcAddress(kernel32, "CreateActCtxW");
 
   ActivateActCtx_t fnActivateActCtx = (ActivateActCtx_t)
-                                      GetProcAddress(kernel32, "ActivateActCtx");
+    GetProcAddress(kernel32, "ActivateActCtx");
 
   if (fnCreateActCtx != NULL && fnActivateActCtx != NULL)
     {
@@ -4984,7 +4991,7 @@ HANDLE ELActivateActCtxForClsid(REFCLSID rclsid, PULONG_PTR pulCookie)
           DWORD cbDll = sizeof(szDll);
 
           LONG lres = SHGetValue(
-                        HKEY_CLASSES_ROOT, szSubkey, NULL, NULL, szDll, &cbDll);
+                                 HKEY_CLASSES_ROOT, szSubkey, NULL, NULL, szDll, &cbDll);
 
           if (lres == ERROR_SUCCESS)
             {
@@ -5007,10 +5014,10 @@ void ELDeactivateActCtx(HANDLE hActCtx, ULONG_PTR* pulCookie)
   typedef void (WINAPI* ReleaseActCtx_t)(HANDLE hActCtx);
 
   DeactivateActCtx_t fnDeactivateActCtx = (DeactivateActCtx_t)
-                                          GetProcAddress(kernel32, "DeactivateActCtx");
+    GetProcAddress(kernel32, "DeactivateActCtx");
 
   ReleaseActCtx_t fnReleaseActCtx = (ReleaseActCtx_t)
-                                    GetProcAddress(kernel32, "ReleaseActCtx");
+    GetProcAddress(kernel32, "ReleaseActCtx");
 
   if (fnDeactivateActCtx != NULL && fnReleaseActCtx != NULL)
     {
@@ -5041,9 +5048,9 @@ IOleCommandTarget *ELStartSSO(CLSID clsid)
     {
       // Start ShellServiceObject
       reinterpret_cast <IOleCommandTarget*> (lpVoid)->Exec(&CGID_ShellServiceObject,
-          OLECMDID_NEW,
-          OLECMDEXECOPT_DODEFAULT,
-          NULL, NULL);
+                                                           OLECMDID_NEW,
+                                                           OLECMDEXECOPT_DODEFAULT,
+                                                           NULL, NULL);
       target = reinterpret_cast <IOleCommandTarget*>(lpVoid);
     }
 
