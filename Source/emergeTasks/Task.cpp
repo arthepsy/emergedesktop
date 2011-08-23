@@ -50,6 +50,11 @@ Task::Task(HWND task, HINSTANCE mainInstance)
   convertIcon = true;
 }
 
+LRESULT CALLBACK Task::dwmWindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
+{
+  return DefWindowProc(hwnd, message, wParam, lParam);
+}
+
 void Task::CreateNewIcon(BYTE foregroundAlpha, BYTE backgroundAlpha)
 {
   HICON tmpIcon = NULL;
@@ -230,6 +235,129 @@ UINT Task::GetFlashCount()
 void Task::SetFlashCount(UINT flashCount)
 {
   (*this).flashCount = flashCount;
+}
+
+//----  --------------------------------------------------------------------------------------------------------
+// Function:	GetDwmThumbnail
+// Requires:	Nothing
+// Returns:	HTHUMBNAIL
+// Purpose:	Returns the current task's DWM thumbnail
+//----  --------------------------------------------------------------------------------------------------------
+HTHUMBNAIL Task::GetDwmThumbnail()
+{
+  return dwmThumbnailId;
+}
+
+//----  --------------------------------------------------------------------------------------------------------
+// Function:	SetDwmThumbnail
+// Requires:	HTHUMBNAIL dwmThumbnailId - Value for DWM thumbnail
+// Returns:	Nothing
+// Purpose:	Sets the current task's DWM thumbnail
+//----  --------------------------------------------------------------------------------------------------------
+void Task::SetDwmThumbnail(HTHUMBNAIL dwmThumbnailId)
+{
+  (*this).dwmThumbnailId = dwmThumbnailId;
+}
+
+//----  --------------------------------------------------------------------------------------------------------
+// Function:	GetDwmThumbnailWnd
+// Requires:	Nothing
+// Returns:	HWND
+// Purpose:	Returns the window that holds the current task's DWM thumbnail
+//----  --------------------------------------------------------------------------------------------------------
+HWND Task::GetDwmThumbnailWnd()
+{
+  return dwmThumbnailWnd;
+}
+
+//----  --------------------------------------------------------------------------------------------------------
+// Function:	SetDwmThumbnailWnd
+// Requires:	HTHUMBNAIL dwmThumbnailWnd - Value for DWM thumbnail
+// Returns:	Nothing
+// Purpose:	Sets the window that holds the current task's DWM thumbnail
+//----  --------------------------------------------------------------------------------------------------------
+void Task::SetDwmThumbnailWnd(HWND dwmThumbnailWnd)
+{
+  (*this).dwmThumbnailWnd = dwmThumbnailWnd;
+}
+
+void Task::CreateDwmThumbnail(HWND ownerWnd)
+{
+  if ((dwmThumbnailId != NULL) || (dwmThumbnailWnd != NULL))
+    DestroyDwmThumbnail(); //remove any existing thumbnail before creating a new one
+
+  HWND hwndSource = GetWnd();
+  SIZE thumbnailDimensions;
+  POINT centerPoint;
+  RECT appletRect;
+  DWM_THUMBNAIL_PROPERTIES thumbnailProperties;
+  SNAPMOVEINFO thumbnailWndSnapMoveInfo;
+  WNDCLASSEX wincl;
+  ZeroMemory(&wincl, sizeof(WNDCLASSEX));
+
+  // Register the window class
+  wincl.hInstance = mainInstance;
+  wincl.lpszClassName = dwmWndClassName;
+  wincl.lpfnWndProc = dwmWindowProcedure;
+  wincl.cbSize = sizeof (WNDCLASSEX);
+  wincl.style = CS_DROPSHADOW;
+  wincl.hIcon = LoadIcon (NULL, IDI_APPLICATION);
+  wincl.hIconSm = LoadIcon (NULL, IDI_APPLICATION);
+  wincl.hCursor = LoadCursor (NULL, IDC_ARROW);
+  wincl.hbrBackground = NULL;
+
+  RegisterClassEx (&wincl);
+
+  dwmThumbnailWnd = CreateWindowEx(WS_EX_TOOLWINDOW, dwmWndClassName, NULL, WS_POPUP, 0, 0, 0, 0, NULL, NULL, NULL, NULL);
+  if (dwmThumbnailWnd == NULL)
+    return;
+
+  if (EGDwmRegisterThumbnail(dwmThumbnailWnd, hwndSource, &dwmThumbnailId) == E_FAIL)
+    {
+      DestroyWindow(dwmThumbnailWnd);
+      return;
+    }
+
+  EGDwmQueryThumbnailSourceSize(dwmThumbnailId, &thumbnailDimensions);
+  //4 is an arbitrary zoom factor; ideally, this would be configurable by the user
+  thumbnailDimensions.cx = thumbnailDimensions.cx / 4;
+  thumbnailDimensions.cy = thumbnailDimensions.cy / 4;
+
+  centerPoint.x = ELMid(GetRect()->left, GetRect()->right);
+  centerPoint.y = GetRect()->top;
+  ClientToScreen(ownerWnd, &centerPoint);
+  centerPoint.x = centerPoint.x - (thumbnailDimensions.cx/2);
+  centerPoint.y = centerPoint.y - thumbnailDimensions.cy;
+  thumbnailWndSnapMoveInfo.AppletWindow = dwmThumbnailWnd;
+  thumbnailWndSnapMoveInfo.origin = ELGetAnchorPoint(ownerWnd);
+  appletRect.left = centerPoint.x;
+  appletRect.top = centerPoint.y;
+  appletRect.right = centerPoint.x + thumbnailDimensions.cx;
+  appletRect.bottom = centerPoint.y + thumbnailDimensions.cy;
+  thumbnailWndSnapMoveInfo.AppletRect = &appletRect;
+
+  ELSnapMove(&thumbnailWndSnapMoveInfo); //snap the thumbnail window to the applet
+  SetWindowPos(dwmThumbnailWnd, NULL, thumbnailWndSnapMoveInfo.AppletRect->left, thumbnailWndSnapMoveInfo.AppletRect->top - (thumbnailWndSnapMoveInfo.AppletRect->bottom - thumbnailWndSnapMoveInfo.AppletRect->top), (thumbnailWndSnapMoveInfo.AppletRect->right - thumbnailWndSnapMoveInfo.AppletRect->left), (thumbnailWndSnapMoveInfo.AppletRect->bottom - thumbnailWndSnapMoveInfo.AppletRect->top), SWP_NOZORDER|SWP_SHOWWINDOW);
+
+  //set the thumbnail's properties; ideally, most/all of these would be configurable by the user
+  thumbnailProperties.dwFlags = DWM_TNP_RECTDESTINATION|DWM_TNP_SOURCECLIENTAREAONLY|DWM_TNP_OPACITY|DWM_TNP_VISIBLE;
+  thumbnailProperties.rcDestination.left = 0;
+  thumbnailProperties.rcDestination.top = 0;
+  thumbnailProperties.rcDestination.right = thumbnailDimensions.cx;
+  thumbnailProperties.rcDestination.bottom = thumbnailDimensions.cy;
+  thumbnailProperties.fSourceClientAreaOnly = true;
+  thumbnailProperties.opacity = 255;
+  thumbnailProperties.fVisible = true;
+  EGDwmUpdateThumbnailProperties(dwmThumbnailId, &thumbnailProperties);
+}
+
+void Task::DestroyDwmThumbnail()
+{
+  if ((dwmThumbnailId != NULL) && (EGDwmUnregisterThumbnail(dwmThumbnailId) == S_OK))
+    dwmThumbnailId = NULL;
+
+  if ((dwmThumbnailWnd != NULL) && (DestroyWindow(dwmThumbnailWnd)))
+    dwmThumbnailWnd = NULL;
 }
 
 //----  --------------------------------------------------------------------------------------------------------
