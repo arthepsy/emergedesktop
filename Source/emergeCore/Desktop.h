@@ -39,6 +39,10 @@
 #define BACKGROUND_TIMER         1
 #define BACKGROUND_POLL_INTERVAL 1000
 
+#ifndef SETWALLPAPER_DEFAULT
+#define SETWALLPAPER_DEFAULT ((LPWSTR)-1)
+#endif
+
 class Desktop
 {
 private:
