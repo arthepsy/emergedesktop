@@ -55,6 +55,8 @@ private:
   static VOID CALLBACK DesktopTimerProc(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime);
   static BOOL CALLBACK SetMonitorArea(HMONITOR hMonitor, HDC hdcMonitor, LPRECT lprcMonitor, LPARAM dwData);
   static BOOL CALLBACK MinimizeWindowsEnum(HWND hwnd, LPARAM lParam);
+  static DWORD WINAPI WallpaperThreadProc(LPVOID lpParameter);
+  HANDLE wallpaperThread;
 
 public:
   Desktop(HINSTANCE hInstance, std::tr1::shared_ptr<MessageControl> pMessageControl);
@@ -67,6 +69,7 @@ public:
   LRESULT DoTimer(UINT_PTR timerID);
   LRESULT DoDisplayChange(HWND hwnd);
   void ShowDesktop(bool show);
+  BOOL InvalidateDesktop();
 };
 
 #endif
