@@ -1076,6 +1076,8 @@ bool LaunchPage::SaveItem(HWND hwndDlg)
 
   if (edit)
     (void)ListView_DeleteItem(listWnd, i);
+  else
+    ListView_SetItemState(listWnd, i, 0, LVIS_SELECTED);
 
   lvItem.iItem = i;
   lvItem.iSubItem = 0;
