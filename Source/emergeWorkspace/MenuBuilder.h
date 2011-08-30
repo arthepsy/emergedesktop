@@ -60,6 +60,17 @@
 #define MND_ENDMENU 1
 #endif
 
+#ifndef MN_SELECTITEM
+#define MN_SELECTITEM 0x01E5
+#endif
+
+#ifndef MN_BUTTONDOWN
+#define MN_BUTTONDOWN 0x01ED
+#endif
+
+#define MENU_DOWN   0xFFFFFFFD
+#define MENU_UP     0xFFFFFFFC
+
 // Define BuildSettingsMenu options
 typedef enum _BUILDSETTINGSMENU {
   BSM_SEPARATOR = 0,

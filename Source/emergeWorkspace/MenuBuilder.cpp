@@ -686,6 +686,13 @@ LRESULT CALLBACK MenuBuilder::HookCallWndProc(int nCode, WPARAM wParam, LPARAM l
                                        0,
                                        (BYTE)((255 * pMenuBuilder->GetMenuAlpha()) / 100), LWA_ALPHA);
             break;
+          // capture the MN_SELECTITEM message
+          case MN_SELECTITEM:
+            // Check to see if it's the up or down arrow and if so...
+            if ((pcwps->wParam == MENU_DOWN) || (pcwps->wParam == MENU_UP))
+              // ...send a MN_BUTTONDOWN message to the menu window with that
+              // arrow
+              SendMessage(pcwps->hwnd, MN_BUTTONDOWN, pcwps->wParam, 0);
           }
     }
 
