@@ -113,7 +113,6 @@ private:
   void ExecuteTaskMenuItem(HWND task);
   void ExecuteSettingsMenuItem(UINT index);
   void ExecuteHelpMenuItem(UINT index);
-  void UpdateMenuHook();
   void ExpandEmergeVar(LPTSTR value, LPTSTR var);
   void ClearMenu(MenuMap::iterator iter);
   void AddSettingsItem(MenuMap::iterator iter, WCHAR* text, UINT id);
@@ -152,6 +151,7 @@ public:
   HWND GetWnd();
   void SetWorkArea();
   void RenameConfigFile();
+  BYTE GetMenuAlpha();
 };
 
 #endif

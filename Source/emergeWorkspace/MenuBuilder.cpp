@@ -23,7 +23,6 @@
 #include "MenuBuilder.h"
 
 WCHAR menuBuilderClass[ ] = TEXT("EmergeDesktopMenuBuilder");
-BYTE globalMenuAlpha;
 
 MenuBuilder::MenuBuilder(HINSTANCE desktopInst)
 {
@@ -32,6 +31,8 @@ MenuBuilder::MenuBuilder(HINSTANCE desktopInst)
   registered = false;
   winVersion = ELVersionInfo();
   SetRectEmpty(&explorerWorkArea);
+
+  menuHook = SetWindowsHookEx(WH_CALLWNDPROC, HookCallWndProc, 0, GetCurrentThreadId());
 }
 
 bool MenuBuilder::Initialize()
@@ -91,10 +92,6 @@ bool MenuBuilder::Initialize()
 
   // Format the time
   setlocale(LC_TIME, "");
-
-  // Hook the menus (for transparency)
-  menuHook = NULL;
-  UpdateMenuHook();
 
   // Register to recieve the specified Emerge Desktop messages
   PostMessage(ELGetCoreWindow(), EMERGE_REGISTER, (WPARAM)menuWnd, (LPARAM)EMERGE_CORE);
@@ -238,32 +235,26 @@ LRESULT MenuBuilder::DoCopyData(COPYDATASTRUCT *cds)
           switch (notifyInfo->Message)
             {
             case CORE_SETTINGS:
-            {
-              Config config(mainInst, pSettings);
-              if (config.Show() == IDOK)
                 {
-                  UpdateMenuHook();
-                  SetWorkArea();
+                  Config config(mainInst, pSettings);
+                  if (config.Show() == IDOK)
+                    SetWorkArea();
                 }
-            }
-            break;
+              break;
 
             case CORE_SHOWCONFIG:
-            {
-              if ((notifyInfo->InstanceName != NULL) && wcslen(notifyInfo->InstanceName))
                 {
-                  if (_wcsicmp(notifyInfo->InstanceName, TEXT("emergeWorkspace")) == 0)
+                  if ((notifyInfo->InstanceName != NULL) && wcslen(notifyInfo->InstanceName))
                     {
-                      Config config(mainInst, pSettings);
-                      if (config.Show() == IDOK)
+                      if (_wcsicmp(notifyInfo->InstanceName, TEXT("emergeWorkspace")) == 0)
                         {
-                          UpdateMenuHook();
-                          SetWorkArea();
+                          Config config(mainInst, pSettings);
+                          if (config.Show() == IDOK)
+                            SetWorkArea();
                         }
                     }
                 }
-            }
-            break;
+              break;
 
             case CORE_RIGHTMENU:
               return DoButtonDown(WM_RBUTTONDOWN);
@@ -281,7 +272,6 @@ LRESULT MenuBuilder::DoCopyData(COPYDATASTRUCT *cds)
             case CORE_RECONFIGURE:
               RenameConfigFile();
               pSettings->ReadSettings();
-              UpdateMenuHook();
               SetWorkArea();
               break;
             }
@@ -458,32 +448,32 @@ LRESULT MenuBuilder::DoContextMenu(POINT pt)
         SendMessage(menuWnd, WM_CANCELMODE, 0, 0);
       break;
     case IT_TASKS_MENU:
-    {
-      HWND task = (HWND)wcstoll(value, NULL, 10);
-      res = EAEDisplayMenu(menuWnd, task);
-      switch (res)
         {
-        case SC_CLOSE:
-          DeleteMenu(iter->first, index, MF_BYPOSITION);
-          break;
-        case SC_SIZE:
-        case SC_MOVE:
-        case SC_MAXIMIZE:
-        case SC_RESTORE:
-          ELSwitchToThisWindow(task);
-          SendMessage(menuWnd, WM_CANCELMODE, 0, 0);
-          break;
+          HWND task = (HWND)wcstoll(value, NULL, 10);
+          res = EAEDisplayMenu(menuWnd, task);
+          switch (res)
+            {
+            case SC_CLOSE:
+              DeleteMenu(iter->first, index, MF_BYPOSITION);
+              break;
+            case SC_SIZE:
+            case SC_MOVE:
+            case SC_MAXIMIZE:
+            case SC_RESTORE:
+              ELSwitchToThisWindow(task);
+              SendMessage(menuWnd, WM_CANCELMODE, 0, 0);
+              break;
+            }
+          if (res)
+            PostMessage(task, WM_SYSCOMMAND, (WPARAM)res, MAKELPARAM(pt.x, pt.y));
         }
-      if (res)
-        PostMessage(task, WM_SYSCOMMAND, (WPARAM)res, MAKELPARAM(pt.x, pt.y));
-    }
-    break;
-    /*case IT_SETTINGS_MENU:
-      ExecuteSettingsMenuItem(itemID);
-      break;*/
-    /*case IT_HELP_MENU:
-      ExecuteSettingsMenuItem(itemID);
-      break;*/
+      break;
+      /*case IT_SETTINGS_MENU:
+        ExecuteSettingsMenuItem(itemID);
+        break;*/
+      /*case IT_HELP_MENU:
+        ExecuteSettingsMenuItem(itemID);
+        break;*/
     }
 
   return 1;
@@ -668,30 +658,35 @@ HWND MenuBuilder::GetWnd()
 //----  --------------------------------------------------------------------------------------------------------
 LRESULT CALLBACK MenuBuilder::HookCallWndProc(int nCode, WPARAM wParam, LPARAM lParam)
 {
-  CWPSTRUCT cwps;
+  // reinterpret lParam as a CWPSTRUCT*
+  CWPSTRUCT *pcwps = reinterpret_cast< CWPSTRUCT* >(lParam);
+  CREATESTRUCT *cs;
+  static MenuBuilder *pMenuBuilder = NULL;
 
   if ( nCode == HC_ACTION )
     {
-      CopyMemory(&cwps, (LPVOID)lParam, sizeof(CWPSTRUCT));
-
-      switch (cwps.message)
-        {
-        case WM_CREATE:
-        {
-          WCHAR szClass[128];
-          GetClassName(cwps.hwnd, szClass, 127);
-          if (_wcsicmp(szClass, TEXT("#32768"))==0)
-            {
-              SetWindowLongPtr(cwps.hwnd,
-                               GWL_EXSTYLE,
-                               GetWindowLongPtr(cwps.hwnd, GWL_EXSTYLE) | WS_EX_LAYERED);
-              SetLayeredWindowAttributes(cwps.hwnd,
-                                         0,
-                                         (BYTE)((255 * globalMenuAlpha) / 100), LWA_ALPHA);
-            }
-        }
-        break;
-        }
+      WCHAR szClass[128];
+      GetClassName(pcwps->hwnd, szClass, 127);
+      if (_wcsicmp(szClass, TEXT("EmergeDesktopMenuBuilder")) == 0)
+        switch (pcwps->message)
+          {
+          case WM_CREATE:
+            cs = (CREATESTRUCT*)pcwps->lParam;
+            pMenuBuilder = reinterpret_cast<MenuBuilder*>(cs->lpCreateParams);
+            break;
+          }
+      if ((_wcsicmp(szClass, TEXT("#32768"))==0) && pMenuBuilder)
+        switch (pcwps->message)
+          {
+          case WM_CREATE:
+            SetWindowLongPtr(pcwps->hwnd,
+                             GWL_EXSTYLE,
+                             GetWindowLongPtr(pcwps->hwnd, GWL_EXSTYLE) | WS_EX_LAYERED);
+            SetLayeredWindowAttributes(pcwps->hwnd,
+                                       0,
+                                       (BYTE)((255 * pMenuBuilder->GetMenuAlpha()) / 100), LWA_ALPHA);
+            break;
+          }
     }
 
   return CallNextHookEx((HHOOK)WH_CALLWNDPROC, nCode, wParam, lParam);
@@ -1381,10 +1376,10 @@ void MenuBuilder::BuildFileMenuFromString(MenuMap::iterator iter, WCHAR *parsedV
           MenuItem *menuItem;
           wcscpy(extension, PathFindExtension(tmp));
           bool isShortcut = (_wcsicmp(extension, TEXT(".lnk")) == 0) ||
-                            (_wcsicmp(extension, TEXT(".pif")) == 0) ||
-                            (_wcsicmp(extension, TEXT(".scf")) == 0) ||
-                            (_wcsicmp(extension, TEXT(".pnagent")) == 0) ||
-                            (_wcsicmp(extension, TEXT(".url")) == 0);
+            (_wcsicmp(extension, TEXT(".pif")) == 0) ||
+            (_wcsicmp(extension, TEXT(".scf")) == 0) ||
+            (_wcsicmp(extension, TEXT(".pnagent")) == 0) ||
+            (_wcsicmp(extension, TEXT(".url")) == 0);
 
           wcscpy(entry, tmp);
           wcscpy(tmp, findData.cFileName);
@@ -1918,10 +1913,7 @@ void MenuBuilder::ExecuteSettingsMenuItem(UINT index)
     case BSM_CONFIGURE:
       res = config.Show();
       if (res == IDOK)
-        {
-          SetWorkArea();
-          UpdateMenuHook();
-        }
+        SetWorkArea();
       break;
     case BSM_CORE:
       ELExecuteInternal((WCHAR*)TEXT("LaunchEditor"));
@@ -1957,16 +1949,9 @@ void MenuBuilder::ExecuteHelpMenuItem(UINT index)
     }
 }
 
-void MenuBuilder::UpdateMenuHook()
+BYTE MenuBuilder::GetMenuAlpha()
 {
-  globalMenuAlpha = pSettings->GetMenuAlpha();
-
-  // Clear the menu hook
-  if (menuHook)
-    UnhookWindowsHookEx(menuHook);
-
-  // Hook the menus (for transparency)
-  menuHook = SetWindowsHookEx(WH_CALLWNDPROC, HookCallWndProc, 0, GetWindowThreadProcessId(menuWnd, 0));
+  return pSettings->GetMenuAlpha();
 }
 
 BOOL CALLBACK MenuBuilder::SetMonitorArea(HMONITOR hMonitor, HDC hdcMonitor UNUSED, LPRECT lprcMonitor UNUSED, LPARAM dwData)
