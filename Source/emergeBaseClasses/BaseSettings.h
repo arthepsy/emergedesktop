@@ -99,6 +99,8 @@ public:
   bool GetDynamicPositioning();
   WCHAR *GetStyleFile();
   int GetClickThrough();
+  LOGFONT *GetTitleBarFont();
+  WCHAR* GetTitleBarText();
   bool SetPosition();
   bool SetSize(int width, int height);
   bool SetZPosition(WCHAR *zPosition);
@@ -118,6 +120,8 @@ public:
   bool SetClickThrough(int clickThrough);
   bool WriteSettings();
   bool SetAppletMonitor(int monitor);
+  bool SetTitleBarFont(LOGFONT *titleBarFont);
+  void SetTitleBarText(WCHAR* titleBarText);
   bool ModifiedCheck();
   void SetModified();
   void ClearModified();
@@ -145,6 +149,8 @@ protected:
   WCHAR appletName[MAX_LINE_LENGTH];
   int appletCount;
   bool startHidden;
+  WCHAR titleBarText[MAX_LINE_LENGTH];
+  LOGFONT titleBarFont;
 
 private:
   HWND appletWnd;
@@ -153,6 +159,7 @@ private:
   WCHAR styleFile[MAX_PATH];
   bool modifiedFlag;
   std::wstring oldTheme, defaultTheme, GBRYTheme;
+  WCHAR titleBarFontString[MAX_LINE_LENGTH];
 };
 
 #endif

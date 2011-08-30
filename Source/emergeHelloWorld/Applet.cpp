@@ -134,7 +134,7 @@ LRESULT CALLBACK Applet::WindowProcedure (HWND hwnd, UINT message, WPARAM wParam
 }
 
 Applet::Applet(HINSTANCE hInstance)
-  :BaseApplet(hInstance, myName, false)
+  :BaseApplet(hInstance, myName, false, false)
 {
   mainInst = hInstance;
   wcscpy(commandText, TEXT("\0"));

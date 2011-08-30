@@ -325,6 +325,13 @@ void BaseApplet::AdjustRect(RECT *wndRect)
 
   autoSizeInfo.hwnd = mainWnd;
   autoSizeInfo.rect = wndRect;
+  if (wcslen(pBaseSettings->GetTitleBarText()) > 0)
+    {
+      HFONT mainFont = CreateFontIndirect(pBaseSettings->GetTitleBarFont());
+      EGGetTextRect(pBaseSettings->GetTitleBarText(), mainFont, &autoSizeInfo.titleBarRect, 0);
+      if (mainFont != NULL)
+        DeleteObject(mainFont);
+    }
   autoSizeInfo.dragBorder = guiInfo.dragBorder + guiInfo.bevelWidth + guiInfo.padding;
   autoSizeInfo.iconSize = pBaseSettings->GetIconSize();
   autoSizeInfo.iconSpacing = pBaseSettings->GetIconSpacing();
@@ -501,7 +508,7 @@ LRESULT BaseApplet::DoNCLButtonUp()
 void BaseApplet::DrawAlphaBlend()
 {
   HDC hdc;
-  RECT clientrt, contentrt;
+  RECT clientrt, contentrt, customcontentrt;
   POINT srcPt;
   SIZE wndSz;
   BLENDFUNCTION bf;
@@ -536,7 +543,23 @@ void BaseApplet::DrawAlphaBlend()
     BitBlt(hdc, clientrt.left, clientrt.top, clientrt.right - clientrt.left, clientrt.bottom - clientrt.top,
            inactiveBackgroundDC, 0, 0, SRCCOPY);
 
+  if (wcslen(pBaseSettings->GetTitleBarText()) > 0)
+    {
+      HFONT mainFont = CreateFontIndirect(pBaseSettings->GetTitleBarFont());
+      RECT titleTextSizingRect;
+      EGGetTextRect(pBaseSettings->GetTitleBarText(), mainFont, &titleTextSizingRect, 0);
+      clientrt.top = clientrt.top + (titleTextSizingRect.bottom - titleTextSizingRect.top);
+      if (mainFont != NULL)
+        DeleteObject(mainFont);
+    }
+
   CopyRect(&contentrt, &clientrt);
+
+  //allow the applet to change the content area (so it can draw something in an area guaranteed to be empty)
+  CopyRect(&customcontentrt, &contentrt);
+  AdjustContentRect(&customcontentrt);
+  if ((!IsRectEmpty(&customcontentrt)) && (!EqualRect(&customcontentrt, &contentrt)))
+    CopyRect(&contentrt, &customcontentrt);
 
   InflateRect(&contentrt, -dragBorder, -dragBorder);
   PaintContent(hdc, contentrt); // Call the applet content paint routine
@@ -560,6 +583,10 @@ void BaseApplet::DrawAlphaBlend()
   // do cleanup
   EGEndPaint();
   DeleteDC(hdc);
+}
+
+void BaseApplet::AdjustContentRect(LPRECT contentRect UNUSED)
+{
 }
 
 LRESULT BaseApplet::PaintContent(HDC hdc, RECT clientrt)
@@ -764,6 +791,33 @@ LRESULT BaseApplet::PaintContent(HDC hdc, RECT clientrt)
                 }
             }
         }
+    }
+
+  if (wcslen(pBaseSettings->GetTitleBarText()) > 0)
+    {
+      CLIENTINFO clientInfo;
+      FORMATINFO formatInfo;
+      RECT titleTextSizingRect;
+      HFONT mainFont = CreateFontIndirect(pBaseSettings->GetTitleBarFont());
+
+      EGGetTextRect(pBaseSettings->GetTitleBarText(), mainFont, &titleTextSizingRect, 0);
+      RECT titleBarRect = {0, 0, clientrt.right, (titleTextSizingRect.bottom - titleTextSizingRect.top)};
+
+      formatInfo.horizontalAlignment = EGDAT_HCENTER;
+      formatInfo.verticalAlignment = EGDAT_VCENTER;
+
+      formatInfo.font = mainFont;
+      formatInfo.color = guiInfo.colorFont;
+      formatInfo.flags = 0;
+
+      clientInfo.hdc = hdc;
+      CopyRect(&clientInfo.rt, &titleBarRect);
+      clientInfo.bgAlpha = guiInfo.alphaBackground;
+
+      EGDrawAlphaText(guiInfo.alphaText, clientInfo, formatInfo, pBaseSettings->GetTitleBarText());
+
+      if (mainFont != NULL)
+        DeleteObject(mainFont);
     }
 
   return 0;
