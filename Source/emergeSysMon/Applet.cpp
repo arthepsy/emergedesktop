@@ -515,7 +515,7 @@ void Applet::UpdateBars()
 
 void Applet::ShowConfig()
 {
-  Config config(mainInst, mainWnd, pSettings);
+  Config config(mainInst, mainWnd, appletName, pSettings);
   StopTimer();
   if (config.Show() == IDOK)
     UpdateGUI();

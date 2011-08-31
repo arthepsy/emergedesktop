@@ -37,7 +37,7 @@ INT_PTR CALLBACK Config::ConfigDlgProc(HWND hwndDlg, UINT message, WPARAM wParam
   return 0;
 }
 
-Config::Config(HINSTANCE hInstance, HWND mainWnd, std::tr1::shared_ptr<Settings> pSettings)
+Config::Config(HINSTANCE hInstance, HWND mainWnd, WCHAR *instanceName, std::tr1::shared_ptr<Settings> pSettings)
 {
   this->hInstance = hInstance;
   this->mainWnd = mainWnd;
@@ -46,7 +46,7 @@ Config::Config(HINSTANCE hInstance, HWND mainWnd, std::tr1::shared_ptr<Settings>
   pConfigPage = std::tr1::shared_ptr<ConfigPage>(new ConfigPage(pSettings));
   pPositionPage = std::tr1::shared_ptr<BasePositionPage>
                   (new BasePositionPage(pSettings, BPP_ZORDER|BPP_HORIZONTAL|BPP_ORIENTATION|BPP_VERTICAL));
-  pStyleEditor = std::tr1::shared_ptr<StyleEditor>(new StyleEditor(mainWnd));
+  pStyleEditor = std::tr1::shared_ptr<StyleEditor>(new StyleEditor(mainWnd, instanceName));
 }
 
 Config::~Config()

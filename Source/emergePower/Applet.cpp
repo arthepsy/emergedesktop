@@ -328,7 +328,7 @@ void Applet::AppletUpdate()
 
 void Applet::ShowConfig()
 {
-  Config config(mainInst, mainWnd, pSettings);
+  Config config(mainInst, mainWnd, appletName, pSettings);
   if (config.Show() == IDOK)
     {
       // restart timer

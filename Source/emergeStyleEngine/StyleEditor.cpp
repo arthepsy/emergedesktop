@@ -51,9 +51,10 @@ INT_PTR CALLBACK StyleEditor::StyleEditorDlgProc(HWND hwndDlg, UINT message, WPA
   return FALSE;
 }
 
-StyleEditor::StyleEditor(HWND mainWnd)
+StyleEditor::StyleEditor(HWND mainWnd, WCHAR *instanceName)
 {
   this->mainWnd = mainWnd;
+  wcscpy(this->instanceName, instanceName);
 
   ELGetTempFileName(tmpFile);
 
@@ -622,7 +623,7 @@ BOOL StyleEditor::DoCommand(HWND hwndDlg, WPARAM wParam, LPARAM lParam UNUSED)
     case IDC_PREVIEW:
       ESESetStyle(tmpFile);
       if (DoSaveStyle(hwndDlg, tmpFile))
-        PostMessage(mainWnd, EMERGE_NOTIFY, EMERGE_CORE, CORE_REFRESH);
+        ELDispatchCoreMessage(EMERGE_CORE, CORE_REFRESH, instanceName);
       return TRUE;
     }
 
@@ -693,7 +694,7 @@ BOOL StyleEditor::DoLoad(HWND hwndDlg)
 
       ESESetStyle(style);
 
-      PostMessage(mainWnd, EMERGE_NOTIFY, EMERGE_CORE, CORE_REFRESH);
+      ELDispatchCoreMessage(EMERGE_CORE, CORE_REFRESH, instanceName);
 
       return TRUE;
     }

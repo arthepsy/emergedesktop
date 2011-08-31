@@ -92,7 +92,6 @@ public:
   WCHAR *GetInstanceName();
 
 private:
-  WCHAR appletName[MAX_LINE_LENGTH], baseAppletName[MAX_LINE_LENGTH];
   int appletCount;
   bool fullScreen, allowAutoSize, allowMultipleInstances;
   RECT referenceRect;
@@ -107,6 +106,7 @@ private:
   bool firstRun;
 
 protected:
+  WCHAR appletName[MAX_LINE_LENGTH], baseAppletName[MAX_LINE_LENGTH];
   HWND mainWnd, toolWnd;
   HINSTANCE mainInst;
   bool mouseOver, appletHidden;

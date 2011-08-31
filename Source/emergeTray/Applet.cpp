@@ -659,7 +659,7 @@ LRESULT Applet::DoTimer(UINT timerID)
 
 void Applet::ShowConfig()
 {
-  Config config(mainInst, mainWnd, pSettings);
+  Config config(mainInst, mainWnd, appletName, pSettings);
   if (config.Show() == IDOK)
     {
       ShowHiddenIcons(false, true);

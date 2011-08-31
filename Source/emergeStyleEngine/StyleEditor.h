@@ -50,7 +50,7 @@ typedef std::set<HWND> PanelSet;
 class DLL_EXPORT StyleEditor
 {
 public:
-  StyleEditor(HWND mainWnd);
+  StyleEditor(HWND mainWnd, WCHAR *instanceName);
   ~StyleEditor();
   int Edit(WCHAR *styleName);
   BOOL DoInitDialog(HWND hwndDlg, bool updatePos);
@@ -65,7 +65,7 @@ public:
 
 private:
   std::map< HTREEITEM, std::tr1::shared_ptr<PanelSet> > panelMap;
-  WCHAR tmpFile[MAX_PATH];
+  WCHAR tmpFile[MAX_PATH], instanceName[MAX_LINE_LENGTH];
   RECT colourRect;
   COLORREF colourBackground, colourForeground, colourSelected, colourFrame, colourFont;
   COLORREF colourFrom, colourTo, colourBorder;

@@ -866,17 +866,17 @@ LRESULT BaseApplet::DoCopyData(COPYDATASTRUCT *cds)
               break;
 
             case CORE_SHOWAPPLET:
-            {
-              bool toggle = IsWindowVisible(mainWnd);
-              if ((notifyInfo->InstanceName != NULL) && wcslen(notifyInfo->InstanceName))
                 {
-                  if (_wcsicmp(notifyInfo->InstanceName, appletName) == 0)
+                  bool toggle = IsWindowVisible(mainWnd);
+                  if ((notifyInfo->InstanceName != NULL) && wcslen(notifyInfo->InstanceName))
+                    {
+                      if (_wcsicmp(notifyInfo->InstanceName, appletName) == 0)
+                        HideApplet(toggle);
+                    }
+                  else
                     HideApplet(toggle);
                 }
-              else
-                HideApplet(toggle);
-            }
-            break;
+              break;
 
             case CORE_HIDE:
               if ((notifyInfo->InstanceName != NULL) && wcslen(notifyInfo->InstanceName))
@@ -899,18 +899,29 @@ LRESULT BaseApplet::DoCopyData(COPYDATASTRUCT *cds)
               break;
 
             case CORE_REFRESH:
-              ZeroMemory(&oldrt, sizeof(RECT));
-              UpdateGUI(ESEGetStyle());
+              if ((notifyInfo->InstanceName != NULL) && wcslen(notifyInfo->InstanceName))
+                {
+                  if (_wcsicmp(notifyInfo->InstanceName, appletName) == 0)
+                    {
+                      ZeroMemory(&oldrt, sizeof(RECT));
+                      UpdateGUI(ESEGetStyle());
+                    }
+                }
+              else
+                {
+                  ZeroMemory(&oldrt, sizeof(RECT));
+                  UpdateGUI(ESEGetStyle());
+                }
               break;
 
             case CORE_REPOSITION:
-            {
-              HWND hwndInsertBehind = NULL;
-              if (_wcsicmp(pBaseSettings->GetZPosition(), TEXT("top")) != 0)
-                hwndInsertBehind = ELGetDesktopWindow();
-              SetWindowPos(mainWnd, hwndInsertBehind, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
-            }
-            break;
+                {
+                  HWND hwndInsertBehind = NULL;
+                  if (_wcsicmp(pBaseSettings->GetZPosition(), TEXT("top")) != 0)
+                    hwndInsertBehind = ELGetDesktopWindow();
+                  SetWindowPos(mainWnd, hwndInsertBehind, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
+                }
+              break;
 
             case CORE_SHOWCONFIG:
               if ((notifyInfo->InstanceName != NULL) && wcslen(notifyInfo->InstanceName))
