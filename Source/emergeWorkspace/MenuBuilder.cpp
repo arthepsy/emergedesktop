@@ -1383,6 +1383,7 @@ void MenuBuilder::BuildFileMenuFromString(MenuMap::iterator iter, WCHAR *parsedV
           MenuItem *menuItem;
           wcscpy(extension, PathFindExtension(tmp));
           bool isShortcut = (_wcsicmp(extension, TEXT(".lnk")) == 0) ||
+            (_wcsicmp(extension, TEXT(".lnk2")) == 0) ||
             (_wcsicmp(extension, TEXT(".pif")) == 0) ||
             (_wcsicmp(extension, TEXT(".scf")) == 0) ||
             (_wcsicmp(extension, TEXT(".pnagent")) == 0) ||
