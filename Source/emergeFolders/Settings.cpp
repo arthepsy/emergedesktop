@@ -195,11 +195,12 @@ void Settings::writeEntireFolder(WCHAR *folderName)
 {
   wcscpy(folderName, (ELExpandVars(folderName)).c_str());
   ELAbsPathFromRelativePath(folderName);
+  WCHAR extension[MAX_PATH];
 
   WIN32_FIND_DATA FindFileData;
-	WCHAR tmpFolderName[MAX_PATH], tmpPath[MAX_PATH];
+  WCHAR tmpFolderName[MAX_PATH], tmpPath[MAX_PATH];
 
-	swprintf(tmpFolderName, TEXT("%s\\*.*"), folderName);
+  swprintf(tmpFolderName, TEXT("%s\\*.*"), folderName);
 
   HANDLE hFind = FindFirstFile(tmpFolderName, &FindFileData);
 
@@ -211,8 +212,18 @@ void Settings::writeEntireFolder(WCHAR *folderName)
       swprintf(tmpPath, TEXT("%s\\%s"), folderName, FindFileData.cFileName);
 
       if ((_wcsicmp(TEXT("."), FindFileData.cFileName) != 0) && (_wcsicmp(TEXT(".."), FindFileData.cFileName) != 0))
-        WriteItem(IT_EXECUTABLE, tmpPath, (WCHAR*)TEXT(""), FindFileData.cFileName, (WCHAR*)TEXT(""));
+        {
+          wcscpy(extension, PathFindExtension(FindFileData.cFileName));
+          if ((_wcsicmp(extension, TEXT(".lnk")) == 0) ||
+              (_wcsicmp(extension, TEXT(".lnk2")) == 0) ||
+              (_wcsicmp(extension, TEXT(".pif")) == 0) ||
+              (_wcsicmp(extension, TEXT(".scf")) == 0) ||
+              (_wcsicmp(extension, TEXT(".pnagent")) == 0) ||
+              (_wcsicmp(extension, TEXT(".url")) == 0))
+            PathRemoveExtension(FindFileData.cFileName);
+          WriteItem(IT_EXECUTABLE, tmpPath, (WCHAR*)TEXT(""), FindFileData.cFileName, (WCHAR*)TEXT(""));
+        }
     } while (FindNextFile(hFind, &FindFileData) != 0);
 
-    FindClose(hFind);
+  FindClose(hFind);
 }
