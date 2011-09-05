@@ -65,7 +65,6 @@ void Settings::PopulateItems()
   WCHAR app[MAX_LINE_LENGTH], icon[MAX_LINE_LENGTH], tip[MAX_LINE_LENGTH], workingDir[MAX_LINE_LENGTH];
   std::tr1::shared_ptr<TiXmlDocument> configXML;
   TiXmlElement *settingsSection, *launchSection;
-  bool found = false;
   int type;
   std::wstring xmlFile = TEXT("%ThemeDir%\\");
   xmlFile += appletName;
@@ -85,7 +84,6 @@ void Settings::PopulateItems()
 
               while (userIO.GetElement())
                 {
-                  found = true; // Existing user settings found
                   userIO.ReadInt(TEXT("Type"), type, IT_EXECUTABLE);
                   userIO.ReadString(TEXT("Command"), app, TEXT(""));
                   ELAbsPathFromRelativePath(app);
