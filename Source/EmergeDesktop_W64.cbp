@@ -522,6 +522,30 @@
 					<Add directory=".\bin64" />
 				</Linker>
 			</Target>
+			<Target title="emergeFolders - Release">
+				<Option output="bin64\emergeFolders" prefix_auto="1" extension_auto="1" />
+				<Option object_output=".objs64\Release" />
+				<Option external_deps="bin\emergeAppletEngine.dll;bin\emergeBaseClasses.dll;bin\emergeGraphics.dll;bin\emergeLib.dll;bin\emergeSchemeEngine.dll;" />
+				<Option type="0" />
+				<Option compiler="gnu_gcc_compiler_for_mingw64" />
+				<Compiler>
+					<Add option="-O2" />
+				</Compiler>
+				<ResourceCompiler>
+					<Add directory=".\emergeLauncher" />
+				</ResourceCompiler>
+				<Linker>
+					<Add option="-s" />
+					<Add library="emergeStyleEngine" />
+					<Add library="emergeLib" />
+					<Add library="emergeGraphics" />
+					<Add library="emergeAppletEngine" />
+					<Add library="emergeBaseClasses" />
+					<Add library="comctl32" />
+					<Add library="shlwapi" />
+					<Add directory=".\bin64" />
+				</Linker>
+			</Target>
 			<Target title="emergeTray - Debug">
 				<Option output="bin64\emergeTray" prefix_auto="1" extension_auto="1" />
 				<Option object_output=".objs64\Debug" />
@@ -695,7 +719,7 @@
 			</Target>
 		</Build>
 		<VirtualTargets>
-			<Add alias="All - Release" targets="emergeLib - Release;emergeGraphics - Release;emergeAppletEngine - Release;emergeStyleEngine - Release;emergeBaseClasses - Release;emergeTrayExplorerHook - Release;emergeCore - Release;emergeCommand - Release;emergeWorkspace - Release;emergeHotkeys - Release;emergeLauncher - Release;emergeTasks - Release;emergeTray - Release;emergeVWM - Release;emerge - Release;emergePower - Release;emergeSysMon - Release;emergeIcons - Release;Explorer - Release;" />
+			<Add alias="All - Release" targets="emergeLib - Release;emergeGraphics - Release;emergeAppletEngine - Release;emergeStyleEngine - Release;emergeBaseClasses - Release;emergeTrayExplorerHook - Release;emergeCore - Release;emergeCommand - Release;emergeWorkspace - Release;emergeHotkeys - Release;emergeLauncher - Release;emergeTasks - Release;emergeTray - Release;emergeVWM - Release;emerge - Release;emergePower - Release;emergeSysMon - Release;emergeIcons - Release;Explorer - Release;emergeFolders - Release;" />
 		</VirtualTargets>
 		<Compiler>
 			<Add option="-pedantic" />
@@ -980,6 +1004,52 @@
 		<Unit filename="emergeCore\resource.h">
 			<Option target="emergeCore - Release" />
 			<Option target="emergeCore - Debug" />
+		</Unit>
+		<Unit filename="emergeFolders\Applet.cpp">
+			<Option target="emergeFolders - Release" />
+		</Unit>
+		<Unit filename="emergeFolders\Applet.h">
+			<Option target="emergeFolders - Release" />
+		</Unit>
+		<Unit filename="emergeFolders\Config.cpp">
+			<Option target="emergeFolders - Release" />
+		</Unit>
+		<Unit filename="emergeFolders\Config.h">
+			<Option target="emergeFolders - Release" />
+		</Unit>
+		<Unit filename="emergeFolders\ConfigPage.cpp">
+			<Option target="emergeFolders - Release" />
+		</Unit>
+		<Unit filename="emergeFolders\ConfigPage.h">
+			<Option target="emergeFolders - Release" />
+		</Unit>
+		<Unit filename="emergeFolders\Item.cpp">
+			<Option target="emergeFolders - Release" />
+		</Unit>
+		<Unit filename="emergeFolders\Item.h">
+			<Option target="emergeFolders - Release" />
+		</Unit>
+		<Unit filename="emergeFolders\LaunchPage.cpp">
+			<Option target="emergeFolders - Release" />
+		</Unit>
+		<Unit filename="emergeFolders\LaunchPage.h">
+			<Option target="emergeFolders - Release" />
+		</Unit>
+		<Unit filename="emergeFolders\Settings.cpp">
+			<Option target="emergeFolders - Release" />
+		</Unit>
+		<Unit filename="emergeFolders\Settings.h">
+			<Option target="emergeFolders - Release" />
+		</Unit>
+		<Unit filename="emergeFolders\emergeFolders.rc">
+			<Option compilerVar="WINDRES" />
+			<Option target="emergeFolders - Release" />
+		</Unit>
+		<Unit filename="emergeFolders\main.cpp">
+			<Option target="emergeFolders - Release" />
+		</Unit>
+		<Unit filename="emergeFolders\resource.h">
+			<Option target="emergeFolders - Release" />
 		</Unit>
 		<Unit filename="emergeGraphics\BImage.cpp">
 			<Option target="emergeGraphics - Release" />
