@@ -940,8 +940,10 @@ LRESULT BaseApplet::DoCopyData(COPYDATASTRUCT *cds)
                   else
                     {
                       UpdateGUI(); // Update initial instance
-                      WriteAppletCount(-1, false); // Reset the Applet Count
-                      SpawnInstance(); // Spawn any additional instances
+                      WriteAppletCount(0, false); // Reset the Applet Count
+                      WCHAR appletPath[MAX_PATH]; // Execute the next instance
+                      if (GetModuleFileName(0, appletPath, MAX_PATH))
+                        ELExecute(appletPath);
                     }
                 }
               else
