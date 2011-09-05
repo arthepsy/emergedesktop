@@ -69,7 +69,6 @@ extern "C"
 #undef INTERFACE
   typedef IImageList *LPIMAGELIST;
 
-#ifndef _W64
 #define INTERFACE IPropertyStore
   DECLARE_INTERFACE_(IPropertyStore, IUnknown)
     {
@@ -79,7 +78,6 @@ extern "C"
     };
 #undef INTERFACE
   typedef IPropertyStore *LPPROPERTYSTORE;
-#endif
 
 #define INTERFACE IMMDevice
   DECLARE_INTERFACE_(IMMDevice, IUnknown)
