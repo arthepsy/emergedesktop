@@ -85,7 +85,7 @@ topic alone.
 #include <memory>
 #endif
 
-#ifdef __MINGW32__
+#if (__MINGW64_VERSION_MAJOR < 3)
 #include "../MinGWInterfaces.h"
 #else
 #include <Mmdeviceapi.h>
