@@ -761,6 +761,10 @@
 		<Unit filename="Explorer\resource.h">
 			<Option target="Explorer - Release" />
 		</Unit>
+		<Unit filename="MinGWInterfaces.h">
+			<Option target="emergeLib - Release" />
+			<Option target="emergeLib - Debug" />
+		</Unit>
 		<Unit filename="emergeAppletEngine\emergeAppletEngine.h">
 			<Option target="emergeAppletEngine - Release" />
 		</Unit>
