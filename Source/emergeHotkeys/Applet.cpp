@@ -144,14 +144,16 @@ LRESULT CALLBACK Applet::LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM l
       switch (wParam)
         {
         case WM_KEYUP:
-          // if the WM_KEYUP is the hotkey, trigger the event so the thread will
+        case WM_SYSKEYUP:
+          // if the WM_(SYS)KEYUP is the hotkey, trigger the event so the thread will
           // end.
           if (pkbHookStruct->vkCode == hotkeyCode)
             SetEvent(keyUpEvent);
           break;
         case WM_KEYDOWN:
-          // If another key is pressed and it is not the hotkey, terminate the
-          // thread without letting it execute.
+        case WM_SYSKEYDOWN:
+          // If the WM_(SYS)KEYDOWN is not the hotkey, terminate the thread
+          // without letting it execute.
           if (pkbHookStruct->vkCode != hotkeyCode)
             {
               TerminateThread(executeThread, 0);
