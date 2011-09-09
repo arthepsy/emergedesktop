@@ -149,6 +149,13 @@ LRESULT CALLBACK Applet::LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM l
           // end.
           if (pkbHookStruct->vkCode == hotkeyCode)
             SetEvent(keyUpEvent);
+          else
+            // If it is not, then terminate the executeThread, if not the hotkey
+            // action may still execute after hoekey's Keys action
+            {
+              TerminateThread(executeThread, 0);
+              hotkeyCode = 0;
+            }
           break;
         case WM_KEYDOWN:
         case WM_SYSKEYDOWN:
