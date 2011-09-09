@@ -737,7 +737,7 @@ bool Actions::DoSave(HWND hwndDlg)
   LVITEM lvItem;
   WCHAR tmpKey[MAX_LINE_LENGTH], tmpAction[MAX_LINE_LENGTH], tmp[MAX_LINE_LENGTH],
         error[MAX_LINE_LENGTH];
-  UINT index = ListView_GetItemCount(listWnd);
+  int index = ListView_GetItemCount(listWnd);
   HotkeyCombo *hc;
 
   ZeroMemory(tmpAction, MAX_LINE_LENGTH);
@@ -763,7 +763,8 @@ bool Actions::DoSave(HWND hwndDlg)
 
   if (edit)
     {
-      while (index < pSettings->GetHotkeyListSize())
+      index = 0;
+      while (index < ListView_GetItemCount(listWnd))
         {
           if (ListView_GetItemState(listWnd, index, LVIS_SELECTED))
             break;
@@ -771,10 +772,16 @@ bool Actions::DoSave(HWND hwndDlg)
           index++;
         }
 
+      // No selected item was found, abort the save
+      if (index == ListView_GetItemCount(listWnd))
+        return false;
+
       UnregisterHotKey(mainWnd, pSettings->GetHotkeyListItem(editIndex)->GetHotkeyID());
       pSettings->DeleteHotkeyListItem(editIndex);
 
-      (void)ListView_DeleteItem(listWnd, index);
+      // Deletion of the currently selected item failed, abort the save
+      if (!ListView_DeleteItem(listWnd, index))
+        return false;
     }
 
   if ((wcslen(tmpKey) > 0) && (wcslen(tmpAction) > 0))
@@ -815,6 +822,7 @@ bool Actions::DoSave(HWND hwndDlg)
           swprintf(error, TEXT("Failed to register Hotkey combination %s."), tmpKey);
           ELMessageBox(GetDesktopWindow(), error, (WCHAR*)TEXT("emergeHotkeys"),
                        ELMB_OK|ELMB_ICONERROR|ELMB_MODAL);
+          return false;
         }
     }
 
