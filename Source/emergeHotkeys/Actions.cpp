@@ -609,6 +609,12 @@ bool Actions::DoAdd(HWND hwndDlg)
 {
   HWND listWnd = GetDlgItem(hwndDlg, IDC_ACTIONSLIST);
 
+  /**< Clear any existing selected items */
+  for (int i = 0; i < ListView_GetItemCount(listWnd); i++)
+    ListView_SetItemState(listWnd, i, 0, LVIS_SELECTED);
+
+  // Set Dialogue items after clearing the selected items, if not they won't
+  // be set correctly
   SendDlgItemMessage(hwndDlg, IDC_WIN, BM_SETCHECK, BST_UNCHECKED, 0);
   SendDlgItemMessage(hwndDlg, IDC_ALT, BM_SETCHECK, BST_UNCHECKED, 0);
   SendDlgItemMessage(hwndDlg, IDC_CTRL, BM_SETCHECK, BST_UNCHECKED, 0);
@@ -618,10 +624,6 @@ bool Actions::DoAdd(HWND hwndDlg)
   SetDlgItemText(hwndDlg, IDC_APPLICATION, TEXT(""));
   SendDlgItemMessage(hwndDlg, IDC_EXTERNAL, BM_SETCHECK, BST_CHECKED, 0);
   SendDlgItemMessage(hwndDlg, IDC_INTERNAL, BM_SETCHECK, BST_UNCHECKED, 0);
-
-  /**< Clear any existing selected items */
-  for (int i = 0; i < ListView_GetItemCount(listWnd); i++)
-    ListView_SetItemState(listWnd, i, 0, LVIS_SELECTED);
 
   return EnableFields(hwndDlg, true);
 }
@@ -761,8 +763,6 @@ bool Actions::DoSave(HWND hwndDlg)
 
   if (edit)
     {
-      index = 0;
-
       while (index < pSettings->GetHotkeyListSize())
         {
           if (ListView_GetItemState(listWnd, index, LVIS_SELECTED))
