@@ -207,7 +207,6 @@ void Settings::writeEntireFolder(WCHAR *folderName)
 {
   wcscpy(folderName, (ELExpandVars(folderName)).c_str());
   ELAbsPathFromRelativePath(folderName);
-  WCHAR extension[MAX_PATH];
 
   WIN32_FIND_DATA FindFileData;
   WCHAR tmpFolderName[MAX_PATH], tmpPath[MAX_PATH];
@@ -225,14 +224,7 @@ void Settings::writeEntireFolder(WCHAR *folderName)
 
       if ((_wcsicmp(TEXT("."), FindFileData.cFileName) != 0) && (_wcsicmp(TEXT(".."), FindFileData.cFileName) != 0))
         {
-          wcscpy(extension, PathFindExtension(FindFileData.cFileName));
-          if ((_wcsicmp(extension, TEXT(".lnk")) == 0) ||
-              (_wcsicmp(extension, TEXT(".lnk2")) == 0) ||
-              (_wcsicmp(extension, TEXT(".pif")) == 0) ||
-              (_wcsicmp(extension, TEXT(".scf")) == 0) ||
-              (_wcsicmp(extension, TEXT(".pnagent")) == 0) ||
-              (_wcsicmp(extension, TEXT(".url")) == 0))
-            PathRemoveExtension(FindFileData.cFileName);
+          ELStripShortcutExtension(FindFileData.cFileName);
           WriteItem(IT_EXECUTABLE, tmpPath, (WCHAR*)TEXT(""), FindFileData.cFileName, (WCHAR*)TEXT(""));
         }
     } while (FindNextFile(hFind, &FindFileData) != 0);
@@ -261,6 +253,7 @@ void Settings::loadLiveFolder(WCHAR *folderName)
 
       if ((_wcsicmp(TEXT("."), FindFileData.cFileName) != 0) && (_wcsicmp(TEXT(".."), FindFileData.cFileName) != 0))
         {
+          ELStripShortcutExtension(FindFileData.cFileName);
           itemList.push_back(std::tr1::shared_ptr<Item>(new Item(IT_LIVE_FOLDER_ITEM, tmpPath, (WCHAR*)TEXT(""), FindFileData.cFileName, (WCHAR*)TEXT(""))));
           itemList.back()->SetIcon(GetIconSize(), GetDirectionOrientation());
         }
