@@ -123,7 +123,7 @@ LRESULT CALLBACK Applet::WindowProcedure (HWND hwnd, UINT message, WPARAM wParam
 }
 
 Applet::Applet(HINSTANCE hInstance)
-  :BaseApplet(hInstance, TEXT("emergeFolders"), true, true)
+     :BaseApplet(hInstance, TEXT("emergeFolders"), true, true)
 {
   activeWnd = NULL;
   iconSize = 16;
@@ -142,6 +142,7 @@ UINT Applet::Initialize()
 
   // Set the window transparency
   UpdateGUI();
+  InitLiveFolderMap();
 
   return ret;
 }
@@ -155,6 +156,9 @@ UINT Applet::Initialize()
 //----  --------------------------------------------------------------------------------------------------------
 bool Applet::PaintItem(HDC hdc, UINT index, int x, int y, RECT rect)
 {
+  if (pSettings->GetItem(index)->GetType() == IT_LIVE_FOLDER)
+    return false;
+
   pSettings->GetItem(index)->SetRect(rect);
   UpdateTip(index);
   pSettings->GetItem(index)->CreateNewIcon(guiInfo.alphaForeground, guiInfo.alphaBackground);
@@ -203,6 +207,7 @@ LRESULT Applet::ItemMouseEvent(UINT message, LPARAM lParam)
               switch (pSettings->GetItem(i)->GetType())
                 {
                 case IT_EXECUTABLE:
+                case IT_LIVE_FOLDER_ITEM:
                   ELExecute(pSettings->GetItem(i)->GetApp(), pSettings->GetItem(i)->GetWorkingDir());
                   break;
                 case IT_INTERNAL_COMMAND:
@@ -247,6 +252,46 @@ LRESULT Applet::DoSizing(HWND hwnd, UINT edge, LPRECT rect)
   return BaseApplet::DoSizing(hwnd, edge, rect);
 }
 
+void Applet::InitLiveFolderMap()
+{
+  DWORD threadState, threadID;
+  LiveFolderMap::iterator iter;
+  std::wstring liveFolderPath;
+  HANDLE thread;
+
+  if (!liveFolderMap.empty())
+    {
+      iter = liveFolderMap.begin();
+
+      thread = OpenThread(DELETE, FALSE, iter->first);
+
+      GetExitCodeThread(thread, &threadState);
+      if (threadState == STILL_ACTIVE)
+        TerminateThread(thread, 0);
+
+      liveFolderMap.erase(iter);
+    }
+
+  for (UINT i = 0; i < pSettings->GetItemListSize(); i++)
+    {
+      if (pSettings->GetItem(i)->GetType() == IT_LIVE_FOLDER)
+        {
+          liveFolderPath = pSettings->GetItem(i)->GetApp();
+          liveFolderPath = ELExpandVars(liveFolderPath);
+          //ELAbsPathFromRelativePath(liveFolderPath);
+
+          thread = CreateThread(NULL, 0, LiveFolderThreadProc, this,
+                                CREATE_SUSPENDED, &threadID);
+          if (thread != NULL)
+            {
+              liveFolderMap.insert(std::pair<DWORD, std::wstring>(threadID,
+                                                                  liveFolderPath));
+              ResumeThread(thread);
+            }
+        }
+    }
+}
+
 void Applet::AppletUpdate()
 {
   for (UINT i = 0; i < pSettings->GetItemListSize(); i++)
@@ -256,10 +301,52 @@ void Applet::AppletUpdate()
   pSettings->PopulateItems();
 }
 
+std::wstring Applet::GetFolderForThreadId(DWORD threadID)
+{
+  std::wstring result;
+  LiveFolderMap::iterator iter = liveFolderMap.find(threadID);
+  if (iter != liveFolderMap.end())
+    result = iter->second;
+
+  return result;
+}
+
 void Applet::UpdateIcons()
 {
   for (UINT i = 0; i < pSettings->GetItemListSize(); i++)
     pSettings->GetItem(i)->SetIcon(pBaseSettings->GetIconSize(), pSettings->GetDirectionOrientation());
+}
+
+DWORD WINAPI Applet::LiveFolderThreadProc(LPVOID lpParameter)
+{
+  Applet *pApplet = reinterpret_cast< Applet* >(lpParameter);
+  std::wstring watchFolder = pApplet->GetFolderForThreadId(GetCurrentThreadId());
+
+  // Start a watch on the thread's assigned folder for file writes in order to detect change
+  HANDLE folderWatch = FindFirstChangeNotification(watchFolder.c_str(), FALSE,
+                                                   FILE_NOTIFY_CHANGE_FILE_NAME |
+                                                   FILE_NOTIFY_CHANGE_DIR_NAME |
+                                                   FILE_NOTIFY_CHANGE_LAST_WRITE);
+  if (folderWatch != INVALID_HANDLE_VALUE)
+    {
+      // Start an infinite loop to watch the directory
+      while (true)
+        {
+          // Wait for a file write to occur
+          if (WaitForSingleObject(folderWatch, INFINITE) == WAIT_OBJECT_0)
+            {
+              // Once it has, force an applet update
+              pApplet->UpdateGUI();
+              // Restart the directory watch
+              if (FindNextChangeNotification(folderWatch) == FALSE)
+                ExitThread(2);
+            }
+          else
+            ExitThread(1);
+        }
+    }
+
+  return 0;
 }
 
 //----  --------------------------------------------------------------------------------------------------------

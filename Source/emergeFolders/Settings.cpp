@@ -23,12 +23,17 @@
 
 Settings::Settings(): BaseSettings(true)
 {
+  InitializeCriticalSection(&itemListCS);
 }
 
 Settings::~Settings()
 {
+  EnterCriticalSection(&itemListCS);
   while (!itemList.empty())
     itemList.erase(itemList.begin());
+  LeaveCriticalSection(&itemListCS);
+
+  DeleteCriticalSection(&itemListCS);
 }
 
 void Settings::ResetDefaults()
@@ -70,6 +75,7 @@ void Settings::PopulateItems()
   xmlFile += appletName;
   xmlFile += TEXT(".xml");
 
+  EnterCriticalSection(&itemListCS);
   configXML = ELOpenXMLConfig(xmlFile, false);
   if (configXML)
     {
@@ -99,10 +105,14 @@ void Settings::PopulateItems()
                   // Add new Folders item to the vector and set the icon size
                   itemList.push_back(std::tr1::shared_ptr<Item>(new Item(type, app, icon, tip, workingDir)));
                   itemList.back()->SetIcon(GetIconSize(), GetDirectionOrientation());
+
+                  if (type == IT_LIVE_FOLDER)
+                    loadLiveFolder(app);
                 }
             }
         }
     }
+  LeaveCriticalSection(&itemListCS);
 }
 
 void Settings::DeleteItems(bool clearXML)
@@ -113,6 +123,7 @@ void Settings::DeleteItems(bool clearXML)
   xmlFile += appletName;
   xmlFile += TEXT(".xml");
 
+  EnterCriticalSection(&itemListCS);
   if (clearXML)
     {
       configXML = ELOpenXMLConfig(xmlFile, false);
@@ -135,6 +146,7 @@ void Settings::DeleteItems(bool clearXML)
 
   while (!itemList.empty())
     itemList.erase(itemList.begin());
+  LeaveCriticalSection(&itemListCS);
 }
 
 void Settings::WriteItem(int type, WCHAR *command, WCHAR *iconPath, WCHAR *tip, WCHAR *workingDir)
@@ -150,6 +162,8 @@ void Settings::WriteItem(int type, WCHAR *command, WCHAR *iconPath, WCHAR *tip, 
       writeEntireFolder(command);
       return;
     }
+  else if (type == IT_LIVE_FOLDER_ITEM)
+    return;
 
   configXML = ELOpenXMLConfig(xmlFile, true);
 
@@ -224,4 +238,33 @@ void Settings::writeEntireFolder(WCHAR *folderName)
     } while (FindNextFile(hFind, &FindFileData) != 0);
 
   FindClose(hFind);
+}
+
+void Settings::loadLiveFolder(WCHAR *folderName)
+{
+  wcscpy(folderName, (ELExpandVars(folderName)).c_str());
+  ELAbsPathFromRelativePath(folderName);
+
+  WIN32_FIND_DATA FindFileData;
+	WCHAR tmpFolderName[MAX_PATH], tmpPath[MAX_PATH];
+
+	swprintf(tmpFolderName, TEXT("%s\\*.*"), folderName);
+
+  HANDLE hFind = FindFirstFile(tmpFolderName, &FindFileData);
+
+  if (hFind == INVALID_HANDLE_VALUE)
+    return;
+
+  do
+    {
+      swprintf(tmpPath, TEXT("%s\\%s"), folderName, FindFileData.cFileName);
+
+      if ((_wcsicmp(TEXT("."), FindFileData.cFileName) != 0) && (_wcsicmp(TEXT(".."), FindFileData.cFileName) != 0))
+        {
+          itemList.push_back(std::tr1::shared_ptr<Item>(new Item(IT_LIVE_FOLDER_ITEM, tmpPath, (WCHAR*)TEXT(""), FindFileData.cFileName, (WCHAR*)TEXT(""))));
+          itemList.back()->SetIcon(GetIconSize(), GetDirectionOrientation());
+        }
+    } while (FindNextFile(hFind, &FindFileData) != 0);
+
+    FindClose(hFind);
 }

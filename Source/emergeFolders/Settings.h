@@ -42,7 +42,9 @@ protected:
 
 private:
   void writeEntireFolder(WCHAR *folderName);
+  void loadLiveFolder(WCHAR *folderName);
   std::vector< std::tr1::shared_ptr<Item> > itemList;
+  CRITICAL_SECTION itemListCS;
 };
 
 #endif

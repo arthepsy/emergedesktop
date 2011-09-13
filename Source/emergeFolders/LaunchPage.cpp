@@ -435,7 +435,7 @@ BOOL LaunchPage::ToggleFields(HWND hwndDlg)
   HWND tipTextWnd = GetDlgItem(hwndDlg, IDC_TIPTEXT);
   HWND workingDirWnd = GetDlgItem(hwndDlg, IDC_WORKINGDIR);
   HWND workingDirTextWnd = GetDlgItem(hwndDlg, IDC_WORKINGDIRTEXT);
-  
+
   WCHAR typeName[MAX_LINE_LENGTH];
 
   if (GetDlgItemText(hwndDlg, IDC_TYPE, typeName, MAX_LINE_LENGTH) != 0)
@@ -566,7 +566,7 @@ BOOL LaunchPage::ToggleFields(HWND hwndDlg)
           ShowWindow(separatorWnd, SW_HIDE);
           ShowWindow(separatorLabelWnd, SW_HIDE);
         }
-      else if (_wcsicmp(typeName, TEXT("Entire Folder")) == 0)
+      else if ((_wcsicmp(typeName, TEXT("Entire Folder")) == 0) || (_wcsicmp(typeName, TEXT("Live Folder")) == 0))
         {
           EnableWindow(browseEntireDirWnd, true);
           EnableWindow(browseEntireDirTextWnd, true);
@@ -663,6 +663,7 @@ void LaunchPage::PopulateComboBoxes(HWND hwndDlg)
   SendMessage(typeWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Separator"));
   SendMessage(typeWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Special Folder"));
   SendMessage(typeWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Entire Folder"));
+  SendMessage(typeWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Live Folder"));
 
   SendMessage(separatorWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Blank"));
   SendMessage(separatorWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Custom"));
@@ -744,6 +745,10 @@ bool LaunchPage::UpdateSettings(HWND hwndDlg)
             {
               type = IT_ENTIRE_FOLDER;
             }
+          else if (_wcsicmp(typeName, TEXT("live folder")) == 0)
+            {
+              type = IT_LIVE_FOLDER;
+            }
           else
             type = IT_EXECUTABLE;
 
@@ -762,10 +767,13 @@ void LaunchPage::PopulateList(HWND listWnd)
   LVITEM lvItem;
   lvItem.mask = LVIF_TEXT;
   WCHAR tmp[MAX_LINE_LENGTH];
+  UINT itemIterator = -1;
 
   for (UINT i = 0; i < pSettings->GetItemListSize(); i++)
     {
-      lvItem.iItem = i;
+      itemIterator++;
+      //lvItem.iItem = i;
+      lvItem.iItem = itemIterator;
       lvItem.iSubItem = 0;
       switch (pSettings->GetItem(i)->GetType())
         {
@@ -780,6 +788,13 @@ void LaunchPage::PopulateList(HWND listWnd)
           break;
         case IT_ENTIRE_FOLDER:
           lvItem.pszText = (WCHAR*)TEXT("Entire Folder");
+          break;
+        case IT_LIVE_FOLDER:
+          lvItem.pszText = (WCHAR*)TEXT("Live Folder");
+          break;
+        case IT_LIVE_FOLDER_ITEM:
+          itemIterator--;
+          continue;
         default:
           lvItem.pszText = (WCHAR*)TEXT("Executable");
           break;
@@ -985,7 +1000,7 @@ bool LaunchPage::EnableFields(HWND hwndDlg, bool enable)
   HWND upWnd = GetDlgItem(hwndDlg, IDC_UPITEM);
   HWND workingDirWnd = GetDlgItem(hwndDlg, IDC_WORKINGDIR);
   HWND workingDirTextWnd = GetDlgItem(hwndDlg, IDC_WORKINGDIRTEXT);
-  
+
   int i = 0;
   bool selected = false;
 
@@ -1091,7 +1106,7 @@ bool LaunchPage::SaveItem(HWND hwndDlg)
       return false;
     }
 
-  if ((_wcsicmp(typeName, TEXT("Executable")) == 0) || (_wcsicmp(typeName, TEXT("Entire Folder")) == 0))
+  if ((_wcsicmp(typeName, TEXT("Executable")) == 0) || (_wcsicmp(typeName, TEXT("Entire Folder")) == 0) || (_wcsicmp(typeName, TEXT("Live Folder")) == 0))
     {
       if (GetDlgItemText(hwndDlg, IDC_COMMAND, command, MAX_LINE_LENGTH) == 0)
         {
@@ -1324,7 +1339,7 @@ BOOL LaunchPage::PopulateFields(HWND hwndDlg, int itemIndex)
   HWND separatorWnd = GetDlgItem(hwndDlg, IDC_SEPARATOR);
   HWND separatorButtonWnd = GetDlgItem(hwndDlg, IDC_SEPARATORBUTTON);
   HWND typeWnd = GetDlgItem(hwndDlg, IDC_TYPE);
-  
+
   WCHAR command[MAX_LINE_LENGTH], workingDir[MAX_LINE_LENGTH], iconPath[MAX_LINE_LENGTH];
   WCHAR tip[MAX_LINE_LENGTH], typeName[MAX_LINE_LENGTH];
 
@@ -1394,7 +1409,7 @@ BOOL LaunchPage::PopulateFields(HWND hwndDlg, int itemIndex)
               if (separatorIndex != CB_ERR)
                 SendMessage(separatorWnd, CB_SETCURSEL, separatorIndex, 0);
             }
-          else if (_wcsicmp(typeName, TEXT("entire folder")) == 0)
+          else if ((_wcsicmp(typeName, TEXT("entire folder")) == 0) || (_wcsicmp(typeName, TEXT("live folder")) == 0))
             {
               ShowWindow(browseEntireDirWnd, SW_SHOW);
               ShowWindow(browseEntireDirTextWnd, SW_SHOW);
