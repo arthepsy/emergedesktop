@@ -570,7 +570,11 @@ HICON EGGetFileIcon(const WCHAR *file, UINT iconSize)
   std::wstring supliedFile;
 
   if (file == NULL)
-    return icon;
+    {
+      ELWriteDebug(L"file null");
+      return icon;
+    }
+  //return icon;
 
   supliedFile = file;
   if (!supliedFile.empty())
@@ -586,6 +590,7 @@ HICON EGGetFileIcon(const WCHAR *file, UINT iconSize)
       if (token == NULL)
         {
           free(source);
+          ELWriteDebug(L"token null");
           return icon;
         }
 
@@ -601,6 +606,8 @@ HICON EGGetFileIcon(const WCHAR *file, UINT iconSize)
       free(source);
     }
 
+  ELWriteDebug(supliedFile);
+
   if (hasIndex)
     {
       icon = EGExtractIcon(supliedFile.c_str(), iconIndex, iconSize);
@@ -608,69 +615,55 @@ HICON EGGetFileIcon(const WCHAR *file, UINT iconSize)
     }
 
   hr = SHGetDesktopFolder(&deskFolder);
-  if (FAILED(hr))
-    return icon;
-
-  hr = deskFolder->ParseDisplayName(NULL, NULL, (WCHAR*)supliedFile.c_str(), NULL, &pidlLocal, NULL);
-  if (FAILED(hr))
-    {
-      deskFolder->Release();
-      return icon;
-    }
-
-  pidlRelative = ILClone(ILFindLastID(pidlLocal));
-  ILRemoveLastID(pidlLocal);
-
-  hr = deskFolder->BindToObject(pidlLocal, NULL, IID_IShellFolder, &lpVoid);
-  if (FAILED(hr))
-    {
-      deskFolder->Release();
-      ILFree(pidlLocal);
-      return icon;
-    }
-  appObject = reinterpret_cast <IShellFolder*> (lpVoid);
-
-  ILFree(pidlLocal);
-
-  hr = appObject->GetUIObjectOf(NULL, 1, (LPCITEMIDLIST*)&pidlRelative,
-                                IID_IExtractIcon, NULL, &lpVoid);
-  if (FAILED(hr))
-    {
-      deskFolder->Release();
-      appObject->Release();
-      ILFree(pidlRelative);
-      return icon;
-    }
-  extractIcon = reinterpret_cast <IExtractIcon*> (lpVoid);
-
-  ILFree(pidlRelative);
-
-  hr = extractIcon->GetIconLocation(0, iconLocation, MAX_PATH, &iconIndex, &iconFlags);
-  if (FAILED(hr))
-    {
-      deskFolder->Release();
-      appObject->Release();
-      return icon;
-    }
-
-  // For some reason, .cpl files have an iconLocation of "*" that seems to mess up extractIcon while
-  // for other iconLocations of "*" it's fine, so add this work around for now.
-  if ((supliedFile.find(TEXT(".cpl")) != std::wstring::npos) && (wcscmp(iconLocation, TEXT("*")) == 0))
-    wcscpy(iconLocation, supliedFile.c_str());
-
-  if (iconSize == 16)
-    hr = extractIcon->Extract(iconLocation, iconIndex, &tmpIcon, &icon, MAKELONG(32, 16));
-  else
-    hr = extractIcon->Extract(iconLocation, iconIndex, &icon, &tmpIcon, MAKELONG(iconSize, 16));
-
-  extractIcon->Release();
-  appObject->Release();
-  deskFolder->Release();
-
   if (SUCCEEDED(hr))
-    DestroyIcon(tmpIcon);
+    {
+      hr = deskFolder->ParseDisplayName(NULL, NULL, (WCHAR*)supliedFile.c_str(), NULL, &pidlLocal, NULL);
+      if (SUCCEEDED(hr))
+        {
+          pidlRelative = ILClone(ILFindLastID(pidlLocal));
+          ILRemoveLastID(pidlLocal);
 
-  if (icon == NULL)
+          hr = deskFolder->BindToObject(pidlLocal, NULL, IID_IShellFolder, &lpVoid);
+          if (SUCCEEDED(hr))
+            {
+              appObject = reinterpret_cast <IShellFolder*> (lpVoid);
+              ILFree(pidlLocal);
+
+              hr = appObject->GetUIObjectOf(NULL, 1, (LPCITEMIDLIST*)&pidlRelative,
+                                            IID_IExtractIcon, NULL, &lpVoid);
+              if (SUCCEEDED(hr))
+                {
+                  extractIcon = reinterpret_cast <IExtractIcon*> (lpVoid);
+
+                  ILFree(pidlRelative);
+
+                  hr = extractIcon->GetIconLocation(0, iconLocation, MAX_PATH, &iconIndex, &iconFlags);
+                  if (SUCCEEDED(hr))
+                    {
+                      // For some reason, .cpl files have an iconLocation of "*" that seems to mess up extractIcon while
+                      // for other iconLocations of "*" it's fine, so add this work around for now.
+                      if ((supliedFile.find(TEXT(".cpl")) != std::wstring::npos) && (wcscmp(iconLocation, TEXT("*")) == 0))
+                        wcscpy(iconLocation, supliedFile.c_str());
+
+                      if (iconSize == 16)
+                        hr = extractIcon->Extract(iconLocation, iconIndex, &tmpIcon, &icon, MAKELONG(32, 16));
+                      else
+                        hr = extractIcon->Extract(iconLocation, iconIndex, &icon, &tmpIcon, MAKELONG(iconSize, 16));
+
+                      if (SUCCEEDED(hr))
+                        DestroyIcon(tmpIcon);
+                    }
+                  extractIcon->Release();
+                }
+
+              appObject->Release();
+            }
+        }
+
+      deskFolder->Release();
+    }
+
+  if ((icon == NULL) && wcslen(iconLocation))
     icon = EGExtractIcon(iconLocation, iconIndex, iconSize);
 
   if (icon == NULL)
