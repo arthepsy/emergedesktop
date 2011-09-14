@@ -570,11 +570,7 @@ HICON EGGetFileIcon(const WCHAR *file, UINT iconSize)
   std::wstring supliedFile;
 
   if (file == NULL)
-    {
-      ELWriteDebug(L"file null");
-      return icon;
-    }
-  //return icon;
+    return icon;
 
   supliedFile = file;
   if (!supliedFile.empty())
@@ -590,7 +586,6 @@ HICON EGGetFileIcon(const WCHAR *file, UINT iconSize)
       if (token == NULL)
         {
           free(source);
-          ELWriteDebug(L"token null");
           return icon;
         }
 
@@ -605,8 +600,6 @@ HICON EGGetFileIcon(const WCHAR *file, UINT iconSize)
       supliedFile = ELExpandVars(supliedFile);
       free(source);
     }
-
-  ELWriteDebug(supliedFile);
 
   if (hasIndex)
     {
