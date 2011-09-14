@@ -543,6 +543,7 @@
 					<Add library="emergeBaseClasses" />
 					<Add library="comctl32" />
 					<Add library="shlwapi" />
+					<Add library="ole32" />
 					<Add directory=".\bin64" />
 				</Linker>
 			</Target>
