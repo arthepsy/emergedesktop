@@ -144,22 +144,24 @@ void MenuItem::SetIcon()
         icon = EGGetSystemIcon(ICON_LOCK, 16);
       break;
     case IT_SPECIAL_FOLDER:
-        {
-          UINT specialFolder = ELIsSpecialFolder(value);
-          icon = EGGetSpecialFolderIcon(specialFolder, 16);
-        }
-      break;
+    {
+      UINT specialFolder = ELIsSpecialFolder(value);
+      icon = EGGetSpecialFolderIcon(specialFolder, 16);
+    }
+    break;
     case IT_FILE_MENU:
-      if ((wcsicmp(lwrValue, TEXT("%documents%")) == 0) ||
-          (wcsicmp(lwrValue, TEXT("%commondocuments%")) == 0))
+      app = value;
+      app = ELToLower(app.substr(0, app.find_first_of(TEXT("|"))));
+      if ((app == TEXT("%documents%")) ||
+          (app == TEXT("%commondocuments%")))
         icon = EGGetSpecialFolderIcon(CSIDL_PERSONAL, 16);
-      else if ((wcsicmp(lwrValue, TEXT("%desktop%")) == 0) ||
-               (wcsicmp(lwrValue, TEXT("%commondesktop%")) == 0))
+      else if ((app == TEXT("%desktop%")) ||
+               (app == TEXT("%commondesktop%")))
         icon = EGGetSpecialFolderIcon(CSIDL_DESKTOP, 16);
       else
         {
-          ELAbsPathFromRelativePath(lwrValue);
-          icon = EGGetFileIcon(lwrValue, 16);
+          //ELAbsPathFromRelativePath(lwrValue);
+          icon = EGGetFileIcon(app.c_str(), 16);
         }
       if (icon != NULL)
         break;
