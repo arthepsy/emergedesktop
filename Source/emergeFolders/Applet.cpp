@@ -123,7 +123,7 @@ LRESULT CALLBACK Applet::WindowProcedure (HWND hwnd, UINT message, WPARAM wParam
 }
 
 Applet::Applet(HINSTANCE hInstance)
-     :BaseApplet(hInstance, TEXT("emergeFolders"), true, true)
+  :BaseApplet(hInstance, TEXT("emergeFolders"), true, true)
 {
   activeWnd = NULL;
   iconSize = 16;
@@ -300,7 +300,7 @@ void Applet::InitLiveFolderMap()
           if (thread != NULL)
             {
               liveFolderMap.insert(std::pair<DWORD, std::wstring>(threadID,
-                                                                  liveFolderPath));
+                                   liveFolderPath));
               ResumeThread(thread);
             }
         }
@@ -337,11 +337,14 @@ DWORD WINAPI Applet::LiveFolderThreadProc(LPVOID lpParameter)
   Applet *pApplet = reinterpret_cast< Applet* >(lpParameter);
   std::wstring watchFolder = pApplet->GetFolderForThreadId(GetCurrentThreadId());
 
+  // Initialize COM or the icon extraction will fail
+  OleInitialize(NULL);
+
   // Start a watch on the thread's assigned folder for file writes in order to detect change
   HANDLE folderWatch = FindFirstChangeNotification(watchFolder.c_str(), FALSE,
-                                                   FILE_NOTIFY_CHANGE_FILE_NAME |
-                                                   FILE_NOTIFY_CHANGE_DIR_NAME |
-                                                   FILE_NOTIFY_CHANGE_LAST_WRITE);
+                       FILE_NOTIFY_CHANGE_FILE_NAME |
+                       FILE_NOTIFY_CHANGE_DIR_NAME |
+                       FILE_NOTIFY_CHANGE_LAST_WRITE);
   if (folderWatch != INVALID_HANDLE_VALUE)
     {
       // Start an infinite loop to watch the directory
@@ -354,13 +357,14 @@ DWORD WINAPI Applet::LiveFolderThreadProc(LPVOID lpParameter)
               pApplet->UpdateGUI();
               // Restart the directory watch
               if (FindNextChangeNotification(folderWatch) == FALSE)
-                ExitThread(2);
+                break;
             }
           else
-            ExitThread(1);
+            break;
         }
     }
 
+  OleUninitialize();
   return 0;
 }
 
