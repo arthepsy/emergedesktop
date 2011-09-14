@@ -156,23 +156,38 @@ UINT Applet::Initialize()
 //----  --------------------------------------------------------------------------------------------------------
 bool Applet::PaintItem(HDC hdc, UINT index, int x, int y, RECT rect)
 {
-  if (pSettings->GetItem(index)->GetType() == IT_LIVE_FOLDER)
+  Item *item = pSettings->GetItem(index);
+
+  if (item->GetType() == IT_LIVE_FOLDER)
     return false;
 
-  pSettings->GetItem(index)->SetRect(rect);
+  item->SetRect(rect);
   UpdateTip(index);
-  pSettings->GetItem(index)->CreateNewIcon(guiInfo.alphaForeground, guiInfo.alphaBackground);
+  item->CreateNewIcon(guiInfo.alphaForeground, guiInfo.alphaBackground);
 
   InflateRect(&rect, 1, 1);
-  if (pSettings->GetItem(index)->GetActive())
+  if (item->GetActive())
     EGFillRect(hdc, &rect, guiInfo.alphaSelected, guiInfo.colorSelected);
 
   // Draw the indexcon
   DrawIconEx(hdc, x, y,
-             pSettings->GetItem(index)->GetIcon(), pSettings->GetIconSize(),
+             item->GetIcon(), pSettings->GetIconSize(),
              pSettings->GetIconSize(), 0, NULL, DI_NORMAL);
 
   return true;
+}
+
+size_t Applet::GetVisibleIconCount()
+{
+  size_t visibleIconCount = 0;
+
+  for (size_t i = 0; i < pSettings->GetItemListSize(); i++)
+    {
+      if (pSettings->GetItem(i)->GetType() != IT_LIVE_FOLDER)
+        visibleIconCount++;
+    }
+
+  return visibleIconCount;
 }
 
 //----  --------------------------------------------------------------------------------------------------------

@@ -251,7 +251,9 @@ void Settings::loadLiveFolder(WCHAR *folderName)
     {
       swprintf(tmpPath, TEXT("%s\\%s"), folderName, FindFileData.cFileName);
 
-      if ((_wcsicmp(TEXT("."), FindFileData.cFileName) != 0) && (_wcsicmp(TEXT(".."), FindFileData.cFileName) != 0))
+      if ((_wcsicmp(TEXT("."), FindFileData.cFileName) != 0) &&
+          (_wcsicmp(TEXT(".."), FindFileData.cFileName) != 0) &&
+          ((FindFileData.dwFileAttributes & FILE_ATTRIBUTE_HIDDEN) != FILE_ATTRIBUTE_HIDDEN))
         {
           ELStripShortcutExtension(FindFileData.cFileName);
           itemList.push_back(std::tr1::shared_ptr<Item>(new Item(IT_LIVE_FOLDER_ITEM, tmpPath, (WCHAR*)TEXT(""), FindFileData.cFileName, (WCHAR*)TEXT(""))));

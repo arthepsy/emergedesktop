@@ -192,7 +192,10 @@ void Item::SetIcon(int iconSize, WCHAR *orientation)
                     {
                       ELAbsPathFromRelativePath(lwrApp);
                       ELParseCommand(lwrApp, source, tmp);
+                      ELWriteDebug(source);
                       origIcon = EGGetFileIcon(source, iconSize);
+                      if (origIcon)
+                        ELWriteDebug(L"Icon is valid");
                     }
                 }
               else

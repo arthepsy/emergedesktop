@@ -76,6 +76,7 @@ public:
   void UpdateTip(UINT index);
   void DeleteTip(UINT index);
   size_t GetIconCount();
+  size_t GetVisibleIconCount();
   void ClearActive(UINT index);
   std::wstring GetFolderForThreadId(DWORD threadID);
   void InitLiveFolderMap();
