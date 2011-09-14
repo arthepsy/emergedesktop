@@ -308,6 +308,7 @@
 					<Add library="emergeBaseClasses" />
 					<Add library="comctl32" />
 					<Add library="shlwapi" />
+					<Add library="ole32" />
 					<Add directory=".\bin" />
 				</Linker>
 			</Target>
@@ -1199,6 +1200,79 @@
 			<Option target="emergeCore - Release" />
 			<Option target="emergeCore - Debug" />
 		</Unit>
+		<Unit filename="emergeFolders\Applet.cpp">
+			<Option target="emergeFolders - Release" />
+			<Option target="emergeFolders - Debug" />
+		</Unit>
+		<Unit filename="emergeFolders\Applet.h">
+			<Option target="emergeFolders - Release" />
+			<Option target="emergeFolders - Debug" />
+		</Unit>
+		<Unit filename="emergeFolders\Config.cpp">
+			<Option target="emergeFolders - Release" />
+			<Option target="emergeFolders - Debug" />
+		</Unit>
+		<Unit filename="emergeFolders\Config.h">
+			<Option target="emergeFolders - Release" />
+			<Option target="emergeFolders - Debug" />
+		</Unit>
+		<Unit filename="emergeFolders\ConfigPage.cpp">
+			<Option target="emergeFolders - Release" />
+			<Option target="emergeFolders - Debug" />
+		</Unit>
+		<Unit filename="emergeFolders\ConfigPage.dlg">
+			<Option target="emergeFolders - Release" />
+			<Option target="emergeFolders - Debug" />
+		</Unit>
+		<Unit filename="emergeFolders\ConfigPage.h">
+			<Option target="emergeFolders - Release" />
+			<Option target="emergeFolders - Debug" />
+		</Unit>
+		<Unit filename="emergeFolders\Item.cpp">
+			<Option target="emergeFolders - Release" />
+			<Option target="emergeFolders - Debug" />
+		</Unit>
+		<Unit filename="emergeFolders\Item.h">
+			<Option target="emergeFolders - Release" />
+			<Option target="emergeFolders - Debug" />
+		</Unit>
+		<Unit filename="emergeFolders\LaunchPage.cpp">
+			<Option target="emergeFolders - Release" />
+			<Option target="emergeFolders - Debug" />
+		</Unit>
+		<Unit filename="emergeFolders\LaunchPage.dlg">
+			<Option target="emergeFolders - Release" />
+			<Option target="emergeFolders - Debug" />
+		</Unit>
+		<Unit filename="emergeFolders\LaunchPage.h">
+			<Option target="emergeFolders - Release" />
+			<Option target="emergeFolders - Debug" />
+		</Unit>
+		<Unit filename="emergeFolders\Settings.cpp">
+			<Option target="emergeFolders - Release" />
+			<Option target="emergeFolders - Debug" />
+		</Unit>
+		<Unit filename="emergeFolders\Settings.h">
+			<Option target="emergeFolders - Release" />
+			<Option target="emergeFolders - Debug" />
+		</Unit>
+		<Unit filename="emergeFolders\emergeFolders.exe.manifest">
+			<Option target="emergeFolders - Release" />
+			<Option target="emergeFolders - Debug" />
+		</Unit>
+		<Unit filename="emergeFolders\emergeFolders.rc">
+			<Option compilerVar="WINDRES" />
+			<Option target="emergeFolders - Release" />
+			<Option target="emergeFolders - Debug" />
+		</Unit>
+		<Unit filename="emergeFolders\main.cpp">
+			<Option target="emergeFolders - Release" />
+			<Option target="emergeFolders - Debug" />
+		</Unit>
+		<Unit filename="emergeFolders\resource.h">
+			<Option target="emergeFolders - Release" />
+			<Option target="emergeFolders - Debug" />
+		</Unit>
 		<Unit filename="emergeGraphics\BImage.cpp">
 			<Option target="emergeGraphics - Release" />
 		</Unit>
@@ -1395,79 +1469,6 @@
 		<Unit filename="emergeLauncher\resource.h">
 			<Option target="emergeLauncher - Release" />
 			<Option target="emergeLauncher - Debug" />
-		</Unit>
-		<Unit filename="emergeFolders\Applet.cpp">
-			<Option target="emergeFolders - Release" />
-			<Option target="emergeFolders - Debug" />
-		</Unit>
-		<Unit filename="emergeFolders\Applet.h">
-			<Option target="emergeFolders - Release" />
-			<Option target="emergeFolders - Debug" />
-		</Unit>
-		<Unit filename="emergeFolders\Config.cpp">
-			<Option target="emergeFolders - Release" />
-			<Option target="emergeFolders - Debug" />
-		</Unit>
-		<Unit filename="emergeFolders\Config.h">
-			<Option target="emergeFolders - Release" />
-			<Option target="emergeFolders - Debug" />
-		</Unit>
-		<Unit filename="emergeFolders\ConfigPage.cpp">
-			<Option target="emergeFolders - Release" />
-			<Option target="emergeFolders - Debug" />
-		</Unit>
-		<Unit filename="emergeFolders\ConfigPage.dlg">
-			<Option target="emergeFolders - Release" />
-			<Option target="emergeFolders - Debug" />
-		</Unit>
-		<Unit filename="emergeFolders\ConfigPage.h">
-			<Option target="emergeFolders - Release" />
-			<Option target="emergeFolders - Debug" />
-		</Unit>
-		<Unit filename="emergeFolders\Item.cpp">
-			<Option target="emergeFolders - Release" />
-			<Option target="emergeFolders - Debug" />
-		</Unit>
-		<Unit filename="emergeFolders\Item.h">
-			<Option target="emergeFolders - Release" />
-			<Option target="emergeFolders - Debug" />
-		</Unit>
-		<Unit filename="emergeFolders\LaunchPage.cpp">
-			<Option target="emergeFolders - Release" />
-			<Option target="emergeFolders - Debug" />
-		</Unit>
-		<Unit filename="emergeFolders\LaunchPage.dlg">
-			<Option target="emergeFolders - Release" />
-			<Option target="emergeFolders - Debug" />
-		</Unit>
-		<Unit filename="emergeFolders\LaunchPage.h">
-			<Option target="emergeFolders - Release" />
-			<Option target="emergeFolders - Debug" />
-		</Unit>
-		<Unit filename="emergeFolders\Settings.cpp">
-			<Option target="emergeFolders - Release" />
-			<Option target="emergeFolders - Debug" />
-		</Unit>
-		<Unit filename="emergeFolders\Settings.h">
-			<Option target="emergeFolders - Release" />
-			<Option target="emergeFolders - Debug" />
-		</Unit>
-		<Unit filename="emergeFolders\emergeFolders.exe.manifest">
-			<Option target="emergeFolders - Release" />
-			<Option target="emergeFolders - Debug" />
-		</Unit>
-		<Unit filename="emergeFolders\emergeFolders.rc">
-			<Option compilerVar="WINDRES" />
-			<Option target="emergeFolders - Release" />
-			<Option target="emergeFolders - Debug" />
-		</Unit>
-		<Unit filename="emergeFolders\main.cpp">
-			<Option target="emergeFolders - Release" />
-			<Option target="emergeFolders - Debug" />
-		</Unit>
-		<Unit filename="emergeFolders\resource.h">
-			<Option target="emergeFolders - Release" />
-			<Option target="emergeFolders - Debug" />
 		</Unit>
 		<Unit filename="emergeLib\MsgBox.cpp">
 			<Option target="emergeLib - Release" />
