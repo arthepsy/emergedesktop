@@ -258,7 +258,10 @@ void Applet::ShowConfig()
 {
   Config config(mainInst, mainWnd, appletName, pSettings);
   if (config.Show() == IDOK)
-    UpdateGUI();
+    {
+      UpdateGUI();
+      InitLiveFolderMap();
+    }
 }
 
 LRESULT Applet::DoSizing(HWND hwnd, UINT edge, LPRECT rect)
