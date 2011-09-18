@@ -848,7 +848,7 @@ HICON EGGetSystemIcon(UINT iconIndex, UINT iconSize)
   WCHAR source[MAX_PATH];
   int iconLocation = 0;
 
-  if (ELVersionInfo() > 6.0)
+  if (ELVersionInfo() >= 6.0)
     {
       wcscpy(source, TEXT("%SystemRoot%\\system32\\imageres.dll"));
       switch (iconIndex)
