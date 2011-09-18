@@ -95,13 +95,31 @@ bool ConfigPage::DoInitDialog(HWND hwndDlg)
   SendMessage(iconSizeWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("16x16"));
   SendMessage(iconSizeWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("32x32"));
   SendMessage(iconSizeWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("48x48"));
+  if (ELVersionInfo() >= 6.0)
+    {
+      SendMessage(iconSizeWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("128x128"));
+      SendMessage(iconSizeWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("256x256"));
+    }
 
-  if (pSettings->GetIconSize() == 48)
-    SendMessage(iconSizeWnd, CB_SETCURSEL, (WPARAM)2, 0);
-  else if (pSettings->GetIconSize() == 32)
-    SendMessage(iconSizeWnd, CB_SETCURSEL, (WPARAM)1, 0);
-  else
-    SendMessage(iconSizeWnd, CB_SETCURSEL, (WPARAM)0, 0);
+  WPARAM wParam = 0;
+  switch (pSettings->GetIconSize())
+    {
+    case 256:
+      wParam = 4;
+      break;
+    case 128:
+      wParam = 3;
+      break;
+    case 48:
+      wParam = 2;
+      break;
+    case 32:
+      wParam = 1;
+      break;
+    }
+  if ((ELVersionInfo() < 6.0) && (wParam > 2))
+    wParam = 2;
+  SendMessage(iconSizeWnd, CB_SETCURSEL, wParam, 0);
 
   SendDlgItemMessage(hwndDlg, IDC_CLICKTHROUGHMETHOD, CB_ADDSTRING, 0, (LPARAM)TEXT("Full"));
   SendDlgItemMessage(hwndDlg, IDC_CLICKTHROUGHMETHOD, CB_ADDSTRING, 0, (LPARAM)TEXT("Background"));
@@ -158,7 +176,7 @@ bool ConfigPage::DoFontChooser(HWND hwndDlg)
 
 bool ConfigPage::UpdateSettings(HWND hwndDlg)
 {
-  int i, result, size;
+  int i, result, size = 16;
   HWND iconSizeWnd = GetDlgItem(hwndDlg, IDC_ICONSIZE);
   BOOL success;
   WCHAR tmp[MAX_LINE_LENGTH];
@@ -201,12 +219,24 @@ bool ConfigPage::UpdateSettings(HWND hwndDlg)
     }
 
   i = (int)SendMessage(iconSizeWnd, CB_GETCURSEL, 0, 0);
-  if (i == 2)
-    size = 48;
-  else if (i == 1)
-    size = 32;
-  else
-    size = 16;
+  switch (i)
+    {
+    case 0:
+      size = 16;
+      break;
+    case 1:
+      size = 32;
+      break;
+    case 2:
+      size = 48;
+      break;
+    case 3:
+      size = 128;
+      break;
+    case 4:
+      size = 256;
+      break;
+    }
   pSettings->SetIconSize(size);
 
   //pSettings->SetFont(&newFont);
