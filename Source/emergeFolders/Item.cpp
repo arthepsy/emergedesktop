@@ -184,10 +184,10 @@ void Item::SetIcon(int iconSize, WCHAR *orientation)
                 {
                   if ((wcsicmp(lwrApp, TEXT("%documents%")) == 0) ||
                       (wcsicmp(lwrApp, TEXT("%commondocuments%")) == 0))
-                    origIcon = EGGetSpecialFolderIcon(CSIDL_PERSONAL, 16);
+                    origIcon = EGGetSpecialFolderIcon(CSIDL_PERSONAL, iconSize);
                   else if ((wcsicmp(lwrApp, TEXT("%desktop%")) == 0) ||
                            (wcsicmp(lwrApp, TEXT("%commondesktop%")) == 0))
-                    origIcon = EGGetSpecialFolderIcon(CSIDL_DESKTOP, 16);
+                    origIcon = EGGetSpecialFolderIcon(CSIDL_DESKTOP, iconSize);
                   else
                     {
                       ELAbsPathFromRelativePath(lwrApp);
