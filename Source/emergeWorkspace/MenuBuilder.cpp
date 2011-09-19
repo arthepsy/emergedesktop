@@ -449,7 +449,11 @@ LRESULT MenuBuilder::DoContextMenu(POINT pt)
       break;
     case IT_TASKS_MENU:
         {
-          HWND task = (HWND)wcstoll(value, NULL, 10);
+#ifdef _W64
+          HWND task = (HWND)_wcstoi64(value, NULL, 10);
+#else
+          HWND task = (HWND)wcstol(value, NULL, 10);
+#endif
           res = EAEDisplayMenu(menuWnd, task);
           switch (res)
             {
@@ -1728,7 +1732,11 @@ LRESULT MenuBuilder::ExecuteMenuItem(UINT itemID)
         ELMessageBox(GetDesktopWindow(), error, (WCHAR*)TEXT("emergeWorkspace"), ELMB_ICONWARNING|ELMB_OK);
       break;
     case IT_TASKS_MENU:
-      ELSwitchToThisWindow((HWND)wcstoll(menuItem->GetValue(), NULL, 10));
+#ifdef _W64
+      ELSwitchToThisWindow((HWND)_wcstoi64(menuItem->GetValue(), NULL, 10));
+#else
+      ELSwitchToThisWindow((HWND)wcstol(menuItem->GetValue(), NULL, 10));
+#endif
       break;
     case IT_SETTINGS_MENU:
       ExecuteSettingsMenuItem(itemID);
