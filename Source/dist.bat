@@ -1,4 +1,5 @@
 @echo off & setlocal
+SET PATH=%PATH%;C:\Program Files (x86)\7-Zip\;C:\Program Files\7-Zip;
 
 @if /i "%2"=="" (
   echo "Usage: dist [bin/src/all] [VERSION]"
