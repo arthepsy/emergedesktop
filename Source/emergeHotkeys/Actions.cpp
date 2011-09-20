@@ -158,6 +158,7 @@ BOOL Actions::DoInitDialog(HWND hwndDlg)
   HWND keyWnd = GetDlgItem(hwndDlg, IDC_KEY);
   HWND keyTextWnd = GetDlgItem(hwndDlg, IDC_KEYTEXT);
   HWND commandWnd = GetDlgItem(hwndDlg, IDC_COMMAND);
+  HWND commandArgWnd = GetDlgItem(hwndDlg, IDC_COMMANDARG);
   HWND addWnd = GetDlgItem(hwndDlg, IDC_ADDAPP);
   HWND delWnd = GetDlgItem(hwndDlg, IDC_DELAPP);
   HWND editWnd = GetDlgItem(hwndDlg, IDC_MODAPP);
@@ -236,6 +237,7 @@ BOOL Actions::DoInitDialog(HWND hwndDlg)
   EnableWindow(altWnd, false);
   EnableWindow(appWnd, false);
   EnableWindow(commandWnd, false);
+  EnableWindow(commandArgWnd, false);
   EnableWindow(inWnd, false);
   EnableWindow(exWnd, false);
 
@@ -580,8 +582,18 @@ bool Actions::PopulateFields(HWND hwndDlg, int modIndex)
 
   ListView_GetItemText(listWnd, modIndex, 1, tmpAction, MAX_LINE_LENGTH);
 
+  std::wstring workingAction = tmpAction, workingArg;
+  size_t argDelim = workingAction.find_first_of(L" \t");
+  if (argDelim != std::wstring::npos)
+    {
+      workingArg = workingAction.substr(argDelim, workingAction.length() - argDelim);
+      size_t nonWhiteSpace = workingArg.find_first_not_of(L" \t");
+      workingArg = workingArg.substr(nonWhiteSpace, workingArg.length() - nonWhiteSpace);
+      workingAction = workingAction.substr(0, argDelim);
+    }
+
   commandIndex = (int)SendMessage(commandWnd, CB_FINDSTRINGEXACT, (WPARAM)-1,
-                                  (LPARAM)tmpAction);
+                                  (LPARAM)workingAction.c_str());
 
   EnableWindow(internalWnd, true);
   EnableWindow(externalWnd, true);
@@ -596,6 +608,7 @@ bool Actions::PopulateFields(HWND hwndDlg, int modIndex)
       SendMessage(internalWnd, BM_CLICK, 0, 0);
       SendMessage(commandWnd, CB_SETCURSEL, commandIndex, 0);
       SetDlgItemText(hwndDlg, IDC_APPLICATION, TEXT(""));
+      SetDlgItemText(hwndDlg, IDC_COMMANDARG, workingArg.c_str());
     }
   EnableWindow(internalWnd, false);
   EnableWindow(externalWnd, false);
@@ -665,6 +678,7 @@ bool Actions::EnableFields(HWND hwndDlg, bool enable)
   HWND altWnd = GetDlgItem(hwndDlg, IDC_ALT);
   HWND appWnd = GetDlgItem(hwndDlg, IDC_APPLICATION);
   HWND commandWnd = GetDlgItem(hwndDlg, IDC_COMMAND);
+  HWND commandArgWnd = GetDlgItem(hwndDlg, IDC_COMMANDARG);
   HWND inWnd = GetDlgItem(hwndDlg, IDC_INTERNAL);
   HWND exWnd = GetDlgItem(hwndDlg, IDC_EXTERNAL);
 
@@ -674,11 +688,13 @@ bool Actions::EnableFields(HWND hwndDlg, bool enable)
         {
           EnableWindow(appWnd, true);
           EnableWindow(commandWnd, false);
+          EnableWindow(commandArgWnd, false);
         }
       else
         {
           EnableWindow(appWnd, false);
           EnableWindow(commandWnd, true);
+          EnableWindow(commandArgWnd, true);
         }
       EnableWindow(fileWnd, true);
       EnableWindow(folderWnd, true);
@@ -703,6 +719,7 @@ bool Actions::EnableFields(HWND hwndDlg, bool enable)
       EnableWindow(folderWnd, false);
       EnableWindow(appWnd, false);
       EnableWindow(commandWnd, false);
+      EnableWindow(commandArgWnd, false);
       EnableWindow(saveWnd, false);
       EnableWindow(abortWnd, false);
       EnableWindow(keyWnd, false);
@@ -748,7 +765,13 @@ bool Actions::DoSave(HWND hwndDlg)
   if (SendDlgItemMessage(hwndDlg, IDC_INTERNAL, BM_GETCHECK, 0, 0) == BST_CHECKED)
     {
       GetDlgItemText(hwndDlg, IDC_COMMAND, tmp, MAX_LINE_LENGTH);
-      wcscat(tmpAction, tmp);
+      wcscpy(tmpAction, tmp);
+      GetDlgItemText(hwndDlg, IDC_COMMANDARG, tmp, MAX_LINE_LENGTH);
+      if (wcslen(tmp))
+        {
+          wcscat(tmpAction, L" ");
+          wcscat(tmpAction, tmp);
+        }
     }
   if (SendDlgItemMessage(hwndDlg, IDC_SHIFT, BM_GETCHECK, 0, 0) == BST_CHECKED)
     wcscat(tmpKey, TEXT("Shift+"));

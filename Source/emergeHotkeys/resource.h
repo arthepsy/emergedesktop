@@ -34,18 +34,19 @@
 #define IDC_SHIFT			203
 #define IDC_KEY				204
 
-#define IDC_APPLICATION		300
+#define IDC_APPLICATION	300
 #define IDC_ADDAPP			301
 #define IDC_FOLDER			302
 #define IDC_EXTERNAL		303
 #define IDC_COMMAND			304
 #define IDC_INTERNAL		305
-#define IDC_CLEAR			306
-#define IDC_FILE			307
+#define IDC_CLEAR			  306
+#define IDC_FILE			  307
 #define IDC_SAVEAPP			308
 #define IDC_ABORTAPP		309
+#define IDC_COMMANDARG  310
 
-#define IDC_ACTIONSLIST		400
+#define IDC_ACTIONSLIST	400
 #define IDC_MODAPP			401
 #define IDC_DELAPP			402
 
