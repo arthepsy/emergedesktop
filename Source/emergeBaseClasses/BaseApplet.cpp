@@ -520,6 +520,9 @@ void BaseApplet::DrawAlphaBlend()
   if (!GetClientRect(mainWnd, &clientrt))
     return;
 
+  if (IsRectEmpty(&clientrt))
+    return;
+
   hdc = EGBeginPaint(mainWnd);
 
   if (!EqualRect(&clientrt, &oldrt))
