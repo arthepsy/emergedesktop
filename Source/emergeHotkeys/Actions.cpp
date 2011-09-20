@@ -689,15 +689,17 @@ bool Actions::EnableFields(HWND hwndDlg, bool enable)
           EnableWindow(appWnd, true);
           EnableWindow(commandWnd, false);
           EnableWindow(commandArgWnd, false);
+          EnableWindow(fileWnd, true);
+          EnableWindow(folderWnd, true);
         }
       else
         {
           EnableWindow(appWnd, false);
           EnableWindow(commandWnd, true);
           EnableWindow(commandArgWnd, true);
+          EnableWindow(fileWnd, false);
+          EnableWindow(folderWnd, false);
         }
-      EnableWindow(fileWnd, true);
-      EnableWindow(folderWnd, true);
       EnableWindow(saveWnd, true);
       EnableWindow(abortWnd, true);
       EnableWindow(keyWnd, true);
@@ -983,6 +985,7 @@ void Actions::PopulateKeys(HWND keyWnd)
 bool Actions::DoInternal(HWND hwndDlg)
 {
   HWND commandWnd = GetDlgItem(hwndDlg, IDC_COMMAND);
+  HWND commandArgWnd = GetDlgItem(hwndDlg, IDC_COMMANDARG);
   HWND applicationWnd = GetDlgItem(hwndDlg, IDC_APPLICATION);
   HWND folderWnd = GetDlgItem(hwndDlg, IDC_FOLDER);
   HWND fileWnd = GetDlgItem(hwndDlg, IDC_FILE);
@@ -995,6 +998,7 @@ bool Actions::DoInternal(HWND hwndDlg)
   EnableWindow(folderWnd, false);
   EnableWindow(fileWnd, false);
   EnableWindow(commandWnd, true);
+  EnableWindow(commandArgWnd, true);
 
   return true;
 }
@@ -1002,6 +1006,7 @@ bool Actions::DoInternal(HWND hwndDlg)
 bool Actions::DoExternal(HWND hwndDlg)
 {
   HWND commandWnd = GetDlgItem(hwndDlg, IDC_COMMAND);
+  HWND commandArgWnd = GetDlgItem(hwndDlg, IDC_COMMANDARG);
   HWND applicationWnd = GetDlgItem(hwndDlg, IDC_APPLICATION);
   HWND folderWnd = GetDlgItem(hwndDlg, IDC_FOLDER);
   HWND fileWnd = GetDlgItem(hwndDlg, IDC_FILE);
@@ -1014,6 +1019,7 @@ bool Actions::DoExternal(HWND hwndDlg)
   EnableWindow(folderWnd, true);
   EnableWindow(fileWnd, true);
   EnableWindow(commandWnd, false);
+  EnableWindow(commandArgWnd, false);
 
   return true;
 }
