@@ -267,7 +267,7 @@ void BaseApplet::UpdateGUI(WCHAR *styleFile)
       wndRect.left = pBaseSettings->GetX();
       wndRect.right = wndRect.left;
       AdjustRect(&wndRect);
-      if ((GetVisibleIconCount() > 0) && !appletHidden)
+      if ((GetVisibleIconCount() > 0) && !appletHidden && !fullScreen)
         SWPFlags |= SWP_SHOWWINDOW;
     }
   else
@@ -289,7 +289,7 @@ void BaseApplet::UpdateGUI(WCHAR *styleFile)
       wndRect.bottom = wndRect.top + pBaseSettings->GetHeight() + (2 * dragBorder);
       wndRect.right = wndRect.left + pBaseSettings->GetWidth() + (2 * dragBorder);
 
-      if (!appletHidden)
+      if (!appletHidden && !fullScreen)
         SWPFlags |= SWP_SHOWWINDOW;
     }
 
@@ -866,17 +866,17 @@ LRESULT BaseApplet::DoCopyData(COPYDATASTRUCT *cds)
               break;
 
             case CORE_SHOWAPPLET:
+            {
+              bool toggle = IsWindowVisible(mainWnd);
+              if ((notifyInfo->InstanceName != NULL) && wcslen(notifyInfo->InstanceName))
                 {
-                  bool toggle = IsWindowVisible(mainWnd);
-                  if ((notifyInfo->InstanceName != NULL) && wcslen(notifyInfo->InstanceName))
-                    {
-                      if (_wcsicmp(notifyInfo->InstanceName, appletName) == 0)
-                        HideApplet(toggle);
-                    }
-                  else
+                  if (_wcsicmp(notifyInfo->InstanceName, appletName) == 0)
                     HideApplet(toggle);
                 }
-              break;
+              else
+                HideApplet(toggle);
+            }
+            break;
 
             case CORE_HIDE:
               if ((notifyInfo->InstanceName != NULL) && wcslen(notifyInfo->InstanceName))
@@ -915,13 +915,13 @@ LRESULT BaseApplet::DoCopyData(COPYDATASTRUCT *cds)
               break;
 
             case CORE_REPOSITION:
-                {
-                  HWND hwndInsertBehind = NULL;
-                  if (_wcsicmp(pBaseSettings->GetZPosition(), TEXT("top")) != 0)
-                    hwndInsertBehind = ELGetDesktopWindow();
-                  SetWindowPos(mainWnd, hwndInsertBehind, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
-                }
-              break;
+            {
+              HWND hwndInsertBehind = NULL;
+              if (_wcsicmp(pBaseSettings->GetZPosition(), TEXT("top")) != 0)
+                hwndInsertBehind = ELGetDesktopWindow();
+              SetWindowPos(mainWnd, hwndInsertBehind, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
+            }
+            break;
 
             case CORE_SHOWCONFIG:
               if ((notifyInfo->InstanceName != NULL) && wcslen(notifyInfo->InstanceName))
@@ -1099,18 +1099,18 @@ void BaseApplet::HideApplet(bool hide)
 {
   if (hide)
     {
-      if (!appletHidden)
+      if (IsWindowVisible(mainWnd))
         {
-          appletHidden = true;
+          //appletHidden = true;
           SetWindowPos(mainWnd, NULL, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOZORDER |
                        SWP_NOACTIVATE | SWP_HIDEWINDOW);
         }
     }
   else
     {
-      if (appletHidden)
+      if (!IsWindowVisible(mainWnd))
         {
-          appletHidden = false;
+          //appletHidden = false;
           SetWindowPos(mainWnd, NULL, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOZORDER |
                        SWP_NOACTIVATE | SWP_SHOWWINDOW);
           // If there is not active or inactive background, create one
@@ -1118,6 +1118,8 @@ void BaseApplet::HideApplet(bool hide)
             DrawAlphaBlend();
         }
     }
+
+  appletHidden = hide;
 }
 
 WCHAR *BaseApplet::GetInstanceName()
@@ -1138,20 +1140,12 @@ DWORD WINAPI BaseApplet::FullScreenThreadProc(LPVOID lpParameter)
 
       // Check if the current foreground window is full screen...
       if (ELIsFullScreen(pBaseApplet->GetMainWnd(), GetForegroundWindow()))
-        {
-          // if so set fullscreen to true...
-          pBaseApplet->SetFullScreen(true);
-          // and hide the applet
-          pBaseApplet->HideApplet(true);
-        }
+        // if so set fullscreen to true...
+        pBaseApplet->SetFullScreen(true);
       // If not and in fullscreen mode...
       else if (pBaseApplet->GetFullScreen())
-        {
-          // set fullscreen false...
-          pBaseApplet->SetFullScreen(false);
-          // and show the applet
-          pBaseApplet->HideApplet(false);
-        }
+        // set fullscreen false...
+        pBaseApplet->SetFullScreen(false);
       else
         // Fail safe to kill runaway threads
         ExitThread(0);
@@ -1176,6 +1170,26 @@ LRESULT BaseApplet::DoSysCommand(HWND hwnd, UINT message, WPARAM wParam, LPARAM 
 
 void BaseApplet::SetFullScreen(bool value)
 {
+  if (value)
+    {
+      if (IsWindowVisible(mainWnd))
+        {
+          SetWindowPos(mainWnd, NULL, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOZORDER |
+                       SWP_NOACTIVATE | SWP_HIDEWINDOW);
+        }
+    }
+  else
+    {
+      if (!IsWindowVisible(mainWnd) && !appletHidden)
+        {
+          SetWindowPos(mainWnd, NULL, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOZORDER |
+                       SWP_NOACTIVATE | SWP_SHOWWINDOW);
+          // If there is not active or inactive background, create one
+          if (!activeBackgroundDC || !inactiveBackgroundDC)
+            DrawAlphaBlend();
+        }
+    }
+
   fullScreen = value;
 }
 
@@ -1208,12 +1222,8 @@ LRESULT BaseApplet::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
           TerminateThread(fullScreenThread, 0);
           // If in fullscreen mode...
           if (fullScreen)
-            {
-              // set fullScreen to false...
-              fullScreen = false;
-              // and show the applet
-              HideApplet(false);
-            }
+            // and show the applet
+            SetFullScreen(false);
           return 1;
 
         case HSHELL_WINDOWCREATED:

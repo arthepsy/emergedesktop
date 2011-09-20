@@ -1068,7 +1068,7 @@ LRESULT Applet::ModifyTrayIcon(HWND hwnd, UINT uID, UINT uFlags, UINT uCallbackM
           if (ELGetWindowRect(mainWnd, &wndRect))
             {
               AdjustRect(&wndRect);
-              if ((GetVisibleIconCount() > 0) && !appletHidden)
+              if ((GetVisibleIconCount() > 0) && !appletHidden && !fullScreen)
                 SWPFlags |= SWP_SHOWWINDOW;
               SetWindowPos(mainWnd, NULL, wndRect.left, wndRect.top,
                            wndRect.right - wndRect.left,
@@ -1142,7 +1142,7 @@ LRESULT Applet::AddTrayIcon(HWND hwnd, UINT uID, UINT uFlags, UINT uCallbackMess
           if (ELGetWindowRect(mainWnd, &wndRect))
             {
               AdjustRect(&wndRect);
-              if ((GetVisibleIconCount() > 0) && !appletHidden)
+              if ((GetVisibleIconCount() > 0) && !appletHidden && !fullScreen)
                 SWPFlags |= SWP_SHOWWINDOW;
               SetWindowPos(mainWnd, NULL, wndRect.left, wndRect.top,
                            wndRect.right - wndRect.left, wndRect.bottom - wndRect.top,

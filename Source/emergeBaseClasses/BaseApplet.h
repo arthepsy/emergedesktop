@@ -93,7 +93,7 @@ public:
 
 private:
   int appletCount;
-  bool fullScreen, allowAutoSize, allowMultipleInstances;
+  bool allowAutoSize, allowMultipleInstances;
   RECT referenceRect;
   HANDLE displayChangeThread, fullScreenThread, multiInstanceLock;
   HANDLE instanceManagementMutex;
@@ -109,7 +109,7 @@ protected:
   WCHAR appletName[MAX_LINE_LENGTH], baseAppletName[MAX_LINE_LENGTH];
   HWND mainWnd, toolWnd;
   HINSTANCE mainInst;
-  bool mouseOver, appletHidden;
+  bool mouseOver, appletHidden, fullScreen;
   UINT ShellMessage;
   POINT anchor;
   GUIINFO guiInfo;
