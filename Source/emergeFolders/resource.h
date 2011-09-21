@@ -48,8 +48,8 @@
 #define IDC_ICONSPACINGUPDOWN   206
 #define IDC_CLICKTHROUGHMETHOD  207
 #define IDC_STARTHIDDEN         208
-#define IDC_TITLEBARTEXT		209
-#define IDC_FONTBUTTON			210
+#define IDC_TITLEBARTEXT        209
+#define IDC_FONTBUTTON          210
 
 #define IDC_APPLIST             300
 #define IDC_COMMAND             301
@@ -59,8 +59,8 @@
 #define IDC_BROWSEICON          305
 #define IDC_WORKINGDIR          306
 #define IDC_BROWSEWORKINGDIR    307
-#define IDC_ENTIREDIRTEXT		308
-#define IDC_BROWSEENTIREDIR		309
+#define IDC_ENTIREDIRTEXT       308
+#define IDC_BROWSEENTIREDIR     309
 #define IDC_INTERNAL            310
 #define IDC_EXEBUTTON           311
 #define IDC_COMBUTTON           312
@@ -69,6 +69,8 @@
 #define IDC_SPECIALFOLDERBUTTON 315
 #define IDC_SEPARATOR           316
 #define IDC_SEPARATORBUTTON     317
+#define IDC_ARGBUTTON           318
+#define IDC_ARGUMENT            319
 
 #define IDC_TOP                 400
 #define IDC_NORMAL              401
