@@ -759,8 +759,7 @@ bool Actions::DoSave(HWND hwndDlg)
     {
       GetDlgItemText(hwndDlg, IDC_COMMAND, tmp, MAX_LINE_LENGTH);
       wcscpy(tmpAction, tmp);
-      GetDlgItemText(hwndDlg, IDC_COMMANDARG, tmp, MAX_LINE_LENGTH);
-      if (wcslen(tmp))
+      if (GetDlgItemText(hwndDlg, IDC_COMMANDARG, tmp, MAX_LINE_LENGTH) != 0)
         {
           wcscat(tmpAction, L" ");
           wcscat(tmpAction, tmp);
