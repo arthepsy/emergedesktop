@@ -59,6 +59,7 @@ typedef struct _AUTOSIZEINFO
 {
   HWND hwnd;
   RECT *rect;
+  RECT titleBarRect;
   int dragBorder;
   UINT visibleIconCount;
   UINT iconSize;

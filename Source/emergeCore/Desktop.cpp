@@ -97,6 +97,9 @@ bool Desktop::Initialize(bool explorerDesktop)
 
 Desktop::~Desktop()
 {
+  // Kill the wallpaperThread
+  TerminateThread(wallpaperThread, 0);
+
   if (registered)
     {
       // Unregister the window class
@@ -150,6 +153,10 @@ LRESULT CALLBACK Desktop::DesktopProcedure (HWND hwnd, UINT message, WPARAM wPar
         }
       break;
 
+    case WM_SETTINGCHANGE:
+      pDesktop->SetBackgroundImage();
+      break;
+
     case WM_PAINT:
         {
           PAINTSTRUCT ps;
@@ -178,9 +185,6 @@ LRESULT CALLBACK Desktop::DesktopProcedure (HWND hwnd, UINT message, WPARAM wPar
     case WM_WINDOWPOSCHANGING:
       pDesktop->DoWindowPosChanging((LPWINDOWPOS)lParam);
       break;
-
-    case WM_TIMER:
-      return pDesktop->DoTimer((UINT_PTR)wParam);
 
     case WM_DESTROY:
     case WM_NCDESTROY:
@@ -224,28 +228,6 @@ LRESULT Desktop::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
   return DefWindowProc(hwnd, message, wParam, lParam);
 }
 
-LRESULT Desktop::DoTimer(UINT_PTR timerID)
-{
-  struct __stat64 bgstat;
-  RECT bgRect;
-
-  if (timerID == BACKGROUND_TIMER)
-    {
-      _wstat64(bgImage, &bgstat);
-
-      if (modifyTime != bgstat.st_mtime)
-        {
-          modifyTime = bgstat.st_mtime;
-          GetClientRect(mainWnd, &bgRect);
-          InvalidateRect(mainWnd, &bgRect, TRUE);
-        }
-
-      return 0;
-    }
-
-  return 1;
-}
-
 void Desktop::DoWindowPosChanging(LPWINDOWPOS winPos)
 {
   if (minimizedWindowDeque.empty())
@@ -286,32 +268,65 @@ void Desktop::ShowMenu(UINT menu)
 
 bool Desktop::SetBackgroundImage()
 {
-  HKEY key;
-  DWORD type, bgImageSize = MAX_PATH;
-  bool ret = false;
-  struct __stat64 bgstat;
+  DWORD threadState, threadID;
 
-  KillTimer(mainWnd, BACKGROUND_TIMER);
+  // Force Desktop to repaint
+  InvalidateDesktop();
 
-  if (RegOpenKeyEx(HKEY_CURRENT_USER, TEXT("Control Panel\\Desktop\\"), 0, KEY_ALL_ACCESS,
-                   &key) == ERROR_SUCCESS)
+  // Kill any existing thread
+  GetExitCodeThread(wallpaperThread, &threadState);
+  if (threadState == STILL_ACTIVE)
+    TerminateThread(wallpaperThread, 0);
+
+  // Start a new thread to watch the wallpaper directory
+  wallpaperThread = CreateThread(NULL, 0, WallpaperThreadProc, this, 0, &threadID);
+
+  return true;
+}
+
+BOOL Desktop::InvalidateDesktop()
+{
+  RECT bgRect;
+
+  if (GetClientRect(mainWnd, &bgRect))
     {
-      if (RegQueryValueEx(key, TEXT("Wallpaper"), NULL, &type, (BYTE*)bgImage, &bgImageSize) ==
-          ERROR_SUCCESS)
-        {
-          _wstat64(bgImage, &bgstat);
-          modifyTime = bgstat.st_mtime;
-
-          SystemParametersInfo(SPI_SETDESKWALLPAPER, 0, (void*)bgImage,
-                               SPIF_UPDATEINIFILE | SPIF_SENDWININICHANGE);
-          SetTimer(mainWnd, BACKGROUND_TIMER, BACKGROUND_POLL_INTERVAL, NULL);
-
-          ret = true;
-        }
-
-      RegCloseKey(key);
+      SystemParametersInfo(SPI_SETDESKWALLPAPER, 0, SETWALLPAPER_DEFAULT, 0);
+      return InvalidateRect(mainWnd, &bgRect, TRUE);
     }
 
-  return ret;
+  return FALSE;
+}
+
+DWORD WINAPI Desktop::WallpaperThreadProc(LPVOID lpParameter UNUSED)
+{
+  // reinterpret lpParameter as a Desktop*
+  Desktop *pDesktop = reinterpret_cast< Desktop* >(lpParameter);
+
+  // Determine the wallpaper file name from the system
+  WCHAR bgFile[MAX_PATH];
+  SystemParametersInfo(SPI_GETDESKWALLPAPER, MAX_PATH, bgFile, 0);
+
+  // Strip the file name so only the path remains
+  PathRemoveFileSpec(bgFile);
+
+  // Start a watch on that directory for file writes in order to detect change
+  HANDLE dirWatch = FindFirstChangeNotification(bgFile, FALSE,
+                                                FILE_NOTIFY_CHANGE_LAST_WRITE);
+  if (dirWatch != INVALID_HANDLE_VALUE)
+    {
+      // Start an infinite loop to watch the directory
+      while (true)
+        {
+          // Wait for a file write to occur
+          WaitForSingleObject(dirWatch, INFINITE);
+          // Once it has, force Desktop to repaint
+          pDesktop->InvalidateDesktop();
+          // Restart the directory watch
+          if (FindNextChangeNotification(dirWatch) == FALSE)
+            ExitThread(0);
+        }
+    }
+
+  return 0;
 }
 

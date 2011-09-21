@@ -65,7 +65,7 @@ IDI_DEFAULT ICON  "../emergeIcons/emerge.ico"
 
 IDD_CONFIG DIALOGEX 0, 0, CONFIG_WIDTH, CONFIG_HEIGHT
 STYLE WS_POPUP | WS_VISIBLE | WS_CAPTION | DS_CENTER
-CAPTION "emergeTasks Configuration"
+CAPTION "emergeHelloWorld Configuration"
 FONT 8, "MS Shell Dlg"
 BEGIN
 END

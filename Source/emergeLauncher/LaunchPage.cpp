@@ -111,7 +111,7 @@ bool LaunchPage::CheckSaveCount(HWND hwndDlg)
   if ((saveCount != 0) || (deleteCount != 0))
     {
       if (ELMessageBox(hwndDlg,
-                       (WCHAR*)TEXT("All currently modifications will be lost.  To save and exit press OK.\n\nDo you wish to continue?"),
+                       (WCHAR*)TEXT("All current modifications will be lost.  To save and exit press OK.\n\nDo you wish to continue?"),
                        (WCHAR*)TEXT("emergeLauncher"),
                        ELMB_YESNO|ELMB_ICONQUESTION|ELMB_MODAL) == IDYES)
         return true;
@@ -1076,6 +1076,8 @@ bool LaunchPage::SaveItem(HWND hwndDlg)
 
   if (edit)
     (void)ListView_DeleteItem(listWnd, i);
+  else
+    ListView_SetItemState(listWnd, i, 0, LVIS_SELECTED);
 
   lvItem.iItem = i;
   lvItem.iSubItem = 0;

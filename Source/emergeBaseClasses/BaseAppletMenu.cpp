@@ -71,6 +71,9 @@ BaseAppletMenu::BaseAppletMenu(HWND mainWnd, HINSTANCE hInstance, WCHAR *appletN
   menuHook = NULL;
   wcscpy((*this).appletName, appletName);
   (*this).allowMultipleInstances = allowMultipleInstances;
+
+  // Hook the menus (for transparency)
+  menuHook = SetWindowsHookEx(WH_CALLWNDPROC, HookCallWndProc, 0, GetWindowThreadProcessId(mainWnd, 0));
 }
 
 BaseAppletMenu::~BaseAppletMenu()
@@ -93,14 +96,7 @@ void BaseAppletMenu::Initialize()
 
 void BaseAppletMenu::UpdateHook(DWORD menuAlpha)
 {
-  // Clear the menu hook
-  if (menuHook)
-    UnhookWindowsHookEx(menuHook);
-
   globalMenuAlpha = menuAlpha;
-
-  // Hook the menus (for transparency)
-  menuHook = SetWindowsHookEx(WH_CALLWNDPROC, HookCallWndProc, 0, GetWindowThreadProcessId(mainWnd, 0));
 }
 
 void BaseAppletMenu::BuildMenu()

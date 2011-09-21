@@ -267,7 +267,7 @@ void BaseApplet::UpdateGUI(WCHAR *styleFile)
       wndRect.left = pBaseSettings->GetX();
       wndRect.right = wndRect.left;
       AdjustRect(&wndRect);
-      if ((GetVisibleIconCount() > 0) && !appletHidden)
+      if ((GetVisibleIconCount() > 0) && !appletHidden && !fullScreen)
         SWPFlags |= SWP_SHOWWINDOW;
     }
   else
@@ -289,7 +289,7 @@ void BaseApplet::UpdateGUI(WCHAR *styleFile)
       wndRect.bottom = wndRect.top + pBaseSettings->GetHeight() + (2 * dragBorder);
       wndRect.right = wndRect.left + pBaseSettings->GetWidth() + (2 * dragBorder);
 
-      if (!appletHidden)
+      if (!appletHidden && !fullScreen)
         SWPFlags |= SWP_SHOWWINDOW;
     }
 
@@ -325,6 +325,13 @@ void BaseApplet::AdjustRect(RECT *wndRect)
 
   autoSizeInfo.hwnd = mainWnd;
   autoSizeInfo.rect = wndRect;
+  if (wcslen(pBaseSettings->GetTitleBarText()) > 0)
+    {
+      HFONT mainFont = CreateFontIndirect(pBaseSettings->GetTitleBarFont());
+      EGGetTextRect(pBaseSettings->GetTitleBarText(), mainFont, &autoSizeInfo.titleBarRect, 0);
+      if (mainFont != NULL)
+        DeleteObject(mainFont);
+    }
   autoSizeInfo.dragBorder = guiInfo.dragBorder + guiInfo.bevelWidth + guiInfo.padding;
   autoSizeInfo.iconSize = pBaseSettings->GetIconSize();
   autoSizeInfo.iconSpacing = pBaseSettings->GetIconSpacing();
@@ -501,7 +508,7 @@ LRESULT BaseApplet::DoNCLButtonUp()
 void BaseApplet::DrawAlphaBlend()
 {
   HDC hdc;
-  RECT clientrt, contentrt;
+  RECT clientrt, contentrt, customcontentrt;
   POINT srcPt;
   SIZE wndSz;
   BLENDFUNCTION bf;
@@ -511,6 +518,9 @@ void BaseApplet::DrawAlphaBlend()
     return;
 
   if (!GetClientRect(mainWnd, &clientrt))
+    return;
+
+  if (IsRectEmpty(&clientrt))
     return;
 
   hdc = EGBeginPaint(mainWnd);
@@ -536,7 +546,23 @@ void BaseApplet::DrawAlphaBlend()
     BitBlt(hdc, clientrt.left, clientrt.top, clientrt.right - clientrt.left, clientrt.bottom - clientrt.top,
            inactiveBackgroundDC, 0, 0, SRCCOPY);
 
+  if (wcslen(pBaseSettings->GetTitleBarText()) > 0)
+    {
+      HFONT mainFont = CreateFontIndirect(pBaseSettings->GetTitleBarFont());
+      RECT titleTextSizingRect;
+      EGGetTextRect(pBaseSettings->GetTitleBarText(), mainFont, &titleTextSizingRect, 0);
+      clientrt.top = clientrt.top + (titleTextSizingRect.bottom - titleTextSizingRect.top);
+      if (mainFont != NULL)
+        DeleteObject(mainFont);
+    }
+
   CopyRect(&contentrt, &clientrt);
+
+  //allow the applet to change the content area (so it can draw something in an area guaranteed to be empty)
+  CopyRect(&customcontentrt, &contentrt);
+  AdjustContentRect(&customcontentrt);
+  if ((!IsRectEmpty(&customcontentrt)) && (!EqualRect(&customcontentrt, &contentrt)))
+    CopyRect(&contentrt, &customcontentrt);
 
   InflateRect(&contentrt, -dragBorder, -dragBorder);
   PaintContent(hdc, contentrt); // Call the applet content paint routine
@@ -560,6 +586,10 @@ void BaseApplet::DrawAlphaBlend()
   // do cleanup
   EGEndPaint();
   DeleteDC(hdc);
+}
+
+void BaseApplet::AdjustContentRect(LPRECT contentRect UNUSED)
+{
 }
 
 LRESULT BaseApplet::PaintContent(HDC hdc, RECT clientrt)
@@ -766,6 +796,33 @@ LRESULT BaseApplet::PaintContent(HDC hdc, RECT clientrt)
         }
     }
 
+  if (wcslen(pBaseSettings->GetTitleBarText()) > 0)
+    {
+      CLIENTINFO clientInfo;
+      FORMATINFO formatInfo;
+      RECT titleTextSizingRect;
+      HFONT mainFont = CreateFontIndirect(pBaseSettings->GetTitleBarFont());
+
+      EGGetTextRect(pBaseSettings->GetTitleBarText(), mainFont, &titleTextSizingRect, 0);
+      RECT titleBarRect = {0, 0, clientrt.right, (titleTextSizingRect.bottom - titleTextSizingRect.top)};
+
+      formatInfo.horizontalAlignment = EGDAT_HCENTER;
+      formatInfo.verticalAlignment = EGDAT_VCENTER;
+
+      formatInfo.font = mainFont;
+      formatInfo.color = guiInfo.colorFont;
+      formatInfo.flags = 0;
+
+      clientInfo.hdc = hdc;
+      CopyRect(&clientInfo.rt, &titleBarRect);
+      clientInfo.bgAlpha = guiInfo.alphaBackground;
+
+      EGDrawAlphaText(guiInfo.alphaText, clientInfo, formatInfo, pBaseSettings->GetTitleBarText());
+
+      if (mainFont != NULL)
+        DeleteObject(mainFont);
+    }
+
   return 0;
 }
 
@@ -845,8 +902,19 @@ LRESULT BaseApplet::DoCopyData(COPYDATASTRUCT *cds)
               break;
 
             case CORE_REFRESH:
-              ZeroMemory(&oldrt, sizeof(RECT));
-              UpdateGUI(ESEGetStyle());
+              if ((notifyInfo->InstanceName != NULL) && wcslen(notifyInfo->InstanceName))
+                {
+                  if (_wcsicmp(notifyInfo->InstanceName, appletName) == 0)
+                    {
+                      ZeroMemory(&oldrt, sizeof(RECT));
+                      UpdateGUI(ESEGetStyle());
+                    }
+                }
+              else
+                {
+                  ZeroMemory(&oldrt, sizeof(RECT));
+                  UpdateGUI(ESEGetStyle());
+                }
               break;
 
             case CORE_REPOSITION:
@@ -875,8 +943,10 @@ LRESULT BaseApplet::DoCopyData(COPYDATASTRUCT *cds)
                   else
                     {
                       UpdateGUI(); // Update initial instance
-                      WriteAppletCount(-1, false); // Reset the Applet Count
-                      SpawnInstance(); // Spawn any additional instances
+                      WriteAppletCount(0, false); // Reset the Applet Count
+                      WCHAR appletPath[MAX_PATH]; // Execute the next instance
+                      if (GetModuleFileName(0, appletPath, MAX_PATH))
+                        ELExecute(appletPath);
                     }
                 }
               else
@@ -1032,18 +1102,18 @@ void BaseApplet::HideApplet(bool hide)
 {
   if (hide)
     {
-      if (!appletHidden)
+      if (IsWindowVisible(mainWnd))
         {
-          appletHidden = true;
+          //appletHidden = true;
           SetWindowPos(mainWnd, NULL, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOZORDER |
                        SWP_NOACTIVATE | SWP_HIDEWINDOW);
         }
     }
   else
     {
-      if (appletHidden)
+      if (!IsWindowVisible(mainWnd))
         {
-          appletHidden = false;
+          //appletHidden = false;
           SetWindowPos(mainWnd, NULL, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOZORDER |
                        SWP_NOACTIVATE | SWP_SHOWWINDOW);
           // If there is not active or inactive background, create one
@@ -1051,6 +1121,8 @@ void BaseApplet::HideApplet(bool hide)
             DrawAlphaBlend();
         }
     }
+
+  appletHidden = hide;
 }
 
 WCHAR *BaseApplet::GetInstanceName()
@@ -1071,20 +1143,12 @@ DWORD WINAPI BaseApplet::FullScreenThreadProc(LPVOID lpParameter)
 
       // Check if the current foreground window is full screen...
       if (ELIsFullScreen(pBaseApplet->GetMainWnd(), GetForegroundWindow()))
-        {
-          // if so set fullscreen to true...
-          pBaseApplet->SetFullScreen(true);
-          // and hide the applet
-          pBaseApplet->HideApplet(true);
-        }
+        // if so set fullscreen to true...
+        pBaseApplet->SetFullScreen(true);
       // If not and in fullscreen mode...
       else if (pBaseApplet->GetFullScreen())
-        {
-          // set fullscreen false...
-          pBaseApplet->SetFullScreen(false);
-          // and show the applet
-          pBaseApplet->HideApplet(false);
-        }
+        // set fullscreen false...
+        pBaseApplet->SetFullScreen(false);
       else
         // Fail safe to kill runaway threads
         ExitThread(0);
@@ -1109,6 +1173,26 @@ LRESULT BaseApplet::DoSysCommand(HWND hwnd, UINT message, WPARAM wParam, LPARAM 
 
 void BaseApplet::SetFullScreen(bool value)
 {
+  if (value)
+    {
+      if (IsWindowVisible(mainWnd))
+        {
+          SetWindowPos(mainWnd, NULL, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOZORDER |
+                       SWP_NOACTIVATE | SWP_HIDEWINDOW);
+        }
+    }
+  else
+    {
+      if (!IsWindowVisible(mainWnd) && !appletHidden)
+        {
+          SetWindowPos(mainWnd, NULL, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOZORDER |
+                       SWP_NOACTIVATE | SWP_SHOWWINDOW);
+          // If there is not active or inactive background, create one
+          if (!activeBackgroundDC || !inactiveBackgroundDC)
+            DrawAlphaBlend();
+        }
+    }
+
   fullScreen = value;
 }
 
@@ -1141,12 +1225,8 @@ LRESULT BaseApplet::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
           TerminateThread(fullScreenThread, 0);
           // If in fullscreen mode...
           if (fullScreen)
-            {
-              // set fullScreen to false...
-              fullScreen = false;
-              // and show the applet
-              HideApplet(false);
-            }
+            // and show the applet
+            SetFullScreen(false);
           return 1;
 
         case HSHELL_WINDOWCREATED:

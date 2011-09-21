@@ -181,6 +181,10 @@ void HotkeyCombo::ParseKeyCombo()
             key = VK_SPACE;
           else if (_wcsicmp(token, TEXT("Enter")) == 0)
             key = VK_RETURN;
+          else if (_wcsicmp(token, TEXT("\\")) == 0)
+            key = 0xBF;
+          else if (_wcsicmp(token, TEXT("`")) == 0)
+            key = VK_OEM_3;
           else if (_wcsicmp(token, TEXT("Num0")) == 0)
             key = VK_NUMPAD0;
           else if (_wcsicmp(token, TEXT("Num1")) == 0)

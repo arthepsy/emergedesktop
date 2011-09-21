@@ -222,7 +222,7 @@ bool Settings::SetCommandVerticalAlign(WCHAR *commandVerticalAlign)
 
 bool Settings::SetTimeFormat(WCHAR *timeFormat)
 {
-  if (_wcsicmp(this->timeFormat, timeFormat) != 0)
+  if (wcscmp(this->timeFormat, timeFormat) != 0)
     {
       wcscpy(this->timeFormat, timeFormat);
       SetModified();
@@ -232,7 +232,7 @@ bool Settings::SetTimeFormat(WCHAR *timeFormat)
 
 bool Settings::SetTipFormat(WCHAR *tipFormat)
 {
-  if (_wcsicmp(this->tipFormat, tipFormat) != 0)
+  if (wcscmp(this->tipFormat, tipFormat) != 0)
     {
       wcscpy(this->tipFormat, tipFormat);
       SetModified();

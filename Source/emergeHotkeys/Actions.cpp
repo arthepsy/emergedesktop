@@ -158,6 +158,7 @@ BOOL Actions::DoInitDialog(HWND hwndDlg)
   HWND keyWnd = GetDlgItem(hwndDlg, IDC_KEY);
   HWND keyTextWnd = GetDlgItem(hwndDlg, IDC_KEYTEXT);
   HWND commandWnd = GetDlgItem(hwndDlg, IDC_COMMAND);
+  HWND commandArgWnd = GetDlgItem(hwndDlg, IDC_COMMANDARG);
   HWND addWnd = GetDlgItem(hwndDlg, IDC_ADDAPP);
   HWND delWnd = GetDlgItem(hwndDlg, IDC_DELAPP);
   HWND editWnd = GetDlgItem(hwndDlg, IDC_MODAPP);
@@ -236,6 +237,7 @@ BOOL Actions::DoInitDialog(HWND hwndDlg)
   EnableWindow(altWnd, false);
   EnableWindow(appWnd, false);
   EnableWindow(commandWnd, false);
+  EnableWindow(commandArgWnd, false);
   EnableWindow(inWnd, false);
   EnableWindow(exWnd, false);
 
@@ -580,8 +582,18 @@ bool Actions::PopulateFields(HWND hwndDlg, int modIndex)
 
   ListView_GetItemText(listWnd, modIndex, 1, tmpAction, MAX_LINE_LENGTH);
 
+  std::wstring workingAction = tmpAction, workingArg;
+  size_t argDelim = workingAction.find_first_of(L" \t");
+  if (argDelim != std::wstring::npos)
+    {
+      workingArg = workingAction.substr(argDelim, workingAction.length() - argDelim);
+      size_t nonWhiteSpace = workingArg.find_first_not_of(L" \t");
+      workingArg = workingArg.substr(nonWhiteSpace, workingArg.length() - nonWhiteSpace);
+      workingAction = workingAction.substr(0, argDelim);
+    }
+
   commandIndex = (int)SendMessage(commandWnd, CB_FINDSTRINGEXACT, (WPARAM)-1,
-                                  (LPARAM)tmpAction);
+                                  (LPARAM)workingAction.c_str());
 
   EnableWindow(internalWnd, true);
   EnableWindow(externalWnd, true);
@@ -596,6 +608,7 @@ bool Actions::PopulateFields(HWND hwndDlg, int modIndex)
       SendMessage(internalWnd, BM_CLICK, 0, 0);
       SendMessage(commandWnd, CB_SETCURSEL, commandIndex, 0);
       SetDlgItemText(hwndDlg, IDC_APPLICATION, TEXT(""));
+      SetDlgItemText(hwndDlg, IDC_COMMANDARG, workingArg.c_str());
     }
   EnableWindow(internalWnd, false);
   EnableWindow(externalWnd, false);
@@ -609,6 +622,12 @@ bool Actions::DoAdd(HWND hwndDlg)
 {
   HWND listWnd = GetDlgItem(hwndDlg, IDC_ACTIONSLIST);
 
+  /**< Clear any existing selected items */
+  for (int i = 0; i < ListView_GetItemCount(listWnd); i++)
+    ListView_SetItemState(listWnd, i, 0, LVIS_SELECTED);
+
+  // Set Dialogue items after clearing the selected items, if not they won't
+  // be set correctly
   SendDlgItemMessage(hwndDlg, IDC_WIN, BM_SETCHECK, BST_UNCHECKED, 0);
   SendDlgItemMessage(hwndDlg, IDC_ALT, BM_SETCHECK, BST_UNCHECKED, 0);
   SendDlgItemMessage(hwndDlg, IDC_CTRL, BM_SETCHECK, BST_UNCHECKED, 0);
@@ -618,10 +637,6 @@ bool Actions::DoAdd(HWND hwndDlg)
   SetDlgItemText(hwndDlg, IDC_APPLICATION, TEXT(""));
   SendDlgItemMessage(hwndDlg, IDC_EXTERNAL, BM_SETCHECK, BST_CHECKED, 0);
   SendDlgItemMessage(hwndDlg, IDC_INTERNAL, BM_SETCHECK, BST_UNCHECKED, 0);
-
-  /**< Clear any existing selected items */
-  for (int i = 0; i < ListView_GetItemCount(listWnd); i++)
-    ListView_SetItemState(listWnd, i, 0, LVIS_SELECTED);
 
   return EnableFields(hwndDlg, true);
 }
@@ -663,6 +678,7 @@ bool Actions::EnableFields(HWND hwndDlg, bool enable)
   HWND altWnd = GetDlgItem(hwndDlg, IDC_ALT);
   HWND appWnd = GetDlgItem(hwndDlg, IDC_APPLICATION);
   HWND commandWnd = GetDlgItem(hwndDlg, IDC_COMMAND);
+  HWND commandArgWnd = GetDlgItem(hwndDlg, IDC_COMMANDARG);
   HWND inWnd = GetDlgItem(hwndDlg, IDC_INTERNAL);
   HWND exWnd = GetDlgItem(hwndDlg, IDC_EXTERNAL);
 
@@ -672,14 +688,18 @@ bool Actions::EnableFields(HWND hwndDlg, bool enable)
         {
           EnableWindow(appWnd, true);
           EnableWindow(commandWnd, false);
+          EnableWindow(commandArgWnd, false);
+          EnableWindow(fileWnd, true);
+          EnableWindow(folderWnd, true);
         }
       else
         {
           EnableWindow(appWnd, false);
           EnableWindow(commandWnd, true);
+          EnableWindow(commandArgWnd, true);
+          EnableWindow(fileWnd, false);
+          EnableWindow(folderWnd, false);
         }
-      EnableWindow(fileWnd, true);
-      EnableWindow(folderWnd, true);
       EnableWindow(saveWnd, true);
       EnableWindow(abortWnd, true);
       EnableWindow(keyWnd, true);
@@ -701,6 +721,7 @@ bool Actions::EnableFields(HWND hwndDlg, bool enable)
       EnableWindow(folderWnd, false);
       EnableWindow(appWnd, false);
       EnableWindow(commandWnd, false);
+      EnableWindow(commandArgWnd, false);
       EnableWindow(saveWnd, false);
       EnableWindow(abortWnd, false);
       EnableWindow(keyWnd, false);
@@ -735,7 +756,7 @@ bool Actions::DoSave(HWND hwndDlg)
   LVITEM lvItem;
   WCHAR tmpKey[MAX_LINE_LENGTH], tmpAction[MAX_LINE_LENGTH], tmp[MAX_LINE_LENGTH],
         error[MAX_LINE_LENGTH];
-  UINT index = ListView_GetItemCount(listWnd);
+  int index = ListView_GetItemCount(listWnd);
   HotkeyCombo *hc;
 
   ZeroMemory(tmpAction, MAX_LINE_LENGTH);
@@ -746,7 +767,13 @@ bool Actions::DoSave(HWND hwndDlg)
   if (SendDlgItemMessage(hwndDlg, IDC_INTERNAL, BM_GETCHECK, 0, 0) == BST_CHECKED)
     {
       GetDlgItemText(hwndDlg, IDC_COMMAND, tmp, MAX_LINE_LENGTH);
-      wcscat(tmpAction, tmp);
+      wcscpy(tmpAction, tmp);
+      GetDlgItemText(hwndDlg, IDC_COMMANDARG, tmp, MAX_LINE_LENGTH);
+      if (wcslen(tmp))
+        {
+          wcscat(tmpAction, L" ");
+          wcscat(tmpAction, tmp);
+        }
     }
   if (SendDlgItemMessage(hwndDlg, IDC_SHIFT, BM_GETCHECK, 0, 0) == BST_CHECKED)
     wcscat(tmpKey, TEXT("Shift+"));
@@ -762,8 +789,7 @@ bool Actions::DoSave(HWND hwndDlg)
   if (edit)
     {
       index = 0;
-
-      while (index < pSettings->GetHotkeyListSize())
+      while (index < ListView_GetItemCount(listWnd))
         {
           if (ListView_GetItemState(listWnd, index, LVIS_SELECTED))
             break;
@@ -771,10 +797,16 @@ bool Actions::DoSave(HWND hwndDlg)
           index++;
         }
 
+      // No selected item was found, abort the save
+      if (index == ListView_GetItemCount(listWnd))
+        return false;
+
       UnregisterHotKey(mainWnd, pSettings->GetHotkeyListItem(editIndex)->GetHotkeyID());
       pSettings->DeleteHotkeyListItem(editIndex);
 
-      (void)ListView_DeleteItem(listWnd, index);
+      // Deletion of the currently selected item failed, abort the save
+      if (!ListView_DeleteItem(listWnd, index))
+        return false;
     }
 
   if ((wcslen(tmpKey) > 0) && (wcslen(tmpAction) > 0))
@@ -815,6 +847,7 @@ bool Actions::DoSave(HWND hwndDlg)
           swprintf(error, TEXT("Failed to register Hotkey combination %s."), tmpKey);
           ELMessageBox(GetDesktopWindow(), error, (WCHAR*)TEXT("emergeHotkeys"),
                        ELMB_OK|ELMB_ICONERROR|ELMB_MODAL);
+          return false;
         }
     }
 
@@ -868,6 +901,24 @@ void Actions::PopulateKeys(HWND keyWnd)
   SendMessage(keyWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Backspace"));
   SendMessage(keyWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Space"));
   SendMessage(keyWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Enter"));
+  SendMessage(keyWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("["));
+  SendMessage(keyWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("]"));
+  SendMessage(keyWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("\\"));
+  SendMessage(keyWnd, CB_ADDSTRING, 0, (LPARAM)TEXT(";"));
+  SendMessage(keyWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("'"));
+  SendMessage(keyWnd, CB_ADDSTRING, 0, (LPARAM)TEXT(","));
+  SendMessage(keyWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("."));
+  SendMessage(keyWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("`"));
+  SendMessage(keyWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("0"));
+  SendMessage(keyWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("1"));
+  SendMessage(keyWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("2"));
+  SendMessage(keyWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("3"));
+  SendMessage(keyWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("4"));
+  SendMessage(keyWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("5"));
+  SendMessage(keyWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("6"));
+  SendMessage(keyWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("7"));
+  SendMessage(keyWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("8"));
+  SendMessage(keyWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("9"));
   SendMessage(keyWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Num0"));
   SendMessage(keyWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Num1"));
   SendMessage(keyWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Num2"));
@@ -934,6 +985,7 @@ void Actions::PopulateKeys(HWND keyWnd)
 bool Actions::DoInternal(HWND hwndDlg)
 {
   HWND commandWnd = GetDlgItem(hwndDlg, IDC_COMMAND);
+  HWND commandArgWnd = GetDlgItem(hwndDlg, IDC_COMMANDARG);
   HWND applicationWnd = GetDlgItem(hwndDlg, IDC_APPLICATION);
   HWND folderWnd = GetDlgItem(hwndDlg, IDC_FOLDER);
   HWND fileWnd = GetDlgItem(hwndDlg, IDC_FILE);
@@ -946,6 +998,7 @@ bool Actions::DoInternal(HWND hwndDlg)
   EnableWindow(folderWnd, false);
   EnableWindow(fileWnd, false);
   EnableWindow(commandWnd, true);
+  EnableWindow(commandArgWnd, true);
 
   return true;
 }
@@ -953,6 +1006,7 @@ bool Actions::DoInternal(HWND hwndDlg)
 bool Actions::DoExternal(HWND hwndDlg)
 {
   HWND commandWnd = GetDlgItem(hwndDlg, IDC_COMMAND);
+  HWND commandArgWnd = GetDlgItem(hwndDlg, IDC_COMMANDARG);
   HWND applicationWnd = GetDlgItem(hwndDlg, IDC_APPLICATION);
   HWND folderWnd = GetDlgItem(hwndDlg, IDC_FOLDER);
   HWND fileWnd = GetDlgItem(hwndDlg, IDC_FILE);
@@ -965,6 +1019,7 @@ bool Actions::DoExternal(HWND hwndDlg)
   EnableWindow(folderWnd, true);
   EnableWindow(fileWnd, true);
   EnableWindow(commandWnd, false);
+  EnableWindow(commandArgWnd, false);
 
   return true;
 }

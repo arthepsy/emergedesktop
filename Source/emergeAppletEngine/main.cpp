@@ -67,7 +67,7 @@ LRESULT EAEHitTest(HWND hwnd, int guiBorder, bool autoSize, int x, int y)
   int dragBorder = guiBorder;
 
   if (dragBorder <= 0)
-    dragBorder = 1;
+    dragBorder = 5;
 
   if (ELIsKeyDown(VK_CONTROL))
     return HTCAPTION;
@@ -273,6 +273,14 @@ bool EAEAutoSize(AUTOSIZEINFO autoSizeInfo)
 
   newRect.right = newRect.left + width;
   newRect.bottom = newRect.top + height;
+
+  if (!IsRectEmpty(&autoSizeInfo.titleBarRect))
+    {
+      newRect.bottom = newRect.bottom + (autoSizeInfo.titleBarRect.bottom - autoSizeInfo.titleBarRect.top);
+
+      if ((autoSizeInfo.titleBarRect.right - autoSizeInfo.titleBarRect.left) > (newRect.right - newRect.left))
+        newRect.right = newRect.left + (autoSizeInfo.titleBarRect.right - autoSizeInfo.titleBarRect.left);
+    }
 
   CopyRect(autoSizeInfo.rect, &newRect);
 

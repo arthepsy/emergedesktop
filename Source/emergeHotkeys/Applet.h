@@ -31,27 +31,20 @@
 class Applet: public BaseApplet
 {
 private:
-  //static HHOOK keyHook;
-  //static UINT virtualKey;
-  //static UINT keyID;
+  HHOOK keyHook;
   std::tr1::shared_ptr<Settings> pSettings;
   std::tr1::shared_ptr<Actions> pActions;
-  //HINSTANCE mainInst;
-  //HMENU mainMenu;
   UINT hotkeyCount;
-  HANDLE executeThread;
 
 public:
   Applet(HINSTANCE hInstance);
   ~Applet();
   UINT Initialize();
   void ExecuteAction(UINT index);
-  //LRESULT DoTimer(UINT index);
   LRESULT DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
-  //LRESULT KeyboardProc(int nCode, WPARAM wParam, LPARAM lParam);
   static LRESULT CALLBACK WindowProcedure (HWND, UINT, WPARAM, LPARAM);
   static DWORD WINAPI ExecuteThreadProc(LPVOID lpParameter);
-  //static LRESULT CALLBACK LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM lParam);
+  static LRESULT CALLBACK LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM lParam);
   void ShowConfig();
   void Activate();
 };

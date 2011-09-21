@@ -85,7 +85,7 @@ topic alone.
 #include <memory>
 #endif
 
-#ifdef __MINGW32__
+#if defined (__MINGW32__) && (__MINGW64_VERSION_MAJOR < 3)
 #include "../MinGWInterfaces.h"
 #else
 #include <Mmdeviceapi.h>
@@ -1084,6 +1084,24 @@ void ELDispatchCoreMessage(DWORD type, DWORD message, const WCHAR *instanceName)
 
   SendMessageTimeout(ELGetCoreWindow(), WM_COPYDATA, 0, (LPARAM)&cds,
                      SMTO_ABORTIFHUNG, 500, NULL);
+}
+
+bool ELStripShortcutExtension(WCHAR *shortcut)
+{
+  WCHAR extension[MAX_PATH];
+  bool isShortcut = false;
+
+  wcscpy(extension, PathFindExtension(shortcut));
+  isShortcut = ((_wcsicmp(extension, TEXT(".lnk")) == 0) ||
+      (_wcsicmp(extension, TEXT(".lnk2")) == 0) ||
+      (_wcsicmp(extension, TEXT(".pif")) == 0) ||
+      (_wcsicmp(extension, TEXT(".scf")) == 0) ||
+      (_wcsicmp(extension, TEXT(".pnagent")) == 0) ||
+      (_wcsicmp(extension, TEXT(".url")) == 0));
+  if (isShortcut)
+    PathRemoveExtension(shortcut);
+
+  return isShortcut;
 }
 
 //----  --------------------------------------------------------------------------------------------------------

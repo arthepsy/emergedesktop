@@ -550,10 +550,57 @@ HBITMAP EGCreateBitmap(BYTE alpha, COLORREF colour, RECT wndRect)
   return bmp;
 }
 
+HICON EGGetClassIcon(std::wstring file, int iconSize)
+{
+  HICON icon = NULL;
+  HKEY key = NULL, typeKey = NULL;
+  WCHAR type[MAX_LINE_LENGTH], iconValue[MAX_LINE_LENGTH], *token;
+  DWORD size = MAX_LINE_LENGTH;
+  std::wstring iconPath;
+  int iconIndex = 0;
+
+  size_t extensionMark = file.rfind('.');
+  if (extensionMark == std::wstring::npos)
+    return icon;
+
+  if (RegOpenKeyEx(HKEY_CLASSES_ROOT,
+                   file.substr(extensionMark, file.length() - extensionMark).c_str(),
+                   0,
+                   KEY_READ,
+                   &key) == ERROR_SUCCESS)
+    {
+      if (RegQueryValueEx(key, NULL, NULL, NULL, (BYTE*)type, &size) == ERROR_SUCCESS)
+        {
+          wcscat(type, L"\\DefaultIcon");
+          if (RegOpenKeyEx(HKEY_CLASSES_ROOT,
+                           type,
+                           0,
+                           KEY_READ,
+                           &typeKey) == ERROR_SUCCESS)
+            {
+              size = MAX_LINE_LENGTH;
+              if (RegQueryValueEx(typeKey, NULL, NULL, NULL, (BYTE*)iconValue, &size) == ERROR_SUCCESS)
+                {
+                  token = wcstok(iconValue, TEXT(","));
+                  iconPath = token;
+                  iconPath = ELExpandVars(iconPath);
+                  token = wcstok(NULL, TEXT("\n"));
+                  if (token != NULL)
+                    iconIndex = _wtoi(token);
+                  icon = EGExtractIcon(iconPath.c_str(), iconIndex, iconSize);
+                }
+              RegCloseKey(typeKey);
+            }
+        }
+      RegCloseKey(key);
+    }
+
+  return icon;
+}
+
 HICON EGGetFileIcon(const WCHAR *file, UINT iconSize)
 {
   HICON icon = NULL;
-  HICON tmpIcon = NULL;
 
   IShellFolder *deskFolder = NULL;
   IShellFolder *appObject = NULL;
@@ -608,69 +655,57 @@ HICON EGGetFileIcon(const WCHAR *file, UINT iconSize)
     }
 
   hr = SHGetDesktopFolder(&deskFolder);
-  if (FAILED(hr))
-    return icon;
-
-  hr = deskFolder->ParseDisplayName(NULL, NULL, (WCHAR*)supliedFile.c_str(), NULL, &pidlLocal, NULL);
-  if (FAILED(hr))
-    {
-      deskFolder->Release();
-      return icon;
-    }
-
-  pidlRelative = ILClone(ILFindLastID(pidlLocal));
-  ILRemoveLastID(pidlLocal);
-
-  hr = deskFolder->BindToObject(pidlLocal, NULL, IID_IShellFolder, &lpVoid);
-  if (FAILED(hr))
-    {
-      deskFolder->Release();
-      ILFree(pidlLocal);
-      return icon;
-    }
-  appObject = reinterpret_cast <IShellFolder*> (lpVoid);
-
-  ILFree(pidlLocal);
-
-  hr = appObject->GetUIObjectOf(NULL, 1, (LPCITEMIDLIST*)&pidlRelative,
-                                IID_IExtractIcon, NULL, &lpVoid);
-  if (FAILED(hr))
-    {
-      deskFolder->Release();
-      appObject->Release();
-      ILFree(pidlRelative);
-      return icon;
-    }
-  extractIcon = reinterpret_cast <IExtractIcon*> (lpVoid);
-
-  ILFree(pidlRelative);
-
-  hr = extractIcon->GetIconLocation(0, iconLocation, MAX_PATH, &iconIndex, &iconFlags);
-  if (FAILED(hr))
-    {
-      deskFolder->Release();
-      appObject->Release();
-      return icon;
-    }
-
-  // For some reason, .cpl files have an iconLocation of "*" that seems to mess up extractIcon while
-  // for other iconLocations of "*" it's fine, so add this work around for now.
-  if ((supliedFile.find(TEXT(".cpl")) != std::wstring::npos) && (wcscmp(iconLocation, TEXT("*")) == 0))
-    wcscpy(iconLocation, supliedFile.c_str());
-
-  if (iconSize == 16)
-    hr = extractIcon->Extract(iconLocation, iconIndex, &tmpIcon, &icon, MAKELONG(32, 16));
-  else
-    hr = extractIcon->Extract(iconLocation, iconIndex, &icon, &tmpIcon, MAKELONG(iconSize, 16));
-
-  extractIcon->Release();
-  appObject->Release();
-  deskFolder->Release();
-
   if (SUCCEEDED(hr))
-    DestroyIcon(tmpIcon);
+    {
+      hr = deskFolder->ParseDisplayName(NULL, NULL, (WCHAR*)supliedFile.c_str(), NULL, &pidlLocal, NULL);
+      if (SUCCEEDED(hr))
+        {
+          pidlRelative = ILClone(ILFindLastID(pidlLocal));
+          ILRemoveLastID(pidlLocal);
 
-  if (icon == NULL)
+          hr = deskFolder->BindToObject(pidlLocal, NULL, IID_IShellFolder, &lpVoid);
+          if (SUCCEEDED(hr))
+            {
+              appObject = reinterpret_cast <IShellFolder*> (lpVoid);
+              ILFree(pidlLocal);
+
+              hr = appObject->GetUIObjectOf(NULL, 1, (LPCITEMIDLIST*)&pidlRelative,
+                                            IID_IExtractIcon, NULL, &lpVoid);
+              if (SUCCEEDED(hr))
+                {
+                  extractIcon = reinterpret_cast <IExtractIcon*> (lpVoid);
+
+                  ILFree(pidlRelative);
+
+                  hr = extractIcon->GetIconLocation(GIL_FORSHELL, iconLocation, MAX_PATH, &iconIndex, &iconFlags);
+                  if (SUCCEEDED(hr))
+                    {
+                      if ((iconFlags & GIL_PERCLASS) == GIL_PERCLASS)
+                        icon = EGGetClassIcon(supliedFile, iconSize);
+                      if (((iconFlags & GIL_NOTFILENAME) == GIL_NOTFILENAME) && (icon == NULL))
+                        {
+                          // For some reason, .cpl files have an iconLocation of "*" that seems to mess up extractIcon while
+                          // for other iconLocations of "*" it's fine, so add this work around for now.
+                          if ((supliedFile.find(TEXT(".cpl")) != std::wstring::npos) && (wcscmp(iconLocation, TEXT("*")) == 0))
+                            wcscpy(iconLocation, supliedFile.c_str());
+
+                          if (iconSize == 16)
+                            hr = extractIcon->Extract(iconLocation, iconIndex, NULL, &icon, MAKELONG(0, iconSize));
+                          else
+                            hr = extractIcon->Extract(iconLocation, iconIndex, &icon, NULL, MAKELONG(iconSize, 0));
+                        }
+                    }
+                  extractIcon->Release();
+                }
+
+              appObject->Release();
+            }
+        }
+
+      deskFolder->Release();
+    }
+
+  if ((icon == NULL) && wcslen(iconLocation))
     icon = EGExtractIcon(iconLocation, iconIndex, iconSize);
 
   if (icon == NULL)
@@ -813,7 +848,38 @@ HICON EGGetSystemIcon(UINT iconIndex, UINT iconSize)
   WCHAR source[MAX_PATH];
   int iconLocation = 0;
 
-  wcscpy(source, TEXT("%SystemRoot%\\system32\\shell32.dll"));
+  if (ELVersionInfo() >= 6.0)
+    {
+      wcscpy(source, TEXT("%SystemRoot%\\system32\\imageres.dll"));
+      switch (iconIndex)
+        {
+        case ICON_DEFAULT:
+          iconLocation = 2;
+          break;
+        case ICON_RUN:
+          iconLocation = 95;
+          break;
+        case ICON_QUESTION:
+          iconLocation = 94;
+          break;
+        }
+    }
+  else
+    {
+      wcscpy(source, TEXT("%SystemRoot%\\system32\\shell32.dll"));
+      switch (iconIndex)
+        {
+        case ICON_DEFAULT:
+          iconLocation = 0;
+          break;
+        case ICON_RUN:
+          iconLocation = 24;
+          break;
+        case ICON_QUESTION:
+          iconLocation = 23;
+          break;
+        }
+    }
 
   switch (iconIndex)
     {
@@ -825,22 +891,20 @@ HICON EGGetSystemIcon(UINT iconIndex, UINT iconSize)
       wcscpy(source, TEXT("emergeIcons.dll"));
       iconLocation = 19;
       break;
-    case ICON_RUN:
-      iconLocation = 24;
-      break;
     case ICON_SHUTDOWN:
+      wcscpy(source, TEXT("%SystemRoot%\\system32\\shell32.dll"));
       iconLocation = 27;
       break;
     case ICON_LOGOFF:
+      wcscpy(source, TEXT("%SystemRoot%\\system32\\shell32.dll"));
       iconLocation = 44;
       break;
     case ICON_LOCK:
+      wcscpy(source, TEXT("%SystemRoot%\\system32\\shell32.dll"));
       iconLocation = 47;
       break;
-    case ICON_QUESTION:
-      iconLocation = 23;
-      break;
     }
+
   icon = EGExtractIcon(source, iconLocation, iconSize);
 
   return icon;

@@ -34,6 +34,8 @@ BaseSettings::BaseSettings(bool allowAutoSize)
   this->allowAutoSize = allowAutoSize;
   defaultTheme = TEXT("default");
   GBRYTheme = TEXT("GBRY");
+  if (wcslen(titleBarFontString) > 0)
+    EGStringToFont(titleBarFontString, titleBarFont);
 }
 
 BaseSettings::~BaseSettings()
@@ -179,6 +181,9 @@ void BaseSettings::DoReadSettings(IOHelper& helper)
   helper.ReadInt(TEXT("ClickThrough"), clickThrough, 0);
   helper.ReadString(TEXT("AnchorPoint"), anchorPoint, (WCHAR*)TEXT("TopLeft"));
   helper.ReadBool(TEXT("StartHidden"), startHidden, false);
+  ZeroMemory(&titleBarFont, sizeof(LOGFONT));
+  helper.ReadString(TEXT("TitleBarFont"), titleBarFontString, TEXT("Arial-16"));
+  helper.ReadString(TEXT("TitleBarText"), titleBarText, TEXT(""));
 }
 
 void BaseSettings::DoWriteSettings(IOHelper& helper)
@@ -202,6 +207,9 @@ void BaseSettings::DoWriteSettings(IOHelper& helper)
   helper.WriteInt(TEXT("Monitor"), appletMonitor);
   helper.WriteString(TEXT("AnchorPoint"), anchorPoint);
   helper.WriteBool(TEXT("StartHidden"), startHidden);
+  EGFontToString(titleBarFont, titleBarFontString);
+  helper.WriteString(TEXT("TitleBarFont"), titleBarFontString);
+  helper.WriteString(TEXT("TitleBarText"), titleBarText);
 }
 
 void BaseSettings::DoInitialize()
@@ -264,6 +272,8 @@ void BaseSettings::ResetDefaults()
   appletMonitor = 0;
   wcscpy(anchorPoint, (WCHAR*)TEXT("TopLeft"));
   startHidden = false;
+  wcscpy(titleBarFontString, (WCHAR*)TEXT("Arial-16"));
+  wcscpy(titleBarText, TEXT(""));
 }
 
 void BaseSettings::SetModified()
@@ -511,6 +521,21 @@ WCHAR *BaseSettings::GetStyleFile()
   return styleFile;
 }
 
+LOGFONT *BaseSettings::GetTitleBarFont()
+{
+  if (wcslen(titleBarFontString) == 0)
+    wcscpy(titleBarFontString, TEXT("Arial-16"));
+
+  if ((wcslen(titleBarFont.lfFaceName) == 0) && (wcslen(titleBarFontString) > 0))
+    EGStringToFont(titleBarFontString, titleBarFont);
+  return &titleBarFont;
+}
+
+WCHAR *BaseSettings::GetTitleBarText()
+{
+  return titleBarText;
+}
+
 bool BaseSettings::SetZPosition(WCHAR *zPosition)
 {
   if (_wcsicmp(this->zPosition, zPosition) != 0)
@@ -630,6 +655,29 @@ bool BaseSettings::SetStyleFile(const WCHAR *styleFile)
       SetModified();
     }
   return true;
+}
+
+bool BaseSettings::SetTitleBarFont(LOGFONT *titleBarFont)
+{
+  WCHAR tmp[MAX_LINE_LENGTH];
+  EGFontToString(*titleBarFont, tmp);
+
+  if (!EGEqualLogFont(this->titleBarFont, *titleBarFont))
+    {
+      wcscpy(titleBarFontString, tmp);
+      CopyMemory(&this->titleBarFont, titleBarFont, sizeof(LOGFONT));
+      SetModified();
+    }
+  return true;
+}
+
+void BaseSettings::SetTitleBarText(WCHAR* titleBarText)
+{
+  if (_wcsicmp(this->titleBarText, titleBarText) != 0)
+  {
+    wcscpy(this->titleBarText, titleBarText);
+    SetModified();
+  }
 }
 
 bool BaseSettings::CopyStyle()

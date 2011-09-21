@@ -741,7 +741,7 @@ bool Applet::PaintTask(Task *task)
 
 void Applet::ShowConfig()
 {
-  Config config(mainInst, mainWnd, pSettings);
+  Config config(mainInst, mainWnd, appletName, pSettings);
   int res = config.Show();
 
   if ((res == IDOK) || (res == IDCANCEL))

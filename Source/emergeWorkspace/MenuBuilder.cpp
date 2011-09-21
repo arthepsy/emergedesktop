@@ -23,7 +23,6 @@
 #include "MenuBuilder.h"
 
 WCHAR menuBuilderClass[ ] = TEXT("EmergeDesktopMenuBuilder");
-BYTE globalMenuAlpha;
 
 MenuBuilder::MenuBuilder(HINSTANCE desktopInst)
 {
@@ -34,6 +33,8 @@ MenuBuilder::MenuBuilder(HINSTANCE desktopInst)
   SetRectEmpty(&explorerWorkArea);
   dropPos = 0;
   dropMenu = NULL;
+
+  menuHook = SetWindowsHookEx(WH_CALLWNDPROC, HookCallWndProc, 0, GetCurrentThreadId());
 }
 
 bool MenuBuilder::Initialize()
@@ -94,20 +95,16 @@ bool MenuBuilder::Initialize()
   // Format the time
   setlocale(LC_TIME, "");
 
-  // Hook the menus (for transparency)
-  menuHook = NULL;
-  UpdateMenuHook();
-
   // Register to recieve the specified Emerge Desktop messages
   PostMessage(ELGetCoreWindow(), EMERGE_REGISTER, (WPARAM)menuWnd, (LPARAM)EMERGE_CORE);
 
-  /*LPVOID lpVoid;
-    customDropTarget = new CustomDropTarget();
-    customDropTarget->QueryInterface(IID_IDropTarget, &lpVoid);
-    dropTarget = reinterpret_cast <IDropTarget*> (lpVoid);
+  //  LPVOID lpVoid;
+  //  customDropTarget = new CustomDropTarget(menuWnd);
+  //  customDropTarget->QueryInterface(IID_IDropTarget, &lpVoid);
+  //  dropTarget = reinterpret_cast <IDropTarget*> (lpVoid);
 
-    if (RegisterDragDrop(menuWnd, dropTarget) != S_OK)
-    return false;*/
+  //  if (RegisterDragDrop(menuWnd, dropTarget) != S_OK)
+  //    return false;
 
   return true;
 }
@@ -135,8 +132,8 @@ MenuBuilder::~MenuBuilder()
       // Unregister the specified Emerge Desktop messages
       PostMessage(ELGetCoreWindow(), EMERGE_UNREGISTER, (WPARAM)menuWnd, (LPARAM)EMERGE_CORE);
 
-      /*dropTarget->Release();
-        RevokeDragDrop(menuWnd);*/
+      //      dropTarget->Release();
+      //      RevokeDragDrop(menuWnd);
 
       // Clear the menu hook
       if (menuHook)
@@ -240,32 +237,26 @@ LRESULT MenuBuilder::DoCopyData(COPYDATASTRUCT *cds)
           switch (notifyInfo->Message)
             {
             case CORE_SETTINGS:
-            {
-              Config config(mainInst, pSettings);
-              if (config.Show() == IDOK)
                 {
-                  UpdateMenuHook();
-                  SetWorkArea();
+                  Config config(mainInst, pSettings);
+                  if (config.Show() == IDOK)
+                    SetWorkArea();
                 }
-            }
-            break;
+              break;
 
             case CORE_SHOWCONFIG:
-            {
-              if ((notifyInfo->InstanceName != NULL) && wcslen(notifyInfo->InstanceName))
                 {
-                  if (_wcsicmp(notifyInfo->InstanceName, TEXT("emergeWorkspace")) == 0)
+                  if ((notifyInfo->InstanceName != NULL) && wcslen(notifyInfo->InstanceName))
                     {
-                      Config config(mainInst, pSettings);
-                      if (config.Show() == IDOK)
+                      if (_wcsicmp(notifyInfo->InstanceName, TEXT("emergeWorkspace")) == 0)
                         {
-                          UpdateMenuHook();
-                          SetWorkArea();
+                          Config config(mainInst, pSettings);
+                          if (config.Show() == IDOK)
+                            SetWorkArea();
                         }
                     }
                 }
-            }
-            break;
+              break;
 
             case CORE_RIGHTMENU:
               return DoButtonDown(WM_RBUTTONDOWN);
@@ -283,7 +274,6 @@ LRESULT MenuBuilder::DoCopyData(COPYDATASTRUCT *cds)
             case CORE_RECONFIGURE:
               RenameConfigFile();
               pSettings->ReadSettings();
-              UpdateMenuHook();
               SetWorkArea();
               break;
             }
@@ -572,32 +562,36 @@ LRESULT MenuBuilder::DoContextMenu(POINT pt)
         SendMessage(menuWnd, WM_CANCELMODE, 0, 0);
       break;
     case IT_TASKS_MENU:
-    {
-      HWND task = (HWND)wcstoll(value, NULL, 10);
-      res = EAEDisplayMenu(menuWnd, task);
-      switch (res)
         {
-        case SC_CLOSE:
-          DeleteMenu(iter->first, index, MF_BYPOSITION);
-          break;
-        case SC_SIZE:
-        case SC_MOVE:
-        case SC_MAXIMIZE:
-        case SC_RESTORE:
-          ELSwitchToThisWindow(task);
-          SendMessage(menuWnd, WM_CANCELMODE, 0, 0);
-          break;
+#ifdef _W64
+          HWND task = (HWND)_wcstoi64(value, NULL, 10);
+#else
+          HWND task = (HWND)wcstol(value, NULL, 10);
+#endif
+          res = EAEDisplayMenu(menuWnd, task);
+          switch (res)
+            {
+            case SC_CLOSE:
+              DeleteMenu(iter->first, index, MF_BYPOSITION);
+              break;
+            case SC_SIZE:
+            case SC_MOVE:
+            case SC_MAXIMIZE:
+            case SC_RESTORE:
+              ELSwitchToThisWindow(task);
+              SendMessage(menuWnd, WM_CANCELMODE, 0, 0);
+              break;
+            }
+          if (res)
+            PostMessage(task, WM_SYSCOMMAND, (WPARAM)res, MAKELPARAM(pt.x, pt.y));
         }
-      if (res)
-        PostMessage(task, WM_SYSCOMMAND, (WPARAM)res, MAKELPARAM(pt.x, pt.y));
-    }
-    break;
-    /*case IT_SETTINGS_MENU:
-      ExecuteSettingsMenuItem(itemID);
-      break;*/
-    /*case IT_HELP_MENU:
-      ExecuteSettingsMenuItem(itemID);
-      break;*/
+      break;
+      /*case IT_SETTINGS_MENU:
+        ExecuteSettingsMenuItem(itemID);
+        break;*/
+      /*case IT_HELP_MENU:
+        ExecuteSettingsMenuItem(itemID);
+        break;*/
     }
 
   return 1;
@@ -782,30 +776,42 @@ HWND MenuBuilder::GetWnd()
 //----  --------------------------------------------------------------------------------------------------------
 LRESULT CALLBACK MenuBuilder::HookCallWndProc(int nCode, WPARAM wParam, LPARAM lParam)
 {
-  CWPSTRUCT cwps;
+  // reinterpret lParam as a CWPSTRUCT*
+  CWPSTRUCT *pcwps = reinterpret_cast< CWPSTRUCT* >(lParam);
+  CREATESTRUCT *cs;
+  static MenuBuilder *pMenuBuilder = NULL;
 
   if ( nCode == HC_ACTION )
     {
-      CopyMemory(&cwps, (LPVOID)lParam, sizeof(CWPSTRUCT));
-
-      switch (cwps.message)
-        {
-        case WM_CREATE:
-        {
-          WCHAR szClass[128];
-          GetClassName(cwps.hwnd, szClass, 127);
-          if (_wcsicmp(szClass, TEXT("#32768"))==0)
-            {
-              SetWindowLongPtr(cwps.hwnd,
-                               GWL_EXSTYLE,
-                               GetWindowLongPtr(cwps.hwnd, GWL_EXSTYLE) | WS_EX_LAYERED);
-              SetLayeredWindowAttributes(cwps.hwnd,
-                                         0,
-                                         (BYTE)((255 * globalMenuAlpha) / 100), LWA_ALPHA);
-            }
-        }
-        break;
-        }
+      WCHAR szClass[128];
+      GetClassName(pcwps->hwnd, szClass, 127);
+      if (_wcsicmp(szClass, TEXT("EmergeDesktopMenuBuilder")) == 0)
+        switch (pcwps->message)
+          {
+          case WM_CREATE:
+            cs = (CREATESTRUCT*)pcwps->lParam;
+            pMenuBuilder = reinterpret_cast<MenuBuilder*>(cs->lpCreateParams);
+            break;
+          }
+      if ((_wcsicmp(szClass, TEXT("#32768"))==0) && pMenuBuilder)
+        switch (pcwps->message)
+          {
+          case WM_CREATE:
+            SetWindowLongPtr(pcwps->hwnd,
+                             GWL_EXSTYLE,
+                             GetWindowLongPtr(pcwps->hwnd, GWL_EXSTYLE) | WS_EX_LAYERED);
+            SetLayeredWindowAttributes(pcwps->hwnd,
+                                       0,
+                                       (BYTE)((255 * pMenuBuilder->GetMenuAlpha()) / 100), LWA_ALPHA);
+            break;
+          // capture the MN_SELECTITEM message
+          case MN_SELECTITEM:
+            // Check to see if it's the up or down arrow and if so...
+            if ((pcwps->wParam == MENU_DOWN) || (pcwps->wParam == MENU_UP))
+              // ...send a MN_BUTTONDOWN message to the menu window with that
+              // arrow
+              SendMessage(pcwps->hwnd, MN_BUTTONDOWN, pcwps->wParam, 0);
+          }
     }
 
   return CallNextHookEx((HHOOK)WH_CALLWNDPROC, nCode, wParam, lParam);
@@ -1495,10 +1501,11 @@ void MenuBuilder::BuildFileMenuFromString(MenuMap::iterator iter, WCHAR *parsedV
           MenuItem *menuItem;
           wcscpy(extension, PathFindExtension(tmp));
           bool isShortcut = (_wcsicmp(extension, TEXT(".lnk")) == 0) ||
-                            (_wcsicmp(extension, TEXT(".pif")) == 0) ||
-                            (_wcsicmp(extension, TEXT(".scf")) == 0) ||
-                            (_wcsicmp(extension, TEXT(".pnagent")) == 0) ||
-                            (_wcsicmp(extension, TEXT(".url")) == 0);
+            (_wcsicmp(extension, TEXT(".lnk2")) == 0) ||
+            (_wcsicmp(extension, TEXT(".pif")) == 0) ||
+            (_wcsicmp(extension, TEXT(".scf")) == 0) ||
+            (_wcsicmp(extension, TEXT(".pnagent")) == 0) ||
+            (_wcsicmp(extension, TEXT(".url")) == 0);
 
           wcscpy(entry, tmp);
           wcscpy(tmp, findData.cFileName);
@@ -1646,11 +1653,6 @@ void MenuBuilder::AddTaskItem(HWND task)
     return;
 
   swprintf(tmp, TEXT("%d"), (ULONG_PTR)task);
-
-  itemInfo.cbSize = sizeof(MENUITEMINFO);
-  itemInfo.dwTypeData = windowTitle;
-  itemInfo.wID = GetMenuItemCount(iter->first) + 1;
-
   menuItem = new MenuItem(windowTitle, 0, tmp, NULL, NULL);
 
   itemInfo.fMask = MIIM_STRING | MIIM_ID;
@@ -1669,6 +1671,11 @@ void MenuBuilder::AddTaskItem(HWND task)
           itemInfo.hbmpItem = EGGetIconBitmap(menuItem->GetIcon());
         }
     }
+
+  itemInfo.cbSize = sizeof(MENUITEMINFO);
+  itemInfo.dwTypeData = windowTitle;
+
+  itemInfo.wID = GetMenuItemCount(iter->first) + 1;
 
   iter->second->AddMenuItem(menuItem);
 
@@ -1706,6 +1713,7 @@ bool MenuBuilder::NoPrefixString(WCHAR *source)
 
 LRESULT MenuBuilder::DoButtonDown(UINT button)
 {
+  MENUINFO menuInfo;
   WCHAR menuName[MAX_LINE_LENGTH];
   LRESULT ret = 1;
   POINT mousePT;
@@ -1759,29 +1767,18 @@ LRESULT MenuBuilder::DoButtonDown(UINT button)
           if (menu)
             {
               ClearAllMenus();
-              rootMenu = CreatePopupMenu();
               mli = std::tr1::shared_ptr<MenuListItem>(new MenuListItem(menuName, 100, NULL, menu));
+              rootMenu = CreatePopupMenu();
               menuMap.insert(std::pair< HMENU, std::tr1::
                              shared_ptr<MenuListItem> >(rootMenu, mli));
               iter = menuMap.begin();
 
               // MNS_DRAGDROG must be set before the menu is visible.
-              MONITORINFO monitorInfo;
-              HMONITOR monitor;
-              UINT monitorHeight;
-              MENUINFO menuInfo;
-
-              monitor = MonitorFromPoint(mousePT, MONITOR_DEFAULTTONEAREST);
-              monitorInfo.cbSize = sizeof(MONITORINFO);
-              GetMonitorInfo(monitor, &monitorInfo);
-              monitorHeight = abs(monitorInfo.rcMonitor.bottom - monitorInfo.rcMonitor.top);
-
               menuInfo.cbSize = sizeof(menuInfo);
-              menuInfo.fMask = MIM_MAXHEIGHT | MIM_STYLE;
+              menuInfo.fMask = MIM_STYLE;
               if (GetMenuInfo(rootMenu, &menuInfo))
                 {
                   menuInfo.fMask |= MIM_APPLYTOSUBMENUS;
-                  menuInfo.cyMax = monitorHeight;
                   menuInfo.dwStyle |= MNS_DRAGDROP;
                   SetMenuInfo(rootMenu, &menuInfo);
                 }
@@ -1804,21 +1801,28 @@ LRESULT MenuBuilder::DoButtonDown(UINT button)
 LRESULT MenuBuilder::DoInitMenu(HMENU menu)
 {
   MenuMap::iterator iter;
+  POINT mousePT;
+  MONITORINFO monitorInfo;
   MENUINFO menuInfo;
+  HMONITOR monitor;
+  UINT monitorHeight;
 
   iter = menuMap.find(menu);
   if (iter == menuMap.end())
     return 1;
 
-  // MNS_CHECKORBMP needs to be set per menu as setting in DoButtonDown causes
-  // odd spacing in the menu.
+  GetCursorPos(&mousePT);
+
+  monitor = MonitorFromPoint(mousePT, MONITOR_DEFAULTTONEAREST);
+  monitorInfo.cbSize = sizeof(MONITORINFO);
+  GetMonitorInfo(monitor, &monitorInfo);
+  monitorHeight = abs(monitorInfo.rcMonitor.bottom - monitorInfo.rcMonitor.top);
+
   menuInfo.cbSize = sizeof(MENUINFO);
-  menuInfo.fMask = MIM_STYLE;
-  if (GetMenuInfo(rootMenu, &menuInfo))
-    {
-      menuInfo.dwStyle |= MNS_CHECKORBMP;
-      SetMenuInfo(menu, &menuInfo);
-    }
+  menuInfo.fMask = MIM_MAXHEIGHT | MIM_STYLE;
+  menuInfo.cyMax = monitorHeight;
+  menuInfo.dwStyle = MNS_CHECKORBMP;
+  SetMenuInfo(menu, &menuInfo);
 
   BuildMenu(iter);
 
@@ -1851,7 +1855,11 @@ LRESULT MenuBuilder::ExecuteMenuItem(UINT itemID)
         ELMessageBox(GetDesktopWindow(), error, (WCHAR*)TEXT("emergeWorkspace"), ELMB_ICONWARNING|ELMB_OK);
       break;
     case IT_TASKS_MENU:
-      ELSwitchToThisWindow((HWND)wcstoll(menuItem->GetValue(), NULL, 10));
+#ifdef _W64
+      ELSwitchToThisWindow((HWND)_wcstoi64(menuItem->GetValue(), NULL, 10));
+#else
+      ELSwitchToThisWindow((HWND)wcstol(menuItem->GetValue(), NULL, 10));
+#endif
       break;
     case IT_SETTINGS_MENU:
       ExecuteSettingsMenuItem(itemID);
@@ -1983,8 +1991,8 @@ void MenuBuilder::BuildHelpMenu(MenuMap::iterator iter)
 void MenuBuilder::AddSettingsItem(MenuMap::iterator iter, WCHAR* text, UINT id)
 {
   MENUITEMINFO itemInfo;
-  UINT index = GetMenuItemCount(iter->first);
   MenuItem *menuItem = new MenuItem(text, 0, text, NULL, NULL);
+  UINT index = GetMenuItemCount(iter->first);
 
   itemInfo.fMask = MIIM_STRING | MIIM_ID;
   if (id == BSM_SEPARATOR)
@@ -2044,10 +2052,7 @@ void MenuBuilder::ExecuteSettingsMenuItem(UINT index)
     case BSM_CONFIGURE:
       res = config.Show();
       if (res == IDOK)
-        {
-          SetWorkArea();
-          UpdateMenuHook();
-        }
+        SetWorkArea();
       break;
     case BSM_CORE:
       ELExecuteInternal((WCHAR*)TEXT("LaunchEditor"));
@@ -2083,16 +2088,9 @@ void MenuBuilder::ExecuteHelpMenuItem(UINT index)
     }
 }
 
-void MenuBuilder::UpdateMenuHook()
+BYTE MenuBuilder::GetMenuAlpha()
 {
-  globalMenuAlpha = pSettings->GetMenuAlpha();
-
-  // Clear the menu hook
-  if (menuHook)
-    UnhookWindowsHookEx(menuHook);
-
-  // Hook the menus (for transparency)
-  menuHook = SetWindowsHookEx(WH_CALLWNDPROC, HookCallWndProc, 0, GetWindowThreadProcessId(menuWnd, 0));
+  return pSettings->GetMenuAlpha();
 }
 
 BOOL CALLBACK MenuBuilder::SetMonitorArea(HMONITOR hMonitor, HDC hdcMonitor UNUSED, LPRECT lprcMonitor UNUSED, LPARAM dwData)

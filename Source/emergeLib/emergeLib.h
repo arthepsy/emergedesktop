@@ -58,6 +58,9 @@ typedef enum _ITEMTYPE {
   IT_INTERNAL_COMMAND,
   IT_DATE_TIME,
   IT_SPECIAL_FOLDER,
+  IT_ENTIRE_FOLDER,
+  IT_LIVE_FOLDER,
+  IT_LIVE_FOLDER_ITEM,
   IT_XML_MENU = 100,
   IT_FILE_MENU,
   IT_TASKS_MENU,
@@ -476,4 +479,5 @@ DLL_EXPORT BOOL ELGetWindowRect(HWND hwnd, RECT *rect);
 DLL_EXPORT bool ELPopulateInternalCommandList(HWND hwnd);
 DLL_EXPORT void ELDispatchCoreMessage(DWORD type, DWORD message, const WCHAR *instanceName = NULL);
 DLL_EXPORT bool ELPathIsDirectory(const WCHAR *path);
+DLL_EXPORT bool ELStripShortcutExtension(WCHAR *shortcut);
 #endif

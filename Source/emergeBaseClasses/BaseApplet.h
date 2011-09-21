@@ -92,9 +92,8 @@ public:
   WCHAR *GetInstanceName();
 
 private:
-  WCHAR appletName[MAX_LINE_LENGTH], baseAppletName[MAX_LINE_LENGTH];
   int appletCount;
-  bool fullScreen, allowAutoSize, allowMultipleInstances;
+  bool allowAutoSize, allowMultipleInstances;
   RECT referenceRect;
   HANDLE displayChangeThread, fullScreenThread, multiInstanceLock;
   HANDLE instanceManagementMutex;
@@ -107,9 +106,10 @@ private:
   bool firstRun;
 
 protected:
+  WCHAR appletName[MAX_LINE_LENGTH], baseAppletName[MAX_LINE_LENGTH];
   HWND mainWnd, toolWnd;
   HINSTANCE mainInst;
-  bool mouseOver, appletHidden;
+  bool mouseOver, appletHidden, fullScreen;
   UINT ShellMessage;
   POINT anchor;
   GUIINFO guiInfo;
@@ -119,6 +119,7 @@ protected:
   void DrawAlphaBlend();
   virtual LRESULT PaintContent(HDC hdc, RECT clientrt);
   virtual void AppletUpdate();
+  virtual void AdjustContentRect(LPRECT contentRect);
   virtual void Activate();
   virtual void ShowConfig();
   virtual bool PaintItem(HDC hdc, UINT index, int x, int y, RECT rect);

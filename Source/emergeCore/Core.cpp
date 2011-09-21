@@ -390,11 +390,10 @@ LRESULT Core::DoCopyData(COPYDATASTRUCT *cds)
 
                   ConvertTheme();
                   pSettings->ReadSettings();
-                  // Tell the applets to reconfigure before...
-                  pMessageControl->DispatchMessage(EMERGE_CORE, CORE_RECONFIGURE, NULL);
-                  // Checking existing applets and running any additiona
-                  // applets to correct and issue with multiple instances.
+                  // Check existing applets and run any additional applets
                   CheckLaunchList();
+                  // Tell the existing applets to reconfigure
+                  pMessageControl->DispatchMessage(EMERGE_CORE, CORE_RECONFIGURE, NULL);
                   if (oldShowExplorerDesktop != pSettings->GetShowExplorerDesktop())
                     {
                       StartExplorer(pSettings->GetShowExplorerDesktop());
