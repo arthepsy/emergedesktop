@@ -582,18 +582,8 @@ bool Actions::PopulateFields(HWND hwndDlg, int modIndex)
 
   ListView_GetItemText(listWnd, modIndex, 1, tmpAction, MAX_LINE_LENGTH);
 
-  std::wstring workingAction = tmpAction, workingArg;
-  size_t argDelim = workingAction.find_first_of(L" \t");
-  if (argDelim != std::wstring::npos)
-    {
-      workingArg = workingAction.substr(argDelim, workingAction.length() - argDelim);
-      size_t nonWhiteSpace = workingArg.find_first_not_of(L" \t");
-      workingArg = workingArg.substr(nonWhiteSpace, workingArg.length() - nonWhiteSpace);
-      workingAction = workingAction.substr(0, argDelim);
-    }
-
   commandIndex = (int)SendMessage(commandWnd, CB_FINDSTRINGEXACT, (WPARAM)-1,
-                                  (LPARAM)workingAction.c_str());
+                                  (LPARAM)ELStripInternalCommandArg(tmpAction).c_str());
 
   EnableWindow(internalWnd, true);
   EnableWindow(externalWnd, true);
@@ -602,13 +592,14 @@ bool Actions::PopulateFields(HWND hwndDlg, int modIndex)
       SendMessage(externalWnd, BM_CLICK, 0, 0);
       SetDlgItemText(hwndDlg, IDC_APPLICATION, tmpAction);
       SendMessage(commandWnd, CB_SETCURSEL, (WPARAM)-1, 0);
+      SetDlgItemText(hwndDlg, IDC_COMMANDARG, TEXT(""));
     }
   else
     {
       SendMessage(internalWnd, BM_CLICK, 0, 0);
       SendMessage(commandWnd, CB_SETCURSEL, commandIndex, 0);
       SetDlgItemText(hwndDlg, IDC_APPLICATION, TEXT(""));
-      SetDlgItemText(hwndDlg, IDC_COMMANDARG, workingArg.c_str());
+      SetDlgItemText(hwndDlg, IDC_COMMANDARG, ELGetInternalCommandArg(tmpAction).c_str());
     }
   EnableWindow(internalWnd, false);
   EnableWindow(externalWnd, false);

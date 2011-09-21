@@ -1090,15 +1090,40 @@ bool ELStripShortcutExtension(WCHAR *shortcut)
 
   wcscpy(extension, PathFindExtension(shortcut));
   isShortcut = ((_wcsicmp(extension, TEXT(".lnk")) == 0) ||
-      (_wcsicmp(extension, TEXT(".lnk2")) == 0) ||
-      (_wcsicmp(extension, TEXT(".pif")) == 0) ||
-      (_wcsicmp(extension, TEXT(".scf")) == 0) ||
-      (_wcsicmp(extension, TEXT(".pnagent")) == 0) ||
-      (_wcsicmp(extension, TEXT(".url")) == 0));
+                (_wcsicmp(extension, TEXT(".lnk2")) == 0) ||
+                (_wcsicmp(extension, TEXT(".pif")) == 0) ||
+                (_wcsicmp(extension, TEXT(".scf")) == 0) ||
+                (_wcsicmp(extension, TEXT(".pnagent")) == 0) ||
+                (_wcsicmp(extension, TEXT(".url")) == 0));
   if (isShortcut)
     PathRemoveExtension(shortcut);
 
   return isShortcut;
+}
+
+std::wstring ELGetInternalCommandArg(std::wstring internalCommand)
+{
+  std::wstring workingArg;
+  size_t argDelim = internalCommand.find_first_of(L" \t");
+
+  if (argDelim != std::wstring::npos)
+    {
+      workingArg = internalCommand.substr(argDelim, internalCommand.length() - argDelim);
+      size_t nonWhiteSpace = workingArg.find_first_not_of(L" \t");
+      workingArg = workingArg.substr(nonWhiteSpace, workingArg.length() - nonWhiteSpace);
+    }
+
+  return workingArg;
+}
+
+std::wstring ELStripInternalCommandArg(std::wstring internalCommand)
+{
+  size_t argDelim = internalCommand.find_first_of(L" \t");
+
+  if (argDelim != std::wstring::npos)
+    internalCommand = internalCommand.substr(0, argDelim);
+
+  return internalCommand;
 }
 
 //----  --------------------------------------------------------------------------------------------------------
