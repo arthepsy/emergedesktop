@@ -34,8 +34,6 @@ BaseSettings::BaseSettings(bool allowAutoSize)
   this->allowAutoSize = allowAutoSize;
   defaultTheme = TEXT("default");
   GBRYTheme = TEXT("GBRY");
-  if (wcslen(titleBarFontString) > 0)
-    EGStringToFont(titleBarFontString, titleBarFont);
 }
 
 BaseSettings::~BaseSettings()
@@ -181,7 +179,6 @@ void BaseSettings::DoReadSettings(IOHelper& helper)
   helper.ReadInt(TEXT("ClickThrough"), clickThrough, 0);
   helper.ReadString(TEXT("AnchorPoint"), anchorPoint, (WCHAR*)TEXT("TopLeft"));
   helper.ReadBool(TEXT("StartHidden"), startHidden, false);
-  ZeroMemory(&titleBarFont, sizeof(LOGFONT));
   helper.ReadString(TEXT("TitleBarFont"), titleBarFontString, TEXT("Arial-16"));
   helper.ReadString(TEXT("TitleBarText"), titleBarText, TEXT(""));
 }
@@ -214,7 +211,8 @@ void BaseSettings::DoWriteSettings(IOHelper& helper)
 
 void BaseSettings::DoInitialize()
 {
-  // nothing to be initialized here. Maybe in the derived classes.
+  if (wcslen(titleBarFontString))
+    EGStringToFont(titleBarFontString, titleBarFont);
 }
 
 POINT BaseSettings::InstancePosition(SIZE appletSize)
@@ -523,11 +521,6 @@ WCHAR *BaseSettings::GetStyleFile()
 
 LOGFONT *BaseSettings::GetTitleBarFont()
 {
-  if (wcslen(titleBarFontString) == 0)
-    wcscpy(titleBarFontString, TEXT("Arial-16"));
-
-  if ((wcslen(titleBarFont.lfFaceName) == 0) && (wcslen(titleBarFontString) > 0))
-    EGStringToFont(titleBarFontString, titleBarFont);
   return &titleBarFont;
 }
 
@@ -674,10 +667,10 @@ bool BaseSettings::SetTitleBarFont(LOGFONT *titleBarFont)
 void BaseSettings::SetTitleBarText(WCHAR* titleBarText)
 {
   if (_wcsicmp(this->titleBarText, titleBarText) != 0)
-  {
-    wcscpy(this->titleBarText, titleBarText);
-    SetModified();
-  }
+    {
+      wcscpy(this->titleBarText, titleBarText);
+      SetModified();
+    }
 }
 
 bool BaseSettings::CopyStyle()
