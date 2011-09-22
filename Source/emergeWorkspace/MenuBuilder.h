@@ -68,6 +68,10 @@
 #define MN_BUTTONDOWN 0x01ED
 #endif
 
+#ifndef MN_BUTTONUP
+#define MN_BUTTONUP 0x01EF
+#endif
+
 #define MENU_DOWN   0xFFFFFFFD
 #define MENU_UP     0xFFFFFFFC
 
