@@ -54,6 +54,7 @@ LRESULT CALLBACK Applet::TrayProcedure (HWND hwnd, UINT message, WPARAM wParam, 
 {
   COPYDATASTRUCT *cpData;
   CREATESTRUCT *cs;
+  WINDOWPOS *wndPos;
   static Applet *pApplet = NULL;
 
   if (message == WM_CREATE)
@@ -83,7 +84,18 @@ LRESULT CALLBACK Applet::TrayProcedure (HWND hwnd, UINT message, WPARAM wParam, 
         }
       break;
 
-      // If not handled just forward the message on
+      // IrfanView forces the tray window to be visible when it returns from
+      // fullscreen mode.  As such, capture the WM_WINDOWPOSCHANGING message...
+    case WM_WINDOWPOSCHANGING:
+      wndPos = (WINDOWPOS*)lParam;
+      // ... make sure the window is at the bottom of the z-order...
+      wndPos->hwndInsertAfter = HWND_BOTTOM;
+      // ... and make sure it stays hidden
+      wndPos->flags &= ~SWP_SHOWWINDOW;
+      wndPos->flags |= SWP_HIDEWINDOW;
+      break;
+
+    // If not handled just forward the message on
     default:
       return DefWindowProc(hwnd, message, wParam, lParam);
     }
