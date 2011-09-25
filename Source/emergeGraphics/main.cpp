@@ -1184,6 +1184,7 @@ void EGStringToFont(const WCHAR *fontString, LOGFONT& logFont)
     }
   DeleteDC(hdc);
   free(workingFontString);
+  logFont.lfCharSet = DEFAULT_CHARSET;
 }
 
 HBITMAP EGGetIconBitmap(HICON sourceIcon)
