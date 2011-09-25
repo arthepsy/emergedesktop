@@ -1162,6 +1162,8 @@ void EGStringToFont(const WCHAR *fontString, LOGFONT& logFont)
   WCHAR *token;
   WCHAR *workingFontString = _wcsdup(fontString);
   HDC hdc = CreateCompatibleDC(NULL);
+
+  ZeroMemory(&logFont, sizeof(LOGFONT));
   token = wcstok((WCHAR*)workingFontString, TEXT("-"));
   wcscpy(logFont.lfFaceName, token);
   token = wcstok(NULL, TEXT("-"));
@@ -1184,7 +1186,10 @@ void EGStringToFont(const WCHAR *fontString, LOGFONT& logFont)
     }
   DeleteDC(hdc);
   free(workingFontString);
+
   logFont.lfCharSet = DEFAULT_CHARSET;
+  logFont.lfOutPrecision = OUT_DEFAULT_PRECIS;
+  logFont.lfClipPrecision = CLIP_DEFAULT_PRECIS;
 }
 
 HBITMAP EGGetIconBitmap(HICON sourceIcon)
