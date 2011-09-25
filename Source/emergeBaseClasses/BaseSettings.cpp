@@ -159,6 +159,8 @@ bool BaseSettings::WriteSettings()
 
 void BaseSettings::DoReadSettings(IOHelper& helper)
 {
+  ZeroMemory(&titleBarFont, sizeof(LOGFONT));
+
   helper.ReadInt(TEXT("Monitor"), appletMonitor, 0);
   helper.ReadInt(TEXT("X"), x, 0);
   helper.ReadInt(TEXT("Y"), y, 0);
