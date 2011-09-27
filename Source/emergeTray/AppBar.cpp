@@ -20,42 +20,19 @@
 
 #include "AppBar.h"
 
-AppBar::AppBar(HWND wnd, APPBARDATA abd, bool autoHide)
+AppBar::AppBar(APPBARDATA *pAppBarData)
 {
-  MONITORINFO appletMonitorInfo;
-  appletMonitorInfo.cbSize = sizeof(MONITORINFO);
-  HMONITOR appletMonitor = MonitorFromWindow(localWnd, MONITOR_DEFAULTTONEAREST);
-
-  localWnd = wnd;
-  CopyMemory(&localABD, &abd, sizeof(APPBARDATA));
-  localAutoHide = autoHide;
-
-  ELGetWindowRect(localWnd, &localABD.rc);
-  localABD.uEdge = ABE_BOTTOM;
-
-  if (GetMonitorInfo(appletMonitor, &appletMonitorInfo))
-    {
-      int topDelta = abs(localABD.rc.top - appletMonitorInfo.rcMonitor.top);
-      int bottomDelta = abs(appletMonitorInfo.rcMonitor.bottom - localABD.rc.bottom);
-      int leftDelta = abs(localABD.rc.left - appletMonitorInfo.rcMonitor.left);
-      int rightDelta = abs(appletMonitorInfo.rcMonitor.right - localABD.rc.right);
-
-      if ((leftDelta < topDelta) && (leftDelta < bottomDelta) && (leftDelta < rightDelta))
-        localABD.uEdge = ABE_LEFT;
-      else if ((rightDelta < topDelta) && (rightDelta < bottomDelta) && (rightDelta < leftDelta))
-        localABD.uEdge = ABE_RIGHT;
-      else if (topDelta < bottomDelta)
-        localABD.uEdge = ABE_TOP;
-    }
+  CopyMemory(&localABD, &pAppBarData, sizeof(APPBARDATA));
+  localAutoHide = false;
 }
 
 AppBar::~AppBar()
 {
 }
 
-bool AppBar::IsEqual(APPBARDATA abd)
+bool AppBar::IsEqual(APPBARDATA *pAppBarData)
 {
-  return ((abd.cbSize == localABD.cbSize) && (abd.hWnd == localABD.hWnd));
+  return ((pAppBarData->cbSize == localABD.cbSize) && (pAppBarData->hWnd == localABD.hWnd));
 }
 
 bool AppBar::IsAutoHide()
@@ -89,4 +66,3 @@ HWND AppBar::GetWnd()
 {
   return localABD.hWnd;
 }
-
