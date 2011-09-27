@@ -144,6 +144,7 @@ static HMODULE shell32DLL = NULL;
 static HMODULE user32DLL = NULL;
 static HMODULE kernel32DLL = NULL;
 static HMODULE dwmapiDLL = NULL;
+static HMODULE shlwapiDLL = NULL;
 static HINSTANCE emergeLibInstance = NULL;
 
 // Globally shared data
@@ -180,6 +181,12 @@ static fnDwmIsCompositionEnabled MSDwmIsCompositionEnabled = NULL;
 typedef HRESULT (WINAPI *fnDwmGetWindowAttribute)(HWND, DWORD, PVOID, DWORD);
 static fnDwmGetWindowAttribute MSDwmGetWindowAttribute = NULL;
 
+typedef void* (WINAPI *fnSHLockShared)(HANDLE, DWORD);
+static fnSHLockShared MSSHLockShared = NULL;
+
+typedef BOOL (WINAPI *fnSHUnlockShared)(void*);
+static fnSHUnlockShared MSSHUnlockShared = NULL;
+
 typedef enum _DWMWINDOWATTRIBUTE
 {
   DWMWA_NCRENDERING_ENABLED           = 1,
@@ -211,8 +218,15 @@ extern "C" BOOL WINAPI DllMain(HINSTANCE hinstDLL UNUSED, DWORD fdwReason, LPVOI
         kernel32DLL = ELLoadSystemLibrary(TEXT("kernel32.dll"));
       if (dwmapiDLL == NULL)
         dwmapiDLL = ELLoadSystemLibrary(TEXT("dwmapi.dll"));
+      if (shlwapiDLL == NULL)
+        shlwapiDLL = ELLoadSystemLibrary(TEXT("shlwapi.dll"));
       break;
     case DLL_PROCESS_DETACH:
+      if (shlwapiDLL != NULL)
+        {
+          FreeLibrary(shlwapiDLL);
+          shlwapiDLL = NULL;
+        }
       if (shell32DLL != NULL)
         {
           FreeLibrary(shell32DLL);
@@ -232,6 +246,34 @@ extern "C" BOOL WINAPI DllMain(HINSTANCE hinstDLL UNUSED, DWORD fdwReason, LPVOI
     }
 
   return TRUE;
+}
+
+void *ELLockShared(HANDLE sharedMem, DWORD processID)
+{
+  if (shlwapiDLL)
+    {
+      if (MSSHLockShared == NULL)
+        MSSHLockShared = (fnSHLockShared)GetProcAddress(shlwapiDLL, (LPCSTR)8);
+    }
+
+  if (MSSHLockShared && sharedMem)
+    return MSSHLockShared(sharedMem, processID);
+
+  return NULL;
+}
+
+BOOL ELUnlockShared(void *sharedPtr)
+{
+  if (shlwapiDLL)
+    {
+      if (MSSHUnlockShared == NULL)
+        MSSHUnlockShared = (fnSHUnlockShared)GetProcAddress(shlwapiDLL, (LPCSTR)9);
+    }
+
+  if (MSSHUnlockShared && sharedPtr)
+    return MSSHUnlockShared(sharedPtr);
+
+  return FALSE;
 }
 
 BOOL ELGetWindowRect(HWND hwnd, RECT *rect)
