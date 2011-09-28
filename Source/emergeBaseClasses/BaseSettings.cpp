@@ -196,6 +196,18 @@ void BaseSettings::DoReadSettings(IOHelper& helper)
             }
         }
     }
+  else
+    {
+      WCHAR tmp[MAX_LINE_LENGTH];
+      // ... if found, check for a 'Scheme' entry...
+      if (helper.ReadString(TEXT("Scheme"), tmp, TEXT("\0")))
+        {
+          // ... and remove it.
+          if (helper.RemoveElement(TEXT("Scheme")))
+            ELWriteXMLConfig(ELGetXMLConfig(helper.GetSection()));
+        }
+
+    }
 }
 
 void BaseSettings::DoWriteSettings(IOHelper& helper)
