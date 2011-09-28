@@ -173,8 +173,6 @@ void BaseSettings::DoReadSettings(IOHelper& helper)
   helper.ReadBool(TEXT("AutoSize"), autoSize, false);
   helper.ReadInt(TEXT("IconSize"), iconSize, 16);
   helper.ReadInt(TEXT("IconSpacing"), iconSpacing, 1);
-  if (!helper.ReadString(TEXT("Style"), styleFile, TEXT("\0")))
-    helper.ReadString(TEXT("Scheme"), styleFile, TEXT("\0"));
   helper.ReadBool(TEXT("SnapMove"), snapMove, true);
   helper.ReadBool(TEXT("SnapSize"), snapSize, true);
   helper.ReadBool(TEXT("DynamicPositioning"), dynamicPositioning, true);
@@ -183,6 +181,21 @@ void BaseSettings::DoReadSettings(IOHelper& helper)
   helper.ReadBool(TEXT("StartHidden"), startHidden, false);
   helper.ReadString(TEXT("TitleBarFont"), titleBarFontString, TEXT("Arial-16"));
   helper.ReadString(TEXT("TitleBarText"), titleBarText, TEXT(""));
+  // Check for a Style entry...
+  if (!helper.ReadString(TEXT("Style"), styleFile, TEXT("\0")))
+    {
+      // ... if not found, look for a Scheme entry.  If found...
+      if (helper.ReadString(TEXT("Scheme"), styleFile, TEXT("\0")))
+        {
+          // ... remove it ...
+          if (helper.RemoveElement(TEXT("Scheme")))
+            {
+              // .. if removed, add a Style entry.
+              if (helper.WriteString(TEXT("Style"), styleFile))
+                ELWriteXMLConfig(ELGetXMLConfig(helper.GetSection()));
+            }
+        }
+    }
 }
 
 void BaseSettings::DoWriteSettings(IOHelper& helper)
@@ -865,6 +878,23 @@ bool BaseSettings::IOHelper::GetElementText(WCHAR *text)
     return ELGetXMLElementText(item, text);
 
   return false;
+}
+
+bool BaseSettings::IOHelper::RemoveElement(const WCHAR *name)
+{
+  if (section)
+    {
+      TiXmlElement *itemToRemove = ELGetFirstXMLElementByName(section, (WCHAR*)name, false);
+      if (itemToRemove)
+        return ELRemoveXMLElement(itemToRemove);
+    }
+
+  return false;
+}
+
+TiXmlElement *BaseSettings::IOHelper::GetSection()
+{
+  return section;
 }
 
 bool BaseSettings::IOHelper::ReadBool(const WCHAR* name, bool& data, bool def)

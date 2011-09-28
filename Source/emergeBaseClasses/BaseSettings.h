@@ -61,8 +61,10 @@ public:
     void *GetElement(WCHAR *name);
     bool SetElement(const WCHAR *name);
     bool GetElementText(WCHAR *text);
+    bool RemoveElement(const WCHAR *name);
     void *GetTarget();
     void Clear();
+    TiXmlElement *GetSection();
     bool ReadColor(const WCHAR* name, COLORREF& color, COLORREF def);
     bool ReadBool(const WCHAR* name, bool& data, bool def);
     bool ReadInt(const WCHAR* name, int& data, int def);
