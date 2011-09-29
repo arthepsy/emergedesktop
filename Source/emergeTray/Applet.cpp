@@ -1385,22 +1385,41 @@ bool Applet::ClearAutoHideEdge(UINT edge)
 // it should be handled.
 LRESULT Applet::AppBarEvent(COPYDATASTRUCT *cpData)
 {
-  ELWriteDebug(L"AppBarEvent");
-  DWORD message = 0, processID;
-  HANDLE sharedMem;
-  APPBARDATA abd;
+  DWORD message = 0, processID = 0;
+  HANDLE sharedMem = NULL;
+  APPBARDATA appBarData, *pAppBarData;
   AppBar* pAppBar;
   RECT trayRect;
+  bool is64Bit = true;
   std::vector< std::tr1::shared_ptr<AppBar> >::iterator iter;
+  UINT offset = 0;
 
   GetWindowRect(trayWnd, &trayRect);
 
-  APPBARDATA *pAppBarData = (APPBARDATA*)cpData->lpData;
-  CopyMemory(&abd, cpData->lpData, sizeof(APPBARDATA));
+  pAppBarData = (APPBARDATA*)cpData->lpData;
+  if (!IsWindow(pAppBarData->hWnd))
+    {
+      APPBARDATA_WOW32 *pAppBarData32 = (APPBARDATA_WOW32*)cpData->lpData;
+      if (!IsWindow(MAKEHWND(pAppBarData32->hWnd)))
+        return 0;
+
+      appBarData.cbSize = pAppBarData32->cbSize;
+      appBarData.hWnd = MAKEHWND(pAppBarData32->hWnd);
+      appBarData.lParam = pAppBarData32->lParam;
+      CopyRect(&appBarData.rc, &pAppBarData32->rc);
+      appBarData.uCallbackMessage = pAppBarData32->uCallbackMessage;
+      appBarData.uEdge = pAppBarData32->uEdge;
+
+      pAppBarData = &appBarData;
+      is64Bit = false;
+    }
 
   message = *(DWORD *) (((BYTE *)cpData->lpData) + pAppBarData->cbSize);
-  sharedMem = *(HANDLE *) (((BYTE *)cpData->lpData) + pAppBarData->cbSize + sizeof(DWORD));
-  processID = *(DWORD *) (((BYTE *)cpData->lpData) + pAppBarData->cbSize + sizeof(DWORD) + sizeof(HANDLE));
+  offset = sizeof(DWORD);
+  if (ELVersionInfo() > 6.0)
+    offset += sizeof(DWORD);
+  sharedMem = *(HANDLE *) (((BYTE *)cpData->lpData) + pAppBarData->cbSize + offset);
+  processID = *(DWORD *) (((BYTE *)cpData->lpData) + pAppBarData->cbSize + offset + sizeof(HANDLE));
 
   switch (message)
     {
@@ -1414,7 +1433,7 @@ LRESULT Applet::AppBarEvent(COPYDATASTRUCT *cpData)
       if (!IsWindowVisible(mainWnd))
         result = ABS_AUTOHIDE;
 
-      if (ELVersionInfo() >= 7.0)
+      if (ELVersionInfo() > 6.0)
         result |= ABS_ALWAYSONTOP;
       else
         {
@@ -1483,11 +1502,23 @@ LRESULT Applet::AppBarEvent(COPYDATASTRUCT *cpData)
           pAppBar->SetRect(pAppBarData->rc);
           pAppBar->SetEdge(pAppBarData->uEdge);
 
-          APPBARDATA *pSharedAppBarData = (APPBARDATA*)ELLockShared(sharedMem, processID);
-          if (pAppBarData)
+          if (is64Bit)
             {
-              CopyRect(&pSharedAppBarData->rc, &pAppBarData->rc);
-              ELUnlockShared(pSharedAppBarData);
+              APPBARDATA *pSharedAppBarData = (APPBARDATA*)ELLockShared(sharedMem, processID);
+              if (pSharedAppBarData)
+                {
+                  CopyRect(&pSharedAppBarData->rc, &pAppBarData->rc);
+                  ELUnlockShared(pSharedAppBarData);
+                }
+            }
+          else
+            {
+              APPBARDATA_WOW32 *pSharedAppBarData = (APPBARDATA_WOW32*)ELLockShared(sharedMem, processID);
+              if (pSharedAppBarData)
+                {
+                  CopyRect(&pSharedAppBarData->rc, &pAppBarData->rc);
+                  ELUnlockShared(pSharedAppBarData);
+                }
             }
 
           return 1;
@@ -1501,11 +1532,23 @@ LRESULT Applet::AppBarEvent(COPYDATASTRUCT *cpData)
           pAppBar->SetRect(pAppBarData->rc);
           pAppBar->SetEdge(pAppBarData->uEdge);
 
-          APPBARDATA *pSharedAppBarData = (APPBARDATA*)ELLockShared(sharedMem, processID);
-          if (pAppBarData)
+          if (is64Bit)
             {
-              CopyRect(&pSharedAppBarData->rc, &pAppBarData->rc);
-              ELUnlockShared(pSharedAppBarData);
+              APPBARDATA *pSharedAppBarData = (APPBARDATA*)ELLockShared(sharedMem, processID);
+              if (pSharedAppBarData)
+                {
+                  CopyRect(&pSharedAppBarData->rc, &pAppBarData->rc);
+                  ELUnlockShared(pSharedAppBarData);
+                }
+            }
+          else
+            {
+              APPBARDATA_WOW32 *pSharedAppBarData = (APPBARDATA_WOW32*)ELLockShared(sharedMem, processID);
+              if (pSharedAppBarData)
+                {
+                  CopyRect(&pSharedAppBarData->rc, &pAppBarData->rc);
+                  ELUnlockShared(pSharedAppBarData);
+                }
             }
 
           return 1;
@@ -1535,13 +1578,27 @@ LRESULT Applet::AppBarEvent(COPYDATASTRUCT *cpData)
                 uEdge = ABE_TOP;
             }
 
-          APPBARDATA *pSharedAppBarData = (APPBARDATA*)ELLockShared(sharedMem, processID);
-          if (pAppBarData)
+          if (is64Bit)
             {
-              CopyRect(&pSharedAppBarData->rc, &trayRect);
-              pSharedAppBarData->uEdge = uEdge;
-              ELUnlockShared(pSharedAppBarData);
-              return 1;
+              APPBARDATA *pSharedAppBarData = (APPBARDATA*)ELLockShared(sharedMem, processID);
+              if (pSharedAppBarData)
+                {
+                  CopyRect(&pSharedAppBarData->rc, &trayRect);
+                  pSharedAppBarData->uEdge = uEdge;
+                  ELUnlockShared(pSharedAppBarData);
+                  return 1;
+                }
+            }
+          else
+            {
+              APPBARDATA_WOW32 *pSharedAppBarData = (APPBARDATA_WOW32*)ELLockShared(sharedMem, processID);
+              if (pSharedAppBarData)
+                {
+                  CopyRect(&pSharedAppBarData->rc, &trayRect);
+                  pSharedAppBarData->uEdge = uEdge;
+                  ELUnlockShared(pSharedAppBarData);
+                  return 1;
+                }
             }
         }
       break;
