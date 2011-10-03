@@ -153,18 +153,8 @@ LRESULT CALLBACK Desktop::DesktopProcedure (HWND hwnd, UINT message, WPARAM wPar
         }
       break;
 
-    case WM_SETTINGCHANGE:
-      pDesktop->SetBackgroundImage();
-      break;
-
     case WM_PAINT:
-        {
-          PAINTSTRUCT ps;
-          HDC hdc = BeginPaint(hwnd, &ps);
-          PaintDesktop(hdc);
-          EndPaint(hwnd, &ps);
-        }
-      break;
+      return pDesktop->DoPaint(hwnd);
 
     case WM_RBUTTONDOWN:
       pDesktop->ShowMenu(CORE_RIGHTMENU);
@@ -195,6 +185,17 @@ LRESULT CALLBACK Desktop::DesktopProcedure (HWND hwnd, UINT message, WPARAM wPar
     default:
       return pDesktop->DoDefault(hwnd, message, wParam, lParam);
     }
+
+  return 0;
+}
+
+LRESULT Desktop::DoPaint(HWND hwnd)
+{
+  PAINTSTRUCT ps;
+  HDC hdc = BeginPaint(hwnd, &ps);
+  PaintDesktop(hdc);
+  EndPaint(hwnd, &ps);
+  DeleteDC(hdc);
 
   return 0;
 }
@@ -286,18 +287,11 @@ bool Desktop::SetBackgroundImage()
 
 BOOL Desktop::InvalidateDesktop()
 {
-  RECT bgRect;
-
-  if (GetClientRect(mainWnd, &bgRect))
-    {
-      SystemParametersInfo(SPI_SETDESKWALLPAPER, 0, SETWALLPAPER_DEFAULT, 0);
-      return InvalidateRect(mainWnd, &bgRect, TRUE);
-    }
-
-  return FALSE;
+  SystemParametersInfo(SPI_SETDESKWALLPAPER, 0, SETWALLPAPER_DEFAULT, 0);
+  return InvalidateRect(mainWnd, NULL, TRUE);
 }
 
-DWORD WINAPI Desktop::WallpaperThreadProc(LPVOID lpParameter UNUSED)
+DWORD WINAPI Desktop::WallpaperThreadProc(LPVOID lpParameter)
 {
   // reinterpret lpParameter as a Desktop*
   Desktop *pDesktop = reinterpret_cast< Desktop* >(lpParameter);
@@ -311,7 +305,7 @@ DWORD WINAPI Desktop::WallpaperThreadProc(LPVOID lpParameter UNUSED)
 
   // Start a watch on that directory for file writes in order to detect change
   HANDLE dirWatch = FindFirstChangeNotification(bgFile, FALSE,
-                                                FILE_NOTIFY_CHANGE_LAST_WRITE);
+                    FILE_NOTIFY_CHANGE_LAST_WRITE);
   if (dirWatch != INVALID_HANDLE_VALUE)
     {
       // Start an infinite loop to watch the directory
