@@ -145,6 +145,8 @@ Applet::~Applet()
   LeaveCriticalSection(&vectorLock);
 
   DeleteCriticalSection(&vectorLock);
+
+  DeleteCriticalSection(&modifyLock);
 }
 
 UINT Applet::Initialize()
@@ -155,15 +157,14 @@ UINT Applet::Initialize()
   if (ret == 0)
     return ret;
 
-  // Initialize Settings, Config and AppletMenu classes
-  //pSettings = reinterpret_cast<Settings*>(pBaseSettings.get());
-  //pSettings = std::tr1::shared_ptr<Settings>(new Settings());
-
   // Set the window transparency
   UpdateGUI();
 
   // Create a critical section to control access to the taskList vector
   InitializeCriticalSection(&vectorLock);
+
+  // Create a critical section to control access to the modifyMap map
+  InitializeCriticalSection(&modifyLock);
 
   // Register the exiting tasks
   BuildTasksList();
@@ -296,7 +297,9 @@ LRESULT Applet::ModifyTaskByThread(DWORD threadID)
     {
       // Call ModifyTask using the corresponding first map element
       result = ModifyTask(iter->first);
+      EnterCriticalSection(&modifyLock);
       modifyMap.erase(iter);
+      LeaveCriticalSection(&modifyLock);
     }
 
   return result;
@@ -349,8 +352,10 @@ LRESULT Applet::RemoveTask(HWND task)
   LeaveCriticalSection(&vectorLock);
 
   // Remove the task (if found) from modifyMap
+  EnterCriticalSection(&modifyLock);
   if (modifyIter != modifyMap.end())
     modifyMap.erase(modifyIter);
+  LeaveCriticalSection(&modifyLock);
 
   if (pSettings->GetAutoSize())
     {
@@ -403,8 +408,10 @@ bool Applet::CleanTasks()
 
           // Remove the task (if found) from modifyMap
           modifyIter = modifyMap.find((*iter)->GetWnd());
+          EnterCriticalSection(&modifyLock);
           if (modifyIter != modifyMap.end())
             modifyMap.erase(modifyIter);
+          LeaveCriticalSection(&modifyLock);
         }
       else
         iter++;
@@ -725,7 +732,9 @@ LRESULT Applet::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
               thread = CreateThread(NULL, 0, ModifyThreadProc, this, CREATE_SUSPENDED, &threadID);
               if (thread != NULL)
                 {
+                  EnterCriticalSection(&modifyLock);
                   modifyMap.insert(std::pair<HWND, DWORD>(task, threadID));
+                  LeaveCriticalSection(&modifyLock);
                   ResumeThread(thread);
                 }
             }

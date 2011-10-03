@@ -66,7 +66,7 @@ private:
   static LRESULT CALLBACK WindowProcedure (HWND, UINT, WPARAM, LPARAM);
   static BOOL CALLBACK EnumTasksList(HWND hwnd, LPARAM lParam);
   static VOID CALLBACK FlashTimerProc(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime);
-  CRITICAL_SECTION vectorLock;
+  CRITICAL_SECTION vectorLock, modifyLock;
   LRESULT DoTaskIcon(HWND task, HICON icon);
   static DWORD WINAPI ModifyThreadProc(LPVOID lpParameter);
 
