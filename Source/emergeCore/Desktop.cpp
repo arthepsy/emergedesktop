@@ -153,6 +153,10 @@ LRESULT CALLBACK Desktop::DesktopProcedure (HWND hwnd, UINT message, WPARAM wPar
         }
       break;
 
+    case WM_SETTINGCHANGE:
+      pDesktop->SetBackgroundImage();
+      break;
+
     case WM_PAINT:
       return pDesktop->DoPaint(hwnd);
 
@@ -218,8 +222,8 @@ LRESULT Desktop::DoDisplayChange(HWND hwnd)
                GetSystemMetrics(SM_CXVIRTUALSCREEN), GetSystemMetrics(SM_CYVIRTUALSCREEN),
                SWPFlags);
 
-  /**< Set the background image again so that the user doesn't end up with a blank background */
-  SetBackgroundImage();
+  // Force a repaint of the background
+  InvalidateRect(hwnd, NULL, TRUE);
 
   return 1;
 }
