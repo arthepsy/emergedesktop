@@ -62,6 +62,7 @@ private:
   static DWORD WINAPI WallpaperThreadProc(LPVOID lpParameter);
   HANDLE wallpaperThread;
   CRITICAL_SECTION desktopCS;
+  WCHAR currentBGPath[MAX_PATH];
 
 public:
   Desktop(HINSTANCE hInstance, std::tr1::shared_ptr<MessageControl> pMessageControl);

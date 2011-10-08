@@ -42,6 +42,7 @@ Desktop::Desktop(HINSTANCE hInstance, std::tr1::shared_ptr<MessageControl> pMess
   this->pMessageControl = pMessageControl;
   mainInst = hInstance;
   registered = false;
+  ZeroMemory(currentBGPath, MAX_PATH);
 }
 
 bool Desktop::Initialize(bool explorerDesktop)
@@ -274,17 +275,28 @@ void Desktop::ShowMenu(UINT menu)
 bool Desktop::SetBackgroundImage()
 {
   DWORD threadState, threadID;
+  WCHAR newBGPath[MAX_PATH];
 
-  // Force Desktop to repaint
-  InvalidateDesktop();
+  // Retrieve the wallpaper file path
+  SystemParametersInfo(SPI_GETDESKWALLPAPER, MAX_PATH, newBGPath, 0);
+  PathRemoveFileSpec(newBGPath);
+  // Compare the background to the current background
+  if (wcsicmp(newBGPath, currentBGPath) != 0)
+    {
+      // Kill any existing thread
+      GetExitCodeThread(wallpaperThread, &threadState);
+      if (threadState == STILL_ACTIVE)
+        TerminateThread(wallpaperThread, 0);
 
-  // Kill any existing thread
-  GetExitCodeThread(wallpaperThread, &threadState);
-  if (threadState == STILL_ACTIVE)
-    TerminateThread(wallpaperThread, 0);
+      // if different, store
+      wcscpy(currentBGPath, newBGPath);
 
-  // Start a new thread to watch the wallpaper directory
-  wallpaperThread = CreateThread(NULL, 0, WallpaperThreadProc, this, 0, &threadID);
+      // Force Desktop to repaint
+      InvalidateDesktop();
+
+      // Start a new thread to watch the wallpaper directory
+      wallpaperThread = CreateThread(NULL, 0, WallpaperThreadProc, this, 0, &threadID);
+    }
 
   return true;
 }
@@ -300,15 +312,12 @@ DWORD WINAPI Desktop::WallpaperThreadProc(LPVOID lpParameter)
   // reinterpret lpParameter as a Desktop*
   Desktop *pDesktop = reinterpret_cast< Desktop* >(lpParameter);
 
-  // Determine the wallpaper file name from the system
-  WCHAR bgFile[MAX_PATH];
-  SystemParametersInfo(SPI_GETDESKWALLPAPER, MAX_PATH, bgFile, 0);
-
-  // Strip the file name so only the path remains
-  PathRemoveFileSpec(bgFile);
+  // If the background path is NULL, terminate the thread
+  if (pDesktop->currentBGPath == NULL)
+    ExitThread(1);
 
   // Start a watch on that directory for file writes in order to detect change
-  HANDLE dirWatch = FindFirstChangeNotification(bgFile, FALSE,
+  HANDLE dirWatch = FindFirstChangeNotification(pDesktop->currentBGPath, FALSE,
                     FILE_NOTIFY_CHANGE_LAST_WRITE);
   if (dirWatch != INVALID_HANDLE_VALUE)
     {
