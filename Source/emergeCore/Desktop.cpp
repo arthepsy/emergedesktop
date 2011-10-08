@@ -43,6 +43,7 @@ Desktop::Desktop(HINSTANCE hInstance, std::tr1::shared_ptr<MessageControl> pMess
   mainInst = hInstance;
   registered = false;
   ZeroMemory(currentBGPath, MAX_PATH);
+  SetRectEmpty(&currentDesktopRect);
 }
 
 bool Desktop::Initialize(bool explorerDesktop)
@@ -213,20 +214,40 @@ LRESULT Desktop::DoPaint(HWND hwnd)
  */
 LRESULT Desktop::DoDisplayChange(HWND hwnd)
 {
+  // If explorerDesktop is active, hide the Core's desktop window
   UINT SWPFlags = SWP_SHOWWINDOW;
   if (explorerDesktop)
     SWPFlags = SWP_HIDEWINDOW;
 
-  /**< Adjust the window position to cover the desktop */
-  SetWindowPos(hwnd, HWND_BOTTOM,
-               GetSystemMetrics(SM_XVIRTUALSCREEN), GetSystemMetrics(SM_YVIRTUALSCREEN),
-               GetSystemMetrics(SM_CXVIRTUALSCREEN), GetSystemMetrics(SM_CYVIRTUALSCREEN),
-               SWPFlags);
+  // Determine newDesktopRect based on virtual desktop size
+  RECT newDesktopRect;
+  newDesktopRect.left = GetSystemMetrics(SM_XVIRTUALSCREEN);
+  newDesktopRect.right = newDesktopRect.left +
+                         GetSystemMetrics(SM_CXVIRTUALSCREEN);
+  newDesktopRect.top = GetSystemMetrics(SM_YVIRTUALSCREEN);
+  newDesktopRect.bottom = newDesktopRect.top +
+                          GetSystemMetrics(SM_CYVIRTUALSCREEN);
 
-  // Force a repaint of the background
-  InvalidateRect(hwnd, NULL, TRUE);
+  // Check to see if newDesktopRect is the same as currentDesktopRect...
+  if (!EqualRect(&newDesktopRect, &currentDesktopRect))
+    {
+      // If so, copy newDesktopRect to currentDesktopRect for future comparisons
+      CopyRect(&currentDesktopRect, &newDesktopRect);
 
-  return 1;
+      // Adjust the window position to cover the desktop
+      SetWindowPos(hwnd, HWND_BOTTOM,
+                   newDesktopRect.left, newDesktopRect.top,
+                   GetSystemMetrics(SM_CXVIRTUALSCREEN),
+                   GetSystemMetrics(SM_CYVIRTUALSCREEN),
+                   SWPFlags);
+
+      // Force a repaint of the background
+      InvalidateRect(hwnd, NULL, TRUE);
+
+      return 1;
+    }
+
+  return 0;
 }
 
 LRESULT Desktop::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)

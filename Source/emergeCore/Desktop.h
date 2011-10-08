@@ -63,6 +63,7 @@ private:
   HANDLE wallpaperThread;
   CRITICAL_SECTION desktopCS;
   WCHAR currentBGPath[MAX_PATH];
+  RECT currentDesktopRect;
 
 public:
   Desktop(HINSTANCE hInstance, std::tr1::shared_ptr<MessageControl> pMessageControl);
