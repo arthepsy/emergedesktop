@@ -31,6 +31,8 @@ MenuBuilder::MenuBuilder(HINSTANCE desktopInst)
   registered = false;
   winVersion = ELVersionInfo();
   SetRectEmpty(&explorerWorkArea);
+  dropPos = 0;
+  dropMenu = NULL;
 
   menuHook = SetWindowsHookEx(WH_CALLWNDPROC, HookCallWndProc, 0, GetCurrentThreadId());
 }
@@ -194,7 +196,7 @@ LRESULT CALLBACK MenuBuilder::MenuProcedure (HWND hwnd, UINT message, WPARAM wPa
       return pMenuBuilder->DoContextMenu(pt);
 
     case WM_MENUDRAG:
-      return pMenuBuilder->DoMenuDrag(hwnd, (HMENU)lParam);
+      return pMenuBuilder->DoMenuDrag(hwnd, (UINT)wParam, (HMENU)lParam);
 
     case WM_MENUGETOBJECT:
       return pMenuBuilder->DoMenuGetObject(hwnd, (MENUGETOBJECTINFO*)lParam);
@@ -282,6 +284,88 @@ LRESULT MenuBuilder::DoCopyData(COPYDATASTRUCT *cds)
   return 0;
 }
 
+bool MenuBuilder::MenuDrop(HMENU dragMenu, UINT dragPos)
+{
+  MENUITEMINFO dragItemInfo, dropItemInfo;
+  MenuItem *dragItem, *dropItem;
+  WCHAR name[MAX_LINE_LENGTH];
+
+  // If drop menu is NULL return false
+  if (!dropMenu)
+    return false;
+
+  // Get the menu item ID for the drop target
+  ZeroMemory(&dropItemInfo, sizeof(dropItemInfo));
+  dropItemInfo.cbSize = sizeof(dropItemInfo);
+  dropItemInfo.fMask = MIIM_ID;
+
+  if (!GetMenuItemInfo(dropMenu, dropPos, TRUE, &dropItemInfo))
+    return false;
+
+  // Get the menu item info for the drag object
+  ZeroMemory(&dragItemInfo, sizeof(dragItemInfo));
+  dragItemInfo.cbSize = sizeof(dragItemInfo);
+  dragItemInfo.fMask = MIIM_ID | MIIM_STRING | MIIM_BITMAP;
+  dragItemInfo.dwTypeData = name;
+  dragItemInfo.cch = MAX_LINE_LENGTH;
+
+  if (!GetMenuItemInfo(dragMenu, dragPos, TRUE, &dragItemInfo))
+    return false;
+
+  MenuMap::iterator dropIter = menuMap.find(dropMenu);
+  if (dropIter == menuMap.end())
+    return false;
+
+  MenuMap::iterator dragIter = menuMap.find(dragMenu);
+  if (dragIter == menuMap.end())
+    return false;
+
+  // Retrieve the drag menu item and XML element based on the menu item ID
+  UINT dragItemID = dragItemInfo.wID;
+  dragItemID--;
+  dragItem = dragIter->second->GetMenuItem(dragItemID);
+  TiXmlElement *dragElement = dragItem->GetElement();
+
+  // Retrieve the drop menu item and XML element based on the menu item ID
+  UINT dropItemID = dropItemInfo.wID;
+  dropItemID--;
+  dropItem = dropIter->second->GetMenuItem(dropItemID);
+  TiXmlElement *dropElement = dropItem->GetElement();
+
+  TiXmlDocument *configXML = ELGetXMLConfig(dragElement);
+  TiXmlElement *newElement = NULL;
+  // If both the drag and drop objects are the same just return
+  if ((dragMenu == dropMenu) && (dropPos == dragPos))
+    return true;
+  // If the drop pos is less than the drag pos, insert the new element
+  // above the drop element
+  else if (dropPos < dragPos)
+    newElement = ELSetSibilingXMLElement(dropElement, (WCHAR*)TEXT("item"), false);
+  // Default to inserting the new element after the drop element
+  else
+    newElement = ELSetSibilingXMLElement(dropElement, (WCHAR*)TEXT("item"), true);
+  if (newElement)
+    {
+      // Set the new element attributes based on the drag item attributes
+      ELWriteXMLStringValue(newElement, TEXT("Name"), dragItem->GetName());
+      ELWriteXMLIntValue(newElement, TEXT("Type"), dragItem->GetType());
+      ELWriteXMLStringValue(newElement, TEXT("Value"), dragItem->GetValue());
+      ELWriteXMLStringValue(newElement, TEXT("WorkingDir"), dragItem->GetWorkingDir());
+
+      // Remove the drag element
+      if (ELRemoveXMLElement(dragElement))
+        DeleteMenu(dragMenu, dragPos, MF_BYPOSITION);
+
+      // Update drag item's XML element
+      dragItem->SetElement(newElement);
+
+      // Insert the new element
+      InsertMenuItem(dropMenu, dropPos, TRUE, &dragItemInfo);
+      ELWriteXMLConfig(configXML);
+    }
+  return true;
+}
+
 LRESULT MenuBuilder::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
   return DefWindowProc(hwnd, message, wParam, lParam);
@@ -295,14 +379,11 @@ LRESULT MenuBuilder::DoMenuGetObject(HWND hwnd UNUSED, MENUGETOBJECTINFO *mgoInf
   HMENU menu;
   IDropTarget *dropTarget;
 
+  dropPos = 0;
+  dropMenu = NULL;
+
   menuItemInfo.cbSize = sizeof(menuItemInfo);
   menuItemInfo.fMask = MIIM_FTYPE | MIIM_SUBMENU | MIIM_ID;
-
-  /*if (mgoInfo->dwFlags == MNGOF_BOTTOMGAP)
-    OutputDebugStr((WCHAR*)TEXT("Bottom Gap"));
-
-    if (mgoInfo->dwFlags == MNGOF_TOPGAP)
-    OutputDebugStr((WCHAR*)TEXT("Top Gap"));*/
 
   iter = menuMap.find(mgoInfo->hmenu);
   if (iter == menuMap.end())
@@ -327,28 +408,61 @@ LRESULT MenuBuilder::DoMenuGetObject(HWND hwnd UNUSED, MENUGETOBJECTINFO *mgoInf
       dropTarget = iter->second->GetMenuItem(itemID)->GetDropTarget();
     }
 
+  dropMenu = mgoInfo->hmenu;
+  dropPos = mgoInfo->uPos;
+
   mgoInfo->riid = &menuInterface;
   mgoInfo->pvObj = dropTarget;
 
   return MNGO_NOERROR;
 }
 
-LRESULT MenuBuilder::DoMenuDrag(HWND hwnd, HMENU menu)
+LRESULT MenuBuilder::DoMenuDrag(HWND hwnd UNUSED, UINT pos, HMENU menu)
 {
+  MenuMap::iterator iter, subIter;
+  MENUITEMINFO menuItemInfo;
+  DWORD effect, dropEffects;
   LPVOID lpVoid;
-  IDropSource *dropSource;
+  HMENU submenu;
   IDataObject *dataObject;
-  std::tr1::shared_ptr<CustomDropSource> customDropSource(new CustomDropSource(hwnd));
-  std::tr1::shared_ptr<CustomDataObject> customDataObject(new CustomDataObject(menu));
+  IDropSource *dropSource;
+  std::tr1::shared_ptr<CustomDataObject> customDataObject(new CustomDataObject());
 
-  customDropSource->QueryInterface(IID_IDropSource, &lpVoid);
-  dropSource = reinterpret_cast <IDropSource*> (lpVoid);
+  menuItemInfo.cbSize = sizeof(menuItemInfo);
+  menuItemInfo.fMask = MIIM_FTYPE | MIIM_SUBMENU | MIIM_ID;
+
+  iter = menuMap.find(menu);
+  if (iter == menuMap.end())
+    return MND_ENDMENU;
+
+  if (!GetMenuItemInfo(iter->first, pos, TRUE, &menuItemInfo))
+    return MND_ENDMENU;
+
+  submenu = menuItemInfo.hSubMenu;
+  if (submenu)
+    {
+      subIter = menuMap.find(submenu);
+      if (subIter == menuMap.end())
+        return MND_ENDMENU;
+
+      dropSource = subIter->second->GetDropSource();
+    }
+  else
+    {
+      UINT itemID = menuItemInfo.wID;
+      itemID--;
+      dropSource = iter->second->GetMenuItem(itemID)->GetDropSource();
+    }
+
+  dropEffects = DROPEFFECT_MOVE;
+
   customDataObject->QueryInterface(IID_IDataObject, &lpVoid);
   dataObject = reinterpret_cast <IDataObject*> (lpVoid);
 
-  dropSource->Release();
+  if (DoDragDrop(dataObject, dropSource, dropEffects, &effect) == DRAGDROP_S_DROP)
+    MenuDrop(menu, pos);
+
   dataObject->Release();
-  customDropSource->Release();
   customDataObject->Release();
 
   return MND_CONTINUE;
@@ -1603,6 +1717,7 @@ bool MenuBuilder::NoPrefixString(WCHAR *source)
 
 LRESULT MenuBuilder::DoButtonDown(UINT button)
 {
+  MENUINFO menuInfo;
   WCHAR menuName[MAX_LINE_LENGTH];
   LRESULT ret = 1;
   POINT mousePT;
@@ -1662,6 +1777,16 @@ LRESULT MenuBuilder::DoButtonDown(UINT button)
                              shared_ptr<MenuListItem> >(rootMenu, mli));
               iter = menuMap.begin();
 
+              // MNS_DRAGDROG must be set before the menu is visible.
+              menuInfo.cbSize = sizeof(menuInfo);
+              menuInfo.fMask = MIM_STYLE;
+              if (GetMenuInfo(rootMenu, &menuInfo))
+                {
+                  menuInfo.fMask |= MIM_APPLYTOSUBMENUS;
+                  menuInfo.dwStyle |= MNS_DRAGDROP;
+                  SetMenuInfo(rootMenu, &menuInfo);
+                }
+
               UINT itemID = TrackPopupMenuEx(rootMenu, TPM_RETURNCMD|TPM_RECURSE, mousePT.x, mousePT.y, menuWnd, NULL);
               if (itemID != 0)
                 ExecuteMenuItem(itemID);
@@ -1700,8 +1825,6 @@ LRESULT MenuBuilder::DoInitMenu(HMENU menu)
   menuInfo.cbSize = sizeof(MENUINFO);
   menuInfo.fMask = MIM_MAXHEIGHT | MIM_STYLE;
   menuInfo.cyMax = monitorHeight;
-  // Temporarily disable Drag-and-Drop until it does something useful
-  //menuInfo.dwStyle |= MNS_DRAGDROP;
   menuInfo.dwStyle = MNS_CHECKORBMP;
   SetMenuInfo(menu, &menuInfo);
 
