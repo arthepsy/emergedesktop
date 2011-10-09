@@ -42,8 +42,9 @@ Desktop::Desktop(HINSTANCE hInstance, std::tr1::shared_ptr<MessageControl> pMess
   this->pMessageControl = pMessageControl;
   mainInst = hInstance;
   registered = false;
-  ZeroMemory(currentBGPath, MAX_PATH);
+  ZeroMemory(currentBG, MAX_PATH);
   SetRectEmpty(&currentDesktopRect);
+  dirWatch = INVALID_HANDLE_VALUE;
 }
 
 bool Desktop::Initialize(bool explorerDesktop)
@@ -296,27 +297,32 @@ void Desktop::ShowMenu(UINT menu)
 bool Desktop::SetBackgroundImage()
 {
   DWORD threadState, threadID;
-  WCHAR newBGPath[MAX_PATH];
+  WCHAR newBG[MAX_PATH];
 
-  // Retrieve the wallpaper file path
-  SystemParametersInfo(SPI_GETDESKWALLPAPER, MAX_PATH, newBGPath, 0);
-  PathRemoveFileSpec(newBGPath);
+  // Retrieve the new wallpaper
+  SystemParametersInfo(SPI_GETDESKWALLPAPER, MAX_PATH, newBG, 0);
   // Compare the background to the current background
-  if (wcsicmp(newBGPath, currentBGPath) != 0)
+  if (wcsicmp(newBG, currentBG) != 0)
     {
-      // Kill any existing thread
-      GetExitCodeThread(wallpaperThread, &threadState);
-      if (threadState == STILL_ACTIVE)
-        TerminateThread(wallpaperThread, 0);
-
       // if different, store
-      wcscpy(currentBGPath, newBGPath);
+      wcscpy(currentBG, newBG);
+
+      // If dirWatch is valid close it
+      if (dirWatch != INVALID_HANDLE_VALUE)
+        FindCloseChangeNotification(dirWatch);
+
+      // Set dirWatch to monitor the background path
+      PathRemoveFileSpec(newBG);
+      dirWatch = FindFirstChangeNotification(newBG, FALSE,
+                                             FILE_NOTIFY_CHANGE_LAST_WRITE);
 
       // Force Desktop to repaint
       InvalidateDesktop();
 
       // Start a new thread to watch the wallpaper directory
-      wallpaperThread = CreateThread(NULL, 0, WallpaperThreadProc, this, 0, &threadID);
+      GetExitCodeThread(wallpaperThread, &threadState);
+      if (threadState != STILL_ACTIVE)
+        wallpaperThread = CreateThread(NULL, 0, WallpaperThreadProc, this, 0, &threadID);
     }
 
   return true;
@@ -333,26 +339,20 @@ DWORD WINAPI Desktop::WallpaperThreadProc(LPVOID lpParameter)
   // reinterpret lpParameter as a Desktop*
   Desktop *pDesktop = reinterpret_cast< Desktop* >(lpParameter);
 
-  // If the background path is NULL, terminate the thread
-  if (pDesktop->currentBGPath == NULL)
+  // If dirWatch is invalid exit the thread
+  if (pDesktop->dirWatch == INVALID_HANDLE_VALUE)
     ExitThread(1);
 
-  // Start a watch on that directory for file writes in order to detect change
-  HANDLE dirWatch = FindFirstChangeNotification(pDesktop->currentBGPath, FALSE,
-                    FILE_NOTIFY_CHANGE_LAST_WRITE);
-  if (dirWatch != INVALID_HANDLE_VALUE)
+  // Start an infinite loop to watch the directory
+  while (true)
     {
-      // Start an infinite loop to watch the directory
-      while (true)
-        {
-          // Wait for a file write to occur
-          WaitForSingleObject(dirWatch, INFINITE);
-          // Once it has, force Desktop to repaint
-          pDesktop->InvalidateDesktop();
-          // Restart the directory watch
-          if (FindNextChangeNotification(dirWatch) == FALSE)
-            ExitThread(0);
-        }
+      // Wait for a file write to occur
+      WaitForSingleObject(pDesktop->dirWatch, INFINITE);
+      // Reset dirWatch, if it fails, kill the thread
+      if (FindNextChangeNotification(pDesktop->dirWatch) == FALSE)
+        ExitThread(0);
+      // If the reset is successful, invalidate the desktop
+      pDesktop->InvalidateDesktop();
     }
 
   return 0;
