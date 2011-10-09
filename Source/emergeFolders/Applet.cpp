@@ -281,7 +281,7 @@ void Applet::InitLiveFolderMap()
     {
       iter = liveFolderMap.begin();
 
-      thread = OpenThread(DELETE, FALSE, iter->first);
+      thread = OpenThread(THREAD_TERMINATE|THREAD_QUERY_INFORMATION, FALSE, iter->first);
 
       GetExitCodeThread(thread, &threadState);
       if (threadState == STILL_ACTIVE)

@@ -107,10 +107,10 @@ typedef struct
   DWORD dwStateMask;
   CHAR szInfo[256];
   union
-    {
-      UINT uTimeout;
-      UINT uVersion;
-    } DUMMYUNIONNAME;
+  {
+    UINT uTimeout;
+    UINT uVersion;
+  } DUMMYUNIONNAME;
   CHAR szInfoTitle[64];
   DWORD dwInfoFlags;
 }
@@ -129,10 +129,10 @@ typedef struct
   DWORD dwStateMask;
   WCHAR szInfo[256];
   union
-    {
-      UINT uTimeout;
-      UINT uVersion;
-    } DUMMYUNIONNAME;
+  {
+    UINT uTimeout;
+    UINT uVersion;
+  } DUMMYUNIONNAME;
   WCHAR szInfoTitle[64];
   DWORD dwInfoFlags;
 }
@@ -151,10 +151,10 @@ typedef struct
   DWORD dwStateMask;
   CHAR szInfo[256];
   union
-    {
-      UINT uTimeout;
-      UINT uVersion;
-    } DUMMYUNIONNAME;
+  {
+    UINT uTimeout;
+    UINT uVersion;
+  } DUMMYUNIONNAME;
   CHAR szInfoTitle[64];
   DWORD dwInfoFlags;
   GUID guidItem;
@@ -175,10 +175,10 @@ typedef struct
   DWORD dwStateMask;
   WCHAR szInfo[256];
   union
-    {
-      UINT uTimeout;
-      UINT uVersion;
-    } DUMMYUNIONNAME;
+  {
+    UINT uTimeout;
+    UINT uVersion;
+  } DUMMYUNIONNAME;
   WCHAR szInfoTitle[64];
   DWORD dwInfoFlags;
   GUID guidItem;
@@ -199,10 +199,10 @@ typedef struct
   DWORD dwStateMask;
   CHAR szInfo[256];
   union
-    {
-      UINT uTimeout;
-      UINT uVersion;
-    } DUMMYUNIONNAME;
+  {
+    UINT uTimeout;
+    UINT uVersion;
+  } DUMMYUNIONNAME;
   CHAR szInfoTitle[64];
   DWORD dwInfoFlags;
   GUID guidItem;
@@ -222,10 +222,10 @@ typedef struct
   DWORD dwStateMask;
   WCHAR szInfo[256];
   union
-    {
-      UINT uTimeout;
-      UINT uVersion;
-    } DUMMYUNIONNAME;
+  {
+    UINT uTimeout;
+    UINT uVersion;
+  } DUMMYUNIONNAME;
   WCHAR szInfoTitle[64];
   DWORD dwInfoFlags;
   GUID guidItem;
@@ -269,10 +269,10 @@ typedef struct
   DWORD dwStateMask;
   CHAR szInfo[256];
   union
-    {
-      UINT uTimeout;
-      UINT uVersion;
-    } DUMMYUNIONNAME;
+  {
+    UINT uTimeout;
+    UINT uVersion;
+  } DUMMYUNIONNAME;
   CHAR szInfoTitle[64];
   DWORD dwInfoFlags;
 }
@@ -291,10 +291,10 @@ typedef struct
   DWORD dwStateMask;
   WCHAR szInfo[256];
   union
-    {
-      UINT uTimeout;
-      UINT uVersion;
-    } DUMMYUNIONNAME;
+  {
+    UINT uTimeout;
+    UINT uVersion;
+  } DUMMYUNIONNAME;
   WCHAR szInfoTitle[64];
   DWORD dwInfoFlags;
 }
@@ -313,10 +313,10 @@ typedef struct
   DWORD dwStateMask;
   CHAR szInfo[256];
   union
-    {
-      UINT uTimeout;
-      UINT uVersion;
-    } DUMMYUNIONNAME;
+  {
+    UINT uTimeout;
+    UINT uVersion;
+  } DUMMYUNIONNAME;
   CHAR szInfoTitle[64];
   DWORD dwInfoFlags;
   GUID guidItem;
@@ -337,10 +337,10 @@ typedef struct
   DWORD dwStateMask;
   WCHAR szInfo[256];
   union
-    {
-      UINT uTimeout;
-      UINT uVersion;
-    } DUMMYUNIONNAME;
+  {
+    UINT uTimeout;
+    UINT uVersion;
+  } DUMMYUNIONNAME;
   WCHAR szInfoTitle[64];
   DWORD dwInfoFlags;
   GUID guidItem;
@@ -361,10 +361,10 @@ typedef struct
   DWORD dwStateMask;
   CHAR szInfo[256];
   union
-    {
-      UINT uTimeout;
-      UINT uVersion;
-    } DUMMYUNIONNAME;
+  {
+    UINT uTimeout;
+    UINT uVersion;
+  } DUMMYUNIONNAME;
   CHAR szInfoTitle[64];
   DWORD dwInfoFlags;
   GUID guidItem;
@@ -384,10 +384,10 @@ typedef struct
   DWORD dwStateMask;
   WCHAR szInfo[256];
   union
-    {
-      UINT uTimeout;
-      UINT uVersion;
-    } DUMMYUNIONNAME;
+  {
+    UINT uTimeout;
+    UINT uVersion;
+  } DUMMYUNIONNAME;
   WCHAR szInfoTitle[64];
   DWORD dwInfoFlags;
   GUID guidItem;
@@ -453,7 +453,8 @@ typedef struct ICONIDENTIFIERDATA
 }
 ICONIDENTIFIERDATA, *PICONIDENTIFIERDATA;
 
-typedef struct _TRAYICONDATA{
+typedef struct _TRAYICONDATA
+{
   HWND hWnd;
   UINT uID;
   UINT uCallbackMessage;
@@ -467,7 +468,7 @@ typedef struct _TRAYICONDATA{
   TCHAR sIconText[MAX_PATH];
   UINT uNumSeconds;
   GUID guidItem;
-  } TRAYICONDATA;
+} TRAYICONDATA;
 
 class Applet: public BaseApplet
 {
@@ -489,6 +490,7 @@ private:
   bool SetAutoHideEdge(UINT edge);
   bool ClearAutoHideEdge(UINT edge);
   bool autoHideLeft, autoHideRight, autoHideTop, autoHideBottom;
+  APPBARDATA *LockAppBarMemory(HANDLE sharedMem, DWORD processID);
 
 public:
   Applet(HINSTANCE hInstance);
@@ -510,7 +512,7 @@ public:
   void CleanTray();
   void ShowConfig();
   TrayIcon* FindTrayIcon(HWND hwnd, UINT uID);
-  AppBar* FindAppBar(APPBARDATA abd);
+  AppBar* FindAppBar(APPBARDATA *pAppBarData);
   bool RemoveAppBar(AppBar *pAppBar);
   bool RemoveTrayIconListItem(TrayIcon *pTrayIcon);
   LRESULT RemoveTrayIcon(HWND hwnd, UINT uID);

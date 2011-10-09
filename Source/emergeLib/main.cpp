@@ -85,7 +85,7 @@ topic alone.
 #include <memory>
 #endif
 
-#if defined (__MINGW32__) && (__MINGW64_VERSION_MAJOR < 3)
+#if defined (__MINGW32__)
 #include "../MinGWInterfaces.h"
 #else
 #include <Mmdeviceapi.h>
@@ -144,6 +144,7 @@ static HMODULE shell32DLL = NULL;
 static HMODULE user32DLL = NULL;
 static HMODULE kernel32DLL = NULL;
 static HMODULE dwmapiDLL = NULL;
+static HMODULE shlwapiDLL = NULL;
 static HINSTANCE emergeLibInstance = NULL;
 
 // Globally shared data
@@ -180,6 +181,12 @@ static fnDwmIsCompositionEnabled MSDwmIsCompositionEnabled = NULL;
 typedef HRESULT (WINAPI *fnDwmGetWindowAttribute)(HWND, DWORD, PVOID, DWORD);
 static fnDwmGetWindowAttribute MSDwmGetWindowAttribute = NULL;
 
+typedef void* (WINAPI *fnSHLockShared)(HANDLE, DWORD);
+static fnSHLockShared MSSHLockShared = NULL;
+
+typedef BOOL (WINAPI *fnSHUnlockShared)(void*);
+static fnSHUnlockShared MSSHUnlockShared = NULL;
+
 typedef enum _DWMWINDOWATTRIBUTE
 {
   DWMWA_NCRENDERING_ENABLED           = 1,
@@ -211,8 +218,15 @@ extern "C" BOOL WINAPI DllMain(HINSTANCE hinstDLL UNUSED, DWORD fdwReason, LPVOI
         kernel32DLL = ELLoadSystemLibrary(TEXT("kernel32.dll"));
       if (dwmapiDLL == NULL)
         dwmapiDLL = ELLoadSystemLibrary(TEXT("dwmapi.dll"));
+      if (shlwapiDLL == NULL)
+        shlwapiDLL = ELLoadSystemLibrary(TEXT("shlwapi.dll"));
       break;
     case DLL_PROCESS_DETACH:
+      if (shlwapiDLL != NULL)
+        {
+          FreeLibrary(shlwapiDLL);
+          shlwapiDLL = NULL;
+        }
       if (shell32DLL != NULL)
         {
           FreeLibrary(shell32DLL);
@@ -232,6 +246,34 @@ extern "C" BOOL WINAPI DllMain(HINSTANCE hinstDLL UNUSED, DWORD fdwReason, LPVOI
     }
 
   return TRUE;
+}
+
+void *ELLockShared(HANDLE sharedMem, DWORD processID)
+{
+  if (shlwapiDLL)
+    {
+      if (MSSHLockShared == NULL)
+        MSSHLockShared = (fnSHLockShared)GetProcAddress(shlwapiDLL, (LPCSTR)8);
+    }
+
+  if (MSSHLockShared && sharedMem)
+    return MSSHLockShared(sharedMem, processID);
+
+  return NULL;
+}
+
+BOOL ELUnlockShared(void *sharedPtr)
+{
+  if (shlwapiDLL)
+    {
+      if (MSSHUnlockShared == NULL)
+        MSSHUnlockShared = (fnSHUnlockShared)GetProcAddress(shlwapiDLL, (LPCSTR)9);
+    }
+
+  if (MSSHUnlockShared && sharedPtr)
+    return MSSHUnlockShared(sharedPtr);
+
+  return FALSE;
 }
 
 BOOL ELGetWindowRect(HWND hwnd, RECT *rect)
@@ -1090,15 +1132,40 @@ bool ELStripShortcutExtension(WCHAR *shortcut)
 
   wcscpy(extension, PathFindExtension(shortcut));
   isShortcut = ((_wcsicmp(extension, TEXT(".lnk")) == 0) ||
-      (_wcsicmp(extension, TEXT(".lnk2")) == 0) ||
-      (_wcsicmp(extension, TEXT(".pif")) == 0) ||
-      (_wcsicmp(extension, TEXT(".scf")) == 0) ||
-      (_wcsicmp(extension, TEXT(".pnagent")) == 0) ||
-      (_wcsicmp(extension, TEXT(".url")) == 0));
+                (_wcsicmp(extension, TEXT(".lnk2")) == 0) ||
+                (_wcsicmp(extension, TEXT(".pif")) == 0) ||
+                (_wcsicmp(extension, TEXT(".scf")) == 0) ||
+                (_wcsicmp(extension, TEXT(".pnagent")) == 0) ||
+                (_wcsicmp(extension, TEXT(".url")) == 0));
   if (isShortcut)
     PathRemoveExtension(shortcut);
 
   return isShortcut;
+}
+
+std::wstring ELGetInternalCommandArg(std::wstring internalCommand)
+{
+  std::wstring workingArg;
+  size_t argDelim = internalCommand.find_first_of(L" \t");
+
+  if (argDelim != std::wstring::npos)
+    {
+      workingArg = internalCommand.substr(argDelim, internalCommand.length() - argDelim);
+      size_t nonWhiteSpace = workingArg.find_first_not_of(L" \t");
+      workingArg = workingArg.substr(nonWhiteSpace, workingArg.length() - nonWhiteSpace);
+    }
+
+  return workingArg;
+}
+
+std::wstring ELStripInternalCommandArg(std::wstring internalCommand)
+{
+  size_t argDelim = internalCommand.find_first_of(L" \t");
+
+  if (argDelim != std::wstring::npos)
+    internalCommand = internalCommand.substr(0, argDelim);
+
+  return internalCommand;
 }
 
 //----  --------------------------------------------------------------------------------------------------------
@@ -5091,20 +5158,15 @@ bool ELPopulateInternalCommandList(HWND hwnd)
   SendMessage(hwnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Disconnect"));
   SendMessage(hwnd, CB_ADDSTRING, 0, (LPARAM)TEXT("EmptyBin"));
   SendMessage(hwnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Halt"));
-  SendMessage(hwnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Halt /silent"));
   SendMessage(hwnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Hibernate"));
-  SendMessage(hwnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Hibernate /silent"));
   SendMessage(hwnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Hide"));
   SendMessage(hwnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Homepage"));
   SendMessage(hwnd, CB_ADDSTRING, 0, (LPARAM)TEXT("LaunchEditor"));
   SendMessage(hwnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Lock"));
   SendMessage(hwnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Logoff"));
-  SendMessage(hwnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Logoff /silent"));
   SendMessage(hwnd, CB_ADDSTRING, 0, (LPARAM)TEXT("MidDeskMenu"));
   SendMessage(hwnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Quit"));
-  SendMessage(hwnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Quit /silent"));
   SendMessage(hwnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Reboot"));
-  SendMessage(hwnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Reboot /silent"));
   SendMessage(hwnd, CB_ADDSTRING, 0, (LPARAM)TEXT("RightDeskMenu"));
   SendMessage(hwnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Run"));
   SendMessage(hwnd, CB_ADDSTRING, 0, (LPARAM)TEXT("ShellChanger"));
@@ -5112,9 +5174,7 @@ bool ELPopulateInternalCommandList(HWND hwnd)
   SendMessage(hwnd, CB_ADDSTRING, 0, (LPARAM)TEXT("ShowApplet"));
   SendMessage(hwnd, CB_ADDSTRING, 0, (LPARAM)TEXT("ShowDesktop"));
   SendMessage(hwnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Suspend"));
-  SendMessage(hwnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Suspend /silent"));
   SendMessage(hwnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Shutdown"));
-  SendMessage(hwnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Shutdown /silent"));
   SendMessage(hwnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Tutorial"));
   SendMessage(hwnd, CB_ADDSTRING, 0, (LPARAM)TEXT("VolumeUp"));
   SendMessage(hwnd, CB_ADDSTRING, 0, (LPARAM)TEXT("VolumeDown"));

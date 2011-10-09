@@ -169,7 +169,7 @@ LRESULT CALLBACK Applet::WindowProcedure (HWND hwnd, UINT message, WPARAM wParam
 }
 
 Applet::Applet(HINSTANCE hInstance)
-  :BaseApplet(hInstance, myName, false, false)
+  :BaseApplet(hInstance, myName, false, true)
 {
   setlocale(LC_TIME, "");
   mainInst = hInstance;

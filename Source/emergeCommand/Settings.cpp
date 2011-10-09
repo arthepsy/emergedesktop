@@ -81,8 +81,6 @@ void Settings::ResetDefaults()
   wcscpy(tipFormat, (WCHAR*)TEXT("%#x"));
   wcscpy(fontString, (WCHAR*)TEXT("Arial-16"));
   autoComplete = true;
-  x = -72;
-  y = -40;
   width = 64;
   height = 32;
   wcscpy(zPosition, TEXT("Top"));
@@ -97,7 +95,26 @@ void Settings::ResetDefaults()
   dynamicPositioning = true;
   clickThrough = 0;
   appletMonitor = 0;
-  wcscpy(anchorPoint, TEXT("BottomRight"));
+  // If appletCount > 0 assume this is a new instance and place it at the centre
+  // of the screen.
+  if (appletCount > 0)
+    {
+      POINT origin;
+      SIZE appletSize;
+
+      appletSize.cx = width;
+      appletSize.cy = height;
+
+      origin = InstancePosition(appletSize);
+      x = origin.x;
+      y = origin.y;
+    }
+  else
+    {
+      x = -72;
+      y = -40;
+      wcscpy(anchorPoint, TEXT("BottomRight"));
+    }
 }
 
 

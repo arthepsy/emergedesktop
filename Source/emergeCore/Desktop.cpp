@@ -42,6 +42,9 @@ Desktop::Desktop(HINSTANCE hInstance, std::tr1::shared_ptr<MessageControl> pMess
   this->pMessageControl = pMessageControl;
   mainInst = hInstance;
   registered = false;
+  ZeroMemory(currentBG, MAX_PATH);
+  SetRectEmpty(&currentDesktopRect);
+  dirWatch = INVALID_HANDLE_VALUE;
 }
 
 bool Desktop::Initialize(bool explorerDesktop)
@@ -158,13 +161,7 @@ LRESULT CALLBACK Desktop::DesktopProcedure (HWND hwnd, UINT message, WPARAM wPar
       break;
 
     case WM_PAINT:
-        {
-          PAINTSTRUCT ps;
-          HDC hdc = BeginPaint(hwnd, &ps);
-          PaintDesktop(hdc);
-          EndPaint(hwnd, &ps);
-        }
-      break;
+      return pDesktop->DoPaint(hwnd);
 
     case WM_RBUTTONDOWN:
       pDesktop->ShowMenu(CORE_RIGHTMENU);
@@ -199,6 +196,17 @@ LRESULT CALLBACK Desktop::DesktopProcedure (HWND hwnd, UINT message, WPARAM wPar
   return 0;
 }
 
+LRESULT Desktop::DoPaint(HWND hwnd)
+{
+  PAINTSTRUCT ps;
+  HDC hdc = BeginPaint(hwnd, &ps);
+  PaintDesktop(hdc);
+  EndPaint(hwnd, &ps);
+  DeleteDC(hdc);
+
+  return 0;
+}
+
 /** \brief Handle the WM_DISPLAYCHANGE message
  *
  * \param HWND hwnd
@@ -207,20 +215,40 @@ LRESULT CALLBACK Desktop::DesktopProcedure (HWND hwnd, UINT message, WPARAM wPar
  */
 LRESULT Desktop::DoDisplayChange(HWND hwnd)
 {
+  // If explorerDesktop is active, hide the Core's desktop window
   UINT SWPFlags = SWP_SHOWWINDOW;
   if (explorerDesktop)
     SWPFlags = SWP_HIDEWINDOW;
 
-  /**< Adjust the window position to cover the desktop */
-  SetWindowPos(hwnd, HWND_BOTTOM,
-               GetSystemMetrics(SM_XVIRTUALSCREEN), GetSystemMetrics(SM_YVIRTUALSCREEN),
-               GetSystemMetrics(SM_CXVIRTUALSCREEN), GetSystemMetrics(SM_CYVIRTUALSCREEN),
-               SWPFlags);
+  // Determine newDesktopRect based on virtual desktop size
+  RECT newDesktopRect;
+  newDesktopRect.left = GetSystemMetrics(SM_XVIRTUALSCREEN);
+  newDesktopRect.right = newDesktopRect.left +
+                         GetSystemMetrics(SM_CXVIRTUALSCREEN);
+  newDesktopRect.top = GetSystemMetrics(SM_YVIRTUALSCREEN);
+  newDesktopRect.bottom = newDesktopRect.top +
+                          GetSystemMetrics(SM_CYVIRTUALSCREEN);
 
-  /**< Set the background image again so that the user doesn't end up with a blank background */
-  SetBackgroundImage();
+  // Check to see if newDesktopRect is the same as currentDesktopRect...
+  if (!EqualRect(&newDesktopRect, &currentDesktopRect))
+    {
+      // If so, copy newDesktopRect to currentDesktopRect for future comparisons
+      CopyRect(&currentDesktopRect, &newDesktopRect);
 
-  return 1;
+      // Adjust the window position to cover the desktop
+      SetWindowPos(hwnd, HWND_BOTTOM,
+                   newDesktopRect.left, newDesktopRect.top,
+                   GetSystemMetrics(SM_CXVIRTUALSCREEN),
+                   GetSystemMetrics(SM_CYVIRTUALSCREEN),
+                   SWPFlags);
+
+      // Force a repaint of the background
+      InvalidateRect(hwnd, NULL, TRUE);
+
+      return 1;
+    }
+
+  return 0;
 }
 
 LRESULT Desktop::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
@@ -269,62 +297,62 @@ void Desktop::ShowMenu(UINT menu)
 bool Desktop::SetBackgroundImage()
 {
   DWORD threadState, threadID;
+  WCHAR newBG[MAX_PATH];
 
-  // Force Desktop to repaint
-  InvalidateDesktop();
+  // Retrieve the new wallpaper
+  SystemParametersInfo(SPI_GETDESKWALLPAPER, MAX_PATH, newBG, 0);
+  // Compare the background to the current background
+  if (wcsicmp(newBG, currentBG) != 0)
+    {
+      // if different, store
+      wcscpy(currentBG, newBG);
 
-  // Kill any existing thread
-  GetExitCodeThread(wallpaperThread, &threadState);
-  if (threadState == STILL_ACTIVE)
-    TerminateThread(wallpaperThread, 0);
+      // If dirWatch is valid close it
+      if (dirWatch != INVALID_HANDLE_VALUE)
+        FindCloseChangeNotification(dirWatch);
 
-  // Start a new thread to watch the wallpaper directory
-  wallpaperThread = CreateThread(NULL, 0, WallpaperThreadProc, this, 0, &threadID);
+      // Set dirWatch to monitor the background path
+      PathRemoveFileSpec(newBG);
+      dirWatch = FindFirstChangeNotification(newBG, FALSE,
+                                             FILE_NOTIFY_CHANGE_LAST_WRITE);
+
+      // Force Desktop to repaint
+      InvalidateDesktop();
+
+      // Start a new thread to watch the wallpaper directory
+      GetExitCodeThread(wallpaperThread, &threadState);
+      if (threadState != STILL_ACTIVE)
+        wallpaperThread = CreateThread(NULL, 0, WallpaperThreadProc, this, 0, &threadID);
+    }
 
   return true;
 }
 
 BOOL Desktop::InvalidateDesktop()
 {
-  RECT bgRect;
-
-  if (GetClientRect(mainWnd, &bgRect))
-    {
-      SystemParametersInfo(SPI_SETDESKWALLPAPER, 0, SETWALLPAPER_DEFAULT, 0);
-      return InvalidateRect(mainWnd, &bgRect, TRUE);
-    }
-
-  return FALSE;
+  SystemParametersInfo(SPI_SETDESKWALLPAPER, 0, SETWALLPAPER_DEFAULT, 0);
+  return InvalidateRect(mainWnd, NULL, TRUE);
 }
 
-DWORD WINAPI Desktop::WallpaperThreadProc(LPVOID lpParameter UNUSED)
+DWORD WINAPI Desktop::WallpaperThreadProc(LPVOID lpParameter)
 {
   // reinterpret lpParameter as a Desktop*
   Desktop *pDesktop = reinterpret_cast< Desktop* >(lpParameter);
 
-  // Determine the wallpaper file name from the system
-  WCHAR bgFile[MAX_PATH];
-  SystemParametersInfo(SPI_GETDESKWALLPAPER, MAX_PATH, bgFile, 0);
+  // If dirWatch is invalid exit the thread
+  if (pDesktop->dirWatch == INVALID_HANDLE_VALUE)
+    ExitThread(1);
 
-  // Strip the file name so only the path remains
-  PathRemoveFileSpec(bgFile);
-
-  // Start a watch on that directory for file writes in order to detect change
-  HANDLE dirWatch = FindFirstChangeNotification(bgFile, FALSE,
-                                                FILE_NOTIFY_CHANGE_LAST_WRITE);
-  if (dirWatch != INVALID_HANDLE_VALUE)
+  // Start an infinite loop to watch the directory
+  while (true)
     {
-      // Start an infinite loop to watch the directory
-      while (true)
-        {
-          // Wait for a file write to occur
-          WaitForSingleObject(dirWatch, INFINITE);
-          // Once it has, force Desktop to repaint
-          pDesktop->InvalidateDesktop();
-          // Restart the directory watch
-          if (FindNextChangeNotification(dirWatch) == FALSE)
-            ExitThread(0);
-        }
+      // Wait for a file write to occur
+      WaitForSingleObject(pDesktop->dirWatch, INFINITE);
+      // Reset dirWatch, if it fails, kill the thread
+      if (FindNextChangeNotification(pDesktop->dirWatch) == FALSE)
+        ExitThread(0);
+      // If the reset is successful, invalidate the desktop
+      pDesktop->InvalidateDesktop();
     }
 
   return 0;

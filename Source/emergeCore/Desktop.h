@@ -61,6 +61,10 @@ private:
   static BOOL CALLBACK MinimizeWindowsEnum(HWND hwnd, LPARAM lParam);
   static DWORD WINAPI WallpaperThreadProc(LPVOID lpParameter);
   HANDLE wallpaperThread;
+  CRITICAL_SECTION desktopCS;
+  WCHAR currentBG[MAX_PATH];
+  RECT currentDesktopRect;
+  HANDLE dirWatch;
 
 public:
   Desktop(HINSTANCE hInstance, std::tr1::shared_ptr<MessageControl> pMessageControl);
@@ -72,6 +76,7 @@ public:
   LRESULT DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
   LRESULT DoTimer(UINT_PTR timerID);
   LRESULT DoDisplayChange(HWND hwnd);
+  LRESULT DoPaint(HWND hwnd);
   void ShowDesktop(bool show);
   BOOL InvalidateDesktop();
 };

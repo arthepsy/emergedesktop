@@ -33,9 +33,11 @@
 
 typedef DWORD HWND32;
 typedef DWORD HICON32;
+typedef DWORD HANDLE32;
 
 #define MAKEHWND(a) ((HWND)((DWORD_PTR)(a)))
 #define MAKEHICON(a) ((HICON)((DWORD_PTR)(a)))
+#define MAKEHANDLE(a) ((HANDLE)((DWORD_PTR)(a)))
 
 typedef struct
 {
@@ -53,9 +55,9 @@ APPBARDATA_WOW32;
 class AppBar
 {
 public:
-  AppBar(HWND wnd, APPBARDATA abd, bool autoHide);
+  AppBar(APPBARDATA *pAppBarData);
   ~AppBar();
-  bool IsEqual(APPBARDATA abd);
+  bool IsEqual(APPBARDATA *pAppBarData);
   UINT GetEdge();
   RECT GetRect();
   bool SetEdge(UINT edge);

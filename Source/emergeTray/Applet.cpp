@@ -54,6 +54,7 @@ LRESULT CALLBACK Applet::TrayProcedure (HWND hwnd, UINT message, WPARAM wParam, 
 {
   COPYDATASTRUCT *cpData;
   CREATESTRUCT *cs;
+  WINDOWPOS *wndPos;
   static Applet *pApplet = NULL;
 
   if (message == WM_CREATE)
@@ -81,6 +82,17 @@ LRESULT CALLBACK Applet::TrayProcedure (HWND hwnd, UINT message, WPARAM wParam, 
         case ICONIDENTIFIER_MESSAGE:
           return pApplet->IconIdentifierEvent(cpData);
         }
+      break;
+
+      // IrfanView forces the tray window to be visible when it returns from
+      // fullscreen mode.  As such, capture the WM_WINDOWPOSCHANGING message...
+    case WM_WINDOWPOSCHANGING:
+      wndPos = (WINDOWPOS*)lParam;
+      // ... make sure the window is at the bottom of the z-order...
+      wndPos->hwndInsertAfter = HWND_BOTTOM;
+      // ... and make sure it stays hidden
+      wndPos->flags &= ~SWP_SHOWWINDOW;
+      wndPos->flags |= SWP_HIDEWINDOW;
       break;
 
       // If not handled just forward the message on
@@ -696,11 +708,17 @@ LRESULT Applet::DoSizing(HWND hwnd, UINT edge, LPRECT rect)
 
 LRESULT Applet::MyMove()
 {
-  RECT winRect;
+  RECT winRect, clientRect;
   movesizeinprogress = false;
 
   ELGetWindowRect(mainWnd, &winRect);
   SetWindowPos(trayWnd, NULL, winRect.left, winRect.top, (winRect.right - winRect.left), (winRect.bottom - winRect.top), SWP_NOZORDER | SWP_NOACTIVATE);
+
+  GetClientRect(trayWnd, &clientRect);
+  SetWindowPos(notifyWnd, NULL, clientRect.left, clientRect.top, (clientRect.right - clientRect.left), (clientRect.bottom - clientRect.top), SWP_NOZORDER | SWP_NOACTIVATE);
+  SetWindowPos(rebarWnd, NULL, clientRect.left, clientRect.top, (clientRect.right - clientRect.left), (clientRect.bottom - clientRect.top), SWP_NOZORDER | SWP_NOACTIVATE);
+  SetWindowPos(taskWnd, NULL, clientRect.left, clientRect.top, (clientRect.right - clientRect.left), (clientRect.bottom - clientRect.top), SWP_NOZORDER | SWP_NOACTIVATE);
+  SetWindowPos(clockWnd, NULL, clientRect.left, clientRect.top, (clientRect.right - clientRect.left), (clientRect.bottom - clientRect.top), SWP_NOZORDER | SWP_NOACTIVATE);
 
   return 0;
 }
@@ -1288,13 +1306,13 @@ bool Applet::RemoveTrayIconListItem(TrayIcon *pTrayIcon)
   return ret;
 }
 
-AppBar* Applet::FindAppBar(APPBARDATA abd)
+AppBar* Applet::FindAppBar(APPBARDATA *pAppBarData)
 {
   std::vector< std::tr1::shared_ptr<AppBar> >::iterator iter;
 
   for (iter = barList.begin(); iter != barList.end(); iter++)
     {
-      if ((*iter)->IsEqual(abd))
+      if ((*iter)->IsEqual(pAppBarData))
         break;
     }
 
@@ -1367,29 +1385,41 @@ bool Applet::ClearAutoHideEdge(UINT edge)
 // it should be handled.
 LRESULT Applet::AppBarEvent(COPYDATASTRUCT *cpData)
 {
-  DWORD message = 0, dataSize;
-  APPBARDATA abd;
-  APPBARDATA_WOW32* abd32 = NULL;
+  DWORD message = 0, processID = 0;
+  HANDLE sharedMem = NULL;
+  APPBARDATA appBarData, *pAppBarData;
   AppBar* pAppBar;
+  RECT trayRect;
+  bool is64Bit = true;
   std::vector< std::tr1::shared_ptr<AppBar> >::iterator iter;
+  UINT offset = 0;
 
-  dataSize = *(DWORD*)cpData->lpData;
-  if (dataSize == sizeof(APPBARDATA))
-    CopyMemory(&abd, cpData->lpData, sizeof(APPBARDATA));
-  else if (dataSize == sizeof(APPBARDATA_WOW32))
+  GetWindowRect(trayWnd, &trayRect);
+
+  pAppBarData = (APPBARDATA*)cpData->lpData;
+  if (!IsWindow(pAppBarData->hWnd))
     {
-      abd32 = (APPBARDATA_WOW32*)cpData->lpData;
-      abd.cbSize = abd32->cbSize;
-      abd.hWnd = MAKEHWND(abd32->hWnd);
-      abd.uCallbackMessage = abd32->uCallbackMessage;
-      abd.uEdge = abd32->uEdge;
-      abd.rc = abd32->rc;
-      abd.lParam = abd32->lParam;
-    }
-  else
-    return 0;
+      APPBARDATA_WOW32 *pAppBarData32 = (APPBARDATA_WOW32*)cpData->lpData;
+      if (!IsWindow(MAKEHWND(pAppBarData32->hWnd)))
+        return 0;
 
-  message = *(DWORD *) (((BYTE *)cpData->lpData) + dataSize);
+      appBarData.cbSize = pAppBarData32->cbSize;
+      appBarData.hWnd = MAKEHWND(pAppBarData32->hWnd);
+      appBarData.lParam = pAppBarData32->lParam;
+      CopyRect(&appBarData.rc, &pAppBarData32->rc);
+      appBarData.uCallbackMessage = pAppBarData32->uCallbackMessage;
+      appBarData.uEdge = pAppBarData32->uEdge;
+
+      pAppBarData = &appBarData;
+      is64Bit = false;
+    }
+
+  message = *(DWORD *) (((BYTE *)cpData->lpData) + pAppBarData->cbSize);
+  offset = sizeof(DWORD);
+  if (ELVersionInfo() > 6.0)
+    offset += sizeof(DWORD);
+  sharedMem = *(HANDLE *) (((BYTE *)cpData->lpData) + pAppBarData->cbSize + offset);
+  processID = *(DWORD *) (((BYTE *)cpData->lpData) + pAppBarData->cbSize + offset + sizeof(HANDLE));
 
   switch (message)
     {
@@ -1403,7 +1433,7 @@ LRESULT Applet::AppBarEvent(COPYDATASTRUCT *cpData)
       if (!IsWindowVisible(mainWnd))
         result = ABS_AUTOHIDE;
 
-      if (ELVersionInfo() >= 7.0)
+      if (ELVersionInfo() > 6.0)
         result |= ABS_ALWAYSONTOP;
       else
         {
@@ -1423,25 +1453,30 @@ LRESULT Applet::AppBarEvent(COPYDATASTRUCT *cpData)
     case ABM_GETAUTOHIDEBAR:
       for (iter = barList.begin(); iter != barList.end(); iter++)
         {
-          if ((*iter)->IsAutoHide() && ((*iter)->GetEdge() == abd.uEdge))
+          if ((*iter)->IsAutoHide() && ((*iter)->GetEdge() == pAppBarData->uEdge))
             return (LRESULT)(*iter)->GetWnd();
         }
-      return 0;
+      break;
 
     case ABM_SETAUTOHIDEBAR:
-      pAppBar = FindAppBar(abd);
+      pAppBar = FindAppBar(pAppBarData);
       if (pAppBar)
         {
-          if (SetAutoHideEdge(abd.uEdge))
+          if (pAppBarData->lParam)
             {
-              barList.push_back( std::tr1::shared_ptr<AppBar>(new AppBar(mainWnd, abd, true)) );
+              if (SetAutoHideEdge(pAppBarData->uEdge))
+                return 1;
+            }
+          else
+            {
+              ClearAutoHideEdge(pAppBar->GetEdge());
               return 1;
             }
         }
-      return 0;
+      break;
 
     case ABM_REMOVE:
-      pAppBar = FindAppBar(abd);
+      pAppBar = FindAppBar(pAppBarData);
       if (pAppBar)
         {
           if (pAppBar->IsAutoHide())
@@ -1449,59 +1484,135 @@ LRESULT Applet::AppBarEvent(COPYDATASTRUCT *cpData)
           RemoveAppBar(pAppBar);
           return 1;
         }
-      return 0;
+      break;
 
     case ABM_NEW:
-      pAppBar = FindAppBar(abd);
+      pAppBar = FindAppBar(pAppBarData);
       if (!pAppBar)
         {
-          barList.push_back( std::tr1::shared_ptr<AppBar>(new AppBar(mainWnd, abd, false)) );
+          barList.push_back( std::tr1::shared_ptr<AppBar>(new AppBar(pAppBarData)) );
           return 1;
         }
-      return 0;
+      break;
 
     case ABM_QUERYPOS:
-      pAppBar = FindAppBar(abd);
+      pAppBar = FindAppBar(pAppBarData);
       if (pAppBar)
         {
-          if (abd.uEdge == pAppBar->GetEdge())
+          pAppBar->SetRect(pAppBarData->rc);
+          pAppBar->SetEdge(pAppBarData->uEdge);
+
+          if (is64Bit)
             {
-              if (dataSize == sizeof(APPBARDATA_WOW32))
-                ((APPBARDATA_WOW32*)cpData->lpData)->rc = pAppBar->GetRect();
-              else
-                ((APPBARDATA*)cpData->lpData)->rc = pAppBar->GetRect();
+              APPBARDATA *pSharedAppBarData = (APPBARDATA*)ELLockShared(sharedMem, processID);
+              if (pSharedAppBarData)
+                {
+                  CopyRect(&pSharedAppBarData->rc, &pAppBarData->rc);
+                  ELUnlockShared(pSharedAppBarData);
+                }
+            }
+          else
+            {
+              APPBARDATA_WOW32 *pSharedAppBarData = (APPBARDATA_WOW32*)ELLockShared(sharedMem, processID);
+              if (pSharedAppBarData)
+                {
+                  CopyRect(&pSharedAppBarData->rc, &pAppBarData->rc);
+                  ELUnlockShared(pSharedAppBarData);
+                }
             }
 
           return 1;
         }
-      return 0;
+      break;
 
     case ABM_SETPOS:
-      pAppBar = FindAppBar(abd);
+      pAppBar = FindAppBar(pAppBarData);
       if (pAppBar)
         {
-          pAppBar->SetRect(abd.rc);
-          pAppBar->SetEdge(abd.uEdge);
+          pAppBar->SetRect(pAppBarData->rc);
+          pAppBar->SetEdge(pAppBarData->uEdge);
+
+          if (is64Bit)
+            {
+              APPBARDATA *pSharedAppBarData = (APPBARDATA*)ELLockShared(sharedMem, processID);
+              if (pSharedAppBarData)
+                {
+                  CopyRect(&pSharedAppBarData->rc, &pAppBarData->rc);
+                  ELUnlockShared(pSharedAppBarData);
+                }
+            }
+          else
+            {
+              APPBARDATA_WOW32 *pSharedAppBarData = (APPBARDATA_WOW32*)ELLockShared(sharedMem, processID);
+              if (pSharedAppBarData)
+                {
+                  CopyRect(&pSharedAppBarData->rc, &pAppBarData->rc);
+                  ELUnlockShared(pSharedAppBarData);
+                }
+            }
 
           return 1;
         }
-      return 0;
+      break;
 
     case ABM_GETTASKBARPOS:
-      pAppBar = FindAppBar(abd);
-      if (pAppBar)
+      if (sharedMem)
         {
-          if (dataSize == sizeof(APPBARDATA_WOW32))
-            ((APPBARDATA_WOW32*)cpData->lpData)->rc = pAppBar->GetRect();
-          else
-            ((APPBARDATA*)cpData->lpData)->rc = pAppBar->GetRect();
+          MONITORINFO appletMonitorInfo;
+          appletMonitorInfo.cbSize = sizeof(MONITORINFO);
+          HMONITOR appletMonitor = MonitorFromWindow(trayWnd, MONITOR_DEFAULTTONEAREST);
+          UINT uEdge = ABE_BOTTOM;
 
-          return 1;
+          if (GetMonitorInfo(appletMonitor, &appletMonitorInfo))
+            {
+              int topDelta = abs(trayRect.top - appletMonitorInfo.rcMonitor.top);
+              int bottomDelta = abs(appletMonitorInfo.rcMonitor.bottom - trayRect.bottom);
+              int leftDelta = abs(trayRect.left - appletMonitorInfo.rcMonitor.left);
+              int rightDelta = abs(appletMonitorInfo.rcMonitor.right - trayRect.right);
+
+              if ((leftDelta < topDelta) && (leftDelta < bottomDelta) && (leftDelta < rightDelta))
+                uEdge = ABE_LEFT;
+              else if ((rightDelta < topDelta) && (rightDelta < bottomDelta) && (rightDelta < leftDelta))
+                uEdge = ABE_RIGHT;
+              else if (topDelta < bottomDelta)
+                uEdge = ABE_TOP;
+            }
+
+          if (is64Bit)
+            {
+              APPBARDATA *pSharedAppBarData = (APPBARDATA*)ELLockShared(sharedMem, processID);
+              if (pSharedAppBarData)
+                {
+                  CopyRect(&pSharedAppBarData->rc, &trayRect);
+                  pSharedAppBarData->uEdge = uEdge;
+                  ELUnlockShared(pSharedAppBarData);
+                  return 1;
+                }
+            }
+          else
+            {
+              APPBARDATA_WOW32 *pSharedAppBarData = (APPBARDATA_WOW32*)ELLockShared(sharedMem, processID);
+              if (pSharedAppBarData)
+                {
+                  CopyRect(&pSharedAppBarData->rc, &trayRect);
+                  pSharedAppBarData->uEdge = uEdge;
+                  ELUnlockShared(pSharedAppBarData);
+                  return 1;
+                }
+            }
         }
-      return 0;
+      break;
     }
 
   return 0;
+}
+
+APPBARDATA *Applet::LockAppBarMemory(HANDLE sharedMem, DWORD processID)
+{
+  if (sharedMem)
+    return (APPBARDATA*)ELLockShared(sharedMem, processID);
+
+  return NULL;
 }
 
 //----  --------------------------------------------------------------------------------------------------------

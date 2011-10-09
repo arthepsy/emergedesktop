@@ -156,10 +156,6 @@ UINT Applet::Initialize()
   if (ret == 0)
     return ret;
 
-  // Initialize Settings, Config and AppletMenu classes
-  //pSettings = reinterpret_cast<Settings*>(pBaseSettings.get());
-  //pSettings = std::tr1::shared_ptr<Settings>(new Settings());
-
   // Set the window transparency
   UpdateGUI();
 
@@ -278,9 +274,9 @@ LRESULT Applet::AddTask(HWND task)
   return 0;
 }
 
-LRESULT Applet::ModifyTaskByThread(HANDLE threadID)
+LRESULT Applet::ModifyTaskByThread(DWORD threadID)
 {
-  std::map<HWND, HANDLE>::iterator iter = modifyMap.begin();
+  std::map<HWND, DWORD>::iterator iter = modifyMap.begin();
   LRESULT result = 1;
 
   // traverse modifyMap looking for the thread ID
@@ -294,11 +290,8 @@ LRESULT Applet::ModifyTaskByThread(HANDLE threadID)
 
   // If the thread ID was found...
   if (iter != modifyMap.end())
-    {
-      // Call ModifyTask using the corresponding first map element
-      result = ModifyTask(iter->first);
-      modifyMap.erase(iter);
-    }
+    // Call ModifyTask using the corresponding first map element
+    result = ModifyTask(iter->first);
 
   return result;
 }
@@ -313,19 +306,22 @@ LRESULT Applet::ModifyTask(HWND task)
 {
   TaskVector::iterator iter = FindTask(task);
   HICON icon = NULL;
+  LRESULT result = 1;
 
-  if (iter == taskList.end())
-    return 1;
+  if (iter != taskList.end())
+    {
+      result = 0;
 
-  if (pSettings->GetIconSize() == 32)
-    icon = EGGetWindowIcon(mainWnd, task, false, false);
-  else
-    icon = EGGetWindowIcon(mainWnd, task, true, false);
+      if (pSettings->GetIconSize() == 32)
+        icon = EGGetWindowIcon(mainWnd, task, false, false);
+      else
+        icon = EGGetWindowIcon(mainWnd, task, true, false);
 
-  (*iter)->SetIcon(icon, pSettings->GetIconSize());
-  DrawAlphaBlend();
+      (*iter)->SetIcon(icon, pSettings->GetIconSize());
+      DrawAlphaBlend();
+    }
 
-  return 0;
+  return result;
 }
 
 //----  --------------------------------------------------------------------------------------------------------
@@ -337,7 +333,6 @@ LRESULT Applet::ModifyTask(HWND task)
 LRESULT Applet::RemoveTask(HWND task)
 {
   TaskVector::iterator iter = FindTask(task);
-  std::map<HWND, HANDLE>::iterator modifyIter = modifyMap.find(task);
   RECT wndRect;
   UINT SWPFlags = SWP_NOZORDER | SWP_NOACTIVATE;
 
@@ -350,8 +345,13 @@ LRESULT Applet::RemoveTask(HWND task)
   LeaveCriticalSection(&vectorLock);
 
   // Remove the task (if found) from modifyMap
+  std::map<HWND, DWORD>::iterator modifyIter = modifyMap.find(task);
   if (modifyIter != modifyMap.end())
-    modifyMap.erase(modifyIter);
+    {
+      HANDLE thread = OpenThread(THREAD_TERMINATE, FALSE, modifyIter->second);
+      TerminateThread(thread, 0);
+      modifyMap.erase(modifyIter);
+    }
 
   if (pSettings->GetAutoSize())
     {
@@ -384,7 +384,6 @@ bool Applet::CleanTasks()
   RECT wndRect;
   bool refresh = false;
   TaskVector::iterator iter = taskList.begin();
-  std::map<HWND, HANDLE>::iterator modifyIter;
   UINT SWPFlags = SWP_NOZORDER | SWP_NOACTIVATE;
 
   // Go through each of the elements in the trayIcons array
@@ -403,9 +402,14 @@ bool Applet::CleanTasks()
           LeaveCriticalSection(&vectorLock);
 
           // Remove the task (if found) from modifyMap
+          std::map<HWND, DWORD>::iterator modifyIter;
           modifyIter = modifyMap.find((*iter)->GetWnd());
           if (modifyIter != modifyMap.end())
-            modifyMap.erase(modifyIter);
+            {
+              HANDLE thread = OpenThread(DELETE, FALSE, modifyIter->second);
+              TerminateThread(thread, 0);
+              modifyMap.erase(modifyIter);
+            }
         }
       else
         iter++;
@@ -716,7 +720,7 @@ DWORD WINAPI Applet::ModifyThreadProc(LPVOID lpParameter)
   WaitForSingleObject(GetCurrentThread(), 100);
 
   // Modify the task based on the current thread ID
-  DWORD ret = pApplet->ModifyTaskByThread(GetCurrentThread());
+  DWORD ret = pApplet->ModifyTaskByThread(GetCurrentThreadId());
 
   return ret;
 }
@@ -751,9 +755,10 @@ LRESULT Applet::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
   UINT shellMessage = (UINT)wParam;
   std::map<HWND, UINT>::iterator mapIter;
   TaskVector::iterator iter;
-  std::map<HWND, HANDLE>::iterator modifyIter;
+  std::map<HWND, DWORD>::iterator modifyIter;
   HICON icon = NULL;
-  DWORD threadID, threadState;
+  DWORD threadID = 0, threadState = 0;
+  HANDLE thread = NULL;
 
   if (message == ShellMessage)
     {
@@ -768,12 +773,28 @@ LRESULT Applet::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
         case HSHELL_REDRAW:
           modifyIter = modifyMap.find(task);
           if (modifyIter == modifyMap.end())
-            modifyMap.insert(std::pair<HWND, HANDLE>(task, CreateThread(NULL, 0, ModifyThreadProc, this, 0, &threadID)));
+            {
+              thread = CreateThread(NULL, 0, ModifyThreadProc, this, CREATE_SUSPENDED, &threadID);
+              if (thread != NULL)
+                {
+                  modifyMap.insert(std::pair<HWND, DWORD>(task, threadID));
+                  ResumeThread(thread);
+                }
+            }
           else
             {
-              GetExitCodeThread(modifyIter->second, &threadState);
+              thread = OpenThread(THREAD_QUERY_INFORMATION, FALSE, modifyIter->second);
+              if (thread != NULL)
+                GetExitCodeThread(thread, &threadState);
               if (threadState != STILL_ACTIVE)
-                modifyIter->second = CreateThread(NULL, 0, ModifyThreadProc, this, 0, &threadID);
+                {
+                  thread = CreateThread(NULL, 0, ModifyThreadProc, this, CREATE_SUSPENDED, &threadID);
+                  if (thread != NULL)
+                    {
+                      modifyIter->second = threadID;
+                      ResumeThread(thread);
+                    }
+                }
             }
           break;
 

@@ -59,7 +59,7 @@ private:
   std::tr1::shared_ptr<Settings> pSettings;
   TaskVector taskList;
   std::map<HWND, UINT> flashMap;
-  std::map<HWND, HANDLE> modifyMap;
+  std::map<HWND, DWORD> modifyMap;
   std::map<HWND, HANDLE> thumbnailMap;
   HWND activeWnd;
   void ResetTaskIcons();
@@ -99,7 +99,7 @@ public:
   bool PaintItem(HDC hdc, UINT index, int x, int y, RECT rect);
   size_t GetIconCount();
   void DoTaskFlash(UINT id);
-  LRESULT ModifyTaskByThread(HANDLE threadID);
+  LRESULT ModifyTaskByThread(DWORD threadID);
 };
 
 #endif

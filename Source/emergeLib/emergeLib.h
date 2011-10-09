@@ -480,4 +480,8 @@ DLL_EXPORT bool ELPopulateInternalCommandList(HWND hwnd);
 DLL_EXPORT void ELDispatchCoreMessage(DWORD type, DWORD message, const WCHAR *instanceName = NULL);
 DLL_EXPORT bool ELPathIsDirectory(const WCHAR *path);
 DLL_EXPORT bool ELStripShortcutExtension(WCHAR *shortcut);
+DLL_EXPORT std::wstring ELGetInternalCommandArg(std::wstring internalCommand);
+DLL_EXPORT std::wstring ELStripInternalCommandArg(std::wstring internalCommand);
+DLL_EXPORT void *ELLockShared(HANDLE sharedMem, DWORD processID);
+DLL_EXPORT BOOL ELUnlockShared(void *sharedPtr);
 #endif

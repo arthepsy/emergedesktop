@@ -34,8 +34,6 @@ BaseSettings::BaseSettings(bool allowAutoSize)
   this->allowAutoSize = allowAutoSize;
   defaultTheme = TEXT("default");
   GBRYTheme = TEXT("GBRY");
-  if (wcslen(titleBarFontString) > 0)
-    EGStringToFont(titleBarFontString, titleBarFont);
 }
 
 BaseSettings::~BaseSettings()
@@ -161,6 +159,8 @@ bool BaseSettings::WriteSettings()
 
 void BaseSettings::DoReadSettings(IOHelper& helper)
 {
+  ZeroMemory(&titleBarFont, sizeof(LOGFONT));
+
   helper.ReadInt(TEXT("Monitor"), appletMonitor, 0);
   helper.ReadInt(TEXT("X"), x, 0);
   helper.ReadInt(TEXT("Y"), y, 0);
@@ -173,17 +173,41 @@ void BaseSettings::DoReadSettings(IOHelper& helper)
   helper.ReadBool(TEXT("AutoSize"), autoSize, false);
   helper.ReadInt(TEXT("IconSize"), iconSize, 16);
   helper.ReadInt(TEXT("IconSpacing"), iconSpacing, 1);
-  if (!helper.ReadString(TEXT("Style"), styleFile, TEXT("\0")))
-    helper.ReadString(TEXT("Scheme"), styleFile, TEXT("\0"));
   helper.ReadBool(TEXT("SnapMove"), snapMove, true);
   helper.ReadBool(TEXT("SnapSize"), snapSize, true);
   helper.ReadBool(TEXT("DynamicPositioning"), dynamicPositioning, true);
   helper.ReadInt(TEXT("ClickThrough"), clickThrough, 0);
   helper.ReadString(TEXT("AnchorPoint"), anchorPoint, (WCHAR*)TEXT("TopLeft"));
   helper.ReadBool(TEXT("StartHidden"), startHidden, false);
-  ZeroMemory(&titleBarFont, sizeof(LOGFONT));
   helper.ReadString(TEXT("TitleBarFont"), titleBarFontString, TEXT("Arial-16"));
   helper.ReadString(TEXT("TitleBarText"), titleBarText, TEXT(""));
+  // Check for a Style entry...
+  if (!helper.ReadString(TEXT("Style"), styleFile, TEXT("\0")))
+    {
+      // ... if not found, look for a Scheme entry.  If found...
+      if (helper.ReadString(TEXT("Scheme"), styleFile, TEXT("\0")))
+        {
+          // ... remove it ...
+          if (helper.RemoveElement(TEXT("Scheme")))
+            {
+              // .. if removed, add a Style entry.
+              if (helper.WriteString(TEXT("Style"), styleFile))
+                ELWriteXMLConfig(ELGetXMLConfig(helper.GetSection()));
+            }
+        }
+    }
+  else
+    {
+      WCHAR tmp[MAX_LINE_LENGTH];
+      // ... if found, check for a 'Scheme' entry...
+      if (helper.ReadString(TEXT("Scheme"), tmp, TEXT("\0")))
+        {
+          // ... and remove it.
+          if (helper.RemoveElement(TEXT("Scheme")))
+            ELWriteXMLConfig(ELGetXMLConfig(helper.GetSection()));
+        }
+
+    }
 }
 
 void BaseSettings::DoWriteSettings(IOHelper& helper)
@@ -214,7 +238,8 @@ void BaseSettings::DoWriteSettings(IOHelper& helper)
 
 void BaseSettings::DoInitialize()
 {
-  // nothing to be initialized here. Maybe in the derived classes.
+  if (wcslen(titleBarFontString))
+    EGStringToFont(titleBarFontString, titleBarFont);
 }
 
 POINT BaseSettings::InstancePosition(SIZE appletSize)
@@ -523,11 +548,6 @@ WCHAR *BaseSettings::GetStyleFile()
 
 LOGFONT *BaseSettings::GetTitleBarFont()
 {
-  if (wcslen(titleBarFontString) == 0)
-    wcscpy(titleBarFontString, TEXT("Arial-16"));
-
-  if ((wcslen(titleBarFont.lfFaceName) == 0) && (wcslen(titleBarFontString) > 0))
-    EGStringToFont(titleBarFontString, titleBarFont);
   return &titleBarFont;
 }
 
@@ -674,10 +694,10 @@ bool BaseSettings::SetTitleBarFont(LOGFONT *titleBarFont)
 void BaseSettings::SetTitleBarText(WCHAR* titleBarText)
 {
   if (_wcsicmp(this->titleBarText, titleBarText) != 0)
-  {
-    wcscpy(this->titleBarText, titleBarText);
-    SetModified();
-  }
+    {
+      wcscpy(this->titleBarText, titleBarText);
+      SetModified();
+    }
 }
 
 bool BaseSettings::CopyStyle()
@@ -870,6 +890,23 @@ bool BaseSettings::IOHelper::GetElementText(WCHAR *text)
     return ELGetXMLElementText(item, text);
 
   return false;
+}
+
+bool BaseSettings::IOHelper::RemoveElement(const WCHAR *name)
+{
+  if (section)
+    {
+      TiXmlElement *itemToRemove = ELGetFirstXMLElementByName(section, (WCHAR*)name, false);
+      if (itemToRemove)
+        return ELRemoveXMLElement(itemToRemove);
+    }
+
+  return false;
+}
+
+TiXmlElement *BaseSettings::IOHelper::GetSection()
+{
+  return section;
 }
 
 bool BaseSettings::IOHelper::ReadBool(const WCHAR* name, bool& data, bool def)

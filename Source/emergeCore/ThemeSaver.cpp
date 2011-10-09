@@ -74,6 +74,8 @@ BOOL ThemeSaver::DoInitDialog(HWND hwndDlg)
 
   SetWindowText(hwndDlg, title);
 
+  SetDlgItemText(hwndDlg, IDC_THEMEITEM, theme);
+
   x = (GetSystemMetrics(SM_CXSCREEN) / 2) - ((rect.right - rect.left) / 2);
   y = (GetSystemMetrics(SM_CYSCREEN) / 2) - ((rect.bottom - rect.top) / 2);
   SetWindowPos(hwndDlg, HWND_TOPMOST, x, y, 0, 0, SWP_NOSIZE);
