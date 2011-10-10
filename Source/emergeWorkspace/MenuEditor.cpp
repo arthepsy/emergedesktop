@@ -148,6 +148,7 @@ BOOL MenuEditor::DoInitDialog(HWND hwndDlg)
   HWND workingDirTextWnd = GetDlgItem(hwndDlg, IDC_WORKINGDIRTEXT);
   HWND dirBrowseWnd = GetDlgItem(hwndDlg, IDC_DIRBROWSE);
   HWND specialFoldersWnd = GetDlgItem(hwndDlg, IDC_ITEMSPECIALFOLDERS);
+  HWND commandArgWnd = GetDlgItem(hwndDlg, IDC_COMMANDARG);
 
   x = (GetSystemMetrics(SM_CXSCREEN) / 2) - ((rect.right - rect.left) / 2);
   y = (GetSystemMetrics(SM_CYSCREEN) / 2) - ((rect.bottom - rect.top) / 2);
@@ -234,6 +235,7 @@ BOOL MenuEditor::DoInitDialog(HWND hwndDlg)
   EnableWindow(workingDirTextWnd, false);
   EnableWindow(dirBrowseWnd, false);
   EnableWindow(specialFoldersWnd, false);
+  EnableWindow(commandArgWnd, false);
 
   SendMessage(typeWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Separator"));
   SendMessage(typeWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Executable"));
@@ -611,12 +613,16 @@ BOOL MenuEditor::DoMenuNotify(HWND hwndDlg, WPARAM wParam UNUSED, LPARAM lParam)
               ShowFields(hwndDlg, GetTypeValue(iter->second.type));
               if (iter->second.type == IT_INTERNAL_COMMAND)
                 {
-                  SendMessage(commandWnd, CB_SETCURSEL,
-                              SendMessage(commandWnd,
-                                          CB_FINDSTRINGEXACT,
-                                          (WPARAM)-1,
-                                          (LPARAM)iter->second.value),
-                              0);
+                  int commandIndex = (int)SendMessage(commandWnd,
+                                                      CB_FINDSTRINGEXACT,
+                                                      (WPARAM)-1,
+                                                      (LPARAM)ELStripInternalCommandArg(iter->second.value).c_str());
+                  if (commandIndex != CB_ERR)
+                    {
+                      SendMessage(commandWnd, CB_SETCURSEL, commandIndex, 0);
+                      SetDlgItemText(hwndDlg, IDC_COMMANDARG,
+                                     ELGetInternalCommandArg(iter->second.value).c_str());
+                    }
                 }
               else if (iter->second.type == IT_SPECIAL_FOLDER)
                 {
@@ -942,82 +948,117 @@ bool MenuEditor::ShowFields(HWND hwndDlg, UINT index)
   HWND commandWnd = GetDlgItem(hwndDlg, IDC_ITEMCOMMAND);
   HWND browseWnd = GetDlgItem(hwndDlg, IDC_ITEMBROWSE);
   HWND specialFoldersWnd = GetDlgItem(hwndDlg, IDC_ITEMSPECIALFOLDERS);
+  HWND commandArgWnd = GetDlgItem(hwndDlg, IDC_COMMANDARG);
+  HWND workingDirWnd = GetDlgItem(hwndDlg, IDC_WORKINGDIR);
+  HWND dirBrowseWnd = GetDlgItem(hwndDlg, IDC_DIRBROWSE);
 
   switch (index)
     {
     case 0:
       SetDlgItemText(hwndDlg, IDC_VALUETEXT, TEXT("Execute:"));
+      SetDlgItemText(hwndDlg, IDC_WORKINGDIRTEXT, TEXT("Working Directory:"));
       if (fileIcon)
         SendMessage(browseWnd, BM_SETIMAGE, IMAGE_ICON, (LPARAM)fileIcon);
       ShowWindow(valueWnd, true);
       ShowWindow(browseWnd, true);
       ShowWindow(commandWnd, false);
       ShowWindow(specialFoldersWnd, false);
+      ShowWindow(commandArgWnd, false);
+      ShowWindow(workingDirWnd, true);
+      ShowWindow(dirBrowseWnd, true);
       break;
     case 2:
       SetDlgItemText(hwndDlg, IDC_VALUETEXT, TEXT("Command:"));
+      SetDlgItemText(hwndDlg, IDC_WORKINGDIRTEXT, TEXT("Argument:"));
       if (fileIcon)
         SendMessage(browseWnd, BM_SETIMAGE, IMAGE_ICON, (LPARAM)fileIcon);
       ShowWindow(valueWnd, false);
       ShowWindow(browseWnd, false);
       ShowWindow(specialFoldersWnd, false);
       ShowWindow(commandWnd, true);
+      ShowWindow(commandArgWnd, true);
+      ShowWindow(workingDirWnd, false);
+      ShowWindow(dirBrowseWnd, false);
       break;
     case 3:
       SetDlgItemText(hwndDlg, IDC_VALUETEXT, TEXT("Format:"));
+      SetDlgItemText(hwndDlg, IDC_WORKINGDIRTEXT, TEXT("Working Directory:"));
       if (fileIcon)
         SendMessage(browseWnd, BM_SETIMAGE, IMAGE_ICON, (LPARAM)fileIcon);
       ShowWindow(valueWnd, true);
       ShowWindow(browseWnd, true);
       ShowWindow(commandWnd, false);
       ShowWindow(specialFoldersWnd, false);
+      ShowWindow(commandArgWnd, false);
+      ShowWindow(workingDirWnd, true);
+      ShowWindow(dirBrowseWnd, true);
       break;
     case 4:
       SetDlgItemText(hwndDlg, IDC_VALUETEXT, TEXT("Special Folder:"));
+      SetDlgItemText(hwndDlg, IDC_WORKINGDIRTEXT, TEXT("Working Directory:"));
       if (fileIcon)
         SendMessage(browseWnd, BM_SETIMAGE, IMAGE_ICON, (LPARAM)fileIcon);
       ShowWindow(valueWnd, false);
       ShowWindow(browseWnd, false);
       ShowWindow(commandWnd, false);
       ShowWindow(specialFoldersWnd, true);
+      ShowWindow(commandArgWnd, false);
+      ShowWindow(workingDirWnd, true);
+      ShowWindow(dirBrowseWnd, true);
       break;
     case 5:
     case 7:
     case 8:
       SetDlgItemText(hwndDlg, IDC_VALUETEXT, TEXT("Execute:"));
+      SetDlgItemText(hwndDlg, IDC_WORKINGDIRTEXT, TEXT("Working Directory:"));
       if (fileIcon)
         SendMessage(browseWnd, BM_SETIMAGE, IMAGE_ICON, (LPARAM)fileIcon);
       ShowWindow(valueWnd, true);
       ShowWindow(browseWnd, true);
       ShowWindow(commandWnd, false);
       ShowWindow(specialFoldersWnd, false);
+      ShowWindow(commandArgWnd, false);
+      ShowWindow(workingDirWnd, true);
+      ShowWindow(dirBrowseWnd, true);
       break;
     case 1:
       SetDlgItemText(hwndDlg, IDC_VALUETEXT, TEXT("Execute:"));
+      SetDlgItemText(hwndDlg, IDC_WORKINGDIRTEXT, TEXT("Working Directory:"));
       if (fileIcon)
         SendMessage(browseWnd, BM_SETIMAGE, IMAGE_ICON, (LPARAM)fileIcon);
       ShowWindow(valueWnd, true);
       ShowWindow(browseWnd, true);
       ShowWindow(commandWnd, false);
       ShowWindow(specialFoldersWnd, false);
+      ShowWindow(commandArgWnd, false);
+      ShowWindow(workingDirWnd, true);
+      ShowWindow(dirBrowseWnd, true);
       break;
     case 6:
       SetDlgItemText(hwndDlg, IDC_VALUETEXT, TEXT("Path:"));
+      SetDlgItemText(hwndDlg, IDC_WORKINGDIRTEXT, TEXT("Working Directory:"));
       if (browseIcon)
         SendMessage(browseWnd, BM_SETIMAGE, IMAGE_ICON, (LPARAM)browseIcon);
       ShowWindow(valueWnd, true);
       ShowWindow(browseWnd, true);
       ShowWindow(commandWnd, false);
       ShowWindow(specialFoldersWnd, false);
+      ShowWindow(commandArgWnd, false);
+      ShowWindow(workingDirWnd, true);
+      ShowWindow(dirBrowseWnd, true);
       break;
     default:
       SetDlgItemText(hwndDlg, IDC_VALUETEXT, TEXT("Execute:"));
+      SetDlgItemText(hwndDlg, IDC_WORKINGDIRTEXT, TEXT("Working Directory:"));
       if (fileIcon)
         SendMessage(browseWnd, BM_SETIMAGE, IMAGE_ICON, (LPARAM)fileIcon);
       ShowWindow(valueWnd, true);
       ShowWindow(browseWnd, true);
       ShowWindow(commandWnd, false);
       ShowWindow(specialFoldersWnd, false);
+      ShowWindow(commandArgWnd, false);
+      ShowWindow(workingDirWnd, true);
+      ShowWindow(dirBrowseWnd, true);
       break;
     }
 
@@ -1038,6 +1079,7 @@ bool MenuEditor::EnableFields(HWND hwndDlg, UINT index)
   HWND workingDirTextWnd = GetDlgItem(hwndDlg, IDC_WORKINGDIRTEXT);
   HWND dirBrowseWnd = GetDlgItem(hwndDlg, IDC_DIRBROWSE);
   HWND specialFoldersWnd = GetDlgItem(hwndDlg, IDC_ITEMSPECIALFOLDERS);
+  HWND commandArgWnd = GetDlgItem(hwndDlg, IDC_COMMANDARG);
 
   EnableWindow(typeWnd, true);
   EnableWindow(typeTextWnd, true);
@@ -1053,15 +1095,17 @@ bool MenuEditor::EnableFields(HWND hwndDlg, UINT index)
       EnableWindow(valueWnd, false);
       EnableWindow(valueTextWnd, false);
       EnableWindow(browseWnd, false);
+      EnableWindow(commandArgWnd, false);
       break;
     case 2:
       EnableWindow(dirWnd, false);
-      EnableWindow(workingDirTextWnd, false);
+      EnableWindow(workingDirTextWnd, true);
       EnableWindow(dirBrowseWnd, false);
       EnableWindow(commandWnd, true);
       EnableWindow(nameWnd, true);
       EnableWindow(nameTextWnd, true);
       EnableWindow(valueTextWnd, true);
+      EnableWindow(commandArgWnd, true);
       break;
     case 3:
       EnableWindow(dirWnd, false);
@@ -1072,6 +1116,7 @@ bool MenuEditor::EnableFields(HWND hwndDlg, UINT index)
       EnableWindow(browseWnd, false);
       EnableWindow(nameWnd, false);
       EnableWindow(nameTextWnd, true);
+      EnableWindow(commandArgWnd, false);
       break;
     case 4:
       EnableWindow(dirWnd, false);
@@ -1081,6 +1126,7 @@ bool MenuEditor::EnableFields(HWND hwndDlg, UINT index)
       EnableWindow(nameWnd, true);
       EnableWindow(nameTextWnd, true);
       EnableWindow(valueTextWnd, true);
+      EnableWindow(commandArgWnd, false);
       break;
     case 5:
     case 7:
@@ -1093,6 +1139,7 @@ bool MenuEditor::EnableFields(HWND hwndDlg, UINT index)
       EnableWindow(browseWnd, false);
       EnableWindow(nameWnd, true);
       EnableWindow(nameTextWnd, true);
+      EnableWindow(commandArgWnd, false);
       break;
     case 1:
       EnableWindow(dirWnd, true);
@@ -1103,6 +1150,7 @@ bool MenuEditor::EnableFields(HWND hwndDlg, UINT index)
       EnableWindow(valueWnd, true);
       EnableWindow(valueTextWnd, true);
       EnableWindow(browseWnd, true);
+      EnableWindow(commandArgWnd, false);
       break;
     case 6:
       EnableWindow(dirWnd, false);
@@ -1113,6 +1161,7 @@ bool MenuEditor::EnableFields(HWND hwndDlg, UINT index)
       EnableWindow(valueWnd, true);
       EnableWindow(valueTextWnd, true);
       EnableWindow(browseWnd, true);
+      EnableWindow(commandArgWnd, false);
       break;
     default:
       EnableWindow(dirWnd, false);
@@ -1123,6 +1172,7 @@ bool MenuEditor::EnableFields(HWND hwndDlg, UINT index)
       EnableWindow(valueWnd, false);
       EnableWindow(valueTextWnd, false);
       EnableWindow(browseWnd, false);
+      EnableWindow(commandArgWnd, false);
       break;
     }
 
@@ -1160,7 +1210,15 @@ bool MenuEditor::DoSaveItem(HWND hwndDlg)
   else
     {
       if (iter->second.type == IT_INTERNAL_COMMAND)
-        GetDlgItemText(hwndDlg, IDC_ITEMCOMMAND, value, MAX_LINE_LENGTH);
+        {
+          GetDlgItemText(hwndDlg, IDC_ITEMCOMMAND, value, MAX_LINE_LENGTH);
+          GetDlgItemText(hwndDlg, IDC_COMMANDARG, tmp, MAX_LINE_LENGTH);
+          if (wcslen(tmp))
+            {
+              wcscat(value, L" ");
+              wcscat(value, tmp);
+            }
+        }
       else if (iter->second.type == IT_SPECIAL_FOLDER)
         {
           GetDlgItemText(hwndDlg, IDC_ITEMSPECIALFOLDERS, tmp, MAX_LINE_LENGTH);
@@ -1289,6 +1347,7 @@ bool MenuEditor::DoUpdateFields(HWND hwndDlg)
   HWND workingDirTextWnd = GetDlgItem(hwndDlg, IDC_WORKINGDIRTEXT);
   HWND dirBrowseWnd = GetDlgItem(hwndDlg, IDC_DIRBROWSE);
   HWND specialFoldersWnd = GetDlgItem(hwndDlg, IDC_ITEMSPECIALFOLDERS);
+  HWND commandArgWnd = GetDlgItem(hwndDlg, IDC_COMMANDARG);
 
   EnableWindow(treeWnd, true);
   EnableWindow(addWnd, true);
@@ -1308,6 +1367,7 @@ bool MenuEditor::DoUpdateFields(HWND hwndDlg)
   EnableWindow(workingDirTextWnd, false);
   EnableWindow(dirBrowseWnd, false);
   EnableWindow(specialFoldersWnd, false);
+  EnableWindow(commandArgWnd, false);
 
   edit = false;
 

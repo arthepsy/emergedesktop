@@ -67,6 +67,7 @@
 #define IDC_ITEMSPECIALFOLDERS	411
 #define IDC_WORKINGDIR          412
 #define IDC_DIRBROWSE           413
+#define IDC_COMMANDARG          414
 
 #define IDI_DEFAULT		        1000
 #define IDI_ADD			        1001
