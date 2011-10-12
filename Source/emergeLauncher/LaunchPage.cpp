@@ -111,7 +111,7 @@ bool LaunchPage::CheckSaveCount(HWND hwndDlg)
   if ((saveCount != 0) || (deleteCount != 0))
     {
       if (ELMessageBox(hwndDlg,
-                       (WCHAR*)TEXT("All current modifications will be lost.  To save and exit press OK.\n\nDo you wish to continue?"),
+                       (WCHAR*)TEXT("All currently modifications will be lost.  To save and exit press OK.\n\nDo you wish to continue?"),
                        (WCHAR*)TEXT("emergeLauncher"),
                        ELMB_YESNO|ELMB_ICONQUESTION|ELMB_MODAL) == IDYES)
         return true;
@@ -160,33 +160,37 @@ BOOL LaunchPage::DoInitDialog(HWND hwndDlg)
   saveCount = 0;
   deleteCount = 0;
 
-  HWND listWnd = GetDlgItem(hwndDlg, IDC_APPLIST);
+  HWND abortWnd = GetDlgItem(hwndDlg, IDC_ABORTITEM);
+  HWND addWnd = GetDlgItem(hwndDlg, IDC_ADDITEM);
+  HWND browseCommandWnd = GetDlgItem(hwndDlg, IDC_BROWSECOMMAND);
+  HWND browseEntireDirWnd = GetDlgItem(hwndDlg, IDC_BROWSEENTIREDIR);
+  HWND browseEntireDirTextWnd = GetDlgItem(hwndDlg, IDC_ENTIREDIRTEXT);
+  HWND browseIconWnd = GetDlgItem(hwndDlg, IDC_BROWSEICON);
+  HWND browseWorkingDirWnd = GetDlgItem(hwndDlg, IDC_BROWSEWORKINGDIR);
+  HWND comButtonWnd = GetDlgItem(hwndDlg, IDC_COMBUTTON);
   HWND commandWnd = GetDlgItem(hwndDlg, IDC_COMMAND);
+  HWND delWnd = GetDlgItem(hwndDlg, IDC_DELITEM);
+  HWND downWnd = GetDlgItem(hwndDlg, IDC_DOWNITEM);
+  HWND editWnd = GetDlgItem(hwndDlg, IDC_EDITITEM);
+  HWND exeButtonWnd = GetDlgItem(hwndDlg, IDC_EXEBUTTON);
   HWND iconWnd = GetDlgItem(hwndDlg, IDC_ICONPATH);
   HWND iconTextWnd = GetDlgItem(hwndDlg, IDC_ICONTEXT);
-  HWND tipWnd = GetDlgItem(hwndDlg, IDC_TIP);
-  HWND tipTextWnd = GetDlgItem(hwndDlg, IDC_TIPTEXT);
-  HWND addWnd = GetDlgItem(hwndDlg, IDC_ADDITEM);
-  HWND editWnd = GetDlgItem(hwndDlg, IDC_EDITITEM);
-  HWND delWnd = GetDlgItem(hwndDlg, IDC_DELITEM);
-  HWND upWnd = GetDlgItem(hwndDlg, IDC_UPITEM);
-  HWND downWnd = GetDlgItem(hwndDlg, IDC_DOWNITEM);
-  HWND saveWnd = GetDlgItem(hwndDlg, IDC_SAVEITEM);
-  HWND abortWnd = GetDlgItem(hwndDlg, IDC_ABORTITEM);
-  HWND browseIconWnd = GetDlgItem(hwndDlg, IDC_BROWSEICON);
-  HWND browseCommandWnd = GetDlgItem(hwndDlg, IDC_BROWSECOMMAND);
-  HWND browseWorkingDirWnd = GetDlgItem(hwndDlg, IDC_BROWSEWORKINGDIR);
-  HWND workingDirWnd = GetDlgItem(hwndDlg, IDC_WORKINGDIR);
-  HWND workingDirTextWnd = GetDlgItem(hwndDlg, IDC_WORKINGDIRTEXT);
-  HWND exeButtonWnd = GetDlgItem(hwndDlg, IDC_EXEBUTTON);
-  HWND comButtonWnd = GetDlgItem(hwndDlg, IDC_COMBUTTON);
   HWND internalWnd = GetDlgItem(hwndDlg, IDC_INTERNAL);
-  HWND typeWnd = GetDlgItem(hwndDlg, IDC_TYPE);
-  HWND typeLabelWnd = GetDlgItem(hwndDlg, IDC_STATIC9);
-  HWND specialFolderWnd = GetDlgItem(hwndDlg, IDC_SPECIALFOLDER);
-  HWND specialFolderLabelWnd = GetDlgItem(hwndDlg, IDC_SPECIALFOLDERBUTTON);
+  HWND listWnd = GetDlgItem(hwndDlg, IDC_APPLIST);
+  HWND saveWnd = GetDlgItem(hwndDlg, IDC_SAVEITEM);
   HWND separatorWnd = GetDlgItem(hwndDlg, IDC_SEPARATOR);
   HWND separatorLabelWnd = GetDlgItem(hwndDlg, IDC_SEPARATORBUTTON);
+  HWND specialFolderWnd = GetDlgItem(hwndDlg, IDC_SPECIALFOLDER);
+  HWND specialFolderLabelWnd = GetDlgItem(hwndDlg, IDC_SPECIALFOLDERBUTTON);
+  HWND tipWnd = GetDlgItem(hwndDlg, IDC_TIP);
+  HWND tipTextWnd = GetDlgItem(hwndDlg, IDC_TIPTEXT);
+  HWND typeWnd = GetDlgItem(hwndDlg, IDC_TYPE);
+  HWND typeLabelWnd = GetDlgItem(hwndDlg, IDC_STATIC9);
+  HWND upWnd = GetDlgItem(hwndDlg, IDC_UPITEM);
+  HWND workingDirWnd = GetDlgItem(hwndDlg, IDC_WORKINGDIR);
+  HWND workingDirTextWnd = GetDlgItem(hwndDlg, IDC_WORKINGDIRTEXT);
+  HWND argButtonWnd = GetDlgItem(hwndDlg, IDC_ARGBUTTON);
+  HWND argumentWnd = GetDlgItem(hwndDlg, IDC_ARGUMENT);
 
   if (addIcon)
     SendMessage(addWnd, BM_SETIMAGE, IMAGE_ICON, (LPARAM)addIcon);
@@ -208,7 +212,10 @@ BOOL LaunchPage::DoInitDialog(HWND hwndDlg)
       SendMessage(browseIconWnd, BM_SETIMAGE, IMAGE_ICON, (LPARAM)fileIcon);
     }
   if (browseIcon)
-    SendMessage(browseWorkingDirWnd, BM_SETIMAGE, IMAGE_ICON, (LPARAM)browseIcon);
+    {
+      SendMessage(browseWorkingDirWnd, BM_SETIMAGE, IMAGE_ICON, (LPARAM)browseIcon);
+      SendMessage(browseEntireDirWnd, BM_SETIMAGE, IMAGE_ICON, (LPARAM)browseIcon);
+    }
 
   lvCol.mask = LVCF_TEXT | LVCF_WIDTH;
   lvCol.pszText = (WCHAR*)TEXT("Type");
@@ -236,37 +243,45 @@ BOOL LaunchPage::DoInitDialog(HWND hwndDlg)
   PopulateList(listWnd);
   PopulateComboBoxes(hwndDlg);
 
-  EnableWindow(commandWnd, false);
-  EnableWindow(iconWnd, false);
-  EnableWindow(iconTextWnd, false);
-  EnableWindow(tipWnd, false);
-  EnableWindow(tipTextWnd, false);
-  EnableWindow(saveWnd, false);
   EnableWindow(abortWnd, false);
   EnableWindow(browseIconWnd, false);
   EnableWindow(browseCommandWnd, false);
-  EnableWindow(editWnd, false);
-  EnableWindow(delWnd, false);
-  EnableWindow(upWnd, false);
-  EnableWindow(downWnd, false);
-  EnableWindow(workingDirWnd, false);
-  EnableWindow(workingDirTextWnd, false);
+  EnableWindow(browseEntireDirWnd, false);
+  EnableWindow(browseEntireDirTextWnd, false);
   EnableWindow(browseWorkingDirWnd, false);
-  EnableWindow(exeButtonWnd, false);
   EnableWindow(comButtonWnd, false);
+  EnableWindow(commandWnd, false);
+  EnableWindow(delWnd, false);
+  EnableWindow(downWnd, false);
+  EnableWindow(editWnd, false);
+  EnableWindow(exeButtonWnd, false);
+  EnableWindow(iconWnd, false);
+  EnableWindow(iconTextWnd, false);
   EnableWindow(internalWnd, false);
-  EnableWindow(typeWnd, false);
-  EnableWindow(typeLabelWnd, false);
-  EnableWindow(specialFolderWnd, false);
-  EnableWindow(specialFolderLabelWnd, false);
+  EnableWindow(saveWnd, false);
   EnableWindow(separatorWnd, false);
   EnableWindow(separatorLabelWnd, false);
+  EnableWindow(specialFolderWnd, false);
+  EnableWindow(specialFolderLabelWnd, false);
+  EnableWindow(tipWnd, false);
+  EnableWindow(tipTextWnd, false);
+  EnableWindow(typeWnd, false);
+  EnableWindow(typeLabelWnd, false);
+  EnableWindow(upWnd, false);
+  EnableWindow(workingDirWnd, false);
+  EnableWindow(workingDirTextWnd, false);
+  EnableWindow(argButtonWnd, false);
+  EnableWindow(argumentWnd, false);
+  ShowWindow(browseEntireDirWnd, SW_HIDE);
+  ShowWindow(browseEntireDirTextWnd, SW_HIDE);
   ShowWindow(comButtonWnd, SW_HIDE);
   ShowWindow(internalWnd, SW_HIDE);
-  ShowWindow(specialFolderWnd, SW_HIDE);
-  ShowWindow(specialFolderLabelWnd, SW_HIDE);
   ShowWindow(separatorWnd, SW_HIDE);
   ShowWindow(separatorLabelWnd, SW_HIDE);
+  ShowWindow(specialFolderWnd, SW_HIDE);
+  ShowWindow(specialFolderLabelWnd, SW_HIDE);
+  ShowWindow(argButtonWnd, SW_HIDE);
+  ShowWindow(argumentWnd, SW_HIDE);
 
   ti.cbSize = TTTOOLINFOW_V2_SIZE;
   ti.uFlags = TTF_SUBCLASS;
@@ -358,6 +373,8 @@ BOOL LaunchPage::DoCommand(HWND hwndDlg, WPARAM wParam, LPARAM lParam UNUSED)
       return GetIcon(hwndDlg);
     case IDC_BROWSEWORKINGDIR:
       return Browse(hwndDlg, BROWSE_WORKINGDIR);
+    case IDC_BROWSEENTIREDIR:
+      return Browse(hwndDlg, BROWSE_ENTIREDIR);
     case IDC_EXEBUTTON:
       exeButton = true;
     case IDC_COMBUTTON:
@@ -404,24 +421,29 @@ BOOL LaunchPage::ToggleIconFields(HWND hwndDlg)
 
 BOOL LaunchPage::ToggleFields(HWND hwndDlg)
 {
-  HWND iconWnd = GetDlgItem(hwndDlg, IDC_ICONPATH);
-  HWND iconTextWnd = GetDlgItem(hwndDlg, IDC_ICONTEXT);
-  HWND tipWnd = GetDlgItem(hwndDlg, IDC_TIP);
-  HWND tipTextWnd = GetDlgItem(hwndDlg, IDC_TIPTEXT);
+  HWND browseCommandWnd = GetDlgItem(hwndDlg, IDC_BROWSECOMMAND);
+  HWND browseEntireDirWnd = GetDlgItem(hwndDlg, IDC_BROWSEENTIREDIR);
+  HWND browseEntireDirTextWnd = GetDlgItem(hwndDlg, IDC_ENTIREDIRTEXT);
   HWND browseIconWnd = GetDlgItem(hwndDlg, IDC_BROWSEICON);
   HWND browseWorkingDirWnd = GetDlgItem(hwndDlg, IDC_BROWSEWORKINGDIR);
-  HWND workingDirWnd = GetDlgItem(hwndDlg, IDC_WORKINGDIR);
-  HWND workingDirTextWnd = GetDlgItem(hwndDlg, IDC_WORKINGDIRTEXT);
-  HWND exeButtonWnd = GetDlgItem(hwndDlg, IDC_EXEBUTTON);
   HWND comButtonWnd = GetDlgItem(hwndDlg, IDC_COMBUTTON);
-  HWND internalWnd = GetDlgItem(hwndDlg, IDC_INTERNAL);
-  HWND browseCommandWnd = GetDlgItem(hwndDlg, IDC_BROWSECOMMAND);
   HWND commandWnd = GetDlgItem(hwndDlg, IDC_COMMAND);
-  HWND specialFolderWnd = GetDlgItem(hwndDlg, IDC_SPECIALFOLDER);
-  HWND specialFolderLabelWnd = GetDlgItem(hwndDlg, IDC_SPECIALFOLDERBUTTON);
+  HWND exeButtonWnd = GetDlgItem(hwndDlg, IDC_EXEBUTTON);
+  HWND iconWnd = GetDlgItem(hwndDlg, IDC_ICONPATH);
+  HWND iconTextWnd = GetDlgItem(hwndDlg, IDC_ICONTEXT);
+  HWND internalWnd = GetDlgItem(hwndDlg, IDC_INTERNAL);
+  HWND saveWnd = GetDlgItem(hwndDlg, IDC_SAVEITEM);
   HWND separatorWnd = GetDlgItem(hwndDlg, IDC_SEPARATOR);
   HWND separatorLabelWnd = GetDlgItem(hwndDlg, IDC_SEPARATORBUTTON);
-  HWND saveWnd = GetDlgItem(hwndDlg, IDC_SAVEITEM);
+  HWND specialFolderWnd = GetDlgItem(hwndDlg, IDC_SPECIALFOLDER);
+  HWND specialFolderLabelWnd = GetDlgItem(hwndDlg, IDC_SPECIALFOLDERBUTTON);
+  HWND tipWnd = GetDlgItem(hwndDlg, IDC_TIP);
+  HWND tipTextWnd = GetDlgItem(hwndDlg, IDC_TIPTEXT);
+  HWND workingDirWnd = GetDlgItem(hwndDlg, IDC_WORKINGDIR);
+  HWND workingDirTextWnd = GetDlgItem(hwndDlg, IDC_WORKINGDIRTEXT);
+  HWND argButtonWnd = GetDlgItem(hwndDlg, IDC_ARGBUTTON);
+  HWND argumentWnd = GetDlgItem(hwndDlg, IDC_ARGUMENT);
+
   WCHAR typeName[MAX_LINE_LENGTH];
 
   if (GetDlgItemText(hwndDlg, IDC_TYPE, typeName, MAX_LINE_LENGTH) != 0)
@@ -432,109 +454,176 @@ BOOL LaunchPage::ToggleFields(HWND hwndDlg)
         {
           EnableWindow(separatorWnd, true);
           EnableWindow(separatorLabelWnd, true);
-          ShowWindow(separatorWnd, SW_SHOW);
-          ShowWindow(separatorLabelWnd, SW_SHOW);
+          EnableWindow(browseCommandWnd, false);
+          EnableWindow(browseEntireDirWnd, false);
+          EnableWindow(browseEntireDirTextWnd, false);
+          EnableWindow(browseIconWnd, false);
+          EnableWindow(browseWorkingDirWnd, false);
+          EnableWindow(comButtonWnd, false);
+          EnableWindow(commandWnd, false);
+          EnableWindow(exeButtonWnd, false);
+          EnableWindow(iconWnd, false);
+          EnableWindow(iconTextWnd, false);
+          EnableWindow(internalWnd, false);
           EnableWindow(specialFolderWnd, false);
           EnableWindow(specialFolderLabelWnd, false);
-          ShowWindow(specialFolderWnd, SW_HIDE);
-          ShowWindow(specialFolderLabelWnd, SW_HIDE);
-          EnableWindow(exeButtonWnd, false);
-          EnableWindow(browseCommandWnd, false);
-          EnableWindow(commandWnd, false);
-          EnableWindow(comButtonWnd, false);
-          ShowWindow(comButtonWnd, SW_HIDE);
-          ShowWindow(internalWnd, SW_HIDE);
-          ShowWindow(exeButtonWnd, SW_HIDE);
-          ShowWindow(browseCommandWnd, SW_HIDE);
-          ShowWindow(commandWnd, SW_HIDE);
-          EnableWindow(internalWnd, false);
           EnableWindow(tipWnd, false);
           EnableWindow(tipTextWnd, false);
           EnableWindow(workingDirWnd, false);
           EnableWindow(workingDirTextWnd, false);
-          EnableWindow(browseWorkingDirWnd, false);
-          EnableWindow(iconWnd, false);
-          EnableWindow(iconTextWnd, false);
-          EnableWindow(browseIconWnd, false);
+          EnableWindow(argButtonWnd, false);
+          EnableWindow(argumentWnd, false);
+          ShowWindow(separatorWnd, SW_SHOW);
+          ShowWindow(separatorLabelWnd, SW_SHOW);
+          ShowWindow(browseCommandWnd, SW_HIDE);
+          ShowWindow(browseEntireDirWnd, SW_HIDE);
+          ShowWindow(browseEntireDirTextWnd, SW_HIDE);
+          ShowWindow(comButtonWnd, SW_HIDE);
+          ShowWindow(commandWnd, SW_HIDE);
+          ShowWindow(exeButtonWnd, SW_HIDE);
+          ShowWindow(internalWnd, SW_HIDE);
+          ShowWindow(specialFolderWnd, SW_HIDE);
+          ShowWindow(specialFolderLabelWnd, SW_HIDE);
+          ShowWindow(argButtonWnd, SW_HIDE);
+          ShowWindow(argumentWnd, SW_HIDE);
         }
       else if (_wcsicmp(typeName, TEXT("Executable")) == 0)
         {
-          EnableWindow(separatorWnd, false);
-          EnableWindow(separatorLabelWnd, false);
-          ShowWindow(separatorWnd, SW_HIDE);
-          ShowWindow(separatorLabelWnd, SW_HIDE);
-          EnableWindow(specialFolderWnd, false);
-          EnableWindow(specialFolderLabelWnd, false);
-          ShowWindow(specialFolderWnd, SW_HIDE);
-          ShowWindow(specialFolderLabelWnd, SW_HIDE);
-          EnableWindow(exeButtonWnd, true);
           EnableWindow(browseCommandWnd, true);
+          EnableWindow(browseIconWnd, true);
+          EnableWindow(browseWorkingDirWnd, true);
           EnableWindow(commandWnd, true);
-          ShowWindow(exeButtonWnd, SW_SHOW);
-          ShowWindow(browseCommandWnd, SW_SHOW);
-          ShowWindow(commandWnd, SW_SHOW);
-          ShowWindow(comButtonWnd, SW_HIDE);
-          ShowWindow(internalWnd, SW_HIDE);
+          EnableWindow(exeButtonWnd, true);
+          EnableWindow(iconWnd, true);
+          EnableWindow(iconTextWnd, true);
           EnableWindow(tipWnd, true);
           EnableWindow(tipTextWnd, true);
           EnableWindow(workingDirWnd, true);
           EnableWindow(workingDirTextWnd, true);
-          EnableWindow(browseWorkingDirWnd, true);
-          EnableWindow(iconWnd, true);
-          EnableWindow(iconTextWnd, true);
-          EnableWindow(browseIconWnd, true);
+          EnableWindow(browseEntireDirTextWnd, false);
+          EnableWindow(browseEntireDirWnd, false);
+          EnableWindow(separatorWnd, false);
+          EnableWindow(separatorLabelWnd, false);
+          EnableWindow(specialFolderWnd, false);
+          EnableWindow(specialFolderLabelWnd, false);
+          EnableWindow(argButtonWnd, false);
+          EnableWindow(argumentWnd, false);
+          ShowWindow(browseCommandWnd, SW_SHOW);
+          ShowWindow(commandWnd, SW_SHOW);
+          ShowWindow(exeButtonWnd, SW_SHOW);
+          ShowWindow(browseEntireDirWnd, SW_HIDE);
+          ShowWindow(browseEntireDirTextWnd, SW_HIDE);
+          ShowWindow(comButtonWnd, SW_HIDE);
+          ShowWindow(internalWnd, SW_HIDE);
+          ShowWindow(separatorWnd, SW_HIDE);
+          ShowWindow(separatorLabelWnd, SW_HIDE);
+          ShowWindow(specialFolderWnd, SW_HIDE);
+          ShowWindow(specialFolderLabelWnd, SW_HIDE);
+          ShowWindow(argButtonWnd, SW_HIDE);
+          ShowWindow(argumentWnd, SW_HIDE);
         }
       else if (_wcsicmp(typeName, TEXT("Internal Command")) == 0)
         {
-          EnableWindow(separatorWnd, false);
-          EnableWindow(separatorLabelWnd, false);
-          ShowWindow(separatorWnd, FALSE);
-          ShowWindow(separatorLabelWnd, FALSE);
-          EnableWindow(specialFolderWnd, false);
-          EnableWindow(specialFolderLabelWnd, false);
-          ShowWindow(specialFolderWnd, SW_HIDE);
-          ShowWindow(specialFolderLabelWnd, SW_HIDE);
+          EnableWindow(browseIconWnd, true);
           EnableWindow(comButtonWnd, true);
-          EnableWindow(internalWnd, true);
-          ShowWindow(comButtonWnd, SW_SHOW);
-          ShowWindow(internalWnd, SW_SHOW);
-          ShowWindow(exeButtonWnd, SW_HIDE);
-          ShowWindow(browseCommandWnd, SW_HIDE);
-          ShowWindow(commandWnd, SW_HIDE);
-          EnableWindow(tipWnd, true);
-          EnableWindow(tipTextWnd, true);
-          EnableWindow(workingDirWnd, false);
-          EnableWindow(workingDirTextWnd, false);
-          EnableWindow(browseWorkingDirWnd, false);
           EnableWindow(iconWnd, true);
           EnableWindow(iconTextWnd, true);
-          EnableWindow(browseIconWnd, true);
+          EnableWindow(internalWnd, true);
+          EnableWindow(tipWnd, true);
+          EnableWindow(tipTextWnd, true);
+          EnableWindow(argButtonWnd, true);
+          EnableWindow(argumentWnd, true);
+          EnableWindow(browseEntireDirWnd, false);
+          EnableWindow(browseEntireDirTextWnd, false);
+          EnableWindow(separatorWnd, false);
+          EnableWindow(separatorLabelWnd, false);
+          EnableWindow(specialFolderWnd, false);
+          EnableWindow(specialFolderLabelWnd, false);
+          ShowWindow(comButtonWnd, SW_SHOW);
+          ShowWindow(internalWnd, SW_SHOW);
+          ShowWindow(argButtonWnd, SW_SHOW);
+          ShowWindow(argumentWnd, SW_SHOW);
+          ShowWindow(browseCommandWnd, SW_HIDE);
+          ShowWindow(browseEntireDirWnd, SW_HIDE);
+          ShowWindow(browseEntireDirTextWnd, SW_HIDE);
+          ShowWindow(commandWnd, SW_HIDE);
+          ShowWindow(exeButtonWnd, SW_HIDE);
+          ShowWindow(separatorWnd, SW_HIDE);
+          ShowWindow(separatorLabelWnd, SW_HIDE);
+          ShowWindow(specialFolderWnd, SW_HIDE);
+          ShowWindow(specialFolderLabelWnd, SW_HIDE);
+          ShowWindow(workingDirWnd, SW_HIDE);
+          ShowWindow(workingDirTextWnd, SW_HIDE);
+          ShowWindow(browseWorkingDirWnd, SW_HIDE);
         }
       else if (_wcsicmp(typeName, TEXT("Special Folder")) == 0)
         {
-          EnableWindow(separatorWnd, false);
-          EnableWindow(separatorLabelWnd, false);
-          ShowWindow(separatorWnd, FALSE);
-          ShowWindow(separatorLabelWnd, FALSE);
+          EnableWindow(browseIconWnd, true);
+          EnableWindow(iconWnd, true);
+          EnableWindow(iconTextWnd, true);
           EnableWindow(specialFolderWnd, true);
           EnableWindow(specialFolderLabelWnd, true);
-          ShowWindow(specialFolderWnd, SW_SHOW);
-          ShowWindow(specialFolderLabelWnd, SW_SHOW);
-          EnableWindow(comButtonWnd, false);
-          EnableWindow(internalWnd, false);
-          ShowWindow(comButtonWnd, SW_HIDE);
-          ShowWindow(internalWnd, SW_HIDE);
-          ShowWindow(exeButtonWnd, SW_HIDE);
-          ShowWindow(browseCommandWnd, SW_HIDE);
-          ShowWindow(commandWnd, SW_HIDE);
           EnableWindow(tipWnd, true);
           EnableWindow(tipTextWnd, true);
+          EnableWindow(browseEntireDirWnd, false);
+          EnableWindow(browseEntireDirTextWnd, false);
+          EnableWindow(comButtonWnd, false);
+          EnableWindow(internalWnd, false);
+          EnableWindow(separatorWnd, false);
+          EnableWindow(separatorLabelWnd, false);
           EnableWindow(workingDirWnd, false);
           EnableWindow(workingDirTextWnd, false);
           EnableWindow(browseWorkingDirWnd, false);
-          EnableWindow(iconWnd, true);
-          EnableWindow(iconTextWnd, true);
-          EnableWindow(browseIconWnd, true);
+          EnableWindow(argButtonWnd, false);
+          EnableWindow(argumentWnd, false);
+          ShowWindow(specialFolderWnd, SW_SHOW);
+          ShowWindow(specialFolderLabelWnd, SW_SHOW);
+          ShowWindow(browseCommandWnd, SW_HIDE);
+          ShowWindow(browseEntireDirWnd, SW_HIDE);
+          ShowWindow(browseEntireDirTextWnd, SW_HIDE);
+          ShowWindow(comButtonWnd, SW_HIDE);
+          ShowWindow(commandWnd, SW_HIDE);
+          ShowWindow(exeButtonWnd, SW_HIDE);
+          ShowWindow(internalWnd, SW_HIDE);
+          ShowWindow(separatorWnd, SW_HIDE);
+          ShowWindow(separatorLabelWnd, SW_HIDE);
+          ShowWindow(argButtonWnd, SW_HIDE);
+          ShowWindow(argumentWnd, SW_HIDE);
+        }
+      else if ((_wcsicmp(typeName, TEXT("Entire Folder")) == 0) || (_wcsicmp(typeName, TEXT("Live Folder")) == 0))
+        {
+          EnableWindow(browseEntireDirWnd, true);
+          EnableWindow(browseEntireDirTextWnd, true);
+          EnableWindow(commandWnd, true);
+          EnableWindow(browseCommandWnd, false);
+          EnableWindow(browseIconWnd, false);
+          EnableWindow(browseWorkingDirWnd, false);
+          EnableWindow(exeButtonWnd, false);
+          EnableWindow(iconWnd, false);
+          EnableWindow(iconTextWnd, false);
+          EnableWindow(separatorWnd, false);
+          EnableWindow(separatorLabelWnd, false);
+          EnableWindow(specialFolderWnd, false);
+          EnableWindow(specialFolderLabelWnd, false);
+          EnableWindow(tipWnd, false);
+          EnableWindow(tipTextWnd, false);
+          EnableWindow(workingDirWnd, false);
+          EnableWindow(workingDirTextWnd, false);
+          EnableWindow(argButtonWnd, false);
+          EnableWindow(argumentWnd, false);
+          ShowWindow(browseEntireDirWnd, SW_SHOW);
+          ShowWindow(browseEntireDirTextWnd, SW_SHOW);
+          ShowWindow(commandWnd, SW_SHOW);
+          ShowWindow(browseCommandWnd, SW_HIDE);
+          ShowWindow(comButtonWnd, SW_HIDE);
+          ShowWindow(exeButtonWnd, SW_HIDE);
+          ShowWindow(internalWnd, SW_HIDE);
+          ShowWindow(separatorWnd, SW_HIDE);
+          ShowWindow(separatorLabelWnd, SW_HIDE);
+          ShowWindow(specialFolderWnd, SW_HIDE);
+          ShowWindow(specialFolderLabelWnd, SW_HIDE);
+          ShowWindow(argButtonWnd, SW_HIDE);
+          ShowWindow(argumentWnd, SW_HIDE);
         }
       return TRUE;
     }
@@ -601,6 +690,8 @@ void LaunchPage::PopulateComboBoxes(HWND hwndDlg)
   SendMessage(typeWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Internal Command"));
   SendMessage(typeWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Separator"));
   SendMessage(typeWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Special Folder"));
+  SendMessage(typeWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Entire Folder"));
+  SendMessage(typeWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Live Folder"));
 
   SendMessage(separatorWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Blank"));
   SendMessage(separatorWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Custom"));
@@ -678,6 +769,14 @@ bool LaunchPage::UpdateSettings(HWND hwndDlg)
               wcscpy(tmp, command);
               ELSpecialFolderValue(tmp, command);
             }
+          else if (_wcsicmp(typeName, TEXT("entire folder")) == 0)
+            {
+              type = IT_ENTIRE_FOLDER;
+            }
+          else if (_wcsicmp(typeName, TEXT("live folder")) == 0)
+            {
+              type = IT_LIVE_FOLDER;
+            }
           else
             type = IT_EXECUTABLE;
 
@@ -696,10 +795,13 @@ void LaunchPage::PopulateList(HWND listWnd)
   LVITEM lvItem;
   lvItem.mask = LVIF_TEXT;
   WCHAR tmp[MAX_LINE_LENGTH];
+  UINT itemIterator = -1;
 
   for (UINT i = 0; i < pSettings->GetItemListSize(); i++)
     {
-      lvItem.iItem = i;
+      itemIterator++;
+      //lvItem.iItem = i;
+      lvItem.iItem = itemIterator;
       lvItem.iSubItem = 0;
       switch (pSettings->GetItem(i)->GetType())
         {
@@ -712,6 +814,15 @@ void LaunchPage::PopulateList(HWND listWnd)
         case IT_SPECIAL_FOLDER:
           lvItem.pszText = (WCHAR*)TEXT("Special Folder");
           break;
+        case IT_ENTIRE_FOLDER:
+          lvItem.pszText = (WCHAR*)TEXT("Entire Folder");
+          break;
+        case IT_LIVE_FOLDER:
+          lvItem.pszText = (WCHAR*)TEXT("Live Folder");
+          break;
+        case IT_LIVE_FOLDER_ITEM:
+          itemIterator--;
+          continue;
         default:
           lvItem.pszText = (WCHAR*)TEXT("Executable");
           break;
@@ -888,33 +999,38 @@ bool LaunchPage::DoEdit(HWND hwndDlg)
 
 bool LaunchPage::EnableFields(HWND hwndDlg, bool enable)
 {
-  HWND listWnd = GetDlgItem(hwndDlg, IDC_APPLIST);
-  HWND commandWnd = GetDlgItem(hwndDlg, IDC_COMMAND);
-  HWND iconWnd = GetDlgItem(hwndDlg, IDC_ICONPATH);
-  HWND iconTextWnd = GetDlgItem(hwndDlg, IDC_ICONTEXT);
-  HWND tipWnd = GetDlgItem(hwndDlg, IDC_TIP);
-  HWND tipTextWnd = GetDlgItem(hwndDlg, IDC_TIPTEXT);
+  HWND abortWnd = GetDlgItem(hwndDlg, IDC_ABORTITEM);
   HWND addWnd = GetDlgItem(hwndDlg, IDC_ADDITEM);
+  HWND browseCommandWnd = GetDlgItem(hwndDlg, IDC_BROWSECOMMAND);
+  HWND browseEntireDir = GetDlgItem(hwndDlg, IDC_BROWSEENTIREDIR);
+  HWND browseEntireDirText = GetDlgItem(hwndDlg, IDC_ENTIREDIRTEXT);
+  HWND browseIconWnd = GetDlgItem(hwndDlg, IDC_BROWSEICON);
+  HWND browseWorkingDirWnd = GetDlgItem(hwndDlg, IDC_BROWSEWORKINGDIR);
+  HWND comButtonWnd = GetDlgItem(hwndDlg, IDC_COMBUTTON);
+  HWND commandWnd = GetDlgItem(hwndDlg, IDC_COMMAND);
   HWND editWnd = GetDlgItem(hwndDlg, IDC_EDITITEM);
   HWND delWnd = GetDlgItem(hwndDlg, IDC_DELITEM);
-  HWND upWnd = GetDlgItem(hwndDlg, IDC_UPITEM);
   HWND downWnd = GetDlgItem(hwndDlg, IDC_DOWNITEM);
-  HWND saveWnd = GetDlgItem(hwndDlg, IDC_SAVEITEM);
-  HWND abortWnd = GetDlgItem(hwndDlg, IDC_ABORTITEM);
-  HWND browseIconWnd = GetDlgItem(hwndDlg, IDC_BROWSEICON);
-  HWND browseCommandWnd = GetDlgItem(hwndDlg, IDC_BROWSECOMMAND);
-  HWND workingDirWnd = GetDlgItem(hwndDlg, IDC_WORKINGDIR);
-  HWND workingDirTextWnd = GetDlgItem(hwndDlg, IDC_WORKINGDIRTEXT);
-  HWND browseWorkingDirWnd = GetDlgItem(hwndDlg, IDC_BROWSEWORKINGDIR);
   HWND exeButtonWnd = GetDlgItem(hwndDlg, IDC_EXEBUTTON);
-  HWND comButtonWnd = GetDlgItem(hwndDlg, IDC_COMBUTTON);
+  HWND iconWnd = GetDlgItem(hwndDlg, IDC_ICONPATH);
+  HWND iconTextWnd = GetDlgItem(hwndDlg, IDC_ICONTEXT);
   HWND internalWnd = GetDlgItem(hwndDlg, IDC_INTERNAL);
-  HWND typeWnd = GetDlgItem(hwndDlg, IDC_TYPE);
-  HWND typeLabelWnd = GetDlgItem(hwndDlg, IDC_STATIC9);
+  HWND listWnd = GetDlgItem(hwndDlg, IDC_APPLIST);
+  HWND saveWnd = GetDlgItem(hwndDlg, IDC_SAVEITEM);
+  HWND separatorButtonWnd = GetDlgItem(hwndDlg, IDC_SEPARATORBUTTON);
+  HWND separatorWnd = GetDlgItem(hwndDlg, IDC_SEPARATOR);
   HWND specialFolderWnd = GetDlgItem(hwndDlg, IDC_SPECIALFOLDER);
   HWND specialFolderButtonWnd = GetDlgItem(hwndDlg, IDC_SPECIALFOLDERBUTTON);
-  HWND separatorWnd = GetDlgItem(hwndDlg, IDC_SEPARATOR);
-  HWND separatorButtonWnd = GetDlgItem(hwndDlg, IDC_SEPARATORBUTTON);
+  HWND tipWnd = GetDlgItem(hwndDlg, IDC_TIP);
+  HWND tipTextWnd = GetDlgItem(hwndDlg, IDC_TIPTEXT);
+  HWND typeWnd = GetDlgItem(hwndDlg, IDC_TYPE);
+  HWND typeLabelWnd = GetDlgItem(hwndDlg, IDC_STATIC9);
+  HWND upWnd = GetDlgItem(hwndDlg, IDC_UPITEM);
+  HWND workingDirWnd = GetDlgItem(hwndDlg, IDC_WORKINGDIR);
+  HWND workingDirTextWnd = GetDlgItem(hwndDlg, IDC_WORKINGDIRTEXT);
+  HWND argButtonWnd = GetDlgItem(hwndDlg, IDC_ARGBUTTON);
+  HWND argumentWnd = GetDlgItem(hwndDlg, IDC_ARGUMENT);
+
   int i = 0;
   bool selected = false;
 
@@ -932,23 +1048,23 @@ bool LaunchPage::EnableFields(HWND hwndDlg, bool enable)
       EnableWindow(typeLabelWnd, true);
       EnableWindow(listWnd, false);
       ToggleFields(hwndDlg);
+      EnableWindow(abortWnd, true);
       EnableWindow(addWnd, false);
-      EnableWindow(editWnd, false);
       EnableWindow(delWnd, false);
       EnableWindow(downWnd, false);
-      EnableWindow(upWnd, false);
+      EnableWindow(editWnd, false);
       EnableWindow(saveWnd, true);
-      EnableWindow(abortWnd, true);
+      EnableWindow(upWnd, false);
     }
   else
     {
-      EnableWindow(listWnd, true);
+      EnableWindow(addWnd, true);
       EnableWindow(commandWnd, false);
       EnableWindow(iconWnd, false);
       EnableWindow(iconTextWnd, false);
+      EnableWindow(listWnd, true);
       EnableWindow(tipWnd, false);
       EnableWindow(tipTextWnd, false);
-      EnableWindow(addWnd, true);
       if (selected)
         {
           EnableWindow(editWnd, true);
@@ -963,24 +1079,26 @@ bool LaunchPage::EnableFields(HWND hwndDlg, bool enable)
           EnableWindow(downWnd, false);
           EnableWindow(upWnd, false);
         }
-      EnableWindow(saveWnd, false);
       EnableWindow(abortWnd, false);
       EnableWindow(browseIconWnd, false);
       EnableWindow(browseCommandWnd, false);
-      EnableWindow(workingDirWnd, false);
-      EnableWindow(workingDirTextWnd, false);
+      EnableWindow(browseEntireDir, false);
+      EnableWindow(browseEntireDirText, false);
       EnableWindow(browseWorkingDirWnd, false);
-      EnableWindow(exeButtonWnd, false);
       EnableWindow(comButtonWnd, false);
+      EnableWindow(exeButtonWnd, false);
       EnableWindow(internalWnd, false);
-      EnableWindow(typeWnd, false);
-      EnableWindow(typeLabelWnd, false);
-      EnableWindow(specialFolderWnd, false);
-      EnableWindow(specialFolderButtonWnd, false);
+      EnableWindow(saveWnd, false);
       EnableWindow(separatorWnd, false);
       EnableWindow(separatorButtonWnd, false);
-      // Set focus to listWnd to allow for keyboard operation
-      SetFocus(listWnd);
+      EnableWindow(specialFolderWnd, false);
+      EnableWindow(specialFolderButtonWnd, false);
+      EnableWindow(typeWnd, false);
+      EnableWindow(typeLabelWnd, false);
+      EnableWindow(workingDirWnd, false);
+      EnableWindow(workingDirTextWnd, false);
+      EnableWindow(argButtonWnd, false);
+      EnableWindow(argumentWnd, false);
     }
 
   return true;
@@ -1007,11 +1125,11 @@ bool LaunchPage::SaveItem(HWND hwndDlg)
 {
   HWND listWnd = GetDlgItem(hwndDlg, IDC_APPLIST);
   WCHAR command[MAX_LINE_LENGTH], iconPath[MAX_LINE_LENGTH], tip[MAX_LINE_LENGTH], workingDir[MAX_LINE_LENGTH];
-  WCHAR typeName[MAX_LINE_LENGTH];
+  WCHAR typeName[MAX_LINE_LENGTH], argument[MAX_LINE_LENGTH];
   int i = 0;
   LVITEM lvItem;
 
-  lvItem.mask = LVIF_TEXT|LVIF_STATE;
+  lvItem.mask = LVIF_TEXT;
 
   if (GetDlgItemText(hwndDlg, IDC_TYPE, typeName, MAX_LINE_LENGTH) == 0)
     {
@@ -1020,7 +1138,7 @@ bool LaunchPage::SaveItem(HWND hwndDlg)
       return false;
     }
 
-  if (_wcsicmp(typeName, TEXT("Executable")) == 0)
+  if ((_wcsicmp(typeName, TEXT("Executable")) == 0) || (_wcsicmp(typeName, TEXT("Entire Folder")) == 0) || (_wcsicmp(typeName, TEXT("Live Folder")) == 0))
     {
       if (GetDlgItemText(hwndDlg, IDC_COMMAND, command, MAX_LINE_LENGTH) == 0)
         {
@@ -1045,6 +1163,14 @@ bool LaunchPage::SaveItem(HWND hwndDlg)
           ELMessageBox(hwndDlg, (WCHAR*)TEXT("Command cannot be empty"), (WCHAR*)TEXT("emergeLauncher"),
                        ELMB_OK|ELMB_ICONERROR|ELMB_MODAL);
           return false;
+        }
+      else
+        {
+          if (GetDlgItemText(hwndDlg, IDC_ARGUMENT, argument, MAX_LINE_LENGTH) != 0)
+            {
+              wcscat(command, L" ");
+              wcscat(command, argument);
+            }
         }
     }
   else if (_wcsicmp(typeName, TEXT("Special Folder")) == 0)
@@ -1076,15 +1202,11 @@ bool LaunchPage::SaveItem(HWND hwndDlg)
 
   if (edit)
     (void)ListView_DeleteItem(listWnd, i);
-  else
-    ListView_SetItemState(listWnd, i, 0, LVIS_SELECTED);
 
   lvItem.iItem = i;
   lvItem.iSubItem = 0;
   lvItem.pszText = typeName;
   lvItem.cchTextMax = (int)wcslen(command);
-  lvItem.state = LVIS_SELECTED;
-  lvItem.stateMask = LVIS_SELECTED;
   (void)ListView_InsertItem(listWnd, &lvItem);
   ListView_SetItemText(listWnd, lvItem.iItem, 1, command);
   ListView_SetItemText(listWnd, lvItem.iItem, 2, workingDir);
@@ -1139,6 +1261,33 @@ bool LaunchPage::Browse(HWND hwndDlg, UINT type)
                 }
 
               SetDlgItemText(hwndDlg, IDC_WORKINGDIR, tmp);
+
+              ret = true;
+            }
+        }
+    }
+  else if (type == BROWSE_ENTIREDIR)
+    {
+      GetDlgItemText(hwndDlg, IDC_COMMAND, tmp, MAX_PATH);
+      ZeroMemory(&bi, sizeof(BROWSEINFO));
+      bi.hwndOwner = hwndDlg;
+      bi.ulFlags = BIF_NEWDIALOGSTYLE;
+      bi.lpszTitle = TEXT("Select a folder:");
+
+      LPITEMIDLIST pItemIDList = SHBrowseForFolder(&bi);
+
+      if (pItemIDList != NULL)
+        {
+          if (SHGetPathFromIDList(pItemIDList, tmp))
+            {
+              IMalloc* pMalloc = NULL;
+              if (SUCCEEDED(SHGetMalloc(&pMalloc)))
+                {
+                  pMalloc->Free(pItemIDList);
+                  pMalloc->Release();
+                }
+
+              SetDlgItemText(hwndDlg, IDC_COMMAND, tmp);
 
               ret = true;
             }
@@ -1218,16 +1367,24 @@ BOOL LaunchPage::DoNotify(HWND hwndDlg, LPARAM lParam)
 
 BOOL LaunchPage::PopulateFields(HWND hwndDlg, int itemIndex)
 {
-  HWND listWnd = GetDlgItem(hwndDlg, IDC_APPLIST);
-  HWND typeWnd = GetDlgItem(hwndDlg, IDC_TYPE);
+  HWND browseEntireDirWnd = GetDlgItem(hwndDlg, IDC_BROWSEENTIREDIR);
+  HWND browseEntireDirTextWnd = GetDlgItem(hwndDlg, IDC_ENTIREDIRTEXT);
+  HWND browseWorkingDirWnd = GetDlgItem(hwndDlg, IDC_BROWSEWORKINGDIR);
+  HWND commandButtonWnd = GetDlgItem(hwndDlg, IDC_EXEBUTTON);
+  HWND commandWnd = GetDlgItem(hwndDlg, IDC_COMMAND);
   HWND internalWnd = GetDlgItem(hwndDlg, IDC_INTERNAL);
   HWND internalButtonWnd = GetDlgItem(hwndDlg, IDC_COMBUTTON);
+  HWND listWnd = GetDlgItem(hwndDlg, IDC_APPLIST);
   HWND specialFolderWnd = GetDlgItem(hwndDlg, IDC_SPECIALFOLDER);
   HWND specialFolderButtonWnd = GetDlgItem(hwndDlg, IDC_SPECIALFOLDERBUTTON);
   HWND separatorWnd = GetDlgItem(hwndDlg, IDC_SEPARATOR);
   HWND separatorButtonWnd = GetDlgItem(hwndDlg, IDC_SEPARATORBUTTON);
-  HWND commandWnd = GetDlgItem(hwndDlg, IDC_COMMAND);
-  HWND commandButtonWnd = GetDlgItem(hwndDlg, IDC_EXEBUTTON);
+  HWND typeWnd = GetDlgItem(hwndDlg, IDC_TYPE);
+  HWND argButtonWnd = GetDlgItem(hwndDlg, IDC_ARGBUTTON);
+  HWND argumentWnd = GetDlgItem(hwndDlg, IDC_ARGUMENT);
+  HWND workingDirWnd = GetDlgItem(hwndDlg, IDC_WORKINGDIR);
+  HWND workingDirTextWnd = GetDlgItem(hwndDlg, IDC_WORKINGDIRTEXT);
+
   WCHAR command[MAX_LINE_LENGTH], workingDir[MAX_LINE_LENGTH], iconPath[MAX_LINE_LENGTH];
   WCHAR tip[MAX_LINE_LENGTH], typeName[MAX_LINE_LENGTH];
 
@@ -1247,28 +1404,45 @@ BOOL LaunchPage::PopulateFields(HWND hwndDlg, int itemIndex)
             {
               ShowWindow(internalButtonWnd, SW_SHOW);
               ShowWindow(internalWnd, SW_SHOW);
+              ShowWindow(argButtonWnd, SW_SHOW);
+              ShowWindow(argumentWnd, SW_SHOW);
+              ShowWindow(browseEntireDirWnd, SW_HIDE);
+              ShowWindow(browseEntireDirTextWnd, SW_HIDE);
+              ShowWindow(browseWorkingDirWnd, SW_HIDE);
               ShowWindow(commandWnd, SW_HIDE);
               ShowWindow(commandButtonWnd, SW_HIDE);
-              ShowWindow(specialFolderWnd, SW_HIDE);
-              ShowWindow(specialFolderButtonWnd, SW_HIDE);
               ShowWindow(separatorWnd, SW_HIDE);
               ShowWindow(separatorButtonWnd, SW_HIDE);
+              ShowWindow(specialFolderWnd, SW_HIDE);
+              ShowWindow(specialFolderButtonWnd, SW_HIDE);
+              ShowWindow(workingDirWnd, SW_HIDE);
+              ShowWindow(workingDirTextWnd, SW_HIDE);
 
               int commandIndex = (int)SendMessage(internalWnd, CB_FINDSTRINGEXACT, (WPARAM)-1,
-                                                  (LPARAM)command);
+                                                  (LPARAM)ELStripInternalCommandArg(command).c_str());
               if (commandIndex != CB_ERR)
-                SendMessage(internalWnd, CB_SETCURSEL, commandIndex, 0);
+                {
+                  SendMessage(internalWnd, CB_SETCURSEL, commandIndex, 0);
+                  SetDlgItemText(hwndDlg, IDC_ARGUMENT, ELGetInternalCommandArg(command).c_str());
+                }
             }
           else if (_wcsicmp(typeName, TEXT("special folder")) == 0)
             {
-              ShowWindow(internalButtonWnd, SW_HIDE);
-              ShowWindow(internalWnd, SW_HIDE);
-              ShowWindow(commandWnd, SW_HIDE);
-              ShowWindow(commandButtonWnd, SW_HIDE);
               ShowWindow(specialFolderWnd, SW_SHOW);
               ShowWindow(specialFolderButtonWnd, SW_SHOW);
-              ShowWindow(separatorWnd, SW_HIDE);
+              ShowWindow(workingDirWnd, SW_SHOW);
+              ShowWindow(workingDirTextWnd, SW_SHOW);
+              ShowWindow(browseWorkingDirWnd, SW_SHOW);
+              ShowWindow(browseEntireDirWnd, SW_HIDE);
+              ShowWindow(browseEntireDirTextWnd, SW_HIDE);
+              ShowWindow(commandButtonWnd, SW_HIDE);
+              ShowWindow(commandWnd, SW_HIDE);
+              ShowWindow(internalButtonWnd, SW_HIDE);
+              ShowWindow(internalWnd, SW_HIDE);
               ShowWindow(separatorButtonWnd, SW_HIDE);
+              ShowWindow(separatorWnd, SW_HIDE);
+              ShowWindow(argButtonWnd, SW_HIDE);
+              ShowWindow(argumentWnd, SW_HIDE);
 
               int specialIndex = (int)SendMessage(specialFolderWnd, CB_FINDSTRINGEXACT, (WPARAM)-1,
                                                   (LPARAM)command);
@@ -1277,30 +1451,64 @@ BOOL LaunchPage::PopulateFields(HWND hwndDlg, int itemIndex)
             }
           else if (_wcsicmp(typeName, TEXT("separator")) == 0)
             {
-              ShowWindow(internalButtonWnd, SW_HIDE);
-              ShowWindow(internalWnd, SW_HIDE);
-              ShowWindow(commandWnd, SW_HIDE);
-              ShowWindow(commandButtonWnd, SW_HIDE);
-              ShowWindow(specialFolderWnd, SW_HIDE);
-              ShowWindow(specialFolderButtonWnd, SW_HIDE);
               ShowWindow(separatorWnd, SW_SHOW);
               ShowWindow(separatorButtonWnd, SW_SHOW);
+              ShowWindow(workingDirWnd, SW_SHOW);
+              ShowWindow(workingDirTextWnd, SW_SHOW);
+              ShowWindow(browseWorkingDirWnd, SW_SHOW);
+              ShowWindow(browseEntireDirWnd, SW_HIDE);
+              ShowWindow(browseEntireDirTextWnd, SW_HIDE);
+              ShowWindow(commandButtonWnd, SW_HIDE);
+              ShowWindow(commandWnd, SW_HIDE);
+              ShowWindow(internalButtonWnd, SW_HIDE);
+              ShowWindow(internalWnd, SW_HIDE);
+              ShowWindow(specialFolderButtonWnd, SW_HIDE);
+              ShowWindow(specialFolderWnd, SW_HIDE);
+              ShowWindow(argButtonWnd, SW_HIDE);
+              ShowWindow(argumentWnd, SW_HIDE);
 
               int separatorIndex = (int)SendMessage(separatorWnd, CB_FINDSTRINGEXACT, (WPARAM)-1,
                                                     (LPARAM)command);
               if (separatorIndex != CB_ERR)
                 SendMessage(separatorWnd, CB_SETCURSEL, separatorIndex, 0);
             }
-          else
+          else if ((_wcsicmp(typeName, TEXT("entire folder")) == 0) || (_wcsicmp(typeName, TEXT("live folder")) == 0))
             {
+              ShowWindow(browseEntireDirWnd, SW_SHOW);
+              ShowWindow(browseEntireDirTextWnd, SW_SHOW);
+              ShowWindow(commandWnd, SW_SHOW);
+              ShowWindow(workingDirWnd, SW_SHOW);
+              ShowWindow(workingDirTextWnd, SW_SHOW);
+              ShowWindow(browseWorkingDirWnd, SW_SHOW);
+              ShowWindow(commandButtonWnd, SW_HIDE);
               ShowWindow(internalButtonWnd, SW_HIDE);
               ShowWindow(internalWnd, SW_HIDE);
-              ShowWindow(commandWnd, SW_SHOW);
-              ShowWindow(commandButtonWnd, SW_SHOW);
-              ShowWindow(specialFolderWnd, SW_HIDE);
-              ShowWindow(specialFolderButtonWnd, SW_HIDE);
               ShowWindow(separatorWnd, SW_HIDE);
               ShowWindow(separatorButtonWnd, SW_HIDE);
+              ShowWindow(specialFolderButtonWnd, SW_HIDE);
+              ShowWindow(specialFolderWnd, SW_HIDE);
+              ShowWindow(argButtonWnd, SW_HIDE);
+              ShowWindow(argumentWnd, SW_HIDE);
+
+              SetDlgItemText(hwndDlg, IDC_COMMAND, command);
+            }
+          else
+            {
+              ShowWindow(commandWnd, SW_SHOW);
+              ShowWindow(commandButtonWnd, SW_SHOW);
+              ShowWindow(workingDirWnd, SW_SHOW);
+              ShowWindow(workingDirTextWnd, SW_SHOW);
+              ShowWindow(browseWorkingDirWnd, SW_SHOW);
+              ShowWindow(browseEntireDirWnd, SW_HIDE);
+              ShowWindow(browseEntireDirTextWnd, SW_HIDE);
+              ShowWindow(internalButtonWnd, SW_HIDE);
+              ShowWindow(internalWnd, SW_HIDE);
+              ShowWindow(separatorWnd, SW_HIDE);
+              ShowWindow(separatorButtonWnd, SW_HIDE);
+              ShowWindow(specialFolderWnd, SW_HIDE);
+              ShowWindow(specialFolderButtonWnd, SW_HIDE);
+              ShowWindow(argButtonWnd, SW_HIDE);
+              ShowWindow(argumentWnd, SW_HIDE);
 
               SetDlgItemText(hwndDlg, IDC_COMMAND, command);
             }

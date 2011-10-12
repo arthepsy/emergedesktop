@@ -6,6 +6,7 @@ LIBS += -lshell32 \
 				-luuid \
 				-lcomdlg32 \
 				-lgdi32 \
+				-lole32 \
 				-lemergeStyleEngine \
 				-lemergeBaseClasses
 

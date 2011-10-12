@@ -45,6 +45,8 @@
 #include "Config.h"
 #include "../emergeBaseClasses/BaseApplet.h"
 
+typedef std::map<DWORD, std::wstring> LiveFolderMap;
+
 class Applet: public BaseApplet
 {
 private:
@@ -56,6 +58,9 @@ private:
   static LRESULT CALLBACK WindowProcedure (HWND, UINT, WPARAM, LPARAM);
   static BOOL CALLBACK EnumFullScreenWindows(HWND hwnd, LPARAM lParam);
   static VOID CALLBACK ActiveTimerProc(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime);
+  static DWORD WINAPI LiveFolderThreadProc(LPVOID lpParameter);
+  HANDLE liveFolderThread;
+  LiveFolderMap liveFolderMap;
 
 public:
   Applet(HINSTANCE hInstance);
@@ -71,7 +76,10 @@ public:
   void UpdateTip(UINT index);
   void DeleteTip(UINT index);
   size_t GetIconCount();
+  size_t GetVisibleIconCount();
   void ClearActive(UINT index);
+  std::wstring GetFolderForThreadId(DWORD threadID);
+  void InitLiveFolderMap();
 };
 
 #endif

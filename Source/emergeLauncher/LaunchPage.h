@@ -29,6 +29,7 @@
 
 #define BROWSE_COMMAND      1
 #define BROWSE_WORKINGDIR   2
+#define BROWSE_ENTIREDIR    3
 
 #include "Settings.h"
 #include "resource.h"

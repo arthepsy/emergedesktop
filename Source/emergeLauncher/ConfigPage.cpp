@@ -54,7 +54,7 @@ ConfigPage::~ConfigPage()
 {
 }
 
-BOOL ConfigPage::DoInitDialog(HWND hwndDlg)
+bool ConfigPage::DoInitDialog(HWND hwndDlg)
 {
   TOOLINFO ti;
   ZeroMemory(&ti, sizeof(TOOLINFO));
@@ -79,18 +79,47 @@ BOOL ConfigPage::DoInitDialog(HWND hwndDlg)
   if (pSettings->GetStartHidden())
     SendDlgItemMessage(hwndDlg, IDC_STARTHIDDEN, BM_SETCHECK, BST_CHECKED, 0);
 
+  SetDlgItemText(hwndDlg, IDC_TITLEBARTEXT, pSettings->GetTitleBarText());
+
+  //CopyMemory(&newFont, pSettings->GetFont(), sizeof(LOGFONT));
+  CopyMemory(&newFont, pSettings->GetTitleBarFont(), sizeof(LOGFONT));
+
+  if (buttonFont)
+    DeleteObject(buttonFont);
+  buttonFont = CreateFontIndirect(&newFont);
+  SendDlgItemMessage(hwndDlg, IDC_FONTBUTTON, WM_SETFONT, (WPARAM)buttonFont, (LPARAM)TRUE);
+  SetDlgItemText(hwndDlg, IDC_FONTBUTTON, newFont.lfFaceName);
+
   SetDlgItemInt(hwndDlg, IDC_ICONSPACING, pSettings->GetIconSpacing(), false);
 
   SendMessage(iconSizeWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("16x16"));
   SendMessage(iconSizeWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("32x32"));
   SendMessage(iconSizeWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("48x48"));
+  if (ELVersionInfo() >= 6.0)
+    {
+      SendMessage(iconSizeWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("128x128"));
+      SendMessage(iconSizeWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("256x256"));
+    }
 
-  if (pSettings->GetIconSize() == 48)
-    SendMessage(iconSizeWnd, CB_SETCURSEL, (WPARAM)2, 0);
-  else if (pSettings->GetIconSize() == 32)
-    SendMessage(iconSizeWnd, CB_SETCURSEL, (WPARAM)1, 0);
-  else
-    SendMessage(iconSizeWnd, CB_SETCURSEL, (WPARAM)0, 0);
+  WPARAM wParam = 0;
+  switch (pSettings->GetIconSize())
+    {
+    case 256:
+      wParam = 4;
+      break;
+    case 128:
+      wParam = 3;
+      break;
+    case 48:
+      wParam = 2;
+      break;
+    case 32:
+      wParam = 1;
+      break;
+    }
+  if ((ELVersionInfo() < 6.0) && (wParam > 2))
+    wParam = 2;
+  SendMessage(iconSizeWnd, CB_SETCURSEL, wParam, 0);
 
   SendDlgItemMessage(hwndDlg, IDC_CLICKTHROUGHMETHOD, CB_ADDSTRING, 0, (LPARAM)TEXT("Full"));
   SendDlgItemMessage(hwndDlg, IDC_CLICKTHROUGHMETHOD, CB_ADDSTRING, 0, (LPARAM)TEXT("Background"));
@@ -103,55 +132,69 @@ BOOL ConfigPage::DoInitDialog(HWND hwndDlg)
   else
     SendDlgItemMessage(hwndDlg, IDC_CLICKTHROUGHMETHOD, CB_SETCURSEL, (WPARAM)1, 0);
 
-  return TRUE;
+  return true;
 }
 
-BOOL ConfigPage::DoCommand(HWND hwndDlg, WPARAM wParam, LPARAM lParam UNUSED)
+bool ConfigPage::DoCommand(HWND hwndDlg, WPARAM wParam, LPARAM lParam UNUSED)
 {
   HWND clickThroughWnd = GetDlgItem(hwndDlg, IDC_CLICKTHROUGHMETHOD);
 
   switch (LOWORD(wParam))
     {
+    case IDC_FONTBUTTON:
+      if (DoFontChooser(hwndDlg))
+        {
+          if (buttonFont)
+            DeleteObject(buttonFont);
+          buttonFont = CreateFontIndirect(&newFont);
+          SendDlgItemMessage(hwndDlg, IDC_FONTBUTTON, WM_SETFONT, (WPARAM)buttonFont, (LPARAM)TRUE);
+          SetDlgItemText(hwndDlg, IDC_FONTBUTTON, newFont.lfFaceName);
+
+          return true;
+        }
+      break;
     case IDC_CLICKTHROUGH:
-      if (SendDlgItemMessage(hwndDlg, IDC_CLICKTHROUGH, BM_GETCHECK, 0, 0) == BST_CHECKED)
-        EnableWindow(clickThroughWnd, true);
-      else if (SendDlgItemMessage(hwndDlg, IDC_CLICKTHROUGH, BM_GETCHECK, 0, 0) == BST_UNCHECKED)
-        EnableWindow(clickThroughWnd, false);
-      return TRUE;
+      EnableWindow(clickThroughWnd, (SendDlgItemMessage(hwndDlg, IDC_CLICKTHROUGH, BM_GETCHECK, 0, 0) == BST_CHECKED));
+      return true;
     }
 
-  return FALSE;
+  return false;
+}
+
+bool ConfigPage::DoFontChooser(HWND hwndDlg)
+{
+  CHOOSEFONT chooseFont;
+
+  ZeroMemory(&chooseFont, sizeof(CHOOSEFONT));
+  chooseFont.lStructSize = sizeof(CHOOSEFONT);
+  chooseFont.hwndOwner = hwndDlg;
+  chooseFont.Flags = CF_SCREENFONTS | CF_INITTOLOGFONTSTRUCT | CF_NOSCRIPTSEL;
+  chooseFont.lpLogFont = &newFont;
+
+  return (ChooseFont(&chooseFont) == TRUE);
 }
 
 bool ConfigPage::UpdateSettings(HWND hwndDlg)
 {
-  int i, result, size;
+  int i, result, size = 16;
   HWND iconSizeWnd = GetDlgItem(hwndDlg, IDC_ICONSIZE);
   BOOL success;
+  WCHAR tmp[MAX_LINE_LENGTH];
 
-  if (SendDlgItemMessage(hwndDlg, IDC_STARTHIDDEN, BM_GETCHECK, 0, 0) == BST_CHECKED)
-    success = true;
-  else if (SendDlgItemMessage(hwndDlg, IDC_STARTHIDDEN, BM_GETCHECK, 0, 0) == BST_UNCHECKED)
-    success = false;
+  success = (SendDlgItemMessage(hwndDlg, IDC_STARTHIDDEN, BM_GETCHECK, 0, 0) == BST_CHECKED);
   pSettings->SetStartHidden(success);
 
-  if (SendDlgItemMessage(hwndDlg, IDC_SNAPMOVE, BM_GETCHECK, 0, 0) == BST_CHECKED)
-    success = true;
-  else if (SendDlgItemMessage(hwndDlg, IDC_SNAPMOVE, BM_GETCHECK, 0, 0) == BST_UNCHECKED)
-    success = false;
+  success = (SendDlgItemMessage(hwndDlg, IDC_SNAPMOVE, BM_GETCHECK, 0, 0) == BST_CHECKED);
   pSettings->SetSnapMove(success);
 
-  if (SendDlgItemMessage(hwndDlg, IDC_SNAPSIZE, BM_GETCHECK, 0, 0) == BST_CHECKED)
-    success = true;
-  else if (SendDlgItemMessage(hwndDlg, IDC_SNAPSIZE, BM_GETCHECK, 0, 0) == BST_UNCHECKED)
-    success = false;
+  success = (SendDlgItemMessage(hwndDlg, IDC_SNAPSIZE, BM_GETCHECK, 0, 0) == BST_CHECKED);
   pSettings->SetSnapSize(success);
 
-  if (SendDlgItemMessage(hwndDlg, IDC_AUTOSIZE, BM_GETCHECK, 0, 0) == BST_CHECKED)
-    success = true;
-  else if (SendDlgItemMessage(hwndDlg, IDC_AUTOSIZE, BM_GETCHECK, 0, 0) == BST_UNCHECKED)
-    success = false;
+  success = (SendDlgItemMessage(hwndDlg, IDC_AUTOSIZE, BM_GETCHECK, 0, 0) == BST_CHECKED);
   pSettings->SetAutoSize(success);
+
+  GetDlgItemText(hwndDlg, IDC_TITLEBARTEXT, tmp, MAX_LINE_LENGTH);
+  pSettings->SetTitleBarText(tmp);
 
   if (SendDlgItemMessage(hwndDlg, IDC_CLICKTHROUGH, BM_GETCHECK, 0, 0) == BST_CHECKED)
     {
@@ -176,18 +219,33 @@ bool ConfigPage::UpdateSettings(HWND hwndDlg)
     }
 
   i = (int)SendMessage(iconSizeWnd, CB_GETCURSEL, 0, 0);
-  if (i == 2)
-    size = 48;
-  else if (i == 1)
-    size = 32;
-  else
-    size = 16;
+  switch (i)
+    {
+    case 0:
+      size = 16;
+      break;
+    case 1:
+      size = 32;
+      break;
+    case 2:
+      size = 48;
+      break;
+    case 3:
+      size = 128;
+      break;
+    case 4:
+      size = 256;
+      break;
+    }
   pSettings->SetIconSize(size);
+
+  //pSettings->SetFont(&newFont);
+  pSettings->SetTitleBarFont(&newFont);
 
   return true;
 }
 
-BOOL ConfigPage::DoNotify(HWND hwndDlg, LPARAM lParam)
+bool ConfigPage::DoNotify(HWND hwndDlg, LPARAM lParam)
 {
   switch (((LPNMITEMACTIVATE)lParam)->hdr.code)
     {
@@ -196,16 +254,16 @@ BOOL ConfigPage::DoNotify(HWND hwndDlg, LPARAM lParam)
         SetWindowLongPtr(hwndDlg, DWLP_MSGRESULT, PSNRET_NOERROR);
       else
         SetWindowLongPtr(hwndDlg, DWLP_MSGRESULT, PSNRET_INVALID);
-      return 1;
+      return true;
 
     case PSN_SETACTIVE:
       SetWindowLongPtr(hwndDlg, DWLP_MSGRESULT, 0);
-      return 1;
+      return true;
 
     case PSN_KILLACTIVE:
       SetWindowLongPtr(hwndDlg, DWLP_MSGRESULT, FALSE);
-      return 1;
+      return true;
     }
 
-  return FALSE;
+  return false;
 }

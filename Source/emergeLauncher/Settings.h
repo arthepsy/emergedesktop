@@ -41,8 +41,10 @@ protected:
   void ResetDefaults();
 
 private:
+  void writeEntireFolder(WCHAR *folderName);
+  void loadLiveFolder(WCHAR *folderName);
   std::vector< std::tr1::shared_ptr<Item> > itemList;
-  WCHAR keyString[MAX_LINE_LENGTH];
+  CRITICAL_SECTION itemListCS;
 };
 
 #endif
