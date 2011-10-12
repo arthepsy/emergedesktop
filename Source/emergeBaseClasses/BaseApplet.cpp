@@ -256,6 +256,12 @@ void BaseApplet::UpdateGUI(WCHAR *styleFile)
     {
       firstRun = false;
       appletHidden = pBaseSettings->GetStartHidden();
+
+      // Delete the background DCs to force a refresh
+      DeleteDC(activeBackgroundDC);
+      activeBackgroundDC = NULL;
+      DeleteDC(inactiveBackgroundDC);
+      inactiveBackgroundDC = NULL;
     }
 
   AppletUpdate(); // Call any applet specific update
@@ -935,6 +941,9 @@ LRESULT BaseApplet::DoCopyData(COPYDATASTRUCT *cds)
               break;
 
             case CORE_RECONFIGURE:
+              // set firstRun to that the 'start hidden' is reset
+              firstRun = true;
+
               if (allowMultipleInstances)
                 {
                   // Kill any instances other than the initial instance.
