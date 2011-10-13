@@ -71,6 +71,7 @@ LRESULT CALLBACK Applet::WindowProcedure (HWND hwnd, UINT message, WPARAM wParam
     case WM_RBUTTONUP:
     case WM_LBUTTONDOWN:
     case WM_LBUTTONDBLCLK:
+    case WM_MOUSEMOVE:
       return pApplet->TaskMouseEvent(message, lParam);
 
       // Reset the cursor back to the standard arrow after dragging
@@ -441,9 +442,13 @@ bool Applet::CleanTasks()
 //----  --------------------------------------------------------------------------------------------------------
 LRESULT Applet::TaskMouseEvent(UINT message, LPARAM lParam)
 {
+  std::pair<Applet*, HWND> *thumbnailPair;
+  std::map<HWND, HANDLE>::iterator thumbnailIter;
   TaskVector::iterator iter;
   HWND windowHandle;
   POINT pt;
+  DWORD threadID, threadState;
+  HWND task;
 
   pt.x = LOWORD(lParam);
   pt.y = HIWORD(lParam);
@@ -476,6 +481,25 @@ LRESULT Applet::TaskMouseEvent(UINT message, LPARAM lParam)
             }
           else if (message == WM_RBUTTONUP)
             (*iter)->DisplayMenu(mainWnd);
+          else if (message == WM_MOUSEMOVE)
+            {
+              task = (*iter)->GetWnd();
+              thumbnailIter = thumbnailMap.find(task);
+              if (thumbnailIter == thumbnailMap.end())
+                {
+                  thumbnailPair = new std::pair<Applet*, HWND>(this, task);
+                  thumbnailMap.insert(std::pair<HWND, HANDLE>(task, CreateThread(NULL, 0, UpdateThumbnailThreadProc, thumbnailPair, 0, &threadID)));
+                }
+              else
+                {
+                  GetExitCodeThread(thumbnailIter->second, &threadState);
+                  if (threadState != STILL_ACTIVE)
+                    {
+                      thumbnailPair = new std::pair<Applet*, HWND>(this, task);
+                      thumbnailIter->second = CreateThread(NULL, 0, UpdateThumbnailThreadProc, thumbnailPair, 0, &threadID);
+                    }
+                }
+            }
 
           return 0;
         }
@@ -699,6 +723,30 @@ DWORD WINAPI Applet::ModifyThreadProc(LPVOID lpParameter)
   DWORD ret = pApplet->ModifyTaskByThread(GetCurrentThreadId());
 
   return ret;
+}
+
+DWORD WINAPI Applet::UpdateThumbnailThreadProc(LPVOID lpParameter)
+{
+  // reinterpret lpParameter as a Applet*,HWND pair
+  std::pair<Applet*, HWND> *thumbnailPair = reinterpret_cast< std::pair<Applet*, HWND>* >(lpParameter);
+  TaskVector::iterator iter = thumbnailPair->first->FindTask(thumbnailPair->second);
+  //Task* currentTask = reinterpret_cast< Task* >(lpParameter);
+  POINT pt;
+
+  (*iter)->CreateDwmThumbnail(thumbnailPair->first->GetMainWnd());
+
+  do
+  {
+    WaitForSingleObject(GetCurrentThread(), 100);
+    GetCursorPos(&pt);
+    ScreenToClient(thumbnailPair->first->GetMainWnd(), &pt);
+  } while (PtInRect((*iter)->GetRect(), pt));
+
+  (*iter)->DestroyDwmThumbnail();
+
+  delete thumbnailPair;
+
+  return 0;
 }
 
 LRESULT Applet::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
