@@ -158,11 +158,14 @@ bool BaseApplet::SpawnInstance()
   if ((appletCount != 0) && (!ELPathFileExists(tempSettingsFile.c_str())))
     return false;
 
-  WriteAppletCount(appletCount);
-
-  WCHAR appletPath[MAX_PATH];
-  if (GetModuleFileName(0, appletPath, MAX_PATH))
-    ELExecute(appletPath);
+  // Attempt to write applet count to InstanceManagement.xml
+  if (WriteAppletCount(appletCount))
+    {
+      // If successful spawn the next instance
+      WCHAR appletPath[MAX_PATH];
+      if (GetModuleFileName(0, appletPath, MAX_PATH))
+        ELExecute(appletPath);
+    }
 
   return true;
 }
@@ -519,9 +522,6 @@ void BaseApplet::DrawAlphaBlend()
   SIZE wndSz;
   BLENDFUNCTION bf;
   int dragBorder = guiInfo.dragBorder + guiInfo.bevelWidth + guiInfo.padding;
-
-  if (!IsWindowVisible(mainWnd))
-    return;
 
   if (!GetClientRect(mainWnd, &clientrt))
     return;
