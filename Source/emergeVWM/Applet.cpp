@@ -116,6 +116,9 @@ LRESULT CALLBACK Applet::WindowProcedure (HWND hwnd, UINT message, WPARAM wParam
     case WM_DISPLAYCHANGE:
       return pApplet->DoDisplayChange(hwnd);
 
+    case WM_NOTIFY:
+      return pApplet->DoNotify(hwnd, lParam);
+
     case WM_DESTROY:
     case WM_NCDESTROY:
       PostQuitMessage(0);
@@ -135,7 +138,7 @@ LRESULT Applet::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 }
 
 Applet::Applet(HINSTANCE hInstance)
-  :BaseApplet(hInstance, myName, false, false)
+:BaseApplet(hInstance, myName, false, false)
 {
   // Set current row and column
   currentRow = 0;
@@ -582,10 +585,10 @@ LRESULT Applet::DesktopMouseEvent(HWND hwnd, UINT message, LPARAM lParam)
               GetClientRect(mainWnd, &clientRect);
 
               rowScalar = (float)(clientRect.bottom - (2 * dragBorder)) /
-                          (float)pSettings->GetDesktopRows();
+                (float)pSettings->GetDesktopRows();
               rowScalar = (float)screenHeight / rowScalar;
               columnScalar = (float)(clientRect.right - (2 * dragBorder)) /
-                             (float)pSettings->GetDesktopColumns();
+                (float)pSettings->GetDesktopColumns();
               columnScalar = (float)screenWidth / columnScalar;
 
               xOffset = (float)pt.x - (float)referencePt.x;
@@ -634,9 +637,9 @@ LRESULT Applet::DesktopMouseEvent(HWND hwnd, UINT message, LPARAM lParam)
           for (column = 0; column < pSettings->GetDesktopColumns(); column++)
             {
               float rowScalar = (float)(clientRect.bottom - (2 * dragBorder)) /
-                                (float)pSettings->GetDesktopRows();
+                (float)pSettings->GetDesktopRows();
               float columnScalar = (float)(clientRect.right - (2 * dragBorder)) /
-                                   (float)pSettings->GetDesktopColumns();
+                (float)pSettings->GetDesktopColumns();
 
               desktopRect.top = dragBorder + (int)(row * rowScalar);
               desktopRect.bottom = desktopRect.top + (int)rowScalar;
@@ -861,7 +864,6 @@ void Applet::AppletUpdate()
   ti.hinst =  mainInst;
   ti.uFlags = TTF_SUBCLASS;
   ti.lpszText = LPSTR_TEXTCALLBACK;
-  //ti.lpszText = (WCHAR*)L"Test Text";
 
   pSettings->ReadSettings();
 
