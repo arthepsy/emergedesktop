@@ -48,7 +48,7 @@
 #include "../emergeAppletEngine/emergeAppletEngine.h"
 #include "../emergeBaseClasses/BaseApplet.h"
 
-#define MODIFY_POLL_TIME  100
+#define MODIFY_DELAY_TIME  200
 
 typedef std::tr1::shared_ptr<Task> TaskPtr;
 typedef std::vector<TaskPtr> TaskVector;

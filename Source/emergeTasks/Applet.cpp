@@ -276,7 +276,6 @@ LRESULT Applet::AddTask(HWND task)
 LRESULT Applet::ModifyTaskByThread(DWORD threadID)
 {
   std::map<HWND, DWORD>::iterator iter = modifyMap.begin();
-  HWND task = NULL;
 
   // traverse modifyMap looking for the thread ID
   while (iter != modifyMap.end())
@@ -284,8 +283,6 @@ LRESULT Applet::ModifyTaskByThread(DWORD threadID)
       // If found...
       if (iter->second == threadID)
         {
-          // ...set task...
-          task = iter->first;
           // ...erase the iterator...
           modifyMap.erase(iter);
           // ...and break
@@ -294,7 +291,7 @@ LRESULT Applet::ModifyTaskByThread(DWORD threadID)
       iter++;
     }
 
-  return ModifyTask(task);
+  return 1;
 }
 
 //----  --------------------------------------------------------------------------------------------------------
@@ -694,8 +691,8 @@ DWORD WINAPI Applet::ModifyThreadProc(LPVOID lpParameter)
   // reinterpret lpParameter as Applet*
   Applet *pApplet = reinterpret_cast<Applet*>(lpParameter);
 
-  // Pause the thread for 100 ms to mitigate an HSHELL_REDRAW message flood
-  WaitForSingleObject(GetCurrentThread(), 100);
+  // Pause the thread for 200 ms to mitigate an HSHELL_REDRAW message flood
+  WaitForSingleObject(GetCurrentThread(), MODIFY_DELAY_TIME);
 
   // Modify the task based on the current thread ID
   pApplet->ModifyTaskByThread(GetCurrentThreadId());
@@ -728,13 +725,24 @@ LRESULT Applet::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 
           // A "task" was modified
         case HSHELL_REDRAW:
+          // Some apps continually updating their title bar which causes a
+          // flood of HSHELL_REDRAW messages.  This will cause emergeTasks to
+          // become unresponsive.  To mitigate this, implement a delay via a
+          // thread to shed the excessive messages.
+
+          // Check to see if the task is already in the modifyMap
           modifyIter = modifyMap.find(task);
           if (modifyIter == modifyMap.end())
             {
+              // If not, create a thread in suspended state
               thread = CreateThread(NULL, 0, ModifyThreadProc, this, CREATE_SUSPENDED, &threadID);
               if (thread != NULL)
                 {
+                  // ...if the thread created successfully, ModifyTask...
+                  ModifyTask(task);
+                  // ...add it to modifyMap...
                   modifyMap.insert(std::pair<HWND, DWORD>(task, threadID));
+                  // ...kick off the thread
                   ResumeThread(thread);
                 }
             }
