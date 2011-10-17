@@ -125,7 +125,7 @@ LRESULT CALLBACK Applet::WindowProcedure (HWND hwnd, UINT message, WPARAM wParam
 }
 
 Applet::Applet(HINSTANCE hInstance)
-  :BaseApplet(hInstance, myName, true, false)
+:BaseApplet(hInstance, myName, true, false)
 {
   activeWnd = NULL;
 }
@@ -276,23 +276,25 @@ LRESULT Applet::AddTask(HWND task)
 LRESULT Applet::ModifyTaskByThread(DWORD threadID)
 {
   std::map<HWND, DWORD>::iterator iter = modifyMap.begin();
-  LRESULT result = 1;
+  HWND task = NULL;
 
   // traverse modifyMap looking for the thread ID
   while (iter != modifyMap.end())
     {
-      // If found break
+      // If found...
       if (iter->second == threadID)
-        break;
+        {
+          // ...set task...
+          task = iter->first;
+          // ...erase the iterator...
+          modifyMap.erase(iter);
+          // ...and break
+          break;
+        }
       iter++;
     }
 
-  // If the thread ID was found...
-  if (iter != modifyMap.end())
-    // Call ModifyTask using the corresponding first map element
-    result = ModifyTask(iter->first);
-
-  return result;
+  return ModifyTask(task);
 }
 
 //----  --------------------------------------------------------------------------------------------------------
@@ -696,9 +698,12 @@ DWORD WINAPI Applet::ModifyThreadProc(LPVOID lpParameter)
   WaitForSingleObject(GetCurrentThread(), 100);
 
   // Modify the task based on the current thread ID
-  DWORD ret = pApplet->ModifyTaskByThread(GetCurrentThreadId());
+  pApplet->ModifyTaskByThread(GetCurrentThreadId());
 
-  return ret;
+  // Kill the thread
+  ExitThread(0);
+
+  return 0;
 }
 
 LRESULT Applet::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
@@ -709,7 +714,7 @@ LRESULT Applet::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
   TaskVector::iterator iter;
   std::map<HWND, DWORD>::iterator modifyIter;
   HICON icon = NULL;
-  DWORD threadID = 0, threadState = 0;
+  DWORD threadID = 0;
   HANDLE thread = NULL;
 
   if (message == ShellMessage)
@@ -731,21 +736,6 @@ LRESULT Applet::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
                 {
                   modifyMap.insert(std::pair<HWND, DWORD>(task, threadID));
                   ResumeThread(thread);
-                }
-            }
-          else
-            {
-              thread = OpenThread(THREAD_QUERY_INFORMATION, FALSE, modifyIter->second);
-              if (thread != NULL)
-                GetExitCodeThread(thread, &threadState);
-              if (threadState != STILL_ACTIVE)
-                {
-                  thread = CreateThread(NULL, 0, ModifyThreadProc, this, CREATE_SUSPENDED, &threadID);
-                  if (thread != NULL)
-                    {
-                      modifyIter->second = threadID;
-                      ResumeThread(thread);
-                    }
                 }
             }
           break;

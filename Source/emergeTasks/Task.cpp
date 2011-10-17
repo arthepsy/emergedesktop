@@ -52,8 +52,6 @@ Task::Task(HWND task, HINSTANCE mainInstance)
 
 void Task::CreateNewIcon(BYTE foregroundAlpha, BYTE backgroundAlpha)
 {
-  HICON tmpIcon = NULL;
-
   /**< Don't bother converting NULL icons, just set newIcon and return */
   if (origIcon == NULL)
     {
@@ -65,22 +63,16 @@ void Task::CreateNewIcon(BYTE foregroundAlpha, BYTE backgroundAlpha)
     {
       convertIcon = false;
 
+      // Destroy any existing newIcon
+      if (newIcon != NULL)
+        DestroyIcon(newIcon);
+
       // If the background if fully opaque, don't bother converting the icon, simply copy it
       if (backgroundAlpha == 0xff)
-        {
-          if (newIcon != NULL)
-            DestroyIcon(newIcon);
-          newIcon = CopyIcon(origIcon);
-        }
+        newIcon = CopyIcon(origIcon);
       else
-        {
-          /**< Don't bail if EGConvertIcon returns a NULL icon, since in this case it may be valid (icon flashing) */
-          tmpIcon = EGConvertIcon(origIcon, foregroundAlpha);
-          if (newIcon != NULL)
-            DestroyIcon(newIcon);
-          newIcon = CopyIcon(tmpIcon);
-          DestroyIcon(tmpIcon);
-        }
+        /**< Don't bail if EGConvertIcon returns a NULL icon, since in this case it may be valid (icon flashing) */
+        newIcon = EGConvertIcon(origIcon, foregroundAlpha);
     }
 }
 
