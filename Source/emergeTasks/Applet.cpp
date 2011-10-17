@@ -71,6 +71,7 @@ LRESULT CALLBACK Applet::WindowProcedure (HWND hwnd, UINT message, WPARAM wParam
     case WM_RBUTTONUP:
     case WM_LBUTTONDOWN:
     case WM_LBUTTONDBLCLK:
+    case WM_MOUSEMOVE:
       return pApplet->TaskMouseEvent(message, lParam);
 
       // Reset the cursor back to the standard arrow after dragging
@@ -111,6 +112,9 @@ LRESULT CALLBACK Applet::WindowProcedure (HWND hwnd, UINT message, WPARAM wParam
     case WM_TIMER:
       return pApplet->DoTimer((UINT_PTR)wParam);
 
+    case WM_NOTIFY:
+      return pApplet->DoNotify(hwnd, lParam);
+
     case WM_DESTROY:
     case WM_NCDESTROY:
       PostQuitMessage(0);
@@ -128,6 +132,7 @@ Applet::Applet(HINSTANCE hInstance)
 :BaseApplet(hInstance, myName, true, false)
 {
   activeWnd = NULL;
+  oldTipWnd = NULL;
 }
 
 Applet::~Applet()
@@ -135,13 +140,13 @@ Applet::~Applet()
   // Unregister the specified Emerge Desktop messages
   PostMessage(ELGetCoreWindow(), EMERGE_UNREGISTER, (WPARAM)mainWnd, (LPARAM)EMERGE_VWM);
 
+  // Remove the tooltip region
+  SendMessage(toolWnd, TTM_DELTOOL, 0, (LPARAM)(LPTOOLINFO)&ti);
+
   // Cleanup the icon vectors
   EnterCriticalSection(&vectorLock);
   while (!taskList.empty())
-    {
-      taskList.front()->DeleteTip(mainWnd, toolWnd);
-      taskList.erase(taskList.begin());
-    }
+    taskList.erase(taskList.begin());
   LeaveCriticalSection(&vectorLock);
 
   DeleteCriticalSection(&vectorLock);
@@ -197,17 +202,11 @@ void Applet::UpdateIcons()
 //----  --------------------------------------------------------------------------------------------------------
 bool Applet::PaintItem(HDC hdc, UINT index, int x, int y, RECT rect)
 {
-  WCHAR windowTitle[MAX_LINE_LENGTH];
-  ULONG_PTR response = 0;
 
   TaskVector::iterator iter = taskList.begin() + index;
 
   (*iter)->SetRect(rect);
 
-  // Update the tooltip
-  SendMessageTimeout((*iter)->GetWnd(), WM_GETTEXT, MAX_LINE_LENGTH, reinterpret_cast<LPARAM>(windowTitle), SMTO_ABORTIFHUNG, 100, &response);
-  if (response != 0)
-    (*iter)->UpdateTip(mainWnd, toolWnd, windowTitle);
   (*iter)->CreateNewIcon(guiInfo.alphaForeground, guiInfo.alphaBackground);
 
   if ((*iter)->GetVisible())
@@ -337,7 +336,6 @@ LRESULT Applet::RemoveTask(HWND task)
   if (iter == taskList.end())
     return 1;
 
-  (*iter)->DeleteTip(mainWnd, toolWnd);
   EnterCriticalSection(&vectorLock);
   taskList.erase(iter);
   LeaveCriticalSection(&vectorLock);
@@ -390,7 +388,6 @@ bool Applet::CleanTasks()
       // If the icon does not have a valid window handle, remove it
       if (!IsWindow((*iter)->GetWnd()))
         {
-          (*iter)->DeleteTip(mainWnd, toolWnd);
           refresh = true;
           EnterCriticalSection(&vectorLock);
           taskList.erase(iter);
@@ -454,27 +451,40 @@ LRESULT Applet::TaskMouseEvent(UINT message, LPARAM lParam)
     {
       if (PtInRect((*iter)->GetRect(), pt))
         {
-          if ((message == WM_LBUTTONDOWN) || (message == WM_LBUTTONDBLCLK))
+          switch (message)
             {
-              windowHandle = (*iter)->GetWnd();
+            case WM_LBUTTONDOWN:
+            case WM_LBUTTONDBLCLK:
+                {
+                  windowHandle = (*iter)->GetWnd();
 
-              if (ELIsModal(windowHandle))
-                windowHandle = GetLastActivePopup(windowHandle);
+                  if (ELIsModal(windowHandle))
+                    windowHandle = GetLastActivePopup(windowHandle);
 
-              if (((GetWindowLongPtr(windowHandle, GWL_STYLE) &
-                    WS_MINIMIZEBOX) == WS_MINIMIZEBOX) && // Check to see if the
-                  // window is capable
-                  // of being minimized.
-                  !IsIconic(windowHandle) &&  // Check if the window is already
-                  // minimized.
-                  (windowHandle == activeWnd))  // Check to see if it is the
-                // active window
-                PostMessage(windowHandle, WM_SYSCOMMAND, SC_MINIMIZE, lParam);
-              else
-                ELSwitchToThisWindow(windowHandle); // If not activate it
+                  if (((GetWindowLongPtr(windowHandle, GWL_STYLE) &
+                        WS_MINIMIZEBOX) == WS_MINIMIZEBOX) && // Check to see if the
+                      // window is capable
+                      // of being minimized.
+                      !IsIconic(windowHandle) &&  // Check if the window is already
+                      // minimized.
+                      (windowHandle == activeWnd))  // Check to see if it is the
+                    // active window
+                    PostMessage(windowHandle, WM_SYSCOMMAND, SC_MINIMIZE, lParam);
+                  else
+                    ELSwitchToThisWindow(windowHandle); // If not activate it
+                }
+              break;
+            case WM_RBUTTONUP:
+              (*iter)->DisplayMenu(mainWnd);
+              break;
+            case WM_MOUSEMOVE:
+              if (oldTipWnd != (*iter)->GetWnd())
+                {
+                  oldTipWnd = (*iter)->GetWnd();
+                  SendMessage(toolWnd, TTM_UPDATE, 0, 0);
+                }
+              break;
             }
-          else if (message == WM_RBUTTONUP)
-            (*iter)->DisplayMenu(mainWnd);
 
           return 0;
         }
@@ -485,6 +495,54 @@ LRESULT Applet::TaskMouseEvent(UINT message, LPARAM lParam)
     {
       ELExecute((WCHAR*)TEXT("taskmgr.exe"));
       return 0;
+    }
+
+  return 1;
+}
+
+LRESULT Applet::DoNotify(HWND hwnd, LPARAM lParam)
+{
+  LPNMHDR pnmh = (LPNMHDR)lParam;
+
+  // Fetch tooltip text
+  if (pnmh->code == TTN_NEEDTEXT)
+    {
+      LPTOOLTIPTEXT lpttt = (LPTOOLTIPTEXT) lParam;
+      TaskVector::iterator iter;
+      POINT pt;
+      RECT rt;
+      WCHAR windowTitle[TIP_SIZE];
+      ULONG_PTR response = 0;
+
+      ELGetWindowRect(hwnd, &rt);
+      GetCursorPos(&pt);
+      pt.x -= rt.left;
+      pt.y -= rt.top;
+
+      // Traverse the valid icon vector to see if the mouse is in the bounding rectangle
+      // of the current icon
+      iter = taskList.begin();
+      while (iter < taskList.end())
+        {
+          if (PtInRect((*iter)->GetRect(), pt))
+            {
+              // Update the tooltip
+              SendMessageTimeout((*iter)->GetWnd(), WM_GETTEXT, TIP_SIZE, reinterpret_cast<LPARAM>(windowTitle), SMTO_ABORTIFHUNG, 100, &response);
+              if (response != 0)
+                {
+                  lpttt->lpszText = windowTitle;
+                  SetWindowPos(toolWnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOACTIVATE);
+                }
+              else
+                lpttt->lpszText = (WCHAR*)TEXT("\0");
+
+              return 0;
+            }
+
+          iter++;
+        }
+
+      lpttt->lpszText = (WCHAR*)TEXT("\0");
     }
 
   return 1;
@@ -823,10 +881,31 @@ void Applet::ResetTaskIcons()
 
 void Applet::AppletUpdate()
 {
+  UINT dragBorder = guiInfo.dragBorder + guiInfo.bevelWidth + guiInfo.padding;
   UINT_PTR timerID;
   TaskVector::iterator iter;
 
+  // fill in the TOOLINFO structure
+  ZeroMemory(&ti, sizeof(TOOLINFO));
+  ti.cbSize = TTTOOLINFOW_V2_SIZE;
+  ti.hwnd = mainWnd;
+  ti.uId = (ULONG_PTR)mainWnd;
+  ti.hinst =  mainInst;
+  ti.uFlags = TTF_SUBCLASS;
+  ti.lpszText = LPSTR_TEXTCALLBACK;
+
   pSettings->ReadSettings();
+
+  // Remove the tooltip region
+  SendMessage(toolWnd, TTM_DELTOOL, 0, (LPARAM)&ti);
+
+  ti.rect.top = dragBorder;
+  ti.rect.left = dragBorder;
+  ti.rect.right = ti.rect.left + pSettings->GetWidth();
+  ti.rect.bottom = ti.rect.top + pSettings->GetHeight();
+
+  // Add the main window as a tooltip region
+  SendMessage(toolWnd, TTM_ADDTOOL, 0, (LPARAM)&ti);
 
   ResetTaskIcons();
 

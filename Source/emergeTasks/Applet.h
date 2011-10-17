@@ -60,7 +60,7 @@ private:
   TaskVector taskList;
   std::map<HWND, UINT> flashMap;
   std::map<HWND, DWORD> modifyMap;
-  HWND activeWnd;
+  HWND activeWnd,oldTipWnd;
   void ResetTaskIcons();
   void UpdateIcons();
   static LRESULT CALLBACK WindowProcedure (HWND, UINT, WPARAM, LPARAM);
@@ -69,6 +69,7 @@ private:
   CRITICAL_SECTION vectorLock;
   LRESULT DoTaskIcon(HWND task, HICON icon);
   static DWORD WINAPI ModifyThreadProc(LPVOID lpParameter);
+  TOOLINFO ti;
 
 protected:
   virtual std::tr1::shared_ptr<BaseSettings> createSettings();
@@ -77,6 +78,7 @@ public:
   Applet(HINSTANCE hInstance);
   ~Applet();
   UINT Initialize();
+  LRESULT DoNotify(HWND hwnd, LPARAM lParam);
   LRESULT DoTimer(UINT_PTR timerID);
   LRESULT DoSizing(HWND hwnd, UINT edge, LPRECT rect);
   LRESULT DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);

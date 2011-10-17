@@ -244,69 +244,6 @@ void Task::UpdateIcon()
 }
 
 //----  --------------------------------------------------------------------------------------------------------
-// Function:	UpdateTip
-// Requires:	HINSTANCE mainInst - instance of calling window
-// 		HWND mainWnd - handle of calling window
-// 		HWND toolWnd - handle to the tooltip window
-// 		WCHAR *tip - tooltip text
-// Returns:	Nothing
-// Purpose:	Updates the window handler with the task tooltip.  If
-// 		the tip already exists, its updated.  If not, it is
-// 		created.
-//----  --------------------------------------------------------------------------------------------------------
-void Task::UpdateTip(HWND mainWnd, HWND toolWnd, WCHAR *tip)
-{
-  TOOLINFO ti;
-  ZeroMemory(&ti, sizeof(TOOLINFO));
-
-  bool exists;
-
-  ti.cbSize = TTTOOLINFOW_V2_SIZE;
-  ti.uFlags = TTF_SUBCLASS;
-  ti.hwnd = mainWnd;
-  ti.uId = (ULONG_PTR)wnd;
-
-  // Check to see if the tooltip exists
-  exists = SendMessage(toolWnd, TTM_GETTOOLINFO, 0,(LPARAM) (LPTOOLINFO) &ti) ? true : false;
-
-  //  complete the rest of the TOOLINFO structure
-  ti.hinst =  (*this).mainInstance;
-  ti.lpszText = tip;
-  ti.rect = rect;
-
-  // If it exists, modify the tooltip, if not add it
-  if (exists)
-    SendMessage(toolWnd, TTM_SETTOOLINFO, 0, (LPARAM)(LPTOOLINFO)&ti);
-  else
-    SendMessage(toolWnd, TTM_ADDTOOL, 0, (LPARAM)(LPTOOLINFO)&ti);
-}
-
-//----  --------------------------------------------------------------------------------------------------------
-// Function:	DeleteTip
-// Requires:	HWND mainWnd - handle of calling window
-// 		HWND toolWnd - handle to the tooltip window
-// Returns:	Nothing
-// Purpose:	Deletes the task tooltip from the tooltip window
-//----  --------------------------------------------------------------------------------------------------------
-void Task::DeleteTip(HWND mainWnd, HWND toolWnd)
-{
-  TOOLINFO ti;
-  ZeroMemory(&ti, sizeof(TOOLINFO));
-
-  bool exists;
-
-  ti.cbSize = TTTOOLINFOW_V2_SIZE;
-  ti.hwnd = mainWnd;
-  ti.uId = (ULONG_PTR)wnd;
-
-  // Check to see if the tooltip exists
-  exists = SendMessage(toolWnd, TTM_GETTOOLINFO, 0,(LPARAM) (LPTOOLINFO) &ti) ? true : false;
-
-  if (exists)
-    SendMessage(toolWnd, TTM_DELTOOL, 0, (LPARAM)(LPTOOLINFO)&ti);
-}
-
-//----  --------------------------------------------------------------------------------------------------------
 // Function:	DisplayMenu
 // Requires:	HWND callingWnd - Handle of calling Window
 // Returns:	Nothing

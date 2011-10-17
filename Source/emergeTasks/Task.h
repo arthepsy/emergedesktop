@@ -46,8 +46,6 @@ public:
   Task(HWND task, HINSTANCE mainInstance);
   ~Task();
 
-  void UpdateTip(HWND mainWnd, HWND toolWnd, WCHAR *tip);
-  void DeleteTip(HWND mainWnd, HWND toolWnd);
   HWND GetWnd();
   HICON GetIcon();
   RECT *GetRect();
@@ -67,7 +65,6 @@ private:
   HWND wnd;
   HICON origIcon, newIcon;
   HINSTANCE mainInstance;
-  WCHAR tip[TIP_SIZE];
   RECT rect;
   bool flash;
   bool visible;
