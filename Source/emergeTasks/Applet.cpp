@@ -100,6 +100,9 @@ LRESULT CALLBACK Applet::WindowProcedure (HWND hwnd, UINT message, WPARAM wParam
     case WM_SIZING:
       return pApplet->DoSizing(hwnd, (UINT)wParam, (LPRECT)lParam);
 
+    case WM_SIZE:
+      return pApplet->DoSize(lParam);
+
     case WM_MOVING:
       return pApplet->DoMoving(hwnd, (LPRECT)lParam);
 
@@ -879,11 +882,9 @@ void Applet::ResetTaskIcons()
     }
 }
 
-void Applet::AppletUpdate()
+LRESULT Applet::DoSize(LPARAM lParam)
 {
   UINT dragBorder = guiInfo.dragBorder + guiInfo.bevelWidth + guiInfo.padding;
-  UINT_PTR timerID;
-  TaskVector::iterator iter;
 
   // fill in the TOOLINFO structure
   ZeroMemory(&ti, sizeof(TOOLINFO));
@@ -894,18 +895,26 @@ void Applet::AppletUpdate()
   ti.uFlags = TTF_SUBCLASS;
   ti.lpszText = LPSTR_TEXTCALLBACK;
 
-  pSettings->ReadSettings();
-
   // Remove the tooltip region
   SendMessage(toolWnd, TTM_DELTOOL, 0, (LPARAM)&ti);
 
-  ti.rect.top = dragBorder;
   ti.rect.left = dragBorder;
-  ti.rect.right = ti.rect.left + pSettings->GetWidth();
-  ti.rect.bottom = ti.rect.top + pSettings->GetHeight();
+  ti.rect.top = dragBorder;
+  ti.rect.right = ti.rect.left + LOWORD(lParam) - dragBorder;
+  ti.rect.bottom = ti.rect.top + HIWORD(lParam) - dragBorder;
 
   // Add the main window as a tooltip region
   SendMessage(toolWnd, TTM_ADDTOOL, 0, (LPARAM)&ti);
+
+  return 0;
+}
+
+void Applet::AppletUpdate()
+{
+  UINT_PTR timerID;
+  TaskVector::iterator iter;
+
+  pSettings->ReadSettings();
 
   ResetTaskIcons();
 

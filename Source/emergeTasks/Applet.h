@@ -100,6 +100,7 @@ public:
   size_t GetIconCount();
   void DoTaskFlash(UINT id);
   LRESULT ModifyTaskByThread(DWORD threadID);
+  LRESULT DoSize(LPARAM lParam);
 };
 
 #endif
