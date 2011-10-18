@@ -153,6 +153,8 @@ Applet::~Applet()
   LeaveCriticalSection(&vectorLock);
 
   DeleteCriticalSection(&vectorLock);
+
+  DeleteCriticalSection(&mapLock);
 }
 
 UINT Applet::Initialize()
@@ -168,6 +170,9 @@ UINT Applet::Initialize()
 
   // Create a critical section to control access to the taskList vector
   InitializeCriticalSection(&vectorLock);
+
+  // Create a critical section to control access to the modifyMap map
+  InitializeCriticalSection(&mapLock);
 
   // Register the exiting tasks
   BuildTasksList();
@@ -277,6 +282,7 @@ LRESULT Applet::AddTask(HWND task)
 
 LRESULT Applet::ModifyTaskByThread(DWORD threadID)
 {
+  EnterCriticalSection(&mapLock);
   std::map<HWND, DWORD>::iterator iter = modifyMap.begin();
 
   // traverse modifyMap looking for the thread ID
@@ -292,6 +298,7 @@ LRESULT Applet::ModifyTaskByThread(DWORD threadID)
         }
       iter++;
     }
+  LeaveCriticalSection(&mapLock);
 
   return 1;
 }
@@ -773,6 +780,7 @@ LRESULT Applet::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
           // thread to shed the excessive messages.
 
           // Check to see if the task is already in the modifyMap
+          EnterCriticalSection(&mapLock);
           modifyIter = modifyMap.find(task);
           if (modifyIter == modifyMap.end())
             {
@@ -788,6 +796,7 @@ LRESULT Applet::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
                   ResumeThread(thread);
                 }
             }
+          LeaveCriticalSection(&mapLock);
           break;
 
           // A "task" was ended
