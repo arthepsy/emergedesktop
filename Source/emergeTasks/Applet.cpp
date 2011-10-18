@@ -343,15 +343,6 @@ LRESULT Applet::RemoveTask(HWND task)
   taskList.erase(iter);
   LeaveCriticalSection(&vectorLock);
 
-  // Remove the task (if found) from modifyMap
-  std::map<HWND, DWORD>::iterator modifyIter = modifyMap.find(task);
-  if (modifyIter != modifyMap.end())
-    {
-      HANDLE thread = OpenThread(THREAD_TERMINATE, FALSE, modifyIter->second);
-      TerminateThread(thread, 0);
-      modifyMap.erase(modifyIter);
-    }
-
   if (pSettings->GetAutoSize())
     {
       if (ELGetWindowRect(mainWnd, &wndRect))
@@ -398,16 +389,6 @@ bool Applet::CleanTasks()
           // known state.
           iter = taskList.begin();
           LeaveCriticalSection(&vectorLock);
-
-          // Remove the task (if found) from modifyMap
-          std::map<HWND, DWORD>::iterator modifyIter;
-          modifyIter = modifyMap.find((*iter)->GetWnd());
-          if (modifyIter != modifyMap.end())
-            {
-              HANDLE thread = OpenThread(DELETE, FALSE, modifyIter->second);
-              TerminateThread(thread, 0);
-              modifyMap.erase(modifyIter);
-            }
         }
       else
         iter++;
