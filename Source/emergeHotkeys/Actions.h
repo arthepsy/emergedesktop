@@ -49,6 +49,7 @@ public:
   BOOL DoCommand(HWND hwndDlg, WPARAM wParam, LPARAM lParam);
   BOOL DoNotify(HWND hwndDlg, LPARAM lParam);
   void RegisterHotkeyList(bool showError);
+  void UnregisterHotkeyList();
   static int CALLBACK ListViewCompareProc (LPARAM lParam1, LPARAM lParam2, LPARAM lParamSort);
 
 private:
@@ -74,7 +75,6 @@ private:
   HINSTANCE hInstance;
   HWND mainWnd, toolWnd;
   HICON addIcon, delIcon, editIcon, fileIcon, folderIcon, saveIcon, abortIcon;
-  std::vector<HotkeyCombo *> addList;
   bool CheckSaveCount(HWND hwndDlg);
   UINT saveCount, deleteCount;
   bool edit, toggleSort[2];

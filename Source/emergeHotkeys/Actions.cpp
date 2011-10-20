@@ -38,11 +38,11 @@ BOOL CALLBACK Actions::ActionsDlgProc(HWND hwndDlg, UINT message, WPARAM wParam,
       return pActions->DoCommand(hwndDlg, wParam, lParam);
 
     case WM_NOTIFY:
-    {
-      long lResult = pActions->DoNotify(hwndDlg, lParam);
-      SetWindowLongPtr(hwndDlg, DWLP_MSGRESULT, lResult);
-      return TRUE;
-    }
+        {
+          long lResult = pActions->DoNotify(hwndDlg, lParam);
+          SetWindowLongPtr(hwndDlg, DWLP_MSGRESULT, lResult);
+          return TRUE;
+        }
     }
 
   return FALSE;
@@ -62,16 +62,16 @@ Actions::Actions(HINSTANCE hInstance, HWND mainWnd, std::tr1::shared_ptr<Setting
   InitCommonControls();
 
   toolWnd = CreateWindowEx(
-              0,
-              TOOLTIPS_CLASS,
-              NULL,
-              TTS_ALWAYSTIP|WS_POPUP|TTS_NOPREFIX,
-              CW_USEDEFAULT, CW_USEDEFAULT,
-              CW_USEDEFAULT, CW_USEDEFAULT,
-              NULL,
-              NULL,
-              hInstance,
-              NULL);
+                           0,
+                           TOOLTIPS_CLASS,
+                           NULL,
+                           TTS_ALWAYSTIP|WS_POPUP|TTS_NOPREFIX,
+                           CW_USEDEFAULT, CW_USEDEFAULT,
+                           CW_USEDEFAULT, CW_USEDEFAULT,
+                           NULL,
+                           NULL,
+                           hInstance,
+                           NULL);
 
   if (toolWnd)
     {
@@ -94,8 +94,7 @@ Actions::Actions(HINSTANCE hInstance, HWND mainWnd, std::tr1::shared_ptr<Setting
 
 Actions::~Actions()
 {
-  for (UINT i = 0; i < pSettings->GetHotkeyListSize(); i++)
-    UnregisterHotKey(mainWnd, pSettings->GetHotkeyListItem(i)->GetHotkeyID());
+  UnregisterHotkeyList();
 
   if (addIcon)
     DestroyIcon(addIcon);
@@ -109,6 +108,12 @@ Actions::~Actions()
     DestroyIcon(folderIcon);
 
   DestroyWindow(toolWnd);
+}
+
+void Actions::UnregisterHotkeyList()
+{
+  for (UINT i = 0; i < pSettings->GetHotkeyListSize(); i++)
+    UnregisterHotKey(mainWnd, pSettings->GetHotkeyListItem(i)->GetHotkeyID());
 }
 
 void Actions::RegisterHotkeyList(bool showError)
@@ -821,8 +826,6 @@ bool Actions::DoSave(HWND hwndDlg)
 
               ClearFields(hwndDlg);
 
-              addList.push_back(hc);
-
               saveCount++;
               deleteCount++;
 
@@ -1095,12 +1098,7 @@ bool Actions::ClearFields(HWND hwndDlg)
 
 bool Actions::DoCancel(HWND hwndDlg, WPARAM wParam)
 {
-  while (!addList.empty())
-    {
-      UnregisterHotKey(mainWnd, addList.front()->GetHotkeyID());
-      addList.erase(addList.begin());
-    }
-
+  UnregisterHotkeyList();
   pSettings->WriteList(true);
   pSettings->BuildList(mainWnd, false);
   RegisterHotkeyList(false);
@@ -1208,7 +1206,7 @@ BOOL Actions::DoNotify(HWND hwndDlg UNUSED, LPARAM lParam)
           ListView_GetItemText(listWnd, lpLvCustomDraw->nmcd.dwItemSpec, 1,
                                tmpAction, MAX_LINE_LENGTH);
           if (!pSettings->IsValidHotkey(pSettings->FindHotkeyListItem(tmpKey,
-                                        tmpAction)))
+                                                                      tmpAction)))
             lpLvCustomDraw->clrText = RGB(255,0,0);
           return CDRF_NEWFONT;
         default:
