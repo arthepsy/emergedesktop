@@ -3055,7 +3055,7 @@ std::wstring ELGetPortableMode()
             {
               if (_wcsicmp(customDataPath, TEXT("")) != 0)
                 {
-                  ELAbsPathFromRelativePath(customDataPath);
+                  ELAbsPathFromRelativePath(customDataPath, MAX_PATH);
                   portableMode = TEXT("Custom");
                 }
             }
@@ -3089,7 +3089,7 @@ std::wstring GetCustomDataPath()
             {
               if (_wcsicmp(customDataPath, TEXT("")) != 0)
                 {
-                  ELAbsPathFromRelativePath(customDataPath);
+                  ELAbsPathFromRelativePath(customDataPath, MAX_PATH);
                   return customDataPath;
                 }
             }
@@ -4657,81 +4657,80 @@ bool ConvertPath(WCHAR *styleFile, DWORD flags, DWORD path)
         }
       break;
     case CTP_RELATIVE:
-      converted = ELRelativePathFromAbsPath(styleFile, themePath.c_str());
+      converted = ELRelativePathFromAbsPath(styleFile, MAX_PATH, themePath.c_str());
     }
 
   return converted;
 }
 
-bool ELRelativePathFromAbsPath(WCHAR *destPath, LPCTSTR sourcePath)
+bool ELRelativePathFromAbsPath(WCHAR *destPath, size_t destLength, LPCTSTR sourcePath)
 {
   std::wstring srcPath = ELExpandVars(sourcePath);
-  WCHAR tmpPath[MAX_PATH];
-  UINT j = 0;
+  WCHAR tmpPath[MAX_PATH], program[MAX_PATH], arguments[MAX_LINE_LENGTH];
+  WCHAR *tmpPtr = tmpPath;
   DWORD flags;
 
-  if (wcslen(destPath) == 0)
+  if (!ELParseCommand(destPath, program, arguments))
     return false;
 
-  if (ELPathIsRelative(destPath))
-    return true; //the path is already relative; there's nothing for us to do!
-
-  if (ELUnExpandVars(destPath)) //the unexpanded path contains an environment variable, so we don't want to manipulate the string any further.
+  if (ELPathIsRelative(program))
+    //the path is already relative; there's nothing for us to do!
     return true;
 
-  if (ELPathIsDirectory(destPath))
+  if (ELUnExpandVars(program))
+    //the unexpanded path contains an environmentvariable, so we don't want to
+    //manipulate the string any further.
+    return true;
+
+  if (ELPathIsDirectory(program))
     flags = FILE_ATTRIBUTE_DIRECTORY;
   else
     flags = FILE_ATTRIBUTE_NORMAL;
 
   if (PathRelativePathTo(tmpPath, srcPath.c_str(), FILE_ATTRIBUTE_DIRECTORY,
-                         destPath, flags))
+                         program, flags))
     {
       // If the file is stored in the current directory, the PathRelativePathTo
       // prepends the string with '\' making windows think the file is in the
       // root directory, so I've implemented the change below to account for
       // that.
-      for (UINT i = 0; i < wcslen(tmpPath); i++)
-        {
-          if ((i == 0) && (tmpPath[i] == '\\'))
-            continue;
-
-          destPath[j] = tmpPath[i];
-          j++;
-        }
-
-      destPath[j] = '\0';
-      return true;
+      if (tmpPath[0] == '\\')
+        tmpPtr++;
     }
+
+  if (wcslen(arguments))
+    _snwprintf(destPath, destLength, L"%s %s\0", tmpPtr, arguments);
+  else
+    wcsncpy(destPath, tmpPtr, destLength);
 
   return false;
 }
 
-bool ELAbsPathFromRelativePath(WCHAR *destPath, LPCTSTR sourcePath)
+bool ELAbsPathFromRelativePath(WCHAR *destPath, size_t destLength, LPCTSTR sourcePath)
 {
   std::wstring srcPath = ELExpandVars(sourcePath);
   WCHAR originalWorkingDir[MAX_PATH];
+  WCHAR tmpPath[MAX_PATH], program[MAX_PATH], arguments[MAX_LINE_LENGTH];
   if (GetCurrentDirectory(MAX_PATH, originalWorkingDir))
     SetCurrentDirectory(srcPath.c_str());
 
-  WCHAR tmpPath[MAX_PATH];
-
-  if (wcslen(destPath) == 0)
+  if (!ELParseCommand(destPath, program, arguments))
     return false;
 
-  if (!PathFileExists(destPath))
+  if (!PathFileExists(program))
     return false;
 
-  if (!ELPathIsRelative(destPath))
-    return true; //the path is already absolute; there's nothing for us to do!
+  if (!ELPathIsRelative(program))
+    //the path is already absolute; there's nothing for us to do!
+    return true;
 
-  if (GetFullPathName(destPath, MAX_PATH, tmpPath, NULL))
+  if (GetFullPathName(program, MAX_PATH, tmpPath, NULL))
     {
-      UINT i = 0;
-      for (i = 0; i < wcslen(tmpPath); i++)
-        destPath[i] = tmpPath[i];
+      if (wcslen(arguments))
+        _snwprintf(destPath, destLength, L"%s %s\0", tmpPath, arguments);
+      else
+        wcsncpy(destPath, tmpPath, destLength);
 
-      destPath[i] = '\0';
       SetCurrentDirectory(originalWorkingDir);
       return true;
     }

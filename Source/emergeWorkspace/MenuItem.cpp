@@ -41,7 +41,7 @@ MenuItem::MenuItem(WCHAR *name, UINT type, WCHAR* value, WCHAR *workingDir, TiXm
   if (value)
     {
       wcscpy(this->value, value);
-      ELAbsPathFromRelativePath(this->value);
+      ELAbsPathFromRelativePath(value, MAX_LINE_LENGTH);
     }
   else
     wcscpy(this->value, (WCHAR*)TEXT("\0"));
@@ -97,9 +97,12 @@ HICON MenuItem::GetIcon()
 
 void MenuItem::SetIcon()
 {
-  WCHAR command[MAX_PATH], args[MAX_PATH], *lwrValue = _wcslwr(_wcsdup(value));
+  WCHAR command[MAX_PATH], args[MAX_PATH], lwrValue[MAX_LINE_LENGTH];
   HWND task;
   std::wstring app;
+
+  wcscpy(lwrValue, value);
+  _wcslwr(lwrValue);
 
   switch (type)
     {
@@ -128,7 +131,7 @@ void MenuItem::SetIcon()
         icon = EGGetSpecialFolderIcon(CSIDL_DESKTOP, 16);
       else
         {
-          ELAbsPathFromRelativePath(lwrValue);
+          ELAbsPathFromRelativePath(lwrValue, MAX_LINE_LENGTH);
           ELParseCommand(lwrValue, command, args);
           icon = EGGetFileIcon(command, 16);
         }
@@ -181,14 +184,12 @@ void MenuItem::SetIcon()
       icon = EGGetSystemIcon(ICON_QUESTION, 16);
       break;
     }
-
-  free(lwrValue);
 }
 
 void MenuItem::SetValue(WCHAR *value)
 {
   wcscpy(this->value, value);
-  ELAbsPathFromRelativePath(this->value);
+  ELAbsPathFromRelativePath(value, MAX_LINE_LENGTH);
 }
 
 void MenuItem::SetName(WCHAR *name)

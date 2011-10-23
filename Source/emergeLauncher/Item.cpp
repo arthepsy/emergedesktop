@@ -142,8 +142,11 @@ int Item::GetType()
 //----  --------------------------------------------------------------------------------------------------------
 void Item::SetIcon(int iconSize, WCHAR *orientation)
 {
-  WCHAR source[MAX_LINE_LENGTH], tmp[MAX_LINE_LENGTH], *lwrApp = _wcslwr(_wcsdup(app));
+  WCHAR source[MAX_LINE_LENGTH], tmp[MAX_LINE_LENGTH], lwrApp[MAX_LINE_LENGTH];
   std::wstring workingApp = app;
+
+  wcscpy(lwrApp, app);
+  _wcslwr(lwrApp);
 
   if (origIcon)
     DestroyIcon(origIcon);
@@ -190,7 +193,7 @@ void Item::SetIcon(int iconSize, WCHAR *orientation)
                     origIcon = EGGetSpecialFolderIcon(CSIDL_DESKTOP, iconSize);
                   else
                     {
-                      ELAbsPathFromRelativePath(lwrApp);
+                      ELAbsPathFromRelativePath(lwrApp, MAX_LINE_LENGTH);
                       ELParseCommand(lwrApp, source, tmp);
                       origIcon = EGGetFileIcon(source, iconSize);
                     }
@@ -226,8 +229,6 @@ void Item::SetIcon(int iconSize, WCHAR *orientation)
         }
       break;
     }
-
-    free(lwrApp);
 }
 
 //----  --------------------------------------------------------------------------------------------------------

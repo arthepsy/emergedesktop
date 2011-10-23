@@ -277,7 +277,7 @@ void Settings::BuildHistoryList()
             {
               if (userIO.ReadString(TEXT("Command"), data, TEXT("")))
                 {
-                  ELAbsPathFromRelativePath(data);
+                  ELAbsPathFromRelativePath(data, MAX_LINE_LENGTH);
                   historyList.push_back(data);
                 }
             }
@@ -289,6 +289,7 @@ void Settings::WriteHistoryList()
 {
   std::tr1::shared_ptr<TiXmlDocument> configXML = ELOpenXMLConfig(xmlFile, true);
   TiXmlElement *section;
+  WCHAR command[MAX_LINE_LENGTH];
 
   if (configXML)
     {
@@ -303,8 +304,9 @@ void Settings::WriteHistoryList()
             {
               if (userIO.SetElement(TEXT("item")))
                 {
-                  ELRelativePathFromAbsPath((WCHAR*)historyList[i].c_str());
-                  userIO.WriteString(TEXT("Command"), (WCHAR*)historyList[i].c_str());
+                  wcscpy(command, historyList[i].c_str());
+                  ELRelativePathFromAbsPath(command, MAX_LINE_LENGTH);
+                  userIO.WriteString(TEXT("Command"), command);
                 }
             }
         }

@@ -725,12 +725,12 @@ bool ItemEditor::DoSaveItem(HWND hwndDlg)
   ELWriteXMLIntValue(section, (WCHAR*)TEXT("Type"), type);
   if (wcslen(value) > 0)
     {
-      ELRelativePathFromAbsPath(value);
+      ELRelativePathFromAbsPath(value, MAX_LINE_LENGTH);
       ELWriteXMLStringValue(section, (WCHAR*)TEXT("Value"), value);
     }
   if (wcslen(workingDir) > 0)
     {
-      ELRelativePathFromAbsPath(workingDir);
+      ELRelativePathFromAbsPath(workingDir, MAX_LINE_LENGTH);
       ELWriteXMLStringValue(section, (WCHAR*)TEXT("WorkingDir"), workingDir);
     }
 

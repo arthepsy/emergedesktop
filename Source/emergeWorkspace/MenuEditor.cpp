@@ -304,9 +304,9 @@ bool MenuEditor::BuildMenuTreeHelper (HWND treeWnd, HTREEITEM parent, TiXmlEleme
       ELReadXMLStringValue(xmlItem, (WCHAR*)TEXT("Name"), name, (WCHAR*)TEXT("\0"));
       ELReadXMLIntValue(xmlItem, (WCHAR*)TEXT("Type"), &type, 0);
       ELReadXMLStringValue(xmlItem, (WCHAR*)TEXT("Value"), value, (WCHAR*)TEXT("\0"));
-      ELAbsPathFromRelativePath(value);
+      ELAbsPathFromRelativePath(value, MAX_LINE_LENGTH);
       ELReadXMLStringValue(xmlItem, (WCHAR*)TEXT("WorkingDir"), workingDir, (WCHAR*)TEXT("\0"));
-      ELAbsPathFromRelativePath(workingDir);
+      ELAbsPathFromRelativePath(workingDir, MAX_LINE_LENGTH);
 
       wcscpy(menuItem.name, name);
       menuItem.type = type;
@@ -494,19 +494,22 @@ bool MenuEditor::WriteMenuHelper(TiXmlElement *section, HWND treeWnd, HTREEITEM 
             {
               readXML = true;
 
-              if (wcslen(iter->second.name) > 0)
+              if (wcslen(iter->second.name))
                 ELWriteXMLStringValue(item, (WCHAR*)TEXT("Name"),
                                       iter->second.name);
-              ELWriteXMLIntValue(item, (WCHAR*)TEXT("Type"), iter->second.type);
-              if (wcslen(iter->second.value) > 0)
+              ELWriteXMLIntValue(item, (WCHAR*)TEXT("Type"),
+                                 iter->second.type);
+              if (wcslen(iter->second.value))
                 {
-                  ELRelativePathFromAbsPath(iter->second.value);
+                  ELRelativePathFromAbsPath(iter->second.value,
+                                            MAX_LINE_LENGTH);
                   ELWriteXMLStringValue(item, (WCHAR*)TEXT("Value"),
                                         iter->second.value);
                 }
-              if (wcslen(iter->second.workingDir) > 0)
+              if (wcslen(iter->second.workingDir))
                 {
-                  ELRelativePathFromAbsPath(iter->second.workingDir);
+                  ELRelativePathFromAbsPath(iter->second.workingDir,
+                                            MAX_LINE_LENGTH);
                   ELWriteXMLStringValue(item, (WCHAR*)TEXT("WorkingDir"),
                                         iter->second.workingDir);
                 }
