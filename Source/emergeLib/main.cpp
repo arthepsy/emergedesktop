@@ -140,6 +140,7 @@ typedef struct _APPLETMONITORINFO
 
 // Globals
 int enumCount = 0;
+static HMODULE mprDLL = NULL;
 static HMODULE shell32DLL = NULL;
 static HMODULE user32DLL = NULL;
 static HMODULE kernel32DLL = NULL;
@@ -187,6 +188,9 @@ static fnSHLockShared MSSHLockShared = NULL;
 typedef BOOL (WINAPI *fnSHUnlockShared)(void*);
 static fnSHUnlockShared MSSHUnlockShared = NULL;
 
+typedef DWORD (WINAPI *fnWNetGetConnection)(LPCTSTR, LPTSTR, LPDWORD);
+static fnWNetGetConnection MSWNetGetConnection = NULL;
+
 typedef enum _DWMWINDOWATTRIBUTE
 {
   DWMWA_NCRENDERING_ENABLED           = 1,
@@ -210,6 +214,8 @@ extern "C" BOOL WINAPI DllMain(HINSTANCE hinstDLL UNUSED, DWORD fdwReason, LPVOI
     {
     case DLL_PROCESS_ATTACH:
       emergeLibInstance = hinstDLL;
+      if (mprDLL == NULL)
+        mprDLL = ELLoadSystemLibrary(TEXT("mpr.dll"));
       if (shell32DLL == NULL)
         shell32DLL = ELLoadSystemLibrary(TEXT("shell32.dll"));
       if (user32DLL == NULL)
@@ -222,6 +228,11 @@ extern "C" BOOL WINAPI DllMain(HINSTANCE hinstDLL UNUSED, DWORD fdwReason, LPVOI
         shlwapiDLL = ELLoadSystemLibrary(TEXT("shlwapi.dll"));
       break;
     case DLL_PROCESS_DETACH:
+      if (mprDLL != NULL)
+        {
+          FreeLibrary(mprDLL);
+          mprDLL = NULL;
+        }
       if (shlwapiDLL != NULL)
         {
           FreeLibrary(shlwapiDLL);
@@ -260,6 +271,36 @@ void *ELLockShared(HANDLE sharedMem, DWORD processID)
     return MSSHLockShared(sharedMem, processID);
 
   return NULL;
+}
+
+bool ELGetUNCFromMap(LPCTSTR map, LPTSTR unc, size_t uncLength)
+{
+  if (mprDLL)
+    {
+      if (MSWNetGetConnection == NULL)
+        MSWNetGetConnection = (fnWNetGetConnection)GetProcAddress(mprDLL, (LPCSTR)"WNetGetConnectionW");
+    }
+
+  if (MSWNetGetConnection)
+    {
+      WCHAR tmp[MAX_PATH];
+      DWORD tmpLength = MAX_PATH;
+      std::wstring workingMap = map, drive;
+      size_t colon = workingMap.find(':');
+      if (colon != std::wstring::npos)
+        {
+          drive = workingMap.substr(0, colon + 1);
+          if (MSWNetGetConnection(drive.c_str(), tmp, &tmpLength) == NO_ERROR)
+            {
+              snwprintf(unc, uncLength, L"%s%s", tmp,
+                        workingMap.substr(colon + 1,
+                                          workingMap.length() - colon).c_str());
+              return true;
+            }
+        }
+    }
+
+  return false;
 }
 
 BOOL ELUnlockShared(void *sharedPtr)
@@ -4686,6 +4727,10 @@ bool ELRelativePathFromAbsPath(WCHAR *destPath, size_t destLength, LPCTSTR sourc
     flags = FILE_ATTRIBUTE_DIRECTORY;
   else
     flags = FILE_ATTRIBUTE_NORMAL;
+
+  WCHAR unc[MAX_PATH];
+  if (ELGetUNCFromMap(program, unc, MAX_PATH))
+    wcscpy(program, unc);
 
   if (PathRelativePathTo(tmpPath, srcPath.c_str(), FILE_ATTRIBUTE_DIRECTORY,
                          program, flags))
