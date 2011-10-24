@@ -97,8 +97,6 @@ void Settings::WriteList(bool backup)
                     {
                       userIO.WriteString(TEXT("KeyCombo"),
                                          backupList[i]->GetHotkeyString());
-                      ELRelativePathFromAbsPath(backupList[i]->GetHotkeyAction(),
-                                                MAX_LINE_LENGTH);
                       userIO.WriteString(TEXT("Action"),
                                          backupList[i]->GetHotkeyAction());
                     }
@@ -113,8 +111,6 @@ void Settings::WriteList(bool backup)
                     {
                       userIO.WriteString(TEXT("KeyCombo"),
                                          hotkeyList[i]->GetHotkeyString());
-                      ELRelativePathFromAbsPath(hotkeyList[i]->GetHotkeyAction(),
-                                                MAX_LINE_LENGTH);
                       userIO.WriteString(TEXT("Action"),
                                          hotkeyList[i]->GetHotkeyAction());
                     }
@@ -163,7 +159,6 @@ bool Settings::BuildList(HWND mainWnd, bool backup)
               found = true;
               userIO.ReadString(TEXT("KeyCombo"), keyCombo, TEXT(""));
               userIO.ReadString(TEXT("Action"), action, TEXT(""));
-              ELAbsPathFromRelativePath(action, MAX_LINE_LENGTH);
 
               // Add the hotkey definition to the appropriate vector
               if (backup)

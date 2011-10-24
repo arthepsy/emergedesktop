@@ -759,7 +759,10 @@ bool Actions::DoSave(HWND hwndDlg)
   ZeroMemory(tmpKey, MAX_LINE_LENGTH);
 
   if (SendDlgItemMessage(hwndDlg, IDC_EXTERNAL, BM_GETCHECK, 0, 0) == BST_CHECKED)
-    GetDlgItemText(hwndDlg, IDC_APPLICATION, tmpAction, MAX_LINE_LENGTH);
+    {
+      if (GetDlgItemText(hwndDlg, IDC_APPLICATION, tmpAction, MAX_LINE_LENGTH))
+        ELRelativePathFromAbsPath(tmpAction, MAX_LINE_LENGTH);
+    }
   if (SendDlgItemMessage(hwndDlg, IDC_INTERNAL, BM_GETCHECK, 0, 0) == BST_CHECKED)
     {
       GetDlgItemText(hwndDlg, IDC_COMMAND, tmp, MAX_LINE_LENGTH);
