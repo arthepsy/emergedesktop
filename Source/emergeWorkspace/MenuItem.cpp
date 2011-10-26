@@ -39,10 +39,7 @@ MenuItem::MenuItem(WCHAR *name, UINT type, WCHAR* value, WCHAR *workingDir, TiXm
     wcscpy(this->name, (WCHAR*)TEXT("\0"));
 
   if (value)
-    {
-      wcscpy(this->value, value);
-      ELAbsPathFromRelativePath(value, MAX_LINE_LENGTH);
-    }
+    wcscpy(this->value, value);
   else
     wcscpy(this->value, (WCHAR*)TEXT("\0"));
 
@@ -151,11 +148,11 @@ void MenuItem::SetIcon()
         icon = EGGetSystemIcon(ICON_LOCK, 16);
       break;
     case IT_SPECIAL_FOLDER:
-    {
-      UINT specialFolder = ELIsSpecialFolder(value);
-      icon = EGGetSpecialFolderIcon(specialFolder, 16);
-    }
-    break;
+        {
+          UINT specialFolder = ELIsSpecialFolder(value);
+          icon = EGGetSpecialFolderIcon(specialFolder, 16);
+        }
+      break;
     case IT_FILE_MENU:
       app = value;
       app = ELToLower(app.substr(0, app.find_first_of(TEXT("|"))));
@@ -167,7 +164,7 @@ void MenuItem::SetIcon()
         icon = EGGetSpecialFolderIcon(CSIDL_DESKTOP, 16);
       else
         {
-          //ELAbsPathFromRelativePath(lwrValue);
+          ELAbsPathFromRelativePath(lwrValue, MAX_LINE_LENGTH);
           icon = EGGetFileIcon(app.c_str(), 16);
         }
       if (icon != NULL)
@@ -189,7 +186,6 @@ void MenuItem::SetIcon()
 void MenuItem::SetValue(WCHAR *value)
 {
   wcscpy(this->value, value);
-  ELAbsPathFromRelativePath(value, MAX_LINE_LENGTH);
 }
 
 void MenuItem::SetName(WCHAR *name)

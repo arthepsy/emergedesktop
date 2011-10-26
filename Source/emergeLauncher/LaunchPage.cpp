@@ -1146,6 +1146,8 @@ bool LaunchPage::SaveItem(HWND hwndDlg)
                        ELMB_OK|ELMB_ICONERROR|ELMB_MODAL);
           return false;
         }
+      else
+        ELRelativePathFromAbsPath(command, MAX_LINE_LENGTH);
     }
   else if (_wcsicmp(typeName, TEXT("Separator")) == 0)
     {

@@ -22,7 +22,7 @@
 #include <wchar.h>
 
 Settings::Settings()
-  :BaseSettings(false)
+:BaseSettings(false)
 {
   xmlFile = TEXT("%EmergeDir%\\files\\emergeCommand.xml");
 }
@@ -276,10 +276,7 @@ void Settings::BuildHistoryList()
           while (userIO.GetElement())
             {
               if (userIO.ReadString(TEXT("Command"), data, TEXT("")))
-                {
-                  ELAbsPathFromRelativePath(data, MAX_LINE_LENGTH);
-                  historyList.push_back(data);
-                }
+                historyList.push_back(data);
             }
         }
     }
@@ -305,7 +302,6 @@ void Settings::WriteHistoryList()
               if (userIO.SetElement(TEXT("item")))
                 {
                   wcscpy(command, historyList[i].c_str());
-                  ELRelativePathFromAbsPath(command, MAX_LINE_LENGTH);
                   userIO.WriteString(TEXT("Command"), command);
                 }
             }

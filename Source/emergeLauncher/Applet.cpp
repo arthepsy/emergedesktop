@@ -296,7 +296,6 @@ void Applet::InitLiveFolderMap()
         {
           liveFolderPath = pSettings->GetItem(i)->GetApp();
           liveFolderPath = ELExpandVars(liveFolderPath);
-          //ELAbsPathFromRelativePath(liveFolderPath);
 
           thread = CreateThread(NULL, 0, LiveFolderThreadProc, this,
                                 CREATE_SUSPENDED, &threadID);
