@@ -983,6 +983,7 @@ bool LaunchEditor::DoLaunchBrowse(HWND hwndDlg)
   if (GetOpenFileName(&ofn))
     {
       ELUnExpandVars(tmp);
+      ELRelativePathFromAbsPath(tmp, MAX_PATH);
       SetDlgItemText(hwndDlg, IDC_APPLET, tmp);
 
       ret = true;

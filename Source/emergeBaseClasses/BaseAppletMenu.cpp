@@ -170,6 +170,7 @@ DWORD BaseAppletMenu::ActivateMenu(int x, int y, WCHAR *styleFile)
       if (GetOpenFileName(&ofn))
         {
           ELUnExpandVars(file);
+          ELRelativePathFromAbsPath(file, MAX_PATH);
           wcscpy(styleFile, file);
           break;
         }

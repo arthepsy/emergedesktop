@@ -4706,22 +4706,28 @@ bool ConvertPath(WCHAR *styleFile, DWORD flags, DWORD path)
 
 bool ELRelativePathFromAbsPath(WCHAR *destPath, size_t destLength, LPCTSTR sourcePath)
 {
-  std::wstring srcPath = ELExpandVars(sourcePath);
+  std::wstring srcPath = ELExpandVars(sourcePath), dstPath = destPath;
   WCHAR tmpPath[MAX_PATH], program[MAX_PATH], arguments[MAX_LINE_LENGTH];
   WCHAR *tmpPtr = tmpPath;
   DWORD flags;
 
-  if (!ELParseCommand(destPath, program, arguments))
+  if (dstPath.find(L"%%SystemDrive%%") != std::wstring::npos)
+    dstPath = ELExpandVars(dstPath);
+
+  if (dstPath.find(L"%%AppletDir%%") != std::wstring::npos)
+    dstPath = ELExpandVars(dstPath);
+
+  if (!ELParseCommand(dstPath.c_str(), program, arguments))
     return false;
 
   if (ELPathIsRelative(program))
     //the path is already relative; there's nothing for us to do!
     return true;
 
-  if (ELUnExpandVars(program))
+  //if (ELUnExpandVars(program))
     //the unexpanded path contains an environmentvariable, so we don't want to
     //manipulate the string any further.
-    return true;
+    //return true;
 
   if (ELPathIsDirectory(program))
     flags = FILE_ATTRIBUTE_DIRECTORY;

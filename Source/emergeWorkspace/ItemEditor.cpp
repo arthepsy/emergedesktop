@@ -332,6 +332,7 @@ bool ItemEditor::DoBrowseItem(HWND hwndDlg, bool workingDir)
       if (GetOpenFileName(&ofn))
         {
           ELUnExpandVars(tmp);
+          ELRelativePathFromAbsPath(tmp, MAX_PATH);
           if (type == IT_SPECIAL_FOLDER)
             swprintf(tmp, TEXT("*%s"), PathFindFileName(tmp));
 

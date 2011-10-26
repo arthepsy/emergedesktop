@@ -1317,6 +1317,7 @@ bool LaunchPage::Browse(HWND hwndDlg, UINT type)
       if (GetOpenFileName(&ofn))
         {
           ELUnExpandVars(tmp);
+          ELRelativePathFromAbsPath(tmp, MAX_PATH);
           SetDlgItemText(hwndDlg, IDC_COMMAND, tmp);
           ret = true;
         }
