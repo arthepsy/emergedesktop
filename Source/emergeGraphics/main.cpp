@@ -607,7 +607,7 @@ HICON EGGetFileIcon(const WCHAR *file, UINT iconSize)
   LPITEMIDLIST pidlLocal = NULL;
   LPITEMIDLIST pidlRelative = NULL;
   IExtractIcon *extractIcon = NULL;
-  WCHAR iconLocation[MAX_PATH];
+  WCHAR iconLocation[MAX_PATH], canonicalizedFile[MAX_PATH];
   WCHAR *token, *source;
   int iconIndex = 0;
   UINT iconFlags = 0;
@@ -647,6 +647,10 @@ HICON EGGetFileIcon(const WCHAR *file, UINT iconSize)
       supliedFile = ELExpandVars(supliedFile);
       free(source);
     }
+
+  // Normalize the file path
+  if (PathCanonicalize(canonicalizedFile, supliedFile.c_str()))
+    supliedFile = canonicalizedFile;
 
   if (hasIndex)
     {
