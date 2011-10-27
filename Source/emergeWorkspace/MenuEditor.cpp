@@ -1507,6 +1507,7 @@ bool MenuEditor::DoBrowseItem(HWND hwndDlg, bool workingDir)
                 }
 
               ELUnExpandVars(tmp);
+              ELRelativePathFromAbsPath(tmp, MAX_PATH);
               if (workingDir)
                 SetDlgItemText(hwndDlg, IDC_WORKINGDIR, tmp);
               else

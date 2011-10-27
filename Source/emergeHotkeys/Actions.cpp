@@ -759,10 +759,7 @@ bool Actions::DoSave(HWND hwndDlg)
   ZeroMemory(tmpKey, MAX_LINE_LENGTH);
 
   if (SendDlgItemMessage(hwndDlg, IDC_EXTERNAL, BM_GETCHECK, 0, 0) == BST_CHECKED)
-    {
-      if (GetDlgItemText(hwndDlg, IDC_APPLICATION, tmpAction, MAX_LINE_LENGTH))
-        ELRelativePathFromAbsPath(tmpAction, MAX_LINE_LENGTH);
-    }
+      GetDlgItemText(hwndDlg, IDC_APPLICATION, tmpAction, MAX_LINE_LENGTH);
   if (SendDlgItemMessage(hwndDlg, IDC_INTERNAL, BM_GETCHECK, 0, 0) == BST_CHECKED)
     {
       GetDlgItemText(hwndDlg, IDC_COMMAND, tmp, MAX_LINE_LENGTH);
@@ -809,7 +806,6 @@ bool Actions::DoSave(HWND hwndDlg)
 
   if ((wcslen(tmpKey) > 0) && (wcslen(tmpAction) > 0))
     {
-      ELUnExpandVars(tmpAction);
       hc = new HotkeyCombo(tmpKey, tmpAction, false);
       if (RegisterHotKey(mainWnd, hc->GetHotkeyID(), hc->GetHotkeyModifiers(),
                          hc->GetHotkeyKey()))
@@ -1049,6 +1045,8 @@ bool Actions::DoBrowse(HWND hwndDlg, bool folder)
                   pMalloc->Release();
                 }
 
+              ELUnExpandVars(tmp);
+              ELRelativePathFromAbsPath(tmp, MAX_PATH);
               SetDlgItemText(hwndDlg, IDC_APPLICATION, tmp);
 
               ret = true;
@@ -1070,8 +1068,11 @@ bool Actions::DoBrowse(HWND hwndDlg, bool folder)
 
       if (GetOpenFileName(&ofn))
         {
+          ELWriteDebug(tmp);
           ELUnExpandVars(tmp);
+          ELWriteDebug(tmp);
           ELRelativePathFromAbsPath(tmp, MAX_PATH);
+          ELWriteDebug(tmp);
           SetDlgItemText(hwndDlg, IDC_APPLICATION, tmp);
 
           ret = true;

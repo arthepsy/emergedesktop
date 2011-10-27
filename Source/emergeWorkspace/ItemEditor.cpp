@@ -49,16 +49,16 @@ ItemEditor::ItemEditor(HINSTANCE hInstance, HWND mainWnd)
   InitCommonControls();
 
   toolWnd = CreateWindowEx(
-              0,
-              TOOLTIPS_CLASS,
-              NULL,
-              TTS_ALWAYSTIP|WS_POPUP|TTS_NOPREFIX,
-              CW_USEDEFAULT, CW_USEDEFAULT,
-              CW_USEDEFAULT, CW_USEDEFAULT,
-              NULL,
-              NULL,
-              hInstance,
-              NULL);
+                           0,
+                           TOOLTIPS_CLASS,
+                           NULL,
+                           TTS_ALWAYSTIP|WS_POPUP|TTS_NOPREFIX,
+                           CW_USEDEFAULT, CW_USEDEFAULT,
+                           CW_USEDEFAULT, CW_USEDEFAULT,
+                           NULL,
+                           NULL,
+                           hInstance,
+                           NULL);
 
   if (toolWnd)
     {
@@ -190,28 +190,28 @@ BOOL ItemEditor::DoInitDialog(HWND hwndDlg)
   switch (type)
     {
     case IT_INTERNAL_COMMAND:
-    {
-      int commandIndex = (int)SendMessage(commandWnd, CB_FINDSTRINGEXACT, (WPARAM)-1,
-                                          (LPARAM)ELStripInternalCommandArg(value).c_str());
-      if (commandIndex != CB_ERR)
         {
-          SendMessage(commandWnd, CB_SETCURSEL, commandIndex, 0);
-          SetDlgItemText(hwndDlg, IDC_COMMANDARG, ELGetInternalCommandArg(value).c_str());
+          int commandIndex = (int)SendMessage(commandWnd, CB_FINDSTRINGEXACT, (WPARAM)-1,
+                                              (LPARAM)ELStripInternalCommandArg(value).c_str());
+          if (commandIndex != CB_ERR)
+            {
+              SendMessage(commandWnd, CB_SETCURSEL, commandIndex, 0);
+              SetDlgItemText(hwndDlg, IDC_COMMANDARG, ELGetInternalCommandArg(value).c_str());
+            }
         }
-    }
-    break;
+      break;
     case IT_SPECIAL_FOLDER:
-    {
-      int folder = ELIsSpecialFolder(value);
-      if (ELGetSpecialFolder(folder, value))
-        SendMessage(specialFoldersWnd, CB_SETCURSEL,
-                    SendMessage(specialFoldersWnd,
-                                CB_FINDSTRINGEXACT,
-                                (WPARAM)-1,
-                                (LPARAM)value),
-                    0);
-    }
-    break;
+        {
+          int folder = ELIsSpecialFolder(value);
+          if (ELGetSpecialFolder(folder, value))
+            SendMessage(specialFoldersWnd, CB_SETCURSEL,
+                        SendMessage(specialFoldersWnd,
+                                    CB_FINDSTRINGEXACT,
+                                    (WPARAM)-1,
+                                    (LPARAM)value),
+                        0);
+        }
+      break;
     default:
       SetDlgItemText(hwndDlg, IDC_ITEMVALUE, value);
       break;
@@ -299,6 +299,7 @@ bool ItemEditor::DoBrowseItem(HWND hwndDlg, bool workingDir)
                 }
 
               ELUnExpandVars(tmp);
+              ELRelativePathFromAbsPath(tmp, MAX_PATH);
               if (workingDir)
                 SetDlgItemText(hwndDlg, IDC_WORKINGDIR, tmp);
               else
@@ -725,15 +726,9 @@ bool ItemEditor::DoSaveItem(HWND hwndDlg)
   ELWriteXMLStringValue(section, (WCHAR*)TEXT("Name"), name);
   ELWriteXMLIntValue(section, (WCHAR*)TEXT("Type"), type);
   if (wcslen(value) > 0)
-    {
-      ELRelativePathFromAbsPath(value, MAX_LINE_LENGTH);
-      ELWriteXMLStringValue(section, (WCHAR*)TEXT("Value"), value);
-    }
+    ELWriteXMLStringValue(section, (WCHAR*)TEXT("Value"), value);
   if (wcslen(workingDir) > 0)
-    {
-      ELRelativePathFromAbsPath(workingDir, MAX_LINE_LENGTH);
-      ELWriteXMLStringValue(section, (WCHAR*)TEXT("WorkingDir"), workingDir);
-    }
+    ELWriteXMLStringValue(section, (WCHAR*)TEXT("WorkingDir"), workingDir);
 
   TiXmlDocument *configXML = ELGetXMLConfig(section);
   if (configXML)

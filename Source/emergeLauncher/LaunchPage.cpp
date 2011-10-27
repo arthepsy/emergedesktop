@@ -1146,8 +1146,6 @@ bool LaunchPage::SaveItem(HWND hwndDlg)
                        ELMB_OK|ELMB_ICONERROR|ELMB_MODAL);
           return false;
         }
-      else
-        ELRelativePathFromAbsPath(command, MAX_LINE_LENGTH);
     }
   else if (_wcsicmp(typeName, TEXT("Separator")) == 0)
     {
@@ -1262,6 +1260,8 @@ bool LaunchPage::Browse(HWND hwndDlg, UINT type)
                   pMalloc->Release();
                 }
 
+              ELUnExpandVars(tmp);
+              ELRelativePathFromAbsPath(tmp, MAX_PATH);
               SetDlgItemText(hwndDlg, IDC_WORKINGDIR, tmp);
 
               ret = true;
@@ -1289,6 +1289,8 @@ bool LaunchPage::Browse(HWND hwndDlg, UINT type)
                   pMalloc->Release();
                 }
 
+              ELUnExpandVars(tmp);
+              ELRelativePathFromAbsPath(tmp, MAX_PATH);
               SetDlgItemText(hwndDlg, IDC_COMMAND, tmp);
 
               ret = true;
