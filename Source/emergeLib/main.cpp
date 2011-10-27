@@ -4708,7 +4708,7 @@ bool ELRelativePathFromAbsPath(WCHAR *destPath, size_t destLength, LPCTSTR sourc
 {
   std::wstring srcPath = ELExpandVars(sourcePath), dstPath = destPath;
   WCHAR tmpPath[MAX_PATH], program[MAX_PATH], arguments[MAX_LINE_LENGTH];
-  WCHAR *tmpPtr = tmpPath;
+  WCHAR *tmpPtr = tmpPath, unc[MAX_PATH];
   DWORD flags;
 
   if (dstPath.find(L"%%SystemDrive%%") != std::wstring::npos)
@@ -4734,9 +4734,11 @@ bool ELRelativePathFromAbsPath(WCHAR *destPath, size_t destLength, LPCTSTR sourc
   else
     flags = FILE_ATTRIBUTE_NORMAL;
 
-  WCHAR unc[MAX_PATH];
+  // Resolve path and srcPath to their UNC equivalents if appropriate
   if (ELGetUNCFromMap(program, unc, MAX_PATH))
     wcscpy(program, unc);
+  if (ELGetUNCFromMap(srcPath.c_str(), unc, MAX_PATH))
+    srcPath = unc;
 
   if (PathRelativePathTo(tmpPath, srcPath.c_str(), FILE_ATTRIBUTE_DIRECTORY,
                          program, flags))
