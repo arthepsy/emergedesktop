@@ -4708,26 +4708,27 @@ bool ELRelativePathFromAbsPath(WCHAR *destPath, size_t destLength, LPCTSTR sourc
 {
   std::wstring srcPath = ELExpandVars(sourcePath), dstPath = destPath;
   WCHAR tmpPath[MAX_PATH], program[MAX_PATH], arguments[MAX_LINE_LENGTH];
-  WCHAR *tmpPtr = tmpPath, unc[MAX_PATH];
+  WCHAR *tmpPtr, unc[MAX_PATH];
   DWORD flags;
 
-  if (dstPath.find(L"%%SystemDrive%%") != std::wstring::npos)
-    dstPath = ELExpandVars(dstPath);
-
-  if (dstPath.find(L"%%AppletDir%%") != std::wstring::npos)
-    dstPath = ELExpandVars(dstPath);
-
-  if (!ELParseCommand(dstPath.c_str(), program, arguments))
-    return false;
-
-  if (ELPathIsRelative(program))
+  if (ELPathIsRelative(dstPath.c_str()))
     //the path is already relative; there's nothing for us to do!
     return true;
 
-  //if (ELUnExpandVars(program))
-    //the unexpanded path contains an environmentvariable, so we don't want to
-    //manipulate the string any further.
-    //return true;
+  // Convert %SystemPath% and %AppletDir% to relative paths
+  if (dstPath.find(L"%%SystemDrive%%") != std::wstring::npos)
+    dstPath = ELExpandVars(dstPath);
+  if (dstPath.find(L"%%AppletDir%%") != std::wstring::npos)
+    dstPath = ELExpandVars(dstPath);
+
+  // If dstPath is not equal to dstPath after var expansion, then destPath is
+  // already defined as a variable, so don't convert it.
+  if (dstPath != ELExpandVars(dstPath))
+    return true;
+
+  // Separate the program and the arguments for conversion
+  if (!ELParseCommand(dstPath.c_str(), program, arguments))
+    return false;
 
   if (ELPathIsDirectory(program))
     flags = FILE_ATTRIBUTE_DIRECTORY;
@@ -4747,16 +4748,22 @@ bool ELRelativePathFromAbsPath(WCHAR *destPath, size_t destLength, LPCTSTR sourc
       // prepends the string with '\' making windows think the file is in the
       // root directory, so I've implemented the change below to account for
       // that.
+      tmpPtr = tmpPath;
       if (tmpPath[0] == '\\')
         tmpPtr++;
     }
+  else
+    tmpPtr = program;
 
   if (wcslen(arguments))
+    // If there are arguments, add them back along with the converted relative
+    // path version of the program
     _snwprintf(destPath, destLength, L"%s %s\0", tmpPtr, arguments);
   else
+    // If not, simply copy the relative path version of the program
     wcsncpy(destPath, tmpPtr, destLength);
 
-  return false;
+  return true;
 }
 
 bool ELAbsPathFromRelativePath(WCHAR *destPath, size_t destLength, LPCTSTR sourcePath)
