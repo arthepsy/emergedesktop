@@ -136,7 +136,6 @@ private:
   static BOOL CALLBACK BuildTasksMenu(HWND hwnd, LPARAM lParam);
   static LRESULT CALLBACK MenuProcedure (HWND, UINT, WPARAM, LPARAM);
   static BOOL CALLBACK SetMonitorArea(HMONITOR hMonitor, HDC hdcMonitor, LPRECT lprcMonitor, LPARAM dwData);
-  MenuMap::iterator GetMenuIterID(POINT pt, int *index);
   int DisplayRegContext(POINT pt, int type);
   bool registered;
   bool AddMenuItem(MenuMap::iterator iter, int index);
@@ -155,7 +154,7 @@ public:
   LRESULT DoMenuGetObject(HWND hwnd, MENUGETOBJECTINFO *mgoInfo);
   LRESULT DoInitMenu(HMENU menu);
   LRESULT ExecuteMenuItem(UINT itemID);
-  LRESULT DoContextMenu(POINT pt);
+  LRESULT DoRButtonUp(HMENU menu, UINT index);
   LRESULT DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
   LRESULT DoCopyData(COPYDATASTRUCT *cds);
   void AddTaskItem(HWND hwnd);

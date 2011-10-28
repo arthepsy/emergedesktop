@@ -188,10 +188,8 @@ LRESULT CALLBACK MenuBuilder::MenuProcedure (HWND hwnd, UINT message, WPARAM wPa
     case WM_DRAWITEM:
       return pMenuBuilder->DoDrawItem((LPDRAWITEMSTRUCT)lParam);
 
-    case WM_CONTEXTMENU:
-      POINT pt;
-      GetCursorPos(&pt);
-      return pMenuBuilder->DoContextMenu(pt);
+    case WM_MENURBUTTONUP:
+      return pMenuBuilder->DoRButtonUp((HMENU)lParam, (UINT)wParam);
 
     case WM_MENUDRAG:
       return pMenuBuilder->DoMenuDrag(hwnd, (HMENU)lParam);
@@ -234,26 +232,26 @@ LRESULT MenuBuilder::DoCopyData(COPYDATASTRUCT *cds)
           switch (notifyInfo->Message)
             {
             case CORE_SETTINGS:
-            {
-              Config config(mainInst, pSettings);
-              if (config.Show() == IDOK)
-                SetWorkArea();
-            }
-            break;
+                {
+                  Config config(mainInst, pSettings);
+                  if (config.Show() == IDOK)
+                    SetWorkArea();
+                }
+              break;
 
             case CORE_SHOWCONFIG:
-            {
-              if ((notifyInfo->InstanceName != NULL) && wcslen(notifyInfo->InstanceName))
                 {
-                  if (_wcsicmp(notifyInfo->InstanceName, TEXT("emergeWorkspace")) == 0)
+                  if ((notifyInfo->InstanceName != NULL) && wcslen(notifyInfo->InstanceName))
                     {
-                      Config config(mainInst, pSettings);
-                      if (config.Show() == IDOK)
-                        SetWorkArea();
+                      if (_wcsicmp(notifyInfo->InstanceName, TEXT("emergeWorkspace")) == 0)
+                        {
+                          Config config(mainInst, pSettings);
+                          if (config.Show() == IDOK)
+                            SetWorkArea();
+                        }
                     }
                 }
-            }
-            break;
+              break;
 
             case CORE_RIGHTMENU:
               return DoButtonDown(WM_RBUTTONDOWN);
@@ -354,57 +352,37 @@ LRESULT MenuBuilder::DoMenuDrag(HWND hwnd, HMENU menu)
   return MND_CONTINUE;
 }
 
-MenuMap::iterator MenuBuilder::GetMenuIterID(POINT pt, int *index)
-{
-  MenuMap::reverse_iterator revIter;
-  MenuMap::iterator iter;
-
-  // Go through the map backwards to make sure that the newest menu is matched first
-  for (revIter = menuMap.rbegin(); revIter != menuMap.rend(); revIter++)
-    {
-      *(index) = MenuItemFromPoint(menuWnd, revIter->first, pt);
-      if (*(index) != -1)
-        break;
-    }
-
-  revIter++;
-
-  iter = revIter.base();
-
-  return iter;
-}
-
-LRESULT MenuBuilder::DoContextMenu(POINT pt)
+LRESULT MenuBuilder::DoRButtonUp(HMENU menu, UINT index)
 {
   MENUITEMINFO menuItemInfo;
   MenuMap::iterator iter, subIter;
-  HMENU menu = NULL;
-  int index;
-  WCHAR value[MAX_LINE_LENGTH];
-  UINT itemID = 0;
+  HMENU subMenu = NULL;
   TiXmlElement *element;
   TiXmlDocument *configXML;
-
-  menuItemInfo.cbSize = sizeof(menuItemInfo);
-  menuItemInfo.fMask = MIIM_FTYPE | MIIM_SUBMENU | MIIM_ID;
+  WCHAR value[MAX_LINE_LENGTH];
+  UINT itemID = 0;
+  POINT pt;
 
   if (menuMap.empty())
     return 0;
 
-  iter = GetMenuIterID(pt, &index);
-  if (index == -1)
+  iter = menuMap.find(menu);
+  if (iter == menuMap.end())
     return 0;
 
+  menuItemInfo.cbSize = sizeof(menuItemInfo);
+  menuItemInfo.fMask = MIIM_FTYPE | MIIM_SUBMENU | MIIM_ID;
   if (!GetMenuItemInfo(iter->first, index, TRUE, &menuItemInfo))
     return 0;
 
-  menu = menuItemInfo.hSubMenu;
+  GetCursorPos(&pt);
+  subMenu = menuItemInfo.hSubMenu;
   itemID = menuItemInfo.wID;
   itemID--;
 
-  if (menu)
+  if (subMenu)
     {
-      subIter = menuMap.find(menu);
+      subIter = menuMap.find(subMenu);
       if (subIter == menuMap.end())
         return 0;
 
@@ -447,36 +425,30 @@ LRESULT MenuBuilder::DoContextMenu(POINT pt)
         SendMessage(menuWnd, WM_CANCELMODE, 0, 0);
       break;
     case IT_TASKS_MENU:
-    {
-#ifdef _W64
-      HWND task = (HWND)_wcstoi64(value, NULL, 10);
-#else
-      HWND task = (HWND)wcstol(value, NULL, 10);
-#endif
-      res = EAEDisplayMenu(menuWnd, task);
-      switch (res)
         {
-        case SC_CLOSE:
-          DeleteMenu(iter->first, index, MF_BYPOSITION);
-          break;
-        case SC_SIZE:
-        case SC_MOVE:
-        case SC_MAXIMIZE:
-        case SC_RESTORE:
-          ELSwitchToThisWindow(task);
-          SendMessage(menuWnd, WM_CANCELMODE, 0, 0);
-          break;
+#ifdef _W64
+          HWND task = (HWND)_wcstoi64(value, NULL, 10);
+#else
+          HWND task = (HWND)wcstol(value, NULL, 10);
+#endif
+          res = EAEDisplayMenu(menuWnd, task);
+          switch (res)
+            {
+            case SC_CLOSE:
+              DeleteMenu(iter->first, index, MF_BYPOSITION);
+              break;
+            case SC_SIZE:
+            case SC_MOVE:
+            case SC_MAXIMIZE:
+            case SC_RESTORE:
+              ELSwitchToThisWindow(task);
+              SendMessage(menuWnd, WM_CANCELMODE, 0, 0);
+              break;
+            }
+          if (res)
+            PostMessage(task, WM_SYSCOMMAND, (WPARAM)res, MAKELPARAM(pt.x, pt.y));
         }
-      if (res)
-        PostMessage(task, WM_SYSCOMMAND, (WPARAM)res, MAKELPARAM(pt.x, pt.y));
-    }
-    break;
-    /*case IT_SETTINGS_MENU:
-      ExecuteSettingsMenuItem(itemID);
-      break;*/
-    /*case IT_HELP_MENU:
-      ExecuteSettingsMenuItem(itemID);
-      break;*/
+      break;
     }
 
   return 1;
@@ -1391,11 +1363,11 @@ void MenuBuilder::BuildFileMenuFromString(MenuMap::iterator iter, WCHAR *parsedV
           MenuItem *menuItem;
           wcscpy(extension, PathFindExtension(tmp));
           bool isShortcut = (_wcsicmp(extension, TEXT(".lnk")) == 0) ||
-                            (_wcsicmp(extension, TEXT(".lnk2")) == 0) ||
-                            (_wcsicmp(extension, TEXT(".pif")) == 0) ||
-                            (_wcsicmp(extension, TEXT(".scf")) == 0) ||
-                            (_wcsicmp(extension, TEXT(".pnagent")) == 0) ||
-                            (_wcsicmp(extension, TEXT(".url")) == 0);
+            (_wcsicmp(extension, TEXT(".lnk2")) == 0) ||
+            (_wcsicmp(extension, TEXT(".pif")) == 0) ||
+            (_wcsicmp(extension, TEXT(".scf")) == 0) ||
+            (_wcsicmp(extension, TEXT(".pnagent")) == 0) ||
+            (_wcsicmp(extension, TEXT(".url")) == 0);
 
           wcscpy(entry, tmp);
           wcscpy(tmp, findData.cFileName);
