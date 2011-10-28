@@ -4715,10 +4715,8 @@ bool ELRelativePathFromAbsPath(WCHAR *destPath, size_t destLength, LPCTSTR sourc
     //the path is already relative; there's nothing for us to do!
     return true;
 
-  // Convert %SystemPath% and %AppletDir% to relative paths
-  if (dstPath.find(L"%%SystemDrive%%") != std::wstring::npos)
-    dstPath = ELExpandVars(dstPath);
-  if (dstPath.find(L"%%AppletDir%%") != std::wstring::npos)
+  // Convert %AppletDir% to relative path
+  if (dstPath.find(L"%AppletDir%") != std::wstring::npos)
     dstPath = ELExpandVars(dstPath);
 
   // If dstPath is not equal to dstPath after var expansion, then destPath is
