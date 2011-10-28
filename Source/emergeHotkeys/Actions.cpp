@@ -1068,11 +1068,8 @@ bool Actions::DoBrowse(HWND hwndDlg, bool folder)
 
       if (GetOpenFileName(&ofn))
         {
-          ELWriteDebug(tmp);
           ELUnExpandVars(tmp);
-          ELWriteDebug(tmp);
           ELRelativePathFromAbsPath(tmp, MAX_PATH);
-          ELWriteDebug(tmp);
           SetDlgItemText(hwndDlg, IDC_APPLICATION, tmp);
 
           ret = true;
