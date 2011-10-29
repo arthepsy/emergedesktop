@@ -72,6 +72,10 @@
 #define MN_BUTTONUP 0x01EF
 #endif
 
+#ifndef MN_GETMENU
+#define MN_GETMENU 0x01E1
+#endif
+
 #define MENU_DOWN   0xFFFFFFFD
 #define MENU_UP     0xFFFFFFFC
 
@@ -142,6 +146,7 @@ private:
   bool EditMenuItem(MenuMap::iterator iter, int index);
   void ElevatedExecute(MenuItem *menuItem);
   float winVersion;
+  HMENU activeMenu;
 //    CustomDropTarget *customDropTarget;
 //    IDropTarget *dropTarget;
 
@@ -154,7 +159,7 @@ public:
   LRESULT DoMenuGetObject(HWND hwnd, MENUGETOBJECTINFO *mgoInfo);
   LRESULT DoInitMenu(HMENU menu);
   LRESULT ExecuteMenuItem(UINT itemID);
-  LRESULT DoRButtonUp(HMENU menu, UINT index);
+  LRESULT DoContextMenu();
   LRESULT DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
   LRESULT DoCopyData(COPYDATASTRUCT *cds);
   void AddTaskItem(HWND hwnd);
@@ -166,6 +171,7 @@ public:
   void SetWorkArea();
   void RenameConfigFile();
   BYTE GetMenuAlpha();
+  void SetActiveMenu(HMENU menu);
 };
 
 #endif
