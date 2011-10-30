@@ -160,7 +160,6 @@ Applet::~Applet()
 UINT Applet::Initialize()
 {
   pSettings = std::tr1::shared_ptr<Settings>(new Settings());
-
   UINT ret = BaseApplet::Initialize(WindowProcedure, this, pSettings);
   if (ret == 0)
     return ret;
