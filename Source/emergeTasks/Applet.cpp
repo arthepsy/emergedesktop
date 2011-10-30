@@ -136,6 +136,12 @@ Applet::Applet(HINSTANCE hInstance)
 {
   activeWnd = NULL;
   oldTipWnd = NULL;
+
+  // Create a critical section to control access to the taskList vector
+  InitializeCriticalSection(&vectorLock);
+
+  // Create a critical section to control access to the modifyMap map
+  InitializeCriticalSection(&mapLock);
 }
 
 Applet::~Applet()
@@ -166,12 +172,6 @@ UINT Applet::Initialize()
 
   // Set the window transparency
   UpdateGUI();
-
-  // Create a critical section to control access to the taskList vector
-  InitializeCriticalSection(&vectorLock);
-
-  // Create a critical section to control access to the modifyMap map
-  InitializeCriticalSection(&mapLock);
 
   // Register the exiting tasks
   BuildTasksList();
