@@ -38,10 +38,10 @@ int WINAPI WinMain (HINSTANCE hInstance,
 {
   MSG messages;
 
-  std::tr1::shared_ptr<Applet> pApplet(new Applet(hInstance));
+  Applet applet(hInstance);
 
-  if (!pApplet->Initialize())
-    return 0;
+  if (applet.Initialize())
+    return 1;
 
   // Run the message loop. It will run until GetMessage() returns 0
   while (GetMessage (&messages, NULL, 0, 0))

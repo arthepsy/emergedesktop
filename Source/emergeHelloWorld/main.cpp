@@ -38,20 +38,11 @@ int WINAPI WinMain (HINSTANCE hInstance,
 {
   MSG messages;
 
-  // Create a Mutex so as to guard that only one instance of the applet is
-  // running
-  HANDLE hMutex = CreateMutex(NULL, false, TEXT("emergeHelloWorld"));
-  if (GetLastError() == ERROR_ALREADY_EXISTS)
-    {
-      CloseHandle(hMutex);
-      return 0;
-    }
-
   // Initialize the main Applet class
   Applet applet(hInstance);
 
   if (!applet.Initialize())
-    return 0;
+    return 1;
 
   // Run the message loop. It will run until GetMessage() returns 0
   while (GetMessage (&messages, NULL, 0, 0))
@@ -61,9 +52,6 @@ int WINAPI WinMain (HINSTANCE hInstance,
       // Send message to WindowProcedure
       DispatchMessage(&messages);
     }
-
-  // Clean-up the Mutex
-  CloseHandle(hMutex);
 
   // The program return-value is 0 - The value that PostQuitMessage() gave
   return (int)messages.wParam;

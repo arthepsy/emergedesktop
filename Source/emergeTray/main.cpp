@@ -40,15 +40,15 @@ int WINAPI WinMain (HINSTANCE hInstance,
   Applet applet(hInstance);
 
   if (!ELIsExplorerShell())
-  {
+    {
       if (!applet.Initialize())
-        return 0;
-  }
+        return 1;
+    }
   else
-  {
+    {
       if (!applet.PortableInitialize())
-        return 0;
-  }
+        return 2;
+    }
 
   // Run the message loop. It will run until GetMessage() returns 0
   while (GetMessage (&messages, NULL, 0, 0))

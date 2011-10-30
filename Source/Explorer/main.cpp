@@ -61,13 +61,13 @@ int WINAPI WinMain (HINSTANCE hInstance,
           ELExecute(passCmd);
         }
       CloseHandle(hMutex);
-      return 0;
+      return 2;
     }
 
   Applet applet(hInstance);
 
   if (!applet.Initialize(showDesktop))
-    return 0;
+    return 3;
 
   // Run the message loop. It will run until GetMessage() returns 0
   while (GetMessage (&messages, NULL, 0, 0))
