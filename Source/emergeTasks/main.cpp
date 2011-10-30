@@ -40,7 +40,7 @@ int WINAPI WinMain (HINSTANCE hInstance,
 
   Applet applet(hInstance);
 
-  if (applet.Initialize())
+  if (!applet.Initialize())
     return 1;
 
   // Run the message loop. It will run until GetMessage() returns 0
