@@ -246,6 +246,7 @@ BOOL ThemeSelector::DoThemeCommand(HWND hwndDlg, WPARAM wParam, LPARAM lParam UN
       return TRUE;
     case IDC_SAVETHEME:
       DoSave(hwndDlg);
+      DoThemeCheck(hwndDlg);
       return TRUE;
     case IDC_EXPORTTHEME:
       DoExport(hwndDlg);
