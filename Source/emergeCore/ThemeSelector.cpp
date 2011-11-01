@@ -363,6 +363,10 @@ void ThemeSelector::DoSave(HWND hwndDlg)
   destTheme = TEXT("%EmergeDir%\\themes\\");
   destTheme += theme;
 
+  // If the destination theme is the same as the source theme, abort
+  if (sourceTheme == destTheme)
+    return;
+
   // If the destTheme directory exists, remove it and re-create it (to make
   // sure its empty.
   if (ELPathIsDirectory(ELExpandVars(destTheme).c_str()))
