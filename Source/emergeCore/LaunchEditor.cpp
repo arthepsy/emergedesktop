@@ -93,16 +93,16 @@ LaunchEditor::LaunchEditor(HINSTANCE hInstance, HWND mainWnd)
   InitCommonControls();
 
   toolWnd = CreateWindowEx(
-              0,
-              TOOLTIPS_CLASS,
-              NULL,
-              TTS_ALWAYSTIP|WS_POPUP|TTS_NOPREFIX,
-              CW_USEDEFAULT, CW_USEDEFAULT,
-              CW_USEDEFAULT, CW_USEDEFAULT,
-              NULL,
-              NULL,
-              hInstance,
-              NULL);
+                           0,
+                           TOOLTIPS_CLASS,
+                           NULL,
+                           TTS_ALWAYSTIP|WS_POPUP|TTS_NOPREFIX,
+                           CW_USEDEFAULT, CW_USEDEFAULT,
+                           CW_USEDEFAULT, CW_USEDEFAULT,
+                           NULL,
+                           NULL,
+                           hInstance,
+                           NULL);
 
   if (toolWnd)
     {
@@ -741,8 +741,6 @@ void LaunchEditor::InsertListViewItem(HWND listWnd, int index, const WCHAR *item
   std::wstring workingItem;
 
   wcscpy(tmp, item);
-  if (ELPathIsRelative(tmp))
-    ELConvertAppletPath(tmp, CTP_FULL);
 
   lvItem.mask = LVIF_TEXT;
   lvItem.iItem = index;
@@ -760,6 +758,14 @@ WCHAR *LaunchEditor::GetLaunchItemState(WCHAR *launchItem)
 {
   DWORD processList[1024], cbNeeded, processCount, i;
   std::wstring expandedItem, workingItem = launchItem;
+
+  if (ELPathIsRelative(workingItem.c_str()))
+    {
+      WCHAR tmp[MAX_LINE_LENGTH];
+      wcsncpy(tmp, workingItem.c_str(), MAX_LINE_LENGTH);
+      ELAbsPathFromRelativePath(tmp, MAX_LINE_LENGTH);
+      workingItem = tmp;
+    }
 
   EnumProcesses(processList, sizeof(processList), &cbNeeded);
   processCount = cbNeeded / sizeof(DWORD);
