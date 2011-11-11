@@ -4768,25 +4768,17 @@ bool ELAbsPathFromRelativePath(WCHAR *destPath, size_t destLength, LPCTSTR sourc
 {
   std::wstring srcPath = ELExpandVars(sourcePath);
   WCHAR originalWorkingDir[MAX_PATH];
-  WCHAR tmpPath[MAX_PATH], program[MAX_PATH], arguments[MAX_LINE_LENGTH];
+  WCHAR tmpPath[MAX_PATH];
   if (GetCurrentDirectory(MAX_PATH, originalWorkingDir))
     SetCurrentDirectory(srcPath.c_str());
 
-  if (!ELParseCommand(destPath, program, arguments))
-    return false;
-
-  if (!PathFileExists(program))
-    return false;
-
-  if (!ELPathIsRelative(program))
+  if (!ELPathIsRelative(destPath))
     //the path is already absolute; there's nothing for us to do!
     return true;
 
-  if (GetFullPathName(program, MAX_PATH, tmpPath, NULL))
+  if (GetFullPathName(destPath, MAX_PATH, tmpPath, NULL))
     {
-      if (wcslen(arguments))
-        _snwprintf(destPath, destLength, L"%s %s\0", tmpPath, arguments);
-      else
+      if (PathFileExists(destPath))
         wcsncpy(destPath, tmpPath, destLength);
 
       SetCurrentDirectory(originalWorkingDir);
