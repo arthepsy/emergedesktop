@@ -235,27 +235,25 @@ Item *Settings::GetItem(UINT index)
 
 void Settings::writeEntireFolder(WCHAR *folderName)
 {
-  wcscpy(folderName, (ELExpandVars(folderName)).c_str());
-  ELAbsPathFromRelativePath(folderName, MAX_PATH);
-
+  std::wstring workingFolder = ELExpandVars(folderName);
+  workingFolder = ELAbsPathFromRelativePath(workingFolder);
   WIN32_FIND_DATA FindFileData;
-  WCHAR tmpFolderName[MAX_PATH], tmpPath[MAX_PATH];
+  std::wstring searchFolderName = workingFolder + L"\\*.*", tmpPath;
 
-  swprintf(tmpFolderName, TEXT("%s\\*.*"), folderName);
-
-  HANDLE hFind = FindFirstFile(tmpFolderName, &FindFileData);
+  HANDLE hFind = FindFirstFile(searchFolderName.c_str(), &FindFileData);
 
   if (hFind == INVALID_HANDLE_VALUE)
     return;
 
   do
     {
-      swprintf(tmpPath, TEXT("%s\\%s"), folderName, FindFileData.cFileName);
+      tmpPath = workingFolder + L"\\";
+      tmpPath += FindFileData.cFileName;
 
       if ((_wcsicmp(TEXT("."), FindFileData.cFileName) != 0) && (_wcsicmp(TEXT(".."), FindFileData.cFileName) != 0))
         {
           ELStripShortcutExtension(FindFileData.cFileName);
-          WriteItem(IT_EXECUTABLE, tmpPath, (WCHAR*)TEXT(""), FindFileData.cFileName, (WCHAR*)TEXT(""));
+          WriteItem(IT_EXECUTABLE, (WCHAR*)tmpPath.c_str(), (WCHAR*)TEXT(""), FindFileData.cFileName, (WCHAR*)TEXT(""));
         }
     }
   while (FindNextFile(hFind, &FindFileData) != 0);
@@ -265,29 +263,31 @@ void Settings::writeEntireFolder(WCHAR *folderName)
 
 void Settings::loadLiveFolder(WCHAR *folderName)
 {
-  wcscpy(folderName, (ELExpandVars(folderName)).c_str());
-  ELAbsPathFromRelativePath(folderName, MAX_PATH);
-
+  std::wstring workingFolder = ELExpandVars(folderName);
+  workingFolder = ELAbsPathFromRelativePath(workingFolder);
   WIN32_FIND_DATA FindFileData;
-  WCHAR tmpFolderName[MAX_PATH], tmpPath[MAX_PATH];
+  std::wstring searchFolderName = workingFolder + L"\\*.*", tmpPath;
 
-  swprintf(tmpFolderName, TEXT("%s\\*.*"), folderName);
-
-  HANDLE hFind = FindFirstFile(tmpFolderName, &FindFileData);
+  HANDLE hFind = FindFirstFile(searchFolderName.c_str(), &FindFileData);
 
   if (hFind == INVALID_HANDLE_VALUE)
     return;
 
   do
     {
-      swprintf(tmpPath, TEXT("%s\\%s"), folderName, FindFileData.cFileName);
+      tmpPath = workingFolder + L"\\";
+      tmpPath += FindFileData.cFileName;
 
       if ((_wcsicmp(TEXT("."), FindFileData.cFileName) != 0) &&
           (_wcsicmp(TEXT(".."), FindFileData.cFileName) != 0) &&
           ((FindFileData.dwFileAttributes & FILE_ATTRIBUTE_HIDDEN) != FILE_ATTRIBUTE_HIDDEN))
         {
           ELStripShortcutExtension(FindFileData.cFileName);
-          itemList.push_back(std::tr1::shared_ptr<Item>(new Item(IT_LIVE_FOLDER_ITEM, tmpPath, (WCHAR*)TEXT(""), FindFileData.cFileName, (WCHAR*)TEXT(""))));
+          itemList.push_back(std::tr1::shared_ptr<Item>(new Item(IT_LIVE_FOLDER_ITEM,
+                                                                 (WCHAR*)tmpPath.c_str(),
+                                                                 (WCHAR*)TEXT(""),
+                                                                 FindFileData.cFileName,
+                                                                 (WCHAR*)TEXT(""))));
           itemList.back()->SetIcon(GetIconSize(), GetDirectionOrientation());
         }
     }

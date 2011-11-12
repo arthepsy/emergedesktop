@@ -1046,8 +1046,8 @@ bool Actions::DoBrowse(HWND hwndDlg, bool folder)
                 }
 
               ELUnExpandVars(tmp);
-              ELRelativePathFromAbsPath(tmp, MAX_PATH);
-              SetDlgItemText(hwndDlg, IDC_APPLICATION, tmp);
+              std::wstring workingTmp = ELRelativePathFromAbsPath(tmp);
+              SetDlgItemText(hwndDlg, IDC_APPLICATION, workingTmp.c_str());
 
               ret = true;
             }
@@ -1069,8 +1069,8 @@ bool Actions::DoBrowse(HWND hwndDlg, bool folder)
       if (GetOpenFileName(&ofn))
         {
           ELUnExpandVars(tmp);
-          ELRelativePathFromAbsPath(tmp, MAX_PATH);
-          SetDlgItemText(hwndDlg, IDC_APPLICATION, tmp);
+          std::wstring workingTmp = ELRelativePathFromAbsPath(tmp);
+          SetDlgItemText(hwndDlg, IDC_APPLICATION, workingTmp.c_str());
 
           ret = true;
         }

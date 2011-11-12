@@ -1261,8 +1261,8 @@ bool LaunchPage::Browse(HWND hwndDlg, UINT type)
                 }
 
               ELUnExpandVars(tmp);
-              ELRelativePathFromAbsPath(tmp, MAX_PATH);
-              SetDlgItemText(hwndDlg, IDC_WORKINGDIR, tmp);
+              std::wstring workingTmp = ELRelativePathFromAbsPath(tmp);
+              SetDlgItemText(hwndDlg, IDC_WORKINGDIR, workingTmp.c_str());
 
               ret = true;
             }
@@ -1290,8 +1290,8 @@ bool LaunchPage::Browse(HWND hwndDlg, UINT type)
                 }
 
               ELUnExpandVars(tmp);
-              ELRelativePathFromAbsPath(tmp, MAX_PATH);
-              SetDlgItemText(hwndDlg, IDC_COMMAND, tmp);
+              std::wstring workingTmp = ELRelativePathFromAbsPath(tmp);
+              SetDlgItemText(hwndDlg, IDC_COMMAND, workingTmp.c_str());
 
               ret = true;
             }
@@ -1319,8 +1319,8 @@ bool LaunchPage::Browse(HWND hwndDlg, UINT type)
       if (GetOpenFileName(&ofn))
         {
           ELUnExpandVars(tmp);
-          ELRelativePathFromAbsPath(tmp, MAX_PATH);
-          SetDlgItemText(hwndDlg, IDC_COMMAND, tmp);
+          std::wstring workingTmp = ELRelativePathFromAbsPath(tmp);
+          SetDlgItemText(hwndDlg, IDC_COMMAND, workingTmp.c_str());
           ret = true;
         }
     }

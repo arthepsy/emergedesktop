@@ -463,6 +463,7 @@ BOOL LaunchEditor::DoMultiGather(HWND hwndDlg)
           ListView_GetItemText(listWnd, i, 1, name, MAX_PATH);
           selectedApplet = name;
           selectedApplet = ELExpandVars(selectedApplet);
+          selectedApplet = ELAbsPathFromRelativePath(selectedApplet);
           EnumWindows(GatherApplet, reinterpret_cast<LPARAM>(this));
           ret = TRUE;
         }
@@ -485,6 +486,7 @@ BOOL LaunchEditor::DoMultiStop(HWND hwndDlg)
           ListView_GetItemText(listWnd, i, 1, name, MAX_PATH);
           selectedApplet = name;
           selectedApplet = ELExpandVars(selectedApplet);
+          selectedApplet = ELAbsPathFromRelativePath(selectedApplet);
           EnumWindows(AppletCheck, reinterpret_cast<LPARAM>(this));
           ListView_SetItemText(listWnd, i, 0, (WCHAR*)TEXT("Not Loaded"));
           ret = TRUE;
@@ -763,8 +765,7 @@ WCHAR *LaunchEditor::GetLaunchItemState(WCHAR *launchItem)
     {
       WCHAR tmp[MAX_LINE_LENGTH];
       wcsncpy(tmp, workingItem.c_str(), MAX_LINE_LENGTH);
-      ELAbsPathFromRelativePath(tmp, MAX_LINE_LENGTH);
-      workingItem = tmp;
+      workingItem = ELAbsPathFromRelativePath(tmp);
     }
 
   EnumProcesses(processList, sizeof(processList), &cbNeeded);
@@ -989,8 +990,8 @@ bool LaunchEditor::DoLaunchBrowse(HWND hwndDlg)
   if (GetOpenFileName(&ofn))
     {
       ELUnExpandVars(tmp);
-      ELRelativePathFromAbsPath(tmp, MAX_PATH);
-      SetDlgItemText(hwndDlg, IDC_APPLET, tmp);
+      std::wstring workingTmp = ELRelativePathFromAbsPath(tmp);
+      SetDlgItemText(hwndDlg, IDC_APPLET, workingTmp.c_str());
 
       ret = true;
     }
@@ -1113,11 +1114,13 @@ BOOL LaunchEditor::DoRightClick(HWND hwndDlg, int index)
     case 2:
       selectedApplet = applet;
       selectedApplet = ELExpandVars(selectedApplet);
+      selectedApplet = ELAbsPathFromRelativePath(selectedApplet);
       EnumWindows(GatherApplet, reinterpret_cast<LPARAM>(this));
       break;
     case 3:
       selectedApplet = applet;
       selectedApplet = ELExpandVars(selectedApplet);
+      selectedApplet = ELAbsPathFromRelativePath(selectedApplet);
       if (start)
         DoLaunchStart(listWnd, index);
       else

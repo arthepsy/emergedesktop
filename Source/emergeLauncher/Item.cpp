@@ -193,8 +193,8 @@ void Item::SetIcon(int iconSize, WCHAR *orientation)
                     origIcon = EGGetSpecialFolderIcon(CSIDL_DESKTOP, iconSize);
                   else
                     {
-                      ELAbsPathFromRelativePath(lwrApp, MAX_LINE_LENGTH);
-                      ELParseCommand(lwrApp, source, tmp);
+                      std::wstring workingApp = ELAbsPathFromRelativePath(lwrApp);
+                      ELParseCommand(workingApp.c_str(), source, tmp);
                       origIcon = EGGetFileIcon(source, iconSize);
                     }
                 }

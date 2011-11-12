@@ -844,8 +844,8 @@ bool AliasEditor::DoAliasBrowse(HWND hwndDlg)
   if (GetOpenFileName(&ofn))
     {
       ELUnExpandVars(tmp);
-      ELRelativePathFromAbsPath(tmp, MAX_PATH);
-      SetDlgItemText(hwndDlg, IDC_APPLET, tmp);
+      std::wstring workingTmp = ELRelativePathFromAbsPath(tmp);
+      SetDlgItemText(hwndDlg, IDC_APPLET, workingTmp.c_str());
 
       ret = true;
     }

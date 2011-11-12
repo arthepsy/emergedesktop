@@ -1507,11 +1507,11 @@ bool MenuEditor::DoBrowseItem(HWND hwndDlg, bool workingDir)
                 }
 
               ELUnExpandVars(tmp);
-              ELRelativePathFromAbsPath(tmp, MAX_PATH);
+              std::wstring workingTmp = ELRelativePathFromAbsPath(tmp);
               if (workingDir)
-                SetDlgItemText(hwndDlg, IDC_WORKINGDIR, tmp);
+                SetDlgItemText(hwndDlg, IDC_WORKINGDIR, workingTmp.c_str());
               else
-                SetDlgItemText(hwndDlg, IDC_ITEMVALUE, tmp);
+                SetDlgItemText(hwndDlg, IDC_ITEMVALUE, workingTmp.c_str());
 
               return true;
             }
@@ -1541,11 +1541,14 @@ bool MenuEditor::DoBrowseItem(HWND hwndDlg, bool workingDir)
       if (GetOpenFileName(&ofn))
         {
           ELUnExpandVars(tmp);
-          ELRelativePathFromAbsPath(tmp, MAX_PATH);
+          std::wstring workingTmp = ELRelativePathFromAbsPath(tmp);
           if (type == IT_SPECIAL_FOLDER)
-            swprintf(tmp, TEXT("*%s"), PathFindFileName(tmp));
+            {
+              swprintf(tmp, TEXT("*%s"), PathFindFileName(workingTmp.c_str()));
+              workingTmp = tmp;
+            }
 
-          SetDlgItemText(hwndDlg, IDC_ITEMVALUE, tmp);
+          SetDlgItemText(hwndDlg, IDC_ITEMVALUE, workingTmp.c_str());
 
           return true;
         }

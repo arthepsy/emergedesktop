@@ -1783,6 +1783,7 @@ bool ELParseCommand(const WCHAR *application, WCHAR *program, WCHAR *arguments)
         workingApp = workingApp.substr(1);
     }
   workingApp = ELExpandVars(workingApp);
+  workingApp = ELAbsPathFromRelativePath(workingApp);
 
   if (ELPathIsCLSID(application))
     {
@@ -3095,10 +3096,7 @@ std::wstring ELGetPortableMode()
           if (ELReadXMLStringValue(section, TEXT("CustomDataPath"), customDataPath, (WCHAR*)TEXT("")))
             {
               if (_wcsicmp(customDataPath, TEXT("")) != 0)
-                {
-                  ELAbsPathFromRelativePath(customDataPath, MAX_PATH);
-                  portableMode = TEXT("Custom");
-                }
+                portableMode = TEXT("Custom");
             }
         }
     }
@@ -3129,10 +3127,7 @@ std::wstring GetCustomDataPath()
           if (ELReadXMLStringValue(section, TEXT("CustomDataPath"), customDataPath, (WCHAR*)TEXT("")))
             {
               if (_wcsicmp(customDataPath, TEXT("")) != 0)
-                {
-                  ELAbsPathFromRelativePath(customDataPath, MAX_PATH);
-                  return customDataPath;
-                }
+                return ELAbsPathFromRelativePath(customDataPath);
             }
         }
     }
@@ -4674,7 +4669,7 @@ bool ELConvertAppletPath(WCHAR *styleFile, DWORD flags)
 bool ConvertPath(WCHAR *styleFile, DWORD flags, DWORD path)
 {
   bool converted = false;
-  std::wstring themePath;
+  std::wstring themePath, workingStyleFile;
 
   if (wcslen(styleFile) == 0)
     return converted;
@@ -4698,35 +4693,38 @@ bool ConvertPath(WCHAR *styleFile, DWORD flags, DWORD path)
         }
       break;
     case CTP_RELATIVE:
-      converted = ELRelativePathFromAbsPath(styleFile, MAX_PATH, themePath.c_str());
+      workingStyleFile = ELRelativePathFromAbsPath(styleFile, themePath.c_str());
+      converted = (wcsicmp(styleFile, workingStyleFile.c_str()) != 0);
+      wcsncpy(styleFile, workingStyleFile.c_str(), MAX_PATH);
+      break;
     }
 
   return converted;
 }
 
-bool ELRelativePathFromAbsPath(WCHAR *destPath, size_t destLength, LPCTSTR sourcePath)
+std::wstring ELRelativePathFromAbsPath(std::wstring destPath, LPCTSTR sourcePath)
 {
-  std::wstring srcPath = ELExpandVars(sourcePath), dstPath = destPath;
+  std::wstring srcPath = ELExpandVars(sourcePath);
   WCHAR tmpPath[MAX_PATH], program[MAX_PATH], arguments[MAX_LINE_LENGTH];
   WCHAR *tmpPtr, unc[MAX_PATH];
   DWORD flags;
 
-  if (ELPathIsRelative(dstPath.c_str()))
+  if (ELPathIsRelative(destPath.c_str()))
     //the path is already relative; there's nothing for us to do!
-    return true;
+    return destPath;
 
   // Convert %AppletDir% to relative path
-  if (dstPath.find(L"%AppletDir%") != std::wstring::npos)
-    dstPath = ELExpandVars(dstPath);
+  if (destPath.find(L"%AppletDir%") != std::wstring::npos)
+    destPath = ELExpandVars(destPath);
 
   // If dstPath is not equal to dstPath after var expansion, then destPath is
   // already defined as a variable, so don't convert it.
-  if (dstPath != ELExpandVars(dstPath))
-    return true;
+  if (destPath != ELExpandVars(destPath))
+    return destPath;
 
   // Separate the program and the arguments for conversion
-  if (!ELParseCommand(dstPath.c_str(), program, arguments))
-    return false;
+  if (!ELParseCommand(destPath.c_str(), program, arguments))
+    return destPath;
 
   if (ELPathIsDirectory(program))
     flags = FILE_ATTRIBUTE_DIRECTORY;
@@ -4753,18 +4751,17 @@ bool ELRelativePathFromAbsPath(WCHAR *destPath, size_t destLength, LPCTSTR sourc
   else
     tmpPtr = program;
 
+  destPath = tmpPtr;
   if (wcslen(arguments))
-    // If there are arguments, add them back along with the converted relative
-    // path version of the program
-    _snwprintf(destPath, destLength, L"%s %s\0", tmpPtr, arguments);
-  else
-    // If not, simply copy the relative path version of the program
-    wcsncpy(destPath, tmpPtr, destLength);
+    {
+      destPath += L" ";
+      destPath += arguments;
+    }
 
-  return true;
+  return destPath;
 }
 
-bool ELAbsPathFromRelativePath(WCHAR *destPath, size_t destLength, LPCTSTR sourcePath)
+std::wstring ELAbsPathFromRelativePath(std::wstring destPath, LPCTSTR sourcePath)
 {
   std::wstring srcPath = ELExpandVars(sourcePath);
   WCHAR originalWorkingDir[MAX_PATH];
@@ -4772,20 +4769,19 @@ bool ELAbsPathFromRelativePath(WCHAR *destPath, size_t destLength, LPCTSTR sourc
   if (GetCurrentDirectory(MAX_PATH, originalWorkingDir))
     SetCurrentDirectory(srcPath.c_str());
 
-  if (!ELPathIsRelative(destPath))
+  if (!ELPathIsRelative(destPath.c_str()))
     //the path is already absolute; there's nothing for us to do!
-    return true;
+    return destPath;
 
-  if (GetFullPathName(destPath, MAX_PATH, tmpPath, NULL))
+  if (GetFullPathName(destPath.c_str(), MAX_PATH, tmpPath, NULL))
     {
-      if (PathFileExists(destPath))
-        wcsncpy(destPath, tmpPath, destLength);
+      if (PathFileExists(tmpPath))
+        destPath = tmpPath;
 
       SetCurrentDirectory(originalWorkingDir);
-      return true;
     }
 
-  return false;
+  return destPath;
 }
 
 RECT ELGetMonitorRect(int monitor)

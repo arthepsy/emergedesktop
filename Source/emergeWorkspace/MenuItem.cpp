@@ -128,7 +128,6 @@ void MenuItem::SetIcon()
         icon = EGGetSpecialFolderIcon(CSIDL_DESKTOP, 16);
       else
         {
-          ELAbsPathFromRelativePath(lwrValue, MAX_LINE_LENGTH);
           ELParseCommand(lwrValue, command, args);
           icon = EGGetFileIcon(command, 16);
         }
@@ -163,10 +162,7 @@ void MenuItem::SetIcon()
                (app == TEXT("%commondesktop%")))
         icon = EGGetSpecialFolderIcon(CSIDL_DESKTOP, 16);
       else
-        {
-          ELAbsPathFromRelativePath(lwrValue, MAX_LINE_LENGTH);
-          icon = EGGetFileIcon(app.c_str(), 16);
-        }
+        icon = EGGetFileIcon(app.c_str(), 16);
       if (icon != NULL)
         break;
     case IT_XML_MENU:
