@@ -435,7 +435,7 @@ typedef struct SHELLTRAYDATAWOW32
 SHELLTRAYDATAWOW32, *PSHELLTRAYDATAWOW32;
 
 // In SDK 7.0A the structure NOTIFYICONIDENTIFIER is defined in ShellAPI.h
-#ifndef NTDDI_WIN7
+#ifdef __MINGW32__
 typedef struct _NOTIFYICONIDENTIFIER
 {
   DWORD cbSize;

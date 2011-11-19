@@ -69,7 +69,7 @@ extern "C"
 #undef INTERFACE
   typedef IImageList *LPIMAGELIST;
 
-#if (__MINGW64_VERSION_MAJOR < 3)
+#if (__MINGW64_VERSION_MAJOR < 3) && !defined (__IPropertyStore_INTERFACE_DEFINED__)
 #define INTERFACE IPropertyStore
   DECLARE_INTERFACE_(IPropertyStore, IUnknown)
     {
