@@ -600,7 +600,7 @@ void BaseApplet::AdjustContentRect(LPRECT contentRect UNUSED)
 
 LRESULT BaseApplet::PaintContent(HDC hdc, RECT clientrt)
 {
-  UINT i;
+  size_t i;
   RECT rect;
   int x, y;
   int xdefault, ydefault;
@@ -832,7 +832,7 @@ LRESULT BaseApplet::PaintContent(HDC hdc, RECT clientrt)
   return 0;
 }
 
-bool BaseApplet::PaintItem(HDC hdc UNUSED, UINT index UNUSED, int x UNUSED, int y UNUSED, RECT rect UNUSED)
+bool BaseApplet::PaintItem(HDC hdc UNUSED, size_t index UNUSED, int x UNUSED, int y UNUSED, RECT rect UNUSED)
 {
   return true;
 }

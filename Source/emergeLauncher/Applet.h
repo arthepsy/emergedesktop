@@ -68,7 +68,7 @@ public:
   UINT Initialize();
   LRESULT DoSizing(HWND hwnd, UINT edge, LPRECT rect);
   LRESULT ItemMouseEvent(UINT message, LPARAM lParam);
-  bool PaintItem(HDC hdc, UINT index, int x, int y, RECT rect);
+  bool PaintItem(HDC hdc, size_t index, int x, int y, RECT rect);
   void ShowConfig();
   void CreateBrushes();
   void DestroyBrushes();

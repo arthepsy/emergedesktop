@@ -154,7 +154,7 @@ UINT Applet::Initialize()
 // Returns:	LRESULT
 // Purpose:	Paints the icons on the calling window
 //----  --------------------------------------------------------------------------------------------------------
-bool Applet::PaintItem(HDC hdc, UINT index, int x, int y, RECT rect)
+bool Applet::PaintItem(HDC hdc, size_t index, int x, int y, RECT rect)
 {
   Item *item = pSettings->GetItem(index);
 

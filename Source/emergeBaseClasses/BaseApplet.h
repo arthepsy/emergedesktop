@@ -122,7 +122,7 @@ protected:
   virtual void AdjustContentRect(LPRECT contentRect);
   virtual void Activate();
   virtual void ShowConfig();
-  virtual bool PaintItem(HDC hdc, UINT index, int x, int y, RECT rect);
+  virtual bool PaintItem(HDC hdc, size_t index, int x, int y, RECT rect);
   virtual size_t GetVisibleIconCount();
   virtual size_t GetIconCount();
 };

@@ -228,9 +228,9 @@ UINT Settings::GetItemListSize()
   return (UINT)itemList.size();
 }
 
-Item *Settings::GetItem(UINT index)
+Item *Settings::GetItem(size_t index)
 {
-  return itemList[index].get();
+  return itemList.at(index).get();
 }
 
 void Settings::writeEntireFolder(WCHAR *folderName)

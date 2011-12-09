@@ -96,7 +96,7 @@ public:
   void AppletUpdate();
   void SetActive(HWND hwnd);
   void ShowConfig();
-  bool PaintItem(HDC hdc, UINT index, int x, int y, RECT rect);
+  bool PaintItem(HDC hdc, size_t index, int x, int y, RECT rect);
   size_t GetIconCount();
   void DoTaskFlash(UINT id);
   LRESULT ModifyTaskByThread(DWORD threadID);
