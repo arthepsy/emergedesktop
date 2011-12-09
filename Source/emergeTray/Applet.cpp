@@ -230,6 +230,8 @@ Applet::Applet(HINSTANCE hInstance)
   autoHideTop = false;
 
   activeIcon = NULL;
+
+  InitializeCriticalSection(&trayVectorCS);
 }
 
 bool InjectExplorerTrayHook(HWND messageHandler)
@@ -446,11 +448,15 @@ Applet::~Applet()
   DestroyWindow(trayWnd);
 
   // Cleanup the icon vectors
+  EnterCriticalSection(&trayVectorCS);
   while (!trayIconList.empty())
     {
       trayIconList.front()->DeleteTip();
       trayIconList.erase(trayIconList.begin());
     }
+  LeaveCriticalSection(&trayVectorCS);
+
+  DeleteCriticalSection(&trayVectorCS);
 
   // Return control to the default shell
   SendNotifyMessage(HWND_BROADCAST, RegisterWindowMessage(TEXT("TaskbarCreated")), 0, 0);
@@ -630,9 +636,13 @@ UINT Applet::PortableInitialize()
 // Returns:	LRESULT
 // Purpose:	Paints the icons on the calling window
 //----  --------------------------------------------------------------------------------------------------------
-bool Applet::PaintItem(HDC hdc, UINT index, int x, int y, RECT rect)
+bool Applet::PaintItem(HDC hdc, size_t index, int x, int y, RECT rect)
 {
-  TrayIcon *pTrayIcon = trayIconList[index].get();
+  if (index > trayIconList.size())
+    return false;
+
+  EnterCriticalSection(&trayVectorCS);
+  TrayIcon *pTrayIcon = trayIconList.at(index).get();
 
   // ignore hidden or invalid icons
   if (!IsIconVisible(pTrayIcon))
@@ -649,6 +659,7 @@ bool Applet::PaintItem(HDC hdc, UINT index, int x, int y, RECT rect)
   DrawIconEx(hdc, x, y, pTrayIcon->GetIcon(),
              ICON_SIZE, ICON_SIZE, 0, NULL, DI_NORMAL);
 
+  LeaveCriticalSection(&trayVectorCS);
   return true;
 }
 
@@ -696,8 +707,10 @@ LRESULT Applet::DoEnterSizeMove(HWND hwnd)
 
 void Applet::UpdateIcons()
 {
+  EnterCriticalSection(&trayVectorCS);
   for (UINT i = 0; i < trayIconList.size(); i++)
     trayIconList[i]->UpdateIcon();
+  LeaveCriticalSection(&trayVectorCS);
 }
 
 LRESULT Applet::DoSizing(HWND hwnd, UINT edge, LPRECT rect)
@@ -811,6 +824,7 @@ void Applet::ShowHiddenIcons(bool cmd, bool force)
   if (((pSettings->GetUnhideIcons())|| (force)) && (!movesizeinprogress))
     {
       // Go through each of the elements in the trayIcons array
+      EnterCriticalSection(&trayVectorCS);
       for (iter = trayIconList.begin(); iter != trayIconList.end(); iter++)
         {
           if (pSettings->CheckHide((*iter)->GetTip()))
@@ -822,6 +836,7 @@ void Applet::ShowHiddenIcons(bool cmd, bool force)
                 (*iter)->DeleteTip();
             }
         }
+      LeaveCriticalSection(&trayVectorCS);
 
       // Added call here to ensure the icons would be sorted
       // even if one was modified during mouseover (unhide)
@@ -857,6 +872,7 @@ void Applet::CleanTray()
     return;
 
   // Go through each of the elements in the trayIcons array
+  EnterCriticalSection(&trayVectorCS);
   for (size_t i =0; i < trayIconList.size(); i++)
     {
       pTrayIcon = trayIconList[i].get();
@@ -891,6 +907,7 @@ void Applet::CleanTray()
           i--;
         }
     }
+  EnterCriticalSection(&trayVectorCS);
 
   if (removed)
     DrawAlphaBlend();
@@ -908,12 +925,14 @@ TrayIcon* Applet::FindTrayIcon(HWND hwnd, UINT uID)
   std::vector< std::tr1::shared_ptr<TrayIcon> >::iterator iter;
 
   // Traverse the trayIcons array
+  EnterCriticalSection(&trayVectorCS);
   for (iter = trayIconList.begin(); iter != trayIconList.end(); iter++)
     {
       // If the window and uID match an entry in the trayIcons array, return its position
       if ((*iter)->GetWnd() == hwnd && (*iter)->GetID() == uID)
         break;
     }
+  LeaveCriticalSection(&trayVectorCS);
 
   if (iter == trayIconList.end())
     return NULL;
@@ -1149,7 +1168,9 @@ LRESULT Applet::AddTrayIcon(HWND hwnd, UINT uID, UINT uFlags, UINT uCallbackMess
   if ((uFlags & NIF_ICON) == NIF_ICON)
     pTrayIcon->SetIcon(icon);
 
+  EnterCriticalSection(&trayVectorCS);
   trayIconList.push_back( std::tr1::shared_ptr<TrayIcon>(pTrayIcon) );
+  LeaveCriticalSection(&trayVectorCS);
 
   SortIcons();
 
@@ -1196,6 +1217,7 @@ LRESULT Applet::TrayMouseEvent(UINT message, LPARAM lParam)
 
   // Traverse the valid icon vector to see if the mouse is in the bounding rectangle
   // of the current icon
+  EnterCriticalSection(&trayVectorCS);
   for (iter = trayIconList.begin(); iter != trayIconList.end(); iter++)
     {
       if (PtInRect((*iter)->GetRect(), lparamPT) && !(*iter)->GetHidden())
@@ -1266,6 +1288,7 @@ LRESULT Applet::TrayMouseEvent(UINT message, LPARAM lParam)
           return 0;
         }
     }
+  LeaveCriticalSection(&trayVectorCS);
 
   return 1;
 }
@@ -1293,6 +1316,7 @@ bool Applet::RemoveTrayIconListItem(TrayIcon *pTrayIcon)
   std::vector< std::tr1::shared_ptr<TrayIcon> >::iterator iter;
   bool ret = false;
 
+  EnterCriticalSection(&trayVectorCS);
   for (iter = trayIconList.begin(); iter != trayIconList.end(); iter++)
     {
       if ((*iter).get() == pTrayIcon)
@@ -1302,6 +1326,7 @@ bool Applet::RemoveTrayIconListItem(TrayIcon *pTrayIcon)
           break;
         }
     }
+  LeaveCriticalSection(&trayVectorCS);
 
   return ret;
 }
@@ -1930,13 +1955,12 @@ void Applet::SortIcons()
   insertCount = 0;
 
   // Traverse the valid icon vector, painting each icon
+  EnterCriticalSection(&trayVectorCS);
   for (iter = trayIconList.begin(); iter != trayIconList.end(); iter++)
     {
 
       if ((*iter)->GetHidden())
-        {
-          trayIconListTmp.push_back((*iter));
-        }
+        trayIconListTmp.push_back((*iter));
       else
         {
           trayIconListTmp.insert(trayIconListTmp.begin() + insertCount,(*iter));
@@ -1945,17 +1969,20 @@ void Applet::SortIcons()
     }
 
   trayIconList.assign(trayIconListTmp.begin(),trayIconListTmp.end());
+  LeaveCriticalSection(&trayVectorCS);
 }
 
 size_t Applet::GetVisibleIconCount()
 {
   size_t visibleIconCount = 0;
 
+  EnterCriticalSection(&trayVectorCS);
   for (size_t i = 0; i < trayIconList.size(); i++)
     {
       if (IsIconVisible(trayIconList[i].get()))
         visibleIconCount++;
     }
+  LeaveCriticalSection(&trayVectorCS);
 
   return visibleIconCount;
 }

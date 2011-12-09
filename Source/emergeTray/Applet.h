@@ -491,6 +491,7 @@ private:
   bool ClearAutoHideEdge(UINT edge);
   bool autoHideLeft, autoHideRight, autoHideTop, autoHideBottom;
   APPBARDATA *LockAppBarMemory(HANDLE sharedMem, DWORD processID);
+  CRITICAL_SECTION trayVectorCS;
 
 public:
   Applet(HINSTANCE hInstance);
