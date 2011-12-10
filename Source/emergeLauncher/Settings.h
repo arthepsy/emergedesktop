@@ -32,7 +32,7 @@ public:
   Settings();
   ~Settings();
   UINT GetItemListSize();
-  Item *GetItem(UINT index);
+  Item *GetItem(size_t index);
   void PopulateItems();
   void DeleteItems(bool clearXML);
   void WriteItem(int type, WCHAR *command, WCHAR *iconPath, WCHAR *tip, WCHAR *workingDir);

@@ -532,7 +532,7 @@ public:
   LRESULT IconIdentifierEvent(COPYDATASTRUCT *cpData);
   void ShowHiddenIcons(bool cmd, bool force);
   void SortIcons();
-  bool PaintItem(HDC hdc, UINT index, int x, int y, RECT rect);
+  bool PaintItem(HDC hdc, size_t index, int x, int y, RECT rect);
   size_t GetVisibleIconCount();
   size_t GetIconCount();
 };
