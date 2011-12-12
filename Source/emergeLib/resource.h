@@ -30,5 +30,3 @@
 #define IDC_METHOD              202
 #define IDC_MSGTEXT             203
 #define IDC_MSGICON             204
-
-#define IDB_LOGO                1000

@@ -59,8 +59,6 @@ END
 CREATEPROCESS_MANIFEST_RESOURCE_ID RT_MANIFEST "emergeLib.dll.manifest"
 #endif
 
-IDB_LOGO  BITMAP  "images/emergelogo.bmp"
-
 IDD_SHUTDOWN DIALOGEX 0, 0, 260, 105
 STYLE WS_POPUP | WS_VISIBLE | WS_CAPTION
 CAPTION "Emerge Desktop Shutdown"

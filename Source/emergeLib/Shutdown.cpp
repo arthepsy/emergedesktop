@@ -52,13 +52,17 @@ Shutdown::Shutdown(HINSTANCE hInstance, HWND mainWnd)
 
   enableDisconnect = false;
 
-  logoBMP = LoadBitmap(hInstance, MAKEINTRESOURCE(IDB_LOGO));
+  hIconsDLL = ELLoadEmergeLibrary(TEXT("emergeIcons.dll"));
+
+  logoBMP = LoadBitmap((HINSTANCE)hIconsDLL, MAKEINTRESOURCE(IDB_LOGO));
 }
 
 Shutdown::~Shutdown()
 {
   if (logoBMP)
     DeleteObject(logoBMP);
+
+  FreeLibrary(hIconsDLL);
 }
 
 int Shutdown::Show()

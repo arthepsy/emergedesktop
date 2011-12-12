@@ -29,6 +29,7 @@
 
 #include "emergeLib.h"
 #include "resource.h"
+#include "../emergeIcons/resource.h"
 #ifndef _W64
 #include <WtsApi32.h>
 #endif
@@ -45,6 +46,7 @@ public:
 
 private:
   HINSTANCE hInstance;
+  HMODULE hIconsDLL;
   HWND mainWnd, toolWnd;
   HBITMAP logoBMP;
   bool enableDisconnect;
