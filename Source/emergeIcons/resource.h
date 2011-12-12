@@ -43,3 +43,5 @@
 #define IDI_EXPORT              20
 #define IDI_IMPORT              21
 #define IDI_CONFIG              22
+
+#define IDB_LOGO                1000
