@@ -33,6 +33,9 @@
 #define IDD_CONFIG          204
 #define IDD_CONFIG_PAGE     205
 #define IDD_ALIAS           206
+#define IDD_WELCOME         207
+
+#define IDC_LOGO            300
 
 #define IDC_APPLET          500
 #define IDC_ADDAPP          501

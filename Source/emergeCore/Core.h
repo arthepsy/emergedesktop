@@ -34,6 +34,7 @@
 #include "Desktop.h"
 #include "ThemeSelector.h"
 #include "Config.h"
+#include "Welcome.h"
 
 typedef std::set<HWND> WindowSet;
 typedef std::map< std::wstring, WindowSet > LaunchMap;
@@ -60,6 +61,7 @@ private:
   void CheckLaunchItem(LaunchMap *launchMap, const WCHAR *item);
   void StartExplorer(bool showDesktop);
   std::wstring xmlFile;
+  void ShowWelcome();
 
 public:
   Core(HINSTANCE hInstance);

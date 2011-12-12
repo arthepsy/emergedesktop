@@ -1278,6 +1278,15 @@ bool ELExecuteInternal(LPTSTR command)
       ELShutdown(ELGetCoreWindow());
       return true;
     }
+  else if (_wcsicmp(command, TEXT("Welcome")) == 0)
+    {
+      if (!tempArg.empty())
+        return false;
+
+      ELSwitchToThisWindow(ELGetCoreWindow());
+      ELDispatchCoreMessage(EMERGE_CORE, CORE_WELCOME);
+      return true;
+    }
   else if (_wcsicmp(command, TEXT("Activate")) == 0)
     {
       if (tempArg.empty())
@@ -2153,6 +2162,19 @@ HMODULE ELLoadSystemLibrary(const WCHAR *library)
   WCHAR libraryPath[MAX_PATH];
 
   if (GetSystemDirectory(libraryPath, MAX_PATH) == 0)
+    return NULL;
+
+  wcscat(libraryPath, TEXT("\\"));
+  wcscat(libraryPath, library);
+
+  return LoadLibrary(libraryPath);
+}
+
+HMODULE ELLoadEmergeLibrary(const WCHAR *library)
+{
+  WCHAR libraryPath[MAX_PATH];
+
+  if (!ELGetCurrentPath(libraryPath))
     return NULL;
 
   wcscat(libraryPath, TEXT("\\"));

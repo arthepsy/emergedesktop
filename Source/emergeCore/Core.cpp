@@ -461,6 +461,10 @@ LRESULT Core::DoCopyData(COPYDATASTRUCT *cds)
             case CORE_LAUNCH:
               ShowConfig(0);
               break;
+
+            case CORE_WELCOME:
+              ShowWelcome();
+              break;
             }
 
           return 1;
@@ -468,6 +472,13 @@ LRESULT Core::DoCopyData(COPYDATASTRUCT *cds)
     }
 
   return 0;
+}
+
+void Core::ShowWelcome()
+{
+  Welcome welcome(mainInst, mainWnd);
+
+  welcome.Show();
 }
 
 LRESULT Core::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)

@@ -144,7 +144,8 @@ typedef enum _COREMESSAGES {
   CORE_ALIAS,
   CORE_SHOWCONFIG,
   CORE_SHOWAPPLET,
-  CORE_ACTIVATE
+  CORE_ACTIVATE,
+  CORE_WELCOME
 } COREMESSAGES;
 
 // EMERGE_VWM Messages
@@ -463,6 +464,7 @@ DLL_EXPORT int ELExtractZip(std::wstring zipFile, std::wstring unzipPath);
 DLL_EXPORT HMODULE ELGetSystemLibrary(const WCHAR *lib);
 DLL_EXPORT HMODULE ELGetEmergeLibrary(const WCHAR *lib);
 DLL_EXPORT HMODULE ELLoadSystemLibrary(const WCHAR *lib);
+DLL_EXPORT HMODULE ELLoadEmergeLibrary(const WCHAR *lib);
 DLL_EXPORT size_t ELwcsftime(WCHAR *strDest, size_t maxsize, WCHAR *format, const struct tm *timeptr);
 DLL_EXPORT HANDLE ELActivateActCtxForDll(LPCTSTR pszDll, PULONG_PTR pulCookie);
 DLL_EXPORT HANDLE ELActivateActCtxForClsid(REFCLSID rclsid, PULONG_PTR pulCookie);

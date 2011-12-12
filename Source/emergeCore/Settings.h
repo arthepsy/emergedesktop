@@ -36,6 +36,8 @@ public:
     Settings();
     bool GetShowStartupErrors();
     void SetShowStartupErrors(bool showStartupErrors);
+    bool GetShowWelcome();
+    void SetShowWelcome(bool showWelcome);
     bool ReadUserSettings();
     void ResetUserDefaults();
     void DoReadUserSettings(IOHelper& helper);
@@ -53,6 +55,7 @@ private:
     bool showStartupErrors;
     bool showExplorerDesktop;
     bool userModified;
+    bool showWelcome;
 };
 
 #endif

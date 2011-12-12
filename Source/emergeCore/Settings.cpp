@@ -26,6 +26,7 @@ Settings::Settings(): BaseSettings(false)
   userModified = false;
   showStartupErrors = false;
   showExplorerDesktop = false;
+  showWelcome = true;
   wcscpy(appletName, TEXT("emergeCore"));
 }
 
@@ -91,16 +92,32 @@ bool Settings::ReadUserSettings()
 void Settings::ResetUserDefaults()
 {
   showStartupErrors = false;
+  showWelcome = true;
 }
 
 void Settings::DoReadUserSettings(IOHelper& helper)
 {
   helper.ReadBool(TEXT("ShowStartupErrors"), showStartupErrors, false);
+  helper.ReadBool(TEXT("ShowWelcome"), showWelcome, true);
 }
 
 bool Settings::GetShowStartupErrors()
 {
   return showStartupErrors;
+}
+
+bool Settings::GetShowWelcome()
+{
+  return showWelcome;
+}
+
+void Settings::SetShowWelcome(bool showWelcome)
+{
+  if (this->showWelcome != showWelcome)
+    {
+      this->showWelcome = showWelcome;
+      userModified = true;
+    }
 }
 
 void Settings::SetShowStartupErrors(bool showStartupErrors)
@@ -144,5 +161,6 @@ bool Settings::WriteUserSettings()
 void Settings::DoWriteUserSettings(IOHelper& helper)
 {
   helper.WriteBool(TEXT("ShowStartupErrors"), showStartupErrors);
+  helper.WriteBool(TEXT("ShowWelcome"), showWelcome);
 }
 

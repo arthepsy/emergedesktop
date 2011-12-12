@@ -1137,6 +1137,14 @@
 			<Option target="emergeCore - Release" />
 			<Option target="emergeCore - Debug" />
 		</Unit>
+		<Unit filename="emergeCore\Welcome.cpp">
+			<Option target="emergeCore - Release" />
+			<Option target="emergeCore - Debug" />
+		</Unit>
+		<Unit filename="emergeCore\Welcome.h">
+			<Option target="emergeCore - Release" />
+			<Option target="emergeCore - Debug" />
+		</Unit>
 		<Unit filename="emergeCore\emergeCore.exe.manifest">
 			<Option target="emergeCore - Release" />
 			<Option target="emergeCore - Debug" />
