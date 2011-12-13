@@ -45,10 +45,11 @@ BOOL CALLBACK Welcome::WelcomeDlgProc(HWND hwndDlg, UINT message, WPARAM wParam,
   return FALSE;
 }
 
-Welcome::Welcome(HINSTANCE hInstance, HWND mainWnd)
+Welcome::Welcome(HINSTANCE hInstance, HWND mainWnd, std::tr1::shared_ptr<Settings> pSettings)
 {
   this->hInstance = hInstance;
   this->mainWnd = mainWnd;
+  this->pSettings = pSettings;
 
   hIconsDLL = ELLoadEmergeLibrary(TEXT("emergeIcons.dll"));
 
@@ -83,6 +84,9 @@ BOOL Welcome::DoInitDialog(HWND hwndDlg)
   if (logoBMP)
     SendDlgItemMessage(hwndDlg, IDC_LOGO, STM_SETIMAGE, IMAGE_BITMAP, (LPARAM)logoBMP);
 
+  if (pSettings->GetShowWelcome())
+    SendDlgItemMessage(hwndDlg, IDC_SHOWWELCOME, BM_SETCHECK, BST_CHECKED, 0);
+
   return TRUE;
 }
 
@@ -91,7 +95,14 @@ BOOL Welcome::DoCommand(HWND hwndDlg, WPARAM wParam, LPARAM lParam UNUSED)
   switch (LOWORD(wParam))
     {
     case IDOK:
-      EndDialog(hwndDlg, wParam);
+      if (UpdateSettings(hwndDlg))
+        EndDialog(hwndDlg, wParam);
+      return TRUE;
+
+    case IDC_FORUMLINK:
+      ShellExecute(hwndDlg, L"open",
+                   L"http://emergedesktop.org/phpBB2/index.php",
+                   NULL, NULL, SW_SHOWNORMAL);
       return TRUE;
     }
 
@@ -101,4 +112,12 @@ BOOL Welcome::DoCommand(HWND hwndDlg, WPARAM wParam, LPARAM lParam UNUSED)
 BOOL Welcome::DoNotify(HWND hwndDlg UNUSED, LPARAM lParam UNUSED)
 {
   return FALSE;
+}
+
+bool Welcome::UpdateSettings(HWND hwndDlg)
+{
+  pSettings->SetShowWelcome(SendDlgItemMessage(hwndDlg, IDC_SHOWWELCOME,
+                                               BM_GETCHECK, 0, 0) == BST_CHECKED);
+  pSettings->WriteUserSettings();
+  return true;
 }

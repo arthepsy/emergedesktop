@@ -36,6 +36,9 @@
 #define IDD_WELCOME         207
 
 #define IDC_LOGO            300
+#define IDC_SHOWWELCOME     301
+
+#define IDC_FORUMLINK       400
 
 #define IDC_APPLET          500
 #define IDC_ADDAPP          501

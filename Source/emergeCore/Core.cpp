@@ -166,6 +166,9 @@ bool Core::Initialize(WCHAR *commandLine)
       FreeLibrary(wtslib);
     }
 
+  if (pSettings->GetShowWelcome())
+    ShowWelcome();
+
   return true;
 }
 
@@ -476,7 +479,7 @@ LRESULT Core::DoCopyData(COPYDATASTRUCT *cds)
 
 void Core::ShowWelcome()
 {
-  Welcome welcome(mainInst, mainWnd);
+  Welcome welcome(mainInst, mainWnd, pSettings);
 
   welcome.Show();
 }

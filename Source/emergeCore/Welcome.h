@@ -30,11 +30,12 @@
 #include "../emergeLib/emergeLib.h"
 #include "../emergeIcons/resource.h"
 #include "resource.h"
+#include "Settings.h"
 
 class Welcome
 {
 public:
-  Welcome(HINSTANCE hInstance, HWND mainWnd);
+  Welcome(HINSTANCE hInstance, HWND mainWnd, std::tr1::shared_ptr<Settings> pSettings);
   ~Welcome();
   int Show();
   BOOL DoInitDialog(HWND hwndDlg);
@@ -42,11 +43,13 @@ public:
   BOOL DoNotify(HWND hwndDlg, LPARAM lParam);
 
 private:
+  std::tr1::shared_ptr<Settings> pSettings;
   HINSTANCE hInstance;
   HWND mainWnd, toolWnd;
   HBITMAP logoBMP;
   HMODULE hIconsDLL;
   static BOOL CALLBACK WelcomeDlgProc(HWND hwndDlg, UINT message, WPARAM wParam, LPARAM lParam);
+  bool UpdateSettings(HWND hwndDlg);
 };
 
 #endif
