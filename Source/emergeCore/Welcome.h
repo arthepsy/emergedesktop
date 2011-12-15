@@ -31,6 +31,7 @@
 #include "../emergeIcons/resource.h"
 #include "resource.h"
 #include "Settings.h"
+#include "hyperlink.h"
 
 class Welcome
 {
@@ -44,11 +45,13 @@ public:
 
 private:
   std::tr1::shared_ptr<Settings> pSettings;
+  std::tr1::shared_ptr<CHyperLink> pForumLink;
   HINSTANCE hInstance;
   HWND mainWnd, toolWnd;
   HBITMAP logoBMP;
   HMODULE hIconsDLL;
   static BOOL CALLBACK WelcomeDlgProc(HWND hwndDlg, UINT message, WPARAM wParam, LPARAM lParam);
+  static LRESULT CALLBACK LinkProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
   bool UpdateSettings(HWND hwndDlg);
 };
 

@@ -51,6 +51,8 @@ Welcome::Welcome(HINSTANCE hInstance, HWND mainWnd, std::tr1::shared_ptr<Setting
   this->mainWnd = mainWnd;
   this->pSettings = pSettings;
 
+  pForumLink = std::tr1::shared_ptr<CHyperLink>(new CHyperLink());
+
   hIconsDLL = ELLoadEmergeLibrary(TEXT("emergeIcons.dll"));
 
   logoBMP = LoadBitmap((HINSTANCE)hIconsDLL, MAKEINTRESOURCE(IDB_LOGO));
@@ -75,7 +77,6 @@ BOOL Welcome::DoInitDialog(HWND hwndDlg)
   int x, y;
 
   ELGetWindowRect(hwndDlg, &rect);
-
   x = (GetSystemMetrics(SM_CXSCREEN) / 2) - ((rect.right - rect.left) / 2);
   y = (GetSystemMetrics(SM_CYSCREEN) / 2) - ((rect.bottom - rect.top) / 2);
   SetWindowPos(hwndDlg, HWND_TOPMOST, x, y, 0, 0, SWP_NOSIZE);
@@ -87,6 +88,8 @@ BOOL Welcome::DoInitDialog(HWND hwndDlg)
   if (pSettings->GetShowWelcome())
     SendDlgItemMessage(hwndDlg, IDC_SHOWWELCOME, BM_SETCHECK, BST_CHECKED, 0);
 
+  pForumLink->ConvertStaticToHyperlink(hwndDlg, IDC_FORUMLINK, (WCHAR*)L"http://emergedesktop.org/phpBB2/");
+
   return TRUE;
 }
 
@@ -97,12 +100,6 @@ BOOL Welcome::DoCommand(HWND hwndDlg, WPARAM wParam, LPARAM lParam UNUSED)
     case IDOK:
       if (UpdateSettings(hwndDlg))
         EndDialog(hwndDlg, wParam);
-      return TRUE;
-
-    case IDC_FORUMLINK:
-      ShellExecute(hwndDlg, L"open",
-                   L"http://emergedesktop.org/phpBB2/index.php",
-                   NULL, NULL, SW_SHOWNORMAL);
       return TRUE;
     }
 
