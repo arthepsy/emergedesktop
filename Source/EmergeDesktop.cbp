@@ -1154,6 +1154,14 @@
 			<Option target="emergeCore - Release" />
 			<Option target="emergeCore - Debug" />
 		</Unit>
+		<Unit filename="emergeCore\hyperlink.cpp">
+			<Option target="emergeCore - Release" />
+			<Option target="emergeCore - Debug" />
+		</Unit>
+		<Unit filename="emergeCore\hyperlink.h">
+			<Option target="emergeCore - Release" />
+			<Option target="emergeCore - Debug" />
+		</Unit>
 		<Unit filename="emergeCore\main.cpp">
 			<Option target="emergeCore - Release" />
 			<Option target="emergeCore - Debug" />
