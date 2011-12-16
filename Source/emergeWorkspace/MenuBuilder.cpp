@@ -1852,6 +1852,7 @@ void MenuBuilder::BuildSettingsMenu(MenuMap::iterator iter)
 
 void MenuBuilder::BuildHelpMenu(MenuMap::iterator iter)
 {
+  AddSettingsItem(iter, (WCHAR*)TEXT("Welcome"), BHM_WELCOME);
   AddSettingsItem(iter, (WCHAR*)TEXT("Offline Help"), BHM_OFFLINE);
   AddSettingsItem(iter, (WCHAR*)TEXT("Online Tutorial"), BHM_TUTORIAL);
   AddSettingsItem(iter, (WCHAR*)TEXT("Emerge Desktop Website"), BHM_WEBSITE);
@@ -1955,6 +1956,9 @@ void MenuBuilder::ExecuteHelpMenuItem(UINT index)
       break;
     case BHM_TUTORIAL:
       ELExecuteInternal((WCHAR*)TEXT("Tutorial"));
+      break;
+    case BHM_WELCOME:
+      ELExecuteInternal((WCHAR*)TEXT("Welcome"));
       break;
     }
 }

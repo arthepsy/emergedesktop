@@ -96,7 +96,8 @@ typedef enum _BUILDHELPMENU {
   BHM_OFFLINE,
   BHM_TUTORIAL,
   BHM_WEBSITE,
-  BHM_ABOUT
+  BHM_ABOUT,
+  BHM_WELCOME
 } BUILDHELPMENU;
 
 typedef std::map< HMENU,std::tr1::shared_ptr<MenuListItem> > MenuMap;
