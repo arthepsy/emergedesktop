@@ -842,6 +842,7 @@
 			<Add option="-shared-libgcc" />
 			<Add option="-Wl,--enable-auto-import" />
 			<Add library="stdc++.dll" />
+			<Add library="mingwthrd" />
 		</Linker>
 		<ExtraCommands>
 			<Add before='[[ IO.Execute(_T(&quot;cmd /c hgversion.bat&quot;)) ]]' />
