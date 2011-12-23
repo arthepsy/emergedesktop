@@ -169,17 +169,12 @@ void Task::DisplayMenu(HWND callingWnd)
   GetCursorPos(&pt);
 
   res = EAEDisplayMenu(callingWnd, taskWnd);
-  switch (res)
-    {
-    case SC_SIZE:
-    case SC_MOVE:
-    case SC_MAXIMIZE:
-    case SC_RESTORE:
-      ELSwitchToThisWindow(taskWnd);
-      break;
-    }
   if (res)
-    PostMessage(taskWnd, WM_SYSCOMMAND, (WPARAM)res, MAKELPARAM(pt.x, pt.y));
+    {
+      if (res != SC_CLOSE)
+        ELSwitchToThisWindow(taskWnd);
+      PostMessage(taskWnd, WM_SYSCOMMAND, (WPARAM)res, MAKELPARAM(pt.x, pt.y));
+    }
 }
 
 void Task::SetMinimized(bool minimized)

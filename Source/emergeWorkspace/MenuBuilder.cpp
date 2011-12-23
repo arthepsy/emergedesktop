@@ -437,21 +437,17 @@ LRESULT MenuBuilder::DoContextMenu()
       HWND task = (HWND)wcstol(value, NULL, 10);
 #endif
       res = EAEDisplayMenu(menuWnd, task);
-      switch (res)
-        {
-        case SC_CLOSE:
-          DeleteMenu(iter->first, index, MF_BYPOSITION);
-          break;
-        case SC_SIZE:
-        case SC_MOVE:
-        case SC_MAXIMIZE:
-        case SC_RESTORE:
-          ELSwitchToThisWindow(task);
-          SendMessage(menuWnd, WM_CANCELMODE, 0, 0);
-          break;
-        }
       if (res)
-        PostMessage(task, WM_SYSCOMMAND, (WPARAM)res, MAKELPARAM(pt.x, pt.y));
+        {
+          if (res == SC_CLOSE)
+            DeleteMenu(iter->first, index, MF_BYPOSITION);
+          else
+            {
+              SendMessage(menuWnd, WM_CANCELMODE, 0, 0);
+              ELStealFocus(task);
+            }
+          PostMessage(task, WM_SYSCOMMAND, (WPARAM)res, MAKELPARAM(pt.x, pt.y));
+        }
     }
     break;
     }

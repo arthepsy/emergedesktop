@@ -255,20 +255,12 @@ void Task::DisplayMenu(HWND callingWnd)
   POINT pt;
   GetCursorPos(&pt);
 
-  /**< Bring the task window to the foreground like Explorer does. */
-  ELSwitchToThisWindow(wnd);
-
   res = EAEDisplayMenu(callingWnd, wnd);
-  switch (res)
-    {
-    case SC_SIZE:
-    case SC_MOVE:
-    case SC_MAXIMIZE:
-    case SC_RESTORE:
-      ELSwitchToThisWindow(wnd);
-      break;
-    }
   if (res)
-    PostMessage(wnd, WM_SYSCOMMAND, (WPARAM)res, MAKELPARAM(pt.x, pt.y));
+    {
+      if (res != SC_CLOSE)
+        ELSwitchToThisWindow(wnd);
+      PostMessage(wnd, WM_SYSCOMMAND, (WPARAM)res, MAKELPARAM(pt.x, pt.y));
+    }
 }
 
