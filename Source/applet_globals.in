@@ -1,4 +1,4 @@
-LIBS += -lstdc++
+LIBS += -lstdc++ -lmingwthrd
 
 .IGNORE: distclean
 distclean: clean
