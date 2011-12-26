@@ -37,7 +37,7 @@ INT_PTR CALLBACK Config::ConfigDlgProc(HWND hwndDlg, UINT message, WPARAM wParam
   return 0;
 }
 
-Config::Config(HINSTANCE hInstance, HWND mainWnd, std::tr1::shared_ptr<Settings> pSettings)
+Config::Config(HINSTANCE hInstance, HWND mainWnd, std::tr1::shared_ptr<Settings> pSettings, WCHAR *instanceName)
 {
   this->hInstance = hInstance;
   this->mainWnd = mainWnd;
@@ -45,7 +45,7 @@ Config::Config(HINSTANCE hInstance, HWND mainWnd, std::tr1::shared_ptr<Settings>
 
   pConfigPage = std::tr1::shared_ptr<ConfigPage>(new ConfigPage(pSettings));
   pTextPage = std::tr1::shared_ptr<TextPage>(new TextPage(pSettings));
-  pStyleEditor = std::tr1::shared_ptr<StyleEditor>(new StyleEditor(mainWnd));
+  pStyleEditor = std::tr1::shared_ptr<StyleEditor>(new StyleEditor(mainWnd, instanceName));
 }
 
 Config::~Config()

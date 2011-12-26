@@ -33,7 +33,6 @@ WCHAR myName[ ] = TEXT("emergeHelloWorld");
 //----  --------------------------------------------------------------------------------------------------------
 LRESULT CALLBACK Applet::WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-  COPYDATASTRUCT *cpData;
   CREATESTRUCT *cs;
   static Applet *pApplet = NULL;
 
@@ -134,7 +133,7 @@ LRESULT CALLBACK Applet::WindowProcedure (HWND hwnd, UINT message, WPARAM wParam
 }
 
 Applet::Applet(HINSTANCE hInstance)
-  :BaseApplet(hInstance, myName, false, false)
+  :BaseApplet(hInstance, myName, false, true)
 {
   mainInst = hInstance;
   wcscpy(commandText, TEXT("\0"));
@@ -193,7 +192,7 @@ LRESULT Applet::PaintContent(HDC hdc, RECT clientrt)
 
 void Applet::ShowConfig()
 {
-  Config config(mainInst, mainWnd, pSettings);
+  Config config(mainInst, mainWnd, pSettings, myName);
   if (config.Show() == IDOK)
     UpdateGUI();
 }

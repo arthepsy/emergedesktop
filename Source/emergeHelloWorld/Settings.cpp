@@ -71,8 +71,23 @@ void Settings::ResetDefaults()
   wcscpy(textFormat, (WCHAR*)TEXT("Hello World!"));
   wcscpy(tipFormat, (WCHAR*)TEXT("Welcome to%_My World!"));
   wcscpy(fontString, (WCHAR*)TEXT("Tahoma-12"));
-  x = 400;
-  y = 400;
+  if (appletCount > 0)
+    {
+      POINT origin;
+      SIZE appletSize;
+
+      appletSize.cx = width;
+      appletSize.cy = height;
+
+      origin = InstancePosition(appletSize);
+      x = origin.x;
+      y = origin.y;
+    }
+  else
+    {
+      x = 400;
+      y = 400;
+    }
 }
 
 
