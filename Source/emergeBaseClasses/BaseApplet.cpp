@@ -880,10 +880,10 @@ LRESULT BaseApplet::DoCopyData(COPYDATASTRUCT *cds)
               if ((notifyInfo->InstanceName != NULL) && wcslen(notifyInfo->InstanceName))
                 {
                   if (_wcsicmp(notifyInfo->InstanceName, appletName) == 0)
-                    HideApplet(toggle);
+                    HideApplet(toggle, &appletHidden);
                 }
               else
-                HideApplet(toggle);
+                HideApplet(toggle, &appletHidden);
             }
             break;
 
@@ -891,20 +891,40 @@ LRESULT BaseApplet::DoCopyData(COPYDATASTRUCT *cds)
               if ((notifyInfo->InstanceName != NULL) && wcslen(notifyInfo->InstanceName))
                 {
                   if (_wcsicmp(notifyInfo->InstanceName, appletName) == 0)
-                    HideApplet(true);
+                    HideApplet(true, &appletHidden);
                 }
               else
-                HideApplet(true);
+                HideApplet(true, &appletHidden);
               break;
 
             case CORE_SHOW:
               if ((notifyInfo->InstanceName != NULL) && wcslen(notifyInfo->InstanceName))
                 {
                   if (_wcsicmp(notifyInfo->InstanceName, appletName) == 0)
-                    HideApplet(false);
+                    HideApplet(false, &appletHidden);
                 }
               else
-                HideApplet(false);
+                HideApplet(false, &appletHidden);
+              break;
+
+            case CORE_FULLSTART:
+              if ((notifyInfo->InstanceName != NULL) && wcslen(notifyInfo->InstanceName))
+                {
+                  if (_wcsicmp(notifyInfo->InstanceName, appletName) == 0)
+                    HideApplet(true, &fullScreen);
+                }
+              else
+                HideApplet(true, &fullScreen);
+              break;
+
+            case CORE_FULLSTOP:
+              if ((notifyInfo->InstanceName != NULL) && wcslen(notifyInfo->InstanceName))
+                {
+                  if (_wcsicmp(notifyInfo->InstanceName, appletName) == 0)
+                    HideApplet(false, &fullScreen);
+                }
+              else
+                HideApplet(false, &fullScreen);
               break;
 
             case CORE_REFRESH:
@@ -1107,7 +1127,7 @@ HWND BaseApplet::GetMainWnd()
   return mainWnd;
 }
 
-void BaseApplet::HideApplet(bool hide)
+void BaseApplet::HideApplet(bool hide, bool *variable)
 {
   ULONG_PTR wndStyle = GetClassLongPtr(mainWnd, GCL_STYLE);
   if (hide)
@@ -1125,19 +1145,22 @@ void BaseApplet::HideApplet(bool hide)
     }
   else
     {
-      if (!IsWindowVisible(mainWnd))
+      if ((fullScreen && !appletHidden) || (!fullScreen && appletHidden))
         {
-          if (guiInfo.windowShadow)
-            SetClassLongPtr(mainWnd, GCL_STYLE, GetClassLongPtr(mainWnd, GCL_STYLE) | CS_DROPSHADOW);
-          SetWindowPos(mainWnd, NULL, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOZORDER |
-                       SWP_NOACTIVATE | SWP_SHOWWINDOW);
-          // If there is not active or inactive background, create one
-          if (!activeBackgroundDC || !inactiveBackgroundDC)
-            DrawAlphaBlend();
+          if (!IsWindowVisible(mainWnd))
+            {
+              if (guiInfo.windowShadow)
+                SetClassLongPtr(mainWnd, GCL_STYLE, GetClassLongPtr(mainWnd, GCL_STYLE) | CS_DROPSHADOW);
+              SetWindowPos(mainWnd, NULL, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOZORDER |
+                           SWP_NOACTIVATE | SWP_SHOWWINDOW);
+              // If there is not active or inactive background, create one
+              if (!activeBackgroundDC || !inactiveBackgroundDC)
+                DrawAlphaBlend();
+            }
         }
     }
 
-  appletHidden = hide;
+  *variable = hide;
 }
 
 WCHAR *BaseApplet::GetInstanceName()
@@ -1195,10 +1218,10 @@ void BaseApplet::SetFullScreen(bool value)
   WPARAM wParam = 0;
   NOTIFYINFO notifyInfo;
   COPYDATASTRUCT cds;
-  UINT message = CORE_SHOW;
+  UINT message = CORE_FULLSTOP;
 
   if (value)
-    message = CORE_HIDE;
+    message = CORE_FULLSTART;
 
   ZeroMemory(&notifyInfo, sizeof(notifyInfo));
   notifyInfo.Type = EMERGE_CORE;
@@ -1211,8 +1234,7 @@ void BaseApplet::SetFullScreen(bool value)
 
   lParam = reinterpret_cast<LPARAM>(&cds);
 
-  if (SendMessage(mainWnd, WM_COPYDATA, wParam, lParam))
-    fullScreen = value;
+  SendMessage(mainWnd, WM_COPYDATA, wParam, lParam);
 }
 
 bool BaseApplet::GetFullScreen()
