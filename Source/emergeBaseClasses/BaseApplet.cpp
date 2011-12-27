@@ -1189,14 +1189,30 @@ LRESULT BaseApplet::DoSysCommand(HWND hwnd, UINT message, WPARAM wParam, LPARAM 
 void BaseApplet::SetFullScreen(bool value)
 {
   // Due to Windows not liking a separate thread messing with mainWnd's style
-  // (to clear windowShadow) call ELDispatchCoreMessage to cause the main thread
-  // to clear windowShadow.
-  if (value)
-    ELDispatchCoreMessage(EMERGE_CORE, CORE_HIDE, appletName);
-  else
-    ELDispatchCoreMessage(EMERGE_CORE, CORE_SHOW, appletName);
+  // (to clear windowShadow) send an appropriate WM_COPYDATA message to cause
+  // the main thread to clear windowShadow.
+  LPARAM lParam = 0;
+  WPARAM wParam = 0;
+  NOTIFYINFO notifyInfo;
+  COPYDATASTRUCT cds;
+  UINT message = CORE_SHOW;
 
-  fullScreen = value;
+  if (value)
+    message = CORE_HIDE;
+
+  ZeroMemory(&notifyInfo, sizeof(notifyInfo));
+  notifyInfo.Type = EMERGE_CORE;
+  notifyInfo.Message = message;
+  wcsncpy(notifyInfo.InstanceName, appletName, MAX_PATH - 1);
+
+  cds.dwData = EMERGE_NOTIFY;
+  cds.cbData = sizeof(notifyInfo);
+  cds.lpData = &notifyInfo;
+
+  lParam = reinterpret_cast<LPARAM>(&cds);
+
+  if (SendMessage(mainWnd, WM_COPYDATA, wParam, lParam))
+    fullScreen = value;
 }
 
 bool BaseApplet::GetFullScreen()
