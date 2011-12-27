@@ -880,10 +880,10 @@ LRESULT BaseApplet::DoCopyData(COPYDATASTRUCT *cds)
               if ((notifyInfo->InstanceName != NULL) && wcslen(notifyInfo->InstanceName))
                 {
                   if (_wcsicmp(notifyInfo->InstanceName, appletName) == 0)
-                    HideApplet(toggle);
+                    HideApplet(toggle, &appletHidden);
                 }
               else
-                HideApplet(toggle);
+                HideApplet(toggle, &appletHidden);
             }
             break;
 
@@ -891,20 +891,20 @@ LRESULT BaseApplet::DoCopyData(COPYDATASTRUCT *cds)
               if ((notifyInfo->InstanceName != NULL) && wcslen(notifyInfo->InstanceName))
                 {
                   if (_wcsicmp(notifyInfo->InstanceName, appletName) == 0)
-                    HideApplet(true);
+                    HideApplet(true, &appletHidden);
                 }
               else
-                HideApplet(true);
+                HideApplet(true, &appletHidden);
               break;
 
             case CORE_SHOW:
               if ((notifyInfo->InstanceName != NULL) && wcslen(notifyInfo->InstanceName))
                 {
                   if (_wcsicmp(notifyInfo->InstanceName, appletName) == 0)
-                    HideApplet(false);
+                    HideApplet(false, &appletHidden);
                 }
               else
-                HideApplet(false);
+                HideApplet(false, &appletHidden);
               break;
 
             case CORE_REFRESH:
@@ -1107,13 +1107,18 @@ HWND BaseApplet::GetMainWnd()
   return mainWnd;
 }
 
-void BaseApplet::HideApplet(bool hide)
+void BaseApplet::HideApplet(bool hide, bool *var)
 {
+  ULONG_PTR wndStyle = GetClassLongPtr(mainWnd, GCL_STYLE);
   if (hide)
     {
       if (IsWindowVisible(mainWnd))
         {
-          //appletHidden = true;
+          if (guiInfo.windowShadow)
+            {
+              ShowWindow(mainWnd, SW_HIDE);
+              SetClassLongPtr(mainWnd, GCL_STYLE, wndStyle & ~CS_DROPSHADOW);
+            }
           SetWindowPos(mainWnd, NULL, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOZORDER |
                        SWP_NOACTIVATE | SWP_HIDEWINDOW);
         }
@@ -1122,7 +1127,8 @@ void BaseApplet::HideApplet(bool hide)
     {
       if (!IsWindowVisible(mainWnd))
         {
-          //appletHidden = false;
+          if (guiInfo.windowShadow)
+            SetClassLongPtr(mainWnd, GCL_STYLE, GetClassLongPtr(mainWnd, GCL_STYLE) | CS_DROPSHADOW);
           SetWindowPos(mainWnd, NULL, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOZORDER |
                        SWP_NOACTIVATE | SWP_SHOWWINDOW);
           // If there is not active or inactive background, create one
@@ -1131,7 +1137,7 @@ void BaseApplet::HideApplet(bool hide)
         }
     }
 
-  appletHidden = hide;
+  *var = hide;
 }
 
 WCHAR *BaseApplet::GetInstanceName()
@@ -1182,27 +1188,7 @@ LRESULT BaseApplet::DoSysCommand(HWND hwnd, UINT message, WPARAM wParam, LPARAM 
 
 void BaseApplet::SetFullScreen(bool value)
 {
-  if (value)
-    {
-      if (IsWindowVisible(mainWnd))
-        {
-          SetWindowPos(mainWnd, NULL, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOZORDER |
-                       SWP_NOACTIVATE | SWP_HIDEWINDOW);
-        }
-    }
-  else
-    {
-      if (!IsWindowVisible(mainWnd) && !appletHidden)
-        {
-          SetWindowPos(mainWnd, NULL, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOZORDER |
-                       SWP_NOACTIVATE | SWP_SHOWWINDOW);
-          // If there is not active or inactive background, create one
-          if (!activeBackgroundDC || !inactiveBackgroundDC)
-            DrawAlphaBlend();
-        }
-    }
-
-  fullScreen = value;
+  HideApplet(value, &fullScreen);
 }
 
 bool BaseApplet::GetFullScreen()
