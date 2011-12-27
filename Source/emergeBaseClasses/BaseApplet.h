@@ -88,7 +88,7 @@ public:
   void SetFullScreen(bool value);
   bool GetFullScreen();
   HWND GetMainWnd();
-  void HideApplet(bool hide, bool *var);
+  void HideApplet(bool hide);
   WCHAR *GetInstanceName();
 
 private:

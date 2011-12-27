@@ -880,10 +880,10 @@ LRESULT BaseApplet::DoCopyData(COPYDATASTRUCT *cds)
               if ((notifyInfo->InstanceName != NULL) && wcslen(notifyInfo->InstanceName))
                 {
                   if (_wcsicmp(notifyInfo->InstanceName, appletName) == 0)
-                    HideApplet(toggle, &appletHidden);
+                    HideApplet(toggle);
                 }
               else
-                HideApplet(toggle, &appletHidden);
+                HideApplet(toggle);
             }
             break;
 
@@ -891,20 +891,20 @@ LRESULT BaseApplet::DoCopyData(COPYDATASTRUCT *cds)
               if ((notifyInfo->InstanceName != NULL) && wcslen(notifyInfo->InstanceName))
                 {
                   if (_wcsicmp(notifyInfo->InstanceName, appletName) == 0)
-                    HideApplet(true, &appletHidden);
+                    HideApplet(true);
                 }
               else
-                HideApplet(true, &appletHidden);
+                HideApplet(true);
               break;
 
             case CORE_SHOW:
               if ((notifyInfo->InstanceName != NULL) && wcslen(notifyInfo->InstanceName))
                 {
                   if (_wcsicmp(notifyInfo->InstanceName, appletName) == 0)
-                    HideApplet(false, &appletHidden);
+                    HideApplet(false);
                 }
               else
-                HideApplet(false, &appletHidden);
+                HideApplet(false);
               break;
 
             case CORE_REFRESH:
@@ -1107,7 +1107,7 @@ HWND BaseApplet::GetMainWnd()
   return mainWnd;
 }
 
-void BaseApplet::HideApplet(bool hide, bool *var)
+void BaseApplet::HideApplet(bool hide)
 {
   ULONG_PTR wndStyle = GetClassLongPtr(mainWnd, GCL_STYLE);
   if (hide)
@@ -1137,7 +1137,7 @@ void BaseApplet::HideApplet(bool hide, bool *var)
         }
     }
 
-  *var = hide;
+  appletHidden = hide;
 }
 
 WCHAR *BaseApplet::GetInstanceName()
@@ -1188,7 +1188,15 @@ LRESULT BaseApplet::DoSysCommand(HWND hwnd, UINT message, WPARAM wParam, LPARAM 
 
 void BaseApplet::SetFullScreen(bool value)
 {
-  HideApplet(value, &fullScreen);
+  // Due to Windows not liking a separate thread messing with mainWnd's style
+  // (to clear windowShadow) call ELDispatchCoreMessage to cause the main thread
+  // to clear windowShadow.
+  if (value)
+    ELDispatchCoreMessage(EMERGE_CORE, CORE_HIDE, appletName);
+  else
+    ELDispatchCoreMessage(EMERGE_CORE, CORE_SHOW, appletName);
+
+  fullScreen = value;
 }
 
 bool BaseApplet::GetFullScreen()
