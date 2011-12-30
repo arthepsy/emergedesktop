@@ -292,7 +292,7 @@ bool ELGetUNCFromMap(LPCTSTR map, LPTSTR unc, size_t uncLength)
           drive = workingMap.substr(0, colon + 1);
           if (MSWNetGetConnection(drive.c_str(), tmp, &tmpLength) == NO_ERROR)
             {
-              snwprintf(unc, uncLength, L"%s%s", tmp,
+              snwprintf(unc, uncLength, L"%ls%ls", tmp,
                         workingMap.substr(colon + 1,
                                           workingMap.length() - colon).c_str());
               return true;
@@ -417,7 +417,7 @@ void ELGetThemeInfo(LPTHEMEINFO themeInfo)
             }
           else
             {
-              swprintf(themeInfo->themePath, TEXT("%s\\themes\\%s"),
+              swprintf(themeInfo->themePath, TEXT("%ls\\themes\\%ls"),
                        themeInfo->path, themeInfo->theme);
               if (!ELPathIsDirectory(themeInfo->themePath))
                 {
@@ -431,11 +431,11 @@ void ELGetThemeInfo(LPTHEMEINFO themeInfo)
 
   if (_wcsicmp(themeInfo->theme, TEXT("Default")) != 0)
     {
-      swprintf(themeInfo->themePath, TEXT("%s\\themes\\%s"), themeInfo->path, themeInfo->theme);
+      swprintf(themeInfo->themePath, TEXT("%ls\\themes\\%ls"), themeInfo->path, themeInfo->theme);
       workingPath = themeInfo->themePath;
       ELCreateDirectory(workingPath);
     }
-  swprintf(themeInfo->userPath, TEXT("%s\\files"), themeInfo->path);
+  swprintf(themeInfo->userPath, TEXT("%ls\\files"), themeInfo->path);
   workingPath = themeInfo->userPath;
   ELCreateDirectory(workingPath);
 }
@@ -1736,7 +1736,7 @@ int ELExtractZip(std::wstring zipFile, std::wstring unzipPath)
                       themeName = ze.name;
                       themeName = themeName.substr(0, themeName.rfind('/'));
                       WCHAR message[MAX_LINE_LENGTH];
-                      swprintf(message, TEXT("Do you want to overwrite the '%s' theme?"), themeName.c_str());
+                      swprintf(message, TEXT("Do you want to overwrite the '%ls' theme?"), themeName.c_str());
                       if (ELMessageBox(NULL, message, TEXT("Warning"),
                                        ELMB_YESNO|ELMB_ICONQUESTION) == IDNO)
                         return 2;
@@ -1968,7 +1968,7 @@ bool ELExecute(LPTSTR application, LPTSTR workingDir, int nShow, WCHAR *verb)
     return false;
 
   if (!ELFileTypeCommand(program, arguments, command))
-    swprintf(command, TEXT("\"%s\" %s"), program, arguments);
+    swprintf(command, TEXT("\"%ls\" %ls"), program, arguments);
 
   if (wcslen(directory) > 0)
     {
@@ -2048,7 +2048,7 @@ bool ELFileTypeCommand(WCHAR *document, WCHAR *docArgs, WCHAR *commandLine)
     return false;
 
   GetShortPathName(document, shortDoc, MAX_LINE_LENGTH);
-  swprintf(quotedDoc, TEXT("\"%s\""), document);
+  swprintf(quotedDoc, TEXT("\"%ls\""), document);
 
   if (ELIsExecutable(extension))
     return false;
@@ -2065,7 +2065,7 @@ bool ELFileTypeCommand(WCHAR *document, WCHAR *docArgs, WCHAR *commandLine)
   else
     substitutions += ELStringReplace(docExecutable, (WCHAR*)TEXT("%L"), document, true);
   if (substitutions == 0)
-    swprintf(commandLine, TEXT("%s \"%s\""), docExecutable, document);
+    swprintf(commandLine, TEXT("%ls \"%ls\""), docExecutable, document);
   else
     wcscpy(commandLine, docExecutable);
 
@@ -2340,7 +2340,7 @@ bool PathTokenCheck(WCHAR *path)
       WCHAR tmpCheck[MAX_LINE_LENGTH];
 
       /**< Check to see if tmp exists in sysWOW64 */
-      swprintf(tmpCheck, TEXT("%s\\%s"), sysWOW64, tmp);
+      swprintf(tmpCheck, TEXT("%ls\\%ls"), sysWOW64, tmp);
       if (ELPathFileExists(tmpCheck) && !ELPathIsDirectory(tmpCheck))
         {
           wcscpy(path, tmpCheck);
@@ -2348,7 +2348,7 @@ bool PathTokenCheck(WCHAR *path)
         }
 
       /**< Check to see if tmp exists in current working directory */
-      swprintf(tmpCheck, TEXT("%s\\%s"), cwd, tmp);
+      swprintf(tmpCheck, TEXT("%ls\\%ls"), cwd, tmp);
       if (ELPathFileExists(tmpCheck) && !ELPathIsDirectory(tmpCheck))
         {
           wcscpy(path, tmpCheck);
@@ -3331,7 +3331,7 @@ bool ELExit(UINT uFlag, bool prompt)
       if (GetLastError() != ERROR_SUCCESS)
         {
           swprintf(messageText,
-                   TEXT("You do not have persission to perform a %s\n on this system."),
+                   TEXT("You do not have persission to perform a %ls\n on this system."),
                    method);
           ELMessageBox(GetDesktopWindow(), messageText, (WCHAR*)TEXT("Emerge Desktop"),
                        ELMB_OK|ELMB_ICONERROR|ELMB_MODAL);
@@ -3341,7 +3341,7 @@ bool ELExit(UINT uFlag, bool prompt)
 
   if (prompt)
     {
-      swprintf(messageText, TEXT("Are you sure you want to %s?"), method);
+      swprintf(messageText, TEXT("Are you sure you want to %ls?"), method);
       response = ELMessageBox(GetDesktopWindow(),
                               messageText,
                               (WCHAR*)TEXT("Emerge Desktop"),
@@ -3392,7 +3392,7 @@ bool ELExit(UINT uFlag, bool prompt)
 
   if (!exitStatus)
     {
-      swprintf(messageText, TEXT("Failed to %s."), method);
+      swprintf(messageText, TEXT("Failed to %ls."), method);
       ELMessageBox(GetDesktopWindow(), messageText, (WCHAR*)TEXT("Emerge Desktop"),
                    ELMB_ICONERROR|ELMB_OK|ELMB_MODAL);
       return false;
@@ -3464,7 +3464,7 @@ bool WriteValue(const WCHAR *fileName, WCHAR *keyword, WCHAR *value)
 
           if (_wcsicmp(token, keyword) == 0)
             {
-              swprintf(fileLine, TEXT("%s\t%s\n"), keyword, value);
+              swprintf(fileLine, TEXT("%ls\t%ls\n"), keyword, value);
               written = true;
             }
 
@@ -3475,7 +3475,7 @@ bool WriteValue(const WCHAR *fileName, WCHAR *keyword, WCHAR *value)
 
   if (!written)
     {
-      swprintf(fileLine, TEXT("%s\t%s\n"), keyword, value);
+      swprintf(fileLine, TEXT("%ls\t%ls\n"), keyword, value);
       fputws(fileLine, tmpFP);
       written = true;
     }
@@ -5146,7 +5146,7 @@ HANDLE ELActivateActCtxForClsid(REFCLSID rclsid, PULONG_PTR pulCookie)
     {
       TCHAR szSubkey[MAX_PATH] = { 0 };
 
-      HRESULT hr = wsprintf(szSubkey, TEXT("CLSID\\%s\\InProcServer32"), szCLSID);
+      HRESULT hr = wsprintf(szSubkey, TEXT("CLSID\\%ls\\InProcServer32"), szCLSID);
 
       if (SUCCEEDED(hr))
         {

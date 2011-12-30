@@ -297,7 +297,7 @@ void ThemeSelector::DoExport(HWND hwndDlg)
               target += TEXT(".zip");
               if (PathFileExists(target.c_str()))
                 {
-                  swprintf(message, TEXT("Do you want to replace '%s'?"), target.c_str());
+                  swprintf(message, TEXT("Do you want to replace '%ls'?"), target.c_str());
                   if (ELMessageBox(hwndDlg, message, TEXT("emergeCore"),
                                    ELMB_YESNO|ELMB_ICONQUESTION) == IDNO)
                     return;
@@ -305,10 +305,10 @@ void ThemeSelector::DoExport(HWND hwndDlg)
                     ELFileOp(hwndDlg, FO_DELETE, target);
                 }
               if (ELMakeZip(target, themeRoot, themePath) == 0)
-                swprintf(message, TEXT("Successfully exported '%s' theme to '%s'."),
+                swprintf(message, TEXT("Successfully exported '%ls' theme to '%ls'."),
                          theme, target.c_str());
               else
-                swprintf(message, TEXT("Failed to export '%s'."), theme);
+                swprintf(message, TEXT("Failed to export '%ls'."), theme);
               ELMessageBox(hwndDlg, message, TEXT("emergeCore"), ELMB_OK|ELMB_MODAL|ELMB_ICONINFORMATION);
             }
         }
@@ -339,11 +339,11 @@ void ThemeSelector::DoImport(HWND hwndDlg)
       workingZip = tmp;
       if (ELExtractZip(workingZip, themesPath) == 0)
         {
-          swprintf(message, TEXT("Successfully imported '%s'."), workingZip.c_str());
+          swprintf(message, TEXT("Successfully imported '%ls'."), workingZip.c_str());
           PopulateThemes(themeWnd, (WCHAR*)ELGetThemeName().c_str());
         }
       else
-        swprintf(message, TEXT("Failed to import '%s'."), workingZip.c_str());
+        swprintf(message, TEXT("Failed to import '%ls'."), workingZip.c_str());
       ELMessageBox(hwndDlg, message, TEXT("emergeCore"), ELMB_OK|ELMB_MODAL|ELMB_ICONINFORMATION);
     }
 }
@@ -443,7 +443,7 @@ BOOL ThemeSelector::DoThemeCheck(HWND hwndDlg)
 
   if (ELIsModifiedTheme(ELGetThemeName().c_str()) && ELPathIsDirectory(themePath.c_str()))
     {
-      swprintf (errorText, TEXT("The existing '%s' theme will be lost, save it?"), ELGetThemeName().c_str());
+      swprintf (errorText, TEXT("The existing '%ls' theme will be lost, save it?"), ELGetThemeName().c_str());
       if (ELMessageBox(hwndDlg, errorText, TEXT("Theme Selector"),
                        ELMB_ICONQUESTION | ELMB_YESNO) == IDYES)
         {

@@ -471,7 +471,7 @@ bool AliasEditor::UpdateAliases(HWND hwndDlg)
       ListView_GetItemText(listWnd, i, 0, alias, MAX_LINE_LENGTH);
       ListView_GetItemText(listWnd, i, 1, action, MAX_LINE_LENGTH);
 
-      fwprintf(fp, TEXT("%s\t%s\n"), alias, action);
+      fwprintf(fp, TEXT("%ls\t%ls\n"), alias, action);
 
       i++;
     }
@@ -789,7 +789,7 @@ bool AliasEditor::DoAliasSave(HWND hwndDlg)
             }
           else
             {
-              swprintf(error, TEXT("%s is already in the applet launch list"), alias);
+              swprintf(error, TEXT("%ls is already in the applet launch list"), alias);
               ELMessageBox(hwndDlg, error, (WCHAR*)TEXT("emergeCore"),
                            ELMB_OK|ELMB_ICONERROR|ELMB_MODAL);
             }

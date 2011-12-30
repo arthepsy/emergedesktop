@@ -836,7 +836,7 @@ bool Actions::DoSave(HWND hwndDlg)
         }
       else
         {
-          swprintf(error, TEXT("Failed to register Hotkey combination %s."), tmpKey);
+          swprintf(error, TEXT("Failed to register Hotkey combination %ls."), tmpKey);
           ELMessageBox(GetDesktopWindow(), error, (WCHAR*)TEXT("emergeHotkeys"),
                        ELMB_OK|ELMB_ICONERROR|ELMB_MODAL);
           return false;
@@ -1119,7 +1119,7 @@ bool Actions::DoAbout()
 
   if (ELAppletVersionInfo(mainWnd, &versionInfo))
     {
-      swprintf(tmp, TEXT("%s\n\nVersion: %s\n\nAuthor: %s"),
+      swprintf(tmp, TEXT("%ls\n\nVersion: %ls\n\nAuthor: %ls"),
                versionInfo.Description,
                versionInfo.Version,
                versionInfo.Author);

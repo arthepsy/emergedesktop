@@ -336,7 +336,7 @@ bool ItemEditor::DoBrowseItem(HWND hwndDlg, bool workingDir)
           std::wstring workingTmp = ELRelativePathFromAbsPath(tmp);
           if (type == IT_SPECIAL_FOLDER)
             {
-              swprintf(tmp, TEXT("*%s"), PathFindFileName(workingTmp.c_str()));
+              swprintf(tmp, TEXT("*%ls"), PathFindFileName(workingTmp.c_str()));
               workingTmp = tmp;
             }
 

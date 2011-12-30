@@ -738,7 +738,7 @@ bool EGGetIconDialogue(HWND hwnd, WCHAR *iconPath, int iconIndex)
       tmpPath = shortPath;
       tmpPath = ELExpandVars(tmpPath);
       GetLongPathName(tmpPath.c_str(), filename, MAX_PATH);
-      swprintf(iconPath, TEXT("%s,%d"), filename, iconIndex);
+      swprintf(iconPath, TEXT("%ls,%d"), filename, iconIndex);
       return true;
     }
 
@@ -823,7 +823,7 @@ HICON EGGetSpecialFolderIcon(int csidl, UINT iconSize)
     {
       if (SHGetFileInfo((LPCTSTR)pidl, 0, &fileInfo, sizeof(fileInfo), SHGFI_PIDL|SHGFI_ICONLOCATION) != 0)
         {
-          swprintf(iconLocation, TEXT("%s,%d"), fileInfo.szDisplayName, fileInfo.iIcon);
+          swprintf(iconLocation, TEXT("%ls,%d"), fileInfo.szDisplayName, fileInfo.iIcon);
           icon = EGGetFileIcon(iconLocation, iconSize);
         }
 
@@ -1157,7 +1157,7 @@ void EGFontToString(const LOGFONT& logFont, WCHAR *fontString)
   if (logFont.lfItalic)
     wcscat(tmp, TEXT("-Italic"));
   int fontHeight = MulDiv(logFont.lfHeight, 72, GetDeviceCaps(hdc, LOGPIXELSY));
-  swprintf(fontString, TEXT("%s-%d"), tmp, fontHeight);
+  swprintf(fontString, TEXT("%ls-%d"), tmp, fontHeight);
   DeleteDC(hdc);
 }
 

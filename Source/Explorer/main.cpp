@@ -57,7 +57,7 @@ int WINAPI WinMain (HINSTANCE hInstance,
         {
           WCHAR passCmd[MAX_LINE_LENGTH];
           std::wstring explorer = TEXT("%WINDIR%\\explorer.exe");
-          swprintf(passCmd, TEXT("%s %s"), ELExpandVars(explorer).c_str(), args);
+          swprintf(passCmd, TEXT("%ls %ls"), ELExpandVars(explorer).c_str(), args);
           ELExecute(passCmd);
         }
       CloseHandle(hMutex);

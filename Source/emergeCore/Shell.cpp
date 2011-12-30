@@ -77,7 +77,7 @@ bool Shell::RunRegEntries(HKEY key, bool clearEntry, bool wait UNUSED, bool show
       // If it's a string, execute it
       if ((type == REG_SZ) || (type == REG_EXPAND_SZ))
         {
-          swprintf(error, TEXT("Failed to execute \"%s\""), (WCHAR*)data);
+          swprintf(error, TEXT("Failed to execute \"%ls\""), (WCHAR*)data);
           if (!ELExecute((WCHAR*)data) && showStartupErrors)
             ELMessageBox(GetDesktopWindow(), error, (WCHAR*)TEXT("emergeCore"), ELMB_ICONWARNING|ELMB_OK);
 
@@ -312,7 +312,7 @@ void Shell::RunFolderEntries(LPTSTR path, bool showStartupErrors)
         {
           wcscpy(app, appPath);
           wcscat(app, findData.cFileName);
-          swprintf(error, TEXT("Failed to execute \"%s\""), app);
+          swprintf(error, TEXT("Failed to execute \"%ls\""), app);
           if (!ELExecute((WCHAR*)app) && showStartupErrors)
             ELMessageBox(GetDesktopWindow(), error, (WCHAR*)TEXT("emergeCore"), ELMB_ICONWARNING|ELMB_OK);
         }

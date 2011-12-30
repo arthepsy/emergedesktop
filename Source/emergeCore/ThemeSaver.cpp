@@ -61,7 +61,7 @@ ThemeSaver::~ThemeSaver()
 int ThemeSaver::Show(WCHAR *theme)
 {
   wcscpy((*this).theme, theme);
-  swprintf(title, TEXT("Save '%s' Theme as..."), theme);
+  swprintf(title, TEXT("Save '%ls' Theme as..."), theme);
   return (int)DialogBoxParam(hInstance, MAKEINTRESOURCE(IDD_THEMESAVE), mainWnd, (DLGPROC)ThemeSaverDlgProc, (LPARAM)this);
 }
 
@@ -109,7 +109,7 @@ bool ThemeSaver::SaveTheme(HWND hwndDlg)
   GetDlgItemText(hwndDlg, IDC_THEMEITEM, themeName, MAX_PATH);
   if ((_wcsicmp(themeName, TEXT("Default")) == 0) || (_wcsicmp(themeName, TEXT("GBRY")) == 0))
     {
-      swprintf(errorText, TEXT("'%s' cannot be used as a theme name"), themeName);
+      swprintf(errorText, TEXT("'%ls' cannot be used as a theme name"), themeName);
       ELMessageBox(hwndDlg, errorText, (WCHAR*)TEXT("Theme Manager"), ELMB_MODAL
                    | ELMB_OK | ELMB_ICONERROR);
       return false;
@@ -120,7 +120,7 @@ bool ThemeSaver::SaveTheme(HWND hwndDlg)
 
   if (ELPathIsDirectory(copyDest.c_str()))
     {
-      swprintf(errorText, TEXT("The theme '%s' already exists, overwrite?"), themeName);
+      swprintf(errorText, TEXT("The theme '%ls' already exists, overwrite?"), themeName);
       if (ELMessageBox(hwndDlg, errorText, (WCHAR*)TEXT("Theme Manager"),
                        ELMB_MODAL | ELMB_YESNO | ELMB_ICONERROR) == IDNO)
         return false;

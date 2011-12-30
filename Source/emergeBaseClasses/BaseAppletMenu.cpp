@@ -134,7 +134,7 @@ DWORD BaseAppletMenu::ActivateMenu(int x, int y, WCHAR *styleFile)
 
       if (ELAppletVersionInfo(mainWnd, &versionInfo))
         {
-          swprintf(tmp, TEXT("%s\n\nVersion: %s\n\nCurrent Style: %s\n\nAuthor: %s"),
+          swprintf(tmp, TEXT("%ls\n\nVersion: %ls\n\nCurrent Style: %ls\n\nAuthor: %ls"),
                    versionInfo.Description,
                    versionInfo.Version,
                    stylePath.c_str(),

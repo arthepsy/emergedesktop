@@ -495,7 +495,7 @@ bool StickyPage::DoSave(HWND hwndDlg)
         }
       else
         {
-          swprintf(error, TEXT("%s is already in the sticky application list"), tmp);
+          swprintf(error, TEXT("%ls is already in the sticky application list"), tmp);
           ELMessageBox(GetDesktopWindow(), error, (WCHAR*)TEXT("emergeVWM"),
                        ELMB_OK|ELMB_ICONERROR|ELMB_MODAL);
         }

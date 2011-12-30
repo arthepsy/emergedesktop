@@ -722,7 +722,7 @@ bool ShellChanger::DoSaveShell(HWND hwndDlg)
 
   EmergeShellItemMap::iterator iter;
   iter = shellMap.find(newName);
-  swprintf(tmp, TEXT("A Shell with the name '%s' already exists"), newName);
+  swprintf(tmp, TEXT("A Shell with the name '%ls' already exists"), newName);
   if ((iter != shellMap.end()) ||
       (_wcsicmp(newName, TEXT("Windows Explorer")) == 0) ||
       (_wcsicmp(newName, TEXT("Emerge Desktop")) == 0))

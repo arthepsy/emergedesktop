@@ -42,7 +42,7 @@ BaseSettings::~BaseSettings()
 void BaseSettings::Init(HWND appletWnd, WCHAR *appletName, int appletCount)
 {
   wcscpy(this->appletName, appletName);
-  swprintf(keyString, TEXT("%s\\Settings"), appletName);
+  swprintf(keyString, TEXT("%ls\\Settings"), appletName);
   this->appletWnd = appletWnd;
   this->appletCount = appletCount;
 }

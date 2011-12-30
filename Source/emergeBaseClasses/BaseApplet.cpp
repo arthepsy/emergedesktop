@@ -148,7 +148,7 @@ bool BaseApplet::SpawnInstance()
 {
   appletCount = ReadAppletCount(-1) + 1;
   if (appletCount > 0)
-    swprintf(appletName, TEXT("%s%d"), appletName, appletCount);
+    swprintf(appletName, TEXT("%ls%d"), appletName, appletCount);
 
   std::wstring tempSettingsFile;
   tempSettingsFile = TEXT("%ThemeDir%\\");
@@ -1381,10 +1381,10 @@ void BaseApplet::RenameSettingsFiles()
     {
       srcFile = searchDirectory;
       srcFile += fileList[counter];
-      swprintf(dstFile, TEXT("%s%s"), searchDirectory.c_str(), baseAppletName);
+      swprintf(dstFile, TEXT("%ls%ls"), searchDirectory.c_str(), baseAppletName);
       if (counter)
-        swprintf(dstFile, TEXT("%s%d"), dstFile, counter);
-      swprintf(dstFile, TEXT("%s%s"), dstFile, TEXT(".xml"));
+        swprintf(dstFile, TEXT("%ls%d"), dstFile, counter);
+      swprintf(dstFile, TEXT("%ls%ls"), dstFile, TEXT(".xml"));
 
       MoveFile(srcFile.c_str(), dstFile);
     }

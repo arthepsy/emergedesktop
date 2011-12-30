@@ -54,7 +54,7 @@ int WINAPI WinMain (HINSTANCE hInstance UNUSED,
 
   if (!ELExecuteInternal(commandLine))
     {
-      swprintf(error, TEXT("Failed to execute \"%s\""), commandLine);
+      swprintf(error, TEXT("Failed to execute \"%ls\""), commandLine);
       ELMessageBox(GetDesktopWindow(), error, (WCHAR*)TEXT("emerge"), ELMB_ICONWARNING|ELMB_OK|ELMB_MODAL);
       return 2;
     }

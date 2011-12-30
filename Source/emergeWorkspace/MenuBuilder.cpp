@@ -1708,7 +1708,7 @@ LRESULT MenuBuilder::ExecuteMenuItem(UINT itemID)
     return 1;
 
   menuItem = iter->second->GetMenuItem(itemID);
-  swprintf(error, TEXT("Failed to execute \"%s\""), menuItem->GetValue());
+  swprintf(error, TEXT("Failed to execute \"%ls\""), menuItem->GetValue());
 
   switch (iter->second->GetType())
     {
@@ -1887,7 +1887,7 @@ void MenuBuilder::ExecuteXMLMenuItem(UINT type, WCHAR *value, WCHAR *workingDir)
 {
   bool ret = false;
   WCHAR error[MAX_LINE_LENGTH];
-  swprintf(error, TEXT("Failed to execute \"%s\""), value);
+  swprintf(error, TEXT("Failed to execute \"%ls\""), value);
 
   switch (type)
     {

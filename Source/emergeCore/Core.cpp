@@ -550,8 +550,8 @@ void Core::About()
 
   if (ELAppletVersionInfo(mainWnd, &coreInfo))
     {
-      swprintf(tmp, TEXT("%s\n\nVersion:\t\t\t%s\n\nemergeLib:\t\t%s\nemergeGraphics:\t%s\nemergeStyleEngine:\t%s\n")
-               TEXT("emergeBaseClasses:\t%s\nemergeAppletEngine:\t%s\n\nAuthor: %s"),
+      swprintf(tmp, TEXT("%ls\n\nVersion:\t\t\t%ls\n\nemergeLib:\t\t%ls\nemergeGraphics:\t%ls\nemergeStyleEngine:\t%ls\n")
+               TEXT("emergeBaseClasses:\t%ls\nemergeAppletEngine:\t%ls\n\nAuthor: %ls"),
                coreInfo.Description,
                coreInfo.Version,
                libInfo.Version,
@@ -594,7 +594,7 @@ bool Core::BuildLaunchList()
               found = true;
               iter = launchMap.begin();
               ELParseCommand((WCHAR*)iter->first.c_str(), program, arguments);
-              swprintf(command, TEXT("%s %s"), PathFindFileName(program), arguments);
+              swprintf(command, TEXT("%ls %ls"), PathFindFileName(program), arguments);
               item = ELSetFirstXMLElement(section, TEXT("item"));
               if (item)
                 ELWriteXMLStringValue(item, TEXT("Command"), command);

@@ -140,7 +140,7 @@ LRESULT CALLBACK Command::EditProc(HWND hwnd,UINT message,WPARAM wParam,LPARAM l
         {
           int length = GetWindowText(hwnd,buf,MAX_LINE_LENGTH);
           SetWindowText(hwnd, TEXT(""));
-          swprintf(error, TEXT("Failed to execute \"%s\""), buf);
+          swprintf(error, TEXT("Failed to execute \"%ls\""), buf);
           if (length > 0)
             {
               buf[length] = '\0';

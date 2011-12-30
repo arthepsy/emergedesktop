@@ -403,7 +403,7 @@ bool IconHidePage::DoSave(HWND hwndDlg)
       lvFI.psz = tmp;
       if (ListView_FindItem(listWnd, 0, &lvFI) != -1)
         {
-          swprintf(error, TEXT("%s is already in the hidden icon list"), tmp);
+          swprintf(error, TEXT("%ls is already in the hidden icon list"), tmp);
           ELMessageBox(GetDesktopWindow(), error, (WCHAR*)TEXT("emergeTray"),
                        ELMB_OK|ELMB_ICONERROR|ELMB_MODAL);
         }

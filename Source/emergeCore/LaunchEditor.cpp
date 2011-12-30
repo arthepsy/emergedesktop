@@ -435,7 +435,7 @@ BOOL LaunchEditor::DoMultiInfo(HWND hwndDlg)
           PathRemoveExtension(appletName);
           if (ELAppletFileVersion(name, &versionInfo))
             {
-              swprintf(tmp, TEXT("%s\n\nVersion: %s\n\nAuthor: %s"),
+              swprintf(tmp, TEXT("%ls\n\nVersion: %ls\n\nAuthor: %ls"),
                        versionInfo.Description,
                        versionInfo.Version,
                        versionInfo.Author);
@@ -943,7 +943,7 @@ bool LaunchEditor::DoLaunchSave(HWND hwndDlg)
         }
       else
         {
-          swprintf(error, TEXT("%s is already in the applet launch list"), tmp);
+          swprintf(error, TEXT("%ls is already in the applet launch list"), tmp);
           ELMessageBox(hwndDlg, error, (WCHAR*)TEXT("emergeCore"),
                        ELMB_OK|ELMB_ICONERROR|ELMB_MODAL);
         }
@@ -1098,7 +1098,7 @@ BOOL LaunchEditor::DoRightClick(HWND hwndDlg, int index)
 
   if (ELAppletFileVersion(applet, &versionInfo))
     {
-      swprintf(tmp, TEXT("%s\n\nVersion: %s\n\nAuthor: %s"),
+      swprintf(tmp, TEXT("%ls\n\nVersion: %ls\n\nAuthor: %ls"),
                versionInfo.Description,
                versionInfo.Version,
                versionInfo.Author);
