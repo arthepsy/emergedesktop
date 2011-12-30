@@ -1426,28 +1426,6 @@
 			<Option target="emergeLib - Release" />
 			<Option target="emergeLib - Debug" />
 		</Unit>
-		<Unit filename="emergeMediaCtrl\Applet.h">
-			<Option target="emergeMediaCtrl - Release" />
-		</Unit>
-		<Unit filename="emergeMediaCtrl\Button.h">
-			<Option target="emergeMediaCtrl - Release" />
-		</Unit>
-		<Unit filename="emergeMediaCtrl\Config.h">
-			<Option target="emergeMediaCtrl - Release" />
-		</Unit>
-		<Unit filename="emergeMediaCtrl\Settings.h">
-			<Option target="emergeMediaCtrl - Release" />
-		</Unit>
-		<Unit filename="emergeMediaCtrl\emergeMediaCtrl.exe.manifest">
-			<Option target="emergeMediaCtrl - Release" />
-		</Unit>
-		<Unit filename="emergeMediaCtrl\emergeMediaCtrl.rc">
-			<Option compilerVar="WINDRES" />
-			<Option target="emergeMediaCtrl - Release" />
-		</Unit>
-		<Unit filename="emergeMediaCtrl\resource.h">
-			<Option target="emergeMediaCtrl - Release" />
-		</Unit>
 		<Unit filename="emergePower\Applet.cpp">
 			<Option target="emergePower - Release" />
 		</Unit>
@@ -1745,10 +1723,6 @@
 			<Option target="emergeTray - Release" />
 			<Option target="emergeTray - Debug" />
 		</Unit>
-		<Unit filename="emergeTray\emergeTrayExplorerHook.h">
-			<Option target="emergeTray - Release" />
-			<Option target="emergeTray - Debug" />
-		</Unit>
 		<Unit filename="emergeTray\main.cpp">
 			<Option target="emergeTray - Release" />
 			<Option target="emergeTray - Debug" />
@@ -1962,85 +1936,6 @@
 			<Option target="Explorer - Release" />
 			<Option target="emergeBaseClasses - Debug" />
 			<Option target="emergeLauncher - Debug" />
-		</Unit>
-		<Unit filename="reg2xml\AppletSettings.cpp">
-			<Option target="reg2xml - Release" />
-		</Unit>
-		<Unit filename="reg2xml\AppletSettings.h">
-			<Option target="reg2xml - Release" />
-		</Unit>
-		<Unit filename="reg2xml\CommandSettings.cpp">
-			<Option target="reg2xml - Release" />
-		</Unit>
-		<Unit filename="reg2xml\CommandSettings.h">
-			<Option target="reg2xml - Release" />
-		</Unit>
-		<Unit filename="reg2xml\CoreSettings.cpp">
-			<Option target="reg2xml - Release" />
-		</Unit>
-		<Unit filename="reg2xml\CoreSettings.h">
-			<Option target="reg2xml - Release" />
-		</Unit>
-		<Unit filename="reg2xml\DesktopSettings.cpp">
-			<Option target="reg2xml - Release" />
-		</Unit>
-		<Unit filename="reg2xml\DesktopSettings.h">
-			<Option target="reg2xml - Release" />
-		</Unit>
-		<Unit filename="reg2xml\HotkeysSettings.cpp">
-			<Option target="reg2xml - Release" />
-		</Unit>
-		<Unit filename="reg2xml\HotkeysSettings.h">
-			<Option target="reg2xml - Release" />
-		</Unit>
-		<Unit filename="reg2xml\Importer.cpp">
-			<Option target="reg2xml - Release" />
-		</Unit>
-		<Unit filename="reg2xml\Importer.h">
-			<Option target="reg2xml - Release" />
-		</Unit>
-		<Unit filename="reg2xml\LauncherSettings.cpp">
-			<Option target="reg2xml - Release" />
-		</Unit>
-		<Unit filename="reg2xml\LauncherSettings.h">
-			<Option target="reg2xml - Release" />
-		</Unit>
-		<Unit filename="reg2xml\Makefile">
-			<Option target="reg2xml - Release" />
-		</Unit>
-		<Unit filename="reg2xml\TasksSettings.cpp">
-			<Option target="reg2xml - Release" />
-		</Unit>
-		<Unit filename="reg2xml\TasksSettings.h">
-			<Option target="reg2xml - Release" />
-		</Unit>
-		<Unit filename="reg2xml\TraySettings.cpp">
-			<Option target="reg2xml - Release" />
-		</Unit>
-		<Unit filename="reg2xml\TraySettings.h">
-			<Option target="reg2xml - Release" />
-		</Unit>
-		<Unit filename="reg2xml\VWMSettings.cpp">
-			<Option target="reg2xml - Release" />
-		</Unit>
-		<Unit filename="reg2xml\VWMSettings.h">
-			<Option target="reg2xml - Release" />
-		</Unit>
-		<Unit filename="reg2xml\main.cpp">
-			<Option target="reg2xml - Release" />
-		</Unit>
-		<Unit filename="reg2xml\reg2xml.exe.manifest">
-			<Option target="reg2xml - Release" />
-		</Unit>
-		<Unit filename="reg2xml\reg2xml.project">
-			<Option target="reg2xml - Release" />
-		</Unit>
-		<Unit filename="reg2xml\reg2xml.rc">
-			<Option compilerVar="WINDRES" />
-			<Option target="reg2xml - Release" />
-		</Unit>
-		<Unit filename="reg2xml\resource.h">
-			<Option target="reg2xml - Release" />
 		</Unit>
 		<Unit filename="tinyxml\tinystr.cpp">
 			<Option target="emergeLib - Release" />
