@@ -120,7 +120,7 @@ BOOL CHyperLink::ConvertStaticToHyperlink(HWND hwndCtl, LPCTSTR strURL)
       WNDPROC pfnOrigProc = (WNDPROC) GetWindowLongPtr(hwndParent, GWLP_WNDPROC);
       if (pfnOrigProc != _HyperlinkParentProc)
         {
-#ifdef _W64
+#ifdef __WIN64
           SetProp( hwndParent, PROP_ORIGINAL_PROC, (HANDLE)PtrToPtr64(pfnOrigProc) );
 #else
           SetProp( hwndParent, PROP_ORIGINAL_PROC, (HANDLE)PtrToLong(pfnOrigProc) );
