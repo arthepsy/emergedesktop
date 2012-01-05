@@ -58,10 +58,11 @@ INT_PTR ConfigPage::DoInitPage(HWND hwndDlg)
   if (pSettings->GetShowExplorerDesktop())
     SendDlgItemMessage(hwndDlg, IDC_EXPLORERDESKTOP, BM_SETCHECK, BST_CHECKED, 0);
 
-  std::wstring warningMessage = L"Note:\n\n";
-  warningMessage += L"1. With 'Explorer Desktop' enabled right clicking on the desktop willl display the Explorer right click menu.\n";
-  warningMessage += L"2. With 'Explorer Desktop' enabled emergeWorkspace menus cannot be acceessed via clicking on the desktop, however they can be accessed via emergeHotkeys, emergeCommand or emergeLauncher.\n";
-  warningMessage += L"3. When disabling 'Explorer Desktop', an Explorer window will be displayed.\n";
+  std::wstring warningMessage = L"Notes:\n\n";
+  warningMessage += L"1. When 'Explorer Desktop' is enabled:\n\n";
+  warningMessage += L"- Right-clicking on the desktop displays the Explorer right-click menu, and\n\n";
+  warningMessage += L"- The emergeWorkspace menus can no longer be accessed by right-clicking on the desktop. They still can be accessed via emergeHotkeys, emergeCommand and emergeLauncher.\n\n";
+  warningMessage += L"2. After 'Explorer Desktop' is disabled, an Explorer window opens.\n\n";
 
   SetWindowText(warningWnd, warningMessage.c_str());
 
