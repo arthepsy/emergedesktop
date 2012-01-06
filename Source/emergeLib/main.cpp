@@ -2379,10 +2379,7 @@ BOOL CALLBACK FullscreenEnum(HWND hwnd, LPARAM lParam)
   MONITORINFO hwndMonitorInfo;
 
   if (!IsWindowVisible(hwnd))
-    return true;
-
-  /*if (IsZoomed(hwnd))
-    return true;*/
+    return TRUE;
 
   ELGetWindowRect(hwnd, &wndRect);
   hwndMonitorInfo.cbSize = sizeof(MONITORINFO);
@@ -2393,16 +2390,15 @@ BOOL CALLBACK FullscreenEnum(HWND hwnd, LPARAM lParam)
   hwndMonitor = MonitorFromPoint(hwndPt, MONITOR_DEFAULTTONEAREST);
 
   if (hwndMonitor != (HMONITOR)lParam)
-    return true;
+    return TRUE;
 
-  if (ELIsApplet(hwnd))
-    return true;
-
-  if (ELIsExplorer(hwnd))
-    return true;
+  // Return FALSE for applet and explorer desktop windows so that they don't
+  // trigger an incorrect return from fullscreen mode.
+  if (ELIsApplet(hwnd) || ELIsExplorer(hwnd))
+    return FALSE;
 
   if (hwnd == FindWindow(TEXT("InstallShield_Win"), NULL))
-    return true;
+    return TRUE;
 
   GetMonitorInfo(hwndMonitor, &hwndMonitorInfo);
   if ((wndRect.left <= hwndMonitorInfo.rcMonitor.left) &&
@@ -2410,11 +2406,10 @@ BOOL CALLBACK FullscreenEnum(HWND hwnd, LPARAM lParam)
       (wndRect.right >= hwndMonitorInfo.rcMonitor.right) &&
       (wndRect.bottom >= hwndMonitorInfo.rcMonitor.bottom))
     {
-      SetLastError(ERROR_SUCCESS);
-      return false;
+      return FALSE;
     }
 
-  return true;
+  return TRUE;
 }
 
 void ELThreadExecute(void *argument)
@@ -2429,10 +2424,7 @@ bool ELIsFullScreen(HWND appletWnd, HWND appWnd)
 
   threadID = GetWindowThreadProcessId(appWnd, NULL);
 
-  if (EnumThreadWindows(threadID, FullscreenEnum, (LPARAM)appletMonitor) == ERROR_SUCCESS)
-    return true;
-
-  return false;
+  return (EnumThreadWindows(threadID, FullscreenEnum, (LPARAM)appletMonitor) == FALSE);
 }
 
 HMONITOR ELGetDesktopRect(RECT *appletRect, RECT *rect)

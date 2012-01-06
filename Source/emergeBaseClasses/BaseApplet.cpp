@@ -880,10 +880,10 @@ LRESULT BaseApplet::DoCopyData(COPYDATASTRUCT *cds)
               if ((notifyInfo->InstanceName != NULL) && wcslen(notifyInfo->InstanceName))
                 {
                   if (_wcsicmp(notifyInfo->InstanceName, appletName) == 0)
-                    HideApplet(toggle, &appletHidden);
+                    HideApplet(toggle, &appletHidden, true);
                 }
               else
-                HideApplet(toggle, &appletHidden);
+                HideApplet(toggle, &appletHidden, true);
             }
             break;
 
@@ -891,40 +891,40 @@ LRESULT BaseApplet::DoCopyData(COPYDATASTRUCT *cds)
               if ((notifyInfo->InstanceName != NULL) && wcslen(notifyInfo->InstanceName))
                 {
                   if (_wcsicmp(notifyInfo->InstanceName, appletName) == 0)
-                    HideApplet(true, &appletHidden);
+                    HideApplet(true, &appletHidden, true);
                 }
               else
-                HideApplet(true, &appletHidden);
+                HideApplet(true, &appletHidden, true);
               break;
 
             case CORE_SHOW:
               if ((notifyInfo->InstanceName != NULL) && wcslen(notifyInfo->InstanceName))
                 {
                   if (_wcsicmp(notifyInfo->InstanceName, appletName) == 0)
-                    HideApplet(false, &appletHidden);
+                    HideApplet(false, &appletHidden, true);
                 }
               else
-                HideApplet(false, &appletHidden);
+                HideApplet(false, &appletHidden, true);
               break;
 
             case CORE_FULLSTART:
               if ((notifyInfo->InstanceName != NULL) && wcslen(notifyInfo->InstanceName))
                 {
                   if (_wcsicmp(notifyInfo->InstanceName, appletName) == 0)
-                    HideApplet(true, &fullScreen);
+                    HideApplet(true, &fullScreen, false);
                 }
               else
-                HideApplet(true, &fullScreen);
+                HideApplet(true, &fullScreen, false);
               break;
 
             case CORE_FULLSTOP:
               if ((notifyInfo->InstanceName != NULL) && wcslen(notifyInfo->InstanceName))
                 {
                   if (_wcsicmp(notifyInfo->InstanceName, appletName) == 0)
-                    HideApplet(false, &fullScreen);
+                    HideApplet(false, &fullScreen, false);
                 }
               else
-                HideApplet(false, &fullScreen);
+                HideApplet(false, &fullScreen, false);
               break;
 
             case CORE_REFRESH:
@@ -1127,9 +1127,10 @@ HWND BaseApplet::GetMainWnd()
   return mainWnd;
 }
 
-void BaseApplet::HideApplet(bool hide, bool *variable)
+void BaseApplet::HideApplet(bool hide, bool *variable, bool force)
 {
   ULONG_PTR wndStyle = GetClassLongPtr(mainWnd, GCL_STYLE);
+
   if (hide)
     {
       if (IsWindowVisible(mainWnd))
@@ -1145,18 +1146,27 @@ void BaseApplet::HideApplet(bool hide, bool *variable)
     }
   else
     {
-      if ((fullScreen && !appletHidden) || (!fullScreen && appletHidden))
+      if (fullScreen)
         {
-          if (!IsWindowVisible(mainWnd))
+          // Kill the fullscreen thread
+          TerminateThread(fullScreenThread, 0);
+
+          if (appletHidden && !force)
             {
-              if (guiInfo.windowShadow)
-                SetClassLongPtr(mainWnd, GCL_STYLE, GetClassLongPtr(mainWnd, GCL_STYLE) | CS_DROPSHADOW);
-              SetWindowPos(mainWnd, NULL, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOZORDER |
-                           SWP_NOACTIVATE | SWP_SHOWWINDOW);
-              // If there is not active or inactive background, create one
-              if (!activeBackgroundDC || !inactiveBackgroundDC)
-                DrawAlphaBlend();
+              *variable = hide;
+              return;
             }
+        }
+
+      if (!IsWindowVisible(mainWnd))
+        {
+          if (guiInfo.windowShadow)
+            SetClassLongPtr(mainWnd, GCL_STYLE, GetClassLongPtr(mainWnd, GCL_STYLE) | CS_DROPSHADOW);
+          SetWindowPos(mainWnd, NULL, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOZORDER |
+                       SWP_NOACTIVATE | SWP_SHOWWINDOW);
+          // If there is not active or inactive background, create one
+          if (!activeBackgroundDC || !inactiveBackgroundDC)
+            DrawAlphaBlend();
         }
     }
 
