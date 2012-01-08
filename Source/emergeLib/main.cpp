@@ -1058,12 +1058,12 @@ std::string ELwstringTostring(std::wstring inString, UINT codePage)
   std::string returnString;
 
   size_t tmpStringLength = WideCharToMultiByte(codePage, 0, wideString.c_str(), wideString.length(), NULL, 0,
-                                               NULL, NULL);
+                           NULL, NULL);
   if (tmpStringLength != 0)
     {
       LPSTR tmpString = new char[tmpStringLength + 1];
       size_t writtenBytes = WideCharToMultiByte(codePage, 0, wideString.c_str(), wideString.length(), tmpString,
-                                                tmpStringLength, NULL, NULL);
+                            tmpStringLength, NULL, NULL);
       if (writtenBytes != 0)
         {
           if (writtenBytes <= tmpStringLength)
@@ -1085,7 +1085,7 @@ std::wstring ELstringTowstring(std::string inString, UINT codePage)
     {
       LPWSTR tmpString = new WCHAR[tmpStringLength + 1];
       size_t writtenBytes = MultiByteToWideChar(codePage, 0, narrowString.c_str(), narrowString.length(), tmpString,
-                                                tmpStringLength);
+                            tmpStringLength);
       if (writtenBytes != 0)
         {
           if (writtenBytes <= tmpStringLength)
@@ -2378,8 +2378,10 @@ BOOL CALLBACK FullscreenEnum(HWND hwnd, LPARAM lParam)
   POINT hwndPt;
   MONITORINFO hwndMonitorInfo;
 
+  // Return FALSE for hidden windows so that they don't trigger an incorrect
+  // return from fullscreen mode.
   if (!IsWindowVisible(hwnd))
-    return TRUE;
+    return FALSE;
 
   ELGetWindowRect(hwnd, &wndRect);
   hwndMonitorInfo.cbSize = sizeof(MONITORINFO);
@@ -2405,9 +2407,7 @@ BOOL CALLBACK FullscreenEnum(HWND hwnd, LPARAM lParam)
       (wndRect.top <= hwndMonitorInfo.rcMonitor.top) &&
       (wndRect.right >= hwndMonitorInfo.rcMonitor.right) &&
       (wndRect.bottom >= hwndMonitorInfo.rcMonitor.bottom))
-    {
-      return FALSE;
-    }
+    return FALSE;
 
   return TRUE;
 }
@@ -5076,10 +5076,10 @@ HANDLE ELActivateActCtxForDll(LPCTSTR pszDll, PULONG_PTR pulCookie)
   typedef BOOL (WINAPI* ActivateActCtx_t)(HANDLE hCtx, ULONG_PTR* pCookie);
 
   CreateActCtx_t fnCreateActCtx = (CreateActCtx_t)
-    GetProcAddress(kernel32, "CreateActCtxW");
+                                  GetProcAddress(kernel32, "CreateActCtxW");
 
   ActivateActCtx_t fnActivateActCtx = (ActivateActCtx_t)
-    GetProcAddress(kernel32, "ActivateActCtx");
+                                      GetProcAddress(kernel32, "ActivateActCtx");
 
   if (fnCreateActCtx != NULL && fnActivateActCtx != NULL)
     {
@@ -5146,7 +5146,7 @@ HANDLE ELActivateActCtxForClsid(REFCLSID rclsid, PULONG_PTR pulCookie)
           DWORD cbDll = sizeof(szDll);
 
           LONG lres = SHGetValue(
-                                 HKEY_CLASSES_ROOT, szSubkey, NULL, NULL, szDll, &cbDll);
+                        HKEY_CLASSES_ROOT, szSubkey, NULL, NULL, szDll, &cbDll);
 
           if (lres == ERROR_SUCCESS)
             {
@@ -5169,10 +5169,10 @@ void ELDeactivateActCtx(HANDLE hActCtx, ULONG_PTR* pulCookie)
   typedef void (WINAPI* ReleaseActCtx_t)(HANDLE hActCtx);
 
   DeactivateActCtx_t fnDeactivateActCtx = (DeactivateActCtx_t)
-    GetProcAddress(kernel32, "DeactivateActCtx");
+                                          GetProcAddress(kernel32, "DeactivateActCtx");
 
   ReleaseActCtx_t fnReleaseActCtx = (ReleaseActCtx_t)
-    GetProcAddress(kernel32, "ReleaseActCtx");
+                                    GetProcAddress(kernel32, "ReleaseActCtx");
 
   if (fnDeactivateActCtx != NULL && fnReleaseActCtx != NULL)
     {
@@ -5203,9 +5203,9 @@ IOleCommandTarget *ELStartSSO(CLSID clsid)
     {
       // Start ShellServiceObject
       reinterpret_cast <IOleCommandTarget*> (lpVoid)->Exec(&CGID_ShellServiceObject,
-                                                           OLECMDID_NEW,
-                                                           OLECMDEXECOPT_DODEFAULT,
-                                                           NULL, NULL);
+          OLECMDID_NEW,
+          OLECMDEXECOPT_DODEFAULT,
+          NULL, NULL);
       target = reinterpret_cast <IOleCommandTarget*>(lpVoid);
     }
 
