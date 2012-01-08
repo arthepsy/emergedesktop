@@ -292,7 +292,7 @@ bool ELGetUNCFromMap(LPCTSTR map, LPTSTR unc, size_t uncLength)
           drive = workingMap.substr(0, colon + 1);
           if (MSWNetGetConnection(drive.c_str(), tmp, &tmpLength) == NO_ERROR)
             {
-              snwprintf(unc, uncLength, L"%ls%ls", tmp,
+              _snwprintf(unc, uncLength, L"%ls%ls", tmp,
                         workingMap.substr(colon + 1,
                                           workingMap.length() - colon).c_str());
               return true;
