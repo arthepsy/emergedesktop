@@ -2389,9 +2389,6 @@ BOOL CALLBACK FullscreenEnum(HWND hwnd, LPARAM lParam)
   ELGetWindowRect(hwnd, &wndRect);
   hwndMonitorInfo.cbSize = sizeof(MONITORINFO);
 
-  ELWriteDebug(towstring(wndRect.left));
-  ELWriteDebug(towstring(wndRect.right));
-
   hwndPt.x = ELMid(wndRect.right, wndRect.left);
   hwndPt.y = ELMid(wndRect.bottom, wndRect.top);
 
