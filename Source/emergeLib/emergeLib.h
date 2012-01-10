@@ -355,7 +355,7 @@ DLL_EXPORT double ELVersionInfo();
 DLL_EXPORT bool ELAppletVersionInfo(HWND appWnd, LPVERSIONINFO versionInfo);
 DLL_EXPORT bool ELAppletFileVersion(const WCHAR *applet, LPVERSIONINFO versionInfo);
 DLL_EXPORT std::wstring ELGetWindowApp(HWND hWnd, bool fullName);
-DLL_EXPORT bool ELIsFullScreen(HWND appletWnd, HWND appWnd);
+DLL_EXPORT bool ELIsFullScreen(HWND appletWnd);
 DLL_EXPORT bool ELIsApplet(HWND hwnd);
 DLL_EXPORT bool ELIsExplorer(HWND hwnd);
 DLL_EXPORT bool ELParseCommand(const WCHAR *application, WCHAR *program, WCHAR *arguments);

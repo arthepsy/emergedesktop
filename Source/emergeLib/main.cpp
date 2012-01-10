@@ -2375,25 +2375,26 @@ bool IsClose(int side, int edge)
 // full screen window is detected to break out of the enum.
 BOOL CALLBACK FullscreenEnum(HWND hwnd, LPARAM lParam)
 {
-  RECT wndRect;
-  HMONITOR hwndMonitor;
-  POINT hwndPt;
+  RECT wndRect, appletRect;
+  HMONITOR hwndMonitor, appletMonitor;
+  POINT hwndPt, appletPt;
   MONITORINFO hwndMonitorInfo;
   WCHAR windowClass[MAX_LINE_LENGTH];
 
-  // If hwnd is an applet or Explorer, break out of the enum by returning FALSE
-  // so as to not to trigger an unplanned return from full screen mode.
-  if (ELIsApplet(hwnd) || ELIsExplorer(hwnd))
-    return FALSE;
-
   ELGetWindowRect(hwnd, &wndRect);
+  ELGetWindowRect((HWND)lParam, &appletRect);
   hwndMonitorInfo.cbSize = sizeof(MONITORINFO);
 
   hwndPt.x = ELMid(wndRect.right, wndRect.left);
   hwndPt.y = ELMid(wndRect.bottom, wndRect.top);
 
-  // Get the monitor that the hwnd is on.
+  appletPt.x = ELMid(appletRect.right, appletRect.left);
+  appletPt.y = ELMid(appletRect.bottom, appletRect.top);
+
+  // Get the monitors that the hwnd and applet are on.
   hwndMonitor = MonitorFromPoint(hwndPt, MONITOR_DEFAULTTONEAREST);
+  appletMonitor = MonitorFromPoint(appletPt, MONITOR_DEFAULTTONEAREST);
+
   GetMonitorInfo(hwndMonitor, &hwndMonitorInfo);
 
   // Get the class name for hwnd.
@@ -2404,8 +2405,12 @@ BOOL CALLBACK FullscreenEnum(HWND hwnd, LPARAM lParam)
            // and the hwnd is not InstallShield...
            (wcsicmp(windowClass, TEXT("InstallShield_Win")) != 0) &&
            // and the hwnd is on the same monitor as the applet...
-           (hwndMonitor == (HMONITOR)lParam) &&
-           // hwnd size is greater than the resolution of the monitor which the
+           (hwndMonitor == appletMonitor) &&
+           // and hwnd is not an eD window...
+           !ELIsApplet(hwnd) &&
+           // and hwnd is not the Explorer desktop...
+           !ELIsExplorer(hwnd) &&
+           // and hwnd size is greater than the resolution of the monitor which the
            // applet is on, hwnd is full screen.
            (wndRect.left <= hwndMonitorInfo.rcMonitor.left) &&
            (wndRect.top <= hwndMonitorInfo.rcMonitor.top) &&
@@ -2418,14 +2423,9 @@ void ELThreadExecute(void *argument)
   ELExecute((WCHAR*)argument);
 }
 
-bool ELIsFullScreen(HWND appletWnd, HWND appWnd)
+bool ELIsFullScreen(HWND appletWnd)
 {
-  HMONITOR appletMonitor = MonitorFromWindow(appletWnd, MONITOR_DEFAULTTONEAREST);
-  DWORD threadID;
-
-  threadID = GetWindowThreadProcessId(appWnd, NULL);
-
-  return (EnumThreadWindows(threadID, FullscreenEnum, (LPARAM)appletMonitor) == FALSE);
+  return (EnumWindows(FullscreenEnum, (LPARAM)appletWnd) == FALSE);
 }
 
 HMONITOR ELGetDesktopRect(RECT *appletRect, RECT *rect)

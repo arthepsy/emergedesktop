@@ -952,7 +952,7 @@ bool Applet::GetTaskRowColumn(HWND hwnd, int *row, int *column)
   if (IsIconic(hwnd))
     return false;
 
-  if (ELIsFullScreen(mainWnd, hwnd))
+  if (ELIsFullScreen(mainWnd))
     return false;
 
   if (IntersectRect(&tmpRect, &winRect, &desktopRect))
