@@ -2426,8 +2426,6 @@ bool ELIsFullScreen(HWND appletWnd, HWND appWnd)
   HMONITOR appletMonitor = MonitorFromWindow(appletWnd, MONITOR_DEFAULTTONEAREST);
   DWORD threadID;
 
-  ELWriteDebug(towstring((UINT)appletMonitor));
-
   threadID = GetWindowThreadProcessId(appWnd, NULL);
 
   return (EnumThreadWindows(threadID, FullscreenEnum, (LPARAM)appletMonitor) == FALSE);
