@@ -293,8 +293,8 @@ bool ELGetUNCFromMap(LPCTSTR map, LPTSTR unc, size_t uncLength)
           if (MSWNetGetConnection(drive.c_str(), tmp, &tmpLength) == NO_ERROR)
             {
               _snwprintf(unc, uncLength, L"%ls%ls", tmp,
-                        workingMap.substr(colon + 1,
-                                          workingMap.length() - colon).c_str());
+                         workingMap.substr(colon + 1,
+                                           workingMap.length() - colon).c_str());
               return true;
             }
         }
@@ -2371,45 +2371,49 @@ bool IsClose(int side, int edge)
   return abs(edge - side) < 10;
 }
 
+// Since this function is used via an enum, return FALSE in the case where a
+// full screen window is detected to break out of the enum.
 BOOL CALLBACK FullscreenEnum(HWND hwnd, LPARAM lParam)
 {
   RECT wndRect;
   HMONITOR hwndMonitor;
   POINT hwndPt;
   MONITORINFO hwndMonitorInfo;
+  WCHAR windowClass[MAX_LINE_LENGTH];
 
-  // Return FALSE for hidden windows so that they don't trigger an incorrect
-  // return from fullscreen mode.
-  if (!IsWindowVisible(hwnd))
+  // If hwnd is an applet or Explorer, break out of the enum by returning FALSE
+  // so as to not to trigger an unplanned return from full screen mode.
+  if (ELIsApplet(hwnd) || ELIsExplorer(hwnd))
     return FALSE;
 
   ELGetWindowRect(hwnd, &wndRect);
   hwndMonitorInfo.cbSize = sizeof(MONITORINFO);
 
+  ELWriteDebug(towstring(wndRect.left));
+  ELWriteDebug(towstring(wndRect.right));
+
   hwndPt.x = ELMid(wndRect.right, wndRect.left);
   hwndPt.y = ELMid(wndRect.bottom, wndRect.top);
 
+  // Get the monitor that the hwnd is on.
   hwndMonitor = MonitorFromPoint(hwndPt, MONITOR_DEFAULTTONEAREST);
-
-  if (hwndMonitor != (HMONITOR)lParam)
-    return TRUE;
-
-  // Return FALSE for applet and explorer desktop windows so that they don't
-  // trigger an incorrect return from fullscreen mode.
-  if (ELIsApplet(hwnd) || ELIsExplorer(hwnd))
-    return FALSE;
-
-  if (hwnd == FindWindow(TEXT("InstallShield_Win"), NULL))
-    return TRUE;
-
   GetMonitorInfo(hwndMonitor, &hwndMonitorInfo);
-  if ((wndRect.left <= hwndMonitorInfo.rcMonitor.left) &&
-      (wndRect.top <= hwndMonitorInfo.rcMonitor.top) &&
-      (wndRect.right >= hwndMonitorInfo.rcMonitor.right) &&
-      (wndRect.bottom >= hwndMonitorInfo.rcMonitor.bottom))
-    return FALSE;
 
-  return TRUE;
+  // Get the class name for hwnd.
+  RealGetWindowClass(hwnd, windowClass, MAX_LINE_LENGTH);
+
+  // A full screen window is determined if hwnd is visible...
+  return !(IsWindowVisible(hwnd) &&
+           // and the hwnd is not InstallShield...
+           (wcsicmp(windowClass, TEXT("InstallShield_Win")) != 0) &&
+           // and the hwnd is on the same monitor as the applet...
+           (hwndMonitor == (HMONITOR)lParam) &&
+           // hwnd size is greater than the resolution of the monitor which the
+           // applet is on, hwnd is full screen.
+           (wndRect.left <= hwndMonitorInfo.rcMonitor.left) &&
+           (wndRect.top <= hwndMonitorInfo.rcMonitor.top) &&
+           (wndRect.right >= hwndMonitorInfo.rcMonitor.right) &&
+           (wndRect.bottom >= hwndMonitorInfo.rcMonitor.bottom));
 }
 
 void ELThreadExecute(void *argument)
@@ -2421,6 +2425,8 @@ bool ELIsFullScreen(HWND appletWnd, HWND appWnd)
 {
   HMONITOR appletMonitor = MonitorFromWindow(appletWnd, MONITOR_DEFAULTTONEAREST);
   DWORD threadID;
+
+  ELWriteDebug(towstring((UINT)appletMonitor));
 
   threadID = GetWindowThreadProcessId(appWnd, NULL);
 
