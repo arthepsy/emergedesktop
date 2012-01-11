@@ -1252,10 +1252,16 @@ bool BaseApplet::GetFullScreen()
   return fullScreen;
 }
 
+bool BaseApplet::MonitorCheck(HWND app)
+{
+  return (MonitorFromWindow(app, MONITOR_DEFAULTTONEAREST) == MonitorFromWindow(mainWnd, MONITOR_DEFAULTTONEAREST));
+}
+
 LRESULT BaseApplet::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
   UINT shellMessage = (UINT)wParam;
   DWORD threadID, threadState;
+  HWND task = (HWND)lParam;
 
   if (message == ShellMessage)
     {
@@ -1265,19 +1271,26 @@ LRESULT BaseApplet::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
         case HSHELL_RUDEAPPACTIVATED:
           // Kill the display change thread
           TerminateThread(displayChangeThread, 0);
-          // Create the fullscreen thread
-          GetExitCodeThread(fullScreenThread, &threadState);
-          if (threadState != STILL_ACTIVE)
-            fullScreenThread = CreateThread(NULL, 0, FullScreenThreadProc, this, 0, &threadID);
+
+          if (MonitorCheck(task))
+            {
+              // Create the fullscreen thread
+              GetExitCodeThread(fullScreenThread, &threadState);
+              if (threadState != STILL_ACTIVE)
+                fullScreenThread = CreateThread(NULL, 0, FullScreenThreadProc, this, 0, &threadID);
+            }
           return 1;
 
         case HSHELL_WINDOWACTIVATED:
-          // Kill the fullscreen thread
-          TerminateThread(fullScreenThread, 0);
-          // If in fullscreen mode...
-          if (fullScreen)
-            // and show the applet
-            SetFullScreen(false);
+          if (MonitorCheck(task))
+            {
+              // Kill the fullscreen thread
+              TerminateThread(fullScreenThread, 0);
+              // If in fullscreen mode...
+              if (fullScreen)
+                // and show the applet
+                SetFullScreen(false);
+            }
           return 1;
 
         case HSHELL_WINDOWCREATED:

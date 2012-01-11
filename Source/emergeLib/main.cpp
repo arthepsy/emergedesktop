@@ -2375,30 +2375,21 @@ bool IsClose(int side, int edge)
 // full screen window is detected to break out of the enum.
 BOOL CALLBACK FullscreenEnum(HWND hwnd, LPARAM lParam)
 {
-  RECT wndRect, appletRect;
   HMONITOR hwndMonitor, appletMonitor;
-  POINT hwndPt, appletPt;
-  MONITORINFO hwndMonitorInfo;
   WCHAR windowClass[MAX_LINE_LENGTH];
-
-  ELGetWindowRect(hwnd, &wndRect);
-  ELGetWindowRect((HWND)lParam, &appletRect);
+  MONITORINFO hwndMonitorInfo;
   hwndMonitorInfo.cbSize = sizeof(MONITORINFO);
-
-  hwndPt.x = ELMid(wndRect.right, wndRect.left);
-  hwndPt.y = ELMid(wndRect.bottom, wndRect.top);
-
-  appletPt.x = ELMid(appletRect.right, appletRect.left);
-  appletPt.y = ELMid(appletRect.bottom, appletRect.top);
+  RECT wndRect;
 
   // Get the monitors that the hwnd and applet are on.
-  hwndMonitor = MonitorFromPoint(hwndPt, MONITOR_DEFAULTTONEAREST);
-  appletMonitor = MonitorFromPoint(appletPt, MONITOR_DEFAULTTONEAREST);
-
+  appletMonitor = MonitorFromWindow((HWND)lParam, MONITOR_DEFAULTTONEAREST);
+  hwndMonitor = MonitorFromWindow(hwnd, MONITOR_DEFAULTTONEAREST);
   GetMonitorInfo(hwndMonitor, &hwndMonitorInfo);
 
   // Get the class name for hwnd.
   RealGetWindowClass(hwnd, windowClass, MAX_LINE_LENGTH);
+
+  GetWindowRect(hwnd, &wndRect);
 
   // A full screen window is determined if hwnd is visible...
   return !(IsWindowVisible(hwnd) &&

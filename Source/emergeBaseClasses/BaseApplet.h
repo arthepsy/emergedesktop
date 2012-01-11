@@ -104,6 +104,7 @@ private:
   void RenameSettingsFiles();
   bool SpawnInstance();
   bool firstRun;
+  inline bool MonitorCheck(HWND app);
 
 protected:
   WCHAR appletName[MAX_LINE_LENGTH], baseAppletName[MAX_LINE_LENGTH];
