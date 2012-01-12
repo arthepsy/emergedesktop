@@ -141,6 +141,7 @@
     <ClInclude Include="ConfigPage.h" />
     <ClInclude Include="Core.h" />
     <ClInclude Include="Desktop.h" />
+    <ClInclude Include="hyperlink.h" />
     <ClInclude Include="LaunchEditor.h" />
     <ClInclude Include="MessageControl.h" />
     <ClInclude Include="resource.h" />
@@ -149,6 +150,7 @@
     <ClInclude Include="ShellChanger.h" />
     <ClInclude Include="ThemeSaver.h" />
     <ClInclude Include="ThemeSelector.h" />
+    <ClInclude Include="Welcome.h" />
   </ItemGroup>
   <ItemGroup>
     <Manifest Include="emergeCore.exe.manifest" />
@@ -162,6 +164,7 @@
     <ClCompile Include="ConfigPage.cpp" />
     <ClCompile Include="Core.cpp" />
     <ClCompile Include="Desktop.cpp" />
+    <ClCompile Include="hyperlink.cpp" />
     <ClCompile Include="LaunchEditor.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MessageControl.cpp" />
@@ -170,6 +173,7 @@
     <ClCompile Include="ShellChanger.cpp" />
     <ClCompile Include="ThemeSaver.cpp" />
     <ClCompile Include="ThemeSelector.cpp" />
+    <ClCompile Include="Welcome.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\emergeBaseClasses\emergeBaseClasses-express.vcxproj">
