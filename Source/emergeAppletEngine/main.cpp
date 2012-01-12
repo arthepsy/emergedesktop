@@ -63,31 +63,39 @@ HRESULT AddContextMenu(WCHAR *file);
 LRESULT EAEHitTest(HWND hwnd, int guiBorder, bool autoSize, int x, int y)
 {
   RECT r;
-  ELGetWindowRect(hwnd, &r);
   int dragBorder = guiBorder;
 
   if (dragBorder < 5)
     dragBorder = 5;
 
+  ELGetWindowRect(hwnd, &r);
+  InflateRect(&r, -dragBorder, -dragBorder);
+
+  // For some reason the bottom and right check seem to be thinner than the top
+  // and the left, so take an extra 2 pixels off the bottom and right edge to
+  // compensate for it.
+  r.bottom -= 2;
+  r.right -= 2;
+
   if (ELIsKeyDown(VK_CONTROL))
     return HTCAPTION;
   else if (ELIsKeyDown(VK_MENU) && !autoSize)
     {
-      if (x <= (r.left + dragBorder) && y <= (r.top + dragBorder))
+      if ((x <= r.left) && (y <= r.top))
         return HTTOPLEFT;
-      else if (x <= (r.left + dragBorder) && y >= (r.bottom - dragBorder))
+      else if ((x <= r.left) && (y >= r.bottom))
         return HTBOTTOMLEFT;
-      else if (x <= (r.left + dragBorder))
+      else if (x <= r.left)
         return HTLEFT;
-      else if (x >= (r.right - dragBorder) && y <= (r.top + dragBorder))
+      else if ((x >= r.right) && (y <= r.top))
         return HTTOPRIGHT;
-      else if (x >= (r.right - dragBorder) && y >= (r.bottom - dragBorder))
+      else if ((x >= r.right) && (y >= r.bottom))
         return HTBOTTOMRIGHT;
-      else if (x >= (r.right - dragBorder))
+      else if (x >= r.right)
         return HTRIGHT;
-      else if (y <= (r.top + dragBorder))
+      else if (y <= r.top)
         return HTTOP;
-      else if (y >= (r.bottom - dragBorder))
+      else if (y >= r.bottom)
         return HTBOTTOM;
     }
 
