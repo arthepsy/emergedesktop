@@ -73,21 +73,21 @@ LRESULT EAEHitTest(HWND hwnd, int guiBorder, bool autoSize, int x, int y)
     return HTCAPTION;
   else if (ELIsKeyDown(VK_MENU) && !autoSize)
     {
-      if (x < (r.left + dragBorder) && y < (r.top + dragBorder))
+      if (x <= (r.left + dragBorder) && y <= (r.top + dragBorder))
         return HTTOPLEFT;
-      else if (x < (r.left + dragBorder) && y > ((r.bottom - 1) - dragBorder))
+      else if (x <= (r.left + dragBorder) && y >= (r.bottom - dragBorder))
         return HTBOTTOMLEFT;
-      else if (x < (r.left + dragBorder))
+      else if (x <= (r.left + dragBorder))
         return HTLEFT;
-      else if (x > ((r.right - 1) - dragBorder) && y < (r.top + dragBorder))
+      else if (x >= (r.right - dragBorder) && y <= (r.top + dragBorder))
         return HTTOPRIGHT;
-      else if (x > ((r.right - 1) - dragBorder) && y > ((r.bottom - 1) - dragBorder))
+      else if (x >= (r.right - dragBorder) && y >= (r.bottom - dragBorder))
         return HTBOTTOMRIGHT;
-      else if (x > ((r.right - 1) - dragBorder))
+      else if (x >= (r.right - dragBorder))
         return HTRIGHT;
-      else if (y < (r.top + dragBorder))
+      else if (y <= (r.top + dragBorder))
         return HTTOP;
-      else if (y > ((r.bottom - 1) - dragBorder))
+      else if (y >= (r.bottom - dragBorder))
         return HTBOTTOM;
     }
 
