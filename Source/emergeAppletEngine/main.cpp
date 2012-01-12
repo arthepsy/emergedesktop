@@ -66,7 +66,7 @@ LRESULT EAEHitTest(HWND hwnd, int guiBorder, bool autoSize, int x, int y)
   ELGetWindowRect(hwnd, &r);
   int dragBorder = guiBorder;
 
-  if (dragBorder <= 0)
+  if (dragBorder < 5)
     dragBorder = 5;
 
   if (ELIsKeyDown(VK_CONTROL))
