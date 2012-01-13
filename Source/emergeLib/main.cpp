@@ -4912,7 +4912,7 @@ size_t ELwcsftime(WCHAR *strDest, size_t maxsize, WCHAR *format, const struct tm
   int monthDay[12] = {0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334};
   int dayOfYear, weekday, h, yearNumber, weekNumber, i;
   bool isLeapYear = false, previousIsLeapYear = false;
-  WCHAR stringDay[2], stringWeek[3];
+  WCHAR stringDay[2], paddedStringWeek[3], stringWeek[3];
   char tmpFormat[MAX_LINE_LENGTH], tmpDest[MAX_LINE_LENGTH];
   BOOL defaultUsed;
   size_t ret;
@@ -4979,10 +4979,12 @@ size_t ELwcsftime(WCHAR *strDest, size_t maxsize, WCHAR *format, const struct tm
   /**< Convert weekday and weekNumber into strings */
   wsprintf(stringDay, TEXT("%d"), weekday);
   wsprintf(stringWeek, TEXT("%d"), weekNumber);
+  wsprintf(paddedStringWeek, TEXT("%02d"), weekNumber);
 
   /**< Replace and occurances of '%u' and '%V' appropriately */
   ELStringReplace(format, (WCHAR*)TEXT("%u"), stringDay, false);
-  ELStringReplace(format, (WCHAR*)TEXT("%V"), stringWeek, false);
+  ELStringReplace(format, (WCHAR*)TEXT("%V"), paddedStringWeek, false);
+  ELStringReplace(format, (WCHAR*)TEXT("%#V"), stringWeek, false);
 
   /**< Convert to UTF-8 to pass to strftime due to issues with wcsftime */
   WideCharToMultiByte(CP_ACP, 0, format, wcslen(format)+1,
