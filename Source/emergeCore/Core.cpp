@@ -142,7 +142,8 @@ bool Core::Initialize(WCHAR *commandLine)
   // Load the start up entries in the registry and the startup
   // folders only if the startup items have not already been started
   // and explorer.exe is not running as the shell
-  if (pShell->FirstRunCheck() && !ELIsExplorerShell())
+  if ((wcsstr(commandLine, TEXT("/nostartup")) == 0) &&
+      pShell->FirstRunCheck() && !ELIsExplorerShell())
     {
       if (!ELIsKeyDown(VK_SHIFT))
         pShell->RunFolderStartup(pSettings->GetShowStartupErrors());

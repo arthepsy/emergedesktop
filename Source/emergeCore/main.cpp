@@ -59,7 +59,8 @@ int WINAPI WinMain (HINSTANCE hInstance,
       abort = false;
       block = true;
     }
-  else if (_wcsicmp(args, TEXT("/shellchanger")) == 0)
+  else if ((_wcsicmp(args, TEXT("/shellchanger")) == 0) ||
+           (_wcsicmp(args, TEXT("/nostartup")) == 0))
     abort = false;
 
   if (abort)

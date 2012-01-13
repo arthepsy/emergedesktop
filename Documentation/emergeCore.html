@@ -41,9 +41,10 @@ An added shell can be modified  or deleted by selecting it from the drop list an
 
 <p>Similarly to Explorer, pressing the Shift key at logon will prevent loading all items in both the Common and User Startup Groups. However, emergeCore goes two steps further: pressing the Ctrl key prevents loading both the Local Machine and Current User Run registry keys, and pressing simultaneously the Shift and Ctrl keys will skip all startup items.</p>
 
-<p>emergeCore supports the following Command line switch:</p>
+<p>emergeCore supports the following Command line switches:</p>
 <ul class="style4">
 <li><i>/shellchanger</i> - Display the Shell Changer dialog. This allows to change to/from Emerge Desktop from/to other shells (including explorer) or add new shells to the list. You also have access to this dialog from the Settings menu or by typing the <i>CoreShellChanger</i> internal command in emergeCommand or by adding it to emergeLauncher or a menu</li>
+<li><i>/nostartup</i> - Stops Emerge from running at startup programs included in the AllUsers and Current User Startup Group, as well as in HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run and in HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Run</li>
 </ul>
 <p class="style4">E.g. you can type in a Run box or command line &quot;C:\Program Files\Emerge Desktop\emergeCore.exe&quot; /shellchanger 
 (don't forget to add quotes if the path to emergeCore has spaces)</p>
