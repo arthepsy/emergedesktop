@@ -837,6 +837,7 @@
 			<Add option="-fno-inline" />
 			<Add option="-Wno-long-long" />
 			<Add option="-mthreads" />
+			<Add option="-Werror" />
 			<Add option="-D_GLIBCXX_DLL" />
 		</Compiler>
 		<Linker>
