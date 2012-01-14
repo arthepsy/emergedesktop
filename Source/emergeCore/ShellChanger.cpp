@@ -268,7 +268,7 @@ void ShellChanger::PopulateShells(HWND shellWnd)
       ELGetCurrentPath(ELPath);
       wcscat(ELPath, TEXT("\\emergeCore.exe"));
       _wcslwr(ELPath);
-      if (wcsstr(currentShell, ELPath))
+      if (wcsicmp(currentShell, ELPath) == 0)
         shellIndex = (int)SendMessage(shellWnd, CB_FINDSTRINGEXACT, (WPARAM)-1, (LPARAM)TEXT("Emerge Desktop"));
       else if (wcsstr(currentShell, TEXT("explorer.exe")))
         shellIndex = (int)SendMessage(shellWnd, CB_FINDSTRINGEXACT, (WPARAM)-1, (LPARAM)TEXT("Windows Explorer"));
@@ -360,7 +360,6 @@ bool ShellChanger::DoSetShell(HWND hwndDlg)
 
   GetDlgItemText(hwndDlg, IDC_SHELLITEM, name, MAX_LINE_LENGTH);
   GetShellCommand(hwndDlg, name, command);
-  PathQuoteSpaces(command);
 
   if (ELIsWow64())
     regMask = KEY_WOW64_64KEY;
@@ -793,6 +792,7 @@ bool ShellChanger::DoBrowseShell(HWND hwndDlg)
 
   if (GetOpenFileName(&ofn))
     {
+      PathQuoteSpaces(tmp);
       SetDlgItemText(hwndDlg, IDC_SHELLCOMMAND, tmp);
       return true;
     }
