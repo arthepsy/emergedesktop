@@ -59,9 +59,17 @@ int WINAPI WinMain (HINSTANCE hInstance,
       abort = false;
       block = true;
     }
-  else if ((_wcsicmp(args, TEXT("/shellchanger")) == 0) ||
-           (_wcsicmp(args, TEXT("/nostartup")) == 0))
-    abort = false;
+  else
+    {
+      if (wcsstr(args, TEXT("/shellchanger")) != NULL)
+        abort = false;
+
+      if (wcsstr(args, TEXT("/nostartup")) != NULL)
+        {
+          abort = false;
+          block = true;
+        }
+    }
 
   if (abort)
     {
@@ -69,14 +77,15 @@ int WINAPI WinMain (HINSTANCE hInstance,
                    ELMB_OK|ELMB_ICONERROR|ELMB_MODAL);
       return 1;
     }
-  else if (block)
+
+  if (block)
     {
       // Check to see if emergeCore is already running, if so exit
       hMutex = CreateMutex(NULL, false, TEXT("emergeCore"));
       if (GetLastError() == ERROR_ALREADY_EXISTS)
         {
           CloseHandle(hMutex);
-          return 0;
+          return 1;
         }
 
       // Switching shell event
