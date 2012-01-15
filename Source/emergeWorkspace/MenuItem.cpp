@@ -29,6 +29,10 @@ MenuItem::MenuItem(WCHAR *name, UINT type, WCHAR* value, WCHAR *workingDir, TiXm
   customDropTarget->QueryInterface(IID_IDropTarget, &lpVoid);
   dropTarget = reinterpret_cast <IDropTarget*> (lpVoid);
 
+  customDropSource = new CustomDropSource();
+  customDropSource->QueryInterface(IID_IDropSource, &lpVoid);
+  dropSource = reinterpret_cast <IDropSource*> (lpVoid);
+
   this->element = element;
   this->type = type;
   icon = NULL;
@@ -53,6 +57,9 @@ MenuItem::~MenuItem()
 {
   if (dropTarget)
     dropTarget->Release();
+
+  if (dropSource)
+    dropSource->Release();
 
   DestroyIcon(icon);
 }
@@ -80,6 +87,11 @@ WCHAR *MenuItem::GetName()
 IDropTarget *MenuItem::GetDropTarget()
 {
   return dropTarget;
+}
+
+IDropSource *MenuItem::GetDropSource()
+{
+  return dropSource;
 }
 
 WCHAR *MenuItem::GetWorkingDir()
@@ -188,3 +200,9 @@ void MenuItem::SetName(WCHAR *name)
 {
   wcscpy(this->name, name);
 }
+
+void MenuItem::SetElement(TiXmlElement *element)
+{
+  this->element = element;
+}
+
