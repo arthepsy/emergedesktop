@@ -100,9 +100,6 @@ LRESULT CALLBACK Applet::WindowProcedure (HWND hwnd, UINT message, WPARAM wParam
     case WM_SIZING:
       return pApplet->DoSizing(hwnd, (UINT)wParam, (LPRECT)lParam);
 
-    case WM_SIZE:
-      return pApplet->DoSize(lParam);
-
     case WM_MOVING:
       return pApplet->DoMoving(hwnd, (LPRECT)lParam);
 
@@ -114,9 +111,6 @@ LRESULT CALLBACK Applet::WindowProcedure (HWND hwnd, UINT message, WPARAM wParam
 
     case WM_TIMER:
       return pApplet->DoTimer((UINT_PTR)wParam);
-
-    case WM_NOTIFY:
-      return pApplet->DoNotify(hwnd, lParam);
 
     case WM_DESTROY:
     case WM_NCDESTROY:
@@ -132,16 +126,9 @@ LRESULT CALLBACK Applet::WindowProcedure (HWND hwnd, UINT message, WPARAM wParam
 }
 
 Applet::Applet(HINSTANCE hInstance)
-:BaseApplet(hInstance, myName, true, false)
+  :BaseApplet(hInstance, myName, true, false)
 {
   activeWnd = NULL;
-  oldTipWnd = NULL;
-
-  // Create a critical section to control access to the taskList vector
-  InitializeCriticalSection(&vectorLock);
-
-  // Create a critical section to control access to the modifyMap map
-  InitializeCriticalSection(&mapLock);
 }
 
 Applet::~Applet()
@@ -149,29 +136,31 @@ Applet::~Applet()
   // Unregister the specified Emerge Desktop messages
   PostMessage(ELGetCoreWindow(), EMERGE_UNREGISTER, (WPARAM)mainWnd, (LPARAM)EMERGE_VWM);
 
-  // Remove the tooltip region
-  SendMessage(toolWnd, TTM_DELTOOL, 0, (LPARAM)(LPTOOLINFO)&ti);
-
   // Cleanup the icon vectors
   EnterCriticalSection(&vectorLock);
   while (!taskList.empty())
-    taskList.erase(taskList.begin());
+    {
+      taskList.front()->DeleteTip(mainWnd, toolWnd);
+      taskList.erase(taskList.begin());
+    }
   LeaveCriticalSection(&vectorLock);
 
   DeleteCriticalSection(&vectorLock);
-
-  DeleteCriticalSection(&mapLock);
 }
 
 UINT Applet::Initialize()
 {
   pSettings = std::tr1::shared_ptr<Settings>(new Settings());
+
   UINT ret = BaseApplet::Initialize(WindowProcedure, this, pSettings);
   if (ret == 0)
     return ret;
 
   // Set the window transparency
   UpdateGUI();
+
+  // Create a critical section to control access to the taskList vector
+  InitializeCriticalSection(&vectorLock);
 
   // Register the exiting tasks
   BuildTasksList();
@@ -207,13 +196,19 @@ void Applet::UpdateIcons()
 // Returns:	LRESULT
 // Purpose:	Paints the icons on the calling window
 //----  --------------------------------------------------------------------------------------------------------
-bool Applet::PaintItem(HDC hdc, size_t index, int x, int y, RECT rect)
+bool Applet::PaintItem(HDC hdc, UINT index, int x, int y, RECT rect)
 {
+  WCHAR windowTitle[MAX_LINE_LENGTH];
+  ULONG_PTR response = 0;
 
   TaskVector::iterator iter = taskList.begin() + index;
 
   (*iter)->SetRect(rect);
 
+  // Update the tooltip
+  SendMessageTimeout((*iter)->GetWnd(), WM_GETTEXT, MAX_LINE_LENGTH, reinterpret_cast<LPARAM>(windowTitle), SMTO_ABORTIFHUNG, 100, &response);
+  if (response != 0)
+    (*iter)->UpdateTip(mainWnd, toolWnd, windowTitle);
   (*iter)->CreateNewIcon(guiInfo.alphaForeground, guiInfo.alphaBackground);
 
   if ((*iter)->GetVisible())
@@ -281,25 +276,24 @@ LRESULT Applet::AddTask(HWND task)
 
 LRESULT Applet::ModifyTaskByThread(DWORD threadID)
 {
-  EnterCriticalSection(&mapLock);
   std::map<HWND, DWORD>::iterator iter = modifyMap.begin();
+  LRESULT result = 1;
 
   // traverse modifyMap looking for the thread ID
   while (iter != modifyMap.end())
     {
-      // If found...
+      // If found break
       if (iter->second == threadID)
-        {
-          // ...erase the iterator...
-          modifyMap.erase(iter);
-          // ...and break
-          break;
-        }
+        break;
       iter++;
     }
-  LeaveCriticalSection(&mapLock);
 
-  return 1;
+  // If the thread ID was found...
+  if (iter != modifyMap.end())
+    // Call ModifyTask using the corresponding first map element
+    result = ModifyTask(iter->first);
+
+  return result;
 }
 
 //----  --------------------------------------------------------------------------------------------------------
@@ -345,9 +339,19 @@ LRESULT Applet::RemoveTask(HWND task)
   if (iter == taskList.end())
     return 1;
 
+  (*iter)->DeleteTip(mainWnd, toolWnd);
   EnterCriticalSection(&vectorLock);
   taskList.erase(iter);
   LeaveCriticalSection(&vectorLock);
+
+  // Remove the task (if found) from modifyMap
+  std::map<HWND, DWORD>::iterator modifyIter = modifyMap.find(task);
+  if (modifyIter != modifyMap.end())
+    {
+      HANDLE thread = OpenThread(THREAD_TERMINATE, FALSE, modifyIter->second);
+      TerminateThread(thread, 0);
+      modifyMap.erase(modifyIter);
+    }
 
   if (pSettings->GetAutoSize())
     {
@@ -388,6 +392,7 @@ bool Applet::CleanTasks()
       // If the icon does not have a valid window handle, remove it
       if (!IsWindow((*iter)->GetWnd()))
         {
+          (*iter)->DeleteTip(mainWnd, toolWnd);
           refresh = true;
           EnterCriticalSection(&vectorLock);
           taskList.erase(iter);
@@ -395,6 +400,16 @@ bool Applet::CleanTasks()
           // known state.
           iter = taskList.begin();
           LeaveCriticalSection(&vectorLock);
+
+          // Remove the task (if found) from modifyMap
+          std::map<HWND, DWORD>::iterator modifyIter;
+          modifyIter = modifyMap.find((*iter)->GetWnd());
+          if (modifyIter != modifyMap.end())
+            {
+              HANDLE thread = OpenThread(DELETE, FALSE, modifyIter->second);
+              TerminateThread(thread, 0);
+              modifyMap.erase(modifyIter);
+            }
         }
       else
         iter++;
@@ -427,9 +442,13 @@ bool Applet::CleanTasks()
 //----  --------------------------------------------------------------------------------------------------------
 LRESULT Applet::TaskMouseEvent(UINT message, LPARAM lParam)
 {
+  std::pair<Applet*, HWND> *thumbnailPair;
+  std::map<HWND, HANDLE>::iterator thumbnailIter;
   TaskVector::iterator iter;
   HWND windowHandle;
   POINT pt;
+  DWORD threadID, threadState;
+  HWND task;
 
   pt.x = LOWORD(lParam);
   pt.y = HIWORD(lParam);
@@ -441,39 +460,45 @@ LRESULT Applet::TaskMouseEvent(UINT message, LPARAM lParam)
     {
       if (PtInRect((*iter)->GetRect(), pt))
         {
-          switch (message)
+          if ((message == WM_LBUTTONDOWN) || (message == WM_LBUTTONDBLCLK))
             {
-            case WM_LBUTTONDOWN:
-            case WM_LBUTTONDBLCLK:
-                {
-                  windowHandle = (*iter)->GetWnd();
+              windowHandle = (*iter)->GetWnd();
 
-                  if (ELIsModal(windowHandle))
-                    windowHandle = GetLastActivePopup(windowHandle);
+              if (ELIsModal(windowHandle))
+                windowHandle = GetLastActivePopup(windowHandle);
 
-                  if (((GetWindowLongPtr(windowHandle, GWL_STYLE) &
-                        WS_MINIMIZEBOX) == WS_MINIMIZEBOX) && // Check to see if the
-                      // window is capable
-                      // of being minimized.
-                      !IsIconic(windowHandle) &&  // Check if the window is already
-                      // minimized.
-                      (windowHandle == activeWnd))  // Check to see if it is the
-                    // active window
-                    PostMessage(windowHandle, WM_SYSCOMMAND, SC_MINIMIZE, lParam);
-                  else
-                    ELSwitchToThisWindow(windowHandle); // If not activate it
-                }
-              break;
-            case WM_RBUTTONUP:
-              (*iter)->DisplayMenu(mainWnd);
-              break;
-            case WM_MOUSEMOVE:
-              if (oldTipWnd != (*iter)->GetWnd())
+              if (((GetWindowLongPtr(windowHandle, GWL_STYLE) &
+                    WS_MINIMIZEBOX) == WS_MINIMIZEBOX) && // Check to see if the
+                  // window is capable
+                  // of being minimized.
+                  !IsIconic(windowHandle) &&  // Check if the window is already
+                  // minimized.
+                  (windowHandle == activeWnd))  // Check to see if it is the
+                // active window
+                PostMessage(windowHandle, WM_SYSCOMMAND, SC_MINIMIZE, lParam);
+              else
+                ELSwitchToThisWindow(windowHandle); // If not activate it
+            }
+          else if (message == WM_RBUTTONUP)
+            (*iter)->DisplayMenu(mainWnd);
+          else if (message == WM_MOUSEMOVE)
+            {
+              task = (*iter)->GetWnd();
+              thumbnailIter = thumbnailMap.find(task);
+              if (thumbnailIter == thumbnailMap.end())
                 {
-                  oldTipWnd = (*iter)->GetWnd();
-                  SendMessage(toolWnd, TTM_UPDATE, 0, 0);
+                  thumbnailPair = new std::pair<Applet*, HWND>(this, task);
+                  thumbnailMap.insert(std::pair<HWND, HANDLE>(task, CreateThread(NULL, 0, UpdateThumbnailThreadProc, thumbnailPair, 0, &threadID)));
                 }
-              break;
+              else
+                {
+                  GetExitCodeThread(thumbnailIter->second, &threadState);
+                  if (threadState != STILL_ACTIVE)
+                    {
+                      thumbnailPair = new std::pair<Applet*, HWND>(this, task);
+                      thumbnailIter->second = CreateThread(NULL, 0, UpdateThumbnailThreadProc, thumbnailPair, 0, &threadID);
+                    }
+                }
             }
 
           return 0;
@@ -485,54 +510,6 @@ LRESULT Applet::TaskMouseEvent(UINT message, LPARAM lParam)
     {
       ELExecute((WCHAR*)TEXT("taskmgr.exe"));
       return 0;
-    }
-
-  return 1;
-}
-
-LRESULT Applet::DoNotify(HWND hwnd, LPARAM lParam)
-{
-  LPNMHDR pnmh = (LPNMHDR)lParam;
-
-  // Fetch tooltip text
-  if (pnmh->code == TTN_NEEDTEXT)
-    {
-      LPTOOLTIPTEXT lpttt = (LPTOOLTIPTEXT) lParam;
-      TaskVector::iterator iter;
-      POINT pt;
-      RECT rt;
-      WCHAR windowTitle[TIP_SIZE];
-      ULONG_PTR response = 0;
-
-      ELGetWindowRect(hwnd, &rt);
-      GetCursorPos(&pt);
-      pt.x -= rt.left;
-      pt.y -= rt.top;
-
-      // Traverse the valid icon vector to see if the mouse is in the bounding rectangle
-      // of the current icon
-      iter = taskList.begin();
-      while (iter < taskList.end())
-        {
-          if (PtInRect((*iter)->GetRect(), pt))
-            {
-              // Update the tooltip
-              SendMessageTimeout((*iter)->GetWnd(), WM_GETTEXT, TIP_SIZE, reinterpret_cast<LPARAM>(windowTitle), SMTO_ABORTIFHUNG, 100, &response);
-              if (response != 0)
-                {
-                  lpttt->lpszText = windowTitle;
-                  SetWindowPos(toolWnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOACTIVATE);
-                }
-              else
-                lpttt->lpszText = (WCHAR*)TEXT("\0");
-
-              return 0;
-            }
-
-          iter++;
-        }
-
-      lpttt->lpszText = (WCHAR*)TEXT("\0");
     }
 
   return 1;
@@ -739,14 +716,35 @@ DWORD WINAPI Applet::ModifyThreadProc(LPVOID lpParameter)
   // reinterpret lpParameter as Applet*
   Applet *pApplet = reinterpret_cast<Applet*>(lpParameter);
 
-  // Pause the thread for 200 ms to mitigate an HSHELL_REDRAW message flood
-  WaitForSingleObject(GetCurrentThread(), MODIFY_DELAY_TIME);
+  // Pause the thread for 100 ms to mitigate an HSHELL_REDRAW message flood
+  WaitForSingleObject(GetCurrentThread(), 100);
 
   // Modify the task based on the current thread ID
-  pApplet->ModifyTaskByThread(GetCurrentThreadId());
+  DWORD ret = pApplet->ModifyTaskByThread(GetCurrentThreadId());
 
-  // Kill the thread
-  ExitThread(0);
+  return ret;
+}
+
+DWORD WINAPI Applet::UpdateThumbnailThreadProc(LPVOID lpParameter)
+{
+  // reinterpret lpParameter as a Applet*,HWND pair
+  std::pair<Applet*, HWND> *thumbnailPair = reinterpret_cast< std::pair<Applet*, HWND>* >(lpParameter);
+  TaskVector::iterator iter = thumbnailPair->first->FindTask(thumbnailPair->second);
+  //Task* currentTask = reinterpret_cast< Task* >(lpParameter);
+  POINT pt;
+
+  (*iter)->CreateDwmThumbnail(thumbnailPair->first->GetMainWnd());
+
+  do
+  {
+    WaitForSingleObject(GetCurrentThread(), 100);
+    GetCursorPos(&pt);
+    ScreenToClient(thumbnailPair->first->GetMainWnd(), &pt);
+  } while (PtInRect((*iter)->GetRect(), pt));
+
+  (*iter)->DestroyDwmThumbnail();
+
+  delete thumbnailPair;
 
   return 0;
 }
@@ -759,7 +757,7 @@ LRESULT Applet::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
   TaskVector::iterator iter;
   std::map<HWND, DWORD>::iterator modifyIter;
   HICON icon = NULL;
-  DWORD threadID = 0;
+  DWORD threadID = 0, threadState = 0;
   HANDLE thread = NULL;
 
   if (message == ShellMessage)
@@ -773,29 +771,31 @@ LRESULT Applet::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 
           // A "task" was modified
         case HSHELL_REDRAW:
-          // Some apps continually updating their title bar which causes a
-          // flood of HSHELL_REDRAW messages.  This will cause emergeTasks to
-          // become unresponsive.  To mitigate this, implement a delay via a
-          // thread to shed the excessive messages.
-
-          // Check to see if the task is already in the modifyMap
-          EnterCriticalSection(&mapLock);
           modifyIter = modifyMap.find(task);
           if (modifyIter == modifyMap.end())
             {
-              // If not, create a thread in suspended state
               thread = CreateThread(NULL, 0, ModifyThreadProc, this, CREATE_SUSPENDED, &threadID);
               if (thread != NULL)
                 {
-                  // ...if the thread created successfully, ModifyTask...
-                  ModifyTask(task);
-                  // ...add it to modifyMap...
                   modifyMap.insert(std::pair<HWND, DWORD>(task, threadID));
-                  // ...kick off the thread
                   ResumeThread(thread);
                 }
             }
-          LeaveCriticalSection(&mapLock);
+          else
+            {
+              thread = OpenThread(THREAD_QUERY_INFORMATION, FALSE, modifyIter->second);
+              if (thread != NULL)
+                GetExitCodeThread(thread, &threadState);
+              if (threadState != STILL_ACTIVE)
+                {
+                  thread = CreateThread(NULL, 0, ModifyThreadProc, this, CREATE_SUSPENDED, &threadID);
+                  if (thread != NULL)
+                    {
+                      modifyIter->second = threadID;
+                      ResumeThread(thread);
+                    }
+                }
+            }
           break;
 
           // A "task" was ended
@@ -869,33 +869,6 @@ void Applet::ResetTaskIcons()
 
       iter++;
     }
-}
-
-LRESULT Applet::DoSize(LPARAM lParam)
-{
-  UINT dragBorder = guiInfo.dragBorder + guiInfo.bevelWidth + guiInfo.padding;
-
-  // fill in the TOOLINFO structure
-  ZeroMemory(&ti, sizeof(TOOLINFO));
-  ti.cbSize = TTTOOLINFOW_V2_SIZE;
-  ti.hwnd = mainWnd;
-  ti.uId = (ULONG_PTR)mainWnd;
-  ti.hinst =  mainInst;
-  ti.uFlags = TTF_SUBCLASS;
-  ti.lpszText = LPSTR_TEXTCALLBACK;
-
-  // Remove the tooltip region
-  SendMessage(toolWnd, TTM_DELTOOL, 0, (LPARAM)&ti);
-
-  ti.rect.left = dragBorder;
-  ti.rect.top = dragBorder;
-  ti.rect.right = ti.rect.left + LOWORD(lParam) - dragBorder;
-  ti.rect.bottom = ti.rect.top + HIWORD(lParam) - dragBorder;
-
-  // Add the main window as a tooltip region
-  SendMessage(toolWnd, TTM_ADDTOOL, 0, (LPARAM)&ti);
-
-  return 0;
 }
 
 void Applet::AppletUpdate()
