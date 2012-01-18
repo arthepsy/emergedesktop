@@ -666,9 +666,6 @@ LRESULT Applet::DoTimer(UINT timerID)
   if (movesizeinprogress)
     return 1;
 
-  if (timerID == MOUSE_TIMER)
-    CleanTray();
-
   res = BaseApplet::DoTimer(timerID);
   if ((res == 0) && !mouseOver)
     ShowHiddenIcons(false, false);
