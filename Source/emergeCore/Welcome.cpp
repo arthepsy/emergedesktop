@@ -52,6 +52,8 @@ Welcome::Welcome(HINSTANCE hInstance, HWND mainWnd, std::tr1::shared_ptr<Setting
   this->pSettings = pSettings;
 
   pForumLink = std::tr1::shared_ptr<CHyperLink>(new CHyperLink());
+  pWikiLink = std::tr1::shared_ptr<CHyperLink>(new CHyperLink());
+  pTutorialLink = std::tr1::shared_ptr<CHyperLink>(new CHyperLink());
 
   hIconsDLL = ELLoadEmergeLibrary(TEXT("emergeIcons.dll"));
 
@@ -88,7 +90,15 @@ BOOL Welcome::DoInitDialog(HWND hwndDlg)
   if (pSettings->GetShowWelcome())
     SendDlgItemMessage(hwndDlg, IDC_SHOWWELCOME, BM_SETCHECK, BST_CHECKED, 0);
 
-  pForumLink->ConvertStaticToHyperlink(hwndDlg, IDC_FORUMLINK, (WCHAR*)L"http://emergedesktop.org/phpBB2/");
+  pForumLink->ConvertStaticToHyperlink(hwndDlg,
+                                       IDC_FORUMLINK,
+                                       (WCHAR*)L"http://emergedesktop.org/phpBB2/");
+  pWikiLink->ConvertStaticToHyperlink(hwndDlg,
+                                      IDC_WIKILINK,
+                                      (WCHAR*)L"http://ed.xaerolimit.net/wiki/");
+  pTutorialLink->ConvertStaticToHyperlink(hwndDlg,
+                                          IDC_TUTORIALLINK,
+                                          (WCHAR*)L"http://sites.google.com/site/emergedesktop/Home");
 
   return TRUE;
 }
