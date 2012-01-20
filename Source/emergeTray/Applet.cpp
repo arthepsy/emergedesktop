@@ -765,7 +765,10 @@ void Applet::LoadSSO()
   CLSID clsid, trayclsid;
   IOleCommandTarget *target;
 
-  CLSIDFromString((WCHAR*)TEXT("{35CEC8A3-2BE6-11D2-8773-92E220524153}"), &trayclsid);
+  if (ELVersionInfo() >= 6.0)
+    CLSIDFromString((WCHAR*)TEXT("{000214D2-0000-0000-C000-000000000046}"), &trayclsid);
+  else
+    CLSIDFromString((WCHAR*)TEXT("{35CEC8A3-2BE6-11D2-8773-92E220524153}"), &trayclsid);
 
   target = ELStartSSO(trayclsid);
   if (target)
