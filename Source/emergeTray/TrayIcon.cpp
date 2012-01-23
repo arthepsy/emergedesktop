@@ -453,3 +453,8 @@ void TrayIcon::DeleteTip()
     ::SendMessage(toolWnd, TTM_DELTOOL, 0, (LPARAM)(LPTOOLINFO)&ti);
 }
 
+void TrayIcon::DeleteBalloon()
+{
+  pBalloon.reset();
+}
+

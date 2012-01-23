@@ -452,6 +452,7 @@ Applet::~Applet()
   while (!trayIconList.empty())
     {
       trayIconList.front()->DeleteTip();
+      trayIconList.front()->DeleteBalloon();
       trayIconList.erase(trayIconList.begin());
     }
   LeaveCriticalSection(&trayVectorCS);
@@ -886,6 +887,8 @@ void Applet::CleanTray()
           hidden = pTrayIcon->GetHidden();
 
           pTrayIcon->DeleteTip();
+          pTrayIcon->HideBalloon();
+          pTrayIcon->DeleteBalloon();
           removed = true;
 
           if (!hidden)
@@ -972,6 +975,7 @@ LRESULT Applet::RemoveTrayIcon(HWND hwnd, UINT uID)
 
   pTrayIcon->DeleteTip();
   pTrayIcon->HideBalloon();
+  pTrayIcon->DeleteBalloon();
   RemoveTrayIconListItem(pTrayIcon);
 
   if (!hidden)
