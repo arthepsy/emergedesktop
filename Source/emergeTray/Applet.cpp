@@ -657,8 +657,8 @@ bool Applet::PaintItem(HDC hdc, size_t index, int x, int y, RECT rect)
   pTrayIcon->CreateNewIcon(guiInfo.alphaForeground, guiInfo.alphaBackground);
 
   // Draw the icon
-  DrawIconEx(hdc, x, y, pTrayIcon->GetIcon(),
-             ICON_SIZE, ICON_SIZE, 0, NULL, DI_NORMAL);
+  DrawIconEx(hdc, x, y, pTrayIcon->GetIcon(), pSettings->GetIconSize(),
+             pSettings->GetIconSize(), 0, NULL, DI_NORMAL);
 
   LeaveCriticalSection(&trayVectorCS);
   return true;
