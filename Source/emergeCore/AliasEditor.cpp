@@ -591,10 +591,14 @@ bool AliasEditor::DoAliasAdd(HWND hwndDlg)
   HWND aliasWnd = GetDlgItem(hwndDlg, IDC_ALIAS);
   HWND aliasTextWnd = GetDlgItem(hwndDlg, IDC_ALIASTEXT);
   HWND actionTextWnd = GetDlgItem(hwndDlg, IDC_ACTIONTEXT);
+  UINT selectedCount = ListView_GetSelectedCount(listWnd);
 
   if (edit)
     {
-      if (ListView_GetSelectedCount(listWnd) > 1)
+      if (selectedCount == 0)
+        return false;
+
+      if (selectedCount > 1)
         {
           ELMessageBox(hwndDlg, (WCHAR*)TEXT("You can only edit one item at a time."),
                        (WCHAR*)TEXT("emergeCore"), ELMB_OK|ELMB_ICONERROR|ELMB_MODAL);
