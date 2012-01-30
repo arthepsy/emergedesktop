@@ -333,8 +333,8 @@ BOOL TrayIcon::SendMessage(LPARAM lParam)
       return SendNotifyMessage(wnd, callbackMessage, MAKEWPARAM(messagePt.x, messagePt.y),
                                MAKELPARAM(lParam, id));
     }
-  else
-    return SendNotifyMessage(wnd, callbackMessage, WPARAM(id), lParam);
+
+  return SendNotifyMessage(wnd, callbackMessage, WPARAM(id), lParam);
 }
 
 //-----
