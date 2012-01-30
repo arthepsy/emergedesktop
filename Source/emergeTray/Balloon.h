@@ -65,12 +65,12 @@ public:
   bool SetInfoTitle(WCHAR *info);
   bool SetInfoFlags(DWORD infoFlags, HICON infoIcon);
   bool DrawAlphaBlend();
+  BOOL SendMessage(LPARAM lParam);
 
 private:
   static LRESULT CALLBACK BalloonProcedure (HWND, UINT, WPARAM, LPARAM);
   HINSTANCE mainInst;
   HWND balloonWnd;
-  TrayIcon *pTrayIcon;
   DWORD infoFlags;
   WCHAR info[TIP_SIZE];
   WCHAR infoTitle[TIP_SIZE];
@@ -78,6 +78,11 @@ private:
   HICON icon;
   Settings *pSettings;
   int iconSize;
+  UINT trayIconID;
+  UINT trayIconCallbackMessage;
+  UINT trayIconVersion;
+  RECT trayIconRect;
+  HWND trayIconWnd;
 };
 
 #endif
