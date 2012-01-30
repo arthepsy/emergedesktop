@@ -766,7 +766,8 @@ void Applet::LoadSSO()
   CLSID clsid, trayclsid;
   IOleCommandTarget *target;
 
-  if (ELVersionInfo() >= 6.0)
+  // For some reason Vista's tray clsid seems to be different
+  if (ELVersionInfo() == 6.0)
     CLSIDFromString((WCHAR*)TEXT("{000214D2-0000-0000-C000-000000000046}"), &trayclsid);
   else
     CLSIDFromString((WCHAR*)TEXT("{35CEC8A3-2BE6-11D2-8773-92E220524153}"), &trayclsid);
@@ -1413,8 +1414,6 @@ bool Applet::ClearAutoHideEdge(UINT edge)
   return true;
 }
 
-// TODO (Chris#1#): Wrong AppBar implementation - check SharpE SVN to see how
-// it should be handled.
 LRESULT Applet::AppBarEvent(COPYDATASTRUCT *cpData)
 {
   DWORD message = 0, processID = 0;
