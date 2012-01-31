@@ -217,6 +217,7 @@ bool TrayIcon::GetShared()
 void TrayIcon::SetIconVersion(UINT iconVersion)
 {
   (*this).iconVersion = iconVersion;
+  pBalloon->SetIconVersion(iconVersion);
 }
 
 //-----
@@ -254,6 +255,7 @@ bool TrayIcon::SetCallback(UINT callbackMessage)
   if ((*this).callbackMessage != callbackMessage)
     {
       (*this).callbackMessage = callbackMessage;
+      pBalloon->SetCallbackMessage(callbackMessage);
 
       return true;
     }
@@ -359,6 +361,7 @@ void TrayIcon::SetRect(RECT rect)
   if (!EqualRect(&(*this).rect, &rect))
     {
       (*this).rect = rect;
+      pBalloon->SetIconRect(rect);
       convertIcon = true;
     }
 }

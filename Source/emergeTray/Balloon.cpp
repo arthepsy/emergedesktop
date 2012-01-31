@@ -86,6 +86,21 @@ LRESULT Balloon::DoLButtonDown()
   return 0;
 }
 
+void Balloon::SetIconVersion(UINT iconVersion)
+{
+  trayIconVersion = iconVersion;
+}
+
+void Balloon::SetCallbackMessage(UINT callbackMessage)
+{
+  trayIconCallbackMessage = callbackMessage;
+}
+
+void Balloon::SetIconRect(RECT rect)
+{
+  CopyRect(&trayIconRect, &rect);
+}
+
 LRESULT Balloon::DoTimer()
 {
   ShowWindow(balloonWnd, SW_HIDE);

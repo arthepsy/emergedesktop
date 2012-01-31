@@ -66,6 +66,9 @@ public:
   bool SetInfoFlags(DWORD infoFlags, HICON infoIcon);
   bool DrawAlphaBlend();
   BOOL SendMessage(LPARAM lParam);
+  void SetIconVersion(UINT iconVersion);
+  void SetCallbackMessage(UINT callbackMessage);
+  void SetIconRect(RECT rect);
 
 private:
   static LRESULT CALLBACK BalloonProcedure (HWND, UINT, WPARAM, LPARAM);
