@@ -55,8 +55,14 @@ LRESULT CALLBACK Balloon::BalloonProcedure (HWND hwnd, UINT message, WPARAM wPar
 Balloon::Balloon(HINSTANCE hInstance, TrayIcon *pTrayIcon, Settings *pSettings)
 {
   mainInst = hInstance;
-  this->pTrayIcon = pTrayIcon;
   this->pSettings = pSettings;
+
+  // Retrieve info from pTrayIcon to accomodate SendMessage
+  trayIconWnd = pTrayIcon->GetWnd();
+  trayIconID = pTrayIcon->GetID();
+  trayIconVersion = pTrayIcon->GetIconVersion();
+  trayIconCallbackMessage = pTrayIcon->GetCallback();
+  CopyRect(&trayIconRect, pTrayIcon->GetRect());
 
   wcscpy(info, TEXT("\0"));
   wcscpy(infoTitle, TEXT("\0"));
@@ -75,17 +81,54 @@ Balloon::~Balloon()
 LRESULT Balloon::DoLButtonDown()
 {
   ShowWindow(balloonWnd, SW_HIDE);
-  pTrayIcon->SendMessage(NIN_BALLOONUSERCLICK);
+  SendMessage(NIN_BALLOONUSERCLICK);
   KillTimer(balloonWnd, BALLOON_TIMER_ID);
   return 0;
+}
+
+void Balloon::SetIconVersion(UINT iconVersion)
+{
+  trayIconVersion = iconVersion;
+}
+
+void Balloon::SetCallbackMessage(UINT callbackMessage)
+{
+  trayIconCallbackMessage = callbackMessage;
+}
+
+void Balloon::SetIconRect(RECT rect)
+{
+  CopyRect(&trayIconRect, &rect);
 }
 
 LRESULT Balloon::DoTimer()
 {
   ShowWindow(balloonWnd, SW_HIDE);
-  pTrayIcon->SendMessage(NIN_BALLOONTIMEOUT);
+  SendMessage(NIN_BALLOONTIMEOUT);
   KillTimer(balloonWnd, BALLOON_TIMER_ID);
   return 0;
+}
+
+// This is a duplication of TrayIcon::SendMessage().  There is a race condition
+// that can occur with DoTimer if TrayIcon::SendMessage() is called at the
+// time that TrayIcon is being destroyed.
+BOOL Balloon::SendMessage(LPARAM lParam)
+{
+  if (trayIconVersion == NOTIFYICON_VERSION_4)
+    {
+      POINT messagePt;
+
+      messagePt.x = trayIconRect.left;
+      messagePt.y = trayIconRect.top;
+      ClientToScreen(balloonWnd, &messagePt);
+
+      return SendNotifyMessage(trayIconWnd, trayIconCallbackMessage,
+                               MAKEWPARAM(messagePt.x, messagePt.y),
+                               MAKELPARAM(lParam, trayIconID));
+    }
+
+  return SendNotifyMessage(trayIconWnd, trayIconCallbackMessage,
+                           WPARAM(trayIconID), lParam);
 }
 
 bool Balloon::SetInfo(WCHAR *info)
@@ -235,7 +278,7 @@ bool Balloon::Show(POINT showPt)
   if (x < balloonMonitorInfo.rcMonitor.left)
     x = balloonMonitorInfo.rcMonitor.left;
 
-  pTrayIcon->SendMessage(NIN_BALLOONSHOW);
+  SendMessage(NIN_BALLOONSHOW);
   SetTimer(balloonWnd, BALLOON_TIMER_ID, 10000, NULL);
 
   if (SetWindowPos(balloonWnd, HWND_TOPMOST, x, y, width, height, SWP_SHOWWINDOW))
@@ -248,7 +291,7 @@ bool Balloon::Hide()
 {
   if (IsWindowVisible(balloonWnd))
     {
-      pTrayIcon->SendMessage(NIN_BALLOONHIDE);
+      SendMessage(NIN_BALLOONHIDE);
       ShowWindow(balloonWnd, SW_HIDE);
 
       return true;

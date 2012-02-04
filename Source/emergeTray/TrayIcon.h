@@ -71,6 +71,7 @@ public:
 
   void UpdateTip();
   void DeleteTip();
+  void DeleteBalloon();
   HWND GetWnd();
   HICON GetIcon();
   UINT GetID();

@@ -452,6 +452,7 @@ Applet::~Applet()
   while (!trayIconList.empty())
     {
       trayIconList.front()->DeleteTip();
+      trayIconList.front()->DeleteBalloon();
       trayIconList.erase(trayIconList.begin());
     }
   LeaveCriticalSection(&trayVectorCS);
@@ -656,8 +657,8 @@ bool Applet::PaintItem(HDC hdc, size_t index, int x, int y, RECT rect)
   pTrayIcon->CreateNewIcon(guiInfo.alphaForeground, guiInfo.alphaBackground);
 
   // Draw the icon
-  DrawIconEx(hdc, x, y, pTrayIcon->GetIcon(),
-             ICON_SIZE, ICON_SIZE, 0, NULL, DI_NORMAL);
+  DrawIconEx(hdc, x, y, pTrayIcon->GetIcon(), pSettings->GetIconSize(),
+             pSettings->GetIconSize(), 0, NULL, DI_NORMAL);
 
   LeaveCriticalSection(&trayVectorCS);
   return true;
@@ -765,7 +766,11 @@ void Applet::LoadSSO()
   CLSID clsid, trayclsid;
   IOleCommandTarget *target;
 
-  CLSIDFromString((WCHAR*)TEXT("{35CEC8A3-2BE6-11D2-8773-92E220524153}"), &trayclsid);
+  // For some reason Vista's tray clsid seems to be different
+  if (ELVersionInfo() == 6.0)
+    CLSIDFromString((WCHAR*)TEXT("{000214D2-0000-0000-C000-000000000046}"), &trayclsid);
+  else
+    CLSIDFromString((WCHAR*)TEXT("{35CEC8A3-2BE6-11D2-8773-92E220524153}"), &trayclsid);
 
   target = ELStartSSO(trayclsid);
   if (target)
@@ -883,6 +888,8 @@ void Applet::CleanTray()
           hidden = pTrayIcon->GetHidden();
 
           pTrayIcon->DeleteTip();
+          pTrayIcon->HideBalloon();
+          pTrayIcon->DeleteBalloon();
           removed = true;
 
           if (!hidden)
@@ -969,6 +976,7 @@ LRESULT Applet::RemoveTrayIcon(HWND hwnd, UINT uID)
 
   pTrayIcon->DeleteTip();
   pTrayIcon->HideBalloon();
+  pTrayIcon->DeleteBalloon();
   RemoveTrayIconListItem(pTrayIcon);
 
   if (!hidden)
@@ -1406,8 +1414,6 @@ bool Applet::ClearAutoHideEdge(UINT edge)
   return true;
 }
 
-// TODO (Chris#1#): Wrong AppBar implementation - check SharpE SVN to see how
-// it should be handled.
 LRESULT Applet::AppBarEvent(COPYDATASTRUCT *cpData)
 {
   DWORD message = 0, processID = 0;

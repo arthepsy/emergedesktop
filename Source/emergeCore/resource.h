@@ -39,6 +39,8 @@
 #define IDC_SHOWWELCOME     301
 
 #define IDC_FORUMLINK       400
+#define IDC_WIKILINK        401
+#define IDC_TUTORIALLINK    402
 
 #define IDC_APPLET          500
 #define IDC_ADDAPP          501

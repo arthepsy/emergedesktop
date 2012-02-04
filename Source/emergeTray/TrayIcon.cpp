@@ -217,6 +217,7 @@ bool TrayIcon::GetShared()
 void TrayIcon::SetIconVersion(UINT iconVersion)
 {
   (*this).iconVersion = iconVersion;
+  pBalloon->SetIconVersion(iconVersion);
 }
 
 //-----
@@ -254,6 +255,7 @@ bool TrayIcon::SetCallback(UINT callbackMessage)
   if ((*this).callbackMessage != callbackMessage)
     {
       (*this).callbackMessage = callbackMessage;
+      pBalloon->SetCallbackMessage(callbackMessage);
 
       return true;
     }
@@ -333,8 +335,8 @@ BOOL TrayIcon::SendMessage(LPARAM lParam)
       return SendNotifyMessage(wnd, callbackMessage, MAKEWPARAM(messagePt.x, messagePt.y),
                                MAKELPARAM(lParam, id));
     }
-  else
-    return SendNotifyMessage(wnd, callbackMessage, WPARAM(id), lParam);
+
+  return SendNotifyMessage(wnd, callbackMessage, WPARAM(id), lParam);
 }
 
 //-----
@@ -359,6 +361,7 @@ void TrayIcon::SetRect(RECT rect)
   if (!EqualRect(&(*this).rect, &rect))
     {
       (*this).rect = rect;
+      pBalloon->SetIconRect(rect);
       convertIcon = true;
     }
 }
@@ -451,5 +454,10 @@ void TrayIcon::DeleteTip()
 
   if (exists)
     ::SendMessage(toolWnd, TTM_DELTOOL, 0, (LPARAM)(LPTOOLINFO)&ti);
+}
+
+void TrayIcon::DeleteBalloon()
+{
+  pBalloon.reset();
 }
 

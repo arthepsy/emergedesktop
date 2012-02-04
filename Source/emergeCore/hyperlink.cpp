@@ -191,7 +191,7 @@ BOOL CHyperLink::setURL(LPCTSTR strURL)
 LRESULT CALLBACK CHyperLink::_HyperlinkParentProc(HWND hwnd, UINT message,
     WPARAM wParam, LPARAM lParam)
 {
-  WNDPROC pfnOrigProc = (WNDPROC) PtrToLong(GetProp(hwnd, PROP_ORIGINAL_PROC));
+  WNDPROC pfnOrigProc = (WNDPROC)(LONG_PTR)HandleToLong(GetProp(hwnd, PROP_ORIGINAL_PROC));
 
   switch (message)
     {
