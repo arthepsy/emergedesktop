@@ -39,8 +39,6 @@ ULONG TShellDesktopTray::Release()
 {
   if (refCount > 0)
     --refCount;
-  else
-    delete this;
 
   return refCount;
 }
@@ -92,8 +90,6 @@ ULONG TShellDesktopTrayFactory::Release()
 {
   if (refCount > 0)
     --refCount;
-  else
-    delete this;
 
   return refCount;
 }
@@ -126,8 +122,6 @@ HRESULT TShellDesktopTrayFactory::CreateInstance(IUnknown* pOuter, REFIID riid, 
   TShellDesktopTray* pShellDesktopTray = new TShellDesktopTray;
 
   HRESULT hr = pShellDesktopTray->QueryInterface(riid, ppv);
-  if(hr)
-    delete pShellDesktopTray;
 
   return hr;
 }
