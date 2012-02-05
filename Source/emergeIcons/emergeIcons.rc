@@ -1,7 +1,7 @@
 //----  --------------------------------------------------------------------------------------------------------
 //
 //  This file is part of Emerge Desktop.
-//  Copyright (C) 2004-2011  The Emerge Desktop Development Team
+//  Copyright (C) 2004-2012  The Emerge Desktop Development Team
 //
 //  Emerge Desktop is free software; you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -44,7 +44,7 @@ BEGIN
             VALUE "FileDescription", "emergeIcons - Emerge Desktop icons library"
             VALUE "FileVersion", POINT_VERSION
             VALUE "InternalName", "emergeIcons"
-            VALUE "LegalCopyright", "Copyright (C) 2010-2011"
+            VALUE "LegalCopyright", "Copyright (C) 2010-2012"
             VALUE "OriginalFilename", "emergeIcons.dll"
             VALUE "ProductName", "emergeIcons"
             VALUE "ProductVersion", POINT_VERSION

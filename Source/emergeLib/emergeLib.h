@@ -4,7 +4,7 @@
   @author The Emerge Desktop Development Team
 
   @attention This file is part of Emerge Desktop.
-  @attention Copyright (C) 2004-2011  The Emerge Desktop Development Team
+  @attention Copyright (C) 2004-2012  The Emerge Desktop Development Team
 
   @attention Emerge Desktop is free software; you can redistribute it and/or
   modify  it under the terms of the GNU General Public License as published
@@ -304,6 +304,9 @@ typedef struct _NOTIFYINFO
   WCHAR InstanceName[MAX_PATH]; /*!< Path to the executable defined by the shortcut */
 }
 NOTIFYINFO, *LPNOTIFYINFO;
+
+#define MAX(x, y) ((x) < (y) ? (y) : (x))
+#define MIN(x, y) ((x) < (y) ? (x) : (y))
 
 // Declaration of functions to import
 DLL_EXPORT bool ELReadRegDWord(HKEY key, LPCTSTR value, DWORD *target, DWORD notFound);

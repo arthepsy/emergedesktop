@@ -1,7 +1,7 @@
 //----  --------------------------------------------------------------------------------------------------------
 //
 // This file is part of the Emerge Desktop source code
-// Copyright (C) 2004-2011 The Emerge Desktop Development Team
+// Copyright (C) 2004-2012 The Emerge Desktop Development Team
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License

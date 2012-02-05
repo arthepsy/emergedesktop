@@ -2,7 +2,7 @@
 //----  --------------------------------------------------------------------------------------------------------
 //
 //  This file is part of Emerge Desktop.
-//  Copyright (C) 2004-2011  The Emerge Desktop Development Team
+//  Copyright (C) 2004-2012  The Emerge Desktop Development Team
 //
 //  Emerge Desktop is free software; you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -37,8 +37,20 @@ Settings::~Settings()
 void Settings::ResetDefaults()
 {
   BaseSettings::ResetDefaults();
-  x = GetSystemMetrics(SM_XVIRTUALSCREEN) - 200;
-  y = GetSystemMetrics(SM_YVIRTUALSCREEN) - 200;
+  x = 0;
+  y = 0;
+  width = 0;
+  height = 0;
+}
+
+int Settings::GetX()
+{
+  return (GetSystemMetrics(SM_XVIRTUALSCREEN) - 200);
+}
+
+int Settings::GetY()
+{
+  return (GetSystemMetrics(SM_YVIRTUALSCREEN) - 200);
 }
 
 UINT Settings::GetHotkeyListSize()
