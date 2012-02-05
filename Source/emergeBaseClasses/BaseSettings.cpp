@@ -418,23 +418,34 @@ bool BaseSettings::SetPosition()
 
 int BaseSettings::GetX()
 {
+  int xpos = x;
+  RECT appletRect;
+  GetClientRect(appletWnd, &appletRect);
+
   if (dynamicPositioning)
     {
       RECT monitorRect = ELGetMonitorRect(appletMonitor);
       if (wcsstr(anchorPoint, TEXT("Left")) != NULL)
-        return (monitorRect.left + x);
+        xpos = monitorRect.left + x;
       if (wcsstr(anchorPoint, TEXT("Middle")) != NULL)
-        return (((monitorRect.right - monitorRect.left) / 2) + x);
+        xpos = ((monitorRect.right - monitorRect.left) / 2) + x;
       if (wcsstr(anchorPoint, TEXT("Right")) != NULL)
         {
           if (x == -1)
-            return monitorRect.right;
+            xpos =  monitorRect.right;
           else
-            return (monitorRect.right + x);
+            xpos = monitorRect.right + x;
         }
     }
 
-  return x;
+  // Make sure that the applet is within the virtual screen (i.e. does not
+  // display off screen)
+  if (xpos < GetSystemMetrics(SM_XVIRTUALSCREEN))
+    xpos = GetSystemMetrics(SM_XVIRTUALSCREEN);
+  if (xpos > GetSystemMetrics(SM_CXVIRTUALSCREEN))
+    xpos = GetSystemMetrics(SM_CXVIRTUALSCREEN) - MAX(appletRect.right, iconSize);
+
+  return xpos;
 }
 
 int BaseSettings::GetAppletMonitor()
@@ -454,23 +465,32 @@ int BaseSettings::GetIconSpacing()
 
 int BaseSettings::GetY()
 {
+  int ypos = y;
+
   if (dynamicPositioning)
     {
       RECT monitorRect = ELGetMonitorRect(appletMonitor);
       if (wcsstr(anchorPoint, TEXT("Top")) != NULL)
-        return (monitorRect.top + y);
+        ypos = monitorRect.top + y;
       if (wcsstr(anchorPoint, TEXT("Center")) != NULL)
-        return (((monitorRect.bottom - monitorRect.top) / 2) + y);
+        ypos = ((monitorRect.bottom - monitorRect.top) / 2) + y;
       if (wcsstr(anchorPoint, TEXT("Bottom")) != NULL)
         {
           if (y == -1)
-            return monitorRect.bottom;
+            ypos = monitorRect.bottom;
           else
-            return (monitorRect.bottom + y);
+            ypos = monitorRect.bottom + y;
         }
     }
 
-  return y;
+  // Make sure that the applet is within the virtual screen (i.e. does not
+  // display off screen)
+  if (ypos < GetSystemMetrics(SM_YVIRTUALSCREEN))
+    ypos = GetSystemMetrics(SM_YVIRTUALSCREEN);
+  if (ypos > GetSystemMetrics(SM_CYVIRTUALSCREEN))
+    ypos = GetSystemMetrics(SM_CYVIRTUALSCREEN) - iconSize;
+
+  return ypos;
 }
 
 int BaseSettings::GetWidth()
