@@ -41,6 +41,8 @@ public:
   UINT FindHotkeyListItem(UINT index);
   void WriteList(bool backup);
   bool IsValidHotkey(UINT index);
+  int GetX();
+  int GetY();
 
 protected:
   void ResetDefaults();

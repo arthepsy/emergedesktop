@@ -85,8 +85,8 @@ public:
   void ReadSettings();
   int GetIconSize();
   int GetIconSpacing();
-  int GetX();
-  int GetY();
+  virtual int GetX();
+  virtual int GetY();
   int GetWidth();
   int GetHeight();
   int GetAppletMonitor();
