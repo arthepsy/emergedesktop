@@ -1,7 +1,7 @@
 //----  --------------------------------------------------------------------------------------------------------
 //
 //  This file is part of Emerge Desktop.
-//  Copyright (C) 2004-2011  The Emerge Desktop Development Team
+//  Copyright (C) 2004-2012  The Emerge Desktop Development Team
 //
 //  Emerge Desktop is free software; you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -45,7 +45,7 @@ VALUE "CompanyName", "The Emerge Desktop Development Team"
 VALUE "FileDescription", "emergeVWM - applet for the Emerge Desktop"
 VALUE "FileVersion", POINT_VERSION
 VALUE "InternalName", "emergeVWM"
-VALUE "LegalCopyright", "Copyright (C) 2004-2011"
+VALUE "LegalCopyright", "Copyright (C) 2004-2012"
 VALUE "OriginalFilename", "emergeVWM.exe"
 VALUE "ProductName", "emergeVWM"
 VALUE "ProductVersion", POINT_VERSION

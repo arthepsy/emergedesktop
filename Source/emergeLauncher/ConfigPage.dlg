@@ -1,7 +1,7 @@
 //----  --------------------------------------------------------------------------------------------------------
 //
 //  This file is part of Emerge Desktop.
-//  Copyright (C) 2004-2011  The Emerge Desktop Development Team
+//  Copyright (C) 2004-2012  The Emerge Desktop Development Team
 //
 //  Emerge Desktop is free software; you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -40,10 +40,10 @@ BEGIN
 
 	CONTROL	"Click Through:",IDC_CLICKTHROUGH,"Button",BS_AUTOCHECKBOX|WS_TABSTOP,5,35,60,10
 	COMBOBOX	IDC_CLICKTHROUGHMETHOD,65,33,60,150,CBS_DROPDOWNLIST|WS_VSCROLL|WS_TABSTOP
-	
+
 	LTEXT	"Title Text:",IDC_STATIC4,5,75,50,8
 	EDITTEXT	IDC_TITLEBARTEXT,55,73,CONFIG_WIDTH-95,12,ES_AUTOHSCROLL
-	
+
 	LTEXT    "Title Font:",IDC_STATIC3,5,100,50,8
 	PUSHBUTTON  "",IDC_FONTBUTTON,55,90,CONFIG_WIDTH-60,30,BS_CENTER|BS_FLAT
 
