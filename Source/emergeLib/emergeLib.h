@@ -305,6 +305,9 @@ typedef struct _NOTIFYINFO
 }
 NOTIFYINFO, *LPNOTIFYINFO;
 
+#define MAX(x, y) ((x) < (y) ? (y) : (x))
+#define MIN(x, y) ((x) < (y) ? (x) : (y))
+
 // Declaration of functions to import
 DLL_EXPORT bool ELReadRegDWord(HKEY key, LPCTSTR value, DWORD *target, DWORD notFound);
 DLL_EXPORT bool ELWriteRegDWord(HKEY key, LPTSTR value, DWORD *source);

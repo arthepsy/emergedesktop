@@ -364,21 +364,18 @@ void Applet::DrawHistoryGraph(HDC hdc, RECT& r, const std::vector<BYTE>& history
     }
 }
 
-#define max(x, y) ((x) < (y) ? (y) : (x))
-#define min(x, y) ((x) < (y) ? (x) : (y))
-
 void Applet::DrawTextAndAdjustRect(HDC hdc, int percent, RECT& rect)
 {
   // calculate textRect
   RECT textRect = rect;
   if (_wcsicmp(pSettings->GetNumberPosition(), TEXT("right")) == 0)
-    textRect.left = max(textRect.left, textRect.right - requiredTextWidth);
+    textRect.left = MAX(textRect.left, textRect.right - requiredTextWidth);
   else if (_wcsicmp(pSettings->GetNumberPosition(), TEXT("left")) == 0)
-    textRect.right = min(textRect.right, textRect.left + requiredTextWidth);
+    textRect.right = MIN(textRect.right, textRect.left + requiredTextWidth);
   else if (_wcsicmp(pSettings->GetNumberPosition(), TEXT("down")) == 0)
-    textRect.top = max(textRect.top, textRect.bottom - requiredTextHeight);
+    textRect.top = MAX(textRect.top, textRect.bottom - requiredTextHeight);
   else if (_wcsicmp(pSettings->GetNumberPosition(), TEXT("up")) == 0)
-    textRect.bottom = min(textRect.bottom, textRect.top + requiredTextHeight);
+    textRect.bottom = MIN(textRect.bottom, textRect.top + requiredTextHeight);
 
   // draw text
   CLIENTINFO clientInfo;
