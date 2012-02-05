@@ -60,6 +60,7 @@ private:
   TaskVector taskList;
   std::map<HWND, UINT> flashMap;
   std::map<HWND, DWORD> modifyMap;
+  std::map<HWND, HANDLE> thumbnailMap;
   HWND activeWnd,oldTipWnd;
   void ResetTaskIcons();
   void UpdateIcons();
@@ -69,7 +70,7 @@ private:
   CRITICAL_SECTION vectorLock, mapLock;
   LRESULT DoTaskIcon(HWND task, HICON icon);
   static DWORD WINAPI ModifyThreadProc(LPVOID lpParameter);
-  TOOLINFO ti;
+  static DWORD WINAPI UpdateThumbnailThreadProc(LPVOID lpParameter);
 
 protected:
   virtual std::tr1::shared_ptr<BaseSettings> createSettings();
