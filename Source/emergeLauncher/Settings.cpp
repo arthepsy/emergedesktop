@@ -271,7 +271,16 @@ void Settings::loadLiveFolder(WCHAR *folderName)
   HANDLE hFind = FindFirstFile(searchFolderName.c_str(), &FindFileData);
 
   if (hFind == INVALID_HANDLE_VALUE)
-    return;
+    {
+      // Add an empty icon for each non-existent live folder path
+      itemList.push_back(std::tr1::shared_ptr<Item>(new Item(IT_LIVE_FOLDER_ITEM,
+                         (WCHAR*)workingFolder.c_str(),
+                         (WCHAR*)TEXT(""),
+                         (WCHAR*)TEXT(""),
+                         (WCHAR*)TEXT(""))));
+      itemList.back()->SetIcon(GetIconSize(), GetDirectionOrientation());
+      return;
+    }
 
   do
     {
@@ -284,10 +293,10 @@ void Settings::loadLiveFolder(WCHAR *folderName)
         {
           ELStripShortcutExtension(FindFileData.cFileName);
           itemList.push_back(std::tr1::shared_ptr<Item>(new Item(IT_LIVE_FOLDER_ITEM,
-                                                                 (WCHAR*)tmpPath.c_str(),
-                                                                 (WCHAR*)TEXT(""),
-                                                                 FindFileData.cFileName,
-                                                                 (WCHAR*)TEXT(""))));
+                             (WCHAR*)tmpPath.c_str(),
+                             (WCHAR*)TEXT(""),
+                             FindFileData.cFileName,
+                             (WCHAR*)TEXT(""))));
           itemList.back()->SetIcon(GetIconSize(), GetDirectionOrientation());
         }
     }
