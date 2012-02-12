@@ -105,6 +105,10 @@ BYTE EGGetMinAlpha(BYTE alphaBase, BYTE alphaDelta)
 
   // Base check on colour depth of display
   hdc = CreateCompatibleDC(NULL);
+  /*int devCaps = GetDeviceCaps(hdc, BITSPIXEL);
+  std::wstring debug = L"DeviceCaps: ";
+  debug += towstring(devCaps);
+  ELWriteDebug(debug);*/
   if (GetDeviceCaps(hdc, BITSPIXEL) == 32)
     checkValue = 0.5;
   else
@@ -608,7 +612,6 @@ HICON EGGetFileIcon(const WCHAR *file, UINT iconSize)
   LPITEMIDLIST pidlRelative = NULL;
   IExtractIcon *extractIcon = NULL;
   WCHAR iconLocation[MAX_PATH], canonicalizedFile[MAX_PATH];
-  WCHAR *token, *source;
   int iconIndex = 0;
   UINT iconFlags = 0;
   HRESULT hr;
@@ -626,27 +629,16 @@ HICON EGGetFileIcon(const WCHAR *file, UINT iconSize)
         supliedFile = supliedFile.substr(1);
     }
   supliedFile = ELExpandVars(supliedFile);
-  if (!PathFileExists(supliedFile.c_str()))
+  size_t comma = supliedFile.find_last_of(',');
+  if (comma != std::wstring::npos)
+  {
+    if (PathFileExists(supliedFile.substr(0, comma).c_str()))
     {
-      source = _wcsdup(file);
-      token = wcstok(source, TEXT(","));
-      if (token == NULL)
-        {
-          free(source);
-          return icon;
-        }
-
-      supliedFile = token;
-      token = wcstok(NULL, TEXT("\n"));
-      if (token != NULL)
-        {
-          hasIndex = true;
-          iconIndex = _wtoi(token);
-        }
-
-      supliedFile = ELExpandVars(supliedFile);
-      free(source);
+      iconIndex = _wtoi(supliedFile.substr(comma + 1, supliedFile.length() - comma).c_str());
+      supliedFile = supliedFile.substr(0, comma);
+      hasIndex = true;
     }
+  }
 
   // Normalize the file path
   if (PathCanonicalize(canonicalizedFile, supliedFile.c_str()))
