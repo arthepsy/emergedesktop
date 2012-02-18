@@ -1224,14 +1224,18 @@ bool ELExecuteInternal(LPTSTR command)
   size_t pos = tempCmd.find_first_of(TEXT(" \t"));
   if (pos != std::wstring::npos)
     {
-      tempArg = tempCmd.substr(tempCmd.find_first_not_of(TEXT(" \t"), pos));
-      tempArg = ELToLower(tempArg);
-      if (tempArg == TEXT("/silent"))
-        confirm = false;
-      else
-        arg = (WCHAR*)tempArg.c_str();
-      tempCmd = tempCmd.substr(0, pos);
-      command = (WCHAR*)tempCmd.c_str();
+      size_t argStart = tempCmd.find_first_not_of(TEXT(" \t"), pos);
+      if (argStart != std::wstring::npos)
+        {
+          tempArg = tempCmd.substr(argStart);
+          tempArg = ELToLower(tempArg);
+          if (tempArg == TEXT("/silent"))
+            confirm = false;
+          else
+            arg = (WCHAR*)tempArg.c_str();
+          tempCmd = tempCmd.substr(0, pos);
+          command = (WCHAR*)tempCmd.c_str();
+        }
     }
 
   if (_wcsicmp(command, TEXT("RightDeskMenu")) == 0)
