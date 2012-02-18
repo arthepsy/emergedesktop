@@ -1309,7 +1309,6 @@ bool ELExecuteInternal(LPTSTR command)
           }
         }
 
-      ELWriteDebug(arg);
       ELSwitchToThisWindow(ELGetCoreWindow());
       ELDispatchCoreMessage(EMERGE_CORE, CORE_ACTIVATE, arg);
       return true;
