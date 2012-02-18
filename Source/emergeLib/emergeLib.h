@@ -492,4 +492,5 @@ DLL_EXPORT std::wstring ELStripInternalCommandArg(std::wstring internalCommand);
 DLL_EXPORT void *ELLockShared(HANDLE sharedMem, DWORD processID);
 DLL_EXPORT BOOL ELUnlockShared(void *sharedPtr);
 DLL_EXPORT bool ELGetUNCFromMap(LPCTSTR map, LPTSTR unc, size_t uncLength);
+DLL_EXPORT bool ELIsAppletRunning(std::wstring applet);
 #endif

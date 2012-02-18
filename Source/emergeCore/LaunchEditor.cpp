@@ -758,30 +758,10 @@ void LaunchEditor::InsertListViewItem(HWND listWnd, int index, const WCHAR *item
 
 WCHAR *LaunchEditor::GetLaunchItemState(WCHAR *launchItem)
 {
-  DWORD processList[1024], cbNeeded, processCount, i;
-  std::wstring expandedItem, workingItem = launchItem;
+  if (ELIsAppletRunning(launchItem))
+    return (WCHAR*)TEXT("Loaded");
 
-  if (ELPathIsRelative(workingItem.c_str()))
-    {
-      WCHAR tmp[MAX_LINE_LENGTH];
-      wcsncpy(tmp, workingItem.c_str(), MAX_LINE_LENGTH);
-      workingItem = ELAbsPathFromRelativePath(tmp);
-    }
-
-  EnumProcesses(processList, sizeof(processList), &cbNeeded);
-  processCount = cbNeeded / sizeof(DWORD);
-  expandedItem = ELToLower(ELExpandVars(workingItem));
-
-  for (i = 0; i < processCount; i++)
-    {
-      if (ELToLower(ELGetProcessIDApp(processList[i], true)) == expandedItem)
-        break;
-    }
-
-  if (i == processCount)
-    return (WCHAR*)TEXT("Not Loaded");
-
-  return (WCHAR*)TEXT("Loaded");
+  return (WCHAR*)TEXT("Not Loaded");
 }
 
 bool LaunchEditor::DoLaunchDelete(HWND hwndDlg)

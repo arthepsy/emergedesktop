@@ -1296,6 +1296,20 @@ bool ELExecuteInternal(LPTSTR command)
       if (tempArg.empty())
         return false;
 
+      std::wstring workingArg = tempArg;
+      workingArg += L".exe";
+      if (ELPathIsRelative(workingArg.c_str()))
+        workingArg = ELAbsPathFromRelativePath(workingArg);
+      if (!ELIsAppletRunning(workingArg))
+        {
+          if (ELPathFileExists(workingArg.c_str()))
+          {
+            ELExecute((WCHAR*)workingArg.c_str());
+            Sleep(500); // wait half a second for the applet to start
+          }
+        }
+
+      ELWriteDebug(arg);
       ELSwitchToThisWindow(ELGetCoreWindow());
       ELDispatchCoreMessage(EMERGE_CORE, CORE_ACTIVATE, arg);
       return true;
@@ -3952,13 +3966,37 @@ std::wstring ELGetWindowApp(HWND hWnd, bool fullName)
   return ELGetProcessIDApp(processID, fullName);
 }
 
-/*!
-  @fn ELIsInternalCommand(WCHAR *command)
-  @brief Determines the internal command based on the string passed
-  @param command string to perform check on
-  */
+bool ELIsAppletRunning(std::wstring applet)
+{
+  DWORD processList[1024], cbNeeded, processCount, i;
 
-UINT ELIsInternalCommand(const WCHAR *command)
+  if (ELPathIsRelative(applet.c_str()))
+    {
+      WCHAR tmp[MAX_LINE_LENGTH];
+      wcsncpy(tmp, applet.c_str(), MAX_LINE_LENGTH);
+      applet = ELAbsPathFromRelativePath(tmp);
+    }
+
+  EnumProcesses(processList, sizeof(processList), &cbNeeded);
+  processCount = cbNeeded / sizeof(DWORD);
+  applet = ELToLower(ELExpandVars(applet));
+
+  for (i = 0; i < processCount; i++)
+    {
+      if (ELToLower(ELGetProcessIDApp(processList[i], true)) == applet)
+        break;
+    }
+
+  return (i != processCount);
+}
+
+       /*!
+         @fn ELIsInternalCommand(WCHAR *command)
+         @brief Determines the internal command based on the string passed
+         @param command string to perform check on
+         */
+
+       UINT ELIsInternalCommand(const WCHAR *command)
 {
   if (_wcsicmp(command, TEXT("run")) == 0)
     return COMMAND_RUN;
