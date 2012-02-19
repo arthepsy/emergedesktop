@@ -127,6 +127,7 @@ Applet::Applet(HINSTANCE hInstance)
 {
   activeWnd = NULL;
   iconSize = 16;
+  liveFolderThread = NULL;
 }
 
 Applet::~Applet()

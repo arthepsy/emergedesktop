@@ -34,6 +34,32 @@ BaseSettings::BaseSettings(bool allowAutoSize)
   this->allowAutoSize = allowAutoSize;
   defaultTheme = TEXT("default");
   GBRYTheme = TEXT("GBRY");
+  x = 0;
+  y = 0;
+  width = 0;
+  height = 0;
+  iconSize = 16;
+  iconSpacing = 0;
+  clickThrough = false;
+  appletMonitor = 0;
+  ZeroMemory(horizontalDirection, MAX_LINE_LENGTH);
+  ZeroMemory(verticalDirection, MAX_LINE_LENGTH);
+  ZeroMemory(directionOrientation, MAX_LINE_LENGTH);
+  autoSize = false;
+  snapMove = false;
+  snapSize = false;
+  dynamicPositioning = false;
+  ZeroMemory(anchorPoint, MAX_LINE_LENGTH);
+  ZeroMemory(zPosition, MAX_LINE_LENGTH);
+  ZeroMemory(appletName, MAX_LINE_LENGTH);
+  appletCount = 0;
+  startHidden = false;
+  ZeroMemory(titleBarText, MAX_LINE_LENGTH);
+  appletWnd = NULL;
+  ZeroMemory(keyString, MAX_LINE_LENGTH);
+  ZeroMemory(styleFile, MAX_PATH);
+  modifiedFlag = false;
+  ZeroMemory(titleBarFontString, MAX_LINE_LENGTH);
 }
 
 BaseSettings::~BaseSettings()

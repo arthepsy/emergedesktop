@@ -24,6 +24,7 @@ AppBar::AppBar(APPBARDATA *pAppBarData)
 {
   CopyMemory(&localABD, &pAppBarData, sizeof(APPBARDATA));
   localAutoHide = false;
+  localWnd = NULL;
 }
 
 AppBar::~AppBar()

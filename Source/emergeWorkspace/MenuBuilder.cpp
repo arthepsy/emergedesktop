@@ -27,10 +27,19 @@ WCHAR menuBuilderClass[ ] = TEXT("EmergeDesktopMenuBuilder");
 MenuBuilder::MenuBuilder(HINSTANCE desktopInst)
 {
   mainInst = desktopInst;
+  menuWnd = NULL;
+  rootMenu = NULL;
   MButtonDown = false;
   registered = false;
   winVersion = ELVersionInfo();
   SetRectEmpty(&explorerWorkArea);
+  SelectedMenuType = 0;
+  SelectedMenuIndex = 0;
+  SelectedMenu = NULL;
+  SelectedItem = 0;
+  SelectedItemType = 0;
+  ShellMessage = 0;
+  activeMenu = NULL;
 
   menuHook = SetWindowsHookEx(WH_CALLWNDPROC, HookCallWndProc, 0, GetCurrentThreadId());
 }

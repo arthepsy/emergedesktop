@@ -61,6 +61,11 @@ DisplayPage::DisplayPage(std::tr1::shared_ptr<Settings> pSettings)
   hbmCPUColourTo = NULL;
   hbmMemColourFrom = NULL;
   hbmMemColourTo = NULL;
+  buttonFont = NULL;
+  CPUColourFrom = RGB(0,0,0);
+  CPUColourTo = RGB(0,0,0);
+  MemColourFrom = RGB(0,0,0);
+  MemColourTo = RGB(0,0,0);
 }
 
 DisplayPage::~DisplayPage()

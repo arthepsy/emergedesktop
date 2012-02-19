@@ -49,6 +49,8 @@ IconHidePage::IconHidePage(HINSTANCE hInstance, std::tr1::shared_ptr<Settings> p
   this->pSettings = pSettings;
   this->hInstance = hInstance;
   edit = false;
+  saveCount = 0;
+  deleteCount = 0;
   toggleSort[0] = false;
   wcscpy(myName, TEXT("IconHide"));
 

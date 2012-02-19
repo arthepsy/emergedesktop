@@ -42,6 +42,8 @@ Config::Config(HINSTANCE hInstance, HWND mainWnd, std::tr1::shared_ptr<Settings>
   this->mainWnd = mainWnd;
   this->pSettings = pSettings;
 
+  startPage = 0;
+
   pConfigPage = std::tr1::shared_ptr<ConfigPage>(new ConfigPage(pSettings));
   pLaunchEditor = std::tr1::shared_ptr<LaunchEditor>(new LaunchEditor(hInstance, mainWnd));
   pAliasEditor = std::tr1::shared_ptr<AliasEditor>(new AliasEditor(hInstance, mainWnd, pSettings));

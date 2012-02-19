@@ -96,14 +96,11 @@ private:
   CustomSource *history;
   WCHAR fontName[MAX_RUN_STRING];
   int  dragBorder;
-  UINT zOrder;
-  HWND zOrderWnd;
   HWND hText, commandWnd, mainWnd;
   HFONT textFont;
   WNDPROC wpOld;
   HINSTANCE mainInst;
   bool registered;
-  DWORD height;
   static LRESULT CALLBACK CommandProc (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
   static LRESULT CALLBACK EditProc (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
 };

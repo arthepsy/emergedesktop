@@ -59,6 +59,13 @@ BalloonPage::BalloonPage(std::tr1::shared_ptr<Settings> pSettings)
   colourRect.right = colourRect.bottom = 16;
   hbmColourFrom = NULL;
   hbmColourTo = NULL;
+  buttonTitleFont = NULL;
+  ColourFrom = RGB(0,0,0);
+  ColourTo = RGB(0,0,0);
+  ColourText = RGB(0,0,0);
+  ColourBorder = RGB(0,0,0);
+  hbmColourText = NULL;
+  hbmColourBorder = NULL;
 }
 
 BalloonPage::~BalloonPage()

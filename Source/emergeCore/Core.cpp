@@ -31,6 +31,7 @@ WCHAR emergeCoreClass[ ] = TEXT("EmergeDesktopCore");
 Core::Core(HINSTANCE hInstance)
 {
   mainInst = hInstance;
+  mainWnd = NULL;
   xmlFile = TEXT("%ThemeDir%\\");
   xmlFile += TEXT("emergeCore.xml");
   registered = false;

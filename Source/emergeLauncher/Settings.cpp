@@ -80,7 +80,6 @@ void Settings::PopulateItems()
   WCHAR app[MAX_LINE_LENGTH], icon[MAX_LINE_LENGTH], tip[MAX_LINE_LENGTH], workingDir[MAX_LINE_LENGTH];
   std::tr1::shared_ptr<TiXmlDocument> configXML;
   TiXmlElement *settingsSection, *launchSection;
-  int type;
   std::wstring xmlFile = TEXT("%ThemeDir%\\");
   xmlFile += appletName;
   xmlFile += TEXT(".xml");
@@ -98,6 +97,7 @@ void Settings::PopulateItems()
           if (launchSection)
             {
               IOHelper userIO(launchSection);
+              int type;
 
               while (userIO.GetElement())
                 {

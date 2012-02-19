@@ -230,6 +230,7 @@ Applet::Applet(HINSTANCE hInstance)
   autoHideTop = false;
 
   activeIcon = NULL;
+  trayWnd = NULL;
 
   InitializeCriticalSection(&trayVectorCS);
 }

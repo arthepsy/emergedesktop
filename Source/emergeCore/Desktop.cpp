@@ -41,10 +41,15 @@ Desktop::Desktop(HINSTANCE hInstance, std::tr1::shared_ptr<MessageControl> pMess
 {
   this->pMessageControl = pMessageControl;
   mainInst = hInstance;
+  mainWnd = NULL;
   registered = false;
+  explorerDesktop = false;
   ZeroMemory(currentBG, MAX_PATH);
   SetRectEmpty(&currentDesktopRect);
   dirWatch = INVALID_HANDLE_VALUE;
+  ShellMessage = 0;
+  ZeroMemory(bgImage, MAX_PATH);
+  wallpaperThread = NULL;
 }
 
 bool Desktop::Initialize(bool explorerDesktop)

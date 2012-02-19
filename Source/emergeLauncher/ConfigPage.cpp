@@ -48,6 +48,7 @@ INT_PTR CALLBACK ConfigPage::ConfigPageDlgProc(HWND hwndDlg, UINT message, WPARA
 ConfigPage::ConfigPage(std::tr1::shared_ptr<Settings> pSettings)
 {
   this->pSettings = pSettings;
+  buttonFont = NULL;
 }
 
 ConfigPage::~ConfigPage()

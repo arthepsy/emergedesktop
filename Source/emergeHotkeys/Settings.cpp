@@ -143,7 +143,6 @@ void Settings::WriteList(bool backup)
 bool Settings::BuildList(HWND mainWnd, bool backup)
 {
   bool found = false;
-  UINT i;
   std::tr1::shared_ptr<TiXmlDocument> configXML;
   TiXmlElement *section;
   WCHAR keyCombo[MAX_LINE_LENGTH], action[MAX_LINE_LENGTH];
@@ -152,7 +151,7 @@ bool Settings::BuildList(HWND mainWnd, bool backup)
     backupList.clear();
   else
     {
-      for (i = 0; i < hotkeyList.size(); i++)
+      for (UINT i = 0; i < hotkeyList.size(); i++)
         UnregisterHotKey(mainWnd, hotkeyList[i]->GetHotkeyID());
       hotkeyList.clear();
     }

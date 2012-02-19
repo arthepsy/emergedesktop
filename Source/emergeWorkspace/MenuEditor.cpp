@@ -61,6 +61,8 @@ MenuEditor::MenuEditor(HINSTANCE hInstance)
   (*this).hInstance = hInstance;
   edit = false;
   dragging = false;
+  saveCount = 0;
+  deleteCount = 0;
 
   InitCommonControls();
 

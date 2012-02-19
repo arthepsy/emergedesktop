@@ -35,6 +35,10 @@ Settings::Settings(): BaseSettings(false)
   monitorCommitCharge = false;
   monitorCPU = false;
   updateInterval = 0;
+  CPUGradientFrom = RGB(0,0,0);
+  CPUGradientTo = RGB(0,0,0);
+  MemGradientFrom = RGB(0,0,0);
+  MemGradientTo = RGB(0,0,0);
 }
 
 void Settings::ResetDefaults()

@@ -51,6 +51,8 @@ LaunchPage::LaunchPage(HINSTANCE hInstance, std::tr1::shared_ptr<Settings> pSett
   this->pSettings = pSettings;
   itemMoved = false;
   edit = false;
+  saveCount = 0;
+  deleteCount = 0;
 
   InitCommonControls();
 
@@ -739,7 +741,6 @@ bool LaunchPage::UpdateSettings(HWND hwndDlg)
 {
   WCHAR command[MAX_LINE_LENGTH], iconPath[MAX_LINE_LENGTH], tip[MAX_LINE_LENGTH], workingDir[MAX_LINE_LENGTH];
   WCHAR typeName[MAX_LINE_LENGTH], tmp[MAX_LINE_LENGTH];
-  int type = IT_EXECUTABLE;
   HWND listWnd = GetDlgItem(hwndDlg, IDC_APPLIST);
   bool listModified = ((saveCount != 0) || (deleteCount != 0) || itemMoved);
 
@@ -749,7 +750,7 @@ bool LaunchPage::UpdateSettings(HWND hwndDlg)
 
   if (listModified)
     {
-      int i = 0;
+      int i = 0, type = IT_EXECUTABLE;
       pSettings->DeleteItems(true);
       while (i < ListView_GetItemCount(listWnd))
         {

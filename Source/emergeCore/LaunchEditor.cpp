@@ -89,6 +89,8 @@ LaunchEditor::LaunchEditor(HINSTANCE hInstance, HWND mainWnd)
 {
   (*this).hInstance = hInstance;
   (*this).mainWnd = mainWnd;
+  saveCount = 0;
+  deleteCount = 0;
 
   InitCommonControls();
 
@@ -650,7 +652,6 @@ bool LaunchEditor::UpdateLaunch(HWND hwndDlg)
       if (section)
         ELRemoveXMLElement(section);
 
-      int i = 0;
       settings = ELGetXMLSection(configXML.get(), (WCHAR*)TEXT("Settings"), true);
       if (settings)
         {
@@ -664,6 +665,7 @@ bool LaunchEditor::UpdateLaunch(HWND hwndDlg)
       if (section)
         {
           // Loop while there are entries in the key
+          int i = 0;
           while (i < ListView_GetItemCount(listWnd))
             {
               ListView_GetItemText(listWnd, i, 1, applet, MAX_PATH);

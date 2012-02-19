@@ -561,7 +561,6 @@ HICON EGGetClassIcon(std::wstring file, int iconSize)
   WCHAR type[MAX_LINE_LENGTH], iconValue[MAX_LINE_LENGTH], *token;
   DWORD size = MAX_LINE_LENGTH;
   std::wstring iconPath;
-  int iconIndex = 0;
 
   size_t extensionMark = file.rfind('.');
   if (extensionMark == std::wstring::npos)
@@ -585,6 +584,7 @@ HICON EGGetClassIcon(std::wstring file, int iconSize)
               size = MAX_LINE_LENGTH;
               if (RegQueryValueEx(typeKey, NULL, NULL, NULL, (BYTE*)iconValue, &size) == ERROR_SUCCESS)
                 {
+                  int iconIndex = 0;
                   token = wcstok(iconValue, TEXT(","));
                   iconPath = token;
                   iconPath = ELExpandVars(iconPath);

@@ -1061,7 +1061,7 @@ std::string ELwstringTostring(std::wstring inString, UINT codePage)
                            NULL, NULL);
   if (tmpStringLength != 0)
     {
-      LPSTR tmpString = new char[tmpStringLength + 1];
+      char *tmpString = new char[tmpStringLength + 1];
       size_t writtenBytes = WideCharToMultiByte(codePage, 0, wideString.c_str(), wideString.length(), tmpString,
                             tmpStringLength, NULL, NULL);
       if (writtenBytes != 0)

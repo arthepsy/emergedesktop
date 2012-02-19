@@ -71,6 +71,7 @@ Balloon::Balloon(HINSTANCE hInstance, TrayIcon *pTrayIcon, Settings *pSettings)
   ZeroMemory(&titleRect, sizeof(RECT));
   ZeroMemory(&infoRect, sizeof(RECT));
   icon = NULL;
+  balloonWnd = NULL;
 }
 
 Balloon::~Balloon()

@@ -150,6 +150,7 @@ Applet::Applet(HINSTANCE hInstance)
   oldTipWindow = NULL;
 
   lButtonDown = false;
+  taskThread = NULL;
 }
 
 Applet::~Applet()
@@ -767,8 +768,6 @@ LRESULT Applet::MySize()
 
 LRESULT Applet::DoCopyData(COPYDATASTRUCT *cds)
 {
-  UINT windowsNumber, currentWindow, selectedWindow, newRow, newColumn;
-
   if ((cds->dwData == EMERGE_NOTIFY) && (cds->cbData == sizeof(NOTIFYINFO)))
     {
       LPNOTIFYINFO notifyInfo = reinterpret_cast<LPNOTIFYINFO>(cds->lpData);
@@ -778,16 +777,18 @@ LRESULT Applet::DoCopyData(COPYDATASTRUCT *cds)
       //Modified by Jason "Teshadael" Price, 28/02/07
       if ((notifyInfo->Type & EMERGE_VWM) == EMERGE_VWM)
         {
+          UINT windowsNumber, selectedWindow, newRow, newColumn;
           if (notifyInfo->Message >= VWM_1 && notifyInfo->Message <= VWM_9)
             {
-              UINT windowsNumber = pSettings->GetDesktopRows() * pSettings->GetDesktopColumns() ;
-              UINT selectedWindow = (notifyInfo->Message - VWM_1) % windowsNumber ;
-              UINT newRow = (UINT)(selectedWindow / pSettings->GetDesktopColumns()) ;
-              UINT newColumn = selectedWindow % pSettings->GetDesktopColumns() ;
+              windowsNumber = pSettings->GetDesktopRows() * pSettings->GetDesktopColumns() ;
+              selectedWindow = (notifyInfo->Message - VWM_1) % windowsNumber ;
+              newRow = (UINT)(selectedWindow / pSettings->GetDesktopColumns()) ;
+              newColumn = selectedWindow % pSettings->GetDesktopColumns() ;
               SwitchDesktop(newRow, newColumn, false);
             }
           else
             {
+              UINT currentWindow;
               switch (notifyInfo->Message)
                 {
                 case VWM_UP:

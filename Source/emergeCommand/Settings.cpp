@@ -25,6 +25,17 @@ Settings::Settings()
 :BaseSettings(false)
 {
   xmlFile = TEXT("%EmergeDir%\\files\\emergeCommand.xml");
+  autoComplete = true;
+  ZeroMemory(timeFormat, MAX_LINE_LENGTH);
+  ZeroMemory(displayTimeFormat, MAX_LINE_LENGTH);
+  ZeroMemory(tipFormat, MAX_LINE_LENGTH);
+  ZeroMemory(displayTipFormat, MAX_LINE_LENGTH);
+  ZeroMemory(clockTextAlign, MAX_LINE_LENGTH);
+  ZeroMemory(commandTextAlign, MAX_LINE_LENGTH);
+  ZeroMemory(clockVerticalAlign, MAX_LINE_LENGTH);
+  ZeroMemory(commandVerticalAlign, MAX_LINE_LENGTH);
+  ZeroMemory(fontString, MAX_LINE_LENGTH);
+  displayLines = 0;
 }
 
 void Settings::DoReadSettings(IOHelper& helper)

@@ -32,7 +32,9 @@
 std::vector<HANDLE> processList;
 
 Shell::Shell()
-{}
+{
+  ShellMessage = 0;
+}
 
 Shell::~Shell()
 {}

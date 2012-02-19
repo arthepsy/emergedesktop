@@ -39,6 +39,7 @@ Command::Command(HWND mainWnd, HINSTANCE hInstance, std::tr1::shared_ptr<Setting
   appletHidden = false;
   dragBorder = 0;
   pac2 = NULL;
+  textFont = NULL;
 
   ZeroMemory(fontName, MAX_RUN_STRING);
 

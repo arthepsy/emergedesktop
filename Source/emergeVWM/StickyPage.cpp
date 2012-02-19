@@ -54,6 +54,9 @@ StickyPage::StickyPage(HINSTANCE hInstance, std::tr1::shared_ptr<Settings> pSett
   this->pSettings = pSettings;
   toggleSort[0] = false;
   wcscpy(myName, TEXT("Sticky"));
+  edit = false;
+  saveCount = 0;
+  deleteCount = 0;
 
   InitCommonControls();
 

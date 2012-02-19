@@ -110,7 +110,7 @@ private:
   bool shared;
   bool convertIcon;
   std::tr1::shared_ptr<Balloon> pBalloon;
-  Settings *pSettings;
+  //Settings *pSettings;
   bool lbuttonDown;
 
   // Holds refrence to original icon handler

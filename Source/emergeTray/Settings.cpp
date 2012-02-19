@@ -28,6 +28,14 @@ Settings::Settings(LPARAM lParam)
   unhideIcons = true;
   xmlFile = TEXT("%EmergeDir%\\files\\emergeTray.xml");
   this->lParam = lParam;
+  ZeroMemory(infoFontString, MAX_LINE_LENGTH);
+  ZeroMemory(infoTitleFontString, MAX_LINE_LENGTH);
+  ZeroMemory(gradientMethod, MAX_LINE_LENGTH);
+  borderColour = RGB(0,0,0);
+  textColour = RGB(0,0,0);
+  gradientTo = RGB(0,0,0);
+  gradientFrom = RGB(0,0,0);
+  alpha = 255;
 }
 
 void Settings::DoReadSettings(IOHelper& helper)

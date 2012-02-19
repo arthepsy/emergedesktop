@@ -39,6 +39,7 @@ Applet::Applet(HINSTANCE hInstance)
   mainInst = hInstance;
   mainWnd = NULL;
   m_hThread = NULL;
+  m_dwThreadID = 0;
 }
 
 UINT Applet::Initialize(bool showDesktop)

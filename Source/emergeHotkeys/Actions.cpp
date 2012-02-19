@@ -58,6 +58,9 @@ Actions::Actions(HINSTANCE hInstance, HWND mainWnd, std::tr1::shared_ptr<Setting
   wcscpy(myName, TEXT("Actions"));
   edit = false;
   dialogVisible = false;
+  saveCount = 0;
+  deleteCount = 0;
+  editIndex = 0;
 
   InitCommonControls();
 

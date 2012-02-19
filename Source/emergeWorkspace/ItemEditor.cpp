@@ -45,6 +45,10 @@ ItemEditor::ItemEditor(HINSTANCE hInstance, HWND mainWnd)
   (*this).hInstance = hInstance;
   (*this).mainWnd = mainWnd;
   section = NULL;
+  ZeroMemory(name, MAX_LINE_LENGTH);
+  ZeroMemory(value, MAX_LINE_LENGTH);
+  ZeroMemory(workingDir, MAX_LINE_LENGTH);
+  type = 0;
 
   InitCommonControls();
 

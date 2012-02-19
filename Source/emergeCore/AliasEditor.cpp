@@ -57,6 +57,8 @@ AliasEditor::AliasEditor(HINSTANCE hInstance, HWND mainWnd, std::tr1::shared_ptr
   toggleSort[0] = false;
   toggleSort[1] = false;
   wcscpy(myName, TEXT("AliasEditor"));
+  saveCount = 0;
+  deleteCount = 0;
 
   InitCommonControls();
 
@@ -265,7 +267,7 @@ LRESULT CALLBACK AliasEditor::AliasProc(HWND hwnd,UINT message,WPARAM wParam,LPA
     }
 
   if (message == WM_APP+2)
-    pThis = (AliasEditor*)lParam;
+    pThis = reinterpret_cast< AliasEditor* >(lParam);
 
   if ((oldProc == NULL) || (hwndDlg == NULL) || (pThis == NULL))
     return DefWindowProc(hwnd, message, wParam, lParam);
@@ -633,7 +635,6 @@ bool AliasEditor::DoAliasAdd(HWND hwndDlg)
 
 bool AliasEditor::DoAliasAbort(HWND hwndDlg)
 {
-  int i = 0;
   HWND appletWnd = GetDlgItem(hwndDlg, IDC_APPLET);
   HWND browseWnd = GetDlgItem(hwndDlg, IDC_BROWSE);
   HWND saveWnd = GetDlgItem(hwndDlg, IDC_SAVEAPP);
@@ -645,6 +646,7 @@ bool AliasEditor::DoAliasAbort(HWND hwndDlg)
 
   if (edit)
     {
+      int i = 0;
       while (i < ListView_GetItemCount(listWnd))
         {
           if (ListView_GetItemState(listWnd, i, LVIS_SELECTED))
@@ -738,7 +740,6 @@ bool AliasEditor::DoAliasSave(HWND hwndDlg)
   bool ret = false;
   LVITEM lvItem;
   WCHAR alias[MAX_LINE_LENGTH], error[MAX_LINE_LENGTH], action[MAX_LINE_LENGTH];
-  int i = 0;
 
   ZeroMemory(alias, MAX_LINE_LENGTH);
   ZeroMemory(action, MAX_LINE_LENGTH);
@@ -753,6 +754,7 @@ bool AliasEditor::DoAliasSave(HWND hwndDlg)
 
       if (edit)
         {
+          int i = 0;
           while (i < ListView_GetItemCount(listWnd))
             {
               if (ListView_GetItemState(listWnd, i, LVIS_SELECTED))

@@ -22,6 +22,7 @@
 
 CustomDataObject::CustomDataObject(HMENU menu)
 {
+  deleteMedium = FALSE;
   this->menu = menu;
   refCount = 0;
 }

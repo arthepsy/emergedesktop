@@ -24,6 +24,14 @@
 Settings::Settings()
   :BaseSettings(false)
 {
+  ZeroMemory(textFormat, MAX_LINE_LENGTH);
+  ZeroMemory(displayTextFormat, MAX_LINE_LENGTH);
+  ZeroMemory(tipFormat, MAX_LINE_LENGTH);
+  ZeroMemory(displayTipFormat, MAX_LINE_LENGTH);
+  ZeroMemory(clockTextAlign, MAX_LINE_LENGTH);
+  ZeroMemory(clockVerticalAlign, MAX_LINE_LENGTH);
+  ZeroMemory(fontString, MAX_LINE_LENGTH);
+  displayLines = 0;
 }
 
 void Settings::DoReadSettings(IOHelper& helper)
