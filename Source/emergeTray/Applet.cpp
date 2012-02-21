@@ -757,25 +757,54 @@ void Applet::AppletUpdate()
 //----  --------------------------------------------------------------------------------------------------------
 void Applet::LoadSSO()
 {
-  HKEY key;
+  HKEY key, subkey;
   int i = 0;
   WCHAR valueName[32];
   WCHAR data[40];
   DWORD valueSize;
   DWORD dataSize;
   DWORD dwDataType;
-  CLSID clsid, trayclsid;
+  CLSID clsid, clsidTray;
   IOleCommandTarget *target;
+  std::vector<CLSID> clsidList;
+  std::vector<CLSID>::iterator clsidIter;
+  float osVersion = ELVersionInfo();
 
-  // For some reason Vista's tray clsid seems to be different
-  if (ELVersionInfo() == 6.0)
-    CLSIDFromString((WCHAR*)TEXT("{000214D2-0000-0000-C000-000000000046}"), &trayclsid);
-  else
-    CLSIDFromString((WCHAR*)TEXT("{35CEC8A3-2BE6-11D2-8773-92E220524153}"), &trayclsid);
+  dataSize = 40 * sizeof(WCHAR);
+  ZeroMemory(&clsidTray, sizeof(CLSID));
 
-  target = ELStartSSO(trayclsid);
-  if (target)
-    ssoIconList.push_back(target);
+  // Populate the clsidSet with all the clsids started by the shell
+  if (RegOpenKeyEx(HKEY_LOCAL_MACHINE,
+                   TEXT("Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\ShellServiceObjects"),
+                   0, KEY_READ, &key) == ERROR_SUCCESS)
+    {
+      while (RegEnumKeyEx(key, i, data, &dataSize, NULL, NULL, NULL, NULL) == ERROR_SUCCESS)
+        {
+          if (RegOpenKeyEx(key, data, 0, KEY_READ, &subkey) == ERROR_SUCCESS)
+            {
+              if (RegQueryValueEx(subkey, TEXT("AutoStart"), NULL, NULL, NULL, NULL) == ERROR_SUCCESS)
+                {
+                  CLSIDFromString(data, &clsid);
+                  clsidList.push_back(clsid);
+                }
+
+              RegCloseKey(subkey);
+            }
+
+          dataSize = 40 * sizeof(data[0]);
+          i++;
+        }
+
+      RegCloseKey(key);
+    }
+
+  if (osVersion > 6.0)
+    {
+      CLSIDFromString((WCHAR*)TEXT("{35CEC8A3-2BE6-11D2-8773-92E220524153}"), &clsidTray);
+      target = ELStartSSO(clsidTray);
+      if (target)
+        ssoIconList.push_back(target);
+    }
 
   valueSize = 32 * sizeof(WCHAR);
   dataSize = 40 * sizeof(WCHAR);
@@ -788,7 +817,16 @@ void Applet::LoadSSO()
       while (RegEnumValue(key, i, valueName, &valueSize, 0, &dwDataType, (LPBYTE) data, &dataSize) == ERROR_SUCCESS)
         {
           CLSIDFromString(data, &clsid);
-          if (clsid != trayclsid)
+
+          // walk the clsidList to see if clsid is in it.
+          for (clsidIter = clsidList.begin(); clsidIter != clsidList.end(); clsidIter++)
+            {
+              if (*clsidIter == clsid)
+                break;
+            }
+
+          // if clsid wasn't found and it is not clsidTray, start it.
+          if ((clsidIter == clsidList.end()) && (clsid != clsidTray))
             {
               target = ELStartSSO(clsid);
               if (target)
