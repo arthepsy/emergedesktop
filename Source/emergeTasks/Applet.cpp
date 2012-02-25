@@ -132,10 +132,11 @@ LRESULT CALLBACK Applet::WindowProcedure (HWND hwnd, UINT message, WPARAM wParam
 }
 
 Applet::Applet(HINSTANCE hInstance)
-:BaseApplet(hInstance, myName, true, false)
+  :BaseApplet(hInstance, myName, true, false)
 {
   activeWnd = NULL;
   oldTipWnd = NULL;
+  movingWnd = NULL;
 
   // Create a critical section to control access to the taskList vector
   InitializeCriticalSection(&vectorLock);
@@ -444,30 +445,58 @@ LRESULT Applet::TaskMouseEvent(UINT message, LPARAM lParam)
           switch (message)
             {
             case WM_LBUTTONDOWN:
-            case WM_LBUTTONDBLCLK:
+              if (ELIsKeyDown(VK_MENU))
                 {
-                  windowHandle = (*iter)->GetWnd();
-
-                  if (ELIsModal(windowHandle))
-                    windowHandle = GetLastActivePopup(windowHandle);
-
-                  if (((GetWindowLongPtr(windowHandle, GWL_STYLE) &
-                        WS_MINIMIZEBOX) == WS_MINIMIZEBOX) && // Check to see if the
-                      // window is capable
-                      // of being minimized.
-                      !IsIconic(windowHandle) &&  // Check if the window is already
-                      // minimized.
-                      (windowHandle == activeWnd))  // Check to see if it is the
-                    // active window
-                    PostMessage(windowHandle, WM_SYSCOMMAND, SC_MINIMIZE, lParam);
-                  else
-                    ELSwitchToThisWindow(windowHandle); // If not activate it
+                  movingWnd = (*iter)->GetWnd();
+                  return 0;
                 }
-              break;
+              else
+                  movingWnd = NULL;
+            case WM_LBUTTONDBLCLK:
+            {
+              windowHandle = (*iter)->GetWnd();
+
+              if (ELIsModal(windowHandle))
+                windowHandle = GetLastActivePopup(windowHandle);
+
+              if (((GetWindowLongPtr(windowHandle, GWL_STYLE) &
+                    WS_MINIMIZEBOX) == WS_MINIMIZEBOX) && // Check to see if the
+                  // window is capable
+                  // of being minimized.
+                  !IsIconic(windowHandle) &&  // Check if the window is already
+                  // minimized.
+                  (windowHandle == activeWnd))  // Check to see if it is the
+                // active window
+                PostMessage(windowHandle, WM_SYSCOMMAND, SC_MINIMIZE, lParam);
+              else
+                ELSwitchToThisWindow(windowHandle); // If not activate it
+            }
+            break;
             case WM_RBUTTONUP:
               (*iter)->DisplayMenu(mainWnd);
               break;
             case WM_MOUSEMOVE:
+              if (movingWnd != NULL)
+                {
+                  if (ELIsKeyDown(VK_MENU))
+                    {
+                      if ((*iter)->GetWnd() != movingWnd)
+                        {
+                          TaskVector::iterator movingTask = FindTask(movingWnd);
+                          if (movingTask != taskList.end())
+                            {
+                              iter_swap(iter, movingTask);
+                              ModifyTask((*iter)->GetWnd());
+                              ModifyTask(movingWnd);
+                            }
+                        }
+                    }
+                  else
+                    {
+                      movingWnd = NULL;
+                    }
+                  return 0;
+                }
               if (oldTipWnd != (*iter)->GetWnd())
                 {
                   oldTipWnd = (*iter)->GetWnd();

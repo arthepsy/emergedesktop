@@ -60,7 +60,7 @@ private:
   TaskVector taskList;
   std::map<HWND, UINT> flashMap;
   std::map<HWND, DWORD> modifyMap;
-  HWND activeWnd,oldTipWnd;
+  HWND activeWnd,oldTipWnd,movingWnd;
   void ResetTaskIcons();
   void UpdateIcons();
   static LRESULT CALLBACK WindowProcedure (HWND, UINT, WPARAM, LPARAM);
