@@ -773,6 +773,17 @@ void Applet::LoadSSO()
   dataSize = 40 * sizeof(WCHAR);
   ZeroMemory(&clsidTray, sizeof(CLSID));
 
+  // IF Vista and above, specifically start the Systray CLSID
+  if (osVersion >= 6.0)
+    {
+      CLSIDFromString((WCHAR*)TEXT("{35CEC8A3-2BE6-11D2-8773-92E220524153}"), &clsidTray);
+      if (osVersion == 6.0)
+        CLSIDFromString((WCHAR*)TEXT("{000214D2-0000-0000-C000-000000000046}"), &clsidTray);
+      target = ELStartSSO(clsidTray);
+      if (target)
+        ssoIconList.push_back(target);
+    }
+
   // Populate the clsidSet with all the clsids started by the shell
   if (RegOpenKeyEx(HKEY_LOCAL_MACHINE,
                    TEXT("Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\ShellServiceObjects"),
@@ -796,14 +807,6 @@ void Applet::LoadSSO()
         }
 
       RegCloseKey(key);
-    }
-
-  if (osVersion > 6.0)
-    {
-      CLSIDFromString((WCHAR*)TEXT("{35CEC8A3-2BE6-11D2-8773-92E220524153}"), &clsidTray);
-      target = ELStartSSO(clsidTray);
-      if (target)
-        ssoIconList.push_back(target);
     }
 
   valueSize = 32 * sizeof(WCHAR);
