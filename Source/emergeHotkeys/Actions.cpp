@@ -320,9 +320,9 @@ bool Actions::CheckSaveCount(HWND hwndDlg)
   if ((saveCount != 0) || (deleteCount != 0))
     {
       if (ELMessageBox(hwndDlg,
-                       (WCHAR*)TEXT("All hotkey definitions you added in this session will be lost. In order to\n"
-                                    "keep them you need to press OK in the emergeHotkeys Configuration dialog.\n\n"
-                                    "Are you sure you want to discard all hotkey definitions added in this session?"),
+                       (WCHAR*)TEXT("All changes you have made in this session will be lost. In order to keep them you\n"
+                                    "need to press OK in the emergeHotkeys Configuration dialog.\n\n"
+                                    "Are you sure you want to discard all the changes made in this session?"),
                        (WCHAR*)TEXT("emergeHotkeys"),
                        ELMB_YESNO|ELMB_ICONQUESTION|ELMB_MODAL) == IDYES)
         return true;
