@@ -38,11 +38,11 @@ BOOL CALLBACK Actions::ActionsDlgProc(HWND hwndDlg, UINT message, WPARAM wParam,
       return pActions->DoCommand(hwndDlg, wParam, lParam);
 
     case WM_NOTIFY:
-        {
-          long lResult = pActions->DoNotify(hwndDlg, lParam);
-          SetWindowLongPtr(hwndDlg, DWLP_MSGRESULT, lResult);
-          return TRUE;
-        }
+    {
+      long lResult = pActions->DoNotify(hwndDlg, lParam);
+      SetWindowLongPtr(hwndDlg, DWLP_MSGRESULT, lResult);
+      return TRUE;
+    }
     }
 
   return FALSE;
@@ -65,16 +65,16 @@ Actions::Actions(HINSTANCE hInstance, HWND mainWnd, std::tr1::shared_ptr<Setting
   InitCommonControls();
 
   toolWnd = CreateWindowEx(
-                           0,
-                           TOOLTIPS_CLASS,
-                           NULL,
-                           TTS_ALWAYSTIP|WS_POPUP|TTS_NOPREFIX,
-                           CW_USEDEFAULT, CW_USEDEFAULT,
-                           CW_USEDEFAULT, CW_USEDEFAULT,
-                           NULL,
-                           NULL,
-                           hInstance,
-                           NULL);
+              0,
+              TOOLTIPS_CLASS,
+              NULL,
+              TTS_ALWAYSTIP|WS_POPUP|TTS_NOPREFIX,
+              CW_USEDEFAULT, CW_USEDEFAULT,
+              CW_USEDEFAULT, CW_USEDEFAULT,
+              NULL,
+              NULL,
+              hInstance,
+              NULL);
 
   if (toolWnd)
     {
@@ -320,9 +320,9 @@ bool Actions::CheckSaveCount(HWND hwndDlg)
   if ((saveCount != 0) || (deleteCount != 0))
     {
       if (ELMessageBox(hwndDlg,
-                       (WCHAR*)TEXT("All changes you have made in this session will be lost. In order to keep them you\n"
-                                    "need to press OK in the emergeHotkeys Configuration dialog.\n\n"
-                                    "Are you sure you want to discard all the changes made in this session?"),
+                       (WCHAR*)TEXT("All changes you have made in this session will be lost. In order to keep them you\n")
+                       TEXT("need to press OK in the emergeHotkeys Configuration dialog.\n\n")
+                       TEXT("Are you sure you want to discard all the changes made in this session?"),
                        (WCHAR*)TEXT("emergeHotkeys"),
                        ELMB_YESNO|ELMB_ICONQUESTION|ELMB_MODAL) == IDYES)
         return true;
@@ -764,7 +764,7 @@ bool Actions::DoSave(HWND hwndDlg)
   ZeroMemory(tmpKey, MAX_LINE_LENGTH);
 
   if (SendDlgItemMessage(hwndDlg, IDC_EXTERNAL, BM_GETCHECK, 0, 0) == BST_CHECKED)
-      GetDlgItemText(hwndDlg, IDC_APPLICATION, tmpAction, MAX_LINE_LENGTH);
+    GetDlgItemText(hwndDlg, IDC_APPLICATION, tmpAction, MAX_LINE_LENGTH);
   if (SendDlgItemMessage(hwndDlg, IDC_INTERNAL, BM_GETCHECK, 0, 0) == BST_CHECKED)
     {
       GetDlgItemText(hwndDlg, IDC_COMMAND, tmp, MAX_LINE_LENGTH);
@@ -1213,7 +1213,7 @@ BOOL Actions::DoNotify(HWND hwndDlg UNUSED, LPARAM lParam)
           ListView_GetItemText(listWnd, lpLvCustomDraw->nmcd.dwItemSpec, 1,
                                tmpAction, MAX_LINE_LENGTH);
           if (!pSettings->IsValidHotkey(pSettings->FindHotkeyListItem(tmpKey,
-                                                                      tmpAction)))
+                                        tmpAction)))
             lpLvCustomDraw->clrText = RGB(255,0,0);
           return CDRF_NEWFONT;
         default:
