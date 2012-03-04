@@ -631,14 +631,14 @@ HICON EGGetFileIcon(const WCHAR *file, UINT iconSize)
   supliedFile = ELExpandVars(supliedFile);
   size_t comma = supliedFile.find_last_of(',');
   if (comma != std::wstring::npos)
-  {
-    if (PathFileExists(supliedFile.substr(0, comma).c_str()))
     {
-      iconIndex = _wtoi(supliedFile.substr(comma + 1, supliedFile.length() - comma).c_str());
-      supliedFile = supliedFile.substr(0, comma);
-      hasIndex = true;
+      if (PathFileExists(supliedFile.substr(0, comma).c_str()))
+        {
+          iconIndex = _wtoi(supliedFile.substr(comma + 1, supliedFile.length() - comma).c_str());
+          supliedFile = supliedFile.substr(0, comma);
+          hasIndex = true;
+        }
     }
-  }
 
   // Normalize the file path
   if (PathCanonicalize(canonicalizedFile, supliedFile.c_str()))
@@ -685,10 +685,13 @@ HICON EGGetFileIcon(const WCHAR *file, UINT iconSize)
                           if ((supliedFile.find(TEXT(".cpl")) != std::wstring::npos) && (wcscmp(iconLocation, TEXT("*")) == 0))
                             wcscpy(iconLocation, supliedFile.c_str());
 
-                          if (iconSize == 16)
-                            hr = extractIcon->Extract(iconLocation, iconIndex, NULL, &icon, MAKELONG(0, iconSize));
-                          else
-                            hr = extractIcon->Extract(iconLocation, iconIndex, &icon, NULL, MAKELONG(iconSize, 0));
+                          if (ELPathFileExists(iconLocation))
+                            {
+                              if (iconSize == 16)
+                                hr = extractIcon->Extract(iconLocation, iconIndex, NULL, &icon, MAKELONG(0, iconSize));
+                              else
+                                hr = extractIcon->Extract(iconLocation, iconIndex, &icon, NULL, MAKELONG(iconSize, 0));
+                            }
                         }
                     }
                   extractIcon->Release();
