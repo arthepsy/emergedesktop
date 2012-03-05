@@ -685,7 +685,7 @@ HICON EGGetFileIcon(const WCHAR *file, UINT iconSize)
                           if ((supliedFile.find(TEXT(".cpl")) != std::wstring::npos) && (wcscmp(iconLocation, TEXT("*")) == 0))
                             wcscpy(iconLocation, supliedFile.c_str());
 
-                          if (ELPathFileExists(iconLocation))
+                          if (ELPathFileExists(iconLocation) || (wcscmp(iconLocation, TEXT("*")) == 0))
                             {
                               if (iconSize == 16)
                                 hr = extractIcon->Extract(iconLocation, iconIndex, NULL, &icon, MAKELONG(0, iconSize));
