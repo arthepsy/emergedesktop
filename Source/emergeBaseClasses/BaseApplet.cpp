@@ -585,17 +585,23 @@ void BaseApplet::DrawAlphaBlend()
   // Dynamically set window shadow based on the style calling for it and the
   // applet actually being visible
   ULONG_PTR origStyle = GetClassLongPtr(mainWnd, GCL_STYLE), newStyle = origStyle;
-  if ((bf.SourceConstantAlpha < 5) && (origStyle & CS_DROPSHADOW))
+  if (bf.SourceConstantAlpha < 5)
     {
-      ShowWindow(mainWnd, SW_HIDE);
-      newStyle = origStyle & ~CS_DROPSHADOW;
-      SetClassLongPtr(mainWnd, GCL_STYLE, newStyle);
+      if(origStyle & CS_DROPSHADOW)
+        {
+          ShowWindow(mainWnd, SW_HIDE);
+          newStyle = origStyle & ~CS_DROPSHADOW;
+          SetClassLongPtr(mainWnd, GCL_STYLE, newStyle);
+        }
     }
-  else if (guiInfo.windowShadow && ((origStyle & CS_DROPSHADOW) != CS_DROPSHADOW))
+  else
     {
-      ShowWindow(mainWnd, SW_HIDE);
-      newStyle = origStyle | CS_DROPSHADOW;
-      SetClassLongPtr(mainWnd, GCL_STYLE, newStyle);
+      if (guiInfo.windowShadow && ((origStyle & CS_DROPSHADOW) != CS_DROPSHADOW))
+        {
+          ShowWindow(mainWnd, SW_HIDE);
+          newStyle = origStyle | CS_DROPSHADOW;
+          SetClassLongPtr(mainWnd, GCL_STYLE, newStyle);
+        }
     }
 
   if (newStyle != origStyle)
