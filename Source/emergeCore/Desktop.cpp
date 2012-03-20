@@ -165,8 +165,8 @@ LRESULT CALLBACK Desktop::DesktopProcedure (HWND hwnd, UINT message, WPARAM wPar
       pDesktop->SetBackgroundImage();
       break;
 
-    case WM_PAINT:
-      return pDesktop->DoPaint(hwnd);
+    case WM_ERASEBKGND:
+      return PaintDesktop((HDC)wParam);
 
     case WM_RBUTTONDOWN:
       pDesktop->ShowMenu(CORE_RIGHTMENU);
@@ -197,17 +197,6 @@ LRESULT CALLBACK Desktop::DesktopProcedure (HWND hwnd, UINT message, WPARAM wPar
     default:
       return pDesktop->DoDefault(hwnd, message, wParam, lParam);
     }
-
-  return 0;
-}
-
-LRESULT Desktop::DoPaint(HWND hwnd)
-{
-  PAINTSTRUCT ps;
-  HDC hdc = BeginPaint(hwnd, &ps);
-  PaintDesktop(hdc);
-  EndPaint(hwnd, &ps);
-  DeleteDC(hdc);
 
   return 0;
 }
