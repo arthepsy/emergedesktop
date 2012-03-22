@@ -604,7 +604,7 @@ HICON EGGetClassIcon(std::wstring file, int iconSize)
 
 HICON EGGetFileIcon(const WCHAR *file, UINT iconSize)
 {
-  HICON icon = NULL;
+  HICON icon = NULL, smallIcon = NULL, largeIcon = NULL;
 
   IShellFolder *deskFolder = NULL;
   IShellFolder *appObject = NULL;
@@ -617,43 +617,43 @@ HICON EGGetFileIcon(const WCHAR *file, UINT iconSize)
   HRESULT hr;
   LPVOID lpVoid;
   bool hasIndex = false;
-  std::wstring supliedFile;
+  std::wstring suppliedFile;
 
   if (file == NULL)
     return icon;
 
-  supliedFile = file;
-  if (!supliedFile.empty())
+  suppliedFile = file;
+  if (!suppliedFile.empty())
     {
-      if (supliedFile.at(0) == '@')
-        supliedFile = supliedFile.substr(1);
+      if (suppliedFile.at(0) == '@')
+        suppliedFile = suppliedFile.substr(1);
     }
-  supliedFile = ELExpandVars(supliedFile);
-  size_t comma = supliedFile.find_last_of(',');
+  suppliedFile = ELExpandVars(suppliedFile);
+  size_t comma = suppliedFile.find_last_of(',');
   if (comma != std::wstring::npos)
     {
-      if (PathFileExists(supliedFile.substr(0, comma).c_str()))
+      if (PathFileExists(suppliedFile.substr(0, comma).c_str()))
         {
-          iconIndex = _wtoi(supliedFile.substr(comma + 1, supliedFile.length() - comma).c_str());
-          supliedFile = supliedFile.substr(0, comma);
+          iconIndex = _wtoi(suppliedFile.substr(comma + 1, suppliedFile.length() - comma).c_str());
+          suppliedFile = suppliedFile.substr(0, comma);
           hasIndex = true;
         }
     }
 
   // Normalize the file path
-  if (PathCanonicalize(canonicalizedFile, supliedFile.c_str()))
-    supliedFile = canonicalizedFile;
+  if (PathCanonicalize(canonicalizedFile, suppliedFile.c_str()))
+    suppliedFile = canonicalizedFile;
 
   if (hasIndex)
     {
-      icon = EGExtractIcon(supliedFile.c_str(), iconIndex, iconSize);
+      icon = EGExtractIcon(suppliedFile.c_str(), iconIndex, iconSize);
       return icon;
     }
 
   hr = SHGetDesktopFolder(&deskFolder);
   if (SUCCEEDED(hr))
     {
-      hr = deskFolder->ParseDisplayName(NULL, NULL, (WCHAR*)supliedFile.c_str(), NULL, &pidlLocal, NULL);
+      hr = deskFolder->ParseDisplayName(NULL, NULL, (WCHAR*)suppliedFile.c_str(), NULL, &pidlLocal, NULL);
       if (SUCCEEDED(hr))
         {
           pidlRelative = ILClone(ILFindLastID(pidlLocal));
@@ -677,20 +677,24 @@ HICON EGGetFileIcon(const WCHAR *file, UINT iconSize)
                   if (SUCCEEDED(hr))
                     {
                       if ((iconFlags & GIL_PERCLASS) == GIL_PERCLASS)
-                        icon = EGGetClassIcon(supliedFile, iconSize);
+                        icon = EGGetClassIcon(suppliedFile, iconSize);
                       if (((iconFlags & GIL_NOTFILENAME) == GIL_NOTFILENAME) && (icon == NULL))
                         {
                           // For some reason, .cpl files have an iconLocation of "*" that seems to mess up extractIcon while
                           // for other iconLocations of "*" it's fine, so add this work around for now.
-                          if ((supliedFile.find(TEXT(".cpl")) != std::wstring::npos) && (wcscmp(iconLocation, TEXT("*")) == 0))
-                            wcscpy(iconLocation, supliedFile.c_str());
+                          if ((suppliedFile.find(TEXT(".cpl")) != std::wstring::npos) && (wcscmp(iconLocation, TEXT("*")) == 0))
+                            wcscpy(iconLocation, suppliedFile.c_str());
 
                           if (ELPathFileExists(iconLocation) || (wcscmp(iconLocation, TEXT("*")) == 0))
                             {
-                              if (iconSize == 16)
-                                hr = extractIcon->Extract(iconLocation, iconIndex, NULL, &icon, MAKELONG(0, iconSize));
+                              hr = extractIcon->Extract(iconLocation, iconIndex, &largeIcon, &smallIcon, MAKELONG(iconSize, iconSize));
+                              if ((iconSize == 16) && smallIcon)
+                                icon = CopyIcon(smallIcon);
                               else
-                                hr = extractIcon->Extract(iconLocation, iconIndex, &icon, NULL, MAKELONG(iconSize, 0));
+                                icon = CopyIcon(largeIcon);
+
+                              DestroyIcon(smallIcon);
+                              DestroyIcon(largeIcon);
                             }
                         }
                     }
