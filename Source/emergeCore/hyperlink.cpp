@@ -32,9 +32,6 @@
 #define IDC_HAND MAKEINTRESOURCE(32649)
 #endif
 
-#define PROP_OBJECT_PTR			MAKEINTATOM(ga.atom)
-#define PROP_ORIGINAL_PROC		MAKEINTATOM(ga.atom)
-
 /*
  * typedefs
  */
@@ -120,34 +117,24 @@ BOOL CHyperLink::ConvertStaticToHyperlink(HWND hwndCtl, LPCTSTR strURL)
       WNDPROC pfnOrigProc = (WNDPROC) GetWindowLongPtr(hwndParent, GWLP_WNDPROC);
       if (pfnOrigProc != _HyperlinkParentProc)
         {
-#ifdef __WIN64
-          SetProp( hwndParent, PROP_ORIGINAL_PROC, (HANDLE)PtrToPtr64(pfnOrigProc) );
-#else
-          SetProp( hwndParent, PROP_ORIGINAL_PROC, (HANDLE)PtrToLong(pfnOrigProc) );
-#endif
-          SetWindowLongPtr( hwndParent, GWLP_WNDPROC,
-                         (LONG_PTR) _HyperlinkParentProc );
+          SetWindowLongPtr( hwndParent, GWLP_USERDATA, (LONG_PTR)pfnOrigProc);
+          SetWindowLongPtr( hwndParent, GWLP_WNDPROC, (LONG_PTR)_HyperlinkParentProc);
         }
     }
 
   // Make sure the control will send notifications.
-
   DWORD dwStyle = GetWindowLongPtr(hwndCtl, GWL_STYLE);
   SetWindowLongPtr(hwndCtl, GWL_STYLE, dwStyle | SS_NOTIFY);
 
   // Create an updated font by adding an underline.
-
   m_StdFont = (HFONT) SendMessage(hwndCtl, WM_GETFONT, 0, 0);
 
   if( g_counter++ == 0 )
-    {
       createGlobalResources();
-    }
 
   // Subclass the existing control.
-
   m_pfnOrigCtlProc = (WNDPROC) GetWindowLongPtr(hwndCtl, GWLP_WNDPROC);
-  SetProp(hwndCtl, PROP_OBJECT_PTR, (HANDLE) this);
+  SetWindowLongPtr(hwndCtl, GWLP_USERDATA, (LONG_PTR)this);
   SetWindowLongPtr(hwndCtl, GWLP_WNDPROC, (LONG_PTR) _HyperlinkProc);
 
   return TRUE;
@@ -191,7 +178,7 @@ BOOL CHyperLink::setURL(LPCTSTR strURL)
 LRESULT CALLBACK CHyperLink::_HyperlinkParentProc(HWND hwnd, UINT message,
     WPARAM wParam, LPARAM lParam)
 {
-  WNDPROC pfnOrigProc = (WNDPROC)(LONG_PTR)HandleToLong(GetProp(hwnd, PROP_ORIGINAL_PROC));
+  WNDPROC pfnOrigProc = (WNDPROC)GetWindowLongPtr(hwnd, GWLP_USERDATA);
 
   switch (message)
     {
@@ -199,8 +186,7 @@ LRESULT CALLBACK CHyperLink::_HyperlinkParentProc(HWND hwnd, UINT message,
     {
       HDC hdc = (HDC) wParam;
       HWND hwndCtl = (HWND) lParam;
-      CHyperLink *pHyperLink = reinterpret_cast< CHyperLink * >(GetProp(hwndCtl,
-                               PROP_OBJECT_PTR));
+      CHyperLink *pHyperLink = reinterpret_cast< CHyperLink * >(GetWindowLongPtr(hwndCtl, GWLP_USERDATA));
 
       if(pHyperLink)
         {
@@ -223,7 +209,6 @@ LRESULT CALLBACK CHyperLink::_HyperlinkParentProc(HWND hwnd, UINT message,
     case WM_DESTROY:
     {
       SetWindowLongPtr(hwnd, GWLP_WNDPROC, (LONG_PTR) pfnOrigProc);
-      RemoveProp(hwnd, PROP_ORIGINAL_PROC);
       break;
     }
     }
@@ -284,7 +269,7 @@ inline void CHyperLink::DrawFocusRect(HWND hwnd)
 LRESULT CALLBACK CHyperLink::_HyperlinkProc(HWND hwnd, UINT message,
     WPARAM wParam, LPARAM lParam)
 {
-  CHyperLink *pHyperLink = reinterpret_cast< CHyperLink * >(GetProp(hwnd, PROP_OBJECT_PTR));
+  CHyperLink *pHyperLink = reinterpret_cast< CHyperLink * >(GetWindowLongPtr(hwnd, GWLP_USERDATA));
 
   switch (message)
     {
@@ -368,7 +353,6 @@ LRESULT CALLBACK CHyperLink::_HyperlinkProc(HWND hwnd, UINT message,
           destroyGlobalResources();
         }
 
-      RemoveProp(hwnd, PROP_OBJECT_PTR);
       break;
     }
     }

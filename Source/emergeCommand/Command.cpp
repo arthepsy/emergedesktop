@@ -126,13 +126,7 @@ bool Command::Init()
 LRESULT CALLBACK Command::EditProc(HWND hwnd,UINT message,WPARAM wParam,LPARAM lParam)
 {
   WCHAR error[MAX_LINE_LENGTH], buf[MAX_LINE_LENGTH];
-  static Command *pCommand = NULL;
-
-  if (message == WM_APP+1)
-    pCommand = reinterpret_cast<Command*>(lParam);
-
-  if (pCommand == NULL)
-    return DefWindowProc(hwnd, message, wParam, lParam);
+  static Command *pCommand = reinterpret_cast<Command*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
 
   if (message == WM_KEYDOWN)
     {
@@ -416,8 +410,9 @@ void Command::UpdateEdit(GUIINFO guiInfo, int width, int height)
               mainInst,
               this);
 
-  wpOld = (WNDPROC)SetWindowLongPtr(hText,GWLP_WNDPROC,(LONG_PTR)EditProc);
-  SendMessage(hText, WM_APP+1, 0, (LPARAM)this);
+  wpOld = (WNDPROC)GetWindowLongPtr(hText,GWLP_WNDPROC);
+  SetWindowLongPtr(hText,GWLP_USERDATA,(LONG_PTR)this);
+  SetWindowLongPtr(hText,GWLP_WNDPROC,(LONG_PTR)EditProc);
 
   if (textFont)
     DeleteObject((HFONT)textFont);
