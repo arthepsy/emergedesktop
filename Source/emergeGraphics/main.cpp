@@ -632,9 +632,9 @@ HICON EGGetFileIcon(const WCHAR *file, UINT iconSize)
   size_t comma = suppliedFile.find_last_of(',');
   if (comma != std::wstring::npos)
     {
-      if (PathFileExists(suppliedFile.substr(0, comma).c_str()))
+      if (suppliedFile.substr(comma).find('.') == std::wstring::npos)
         {
-          iconIndex = _wtoi(suppliedFile.substr(comma + 1, suppliedFile.length() - comma).c_str());
+          iconIndex = _wtoi(suppliedFile.substr(comma + 1).c_str());
           suppliedFile = suppliedFile.substr(0, comma);
           hasIndex = true;
         }
