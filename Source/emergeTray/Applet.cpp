@@ -757,7 +757,7 @@ void Applet::AppletUpdate()
 //----  --------------------------------------------------------------------------------------------------------
 void Applet::LoadSSO()
 {
-  HKEY key, subkey;
+  HKEY key;
   int i = 0;
   WCHAR valueName[32];
   WCHAR data[40];
@@ -777,36 +777,9 @@ void Applet::LoadSSO()
   if (osVersion >= 6.0)
     {
       CLSIDFromString((WCHAR*)TEXT("{35CEC8A3-2BE6-11D2-8773-92E220524153}"), &clsidTray);
-      if (osVersion == 6.0)
-        CLSIDFromString((WCHAR*)TEXT("{000214D2-0000-0000-C000-000000000046}"), &clsidTray);
       target = ELStartSSO(clsidTray);
       if (target)
         ssoIconList.push_back(target);
-    }
-
-  // Populate the clsidSet with all the clsids started by the shell
-  if (RegOpenKeyEx(HKEY_LOCAL_MACHINE,
-                   TEXT("Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\ShellServiceObjects"),
-                   0, KEY_READ, &key) == ERROR_SUCCESS)
-    {
-      while (RegEnumKeyEx(key, i, data, &dataSize, NULL, NULL, NULL, NULL) == ERROR_SUCCESS)
-        {
-          if (RegOpenKeyEx(key, data, 0, KEY_READ, &subkey) == ERROR_SUCCESS)
-            {
-              if (RegQueryValueEx(subkey, TEXT("AutoStart"), NULL, NULL, NULL, NULL) == ERROR_SUCCESS)
-                {
-                  CLSIDFromString(data, &clsid);
-                  clsidList.push_back(clsid);
-                }
-
-              RegCloseKey(subkey);
-            }
-
-          dataSize = 40 * sizeof(data[0]);
-          i++;
-        }
-
-      RegCloseKey(key);
     }
 
   valueSize = 32 * sizeof(WCHAR);
