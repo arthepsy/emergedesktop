@@ -619,8 +619,8 @@ HICON EGGetFileIcon(const WCHAR *file, UINT iconSize)
   bool hasIndex = false;
   std::wstring suppliedFile;
 
-  if (file == NULL)
-    return icon;
+  if (wcslen(file) == 0)
+    return EGGetSystemIcon(ICON_DEFAULT, iconSize);
 
   suppliedFile = file;
   if (!suppliedFile.empty())
