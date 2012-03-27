@@ -604,7 +604,7 @@ void BaseApplet::DrawAlphaBlend()
         }
     }
 
-  if (newStyle != origStyle)
+  if ((newStyle != origStyle) && !appletHidden && !fullScreen)
     SetWindowPos(mainWnd, NULL, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOZORDER |
                  SWP_NOACTIVATE | SWP_SHOWWINDOW);
 
