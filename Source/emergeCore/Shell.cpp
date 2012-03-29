@@ -447,10 +447,10 @@ void Shell::LoadSSO()
   int i = 0;
   WCHAR data[40];
   DWORD dataSize;
-  CLSID clsid, trayclsid;
+  CLSID clsid, clsidTray;
   IOleCommandTarget *target = NULL;
 
-  dataSize = 40 * sizeof(WCHAR);
+  dataSize = sizeof(data);
   i = 0;
 
   if (RegOpenKeyEx(HKEY_LOCAL_MACHINE,
@@ -464,7 +464,7 @@ void Shell::LoadSSO()
               if (RegQueryValueEx(subkey, TEXT("AutoStart"), NULL, NULL, NULL, NULL) == ERROR_SUCCESS)
                 {
                   CLSIDFromString(data, &clsid);
-                  if (clsid != trayclsid)
+                  if (clsid != clsidTray)
                     {
                       target = ELStartSSO(clsid);
                       if (target)
@@ -475,7 +475,7 @@ void Shell::LoadSSO()
               RegCloseKey(subkey);
             }
 
-          dataSize = 40 * sizeof(data[0]);
+          dataSize = sizeof(data);
           i++;
         }
 
