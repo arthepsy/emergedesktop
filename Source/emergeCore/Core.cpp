@@ -137,7 +137,7 @@ bool Core::Initialize(WCHAR *commandLine)
   pShell->BuildTaskList();
 
   /**< Only load SSO objects if not running on top of Explorer */
-  if (!ELIsExplorerShell())
+  if (!ELIsExplorerShell() && (ELVersionInfo() > 6.0))
     pShell->LoadSSO();
 
   // Load the start up entries in the registry and the startup
@@ -204,7 +204,7 @@ Core::~Core()
         }
 
       /**< Only unload SSO objects if not running on top of Explorer */
-      if (!ELIsExplorerShell())
+      if (!ELIsExplorerShell() && (ELVersionInfo() > 6.0))
         pShell->UnloadSSO();
       pShell->RegisterShell(mainWnd, false);
       pShell->ClearSessionInformation();
