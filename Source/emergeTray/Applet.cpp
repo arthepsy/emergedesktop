@@ -766,24 +766,14 @@ void Applet::LoadSSO()
   DWORD dwDataType;
   CLSID clsid, clsidTray;
   IOleCommandTarget *target;
-  std::vector<CLSID> clsidList;
-  std::vector<CLSID>::iterator clsidIter;
-  float osVersion = ELVersionInfo();
 
-  dataSize = 40 * sizeof(WCHAR);
-  ZeroMemory(&clsidTray, sizeof(CLSID));
+  CLSIDFromString((WCHAR*)TEXT("{35CEC8A3-2BE6-11D2-8773-92E220524153}"), &clsidTray);
+  target = ELStartSSO(clsidTray);
+  if (target)
+    ssoIconList.push_back(target);
 
-  // IF Vista and above, specifically start the Systray CLSID
-  if (osVersion >= 6.0)
-    {
-      CLSIDFromString((WCHAR*)TEXT("{35CEC8A3-2BE6-11D2-8773-92E220524153}"), &clsidTray);
-      target = ELStartSSO(clsidTray);
-      if (target)
-        ssoIconList.push_back(target);
-    }
-
-  valueSize = 32 * sizeof(WCHAR);
-  dataSize = 40 * sizeof(WCHAR);
+  valueSize = sizeof(valueName);
+  dataSize = sizeof(data);
   i = 0;
 
   if (RegOpenKeyEx(HKEY_LOCAL_MACHINE,
@@ -793,24 +783,15 @@ void Applet::LoadSSO()
       while (RegEnumValue(key, i, valueName, &valueSize, 0, &dwDataType, (LPBYTE) data, &dataSize) == ERROR_SUCCESS)
         {
           CLSIDFromString(data, &clsid);
-
-          // walk the clsidList to see if clsid is in it.
-          for (clsidIter = clsidList.begin(); clsidIter != clsidList.end(); clsidIter++)
-            {
-              if (*clsidIter == clsid)
-                break;
-            }
-
-          // if clsid wasn't found and it is not clsidTray, start it.
-          if ((clsidIter == clsidList.end()) && (clsid != clsidTray))
+          if (clsid == clsidTray)
             {
               target = ELStartSSO(clsid);
               if (target)
                 ssoIconList.push_back(target);
             }
 
-          valueSize = 32 * sizeof(valueName[0]);
-          dataSize = 40 * sizeof(data[0]);
+          valueSize = sizeof(valueName);
+          dataSize = sizeof(data);
           i++;
         }
 
