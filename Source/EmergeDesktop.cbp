@@ -607,6 +607,29 @@
 					<Add directory=".\bin" />
 				</Linker>
 			</Target>
+			<Target title="emergeStyleEngine - Debug">
+				<Option platforms="Windows;" />
+				<Option output="bin\emergeStyleEngine" prefix_auto="1" extension_auto="1" />
+				<Option object_output=".objs\Release" />
+				<Option type="3" />
+				<Option compiler="gcc" />
+				<Option createDefFile="1" />
+				<Option createStaticLib="1" />
+				<Compiler>
+					<Add option="-g" />
+					<Add option="-DEMERGESTYLEENGINE_EXPORTS" />
+				</Compiler>
+				<Linker>
+					<Add option="-Wl,--enable-auto-image-base" />
+					<Add library="emergeGraphics" />
+					<Add library="emergeLib" />
+					<Add library="gdi32" />
+					<Add library="msimg32" />
+					<Add library="comdlg32" />
+					<Add library="shlwapi" />
+					<Add directory=".\bin" />
+				</Linker>
+			</Target>
 			<Target title="emergeAppletEngine - Debug">
 				<Option platforms="Windows;" />
 				<Option output="bin\emergeAppletEngine" prefix_auto="1" extension_auto="1" />
@@ -849,7 +872,7 @@
 			</Target>
 		</Build>
 		<VirtualTargets>
-			<Add alias="All - Debug" targets="emergeLib - Debug;emergeGraphics - Debug;emergeAppletEngine - Debug;emergeBaseClasses - Debug;emergeWorkspace - Debug;emergeCore - Debug;emergeCommand - Debug;emergeTrayExplorerHook - Debug;emergeTray - Debug;emergeTasks - Debug;emergeHotkeys - Debug;emergeLauncher - Debug;" />
+			<Add alias="All - Debug" targets="emergeLib - Debug;emergeGraphics - Debug;emergeAppletEngine - Debug;emergeBaseClasses - Debug;emergeWorkspace - Debug;emergeCore - Debug;emergeCommand - Debug;emergeTrayExplorerHook - Debug;emergeTray - Debug;emergeTasks - Debug;emergeLauncher - Debug;emergeHotkeys - Debug;" />
 			<Add alias="All - Release" targets="emergeLib - Release;emergeGraphics - Release;emergeAppletEngine - Release;emergeStyleEngine - Release;emergeBaseClasses - Release;emergeTrayExplorerHook - Release;emergeCore - Release;emergeCommand - Release;emergeWorkspace - Release;emergeHotkeys - Release;emergeLauncher - Release;emergeTasks - Release;emergeTray - Release;emergeVWM - Release;emerge - Release;emergePower - Release;emergeSysMon - Release;Explorer - Release;emergeIcons - Release;" />
 		</VirtualTargets>
 		<Compiler>
@@ -1510,22 +1533,28 @@
 		</Unit>
 		<Unit filename="emergeStyleEngine\StyleEditor.cpp">
 			<Option target="emergeStyleEngine - Release" />
+			<Option target="emergeStyleEngine - Debug" />
 		</Unit>
 		<Unit filename="emergeStyleEngine\StyleEditor.h">
 			<Option target="emergeStyleEngine - Release" />
+			<Option target="emergeStyleEngine - Debug" />
 		</Unit>
 		<Unit filename="emergeStyleEngine\emergeStyleEngine.h">
 			<Option target="emergeStyleEngine - Release" />
+			<Option target="emergeStyleEngine - Debug" />
 		</Unit>
 		<Unit filename="emergeStyleEngine\emergeStyleEngine.rc">
 			<Option compilerVar="WINDRES" />
 			<Option target="emergeStyleEngine - Release" />
+			<Option target="emergeStyleEngine - Debug" />
 		</Unit>
 		<Unit filename="emergeStyleEngine\main.cpp">
 			<Option target="emergeStyleEngine - Release" />
+			<Option target="emergeStyleEngine - Debug" />
 		</Unit>
 		<Unit filename="emergeStyleEngine\resource.h">
 			<Option target="emergeStyleEngine - Release" />
+			<Option target="emergeStyleEngine - Debug" />
 		</Unit>
 		<Unit filename="emergeSysMon\Applet.cpp">
 			<Option target="emergeSysMon - Release" />
@@ -1970,6 +1999,7 @@
 			<Option target="emergeBaseClasses - Debug" />
 			<Option target="emergeLauncher - Debug" />
 			<Option target="emergeGraphics - Debug" />
+			<Option target="emergeStyleEngine - Debug" />
 		</Unit>
 		<Unit filename="tinyxml\tinystr.cpp">
 			<Option target="emergeLib - Release" />
@@ -2027,6 +2057,7 @@
 			<Option target="emergeBaseClasses - Debug" />
 			<Option target="emergeLauncher - Debug" />
 			<Option target="emergeGraphics - Debug" />
+			<Option target="emergeStyleEngine - Debug" />
 		</Unit>
 		<Extensions>
 			<code_completion />
