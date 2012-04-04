@@ -345,7 +345,7 @@ HDC ESEPaintBackground(RECT clientRect, LPGUIINFO guiInfo, bool active)
   bmi.bmiHeader.biSizeImage = width * height * 4;
 
   HBITMAP backgroundBMP = CreateDIBSection(hdc, &bmi, DIB_RGB_COLORS, &backgroundBits, NULL, 0x0);
-  SelectObject (hdc, backgroundBMP);
+  DeleteObject(SelectObject (hdc, backgroundBMP));
 
   if (guiInfo->dragBorder > 0)
     {
@@ -368,8 +368,6 @@ HDC ESEPaintBackground(RECT clientRect, LPGUIINFO guiInfo, bool active)
 
   EGGradientFillRect(hdc, &clientRect, alpha, colourFrom, colourTo, guiInfo->bevelWidth,
                      guiInfo->gradientMethod);
-
-  DeleteObject(backgroundBMP);
 
   return hdc;
 }

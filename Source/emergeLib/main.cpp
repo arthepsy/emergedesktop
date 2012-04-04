@@ -1070,7 +1070,7 @@ std::string ELwstringTostring(std::wstring inString, UINT codePage)
             tmpString[writtenBytes] = '\0';
           returnString = tmpString;
         }
-      delete tmpString;
+      delete [] tmpString;
     }
   return returnString;
 }
@@ -1092,7 +1092,7 @@ std::wstring ELstringTowstring(std::string inString, UINT codePage)
             tmpString[writtenBytes] = '\0';
           returnString = tmpString;
         }
-      delete tmpString;
+      delete [] tmpString;
     }
 
   return returnString;

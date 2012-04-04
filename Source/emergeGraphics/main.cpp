@@ -460,8 +460,8 @@ bool EGGradientFillRect(HDC hdc, RECT *rect, BYTE alpha, COLORREF colourFrom, CO
   else
     EGFillRect(hdc, rect, bf.SourceConstantAlpha, colourFrom);
 
-  DeleteObject(gradientBMP);
   DeleteDC(gradientDC);
+  DeleteObject(gradientBMP);
 
   return true;
 }
@@ -1049,12 +1049,12 @@ bool EGDrawAlphaText(BYTE alpha, CLIENTINFO clientInfo, FORMATINFO formatInfo, W
   ret = AlphaBlend(clientInfo.hdc, clientInfo.rt.left, verticalOffset, width, displayHeight, fillDC, maskRect.left, maskRect.top, width, displayHeight, bf);
 
   // do cleanup
+  DeleteDC(fillDC);
+  DeleteObject(fillBMP);
+  DeleteDC(maskdc);
+  DeleteObject(hmask);
   GlobalFree((HGLOBAL)bmpBits);
   GlobalFree((HGLOBAL)maskBits);
-  DeleteObject(fillBMP);
-  DeleteDC(fillDC);
-  DeleteObject(hmask);
-  DeleteDC(maskdc);
 
   return (ret == TRUE);
 }
@@ -1093,10 +1093,10 @@ HDC EGBeginPaint(HWND wnd)
 
 void EGEndPaint()
 {
-  if (hbitmap)
-    DeleteObject(hbitmap);
   if (hdc)
     DeleteDC(hdc);
+  if (hbitmap)
+    DeleteObject(hbitmap);
 }
 
 bool EGEqualLogFont(const LOGFONT& source, const LOGFONT& target)
