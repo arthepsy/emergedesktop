@@ -48,9 +48,6 @@ BaseApplet::BaseApplet(HINSTANCE hInstance, const WCHAR *appletName, bool allowA
 
 BaseApplet::~BaseApplet()
 {
-  // Unregister the specified Emerge Desktop messages
-  PostMessage(ELGetCoreWindow(), EMERGE_UNREGISTER, (WPARAM)mainWnd, (LPARAM)EMERGE_CORE);
-
   // Unregister as a Shell window
   if (activeBackgroundDC != NULL)
     DeleteDC(activeBackgroundDC);
@@ -137,9 +134,6 @@ UINT BaseApplet::Initialize(WNDPROC WindowProcedure, LPVOID lpParam, std::tr1::s
   pBaseSettings->Init(mainWnd, appletName, appletCount);
   pBaseAppletMenu = std::tr1::shared_ptr<BaseAppletMenu>(new BaseAppletMenu(mainWnd, mainInst, appletName, allowMultipleInstances));
   pBaseAppletMenu->Initialize();
-
-  // Register to recieve the specified Emerge Desktop messages
-  PostMessage(ELGetCoreWindow(), EMERGE_REGISTER, (WPARAM)mainWnd, (LPARAM)EMERGE_CORE);
 
   return 1;
 }
