@@ -111,6 +111,8 @@ LRESULT CALLBACK Applet::WindowProcedure (HWND hwnd, UINT message, WPARAM wParam
 
     case WM_DESTROY:
     case WM_NCDESTROY:
+      pApplet->StopTimer();
+
       // Unregister the specified Emerge Desktop messages
       PostMessage(ELGetCoreWindow(), EMERGE_UNREGISTER, (WPARAM)hwnd, (LPARAM)EMERGE_CORE);
 
@@ -143,11 +145,6 @@ Applet::Applet(HINSTANCE hInstance)
 
 Applet::~Applet()
 {
-  StopTimer();
-
-  // Unregister the specified Emerge Desktop messages
-  PostMessage(ELGetCoreWindow(), EMERGE_UNREGISTER, (WPARAM)mainWnd, (LPARAM)EMERGE_VWM);
-
   if (mainFont)
     DeleteObject(mainFont);
 }

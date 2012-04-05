@@ -118,7 +118,7 @@ LRESULT MsgBox::DoInitDialog(HWND hwndDlg)
   textHeight = msgTextRect.bottom;
   textWidth = msgTextRect.right;
   SelectFont(hdc, oldFont);
-  DeleteDC(hdc);
+  ReleaseDC(hwndDlg, hdc);
 
   SetWindowPos(textWnd, NULL, 0, 0, textWidth, textHeight, SWP_NOZORDER | SWP_NOMOVE);
   SetWindowText(textWnd, msgText);
