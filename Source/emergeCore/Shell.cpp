@@ -342,8 +342,8 @@ void Shell::RunFolderStartup(bool showStartupErrors)
   if (SUCCEEDED(SHGetSpecialFolderLocation(NULL, CSIDL_COMMON_STARTUP, &item)))
     {
       if (SHGetPathFromIDList(item, szPath))
-          // Execute the contents
-          RunFolderEntries(szPath, showStartupErrors);
+        // Execute the contents
+        RunFolderEntries(szPath, showStartupErrors);
 
       CoTaskMemFree(item);
     }
@@ -352,8 +352,8 @@ void Shell::RunFolderStartup(bool showStartupErrors)
   if (SUCCEEDED(SHGetSpecialFolderLocation(NULL, CSIDL_STARTUP, &item)))
     {
       if (SHGetPathFromIDList(item, szPath))
-          // Execute the contents
-          RunFolderEntries(szPath, showStartupErrors);
+        // Execute the contents
+        RunFolderEntries(szPath, showStartupErrors);
 
       CoTaskMemFree(item);
     }
