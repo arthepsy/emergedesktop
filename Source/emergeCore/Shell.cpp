@@ -337,40 +337,25 @@ void Shell::RunFolderStartup(bool showStartupErrors)
 {
   WCHAR szPath[MAX_PATH];
   LPITEMIDLIST item;
-  LPMALLOC pMalloc;
 
   // Get the contents of the common startup folder
   if (SUCCEEDED(SHGetSpecialFolderLocation(NULL, CSIDL_COMMON_STARTUP, &item)))
     {
       if (SHGetPathFromIDList(item, szPath))
-        {
           // Execute the contents
           RunFolderEntries(szPath, showStartupErrors);
 
-          // Cleanup
-          if (SUCCEEDED(SHGetMalloc(&pMalloc)))
-            {
-              pMalloc->Free(item);
-              pMalloc->Release();
-            }
-        }
+      CoTaskMemFree(item);
     }
 
   // Get the contents of the current user's startup folder
   if (SUCCEEDED(SHGetSpecialFolderLocation(NULL, CSIDL_STARTUP, &item)))
     {
       if (SHGetPathFromIDList(item, szPath))
-        {
           // Execute the contents
           RunFolderEntries(szPath, showStartupErrors);
 
-          // Cleanup
-          if (SUCCEEDED(SHGetMalloc(&pMalloc)))
-            {
-              pMalloc->Free(item);
-              pMalloc->Release();
-            }
-        }
+      CoTaskMemFree(item);
     }
 }
 

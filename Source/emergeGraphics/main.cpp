@@ -828,7 +828,7 @@ HICON EGGetSpecialFolderIcon(int csidl, UINT iconSize)
           icon = EGGetFileIcon(iconLocation, iconSize);
         }
 
-      ILFree(pidl);
+      CoTaskMemFree(pidl);
     }
 
   return icon;
