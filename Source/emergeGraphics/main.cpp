@@ -55,8 +55,6 @@ typedef HRESULT (WINAPI *fnDwmEnableBlurBehindWindow)(HWND, const DWM_BLURBEHIND
 static fnDwmEnableBlurBehindWindow MSDwmEnableBlurBehindWindow = NULL;
 
 // Globals
-HDC hdc = NULL;
-HBITMAP hbitmap = NULL;
 static HMODULE dwmapiDLL = NULL;
 static HMODULE shell32DLL = NULL;
 static HMODULE user32DLL = NULL;
@@ -104,7 +102,7 @@ BYTE EGGetMinAlpha(BYTE alphaBase, BYTE alphaDelta)
     return alphaMin;
 
   // Base check on colour depth of display
-  hdc = CreateCompatibleDC(NULL);
+  HDC hdc = CreateCompatibleDC(NULL);
   /*int devCaps = GetDeviceCaps(hdc, BITSPIXEL);
   std::wstring debug = L"DeviceCaps: ";
   debug += towstring(devCaps);
@@ -164,7 +162,7 @@ HICON EGConvertIcon(HICON sourceIcon, BYTE foregroundAlpha)
     }
 
   bmpDC = CreateCompatibleDC(NULL);
-  SelectObject(bmpDC, iconInfo.hbmColor);
+  HGDIOBJ bmpOrig = SelectObject(bmpDC, iconInfo.hbmColor);
 
   ZeroMemory(&bmi, sizeof(BITMAPINFOHEADER));
   bmi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
@@ -211,10 +209,10 @@ HICON EGConvertIcon(HICON sourceIcon, BYTE foregroundAlpha)
       DeleteDC(targetDC);
       return NULL;
     }
-  SelectObject(targetDC, hbitmap);
+  HGDIOBJ targetOrig = SelectObject(targetDC, hbitmap);
 
   maskDC = CreateCompatibleDC(NULL);
-  SelectObject(maskDC, iconInfo.hbmMask);
+  HGDIOBJ maskOrig = SelectObject(maskDC, iconInfo.hbmMask);
 
   if (bmp.bmBitsPixel == 32)
     {
@@ -260,6 +258,9 @@ HICON EGConvertIcon(HICON sourceIcon, BYTE foregroundAlpha)
         }
     }
 
+  SelectObject(bmpDC, bmpOrig);
+  SelectObject(targetDC, targetOrig);
+  SelectObject(maskDC, maskOrig);
   DeleteObject(iconInfo.hbmColor);
   iconInfo.hbmColor = hbitmap;
 
@@ -413,7 +414,7 @@ bool EGGradientFillRect(HDC hdc, RECT *rect, BYTE alpha, COLORREF colourFrom, CO
   bmi.bmiHeader.biSizeImage = width * height * 4;
 
   HBITMAP gradientBMP = CreateDIBSection(gradientDC, &bmi, DIB_RGB_COLORS, &gradientBits, NULL, 0x0);
-  SelectObject(gradientDC, gradientBMP);
+  HGDIOBJ original = SelectObject(gradientDC, gradientBMP);
 
   bf.BlendOp = AC_SRC_OVER;
   bf.BlendFlags = 0;
@@ -460,6 +461,7 @@ bool EGGradientFillRect(HDC hdc, RECT *rect, BYTE alpha, COLORREF colourFrom, CO
   else
     EGFillRect(hdc, rect, bf.SourceConstantAlpha, colourFrom);
 
+  SelectObject(gradientDC, original);
   DeleteDC(gradientDC);
   DeleteObject(gradientBMP);
 
@@ -918,8 +920,9 @@ bool EGGetTextRect(WCHAR *text, HFONT font, RECT *rect, UINT flags)
   int ret = 0;
   HDC hdc = CreateCompatibleDC(NULL);
 
-  DeleteObject(SelectObject(hdc, font));
+  HGDIOBJ original = SelectObject(hdc, font);
   ret = DrawTextEx(hdc, text, wcslen(text), rect, DT_CALCRECT | flags, NULL);
+  SelectObject(hdc, original);
   DeleteDC(hdc);
 
   return (ret != 0);
@@ -978,11 +981,11 @@ bool EGDrawAlphaText(BYTE alpha, CLIENTINFO clientInfo, FORMATINFO formatInfo, W
   fillDC = CreateCompatibleDC(NULL);
 
   fillBMP = EGCreateBitmap(0x00, formatInfo.color, maskRect);
-  SelectObject(fillDC, fillBMP);
+  HGDIOBJ fillOrig = SelectObject(fillDC, fillBMP);
 
   maskdc = CreateCompatibleDC(NULL);
   hmask = EGCreateBitmap(0x00, RGB(0, 0, 0), maskRect);
-  SelectObject(maskdc, hmask);
+  HGDIOBJ maskOrigBMP = SelectObject(maskdc, hmask);
 
   ZeroMemory(&bmi, sizeof(BITMAPINFOHEADER));
   bmi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
@@ -1003,7 +1006,7 @@ bool EGDrawAlphaText(BYTE alpha, CLIENTINFO clientInfo, FORMATINFO formatInfo, W
 
   SetBkMode(maskdc, TRANSPARENT);
   SetTextColor(maskdc, RGB(255, 255, 255));
-  SelectObject(maskdc, formatInfo.font);
+  HGDIOBJ maskOrigFont = SelectObject(maskdc, formatInfo.font);
 
   DrawTextEx(maskdc, commandText, (int)wcslen(commandText), &maskRect, drawFlags , NULL);
 
@@ -1049,54 +1052,17 @@ bool EGDrawAlphaText(BYTE alpha, CLIENTINFO clientInfo, FORMATINFO formatInfo, W
   ret = AlphaBlend(clientInfo.hdc, clientInfo.rt.left, verticalOffset, width, displayHeight, fillDC, maskRect.left, maskRect.top, width, displayHeight, bf);
 
   // do cleanup
+  SelectObject(fillDC, fillOrig);
+  SelectObject(maskdc, maskOrigBMP);
+  SelectObject(maskdc, maskOrigFont);
   DeleteDC(fillDC);
-  DeleteObject(fillBMP);
   DeleteDC(maskdc);
+  DeleteObject(fillBMP);
   DeleteObject(hmask);
   GlobalFree((HGLOBAL)bmpBits);
   GlobalFree((HGLOBAL)maskBits);
 
   return (ret == TRUE);
-}
-
-HDC EGBeginPaint(HWND wnd)
-{
-  RECT clientrt;
-  BITMAPINFO bmi;
-
-  // get window dimensions
-  GetClientRect(wnd, &clientrt);
-
-  // create a DC for our bitmap -- the source DC for AlphaBlend
-  hdc = CreateCompatibleDC(NULL);
-
-  // zero the memory for the bitmap info
-  ZeroMemory(&bmi, sizeof(BITMAPINFOHEADER));
-
-  // set the bitmap width and height to 60% of the width and height of each of the
-  // three horizontal areas. Later on, the blending will occur in the center of each
-  // of the three areas.
-  bmi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
-  bmi.bmiHeader.biWidth = clientrt.right;
-  bmi.bmiHeader.biHeight = clientrt.bottom;
-  bmi.bmiHeader.biPlanes = 1;
-  bmi.bmiHeader.biBitCount = 32;         // four 8-bit components
-  bmi.bmiHeader.biCompression = BI_RGB;
-  bmi.bmiHeader.biSizeImage = bmi.bmiHeader.biWidth * bmi.bmiHeader.biHeight * 4;
-
-  // create our DIB section and select the bitmap into the dc
-  hbitmap = CreateDIBSection(hdc, &bmi, DIB_RGB_COLORS, NULL, NULL, 0x0);
-  SelectObject(hdc, hbitmap);
-
-  return hdc;
-}
-
-void EGEndPaint()
-{
-  if (hdc)
-    DeleteDC(hdc);
-  if (hbitmap)
-    DeleteObject(hbitmap);
 }
 
 bool EGEqualLogFont(const LOGFONT& source, const LOGFONT& target)

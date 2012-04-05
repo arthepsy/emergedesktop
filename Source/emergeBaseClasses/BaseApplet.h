@@ -84,6 +84,8 @@ public:
   bool ClickThrough();
   std::tr1::shared_ptr<BaseSettings> pBaseSettings;
   HDC activeBackgroundDC, inactiveBackgroundDC;
+  HGDIOBJ activeBackgroundObj, inactiveBackgroundObj;
+  HBITMAP activeBackgroundBMP, inactiveBackgroundBMP;
   LRESULT DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
   void SetFullScreen(bool value);
   bool GetFullScreen();

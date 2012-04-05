@@ -38,7 +38,12 @@ BaseApplet::BaseApplet(HINSTANCE hInstance, const WCHAR *appletName, bool allowA
   this->allowMultipleInstances = allowMultipleInstances;
 
   activeBackgroundDC = NULL;
+  activeBackgroundBMP = NULL;
+  activeBackgroundObj = NULL;
+
   inactiveBackgroundDC = NULL;
+  inactiveBackgroundBMP = NULL;
+  inactiveBackgroundObj = NULL;
 
   displayChangeThread = NULL;
   fullScreenThread = NULL;
@@ -48,11 +53,19 @@ BaseApplet::BaseApplet(HINSTANCE hInstance, const WCHAR *appletName, bool allowA
 
 BaseApplet::~BaseApplet()
 {
-  // Unregister as a Shell window
   if (activeBackgroundDC != NULL)
-    DeleteDC(activeBackgroundDC);
+    {
+      SelectObject(activeBackgroundDC, activeBackgroundObj);
+      DeleteDC(activeBackgroundDC);
+      DeleteObject(activeBackgroundBMP);
+    }
+
   if (inactiveBackgroundDC != NULL)
-    DeleteDC(inactiveBackgroundDC);
+    {
+      SelectObject(inactiveBackgroundDC, inactiveBackgroundObj);
+      DeleteDC(inactiveBackgroundDC);
+      DeleteObject(inactiveBackgroundBMP);
+    }
 
   CloseHandle(multiInstanceLock);
 
@@ -255,8 +268,10 @@ void BaseApplet::UpdateGUI(WCHAR *styleFile)
       appletHidden = pBaseSettings->GetStartHidden();
 
       // Delete the background DCs to force a refresh
+      SelectObject(activeBackgroundDC, activeBackgroundObj);
       DeleteDC(activeBackgroundDC);
       activeBackgroundDC = NULL;
+      SelectObject(inactiveBackgroundDC, inactiveBackgroundObj);
       DeleteDC(inactiveBackgroundDC);
       inactiveBackgroundDC = NULL;
     }
@@ -510,7 +525,6 @@ LRESULT BaseApplet::DoNCLButtonUp()
 
 void BaseApplet::DrawAlphaBlend()
 {
-  HDC hdc;
   RECT clientrt, contentrt, customcontentrt;
   POINT srcPt;
   SIZE wndSz;
@@ -523,17 +537,36 @@ void BaseApplet::DrawAlphaBlend()
   if (IsRectEmpty(&clientrt))
     return;
 
-  hdc = EGBeginPaint(mainWnd);
+  HDC hdc = CreateCompatibleDC(NULL);
+  HBITMAP hbitmap = EGCreateBitmap(0x00, RGB(0, 0, 0), clientrt);
+  HGDIOBJ hobj = SelectObject(hdc, hbitmap);
 
   if (!EqualRect(&clientrt, &oldrt))
     {
       CopyRect(&oldrt, &clientrt);
       if (activeBackgroundDC != NULL)
-        DeleteDC(activeBackgroundDC);
+        {
+          SelectObject(activeBackgroundDC, activeBackgroundObj);
+          DeleteDC(activeBackgroundDC);
+          DeleteObject(activeBackgroundBMP);
+        }
       if (inactiveBackgroundDC != NULL)
-        DeleteDC(inactiveBackgroundDC);
-      activeBackgroundDC = ESEPaintBackground(clientrt, &guiInfo, true);
-      inactiveBackgroundDC = ESEPaintBackground(clientrt, &guiInfo, false);
+        {
+          SelectObject(inactiveBackgroundDC, inactiveBackgroundObj);
+          DeleteDC(inactiveBackgroundDC);
+          DeleteObject(inactiveBackgroundBMP);
+        }
+
+      activeBackgroundDC = CreateCompatibleDC(NULL);
+      activeBackgroundBMP = EGCreateBitmap(0x00, RGB(0,0,0), clientrt);
+      activeBackgroundObj = SelectObject(activeBackgroundDC, activeBackgroundBMP);
+
+      inactiveBackgroundDC = CreateCompatibleDC(NULL);
+      inactiveBackgroundBMP = EGCreateBitmap(0x00, RGB(0,0,0), clientrt);
+      inactiveBackgroundObj = SelectObject(inactiveBackgroundDC, inactiveBackgroundBMP);
+
+      ESEPaintBackground(activeBackgroundDC, clientrt, &guiInfo, true);
+      ESEPaintBackground(inactiveBackgroundDC, clientrt, &guiInfo, false);
 
       if (EGIsCompositionEnabled())
         EGBlurWindow(mainWnd, guiInfo.windowBlur);
@@ -610,8 +643,9 @@ void BaseApplet::DrawAlphaBlend()
   UpdateLayeredWindow(mainWnd, NULL, NULL, &wndSz, hdc, &srcPt, 0, &bf, ULW_ALPHA);
 
   // do cleanup
-  EGEndPaint();
+  SelectObject(hdc, hobj);
   DeleteDC(hdc);
+  DeleteObject(hbitmap);
 }
 
 void BaseApplet::AdjustContentRect(LPRECT contentRect UNUSED)

@@ -167,8 +167,6 @@ DLL_EXPORT HICON EGGetSpecialFolderIcon(int csidl, UINT iconSize);
 DLL_EXPORT HICON EGGetSystemIcon(UINT iconIndex, UINT iconSize);
 DLL_EXPORT HICON EGExtractIcon(const WCHAR *iconLocation, int iconIndex, int iconSize);
 DLL_EXPORT bool EGDrawAlphaText(BYTE alpha, CLIENTINFO clientInfo, FORMATINFO formatInfo, WCHAR *commandText);
-DLL_EXPORT HDC EGBeginPaint(HWND wnd);
-DLL_EXPORT void EGEndPaint();
 DLL_EXPORT bool EGFillRect(HDC hdc, RECT *rect, BYTE alpha, COLORREF colour);
 DLL_EXPORT bool EGGradientFillRect(HDC hdc, RECT *rect, BYTE alpha, COLORREF colourFrom, COLORREF colourTo, int bevelWidth, WCHAR *gradientMethod);
 DLL_EXPORT bool EGFrameRect(HDC hdc, RECT *rect, BYTE bgAlpha, COLORREF borderColour, int borderWidth);

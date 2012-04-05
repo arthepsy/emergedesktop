@@ -324,28 +324,11 @@ void ESELoadStyle(WCHAR *styleFile, LPGUIINFO guiInfo)
   guiInfo->alphaText = tmpAlpha;
 }
 
-HDC ESEPaintBackground(RECT clientRect, LPGUIINFO guiInfo, bool active)
+void ESEPaintBackground(HDC hdc, RECT clientRect, LPGUIINFO guiInfo, bool active)
 {
-  int width = clientRect.right - clientRect.left;
-  int height = clientRect.bottom - clientRect.top;
-  VOID *backgroundBits;
   WCHAR *lower;
-  BITMAPINFO bmi;
   BYTE alpha;
   COLORREF colourFrom = guiInfo->gradientFrom, colourTo = guiInfo->gradientTo;
-
-  HDC hdc = CreateCompatibleDC(NULL);
-  ZeroMemory(&bmi, sizeof(BITMAPINFOHEADER));
-  bmi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
-  bmi.bmiHeader.biWidth = width;
-  bmi.bmiHeader.biHeight = height;
-  bmi.bmiHeader.biPlanes = 1;
-  bmi.bmiHeader.biBitCount = 32;
-  bmi.bmiHeader.biCompression = BI_RGB;
-  bmi.bmiHeader.biSizeImage = width * height * 4;
-
-  HBITMAP backgroundBMP = CreateDIBSection(hdc, &bmi, DIB_RGB_COLORS, &backgroundBits, NULL, 0x0);
-  DeleteObject(SelectObject (hdc, backgroundBMP));
 
   if (guiInfo->dragBorder > 0)
     {
@@ -368,6 +351,4 @@ HDC ESEPaintBackground(RECT clientRect, LPGUIINFO guiInfo, bool active)
 
   EGGradientFillRect(hdc, &clientRect, alpha, colourFrom, colourTo, guiInfo->bevelWidth,
                      guiInfo->gradientMethod);
-
-  return hdc;
 }

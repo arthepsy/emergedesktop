@@ -160,6 +160,9 @@ LRESULT CALLBACK MenuBuilder::MenuProcedure (HWND hwnd, UINT message, WPARAM wPa
 
   if (message == WM_CREATE)
     {
+      // Register to recieve the specified Emerge Desktop messages
+      PostMessage(ELGetCoreWindow(), EMERGE_REGISTER, (WPARAM)hwnd, (LPARAM)EMERGE_CORE);
+
       cs = (CREATESTRUCT*)lParam;
       pMenuBuilder = reinterpret_cast<MenuBuilder*>(cs->lpCreateParams);
       return DefWindowProc(hwnd, message, wParam, lParam);
@@ -212,6 +215,9 @@ LRESULT CALLBACK MenuBuilder::MenuProcedure (HWND hwnd, UINT message, WPARAM wPa
 
     case WM_DESTROY:
     case WM_NCDESTROY:
+      // Unregister the specified Emerge Desktop messages
+      PostMessage(ELGetCoreWindow(), EMERGE_UNREGISTER, (WPARAM)hwnd, (LPARAM)EMERGE_CORE);
+
       PostQuitMessage(0);
       break;
 

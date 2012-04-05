@@ -41,6 +41,6 @@ DLL_EXPORT bool ESEWriteStyle(WCHAR *styleFile, LPGUIINFO guiInfo, HWND hwnd);
 DLL_EXPORT void ESEReadStyle(WCHAR *styleFile, LPGUIINFO guiInfo);
 DLL_EXPORT void ESELoadStyle(WCHAR *styleFile, LPGUIINFO guiInfo);
 DLL_EXPORT bool ESEEqualStyle(LPGUIINFO sourceInfo, LPGUIINFO targetInfo);
-DLL_EXPORT HDC ESEPaintBackground(RECT clientRect, LPGUIINFO guiInfo, bool active);
+DLL_EXPORT void ESEPaintBackground(HDC hdc, RECT clientRect, LPGUIINFO guiInfo, bool active);
 
 #endif

@@ -429,48 +429,6 @@
 					<Add directory=".\bin" />
 				</Linker>
 			</Target>
-			<Target title="emergeMediaCtrl - Release">
-				<Option platforms="Windows;" />
-				<Option output="bin\emergeMediaCtrl" prefix_auto="1" extension_auto="1" />
-				<Option object_output=".objs\Release" />
-				<Option external_deps="bin\emergeAppletEngine.dll;bin\emergeBaseClasses.dll;bin\emergeGraphics.dll;bin\emergeLib.dll;bin\emergeSchemeEngine.dll;" />
-				<Option type="0" />
-				<Option compiler="gcc" />
-				<Compiler>
-					<Add option="-O2" />
-				</Compiler>
-				<ResourceCompiler>
-					<Add directory=".\emergeTasks" />
-				</ResourceCompiler>
-				<Linker>
-					<Add option="-s" />
-					<Add library="emergeLib" />
-					<Add library="emergeStyleEngine" />
-					<Add library="emergeAppletEngine" />
-					<Add library="emergeGraphics" />
-					<Add library="emergeBaseClasses" />
-					<Add directory=".\bin" />
-				</Linker>
-			</Target>
-			<Target title="reg2xml - Release">
-				<Option platforms="Windows;" />
-				<Option output="bin\reg2xml" prefix_auto="1" extension_auto="1" />
-				<Option object_output=".objs\Release" />
-				<Option external_deps="bin\emergeLib.dll;" />
-				<Option type="0" />
-				<Option compiler="gcc" />
-				<Compiler>
-					<Add option="-O2" />
-				</Compiler>
-				<Linker>
-					<Add option="-s" />
-					<Add library="emergeLib" />
-					<Add library="emergeBaseClasses" />
-					<Add library="shlwapi" />
-					<Add library="comctl32" />
-					<Add directory=".\bin" />
-				</Linker>
-			</Target>
 			<Target title="emergeHelloWorld - Release">
 				<Option platforms="Windows;" />
 				<Option output="bin\emergeHelloWorld" prefix_auto="1" extension_auto="1" />
@@ -607,6 +565,27 @@
 					<Add directory=".\bin" />
 				</Linker>
 			</Target>
+			<Target title="emergeAppletEngine - Debug">
+				<Option platforms="Windows;" />
+				<Option output="bin\emergeAppletEngine" prefix_auto="1" extension_auto="1" />
+				<Option object_output=".objs\Debug" />
+				<Option type="3" />
+				<Option compiler="gcc" />
+				<Option createDefFile="1" />
+				<Option createStaticLib="1" />
+				<Compiler>
+					<Add option="-g" />
+					<Add option="-DEMERGEAPPLETENGINE_EXPORTS" />
+				</Compiler>
+				<Linker>
+					<Add option="-Wl,--enable-auto-image-base" />
+					<Add library="emergeLib" />
+					<Add library="comctl32" />
+					<Add library="ole32" />
+					<Add library="shlwapi" />
+					<Add directory=".\bin" />
+				</Linker>
+			</Target>
 			<Target title="emergeStyleEngine - Debug">
 				<Option platforms="Windows;" />
 				<Option output="bin\emergeStyleEngine" prefix_auto="1" extension_auto="1" />
@@ -626,27 +605,6 @@
 					<Add library="gdi32" />
 					<Add library="msimg32" />
 					<Add library="comdlg32" />
-					<Add library="shlwapi" />
-					<Add directory=".\bin" />
-				</Linker>
-			</Target>
-			<Target title="emergeAppletEngine - Debug">
-				<Option platforms="Windows;" />
-				<Option output="bin\emergeAppletEngine" prefix_auto="1" extension_auto="1" />
-				<Option object_output=".objs\Debug" />
-				<Option type="3" />
-				<Option compiler="gcc" />
-				<Option createDefFile="1" />
-				<Option createStaticLib="1" />
-				<Compiler>
-					<Add option="-g" />
-					<Add option="-DEMERGEAPPLETENGINE_EXPORTS" />
-				</Compiler>
-				<Linker>
-					<Add option="-Wl,--enable-auto-image-base" />
-					<Add library="emergeLib" />
-					<Add library="comctl32" />
-					<Add library="ole32" />
 					<Add library="shlwapi" />
 					<Add directory=".\bin" />
 				</Linker>
@@ -677,28 +635,26 @@
 					<Add directory=".\bin" />
 				</Linker>
 			</Target>
-			<Target title="emergeWorkspace - Debug">
+			<Target title="emergeTrayExplorerHook - Debug">
 				<Option platforms="Windows;" />
-				<Option output="bin\emergeWorkspace" prefix_auto="1" extension_auto="1" />
+				<Option output="bin\emergeTrayExplorerHook" prefix_auto="1" extension_auto="1" />
 				<Option object_output=".objs\Debug" />
-				<Option external_deps="bin\emergeLib.dll;bin\emergeAppletEngine.dll;bin\emergeGraphics.dll;" />
-				<Option type="0" />
+				<Option type="3" />
 				<Option compiler="gcc" />
+				<Option createDefFile="1" />
+				<Option createStaticLib="1" />
+				<Option projectLinkerOptionsRelation="1" />
 				<Compiler>
 					<Add option="-g" />
+					<Add option="-DEMERGETRAYEXPLORERHOOK_EXPORTS" />
 				</Compiler>
 				<ResourceCompiler>
-					<Add directory=".\emergeDesktop" />
+					<Add directory=".\emergeTrayExplorerHook" />
 				</ResourceCompiler>
 				<Linker>
-					<Add library="emergeLib" />
-					<Add library="shlwapi" />
-					<Add library="comctl32" />
-					<Add library="emergeGraphics" />
-					<Add library="emergeAppletEngine" />
-					<Add library="ole32" />
-					<Add library="uuid" />
-					<Add library="emergeBaseClasses" />
+					<Add option="-static-libgcc" />
+					<Add option="-Wl,--enable-auto-import" />
+					<Add option="-Wl,--enable-auto-image-base" />
 					<Add directory=".\bin" />
 				</Linker>
 			</Target>
@@ -752,75 +708,28 @@
 					<Add directory=".\bin" />
 				</Linker>
 			</Target>
-			<Target title="emergeTrayExplorerHook - Debug">
+			<Target title="emergeWorkspace - Debug">
 				<Option platforms="Windows;" />
-				<Option output="bin\emergeTrayExplorerHook" prefix_auto="1" extension_auto="1" />
+				<Option output="bin\emergeWorkspace" prefix_auto="1" extension_auto="1" />
 				<Option object_output=".objs\Debug" />
-				<Option type="3" />
-				<Option compiler="gcc" />
-				<Option createDefFile="1" />
-				<Option createStaticLib="1" />
-				<Option projectLinkerOptionsRelation="1" />
-				<Compiler>
-					<Add option="-g" />
-					<Add option="-DEMERGETRAYEXPLORERHOOK_EXPORTS" />
-				</Compiler>
-				<ResourceCompiler>
-					<Add directory=".\emergeTrayExplorerHook" />
-				</ResourceCompiler>
-				<Linker>
-					<Add option="-static-libgcc" />
-					<Add option="-Wl,--enable-auto-import" />
-					<Add option="-Wl,--enable-auto-image-base" />
-					<Add directory=".\bin" />
-				</Linker>
-			</Target>
-			<Target title="emergeTray - Debug">
-				<Option platforms="Windows;" />
-				<Option output="bin\emergeTray" prefix_auto="1" extension_auto="1" />
-				<Option object_output=".objs\Debug" />
-				<Option external_deps="bin\emergeAppletEngine.dll;bin\emergeBaseClasses.dll;bin\emergeGraphics.dll;bin\emergeLib.dll;bin\emergeSchemeEngine.dll;bin\emergeTrayExplorerHook.dll" />
+				<Option external_deps="bin\emergeLib.dll;bin\emergeAppletEngine.dll;bin\emergeGraphics.dll;" />
 				<Option type="0" />
 				<Option compiler="gcc" />
 				<Compiler>
 					<Add option="-g" />
 				</Compiler>
 				<ResourceCompiler>
-					<Add directory=".\emergeTray" />
+					<Add directory=".\emergeDesktop" />
 				</ResourceCompiler>
 				<Linker>
-					<Add library="emergeStyleEngine" />
 					<Add library="emergeLib" />
-					<Add library="emergeAppletEngine" />
-					<Add library="emergeGraphics" />
-					<Add library="emergeBaseClasses" />
-					<Add library="emergeTrayExplorerHook" />
+					<Add library="shlwapi" />
 					<Add library="comctl32" />
-					<Add library="uuid" />
+					<Add library="emergeGraphics" />
+					<Add library="emergeAppletEngine" />
 					<Add library="ole32" />
-					<Add directory=".\bin" />
-				</Linker>
-			</Target>
-			<Target title="emergeTasks - Debug">
-				<Option platforms="Windows;" />
-				<Option output="bin\emergeTasks" prefix_auto="1" extension_auto="1" />
-				<Option object_output=".objs\Release" />
-				<Option external_deps="bin\emergeAppletEngine.dll;bin\emergeBaseClasses.dll;bin\emergeGraphics.dll;bin\emergeLib.dll;bin\emergeSchemeEngine.dll;" />
-				<Option type="0" />
-				<Option compiler="gcc" />
-				<Compiler>
-					<Add option="-g" />
-				</Compiler>
-				<ResourceCompiler>
-					<Add directory=".\emergeTasks" />
-				</ResourceCompiler>
-				<Linker>
-					<Add library="emergeLib" />
-					<Add library="emergeStyleEngine" />
-					<Add library="emergeAppletEngine" />
-					<Add library="emergeGraphics" />
+					<Add library="uuid" />
 					<Add library="emergeBaseClasses" />
-					<Add library="comctl32" />
 					<Add directory=".\bin" />
 				</Linker>
 			</Target>
@@ -870,9 +779,143 @@
 					<Add directory=".\bin" />
 				</Linker>
 			</Target>
+			<Target title="emergeTasks - Debug">
+				<Option platforms="Windows;" />
+				<Option output="bin\emergeTasks" prefix_auto="1" extension_auto="1" />
+				<Option object_output=".objs\Release" />
+				<Option external_deps="bin\emergeAppletEngine.dll;bin\emergeBaseClasses.dll;bin\emergeGraphics.dll;bin\emergeLib.dll;bin\emergeSchemeEngine.dll;" />
+				<Option type="0" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-g" />
+				</Compiler>
+				<ResourceCompiler>
+					<Add directory=".\emergeTasks" />
+				</ResourceCompiler>
+				<Linker>
+					<Add library="emergeLib" />
+					<Add library="emergeStyleEngine" />
+					<Add library="emergeAppletEngine" />
+					<Add library="emergeGraphics" />
+					<Add library="emergeBaseClasses" />
+					<Add library="comctl32" />
+					<Add directory=".\bin" />
+				</Linker>
+			</Target>
+			<Target title="emergeTray - Debug">
+				<Option platforms="Windows;" />
+				<Option output="bin\emergeTray" prefix_auto="1" extension_auto="1" />
+				<Option object_output=".objs\Debug" />
+				<Option external_deps="bin\emergeAppletEngine.dll;bin\emergeBaseClasses.dll;bin\emergeGraphics.dll;bin\emergeLib.dll;bin\emergeSchemeEngine.dll;bin\emergeTrayExplorerHook.dll" />
+				<Option type="0" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-g" />
+				</Compiler>
+				<ResourceCompiler>
+					<Add directory=".\emergeTray" />
+				</ResourceCompiler>
+				<Linker>
+					<Add library="emergeStyleEngine" />
+					<Add library="emergeLib" />
+					<Add library="emergeAppletEngine" />
+					<Add library="emergeGraphics" />
+					<Add library="emergeBaseClasses" />
+					<Add library="emergeTrayExplorerHook" />
+					<Add library="comctl32" />
+					<Add library="uuid" />
+					<Add library="ole32" />
+					<Add directory=".\bin" />
+				</Linker>
+			</Target>
+			<Target title="emergeVWM - Debug">
+				<Option platforms="Windows;" />
+				<Option output="bin\emergeVWM" prefix_auto="1" extension_auto="1" />
+				<Option object_output=".objs\Release" />
+				<Option external_deps="bin\emergeAppletEngine.dll;bin\emergeBaseClasses.dll;bin\emergeGraphics.dll;bin\emergeLib.dll;bin\emergeSchemeEngine.dll;" />
+				<Option type="0" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-g" />
+				</Compiler>
+				<ResourceCompiler>
+					<Add directory=".\emergeVWM" />
+				</ResourceCompiler>
+				<Linker>
+					<Add library="emergeStyleEngine" />
+					<Add library="emergeLib" />
+					<Add library="emergeAppletEngine" />
+					<Add library="emergeGraphics" />
+					<Add library="emergeBaseClasses" />
+					<Add library="comctl32" />
+					<Add library="shlwapi" />
+					<Add directory=".\bin" />
+				</Linker>
+			</Target>
+			<Target title="emerge - Debug">
+				<Option platforms="Windows;" />
+				<Option output="bin\emerge" prefix_auto="1" extension_auto="1" />
+				<Option object_output=".objs\Release" />
+				<Option external_deps="bin\emergeLib.dll;" />
+				<Option type="0" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-g" />
+				</Compiler>
+				<Linker>
+					<Add library="emergeLib" />
+					<Add directory=".\bin" />
+				</Linker>
+			</Target>
+			<Target title="emergePower - Debug">
+				<Option platforms="Windows;" />
+				<Option output="bin\emergePower" prefix_auto="1" extension_auto="1" />
+				<Option object_output=".objs\Release" />
+				<Option external_deps="bin\emergeAppletEngine.dll;bin\emergeBaseClasses.dll;bin\emergeGraphics.dll;bin\emergeLib.dll;bin\emergeSchemeEngine.dll;" />
+				<Option type="0" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-g" />
+				</Compiler>
+				<ResourceCompiler>
+					<Add directory=".\emergeTasks" />
+				</ResourceCompiler>
+				<Linker>
+					<Add library="emergeLib" />
+					<Add library="emergeStyleEngine" />
+					<Add library="emergeAppletEngine" />
+					<Add library="emergeGraphics" />
+					<Add library="emergeBaseClasses" />
+					<Add library="comctl32" />
+					<Add directory=".\bin" />
+				</Linker>
+			</Target>
+			<Target title="emergeSysMon - Debug">
+				<Option platforms="Windows;" />
+				<Option output="bin\emergeSysMon" prefix_auto="1" extension_auto="1" />
+				<Option object_output=".objs\Release" />
+				<Option external_deps="bin\emergeAppletEngine.dll;bin\emergeBaseClasses.dll;bin\emergeGraphics.dll;bin\emergeLib.dll;bin\emergeSchemeEngine.dll;" />
+				<Option type="0" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-g" />
+				</Compiler>
+				<ResourceCompiler>
+					<Add directory=".\emergeTasks" />
+				</ResourceCompiler>
+				<Linker>
+					<Add library="comctl32" />
+					<Add library="emergeLib" />
+					<Add library="emergeStyleEngine" />
+					<Add library="emergeAppletEngine" />
+					<Add library="emergeGraphics" />
+					<Add library="emergeBaseClasses" />
+					<Add directory=".\bin" />
+				</Linker>
+			</Target>
 		</Build>
 		<VirtualTargets>
-			<Add alias="All - Debug" targets="emergeLib - Debug;emergeGraphics - Debug;emergeAppletEngine - Debug;emergeBaseClasses - Debug;emergeWorkspace - Debug;emergeCore - Debug;emergeCommand - Debug;emergeTrayExplorerHook - Debug;emergeTray - Debug;emergeTasks - Debug;emergeLauncher - Debug;emergeHotkeys - Debug;" />
+			<Add alias="All - Debug" targets="emergeLib - Debug;emergeGraphics - Debug;emergeAppletEngine - Debug;emergeStyleEngine - Debug;emergeBaseClasses - Debug;emergeTrayExplorerHook - Debug;emergeCore - Debug;emergeCommand - Debug;emergeWorkspace - Debug;emergeHotkeys - Debug;emergeLauncher - Debug;emergeTasks - Debug;emergeTray - Debug;emergeVWM - Debug;emerge - Debug;emergePower - Debug;emergeSysMon - Debug;" />
 			<Add alias="All - Release" targets="emergeLib - Release;emergeGraphics - Release;emergeAppletEngine - Release;emergeStyleEngine - Release;emergeBaseClasses - Release;emergeTrayExplorerHook - Release;emergeCore - Release;emergeCommand - Release;emergeWorkspace - Release;emergeHotkeys - Release;emergeLauncher - Release;emergeTasks - Release;emergeTray - Release;emergeVWM - Release;emerge - Release;emergePower - Release;emergeSysMon - Release;Explorer - Release;emergeIcons - Release;" />
 		</VirtualTargets>
 		<Compiler>
@@ -1484,52 +1527,68 @@
 		</Unit>
 		<Unit filename="emergePower\Applet.cpp">
 			<Option target="emergePower - Release" />
+			<Option target="emergePower - Debug" />
 		</Unit>
 		<Unit filename="emergePower\Applet.h">
 			<Option target="emergePower - Release" />
+			<Option target="emergePower - Debug" />
 		</Unit>
 		<Unit filename="emergePower\Config.cpp">
 			<Option target="emergePower - Release" />
+			<Option target="emergePower - Debug" />
 		</Unit>
 		<Unit filename="emergePower\Config.h">
 			<Option target="emergePower - Release" />
+			<Option target="emergePower - Debug" />
 		</Unit>
 		<Unit filename="emergePower\ConfigPage.cpp">
 			<Option target="emergePower - Release" />
+			<Option target="emergePower - Debug" />
 		</Unit>
 		<Unit filename="emergePower\ConfigPage.dlg">
 			<Option target="emergePower - Release" />
+			<Option target="emergePower - Debug" />
 		</Unit>
 		<Unit filename="emergePower\ConfigPage.h">
 			<Option target="emergePower - Release" />
+			<Option target="emergePower - Debug" />
 		</Unit>
 		<Unit filename="emergePower\PositionPage.cpp">
 			<Option target="emergePower - Release" />
+			<Option target="emergePower - Debug" />
 		</Unit>
 		<Unit filename="emergePower\PositionPage.dlg">
 			<Option target="emergePower - Release" />
+			<Option target="emergePower - Debug" />
 		</Unit>
 		<Unit filename="emergePower\PositionPage.h">
 			<Option target="emergePower - Release" />
+			<Option target="emergePower - Debug" />
 		</Unit>
 		<Unit filename="emergePower\Settings.cpp">
 			<Option target="emergePower - Release" />
+			<Option target="emergePower - Debug" />
 		</Unit>
 		<Unit filename="emergePower\Settings.h">
 			<Option target="emergePower - Release" />
+			<Option target="emergePower - Debug" />
 		</Unit>
 		<Unit filename="emergePower\emergePower.exe.manifest">
 			<Option target="emergePower - Release" />
+			<Option target="emergePower - Debug" />
 		</Unit>
 		<Unit filename="emergePower\emergePower.rc">
 			<Option compilerVar="WINDRES" />
 			<Option target="emergePower - Release" />
+			<Option target="emergePower - Debug" />
 		</Unit>
 		<Unit filename="emergePower\main.cpp">
 			<Option target="emergePower - Release" />
+			<Option target="emergePower - Debug" />
 		</Unit>
 		<Unit filename="emergePower\resource.h">
 			<Option target="emergePower - Release" />
+			<Option target="emergePower - Debug" />
 		</Unit>
 		<Unit filename="emergeStyleEngine\StyleEditor.cpp">
 			<Option target="emergeStyleEngine - Release" />
@@ -1558,61 +1617,80 @@
 		</Unit>
 		<Unit filename="emergeSysMon\Applet.cpp">
 			<Option target="emergeSysMon - Release" />
+			<Option target="emergeSysMon - Debug" />
 		</Unit>
 		<Unit filename="emergeSysMon\Applet.h">
 			<Option target="emergeSysMon - Release" />
+			<Option target="emergeSysMon - Debug" />
 		</Unit>
 		<Unit filename="emergeSysMon\Config.cpp">
 			<Option target="emergeSysMon - Release" />
+			<Option target="emergeSysMon - Debug" />
 		</Unit>
 		<Unit filename="emergeSysMon\Config.h">
 			<Option target="emergeSysMon - Release" />
+			<Option target="emergeSysMon - Debug" />
 		</Unit>
 		<Unit filename="emergeSysMon\ConfigPage.cpp">
 			<Option target="emergeSysMon - Release" />
+			<Option target="emergeSysMon - Debug" />
 		</Unit>
 		<Unit filename="emergeSysMon\ConfigPage.dlg">
 			<Option target="emergeSysMon - Release" />
+			<Option target="emergeSysMon - Debug" />
 		</Unit>
 		<Unit filename="emergeSysMon\ConfigPage.h">
 			<Option target="emergeSysMon - Release" />
+			<Option target="emergeSysMon - Debug" />
 		</Unit>
 		<Unit filename="emergeSysMon\DisplayPage.cpp">
 			<Option target="emergeSysMon - Release" />
+			<Option target="emergeSysMon - Debug" />
 		</Unit>
 		<Unit filename="emergeSysMon\DisplayPage.dlg">
 			<Option target="emergeSysMon - Release" />
+			<Option target="emergeSysMon - Debug" />
 		</Unit>
 		<Unit filename="emergeSysMon\DisplayPage.h">
 			<Option target="emergeSysMon - Release" />
+			<Option target="emergeSysMon - Debug" />
 		</Unit>
 		<Unit filename="emergeSysMon\PositionPage.cpp">
 			<Option target="emergeSysMon - Release" />
+			<Option target="emergeSysMon - Debug" />
 		</Unit>
 		<Unit filename="emergeSysMon\PositionPage.dlg">
 			<Option target="emergeSysMon - Release" />
+			<Option target="emergeSysMon - Debug" />
 		</Unit>
 		<Unit filename="emergeSysMon\PositionPage.h">
 			<Option target="emergeSysMon - Release" />
+			<Option target="emergeSysMon - Debug" />
 		</Unit>
 		<Unit filename="emergeSysMon\Settings.cpp">
 			<Option target="emergeSysMon - Release" />
+			<Option target="emergeSysMon - Debug" />
 		</Unit>
 		<Unit filename="emergeSysMon\Settings.h">
 			<Option target="emergeSysMon - Release" />
+			<Option target="emergeSysMon - Debug" />
 		</Unit>
 		<Unit filename="emergeSysMon\emergeSysMon.exe.manifest">
 			<Option target="emergeSysMon - Release" />
+			<Option target="emergeSysMon - Debug" />
 		</Unit>
 		<Unit filename="emergeSysMon\emergeSysMon.rc">
 			<Option compilerVar="WINDRES" />
 			<Option target="emergeSysMon - Release" />
+			<Option target="emergeSysMon - Debug" />
 		</Unit>
 		<Unit filename="emergeSysMon\main.cpp">
 			<Option target="emergeSysMon - Release" />
+			<Option target="emergeSysMon - Debug" />
 		</Unit>
 		<Unit filename="emergeSysMon\resource.h">
 			<Option target="emergeSysMon - Release" />
+			<Option target="emergeSysMon - Debug" />
 		</Unit>
 		<Unit filename="emergeTasks\Applet.cpp">
 			<Option target="emergeTasks - Release" />
@@ -1795,58 +1873,76 @@
 		</Unit>
 		<Unit filename="emergeVWM\Applet.cpp">
 			<Option target="emergeVWM - Release" />
+			<Option target="emergeVWM - Debug" />
 		</Unit>
 		<Unit filename="emergeVWM\Applet.h">
 			<Option target="emergeVWM - Release" />
+			<Option target="emergeVWM - Debug" />
 		</Unit>
 		<Unit filename="emergeVWM\Config.cpp">
 			<Option target="emergeVWM - Release" />
+			<Option target="emergeVWM - Debug" />
 		</Unit>
 		<Unit filename="emergeVWM\Config.h">
 			<Option target="emergeVWM - Release" />
+			<Option target="emergeVWM - Debug" />
 		</Unit>
 		<Unit filename="emergeVWM\ConfigPage.cpp">
 			<Option target="emergeVWM - Release" />
+			<Option target="emergeVWM - Debug" />
 		</Unit>
 		<Unit filename="emergeVWM\ConfigPage.dlg">
 			<Option target="emergeVWM - Release" />
+			<Option target="emergeVWM - Debug" />
 		</Unit>
 		<Unit filename="emergeVWM\ConfigPage.h">
 			<Option target="emergeVWM - Release" />
+			<Option target="emergeVWM - Debug" />
 		</Unit>
 		<Unit filename="emergeVWM\Settings.cpp">
 			<Option target="emergeVWM - Release" />
+			<Option target="emergeVWM - Debug" />
 		</Unit>
 		<Unit filename="emergeVWM\Settings.h">
 			<Option target="emergeVWM - Release" />
+			<Option target="emergeVWM - Debug" />
 		</Unit>
 		<Unit filename="emergeVWM\StickyPage.cpp">
 			<Option target="emergeVWM - Release" />
+			<Option target="emergeVWM - Debug" />
 		</Unit>
 		<Unit filename="emergeVWM\StickyPage.dlg">
 			<Option target="emergeVWM - Release" />
+			<Option target="emergeVWM - Debug" />
 		</Unit>
 		<Unit filename="emergeVWM\StickyPage.h">
 			<Option target="emergeVWM - Release" />
+			<Option target="emergeVWM - Debug" />
 		</Unit>
 		<Unit filename="emergeVWM\Task.cpp">
 			<Option target="emergeVWM - Release" />
+			<Option target="emergeVWM - Debug" />
 		</Unit>
 		<Unit filename="emergeVWM\Task.h">
 			<Option target="emergeVWM - Release" />
+			<Option target="emergeVWM - Debug" />
 		</Unit>
 		<Unit filename="emergeVWM\emergeVWM.exe.manifest">
 			<Option target="emergeVWM - Release" />
+			<Option target="emergeVWM - Debug" />
 		</Unit>
 		<Unit filename="emergeVWM\emergeVWM.rc">
 			<Option compilerVar="WINDRES" />
 			<Option target="emergeVWM - Release" />
+			<Option target="emergeVWM - Debug" />
 		</Unit>
 		<Unit filename="emergeVWM\main.cpp">
 			<Option target="emergeVWM - Release" />
+			<Option target="emergeVWM - Debug" />
 		</Unit>
 		<Unit filename="emergeVWM\resource.h">
 			<Option target="emergeVWM - Release" />
+			<Option target="emergeVWM - Debug" />
 		</Unit>
 		<Unit filename="emergeWorkspace\Config.cpp">
 			<Option target="emergeWorkspace - Release" />
@@ -1959,13 +2055,16 @@
 		</Unit>
 		<Unit filename="emerge\emerge.exe.manifest">
 			<Option target="emerge - Release" />
+			<Option target="emerge - Debug" />
 		</Unit>
 		<Unit filename="emerge\emerge.rc">
 			<Option compilerVar="WINDRES" />
 			<Option target="emerge - Release" />
+			<Option target="emerge - Debug" />
 		</Unit>
 		<Unit filename="emerge\main.cpp">
 			<Option target="emerge - Release" />
+			<Option target="emerge - Debug" />
 		</Unit>
 		<Unit filename="hgversion.h">
 			<Option target="emergeLib - Release" />
@@ -1984,8 +2083,6 @@
 			<Option target="emerge - Release" />
 			<Option target="emergePower - Release" />
 			<Option target="emergeSysMon - Release" />
-			<Option target="emergeMediaCtrl - Release" />
-			<Option target="reg2xml - Release" />
 			<Option target="emergeHelloWorld - Release" />
 			<Option target="emergeLib - Debug" />
 			<Option target="emergeAppletEngine - Debug" />
@@ -2000,6 +2097,10 @@
 			<Option target="emergeLauncher - Debug" />
 			<Option target="emergeGraphics - Debug" />
 			<Option target="emergeStyleEngine - Debug" />
+			<Option target="emergeVWM - Debug" />
+			<Option target="emerge - Debug" />
+			<Option target="emergePower - Debug" />
+			<Option target="emergeSysMon - Debug" />
 		</Unit>
 		<Unit filename="tinyxml\tinystr.cpp">
 			<Option target="emergeLib - Release" />
@@ -2042,8 +2143,6 @@
 			<Option target="emerge - Release" />
 			<Option target="emergePower - Release" />
 			<Option target="emergeSysMon - Release" />
-			<Option target="emergeMediaCtrl - Release" />
-			<Option target="reg2xml - Release" />
 			<Option target="emergeHelloWorld - Release" />
 			<Option target="emergeLib - Debug" />
 			<Option target="emergeAppletEngine - Debug" />
@@ -2058,6 +2157,10 @@
 			<Option target="emergeLauncher - Debug" />
 			<Option target="emergeGraphics - Debug" />
 			<Option target="emergeStyleEngine - Debug" />
+			<Option target="emergeVWM - Debug" />
+			<Option target="emerge - Debug" />
+			<Option target="emergePower - Debug" />
+			<Option target="emergeSysMon - Debug" />
 		</Unit>
 		<Extensions>
 			<code_completion />

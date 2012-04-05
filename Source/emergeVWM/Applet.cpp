@@ -39,6 +39,9 @@ LRESULT CALLBACK Applet::WindowProcedure (HWND hwnd, UINT message, WPARAM wParam
 
   if (message == WM_CREATE)
     {
+      // Register to recieve the specified Emerge Desktop messages
+      PostMessage(ELGetCoreWindow(), EMERGE_REGISTER, (WPARAM)hwnd, (LPARAM)EMERGE_CORE);
+
       cs = (CREATESTRUCT*)lParam;
       pApplet = reinterpret_cast<Applet*>(cs->lpCreateParams);
       return DefWindowProc(hwnd, message, wParam, lParam);
@@ -121,6 +124,9 @@ LRESULT CALLBACK Applet::WindowProcedure (HWND hwnd, UINT message, WPARAM wParam
 
     case WM_DESTROY:
     case WM_NCDESTROY:
+      // Unregister the specified Emerge Desktop messages
+      PostMessage(ELGetCoreWindow(), EMERGE_UNREGISTER, (WPARAM)hwnd, (LPARAM)EMERGE_CORE);
+
       PostQuitMessage(0);
       break;
 

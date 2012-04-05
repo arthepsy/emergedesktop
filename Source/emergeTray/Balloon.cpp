@@ -304,7 +304,6 @@ bool Balloon::Hide()
 bool Balloon::DrawAlphaBlend()
 {
   RECT clientrt, contentrt;
-  HDC hdc;
   POINT srcPt;
   SIZE wndSz;
   BLENDFUNCTION bf;
@@ -315,7 +314,10 @@ bool Balloon::DrawAlphaBlend()
   if (!GetClientRect(balloonWnd, &clientrt))
     return false;
 
-  hdc = EGBeginPaint(balloonWnd);
+  HDC hdc = CreateCompatibleDC(NULL);
+  HBITMAP hbitmap = EGCreateBitmap(0x00, RGB(0, 0, 0), clientrt);
+  HGDIOBJ hobj = SelectObject(hdc, hbitmap);
+
   CopyRect(&contentrt, &clientrt);
   EGFrameRect(hdc, &contentrt, 255, pSettings->GetBorderColor(), 1);
   InflateRect(&contentrt, -1, -1);
@@ -358,8 +360,9 @@ bool Balloon::DrawAlphaBlend()
   UpdateLayeredWindow(balloonWnd, NULL, NULL, &wndSz, hdc, &srcPt, 0, &bf, ULW_ALPHA);
 
   // do cleanup
-  EGEndPaint();
+  SelectObject(hdc, hobj);
   DeleteDC(hdc);
+  DeleteObject(hbitmap);
 
   return true;
 }
