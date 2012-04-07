@@ -487,12 +487,13 @@ bool EGFillRect(HDC hdc, RECT *rect, BYTE alpha, COLORREF colour)
   HDC fillDC = CreateCompatibleDC(hdc);
 
   HBITMAP fillBMP = EGCreateBitmap(alpha, colour, *rect);
-  SelectObject(fillDC, fillBMP);
+  HGDIOBJ fillObj = SelectObject(fillDC, fillBMP);
 
   ret = AlphaBlend(hdc, rect->left, rect->top, width, height, fillDC, 0, 0, width, height, bf);
 
-  DeleteObject(fillBMP);
+  SelectObject(fillDC, fillObj);
   DeleteDC(fillDC);
+  DeleteObject(fillBMP);
 
   return (ret == TRUE);
 }

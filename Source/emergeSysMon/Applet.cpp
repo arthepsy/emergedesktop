@@ -276,6 +276,7 @@ void Applet::DrawItem(HDC hdc, RECT rect, BYTE value, std::vector<BYTE>* history
   HDC maskDC = hdc;
   HDC fillDC = NULL;
   HBITMAP mask = NULL, fillBMP = NULL;
+  HGDIOBJ maskObj = NULL, fillObj = NULL;
   if (gradient)
     {
       bmRect.left = bmRect.top = 0;
@@ -286,24 +287,25 @@ void Applet::DrawItem(HDC hdc, RECT rect, BYTE value, std::vector<BYTE>* history
       fillDC = CreateCompatibleDC(NULL);
 
       fillBMP = EGCreateBitmap(0x00, 0, bmRect);
-      SelectObject(fillDC, fillBMP);
+      fillObj = SelectObject(fillDC, fillBMP);
 
       maskDC = CreateCompatibleDC(NULL);
       mask = EGCreateBitmap(0x00, RGB(0, 0, 0), bmRect);
-      SelectObject(maskDC, mask);
+      maskObj = SelectObject(maskDC, mask);
 
       // draw gradient
       HDC bkDC = CreateCompatibleDC(fillDC);
       HBITMAP gradientBMP = CreateCompatibleBitmap(fillDC, bmRect.right - bmRect.left, bmRect.bottom - bmRect.top);
-      SelectObject(bkDC, gradientBMP);
+      HGDIOBJ bkObj = SelectObject(bkDC, gradientBMP);
       EGGradientFillRect(bkDC, &bmRect, guiInfo.alphaForeground,
                          (cpu ? pSettings->GetCPUGradientFrom() : pSettings->GetMemGradientFrom()),
                          (cpu ? pSettings->GetCPUGradientTo() : pSettings->GetMemGradientTo()),
                          0, (WCHAR*)(cpu ? pSettings->GetCPUGradientMethod() : pSettings->GetMemGradientMethod()));
       BitBlt(fillDC, bmRect.left, bmRect.top, bmRect.right - bmRect.left, bmRect.bottom - bmRect.top,
              bkDC, 0, 0, SRCCOPY);
-      DeleteObject(gradientBMP);
+      SelectObject(bkDC, bkObj);
       DeleteDC(bkDC);
+      DeleteObject(gradientBMP);
 
       // change drawing color
       alpha = 255;
@@ -329,10 +331,12 @@ void Applet::DrawItem(HDC hdc, RECT rect, BYTE value, std::vector<BYTE>* history
       // dest := dest | (masked)fill
       BitBlt(hdc, rect.left, rect.top, width, displayHeight, fillDC, 0, 0, SRCPAINT);
 
-      DeleteObject(mask);
+      SelectObject(maskDC, maskObj);
       DeleteDC(maskDC);
-      DeleteObject(fillBMP);
+      DeleteObject(mask);
+      SelectObject(fillDC, fillObj);
       DeleteDC(fillDC);
+      DeleteObject(fillBMP);
     }
 }
 
@@ -554,12 +558,13 @@ void Applet::AppletUpdate()
   mainFont = CreateFontIndirect(pSettings->GetFont());
   // get required text dimensions
   HDC hdc = CreateCompatibleDC(NULL);
-  SelectObject(hdc, mainFont);
+  HGDIOBJ obj = SelectObject(hdc, mainFont);
   RECT r;
   r.left = 0;
   r.top = 0;
   requiredTextHeight = DrawTextEx(hdc, (WCHAR*)TEXT("100%"), 4, &r, DT_CENTER | DT_VCENTER | DT_CALCRECT, NULL);
   requiredTextWidth = r.right;
+  SelectObject(hdc, obj);
   DeleteDC(hdc);
 }
 

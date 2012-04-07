@@ -90,8 +90,10 @@ void Item::CreateNewIcon(BYTE foregroundAlpha, BYTE backgroundAlpha)
 //----  --------------------------------------------------------------------------------------------------------
 Item::~Item()
 {
-  DestroyIcon(origIcon);
-  DestroyIcon(newIcon);
+  if (origIcon)
+    DestroyIcon(origIcon);
+  if (newIcon)
+    DestroyIcon(newIcon);
 }
 
 //----  --------------------------------------------------------------------------------------------------------

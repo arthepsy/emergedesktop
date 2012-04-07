@@ -54,6 +54,8 @@ MenuItem::~MenuItem()
   if (dropTarget)
     dropTarget->Release();
 
+  delete customDropTarget;
+
   DestroyIcon(icon);
 }
 
