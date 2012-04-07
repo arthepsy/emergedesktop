@@ -54,7 +54,6 @@
 class CustomDataObject : public IDataObject
 {
 private:
-  HMENU menu;
   ULONG refCount;
   std::tr1::shared_ptr<IDataAdviseHolder> advise;
   std::tr1::shared_ptr<FORMATETC> fetc;
@@ -62,7 +61,7 @@ private:
   BOOL deleteMedium;
 
 public:
-  CustomDataObject(HMENU menu);
+  CustomDataObject();
   virtual ~CustomDataObject();
   STDMETHODIMP_(ULONG) AddRef();
   STDMETHODIMP_(ULONG) Release();

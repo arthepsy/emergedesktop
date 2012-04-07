@@ -20,10 +20,8 @@
 
 #include "CustomDataObject.h"
 
-CustomDataObject::CustomDataObject(HMENU menu)
+CustomDataObject::CustomDataObject()
 {
-  deleteMedium = FALSE;
-  this->menu = menu;
   refCount = 0;
 }
 

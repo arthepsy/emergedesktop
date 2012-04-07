@@ -24,6 +24,7 @@
 #include "../emergeLib/emergeLib.h"
 #include "../emergeGraphics/emergeGraphics.h"
 #include "CustomDropTarget.h"
+#include "CustomDropSource.h"
 
 class MenuItem
 {
@@ -37,9 +38,11 @@ public:
   TiXmlElement *GetElement();
   HICON GetIcon();
   IDropTarget *GetDropTarget();
+  IDropSource *GetDropSource();
   void SetIcon();
   void SetValue(WCHAR *value);
   void SetName(WCHAR *name);
+  void SetElement(TiXmlElement *element);
 
 private:
   TiXmlElement *element;
@@ -50,6 +53,8 @@ private:
   HICON icon;
   IDropTarget *dropTarget;
   CustomDropTarget *customDropTarget;
+  IDropSource *dropSource;
+  CustomDropSource *customDropSource;
 };
 
 #endif
