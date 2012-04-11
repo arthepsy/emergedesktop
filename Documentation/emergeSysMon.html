@@ -2,64 +2,56 @@
     <head>
         <title>emergeSysMon</title>
         <link rel = StyleSheet type = "text/css" HREF = "../emerge.css">
-    </head>
+</head>
 <body>
   <table cellpadding='5' cellspacing='0'  bgcolor='#7F907F' width=100%>
     <tr>
       <td>
-          <font color=white><b>About</b></font>
-      </td>
+          <font color=white><b>About</b></font>      </td>
     </tr>
   </table>
   <p>emergeSysMon reports the CPU usage, the Commit Charge, The Physical Memory Usage, and the Pagefile Usage in a a movable, resizeable window.</p>
   <table cellpadding='5' cellspacing='0'  bgcolor='#7F907F' width=100%>
     <tr>
       <td>
-          <font color=white><b>Configuration</b></font>
-      </td>
+          <font color=white><b>Configuration</b></font>      </td>
     </tr>
 </table>
 <p>emergeSysMon is configured by pressing the Ctrl key and right-clicking on the emergeSysMon window. This opens the configuration menu:</p>
-<p><img src="AboutCommandH.png" width="147" height="119"></p>
-<p><strong>About</strong> displays the module's author and version and the current style's path and filename.<br>
+<p><img src="CtrlRightClickApp2.png" width="146" height="162"></p>
+<p style="margin-bottom: 0;"><strong>About</strong> displays the module's author and version and the current style's path and filename.<br>
   <strong>Load Style</strong> allows the user to browse and select a <a href="Styles.html">Style File</a>.<br>
   <strong>Reload Current Style</strong> allows to reload the current style after editing.<br>
-  <strong>Configure</strong> displays the emergeLauncher configuration dialog box.<br>
-  <strong>Exit</strong> closes the module. It can be restarted by highlighting it and clicking on the Start <img src="Start.png" width="24" height="23"> button in the Launch Applet dialog box (see <a href="emergeCore.html">emergeCore</a>).</p>
+  <strong>Configure</strong> displays the emergeLauncher configuration dialog box.</p>
+<p style="margin-top: 0; margin-bottom: 0;"><strong>New Instance</strong> allows the creation of a new emergeLauncher window.</p>
+<p style="margin-top: 0;"><strong>Delete Instance</strong> deletes this emergeLauncher window.<br><strong>Exit</strong> closes the module. It can be restarted by highlighting it and clicking on the Start <img src="Start.png" width="24" height="23"> button in the Launch Applet dialog box (see <a href="emergeCore.html">emergeCore</a>).</p>
 <p>After selecting <strong>Configure</strong>, the configuration dialog box opens. The first tab is <strong>General</strong>:</p>
 <p><img src="SysMonConfig1.png" width="446" height="459"></p>
 <p><strong>SnapMove</strong> makes the window snap to the edges of other applets' windows or the edges of the screen when moving it.</p>
 <p><strong>SnapSize</strong> makes the window snap to the edges of other applets' windows or the edges of the screen when changing its size.</p>
-<p><strong>Click Through</strong> allows clicking &quot;through&quot; the window (i.e. allows clicking on whatever is behind it).</p>
-<p><strong>Click Through</strong> has two modes: <strong>Full</strong> (the whole window is &quot;transparent&quot; to mouse input), or <strong>Background</strong> (only the background area is &quot;transparent&quot; but the user can click on the icons in emergeTray, emergeTasks, emergeLauncher, the text in emergeCommand, emergePower, the active mini-window in emergeVWM, the graphs in emergeSysMon). </p>
+<p><strong>Click Through</strong> allows clicking &quot;through&quot; the window (i.e. allows clicking on whatever is behind it). It has two modes: <strong>Full</strong> (the whole window is &quot;transparent&quot; to mouse input), or <strong>Background</strong> (only the background area is &quot;transparent&quot; but the user can click on the icons in emergeTray, emergeTasks, emergeLauncher, the text in emergeCommand, emergePower, the active mini-window in emergeVWM, the graphs in emergeSysMon). </p>
 <p><u>Important notes</u>: 1) <strong>Full Click Through </strong>works for any level of opacity, from opaque to fully transparent; 2) <strong>Background Click Through </strong>automatically sets the background to transparent but does not change the style, this is a known limitation; 3) To manipulate an applet set on <strong>Full Click Through, </strong>the user must press the Shift key: Shift+Ctrl+LeftClick to move the applet, Shift+Ctrl+RightClick to get the configuration menu and Shift+Alt to resize the applet.</p>
 <p><strong>Update Interval</strong> of the system monitoring is set in milliseconds.</p>
 <p><strong>Monitoring</strong> is available for: </p>
-<blockquote>
-  <p><strong>CPU Usage</strong>, which is the utilization of the central processor.  For multi-processor machines, there is a graph for each processor.</p>
-</blockquote>
-<blockquote>
-  <p><strong>Commit Charge</strong>, which is the total amount of memory used compared to the total maximum memory (i.e. the combination of physical and virtual memory).</p>
-</blockquote>
-<blockquote>
-  <p><strong>Physical Memory Usage</strong>, which is the amount of physical RAM used (not the virtual memory usage).</p>
-</blockquote>
-<blockquote>
-  <p><strong>Pagefile Usage</strong>, which is the amount of memory used in the Pagefile (i.e. the virtual memory usage). </p>
-</blockquote>
+<ul>
+  <li><strong style="margin-top: 0; margin-bottom: 0;">CPU Usage</strong>, which is the utilization of the central processor.  For multi-processor machines, there is a graph for each processor.</li>
+  <li><strong style="margin-top: 0; margin-bottom: 0;">Commit Charge</strong>, which is the total amount of memory used compared to the total maximum memory (i.e. the combination of physical and virtual memory).</li>
+  <li><strong style="margin-top: 0; margin-bottom: 0;">Physical Memory Usage</strong>, which is the amount of physical RAM used (not the virtual memory usage).</li>
+  <li><strong style="margin-top: 0; margin-bottom: 0;">Pagefile Usage</strong>, which is the amount of memory used in the Pagefile (i.e. the virtual memory usage). </li>
+</ul>
 <p>The configuration dialog box's second tab is <strong>Display</strong>:</p>
 <p><img src="SysMonConfig2.png" width="446" height="459"></p>
 <p><strong>Font</strong> brings up the font dialog box, which allows to select <strong>Font</strong>,<strong> Font style</strong> and <strong>Size</strong> of the text in the emergeSysMon window:</p>
 <p><img src="eCommandFontH.png" width="437" height="351"></p>
-<p><strong>Processor Colors</strong> of the graph (applies to <strong>CPU Usage</strong>): </p>
-<p><b>Method</b>: Defines the direction or geometry of the gradient. Options are: <strong>Solid</strong> (no gradient, uses the<strong> From Color</strong> setting), <strong>Vertical</strong> (from top to bottom), <strong>Horizontal</strong> (from left to right), <strong>CrossDiagonal</strong> (from top right corner to bottom left corner), <strong>Diagonal</strong> (from top left corner to bottom right corner), <strong>Pipecross</strong> (from corners to center drawing a 3D pipe cross), <strong>Elliptic</strong> (from border to center), <strong>Rectangle</strong> (from edges to center drawing the diagonals), <strong>Pyramid</strong> (from corners to center drawing a cross). Default is <strong>Solid</strong>.<br>
-<b>From Color</b>: defines the starting color for the Gradient.<br>
-<b>To Color</b>: Defines the ending color for the Gradient.</p>
-<p>Memory Colors of the graph(s) (applies to <strong>Commit Charge</strong>, <strong>Physical Memory Usage</strong> and <strong>Pagefile Usage</strong>):</p>
-<p><b>Method</b>: Defines the direction or geometry of the gradient. Options are: <strong>Solid</strong> (no gradient, uses the<strong> From Color</strong> setting), <strong>Vertical</strong> (from top to bottom), <strong>Horizontal</strong> (from left to right), <strong>CrossDiagonal</strong> (from top right corner to bottom left corner), <strong>Diagonal</strong> (from top left corner to bottom right corner), <strong>Pipecross</strong> (from corners to center drawing a 3D pipe cross), <strong>Elliptic</strong> (from border to center), <strong>Rectangle</strong> (from edges to center drawing the diagonals), <strong>Pyramid</strong> (from corners to center drawing a cross). Default is <strong>Solid</strong>.<br>
-<b>From Color</b>: defines the starting color for the Gradient.<br>
-<b>To Color</b>: Defines the ending color for the Gradient.</p>
-<p>Show numeric info adds percentage in text on <strong>Left</strong>, <strong>Under</strong>, on <strong>Right</strong>, or <strong>Over</strong> each graph.</p>
+<p style="margin-bottom: 0;"><strong>Processor Colors</strong> of the graph (applies to <strong>CPU Usage</strong>): </p>
+<p style="margin-top: 0;"><b style="margin-top: 0; margin-bottom: 0;">Method</b>: Defines the direction or geometry of the gradient. Options are: <strong>Solid</strong> (no gradient, uses the<strong> From Color</strong> setting), <strong>Vertical</strong> (from top to bottom), <strong>Horizontal</strong> (from left to right), <strong>CrossDiagonal</strong> (from top right corner to bottom left corner), <strong>Diagonal</strong> (from top left corner to bottom right corner), <strong>Pipecross</strong> (from corners to center drawing a 3D pipe cross), <strong>Elliptic</strong> (from border to center), <strong>Rectangle</strong> (from edges to center drawing the diagonals), <strong>Pyramid</strong> (from corners to center drawing a cross). Default is <strong>Solid</strong>.<br>
+  <b>From Color</b>: defines the starting color for the Gradient.<br>
+  <b>To Color</b>: Defines the ending color for the Gradient.</p>
+<p style="margin-bottom: 0;"><strong>Memory Colors</strong> of the graph(s) (applies to <strong>Commit Charge</strong>, <strong>Physical Memory Usage</strong> and <strong>Pagefile Usage</strong>):</p>
+<p style="margin-top: 0;"><b>Method</b>: Defines the direction or geometry of the gradient. Options are: <strong>Solid</strong> (no gradient, uses the<strong> From Color</strong> setting), <strong>Vertical</strong> (from top to bottom), <strong>Horizontal</strong> (from left to right), <strong>CrossDiagonal</strong> (from top right corner to bottom left corner), <strong>Diagonal</strong> (from top left corner to bottom right corner), <strong>Pipecross</strong> (from corners to center drawing a 3D pipe cross), <strong>Elliptic</strong> (from border to center), <strong>Rectangle</strong> (from edges to center drawing the diagonals), <strong>Pyramid</strong> (from corners to center drawing a cross). Default is <strong>Solid</strong>.<br>
+  <b>From Color</b>: defines the starting color for the Gradient.<br>
+  <b>To Color</b>: Defines the ending color for the Gradient.</p>
+<p><strong>Show numeric info</strong> adds percentage in text on <strong>Left</strong>, <strong>Under</strong>, on <strong>Right</strong>, or <strong>Over</strong> each graph.</p>
 <p>The configuration  dialog box's third tab is <strong>Position</strong>:</p>
 <p><img src="SysMonConfig3.png" width="446" height="459"></p>
 <p><strong>Anchor Point</strong> gives the choice of anchoring the window to the monitor's <strong>Top Left, Top Center, Top Right, Middle Left, Middle Center, Middle Right, Bottom Left, Bottom Center, or Bottom Right</strong>.</p>
@@ -67,15 +59,15 @@
 <p><strong>Vertical Orientation</strong> stacks the graphs one above the other, <strong>Horizontal Orientation</strong> puts them side by side.</p>
 <p><strong>History mode</strong> moves readings from left to right as they are updated. The wider the window, the more previous readings are displayed.<br>
 If <strong>History mode</strong> is not selected, each new reading can be positioned <strong>Left</strong>, <strong>Down</strong>, <strong>Right</strong> or <strong>Up</strong> of window.</p>
-<p>For the configuration dialog box's fourth tab, see the <a href="Styles.html"><strong>Style Editor</strong></a>.</p>
+<p>For the configuration dialog box's fourth tab, see the <a href="Styles.html">Style Editor</a>.</p>
 <table cellpadding='5' cellspacing='0'  bgcolor='#7F907F' width=100%>
     <tr>
       <td>
-          <font color=white><b>Usage</b></font>
-      </td>
+          <font color=white><b>Usage</b></font>      </td>
     </tr>
 </table>
 <p>emergeSysMon reports with graphs and text the activity of four possible components of the computer as selected by the user. The tooltip reports the same information with text, preceded by the name of the component.</p>
+<p>If the system  ha more than one processor (dual-core, etc. system), a separate CPU graph will be displayed for each one.</p>
 <p>To move the window, the user must press the Ctrl key, left-click on the window, and drag it to another location. </p>
 <p>To resize the window, the user must press the Alt key, left-click on one edge of the window, and drag it to a new size.</p>
 <p>The window position and size are stored in the applet's xml file, which is located  in the User Profile folder under &quot;\Application Data\Emerge Desktop\themes&quot;, in a subfolder with the same name as the current Theme. See <a href="ThemeManager.html">Theme Manager</a> for more details.</p>

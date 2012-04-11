@@ -2,7 +2,7 @@
 <html>
     <head>
         <title>emergeCore</title>
-        <link rel = StyleSheet type = "text/css" HREF = "emerge.css">
+        <link rel = StyleSheet type = "text/css" HREF = "../emerge.css">
     </head>
 <body> <table bgcolor="#7f907f" cellpadding="5" cellspacing="0" width="100%">
 <tr><td><font color="white"><b>About</b></font></td></tr></table>
@@ -10,13 +10,25 @@
 <p>emergeCore, as the name indicates, is the core component of Emerge Desktop. It is the messaging interface between all the other Emerge Desktop applets.</p>
 <p>It also launches the startup programs and the Microsoft DDE Server.</p>
 <table bgcolor="#7f907f" cellpadding="5" cellspacing="0" width="100%"><tr><td><font color="white"><b>Configuration</b></font></td> </tr> </table>
-<p>Three major components of Emerge Desktop are dependent on emergeCore:</p>
-<p>(1) the execution (i.e. &quot;loading&quot;) of the applets, which is configured in the <strong>Launch Applets</strong> configuration dialog box, </p>
-<p>(2) the <strong>Shell Changer</strong>, which allows to set Emerge Desktop (or any other alternate shell) as the shell for the Current User, or to switch to Windows Explorer, and</p>
-<p>(3) the <a href="ThemeManager.html">Theme Manager</a>.</p>
-<p>To display the <strong>Launch Applets</strong> configuration dialog box, the user must right-click  on the desktop, select <strong>Settings</strong>, and <strong>Edit Launch Applets</strong>:</p>
-<p><img src="LaunchApplets.png" width="426" height="390"></p>
-<p>(alternatively the user can type <i>CoreLaunchEditor</i> in the emergeCommand command window)</p>
+<p>The main components of Emerge Desktop that are dependent on emergeCore are:</p>
+<ul>
+  <li>The execution (i.e. "loading") of the applets (configuration in the   Launch Editor below).</li>
+</ul>
+<ul>
+  <li>The Alias Editor, 
+    which are allows to write simplifications of long command lines
+    (configuration below).</li>
+</ul>
+<ul>
+  <li>The Shell Changer, which allows to set Emerge Desktop   (or any other alternate shell) as the shell for the Current User, or to switch   to Windows Explorer (instructions below).</li>
+</ul>
+<ul>
+  <li>The <a href="ThemeManager.html">Theme Manager</a>.</li>
+</ul>
+<p style="margin-bottom: 0;">&nbsp;</p>
+<p style="margin-top: 0;">To display the emergeCore  configuration dialog box, the user must right-click  on the desktop, select <strong>Settings</strong>, and <strong>Configure Core. </strong>The first tab is <strong>Launch Editor</strong>:</p>
+<p><img src="CoreConfig1.PNG" width="446" height="459"></p>
+<p>(alternatively the user can type <i>LaunchEditor</i> in the emergeCommand command window)</p>
 <p>To Add <img src="Add.png" width="24" height="23" style="width: 24px; height: 23px;"> a new applet to emergeCore, the user must Browse <img src="BrowseFile.png" width="26" height="25"> to the applet's executable,  Save <img src="Save.png" width="24" height="23" style="width: 24px; height: 23px;">  the item (or
 Discard <img src="Discard.png" width="24" height="23" style="width: 24px; height: 23px;"> to start over), highlight it in the <strong>Applet</strong> list, and  Start <img src="Start.png" width="24" height="23"> , which switches the applet's <strong>State</strong> from <strong>Unloaded</strong> to <strong>Loaded</strong> (i.e. executes the applet).</p>
 <p style="margin-bottom: 0;"> To stop an applet (i.e. go<strong> </strong>from <strong>Loaded</strong> to <strong>Unloaded </strong>state), the user must highlight it in the <strong>Applet</strong> list and click on  Stop <img src="Stop.png" width="24" height="23"> .</p>
@@ -24,11 +36,21 @@ Discard <img src="Discard.png" width="24" height="23" style="width: 24px; height
 The Up <img src="Up.png" width="24" height="23" style="width: 24px; height: 23px;"> and Down <img src="Down.png" width="24" height="23"> buttons are used to change the loading order of the applets.</p>
 <p>The Info <img src="Info.png" width="24" height="23"> button displays the highlighted applet's name, version and authors.</p>
 <p>The Gather <img src="Gather.png" width="24" height="23"> button moves the highlighted applet's window (if it has one) next to the Launch Applets dialog box for when it can't be located on the desktop.</p>
+<p>The Configure Applet <img src="ConfigureApplet.png" width="24" height="22"> button allows the configuration of the highlighted applet in the same way as Ctrl-right-clicking that applet's window.</p>
 <p class="style3"> Pressing the <strong>OK </strong>button saves the current settings and closes the configuration dialog box.</p>
 <p>After the user adds, deletes or modifies incorrectly an item, she can undo changes by clicking the <strong>Cancel</strong> button. A dialog box will open asking for confirmation to close the configuration dialog box without saving the changes made. </p>
+<p>The second tab is the <strong>Alias Editor</strong>:</p>
+<p><img src="CoreConfig2.PNG" width="446" height="459"></p>
+<p style="margin-bottom: 0;">(alternatively the user can type <i>AliasEditor</i> in the emergeCommand command window)</p>
+<p style="margin-top: 0;">The Alias Editor allows to create aliases, which are shortcuts for executables or <a href="internal.html">Internal Commands</a>. To Add <img src="Add.png" width="24" height="23"> a new Alias, the user must type in the <strong>Alias</strong> window a shortcut letter(s) <u>preceded by a period (.)</u>, then Browse <img src="BrowseFile.png" width="26" height="25"> and select an executable, or type in the <strong>Action</strong> window an internal command, and Save <img src="Save.png" width="24" height="23"> it  (or
+Discard <img src="Discard.png" width="24" height="23" style="width: 24px; height: 23px;">  it to start over). An existing alias can be Edited <img src="Edit.png" width="24" height="23"> or Deleted&nbsp;<img src="Delete.png" width="24" height="23"> after highlighting it.</p>
+<p>The third tab is <strong>Advanced</strong>:</p>
+<p><img src="CoreConfig3.PNG" width="446" height="459"></p>
+<p>(alternatively the user can type <i>CoreSettings</i> in the emergeCommand command window)</p>
+<p>A check mark in the <strong>Explorer Desktop</strong> box changes the desktop functionality to that of Explorer. Per the notes underneath the box, the user should first make sure that he has a ready access to the Emerge Desktop menu prior to change to Explorer Desktop, since right-clicking the desktop will no longer start the menu.</p>
 <p>To display the <strong>Desktop Shell</strong> dialog box, <span style="margin-top: 0; margin-bottom: 0;">the user must right-click  on the desktop, select <strong>Settings</strong>, and </span><strong> Change Desktop Shell</strong>:</p>
 <p><img src="DesktopShell.png" width="293" height="219"></p>
-<p> (Alternatively the user can use the shortcut &quot;Emerge Desktop Shell Changer&quot; in the Emerge Desktop program group in the Start menu (which can be accessed both when Windows Explorer or Emerge Desktop is the shell). Also, the user can type <i>CoreShellChanger</i> in the emergeCommand command window.)</p>
+<p> (alternatively the user can click on &quot;Emerge Desktop Shell Changer&quot; in the Emerge Desktop program group in the Start menu (which can be accessed both when Windows Explorer or Emerge Desktop is the shell). Also, the user can type <i>ShellChanger</i> in the emergeCommand command window.)</p>
 <p style="margin-bottom: 0;">Emerge Desktop and Windows Explorer are listed in the Shell drop list (and cannot be removed from it). </p>
 <p style="margin-top: 0;">The user can Add <img src="Add.png" width="24" height="23"> other shells to the list by Browsing <img src="BrowseFile.png" width="26" height="25"> to the file, defining a <strong>Name</strong>, and then clicking on Save <img src="Save.png" width="24" height="23"> to save the item (or Discard <img src="Discard.png" width="24" height="23"> to start over).<br>
 An added shell can be modified  or deleted by selecting it from the drop list and pressing the Modify   <img src="Edit.png" width="24" height="23" style="width: 24px; height: 23px;"> or Delete <img src="Delete.png" width="24" height="23" style="width: 24px; height: 23px;"> button.</p>
@@ -39,14 +61,15 @@ An added shell can be modified  or deleted by selecting it from the drop list an
 <font color="white"><b>Usage</b></font>
 </td> </tr></table>
 
-<p>Similarly to Explorer, pressing the Shift key at logon will prevent loading all items in both the Common and User Startup Groups. However, emergeCore goes two steps further: pressing the Ctrl key prevents loading both the Local Machine and Current User Run registry keys, and pressing simultaneously the Shift and Ctrl keys will skip all startup items.</p>
+<p>Like in Explorer, pressing the Shift key at logon will prevent loading all items in both the Common and User Startup Groups. However, emergeCore goes two steps further: pressing the Ctrl key prevents loading both the Local Machine and Current User Run registry keys, and pressing simultaneously the Shift and Ctrl keys will skip all startup items.</p>
 
 <p>emergeCore supports the following Command line switches:</p>
 <ul class="style4">
-<li><i>/shellchanger</i> - Display the Shell Changer dialog. This allows to change to/from Emerge Desktop from/to other shells (including explorer) or add new shells to the list. You also have access to this dialog from the Settings menu or by typing the <i>CoreShellChanger</i> internal command in emergeCommand or by adding it to emergeLauncher or a menu</li>
-<li><i>/nostartup</i> - Stops Emerge from running at startup programs included in the AllUsers and Current User Startup Group, as well as in HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run and in HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Run</li>
+<li><i>/shellchanger</i> - Display the Shell Changer dialog. This allows to change to/from Emerge Desktop from/to other shells (including explorer) or add new shells to the list. You also have access to this dialog from the Settings menu or by typing the <i>CoreShellChanger</i> internal command in emergeCommand or by adding it to emergeLauncher or a menu.</li>
+<li><i>/nostartup</i> - Stops Emerge from running at startup programs included in the AllUsers and Current User Startup Group, as well as in HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run and in HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Run.</li>
 </ul>
-<p class="style4">E.g. you can type in a Run box or command line &quot;C:\Program Files\Emerge Desktop\emergeCore.exe&quot; /shellchanger 
-(don't forget to add quotes if the path to emergeCore has spaces)</p>
+<p class="style4">The user can type in the Run box or emergeCommand window: &quot;C:\Program Files\Emerge Desktop\emergeCore.exe&quot; /shellchanger 
+(with the quotes marks if the path to emergeCore has spaces)</p>
+<p>To execute an   alias, the user enters its shortcut (e.g. &quot;.e&quot; for Internet Explorer) in the emergeCommand window.</p>
 </body>
 </html>
