@@ -3224,7 +3224,7 @@ bool ELExecuteAlias(LPTSTR alias)
               ELStripLeadingSpaces(command);
 
               // execute the command
-              if (wcscmp(value, alias) == 0)
+              if (_wcsicmp(value, alias) == 0)
                 {
                   ret = ELExecuteInternal(command);
                   if (!ret)
