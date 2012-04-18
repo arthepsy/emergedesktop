@@ -7,7 +7,7 @@
 ; -------------------------------------------------------------------
 ; help >>> General NAME and Versioning
 ; -------------------------------------------------------------------
-Name "Emerge Desktop 5.2.11"
+Name "Emerge Desktop 6.0 RC1"
 !define FIELD1 $R1
 !define FIELD2 $R2
 !define FIELD3 $R3
@@ -60,12 +60,12 @@ UninstPage custom un.nsDialogOptions un.nsDialogOptionsLeave
 ; -------------------------------------------------------------------
 Icon "emerge.ico"
 UninstallIcon "unemerge.ico"
-OutFile "EmergeDesktop-5.2.11.exe"
+OutFile "EmergeDesktop-6.0-RC1.exe"
 
 ; -------------------------------------------------------------------
 ; help >>> Branding the installer makes it nice an unique... ;)
 ; -------------------------------------------------------------------
-BrandingText "©2004 - 2010 Emerge Desktop Development Team"
+BrandingText "©2004 - 2012 Emerge Desktop Development Team"
 
 ; -------------------------------------------------------------------
 ; help >>> NSIS 2.0 modern ui with XP style please...
@@ -190,25 +190,18 @@ SetOutPath "$INSTDIR"
 File "${BINDIR}\emerge.exe"
 SectionEnd
 
-Section "reg2xml" Secreg2xml
-SetOutPath "$INSTDIR"
-File "${BINDIR}\reg2xml.exe"
-SectionEnd
-
 SubSectionEnd
 
 Section "-Libraries"
 SetOutPath "$INSTDIR"
 File "${BINDIR}\emergeLib.dll"
-File "${BINDIR}\libgcc_s_sjlj-1.dll"
+File "${BINDIR}\libgcc_s_dw2-1.dll"
 File "${BINDIR}\libstdc++-6.dll"
 File "${BINDIR}\emergeIcons.dll"
 File "${BINDIR}\emergeGraphics.dll"
 File "${BINDIR}\emergeAppletEngine.dll"
 File "${BINDIR}\emergeStyleEngine.dll"
 File "${BINDIR}\emergeBaseClasses.dll"
-File "${BINDIR}\unzip32.dll"
-File "${BINDIR}\zip32z64.dll"
 Delete "$INSTDIR\emergeSchemeEngine.dll"
 SectionEnd
 
@@ -292,7 +285,6 @@ Section Uninstall
   Delete "$INSTDIR\documentation\Emerge Desktop.chm"
   RMDir "$INSTDIR\documentation"
   Delete "$INSTDIR\emerge.exe"
-  Delete "$INSTDIR\reg2xml.exe"
   Delete "$INSTDIR\emergeCommand.exe"
   Delete "$INSTDIR\emergeWorkspace.exe"
   Delete "$INSTDIR\emergeHotkeys.exe"
@@ -304,15 +296,13 @@ Section Uninstall
   Delete "$INSTDIR\emergePower.exe"
   Delete "$INSTDIR\emergeSysMon.exe"
   Delete "$INSTDIR\emergeLib.dll"
-  Delete "$INSTDIR\libgcc_s_sjlj-1.dll"
+  Delete "$INSTDIR\libgcc_s_dw2-1.dll"
   Delete "$INSTDIR\libstdc++-6.dll"
   Delete "$INSTDIR\emergeIcons.dll"
   Delete "$INSTDIR\emergeAppletEngine.dll"
   Delete "$INSTDIR\emergeStyleEngine.dll"
   Delete "$INSTDIR\emergeGraphics.dll"
   Delete "$INSTDIR\emergeBaseClasses.dll"
-  Delete "$INSTDIR\unzip32.dll"
-  Delete "$INSTDIR\zip32z64.dll"
   Delete "$INSTDIR\uninst.exe"
   RMDir "$INSTDIR"
   RMDir "$APPDATA\Emerge Desktop"
@@ -322,7 +312,6 @@ SectionEnd
 
 !insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
 !insertmacro MUI_DESCRIPTION_TEXT ${Secemerge} "emerge is a command line utility that can be used to execute Emerge Desktop Internal Commands by other non-Emerge Desktop applications."
-!insertmacro MUI_DESCRIPTION_TEXT ${Secreg2xml} "reg2xml is a utility that can be used to convert Emerge Desktop registry settings into XML settings."
 !insertmacro MUI_DESCRIPTION_TEXT ${SecemergeCore} "emergeCore is the core of Emerge Desktop.  It is required for setting Emerge Desktop as the default shell."
 !insertmacro MUI_DESCRIPTION_TEXT ${SecemergeCommand} "Provides a clock as well as method of entering commands to be executed"
 !insertmacro MUI_DESCRIPTION_TEXT ${SecemergeHotkeys} "'Hotkey' application laucher as well as interfacing to Emerge Desktop itself"
