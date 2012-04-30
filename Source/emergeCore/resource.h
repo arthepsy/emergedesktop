@@ -41,6 +41,7 @@
 #define IDC_FORUMLINK       400
 #define IDC_WIKILINK        401
 #define IDC_TUTORIALLINK    402
+#define IDC_HELPLINK        403
 
 #define IDC_APPLET          500
 #define IDC_ADDAPP          501

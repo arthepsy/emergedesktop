@@ -45,7 +45,7 @@ public:
 
 private:
   std::tr1::shared_ptr<Settings> pSettings;
-  std::tr1::shared_ptr<CHyperLink> pForumLink, pWikiLink, pTutorialLink;
+  std::tr1::shared_ptr<CHyperLink> pForumLink, pWikiLink, pTutorialLink, pOfflineLink;
   HINSTANCE hInstance;
   HWND mainWnd, toolWnd;
   HBITMAP logoBMP;

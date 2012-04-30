@@ -220,15 +220,8 @@ LRESULT CALLBACK CHyperLink::_HyperlinkParentProc(HWND hwnd, UINT message,
  */
 inline void CHyperLink::Navigate(void)
 {
-  SHELLEXECUTEINFO sei;
-  ::ZeroMemory(&sei,sizeof(SHELLEXECUTEINFO));
-  sei.cbSize = sizeof( SHELLEXECUTEINFO );		// Set Size
-  sei.lpVerb = TEXT( "open" );					// Set Verb
-  sei.lpFile = m_strURL;							// Set Target To Open
-  sei.nShow = SW_SHOWNORMAL;						// Show Normal
-
-  //LASTERRORDISPLAYR(ShellExecuteEx(&sei));
-  ShellExecuteEx(&sei);
+  ELWriteDebug(m_strURL);
+  ELExecute(m_strURL);
   m_bVisited = TRUE;
 }
 
