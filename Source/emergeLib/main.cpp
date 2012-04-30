@@ -1303,10 +1303,10 @@ bool ELExecuteInternal(LPTSTR command)
       if (!ELIsAppletRunning(workingArg))
         {
           if (ELPathFileExists(workingArg.c_str()))
-          {
-            ELExecute((WCHAR*)workingArg.c_str());
-            Sleep(500); // wait half a second for the applet to start
-          }
+            {
+              ELExecute((WCHAR*)workingArg.c_str());
+              Sleep(500); // wait half a second for the applet to start
+            }
         }
 
       ELSwitchToThisWindow(ELGetCoreWindow());
@@ -2011,11 +2011,9 @@ bool ELExecute(LPTSTR application, LPTSTR workingDir, int nShow, WCHAR *verb)
       si.dwFlags = 0x800;
       si.lpTitle = (WCHAR*)shortcutPath.c_str();
     }
-  else
-    {
-      si.dwFlags = STARTF_USESHOWWINDOW;
-      si.wShowWindow = nShow;
-    }
+  // Be sure to use the nShow value irregardless of shortcut.
+  si.dwFlags |= STARTF_USESHOWWINDOW;
+  si.wShowWindow = nShow;
 
   if (verb == NULL)
     {
@@ -3989,13 +3987,13 @@ bool ELIsAppletRunning(std::wstring applet)
   return (i != processCount);
 }
 
-       /*!
-         @fn ELIsInternalCommand(WCHAR *command)
-         @brief Determines the internal command based on the string passed
-         @param command string to perform check on
-         */
+/*!
+  @fn ELIsInternalCommand(WCHAR *command)
+  @brief Determines the internal command based on the string passed
+  @param command string to perform check on
+  */
 
-       UINT ELIsInternalCommand(const WCHAR *command)
+UINT ELIsInternalCommand(const WCHAR *command)
 {
   if (_wcsicmp(command, TEXT("run")) == 0)
     return COMMAND_RUN;
