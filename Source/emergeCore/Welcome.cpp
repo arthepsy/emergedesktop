@@ -93,7 +93,7 @@ BOOL Welcome::DoInitDialog(HWND hwndDlg)
 
   pForumLink->ConvertStaticToHyperlink(hwndDlg,
                                        IDC_FORUMLINK,
-                                       (WCHAR*)L"http://emergedesktop.org/phpBB2/");
+                                       (WCHAR*)L"http://emergedesktop.org/");
   /*pWikiLink->ConvertStaticToHyperlink(hwndDlg,
                                       IDC_WIKILINK,
                                       (WCHAR*)L"http://ed.xaerolimit.net/wiki/");*/

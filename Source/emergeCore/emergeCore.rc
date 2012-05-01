@@ -135,11 +135,11 @@ FONT 8, "MS Shell Dlg"
 BEGIN
   CONTROL "",IDC_LOGO,"Static",SS_BITMAP,0,0,260,60
 
-	LTEXT		"Welcome to Emerge Desktop!",IDC_STATIC,5,65,100,10
+	LTEXT		"Here are some sources of information to get you started with Emerge Desktop:",IDC_STATIC,5,65,250,10
 
-	LTEXT		"Help",IDC_HELPLINK,5,80,20,10
-	LTEXT		"Tutorial",IDC_TUTORIALLINK,5,90,25,10
-	LTEXT		"Forum",IDC_FORUMLINK,5,100,20,10
+	LTEXT		"Offline Help",IDC_HELPLINK,5,80,37,10
+	LTEXT		"Online Tutorial",IDC_TUTORIALLINK,5,90,45,10
+	LTEXT		"Emerge Desktop Website",IDC_FORUMLINK,5,100,81,10
 	//LTEXT		"Wiki",IDC_WIKILINK,5,100,15,10
 
 	CONTROL	"Show on startup",IDC_SHOWWELCOME,"Button",BS_AUTOCHECKBOX|WS_TABSTOP,5,122,80,10
