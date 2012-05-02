@@ -1480,8 +1480,22 @@ bool ELExecuteInternal(LPTSTR command)
       if (!tempArg.empty())
         return false;
 
-      SHEmptyRecycleBin(NULL, NULL, 0);
-      return true;
+      SHQUERYRBINFO binInfo;
+      binInfo.cbSize = sizeof(binInfo);
+
+      if (SUCCEEDED(SHQueryRecycleBin(NULL, &binInfo)))
+        {
+          if (binInfo.i64NumItems > 0)
+            return (SHEmptyRecycleBin(GetDesktopWindow(), NULL, 0) == S_OK);
+          else
+            {
+              ELMessageBox(GetDesktopWindow(), TEXT("Recycle Bin is empty."),
+                           TEXT("Emerge Desktop"), ELMB_OK|ELMB_ICONINFORMATION);
+              return true;
+            }
+        }
+
+      return false;
     }
   else if (_wcsicmp(command, TEXT("Lock")) == 0)
     {
