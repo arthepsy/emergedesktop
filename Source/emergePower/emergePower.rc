@@ -49,7 +49,7 @@ VALUE "InternalName", "emergePower"
 VALUE "LegalCopyright", "Copyright (C) 2004-2012"
 VALUE "OriginalFilename", "emergePower.exe"
 VALUE "ProductName", "emergePower"
-VALUE "ProductVersion", POINT_VERSION
+VALUE "ProductVersion", PRODUCT_VERSION
 END
 END
 BLOCK "VarFileInfo"

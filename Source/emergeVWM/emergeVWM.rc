@@ -48,7 +48,7 @@ VALUE "InternalName", "emergeVWM"
 VALUE "LegalCopyright", "Copyright (C) 2004-2012"
 VALUE "OriginalFilename", "emergeVWM.exe"
 VALUE "ProductName", "emergeVWM"
-VALUE "ProductVersion", POINT_VERSION
+VALUE "ProductVersion", PRODUCT_VERSION
 END
 END
 BLOCK "VarFileInfo"

@@ -46,7 +46,7 @@ BEGIN
             VALUE "LegalCopyright", "Copyright (C) 2004-2012"
             VALUE "OriginalFilename", "emergeHotkeys.exe"
             VALUE "ProductName", "emergeHotkeys"
-            VALUE "ProductVersion", POINT_VERSION
+            VALUE "ProductVersion", PRODUCT_VERSION
         END
     END
 

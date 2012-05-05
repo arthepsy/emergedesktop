@@ -47,7 +47,7 @@ BEGIN
             VALUE "LegalCopyright", "Copyright (C) 2010-2012"
             VALUE "OriginalFilename", "emergeIcons.dll"
             VALUE "ProductName", "emergeIcons"
-            VALUE "ProductVersion", POINT_VERSION
+            VALUE "ProductVersion", PRODUCT_VERSION
         END
     END
     BLOCK "VarFileInfo"

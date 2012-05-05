@@ -47,7 +47,7 @@ BEGIN
             VALUE "LegalCopyright", "Copyright (C) 2006-2012"
             VALUE "OriginalFilename", "emerge.exe"
             VALUE "ProductName", "emerge"
-            VALUE "ProductVersion", POINT_VERSION
+            VALUE "ProductVersion", PRODUCT_VERSION
         END
     END
     BLOCK "VarFileInfo"
