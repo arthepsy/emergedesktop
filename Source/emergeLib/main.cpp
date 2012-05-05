@@ -1970,9 +1970,6 @@ bool ELExecuteSpecialFolder(LPTSTR folder)
       ZeroMemory(&si, sizeof(si));
       ZeroMemory(&pi, sizeof(pi));
 
-      ELWriteDebug(explorer);
-      ELWriteDebug(command);
-
       if (wcsstr(command, explorer.c_str()) != NULL)
         {
           switch (specialFolder)
@@ -1990,8 +1987,6 @@ bool ELExecuteSpecialFolder(LPTSTR folder)
 
           ELStringReplace(command, (WCHAR*)TEXT("/idlist,%I,"), (WCHAR*)TEXT(""), true);
           ELStringReplace(command, (WCHAR*)TEXT("%L"), classID, true);
-
-          ELWriteDebug(command);
 
           si.cb = sizeof(si);
           si.dwFlags |= STARTF_USESHOWWINDOW;
