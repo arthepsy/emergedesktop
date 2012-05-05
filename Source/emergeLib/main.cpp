@@ -129,6 +129,7 @@ BOOL CALLBACK MonitorRectEnum(HMONITOR hMonitor, HDC hdcMonitor, LPRECT lprcMoni
 bool ConvertPath(WCHAR *styleFile, DWORD flags, DWORD path);
 std::wstring GetCustomDataPath();
 BOOL CALLBACK ThemeEnum(HWND hwnd, LPARAM lParam);
+bool GetSpecialFolderGUID(int folder, WCHAR *classID);
 
 typedef struct _APPLETMONITORINFO
 {
@@ -1893,15 +1894,126 @@ bool ELParseCommand(const WCHAR *application, WCHAR *program, WCHAR *arguments)
   return (wcslen(program) > 0);
 }
 
+bool GetSpecialFolderGUID(int folder, WCHAR *classID)
+{
+  IShellFolder *pDesktop, *pFolder;
+  LPITEMIDLIST pidl;
+  IPersistFolder *pPersist;
+  CLSID clsID;
+  LPVOID lpVoid;
+  WCHAR *GUIDString;
+  bool ret = false;
+
+  if (SUCCEEDED(CoInitialize(NULL)))
+    {
+      if (SUCCEEDED(SHGetFolderLocation(NULL, folder, NULL, 0, &pidl)))
+        {
+          if (SUCCEEDED(SHGetDesktopFolder(&pDesktop)))
+            {
+              if (SUCCEEDED(pDesktop->BindToObject(pidl, NULL, IID_IShellFolder, &lpVoid)))
+                {
+                  pFolder = reinterpret_cast <IShellFolder*> (lpVoid);
+
+                  if (SUCCEEDED(pFolder->QueryInterface(IID_IPersistFolder, &lpVoid)))
+                    {
+                      pPersist = reinterpret_cast <IPersistFolder*> (lpVoid);
+
+                      if (SUCCEEDED(pPersist->GetClassID(&clsID)))
+                        {
+                          if (SUCCEEDED(StringFromCLSID(clsID, &GUIDString)))
+                            {
+                              wcscpy(classID, GUIDString);
+                              CoTaskMemFree(GUIDString);
+                              ret = true;
+                            }
+                        }
+
+                      pPersist->Release();
+                    }
+
+                  pFolder->Release();
+                }
+
+              pDesktop->Release();
+            }
+
+          ILFree(pidl);
+        }
+
+      CoUninitialize();
+    }
+
+  return ret;
+}
+
 bool ELExecuteSpecialFolder(LPTSTR folder)
 {
   int specialFolder = ELIsSpecialFolder(folder);
   LPITEMIDLIST pidl = NULL;
   SHELLEXECUTEINFO sei;
+  STARTUPINFO si;
+  PROCESS_INFORMATION pi;
   bool ret = false;
+  std::wstring explorer = TEXT("%WINDIR%\\explorer.exe");
+  WCHAR command[MAX_LINE_LENGTH], guid[MAX_PATH], classID[MAX_PATH];
+  DWORD size = MAX_LINE_LENGTH;
 
   if (!specialFolder)
     return ret;
+
+  if (SUCCEEDED(AssocQueryString(ASSOCF_NOTRUNCATE, ASSOCSTR_COMMAND,
+                                 TEXT("Folder"), NULL, command, &size)) && (ELVersionInfo() < 6.0))
+    {
+      explorer = ELToLower(ELExpandVars(explorer));
+      _wcslwr(command);
+      wcscpy(classID, TEXT("::"));
+      ZeroMemory(&si, sizeof(si));
+      ZeroMemory(&pi, sizeof(pi));
+
+      ELWriteDebug(explorer);
+      ELWriteDebug(command);
+
+      if (wcsstr(command, explorer.c_str()) != NULL)
+        {
+          switch (specialFolder)
+            {
+            case CSIDL_CONTROLS:
+              if (GetSpecialFolderGUID(CSIDL_DRIVES, guid))
+                {
+                  wcscat(classID, guid);
+                  wcscat(classID, TEXT("\\::"));
+                }
+            default:
+              if (GetSpecialFolderGUID(specialFolder, guid))
+                wcscat(classID, guid);
+            }
+
+          ELStringReplace(command, (WCHAR*)TEXT("/idlist,%I,"), (WCHAR*)TEXT(""), true);
+          ELStringReplace(command, (WCHAR*)TEXT("%L"), classID, true);
+
+          ELWriteDebug(command);
+
+          si.cb = sizeof(si);
+          si.dwFlags |= STARTF_USESHOWWINDOW;
+          si.wShowWindow = SW_SHOW;
+
+          if (CreateProcess(NULL,
+                            command,
+                            NULL,
+                            NULL,
+                            FALSE,
+                            NORMAL_PRIORITY_CLASS,
+                            NULL,
+                            NULL,
+                            &si,
+                            &pi))
+            {
+              CloseHandle(pi.hProcess);
+              CloseHandle(pi.hThread);
+              return true;
+            }
+        }
+    }
 
   if (SUCCEEDED(SHGetFolderLocation(NULL, specialFolder, NULL, 0, &pidl)))
     {
