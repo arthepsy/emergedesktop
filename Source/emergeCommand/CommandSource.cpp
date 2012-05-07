@@ -40,8 +40,6 @@ CommandSource::CommandSource(HINSTANCE hInst)
 
   if (commandWnd)
     ELPopulateInternalCommandList(commandWnd);
-  else
-    ELWriteDebug(L"Command List failed");
 
   ShowWindow(commandWnd, SW_HIDE);
 }
