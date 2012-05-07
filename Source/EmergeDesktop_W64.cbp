@@ -816,6 +816,12 @@
 		<Unit filename="emergeCommand\Command.h">
 			<Option target="emergeCommand - Release" />
 		</Unit>
+		<Unit filename="emergeCommand\CommandSource.cpp">
+			<Option target="emergeCommand - Release" />
+		</Unit>
+		<Unit filename="emergeCommand\CommandSource.h">
+			<Option target="emergeCommand - Release" />
+		</Unit>
 		<Unit filename="emergeCommand\Config.cpp">
 			<Option target="emergeCommand - Release" />
 		</Unit>
