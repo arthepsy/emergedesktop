@@ -33,6 +33,7 @@
 
 #include "Settings.h"
 #include "CustomSource.h"
+#include "CommandSource.h"
 #include "../emergeGraphics/emergeGraphics.h"
 #include <windows.h>
 #include <time.h>
@@ -92,8 +93,9 @@ private:
   IAutoComplete2 *pac2;
   IObjMgr *pom;
   IUnknown *fileSource;
-  IEnumString *historySource;
+  IEnumString *historySource, *commandSource;
   CustomSource *history;
+  CommandSource *command;
   WCHAR fontName[MAX_RUN_STRING];
   int  dragBorder;
   HWND hText, commandWnd, mainWnd;
