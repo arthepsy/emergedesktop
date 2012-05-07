@@ -1326,6 +1326,13 @@ bool ELExecuteInternal(LPTSTR command)
       ELDispatchCoreMessage(EMERGE_CORE, CORE_HIDE, arg);
       return true;
     }
+  else if (_wcsicmp(command, TEXT("Help")) == 0)
+    {
+      if (!tempArg.empty())
+        return false;
+
+      return ELExecute((WCHAR*)TEXT("%AppletDir%\\Documentation\\Emerge Desktop.chm"));
+    }
   else if (_wcsicmp(command, TEXT("Show")) == 0)
     {
       ELSwitchToThisWindow(ELGetCoreWindow());
@@ -5381,6 +5388,7 @@ bool ELPopulateInternalCommandList(HWND hwnd)
   SendMessage(hwnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Disconnect"));
   SendMessage(hwnd, CB_ADDSTRING, 0, (LPARAM)TEXT("EmptyBin"));
   SendMessage(hwnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Halt"));
+  SendMessage(hwnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Help"));
   SendMessage(hwnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Hibernate"));
   SendMessage(hwnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Hide"));
   SendMessage(hwnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Homepage"));
