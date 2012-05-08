@@ -27,7 +27,7 @@
 #include <string>
 #include <vector>
 
-#define MAX_HISTORY 10
+#define MAX_HISTORY 50
 
 class Settings : public BaseSettings
 {
