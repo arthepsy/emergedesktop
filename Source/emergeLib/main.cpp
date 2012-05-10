@@ -1485,8 +1485,12 @@ bool ELExecuteInternal(LPTSTR command)
     }
   else if (_wcsicmp(command, TEXT("EmptyBin")) == 0)
     {
-      if (!tempArg.empty())
+      if (!tempArg.empty() && confirm)
         return false;
+
+      DWORD emptyFlags = 0;
+      if (!confirm)
+        emptyFlags = SHERB_NOCONFIRMATION | SHERB_NOPROGRESSUI | SHERB_NOSOUND;
 
       SHQUERYRBINFO binInfo;
       binInfo.cbSize = sizeof(binInfo);
@@ -1494,11 +1498,12 @@ bool ELExecuteInternal(LPTSTR command)
       if (SUCCEEDED(SHQueryRecycleBin(NULL, &binInfo)))
         {
           if (binInfo.i64NumItems > 0)
-            return (SHEmptyRecycleBin(GetDesktopWindow(), NULL, 0) == S_OK);
+            return (SHEmptyRecycleBin(GetDesktopWindow(), NULL, emptyFlags) == S_OK);
           else
             {
-              ELMessageBox(GetDesktopWindow(), TEXT("Recycle Bin is empty."),
-                           TEXT("Emerge Desktop"), ELMB_OK|ELMB_ICONINFORMATION);
+              if (confirm)
+                ELMessageBox(GetDesktopWindow(), TEXT("Recycle Bin is empty."),
+                             TEXT("Emerge Desktop"), ELMB_OK|ELMB_ICONINFORMATION);
               return true;
             }
         }
