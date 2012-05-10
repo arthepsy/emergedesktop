@@ -48,7 +48,7 @@ VALUE "InternalName", "emergeLauncher"
 VALUE "LegalCopyright", "Copyright (C) 2004-2012"
 VALUE "OriginalFilename", "emergeLauncher.exe"
 VALUE "ProductName", "emergeLauncher"
-VALUE "ProductVersion", POINT_VERSION
+VALUE "ProductVersion", PRODUCT_VERSION
 END
 END
 BLOCK "VarFileInfo"

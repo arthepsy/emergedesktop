@@ -46,7 +46,7 @@ BEGIN
             VALUE "LegalCopyright", "Copyright (C) 2004-2012"
             VALUE "OriginalFilename", "emergeHotkeys.exe"
             VALUE "ProductName", "emergeHotkeys"
-            VALUE "ProductVersion", POINT_VERSION
+            VALUE "ProductVersion", PRODUCT_VERSION
         END
     END
 
@@ -93,8 +93,8 @@ BEGIN
 	COMBOBOX	IDC_COMMAND,60,210,90,150,CBS_DROPDOWNLIST|WS_VSCROLL|WS_TABSTOP
 	EDITTEXT	IDC_COMMANDARG,160,210,80,12,ES_AUTOHSCROLL
 
-	PUSHBUTTON	"About",IDC_ABOUT,5,240,70,14
-	PUSHBUTTON	"Exit",IDC_EXIT,5,256,70,14
+	PUSHBUTTON	"&About",IDC_ABOUT,5,240,70,14
+	PUSHBUTTON	"E&xit",IDC_EXIT,5,256,70,14
 
 	PUSHBUTTON	"&OK",IDOK,195,240,70,14
 	PUSHBUTTON	"&Cancel",IDCANCEL,195,256,70,14

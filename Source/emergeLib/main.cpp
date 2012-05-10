@@ -129,6 +129,7 @@ BOOL CALLBACK MonitorRectEnum(HMONITOR hMonitor, HDC hdcMonitor, LPRECT lprcMoni
 bool ConvertPath(WCHAR *styleFile, DWORD flags, DWORD path);
 std::wstring GetCustomDataPath();
 BOOL CALLBACK ThemeEnum(HWND hwnd, LPARAM lParam);
+bool GetSpecialFolderGUID(int folder, WCHAR *classID);
 
 typedef struct _APPLETMONITORINFO
 {
@@ -1306,10 +1307,10 @@ bool ELExecuteInternal(LPTSTR command)
       if (!ELIsAppletRunning(workingArg))
         {
           if (ELPathFileExists(workingArg.c_str()))
-          {
-            ELExecute((WCHAR*)workingArg.c_str());
-            Sleep(500); // wait half a second for the applet to start
-          }
+            {
+              ELExecute((WCHAR*)workingArg.c_str());
+              Sleep(500); // wait half a second for the applet to start
+            }
         }
 
       ELSwitchToThisWindow(ELGetCoreWindow());
@@ -1327,6 +1328,13 @@ bool ELExecuteInternal(LPTSTR command)
       ELSwitchToThisWindow(ELGetCoreWindow());
       ELDispatchCoreMessage(EMERGE_CORE, CORE_HIDE, arg);
       return true;
+    }
+  else if (_wcsicmp(command, TEXT("Help")) == 0)
+    {
+      if (!tempArg.empty())
+        return false;
+
+      return ELExecute((WCHAR*)TEXT("%AppletDir%\\Documentation\\Emerge Desktop.chm"));
     }
   else if (_wcsicmp(command, TEXT("Show")) == 0)
     {
@@ -1480,11 +1488,30 @@ bool ELExecuteInternal(LPTSTR command)
     }
   else if (_wcsicmp(command, TEXT("EmptyBin")) == 0)
     {
-      if (!tempArg.empty())
+      if (!tempArg.empty() && confirm)
         return false;
 
-      SHEmptyRecycleBin(NULL, NULL, 0);
-      return true;
+      DWORD emptyFlags = 0;
+      if (!confirm)
+        emptyFlags = SHERB_NOCONFIRMATION | SHERB_NOPROGRESSUI | SHERB_NOSOUND;
+
+      SHQUERYRBINFO binInfo;
+      binInfo.cbSize = sizeof(binInfo);
+
+      if (SUCCEEDED(SHQueryRecycleBin(NULL, &binInfo)))
+        {
+          if (binInfo.i64NumItems > 0)
+            return (SHEmptyRecycleBin(GetDesktopWindow(), NULL, emptyFlags) == S_OK);
+          else
+            {
+              if (confirm)
+                ELMessageBox(GetDesktopWindow(), TEXT("Recycle Bin is empty."),
+                             TEXT("Emerge Desktop"), ELMB_OK|ELMB_ICONINFORMATION);
+              return true;
+            }
+        }
+
+      return false;
     }
   else if (_wcsicmp(command, TEXT("Lock")) == 0)
     {
@@ -1882,15 +1909,121 @@ bool ELParseCommand(const WCHAR *application, WCHAR *program, WCHAR *arguments)
   return (wcslen(program) > 0);
 }
 
+bool GetSpecialFolderGUID(int folder, WCHAR *classID)
+{
+  IShellFolder *pDesktop, *pFolder;
+  LPITEMIDLIST pidl;
+  IPersistFolder *pPersist;
+  CLSID clsID;
+  LPVOID lpVoid;
+  WCHAR *GUIDString;
+  bool ret = false;
+
+  if (SUCCEEDED(CoInitialize(NULL)))
+    {
+      if (SUCCEEDED(SHGetFolderLocation(NULL, folder, NULL, 0, &pidl)))
+        {
+          if (SUCCEEDED(SHGetDesktopFolder(&pDesktop)))
+            {
+              if (SUCCEEDED(pDesktop->BindToObject(pidl, NULL, IID_IShellFolder, &lpVoid)))
+                {
+                  pFolder = reinterpret_cast <IShellFolder*> (lpVoid);
+
+                  if (SUCCEEDED(pFolder->QueryInterface(IID_IPersistFolder, &lpVoid)))
+                    {
+                      pPersist = reinterpret_cast <IPersistFolder*> (lpVoid);
+
+                      if (SUCCEEDED(pPersist->GetClassID(&clsID)))
+                        {
+                          if (SUCCEEDED(StringFromCLSID(clsID, &GUIDString)))
+                            {
+                              wcscpy(classID, GUIDString);
+                              CoTaskMemFree(GUIDString);
+                              ret = true;
+                            }
+                        }
+
+                      pPersist->Release();
+                    }
+
+                  pFolder->Release();
+                }
+
+              pDesktop->Release();
+            }
+
+          ILFree(pidl);
+        }
+
+      CoUninitialize();
+    }
+
+  return ret;
+}
+
 bool ELExecuteSpecialFolder(LPTSTR folder)
 {
   int specialFolder = ELIsSpecialFolder(folder);
   LPITEMIDLIST pidl = NULL;
   SHELLEXECUTEINFO sei;
+  STARTUPINFO si;
+  PROCESS_INFORMATION pi;
   bool ret = false;
+  std::wstring explorer = TEXT("%WINDIR%\\explorer.exe");
+  WCHAR command[MAX_LINE_LENGTH], guid[MAX_PATH], classID[MAX_PATH];
+  DWORD size = MAX_LINE_LENGTH;
 
   if (!specialFolder)
     return ret;
+
+  if (SUCCEEDED(AssocQueryString(ASSOCF_NOTRUNCATE, ASSOCSTR_COMMAND,
+                                 TEXT("Folder"), NULL, command, &size)) && (ELVersionInfo() < 6.0))
+    {
+      explorer = ELToLower(ELExpandVars(explorer));
+      _wcslwr(command);
+      wcscpy(classID, TEXT("::"));
+      ZeroMemory(&si, sizeof(si));
+      ZeroMemory(&pi, sizeof(pi));
+
+      if (wcsstr(command, explorer.c_str()) != NULL)
+        {
+          switch (specialFolder)
+            {
+            case CSIDL_CONTROLS:
+              if (GetSpecialFolderGUID(CSIDL_DRIVES, guid))
+                {
+                  wcscat(classID, guid);
+                  wcscat(classID, TEXT("\\::"));
+                }
+            default:
+              if (GetSpecialFolderGUID(specialFolder, guid))
+                wcscat(classID, guid);
+            }
+
+          ELStringReplace(command, (WCHAR*)TEXT("/idlist,%I,"), (WCHAR*)TEXT(""), true);
+          ELStringReplace(command, (WCHAR*)TEXT("%L"), classID, true);
+
+          si.cb = sizeof(si);
+          si.dwFlags |= STARTF_USESHOWWINDOW;
+          si.wShowWindow = SW_SHOW;
+
+          if (CreateProcess(NULL,
+                            command,
+                            NULL,
+                            NULL,
+                            FALSE,
+                            NORMAL_PRIORITY_CLASS,
+                            NULL,
+                            NULL,
+                            &si,
+                            &pi))
+            {
+              CloseHandle(pi.hProcess);
+              CloseHandle(pi.hThread);
+              return true;
+            }
+        }
+    }
 
   if (SUCCEEDED(SHGetFolderLocation(NULL, specialFolder, NULL, 0, &pidl)))
     {
@@ -2014,11 +2147,9 @@ bool ELExecute(LPTSTR application, LPTSTR workingDir, int nShow, WCHAR *verb)
       si.dwFlags = 0x800;
       si.lpTitle = (WCHAR*)shortcutPath.c_str();
     }
-  else
-    {
-      si.dwFlags = STARTF_USESHOWWINDOW;
-      si.wShowWindow = nShow;
-    }
+  // Be sure to use the nShow value irregardless of shortcut.
+  si.dwFlags |= STARTF_USESHOWWINDOW;
+  si.wShowWindow = nShow;
 
   if (verb == NULL)
     {
@@ -3227,7 +3358,7 @@ bool ELExecuteAlias(LPTSTR alias)
               ELStripLeadingSpaces(command);
 
               // execute the command
-              if (wcscmp(value, alias) == 0)
+              if (_wcsicmp(value, alias) == 0)
                 {
                   ret = ELExecuteInternal(command);
                   if (!ret)
@@ -3992,13 +4123,13 @@ bool ELIsAppletRunning(std::wstring applet)
   return (i != processCount);
 }
 
-       /*!
-         @fn ELIsInternalCommand(WCHAR *command)
-         @brief Determines the internal command based on the string passed
-         @param command string to perform check on
-         */
+/*!
+  @fn ELIsInternalCommand(WCHAR *command)
+  @brief Determines the internal command based on the string passed
+  @param command string to perform check on
+  */
 
-       UINT ELIsInternalCommand(const WCHAR *command)
+UINT ELIsInternalCommand(const WCHAR *command)
 {
   if (_wcsicmp(command, TEXT("run")) == 0)
     return COMMAND_RUN;
@@ -5265,6 +5396,7 @@ bool ELPopulateInternalCommandList(HWND hwnd)
   SendMessage(hwnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Disconnect"));
   SendMessage(hwnd, CB_ADDSTRING, 0, (LPARAM)TEXT("EmptyBin"));
   SendMessage(hwnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Halt"));
+  SendMessage(hwnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Help"));
   SendMessage(hwnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Hibernate"));
   SendMessage(hwnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Hide"));
   SendMessage(hwnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Homepage"));

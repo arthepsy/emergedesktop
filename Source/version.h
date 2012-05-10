@@ -7,9 +7,14 @@
 #define EMERGE_MINOR_VERSION 0
 #define EMERGE_RELEASE_VERSION 0
 
+// As per http://gcc.gnu.org/onlinedocs/cpp/Stringification.html:
+// "If you want to stringify the result of expansion of a macro argument, you
+// have to use two levels of macros."
 #ifndef STRINGIFY
-#define STRINGIFY(s) #s
+#define STRINGIFY(s) TOSTRING(s)
+#define TOSTRING(s) #s
 #endif
 
 #define POINT_VERSION STRINGIFY(EMERGE_MAJOR_VERSION.EMERGE_MINOR_VERSION.EMERGE_RELEASE_VERSION.BUILD_VERSION)
 #define COMMA_VERSION EMERGE_MAJOR_VERSION,EMERGE_MINOR_VERSION,EMERGE_RELEASE_VERSION,BUILD_VERSION
+#define PRODUCT_VERSION STRINGIFY(EMERGE_MAJOR_VERSION.EMERGE_MINOR_VERSION.EMERGE_RELEASE_VERSION)

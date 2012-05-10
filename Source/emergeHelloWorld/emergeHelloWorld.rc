@@ -48,7 +48,7 @@ BEGIN
             VALUE "LegalCopyright", "Copyright (C) 2009-2012"
             VALUE "OriginalFilename", "emergeHelloWorld.exe"
             VALUE "ProductName", "emergeHelloWorld"
-            VALUE "ProductVersion", POINT_VERSION
+            VALUE "ProductVersion", PRODUCT_VERSION
         END
     END
     BLOCK "VarFileInfo"

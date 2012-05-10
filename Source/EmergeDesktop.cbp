@@ -1092,6 +1092,14 @@
 			<Option target="emergeCommand - Release" />
 			<Option target="emergeCommand - Debug" />
 		</Unit>
+		<Unit filename="emergeCommand\CommandSource.cpp">
+			<Option target="emergeCommand - Release" />
+			<Option target="emergeCommand - Debug" />
+		</Unit>
+		<Unit filename="emergeCommand\CommandSource.h">
+			<Option target="emergeCommand - Release" />
+			<Option target="emergeCommand - Debug" />
+		</Unit>
 		<Unit filename="emergeCommand\Config.cpp">
 			<Option target="emergeCommand - Release" />
 			<Option target="emergeCommand - Debug" />

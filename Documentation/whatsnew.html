@@ -1,340 +1,423 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html>
-<head>
-<meta content="text/html; charset=ISO-8859-1" http-equiv="content-type">
-<title>What's New / History</title>
-<link rel = StyleSheet type = "text/css" HREF = "emerge.css">
-</head>
-<body>
-<table bgcolor="#7f907f" cellpadding="5" cellspacing="0" width="100%">
-<tr><td><font color="white"><b>What's New / History</b></font></td></tr></table>
+    <head>
+        <meta content="text/html; charset=ISO-8859-1" http-equiv="content-type">
+        <title>What's New / History</title>
+        <link rel = StyleSheet type = "text/css" HREF = "emerge.css">
+    </head>
+    <body>
+        <table bgcolor="#7f907f" cellpadding="5" cellspacing="0" width="100%">
+            <tr><td><font color="white"><b>What's New / History</b></font></td></tr></table>
 
-<p><b>v5.2.11 (January 28th, 2011)</b><br>
-<b>New:</b>
-<ul>
-    <li>Blur affect for Vista and above. Configurable in Style Editor under 'Miscellaneous', provides a frosted glass type effect.</li>
-    <li>Aero style menus option added to the emergeWorkspace configuration (for Vista and above only)</li>
-    <li>'Help' menu (add via menu editor or created as part of default menu)</li>
-</ul>
-<b>Changed:</b>
-<ul>
-    <li>'Settings' menu re-arranged - about moved to 'Help' menu</li>
-    <li>Emerge will no longer bail out if it can't set the Desktop, CommonDesktop, etc. environment variables</li>
-</ul>
-<b>Fixed:</b>
-<ul>
-    <li>z-order should be correct on startup now</li>
-</ul> 
+        <p><b>v6.0 (July 1st, 2012)</b></p>
+        <b>New:</b>
+        <ul>
+            <li>Explorer Desktop - enabled via emergeCore's configuration</li>
+            <li>Added Alias Editor</li>
+            <li>Able to sort by column in emergeTray, emergeVWM, emergeHotkeys and Alias Editor</li>
+            <li>Internal commands AliasEditor and CoreSettings added</li>
+            <li>eD's ability to run in portable mode has been considerably enhanced: eD is able to run completely on top of Explorer (including emergeTray!) - many thanks to computerfreaker for adding this functionality</li>
+            <li>All paths are treated as relative (internally) so eD can be run from USB drive without the worry of the drive letter changing - courtesy of computerfreaker</li>
+            <li>Several Internal commands (Quit, Logoff, Disconnect, Reboot, Halt, Suspend, Hibernate, EmptyBin) support a /silent switch so there is no user interaction - long over due thanks to computerfreaker for adding this functionality</li>
+            <li>VWMNext, VWMPrev Internal Commands (thanks to ADA for the patch)</li>
+            <li>Configure applets button added to the Launch Editor list</li>
+            <li>emergeHotkeys activation combination can be selected by user</li>
+            <li>Warning about conflicting hotkey combinations shows problematic items highlighted in red on list at startup</li>
+            <li>Multiple instances support added to emergeLauncher, emergeCommand and emergeSysMon</li>
+            <li>Instances can be started hidden</li>
+            <li>Activate internal function replaces executing emergeCommand for a second time to lend focus to input box and replaces static Shift+Esc activation of emergeHotkeys</li>
+            <li>Hide/Show for a single applet is a toggle command</li>
+            <li>Aliases can execute internal commands</li>
+            <li>Automatically scroll when the mouse is over the menu up or down arrows</li>
+            <li>Thanks to computerfreaker, emergeLauncher supports a Title, the contents of an Entire Folder (static) or of a Live Folder (dynamic)</li>
+            <li>Support for 128 and 256 icons in Vista and above (emergeLauncher only)</li>
+            <li>Populate the existing theme name in the &quot;Save As&quot; dialogue</li>
+            <li>Internal commands support arguments</li>
+            <li>emergeTasks allows for tasks to be re-arranged (thanks to endrju)</li>
+            <li>Welcome screen (which can be disabled) when eD starts up</li>
+            <li>Fullscreen applet hiding is now independent of applet hiding</li>
+            <li>Re-implemented &quot;/nostartup&quot; command line option for emergeCore</li>
+            <li>emergeCommand now autocompletes Internal Commands</li>
+            <li>Added the &quot;Help&quot; Internal Command</li>
+            <li>Full logo added to Welcome dialog (long due public thanks and kudos to AiZ for the design of the eD icon and logo included since version 5.0)</li>
+        </ul>
+        <b>Changed:</b>
+        <ul>
+            <li>Removed dependency on external zip/unzip libraries</li>
+            <li>Removed reg2xml from distribution - assume everybody is using XML now</li>
+            <li>If background alpha is 100% don't convert icons - eliminates CPU hit with CPU monitors in emergeTray</li>
+            <li>Edit Launch Applets and Alias Editor moved to Configure Core</li>
+            <li>Internal commands CoreLaunchEditor, CoreShellChanger and CoreAbout renamed to LaunchEditor, ShellChanger and About, respectively (old commands still functional for compatibility)</li>
+            <li>Updated to latest tinyXML</li>
+            <li>emergeMediaCtrl removed as it is very much out of date</li>
+            <li>Applet shadow dynamically appears / disappears based on applet visibility</li>
+            <li>Visual Studio project files updated - thank you to Andreas H. for the patch</li>
+            <li>Distribution batch files updated to use 7-zip - thank you to xaero for the patch</li>
+            <li>Updated documentation - courtesy of Bernard</li>
+        </ul>
+        <b>Fixed:</b>
+        <ul>
+            <li>Potential crash in emergeTray when removing hidden icons from the list</li>
+            <li>Displaying non-ASCII characters in time display</li>
+            <li>Patch from Tim Kosse to fix an Infinite Loop issue in TinyXML</li>
+            <li>Fix parsing of alias file - issues with stray spaces</li>
+            <li>Improved tasks displaying incorrect icons in emergeTasks</li>
+            <li>&quot;Open Folder Here&quot; (i.e. from Chrome's download list) now works</li>
+            <li>&quot;My Documents&quot; special folder under Win7</li>
+            <li>Some applications not installing (i.e. Fences)</li>
+            <li>emergeTasks hanging with misbehaving task</li>
+            <li>Some Tray icon pop-ups displaying at incorrect location</li>
+            <li>Tray icons not hiding properly</li>
+            <li>Duplicate network icons in Tray</li>
+            <li>emergeTasks icon flashing on task update</li>
+            <li>Revert to previous workspace area when exiting eD</li>
+            <li>The &quot;My Documents&quot; folder will not display a warning when executing as a SpecialFolder under XP (thanks to computerfreaker for the tip)</li>
+            <li>Thanks to tips from James Stewart the wallpaper handling is vastly improved and now plays nice with DeskSpace</li>
+            <li>Relative Paths should behave better</li>
+            <li>System icons will now display in the emergeTray when running eD as the shell under Vista</li>
+            <li>emergeTray should be a lot more stable</li>
+            <li>Applet shadow now hides when the applet hides</li>
+            <li>Properly pad %V when displaying date</li>
+            <li>ShowApplet no longer shows all applets when in fullscreen mode</li>
+            <li>Displaying a workspace menu no longer displays all applets when in fullscreen mode</li>
+            <li>Applet drag border is set to 5 pixels at a minimum (irregardless of border size)</li>
+            <li>System icons not showing under Win7 in emergeTray</li>
+            <li>Wallpaper slide show not working under Win7</li>
+            <li>Additional emergeTray stability fixes</li>
+            <li>emergeCore no longer crashes on 64-bit Win8</li>
+            <li>Improved icon extraction so emergeWorkspace menus should have less &quot;default&quot; icons</li>
+            <li>Corrected issue with duplicate icons in emergeTray when running under Vista</li>
+            <li>Fixed crash if there was a space at the end of command to be executed</li>
+            <li>Allow commas in the icon name</li>
+            <li>Don't allow applets to be started outside of the visible area of the desktop</li>
+            <li>Control Panel icon now displays properly again</li>
+            <li>Duplicate icons issue on Vista fixed properly this time</li>
+            <li>Fixed issue with hidden applets appearing that was introduced by dynamic shadows</li>
+            <li>Several potential memory leaks plugged</li>
+        </ul> 
+        <br>
+        <p><b>v5.2.11 (January 28th, 2011)</b></p>
+        <b>New:</b>
+        <ul>
+            <li>Blur affect for Vista and above. Configurable in Style Editor under &quot;Miscellaneous&quot;, provides a frosted glass type effect.</li>
+            <li>Aero style menus option added to the emergeWorkspace configuration (for Vista and above only)</li>
+            <li>&quot;Help&quot; menu (add via menu editor or created as part of default menu)</li>
+        </ul>
+        <b>Changed:</b>
+        <ul>
+            <li>&quot;Settings&quot; menu re-arranged - about moved to &quot;Help&quot; menu</li>
+            <li>Emerge will no longer bail out if it can't set the Desktop, CommonDesktop, etc. environment variables</li>
+        </ul>
+        <b>Fixed:</b>
+        <ul>
+            <li>z-order should be correct on startup now</li>
+        </ul>
+        <br>
+        <p><b>v5.2.10 (January 1st, 2011)</b></p>
+        <b>Fixed:</b>
+        <ul>
+            <li>Applications like DownloadThemAll and MSN Messenger 2011 not working correctly</li>
+        </ul>
+        <br>
+        <p><b>v5.2.9 (December 23rd, 2010)</b></p>
+        <b>Fixed:</b>
+        <ul>
+            <li>Background wallpaper not being repainted on display change</li>
+        </ul>
+        <br>
+        <p><b>v5.2.8 (December 6th, 2010)</b></p>
+        <b>New:</b>
+        <ul>
+            <li>Support for Aero styled menus in emergeWorkspace</li>
+        </ul>
+        <b>Fixed:</b>
+        <ul>
+            <li>icon flashing in emergeTray</li>
+            <li>crash in emergeWorkspace when trying to copy a non-existant style file</li>
+        </ul>
+        <br>
+        <p><b>v5.2.7 (November 5th, 2010)</b></p>
+        <b>Fixed:</b>
+        <ul>
+            <li>Empty emergeWorkspace menus generated in 64-bit Windows</li>
+        </ul>
+        <br>
+        <p><b>v5.2.6 (October 22nd, 2010)</b></p>
+        <b>Fixed:</b>
+        <ul>
+            <li>Crash in emergeWorkspace as a result of the *Menu internal commands</li>
+        </ul>
+        <br>
+        <p><b>v5.2.5 (October 12th, 2010)</b></p>
+        <b>Fixed:</b>
+        <ul>
+            <li>Desktop wallpapers not rotating</li>
+        </ul>
+        <br>
+        <p><b>v5.2.4 (October 6th, 2010)</b></p>
+        <b>Fixed:</b>
+        <ul>
+            <li>Crash in emergeWorkspace</li>
+        </ul>
+        <br>
+        <p><b>v5.2.3 (September 25th, 2010)</b></p>
+        <b>New:</b>
+        <ul>
+            <li>Added support for &quot;%u&quot; and &quot;%V&quot; in date / time format</li>
+        </ul>
+        <b>Changed:</b>
+        <ul>
+            <li>The installer now uses the path to Emerge Desktop as default if Emerge Desktop is running</li>
+        </ul>
+        <b>Fixed:</b>
+        <ul>
+            <li>Incorrect display of certain characters in emergeCommand</li>
+            <li>Correctly update the date / time in emergeCommand and emergeWorkspace on time zone change</li>
+            <li>Changing the ballon info font updated the title font button</li>
+        </ul>
+        <br>
+        <p><b>v5.2.2 (September 15th, 2010)</b></p>
+        <b>Fixed:</b>
+        <ul>
+            <li>Plug resource leak in emergeTray.</li>
+        </ul>
+        <br>
+        <p><b>v5.2.1 - x64 only (September 5th, 2010)</b></p>
+        <b>Fixed:</b>
+        <ul>
+            <li>Issues with incorrect linking to kernel32 on Vista and below</li>
+        </ul>
+        <br>
+        <p><b>v5.2.0 (August 29th, 2010)</b></p>
+        <b>Fixed:</b>
+        <ul>
+            <li>Address: <a href="http://www.microsoft.com/technet/security/advisory/2269637.mspx">http://www.microsoft.com/technet/security/advisory/2269637.mspx</a></li>
+        </ul>
+        <br>
+        <p><b>v5.1.0 (August 27th, 2010)</b></p>
+        <b>New:</b>
+        <ul>
+            <li>Import / export themes</li>
+            <li>Stylable balloon tips in emergeTray</li>
+        </ul>
+        <b>Changed:</b>
+        <ul>
+            <li>Renamed emergeDesktop to emergeWorkspace (emergeCore compensates as recessary)</li>
+            <li>Moved &quot;Quit Emerge Desktop&quot; to Settings Menu</li>
+        </ul>
+        <br>
+        <p><b>v5.0.0 (June 25th, 2010)</b></p>
+        <b>New:</b>
+        <ul>
+            <li>Theme support</li>
+            <li>Dynamic positioning</li>
+            <li>Support for &quot;Run As&quot;</li>
+            <li>Re-added &quot;My Documents&quot; Special Folder</li>
+            <li>Created native 64-bit version of Emerge Desktop</li>
+            <li>Context menu for emergeDesktop menu items (right click on a item to activate them)</li>
+            <li>New Internal Commands:</li>
+            <ul>
+                <li>VWM_1 to VWM_9 - jump to VWM desktop</li>
+            </ul>
+            <li>New EmergeVars:</li>
+            <ul>
+                <li>%AppletDir% - location of Emerge Desktop applets</li>
+                <li>%EmergeDir% - location of Emerge Desktop configuration files</li>
+                <li>%ThemeDir% - location of current theme</li>
+            </ul>
+            <li>New applets:</li>
+            <ul>
+                <li>emergeSysMon - a system resource monitor</li>
+                <li>emergePower - a battery charge monitor)</li>
+            </ul>
+            <li>reg2xml - a utility to convert previous registry based settings to an XML based Theme</li>
+            <li>Relative paths for schemes</li>
+            <li>Colorful startup Theme functionally similar to Explorer</li>
+            <li><b>Ability to run as a self contained/portable shell</b></li>
+        </ul>
 
-<p><b>v5.2.10 (January 1st, 2011)</b><br>
-<b>Fixed:</b>
-<ul>
-    <li>Applications like DownloadThemAll and MSN Messenger 2011 not working correctly</li>
-</ul>
+        <b>Changed:</b>
+        <ul>
+            <li>Switched from storing settings in the registry to storing settings in XML files</li>
+            <li>improved fullscreen checking</li>
+            <li>Improved shortcut handling</li>
+            <li>Multi-tabbed configuration for each applet</li>
+            <li>New icons</li>
+            <li>Internal default theme changed from overlapped squares to a gray colored Theme functionally similar to Explorer</li>
+        </ul>
 
-<p><b>v5.2.9 (December 23rd, 2010)</b><br>
-<b>Fixed:</b>
-<ul>
-    <li>Background wallpaper not being repainted on display change</li>
-</ul>
+        <b>Fixed:</b>
+        <ul>
+            <li>Win7 tray support</li>
+            <li>UTF16 to UTF8 and vice versa conversion routines, so non-English characters are better supported</li>
+            <li>emergeTasks crash when an application rapidly changes it's title</li>
+            <li>execution of apps failing that require elevated priviledges</li>
+        </ul>
+        <br>
+        <p><b>v4.1.3 (January 18th, 2009)</b></p>
+        <b>Changed:</b>
+        <ul>
+            <li>Screen Saver / Power Saver fix</li>
+            <li>fix for non-Unicode time display in emergeCommand</li>
+        </ul>
+        <br>
+        <p><b>v4.1.2 (May 11th, 2008)</b></p>
+        <b>Changed:</b>
+        <ul>
+            <li>Fixed the issue where tray would not return to &quot;inactive&quot; state after move</li>
+        </ul>
+        <br>
+        <p><b>v4.1.1 (April 24th, 2008)</b></p>
+        <b>Changed:</b>
+        <ul>
+            <li>Fixed the issue where tasks with modal open dialogues could still be left-click minimized</li>
+        </ul>
+        <br>
+        <p><b>v4.1 (April 18th, 2008)</b></p>
+        <b>New:</b>
+        <ul>
+            <li>More EmergeVars:</li>
+            <ul>
+                <li>%Desktop% - current user's desktop</li>
+                <li>%CommonDesktop% - All Users' desktop</li>
+                <li>%Documents% - current user's &quot;My Documents&quot;</li>
+                <li>%CommonDocuments% - All Users' &quot;My Documents&quot;</li>
+                <li>Like the %StartMenu% and %CommonStartMenu%, you can use these as &quot;Executable&quot; to pop them open in a file manager, or as a &quot;Folder Menu&quot;
+                to open them as menus.  With the &quot;Folder Menu&quot;, you can merge them, (i.e. %Desktop%|%CommonDesktop%, etc.)</li>
+            </ul>
+            <li>&quot;Center&quot; alignment for both vertical and horizontal.  The applets will &quot;grow&quot; from the center if autosize is enabled, if not they align
+            themselves to the center of the applet window.</li>
+            <li>Multi-line support in emergeCommand (for time and tip).  To introduce a &quot;newline&quot; use &quot;%_&quot; (i.e. %A%_%x%_%X).</li>
+            <li>CPL files now display their icon correctly</li>
+            <li>emergeVWM now &quot;loops&quot; when you use hotkeys to change the desktop (courtesy of Teshadael)</li>
+            <li>You can now use the &quot;Windows&quot; key only as a hotkey (like Explorer with the start menu).  Hotkeys trigger on key-up now (as opposed to
+            key-down) to allow for the &quot;Windows&quot; key to be used for multiple hotkeys.</li>
+            <li>Internal commands &quot;VolumeUp&quot;, &quot;VolumeDown&quot; and &quot;VolumeMute&quot; Internal Commands</li>
+            <li>emerge.exe utility to allow non-Emerge Desktop applications to execute Internal Commands</li>
+        </ul>
+        <b>Changed:</b>
+        <ul>
+            <li>Improved fullscreen check so the issues with VLC et. all should now have gone away</li>
+            <li>Fixed setting the shell under x64 windows</li>
+            <li>Fixed emergeVWM so that mini windows do not remain in the &quot;drag&quot; state if the left mouse button is released off of the emergeVWM window</li>  
+            <li>Control Panel should show all the icons under x64 Windows</li>
+            <li>emergeHotkeys only allows one instance of it's configuration dialog.</li>
+            <li>emergeHotkeys configuration dialog doesn't reset if the key combination fails to register.</li>
+            <li>emergeCore now adds quotes around the shell when setting it, if the shell path has spaces in it.</li>
+            <li>Fixed bug where the tasks menu (i.e. the right click menu on an icon in emergeTasks) was displaying when it shouldn't (i.e. the options
+            dialog of firefox is open and your right click on the firefox icon in emergeTasks)</li>
+            <li>Installer will now restart emergeCore if it was running prior to the installer running</li>
+        </ul>
+        <b>Removed:</b>
+        <ul>
+            <li>&quot;My Documents&quot; Special folder removed in favor of the %Documents%, %CommonDocuments% EmergeVars</li>
+        </ul>
+        <br>
+        <p><b>v4.0.1 (Oct 20th, 2007)</b></p>
+        <b>New:</b>
+        <ul>
+            <li>Added support for multiple Click Through methods:
+            <ul>
+                <li>Full - implements Click Through as it is implemented in 4.0</li>
+                <li>Background - implements Click Through as it was prior to 4.0</li>
+                </li></ul>
+            </ul>
+            <b>Changed:</b>
+            <ul>
+                <li>Reverted to previous method to keep desktop window on the bottom of the z-order</li>
+            </ul>
+            <br>
+            <p><b>v4.0 (Oct 1st, 2007)</b></p>
+            <br><b>New:</b>
+            <ul>
+                <li>Scheme Editor (accessed via the &quot;Edit Current Scheme&quot; entry in the Applets menus)</li>
+                <li>roblarky's hide icon change in emergeTray</li>
+                <li>roblarky's change that optionally sets the work area (i.e. Desktop Borders) for the primary monitor only</li>
+                <li>new alpha values, Foreground, Frame, Selected and Border</li>
+                <li>Bold and Italic support for font</li>
+                <li>&quot;Disconnect&quot; Internal Command to disconnect from a Terminal Server</li>
+                <li>&quot;Hide Sticky Applications&quot; option to emergeVWM</li>
+                <li>Implemented applet padding (see Scheme Editor)</li>
+                <li>implemented &quot;Switch&quot; button to switch gradient to and from colours (in Scheme Editor)</li>
+                <li>implemented &quot;Defaults&quot; button which sets everything back to the defaults (in Scheme Editor)</li>
+                <li>Shift left clicking on any colour in the Scheme Editor will reset it to the default colour</li>
+                <li>Implemented true alpha blended text and fixed anti aliasing for Win2K and &quot;standard&quot; font smoothing</li>
+                <li>Added support for &quot;Change Icon&quot; dialogue in emergeLauncher</li>
+                <li>Added new &quot;Lock&quot; internal command to lock the workstation / server</li>
+            </ul>
+            <b>Changed:</b>
+            <ul>
+                <li>switched methods to keep desktop window on the bottom of the z-order</li>
+                <li>borders will be painted now, regardless if the border colour is defined or not</li>
+                <li>you can resize applets even if the border size is 0</li>
+                <li>click through now works regardless of background alpha value  (holding down the shift key will cause the mouse to work as usual,  i.e. shift+ctrl+right-click activates the applet menu, etc.)</li>
+                <li>Icon Spacing is now set per Applet</li>
+                <li>Font settings (Font Face and Size) moved to Applet</li>
+                <li>Shutdown now powers down the computer under Win2K</li>
+                <li>Improved Full Screen checking</li>
+                <li>emergeVWM no longer ignores tool windows</li>
+            </ul>
+            <b>Fixed:</b>
+            <ul>
+                <li>Bug that would randomly cause crashes in emergeTray when exiting</li>
+                <li>possible crash in emergeCore's messaging</li>
+                <li>emergeCore crash due to buffer overlow in DDE handler</li>
+                <li>background alpha consistency issue with different active and inactive alpha values</li>
+            </ul>
+            <br>
+            <p><b>v3.1 (Feb 15th, 2007)</b></p>
+            <b>New:</b>
+            <ul>
+                <li>added support for 32x32 icons in emergeTasks</li>
+                <li>added window.iconSpacing to scheme settings</li>
+                <li>added emergecommand tooltip</li>
+                <li>added Snapmove and Snapsize to define applet positioning</li>
+            </ul>
+            <b>Changed:</b>
+            <ul>
+                <li>improved multimonitor support</li>
+                <li>emergeHotkeys activation changed to Shift+Esc</li>
+                <li>improved dialog consistency</li>
+                <li>internal commands CoreSettings and CoreMenuEditor renamed to DesktopSettings and DesktopMenuEditor</li>
+            </ul>
+            <b>Fixed:</b>
+            <ul>
+                <li>Icon transparency under w2k</li>
+                <li>Minimized tasks when emergeTasks is not loaded</li>
+                <li>improved support for Full Screen applications</li>
+                <li>emergeTray no longer &quot;jumps&quot; when Full Screen applications end</li>
+                <li>the &quot;hour glass&quot; no longer shows on emergeTray mouse hover</li>
+            </ul>
+            <br>
+            <p><b>v3.0.2 (May 26th, 2006)</b> - This build fixes many bugs posted on the tracker and configuration boxes were modified for consistency</p>
+            <br>
+            <p><b>v3.0.1 (Mar 31st, 2006)</b> - This is mainly a fix for a memory leak introduced in 3.0</p>
+            <br>
+            <p><b>v3.0 (Mar 15th, 2006)</b></p>
+            <br><b>New:</b>
+            <ul>
+                <li>Icons on menus (on by default but can be disabled)</li>
+                <li>Special folders (like My Computer or Recycle Bin) can now be accessed through the menus, emergeLauncher or emergeCommand</li>
+                <li>Emerge Desktop runs on top of explorer with access to Right Menu and without loading tray</li>
+            </ul>
+            <b>Changed:</b>
+            <ul>
+                <li>emergeHotkeys activation changed to Ctrl+Win+Esc</li>
+                <li>Manifest information (to have menus with XP style) was included in the applets</li>
+                <li>Startup exceptions were removed</li>
+            </ul>
+            <b>Fixed:</b>
+            <ul>
+                <li>emergeLauncher correctly displays the icon from executables even when arguments are included</li>
+                <li>16-bit support in VWM and emergeTasks</li>
+                <li>emergeTray problem with Miranda</li>
+            </ul>
+            <br>
+            <p><b>v2.0.1 (Sep 9th, 2005)</b> - A Settings entry is included in the default Right menu. A shortcut is added to the Emerge group to allow to easily switch between shells.</p>
 
-<p><b>v5.2.8 (December 6th, 2010)</b><br>
-<b>New:</b>
-<ul>
-    <li>Support for Aero styled menus in emergeWorkspace</li>
-</ul>
-<b>Fixed:</b>
-<ul>
-    <li>icon flashing in emergeTray</li>
-    <li>crash in emergeWorkspace when trying to copy a non-existant style file</li>
-</ul>
+            <p><b>v2.0 (Aug 11th, 2005)</b> - The installer no longer allows to replace the shell for all users. Only the core applets are included in the distribution. The central emergeConfig is dropped. The emergescript language is dropped. The Right and Mid menus have an Editor which supports drag and drop sorting and has a tree structure. Most settings can be accessed via internal commands. Each applet has now it's own icon created by moeghan.</p>
 
-<p><b>v5.2.7 (November 5th, 2010)</b><br>
-<b>Fixed:</b>
-<ul>
-    <li>Empty emergeWorkspace menus generated in 64-bit Windows</li>
-</ul>
+            <p><b>v1.1 (Jan 31st, 2005)</b> - The core applets (tray, tasks, command, hotkeys and VWM) now have their own configuration panel separate from emergeConfig which is used to configure all other applets. The core applets support editable schemes which allow to set colour and transparency of each applet individually. Tray and tasks can now autoresize.The default midmenu has now some essential commands including access to Current User and All User Programs.</p>
 
-<p><b>v5.2.6 (October 22nd, 2010)</b><br>
-<b>Fixed:</b>
-<ul>
-    <li>Crash in emergeWorkspace as a result of the *Menu internal commands</li>
-</ul>
-
-<p><b>v5.2.5 (October 12th, 2010)</b><br>
-<b>Fixed:</b>
-<ul>
-    <li>Desktop wallpapers not rotating</li>
-</ul>
-
-<p><b>v5.2.4 (October 6th, 2010)</b><br>
-<b>Fixed:</b>
-<ul>
-    <li>Crash in emergeWorkspace</li>
-</ul>
-
-<p><b>v5.2.3 (September 25th, 2010)</b><br>
-<b>New:</b>
-<ul>
-    <li>Added support for '%u' and '%V' in date / time format</li>
-</ul>
-<b>Changed:</b>
-<ul>
-    <li>The installer now uses the path to Emerge Desktop as default if Emerge Desktop is running</li>
-</ul>
-<b>Fixed:</b>
-<ul>
-    <li>Incorrect display of certain characters in emergeCommand</li>
-    <li>Correctly update the date / time in emergeCommand and emergeWorkspace on time zone change</li>
-    <li>Changing the ballon info font updated the title font button</li>
-</ul>
-
-<p><b>v5.2.2 (September 15th, 2010)</b><br>
-<b>Fixed:</b>
-<ul>
-  <li>Plug resource leak in emergeTray.</li>
-</ul>
-
-<p><b>v5.2.1 - x64 only (September 5th, 2010)</b><br>
-<b>Fixed:</b>
-<ul>
-  <li>Issues with incorrect linking to kernel32 on Vista and below</li>
-</ul>
-
-<p><b>v5.2.0 (August 29th, 2010)</b><br>
-<b>Fixed:</b>
-<ul>
-    <li>Address: <a href="http://www.microsoft.com/technet/security/advisory/2269637.mspx">http://www.microsoft.com/technet/security/advisory/2269637.mspx</a></li>
-</ul>
-
-<p><b>v5.1.0 (August 27th, 2010)</b><br>
-<b>New:</b>
-<ul>
-    <li>Import / export themes</li>
-    <li>Stylable balloon tips in emergeTray</li>
-</ul>
-<b>Changed:</b>
-<ul>
-    <li>Renamed emergeDesktop to emergeWorkspace (emergeCore compensates as recessary)</li>
-    <li>Moved 'Quit Emerge Desktop' to Settings Menu</li>
-</ul>
-
-<p><b>v5.0.0 (June 25th, 2010)</b><br>
-<b>New:</b>
-<ul>
-    <li>Theme support</li>
-    <li>Dynamic positioning</li>
-    <li>Support for 'Run As'</li>
-    <li>Re-added 'My Documents' Special Folder</li>
-    <li>Created native 64-bit version of Emerge Desktop</li>
-    <li>Context menu for emergeDesktop menu items (right click on a item to activate them)</li>
-    <li>New Internal Commands:</li>
-    <ul>
-        <li>VWM_1 to VWM_9 - jump to VWM desktop</li>
-    </ul>
-    <li>New EmergeVars:</li>
-    <ul>
-        <li>%AppletDir% - location of Emerge Desktop applets</li>
-        <li>%EmergeDir% - location of Emerge Desktop configuration files</li>
-        <li>%ThemeDir% - location of current theme</li>
-    </ul>
-    <li>New applets:</li>
-    <ul>
-        <li>emergeSysMon - a system resource monitor</li>
-        <li>emergePower - a battery charge monitor)</li>
-    </ul>
-    <li>reg2xml - a utility to convert previous registry based settings to an XML based Theme</li>
-    <li>Relative paths for schemes</li>
-    <li>Colorful startup Theme functionally similar to Explorer
-    <li><b>Ability to run as a self contained/portable shell</b></li>
-</ul>
-
-<b>Changed:</b>
-<ul>
-    <li>Switched from storing settings in the registry to storing settings in XML files</li>
-    <li>improved fullscreen checking</li>
-    <li>Improved shortcut handling</li>
-    <li>Multi-tabbed configuration for each applet</li>
-    <li>New icons</li>
-    <li>Internal default theme changed from overlapped squares to a gray colored Theme functionally similar to Explorer</li>
-</ul>
-
-<b>Fixed:</b>
-<ul>
-    <li>Win7 tray support</li>
-    <li>UTF16 to UTF8 and vice versa conversion routines, so non-English characters are better supported</li>
-    <li>emergeTasks crash when an application rapidly changes it's title</li>
-    <li>execution of apps failing that require elevated priviledges</li>
-</ul>
-
-<p><b>v4.1.3 (January 18th, 2009)</b><br>
-<b>Changed:</b>
-<ul>
-  <li>Screen Saver / Power Saver fix</li>
-  <li>fix for non-Unicode time display in emergeCommand</li>
-</ul>
-
-<p><b>v4.1.2 (May 11th, 2008)</b><br>
-<b>Changed:</b>
-<ul>
-    <li>Fixed the issue where tray would not return to 'inactive' state after move</li>
-</ul>
-
-<p><b>v4.1.1 (April 24th, 2008)</b><br>
-<b>Changed:</b>
-<ul>
-    <li>Fixed the issue where tasks with modal open dialogues could still be left-click minimized</li>
-</ul>
-
-<p><b>v4.1 (April 18th, 2008)</b><br>
-<b>New:</b>
-<ul>
-  <li>More EmergeVars:</li>
-  <ul>
-    <li>%Desktop% - current user's desktop</li>
-    <li>%CommonDesktop% - All User's desktop</li>
-    <li>%Documents% - current user's "My Documents"</li>
-    <li>%CommonDocuments% - All User's "My Documents"</li>
-    <li>Like the %StartMenu% and %CommonStartMenu%, you can use these as "Executable" to pop them open in a file manager, or as a "Folder Menu"
-    to open them as menus.  With the "Folder Menu", you can merge them, (i.e. %Desktop%|%CommonDesktop%, etc.)</li>
-  </ul>
-  <li>"Center" alignment for both vertical and horizontal.  The applets will 'grow' from the center if autosize is enabled, if not they align
-  themselves to the center of the applet window.</li>
-  <li>Multi-line support in emergeCommand (for time and tip).  To introduce a 'newline' use '%_' (i.e. %A%_%x%_%X).</li>
-  <li>CPL files now display their icon correctly</li>
-  <li>emergeVWM now 'loops' when you use hotkeys to change the desktop (courtesy of Teshadael)</li>
-  <li>You can now use the 'Windows' key only as a hotkey (like Explorer with the start menu).  Hotkeys trigger on key-up now (as opposed to
-  key-down) to allow for the "Windows" key to be used for multiple hotkeys.</li>
-  <li>Internal commands "VolumeUp", "VolumeDown" and "VolumeMute" Internal Commands</li>
-  <li>emerge.exe utility to allow non-Emerge Desktop applications to execute Internal Commands</li>
-</ul>
-<b>Changed:</b>
-<ul>
-  <li>Improved fullscreen check so the issues with VLC et. all should now have gone away</li>
-  <li>Fixed setting the shell under x64 windows</li>
-  <li>Fixed emergeVWM so that mini windows do not remain in the 'drag' state if the left mouse button is released off of the emergeVWM window</li>  
-  <li>Control Panel should show all the icons under x64 Windows</li>
-  <li>emergeHotkeys only allows one instance of it's configuration dialog.</li>
-  <li>emergeHotkeys configuration dialog doesn't reset if the key combination fails to register.</li>
-  <li>emergeCore now adds quotes around the shell when setting it, if the shell path has spaces in it.</li>
-  <li>Fixed bug where the tasks menu (i.e. the right click menu on an icon in emergeTasks) was displaying when it shouldn't (i.e. the options
-  dialog of firefox is open and your right click on the firefox icon in emergeTasks)</li>
-  <li>Installer will now restart emergeCore if it was running prior to the installer running</li>
-</ul>
-<b>Removed:</b>
-<ul>
-    <li>"My Documents" Special folder removed in favor of the %Documents%, %CommonDocuments% EmergeVars</li>
-</li>
-</ul>
-
-<p><b>v4.0.1 (Oct 20th, 2007)</b><br>
-<b>New:</b>
-<ul>
-    <li>Added support for multiple Click Through methods:
-    <ul>
-        <li>Full - implements Click Through as it is implemented in 4.0</li>
-        <li>Background - implements Click Through as it was prior to 4.0</li>
-    </li></ul>
-</ul>
-<b>Changed:</b>
-<ul>
-    <li>Reverted to previous method to keep desktop window on the bottom of the z-order</li>
-</ul>
-
-<p><b>v4.0 (Oct 1st, 2007)</b>
-<br><b>New:</b>
-<ul>
-    <li>Scheme Editor (accessed via the &quot;Edit Current Scheme&quot; entry in the Applets menus)</li>
-    <li>roblarky's hide icon change in emergeTray</li>
-    <li>roblarky's change that optionally sets the work area (i.e. Desktop Borders) for the primary monitor only</li>
-    <li>new alpha values, Foreground, Frame, Selected and Border</li>
-    <li>Bold and Italic support for font</li>
-    <li>'Disconnect' Internal Command to disconnect from a Terminal Server</li>
-    <li>'Hide Sticky Applications' option to emergeVWM</li>
-    <li>Implemented applet padding (see Scheme Editor)</li>
-    <li>implemented 'Switch' button to switch gradient to and from colours (in Scheme Editor)</li>
-    <li>implemented 'Defaults' button which sets everything back to the defaults (in Scheme Editor)</li>
-    <li>Shift left clicking on any colour in the Scheme Editor will reset it to the default colour</li>
-    <li>Implemented true alpha blended text and fixed anti aliasing for Win2K and 'standard' font smoothing</li>
-    <li>Added support for 'Change Icon' dialogue in emergeLauncher</li>
-    <li>Added new 'Lock' internal command to lock the workstation / server</li>
-</ul>
-<b>Changed:</b>
-<ul>
-    <li>switched methods to keep desktop window on the bottom of the z-order</li>
-    <li>borders will be painted now, regardless if the border colour is defined or not</li>
-    <li>you can resize applets even if the border size is 0</li>
-    <li>click through now works regardless of background alpha value  (holding down the shift key will cause the mouse to work as usual,  i.e. shift+ctrl+right-click activates the applet menu, etc.)</li>
-    <li>Icon Spacing is now set per Applet</li>
-    <li>Font settings (Font Face and Size) moved to Applet</li>
-    <li>Shutdown now powers down the computer under Win2K</li>
-    <li>Improved Full Screen checking</li>
-    <li>emergeVWM no longer ignores tool windows</li>
-</ul>
-<b>Fixed:</b>
-<ul>
-    <li>Bug that would randomly cause crashes in emergeTray when exiting</li>
-    <li>possible crash in emergeCore's messaging</li>
-    <li>emergeCore crash due to buffer overlow in DDE handler</li>
-    <li>background alpha consistency issue with different active and inactive alpha values</li>
-</ul>
-</p>
-
-<p><b>v3.1 (Feb 15th, 2007)</b>
-<br><b>New:</b>
-<ul>
-    <li>added support for 32x32 icons in emergeTasks</li>
-    <li>added window.iconSpacing to scheme settings</li>
-    <li>added emergecommand tooltip</li>
-    <li>added Snapmove and Snapsize to define applet positioning</li>
-</ul>
-<b>Changed:</b>
-<ul>
-    <li>improved multimonitor support</li>
-    <li>emergeHotkeys activation changed to Shift+Esc</li>
-    <li>improved dialog consistency</li>
-    <li>internal commands CoreSettings and CoreMenuEditor renamed to DesktopSettings and DesktopMenuEditor</li>
-</ul>
-<b>Fixed:</b>
-<ul>
-    <li>Icon transparency under w2k</li>
-    <li>Minimized tasks when emergeTasks is not loaded</li>
-    <li>improved support for Full Screen applications</li>
-    <li>emergeTray no longer 'jumps' when Full Screen applications end</li>
-    <li>the 'hour glass' no longer shows on emergeTray mouse hover</li>
-</ul>
-</p>
-
-<p><b>v3.0.2 (May 26th, 2006)</b> - This build fixes many bugs posted on the tracker and configuration boxes were modified for consistency</p>
-
-<p><b>v3.0.1 (Mar 31st, 2006)</b> - This is mainly a fix for a memory leak introduced in 3.0</p>
-
-<p><b>v3.0 (Mar 15th, 2006)</b>
-<br><b>New:</b>
-<ul>
-    <li>Icons on menus (on by default but can be disabled)</li>
-    <li>Special folders (like My Computer or Recycle Bin) can now be accessed through the menus, emergeLauncher or emergeCommand</li>
-    <li>Emerge Desktop runs on top of explorer with access to Right Menu and without loading tray</li>
-</ul>
-<b>Changed:</b>
-<ul>
-    <li>emergeHotkeys activation changed to Ctrl+Win+Esc</li>
-    <li>Manifest information (to have menus with XP style) was included in the applets</li>
-    <li>Startup exceptions were removed</li>
-</ul>
-<b>Fixed:</b>
-<ul>
-    <li>emergeLauncher correctly displays the icon from executables even when arguments are included</li>
-    <li>16-bit support in VWM and emergeTasks</li>
-    <li>emergeTray problem with Miranda</li>
-</ul>
-</p>
-
-<p><b>v2.0.1 (Sep 9th, 2005)</b> - A Settings entry is included in the default Right menu. A shortcut is added to the Emerge group to allow to easily switch between shells.</p>
-
-<p><b>v2.0 (Aug 11th, 2005)</b> - The installer no longer allows to replace the shell for all users. Only the core applets are included in the distribution. The central emergeConfig is dropped. The emergescript language is dropped. The Right and Mid menus have an Editor which supports drag and drop sorting and has a tree structure. Most settings can be accessed via internal commands. Each applet has now it's own icon created by moeghan.</p>
-
-<p><b>v1.1 (Jan 31st, 2005)</b> - The core applets (tray, tasks, command, hotkeys and VWM) now have their own configuration panel separate from emergeConfig which is used to configure all other applets. The core applets support editable schemes which allow to set colour and transparency of each applet individually. Tray and tasks can now autoresize.The default midmenu has now some essential commands including access to Current User and All User Programs.</p>
-
-<p><b>v1.0 (Aug 20th, 2004)</b> - Emerge existed previously under the name iShell but was renamed to avoid conflict with other existing iShell named programs.</p>
-</body></html>
+            <p><b>v1.0 (Aug 20th, 2004)</b> - Emerge existed previously under the name iShell but was renamed to avoid conflict with other existing iShell named programs.</p>
+    </body></html>

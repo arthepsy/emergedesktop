@@ -34,6 +34,7 @@ Command::Command(HWND mainWnd, HINSTANCE hInstance, std::tr1::shared_ptr<Setting
   pom = NULL;
   fileSource = NULL;
   historySource = NULL;
+  commandSource = NULL;
   hText = NULL;
   history = NULL;
   appletHidden = false;
@@ -62,6 +63,9 @@ Command::~Command()
 
   if (historySource)
     historySource->Release();
+
+  if (commandSource)
+    commandSource->Release();
 
   if (!registered)
     // Unregister the window class
@@ -326,6 +330,12 @@ void Command::UpdateEdit(GUIINFO guiInfo, int width, int height)
           historySource = NULL;
         }
 
+      if (commandSource)
+        {
+          commandSource->Release();
+          commandSource = NULL;
+        }
+
       DestroyWindow(hText);
     }
 
@@ -357,6 +367,14 @@ void Command::UpdateEdit(GUIINFO guiInfo, int width, int height)
       historySource = reinterpret_cast <IEnumString*> (lpVoid);
     }
 
+  if (!commandSource)
+    {
+      command = new CommandSource(mainInst);
+
+      command->QueryInterface(IID_IEnumString, &lpVoid);
+      commandSource = reinterpret_cast <IEnumString*> (lpVoid);
+    }
+
   if (!pom)
     {
       CoCreateInstance(CLSID_ACLMulti,
@@ -372,6 +390,9 @@ void Command::UpdateEdit(GUIINFO guiInfo, int width, int height)
 
   if (historySource && pom)
     pom->Append(historySource);
+
+  if (commandSource && pom)
+    pom->Append(commandSource);
 
   if (_wcsicmp(pSettings->GetCommandTextAlign(), TEXT("right")) == 0)
     hText = CreateWindowEx(

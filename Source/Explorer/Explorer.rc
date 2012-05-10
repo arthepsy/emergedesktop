@@ -46,7 +46,7 @@ BEGIN
             VALUE "LegalCopyright", "Copyright (C) 2011-2012"
             VALUE "OriginalFilename", "Explorer.exe"
             VALUE "ProductName", "Explorer"
-            VALUE "ProductVersion", POINT_VERSION
+            VALUE "ProductVersion", PRODUCT_VERSION
         END
     END
 

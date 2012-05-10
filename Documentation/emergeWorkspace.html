@@ -3,7 +3,13 @@
     <head>
         <title>emergeWorkspace</title>
         <link rel = StyleSheet type = "text/css" HREF = "../emerge.css">
-</head>
+<style type="text/css">
+<!--
+.style1 {font-weight: bold}
+.style3 {font-weight: bold}
+.style4 {font-weight: bold}
+-->
+</style></head>
 <body>
   <table bgcolor="#7f907f" cellpadding="5" cellspacing="0" width="100%">
     <tr>
@@ -11,49 +17,61 @@
         <font color="white"><b>About</b></font> </td>
     </tr>
   </table>
-<p class="style1">emergeWorkspace is the desktop component of Emerge Desktop. It provides the <span class="style3" style="margin-top: 0; margin-bottom: 0;"> <span class="style3" style="margin-top: 0; margin-bottom: 0;"><span class="style3" style="margin-top: 0; margin-bottom: 0;">mouse RightClick </span></span>and MiddleClick  </span>menus.</p>
+<p>emergeWorkspace is the desktop component of Emerge Desktop. It provides the <span style="margin-top: 0; margin-bottom: 0;"> mouse RightClick and MiddleClick  </span>menus.</p>
   <table bgcolor="#7f907f" cellpadding="5" cellspacing="0" width="100%">
     <tr>
       <td class="style1">
         <font color="white"><b>Configuration</b></font> </td>
     </tr>
 </table>
-<p class="style2">Two major components of Emerge Desktop are dependent on emergeWorkspace: the Desktop Settings, which define the active desktop area and general menu options, and the Menu Editor, for configuring the the <span class="style3" style="margin-top: 0; margin-bottom: 0;">RightClick </span>and MiddleClick menus on the desktop.</p>
-<p class="style2"><span class="style2" style="margin-top: 0; margin-bottom: 0;">emergeWorkspace</span> is configured by right-clicking on the desktop, clicking on<strong> Setting</strong>, and <strong>Configure, </strong> which opens the configuration menu. The first tab is <strong>General</strong>:</p>
+<p>Two major components of Emerge Desktop are dependent on emergeWorkspace: the Desktop Settings, which define the active desktop area and general menu options, and the Menu Editor, for configuring the the <span style="margin-top: 0; margin-bottom: 0;">RightClick </span>and MiddleClick menus on the desktop.</p>
+<p><span style="margin-top: 0; margin-bottom: 0;">emergeWorkspace</span> is configured by right-clicking on the desktop, clicking on <strong>Setting</strong>, and <strong>Configure</strong>,  which opens the configuration menu. The first tab is <strong>General</strong>:</p>
 <p><img src="WorkspaceConfig1.png" width="446" height="459"></p>
-<p class="style3"><span style="margin-top: 0">Alternatively the user can type <i>WorkspaceSettings</i> in the emergeCommand command window.</span></p>
-<p class="style1">The <strong>Top, Left, Right, and Bottom Desktop Borders</strong> are set (in pixels) to <span class="style3" style="margin-top: 0; margin-bottom: 0;">define </span>areas between the edges of the monitor(s) and the maximized application windows, typically to leave marginal areas for the applets' windows, and/or for mouse access to the background.</p>
+<p>Alternatively the user can type <i>WorkspaceSettings</i> in the emergeCommand command window.</p>
+<p>The <strong>Top</strong>, <strong>Left, Right</strong>, and <strong>Bottom Desktop Borders</strong> are set (in pixels) to <span style="margin-top: 0; margin-bottom: 0;">define </span>areas between the edges of the monitor(s) and the maximized application windows, typically to leave marginal areas for the applets' windows, and/or for mouse access to the background.</p>
 
-<p class="style1">The desktop borders can <strong>Apply to </strong><span class="style3" style="margin-top: 0; margin-bottom: 0;"><strong>Primary Monitor Only</strong></span>, or to all monitors in a multi-monitor setting.</p>
+<p>The desktop borders can Apply to <span class="style3" style="margin-top: 0; margin-bottom: 0;">Primary Monitor Only</span>, or to all monitors in a multi-monitor setting.</p>
 
-<p class="style1">The <strong>Menu Opacity</strong> for the RightClick and Middle<span class="style1" style="margin-top: 0; margin-bottom: 0;">Click</span> menus can be set from 100 (opaque) to 20 (almost transparent). Maximum transparency is 20 to prevent the menus from becoming unfindable.</p>
-<p class="style1"><strong>Menu Icons</strong> may be on or off the menus.</p>
-<p class="style1"><span class="style1" style="margin-top: 0; margin-bottom: 0;"><strong>Aero Menu</strong></span>s provides Aero-style menus  for Windows Vista and above.</p>
-<p class="style1">The configuration dialog box's second tab is the <strong>Menu Editor </strong>for the <span class="style3" style="margin-top: 0; margin-bottom: 0;">Right<span class="style1" style="margin-top: 0; margin-bottom: 0;">Click</span> and Middle<span class="style1" style="margin-top: 0; margin-bottom: 0;">Click</span></span>:</p>
+<p>The <strong>Menu Opacity</strong> for the RightClick and Middle<span style="margin-top: 0; margin-bottom: 0;">Click</span> menus can be set from 100 (opaque) to 20 (almost transparent). Maximum transparency is 20 to prevent the menus from becoming unfindable.</p>
+<p><strong>Menu Icons</strong> may be on or off the menus.</p>
+<p><span style="margin-top: 0; margin-bottom: 0;"><strong>Aero Menu</strong></span><strong>s</strong> provides Aero-style menus  for Windows Vista and above.</p>
+<p>The configuration dialog box's second tab is the <strong>Menu Editor</strong> for the <span style="margin-top: 0; margin-bottom: 0;">Right<span style="margin-top: 0; margin-bottom: 0;">Click</span> and Middle<span style="margin-top: 0; margin-bottom: 0;">Click</span></span>:</p>
 
 <p class="style1"><img src="WorkspaceConfig2.png" width="446" height="459"></p>
-<p class="style1" style="margin-bottom: 0;">To Add <img src="Add.png" width="24" height="23" style="width: 24px; height: 23px;"> a new menu item, the user selects one of the following <strong>Types</strong>:</p>
-<p style="margin-top: 0;"><span class="style4">Separator, Executable </span><span class="style3">(in </span><span class="style3"><strong>Value</strong></span><span class="style3"> window,  Browse <img src="BrowseFile.png" width="26" height="25"> for a file)</span><span class="style4">, Internal Command</span><span class="style3"> (list in <strong>Value</strong> window is <a href="internal.html">here</a>)</span><span class="style4">, Date Time</span><span class="style3"> (available formats which can be entered in <strong>Value</strong> window are <a href="TimeDate.html">here</a>)</span><span class="style4">, Special Folders </span><span class="style3">(list in <strong>Value</strong> window is: </span><span class="style4">My Documents, My Computer, My Network Places, Control Panel, Recycle Bin), Submenu </span><span class="style3">(which, after clicking Save <span class="style3" style="margin-top: 0; margin-bottom: 0;"><img src="Save.png" width="24" height="23" style="width: 24px; height: 23px;"></span> , is populated with any <strong>Type</strong> of items by clicking on the <strong>+</strong> sign, highlighting an item inside the Submenu, and clicking on Add <span class="style3" style="margin-top: 0; margin-bottom: 0;"><img src="Add.png" width="24" height="23" style="width: 24px; height: 23px;"></span> for each additional item),</span><span class="style4"> Folder Menu</span><span class="style3"> (in <strong>Value</strong> window</span><span class="style4">, </span><span class="style3">Browse <span class="style3" style="margin-top: 0; margin-bottom: 0;"><img src="Browse.png" width="24" height="23" style="width: 24px; height: 23px;"></span> to any Folder*)</span><span class="style4">, Tasks Menu</span><span class="style3"> (i.e. to display the running Tasks from a folder)</span><span class="style4">, Settings Menu</span><span class="style3"> (i.e. the Emerge Desktop menu), Help Menu (Emerge Desktop Help Menu)</span>.</p>
-<p><span class="style1" style="margin-top: 0; margin-bottom: 0;">The user then  types a <strong>Name</strong></span> for the new item, and clicks on Save <img src="Save.png" width="24" height="23" style="width: 24px; height: 23px;"> (or Discard <img src="Discard.png" width="24" height="23" style="width: 24px; height: 23px;"> to start over). Pressing the <strong>OK </strong>button saves the current settings and closes the configuration dialog box.</p>
-<p class="style3" style="margin-bottom: 0;">Menu items displayed in the window can be Modified <img src="Edit.png" width="24" height="23" style="width: 24px; height: 23px;"> or Deleted <img src="Delete.png" width="24" height="23" style="width: 24px; height: 23px;"> after highlighting them. </p>
-<p class="style3" style="margin-top: 0;">After the user adds, deletes or modifies incorrectly an item, she can undo changes by clicking the <strong>Cancel</strong> button. A dialog box will open asking for confirmation to close the configuration dialog box without saving the changes made.</p>
-<p class="style3">* <u>Note:</u> Folder items can be merged by adding a Pipe (|) between folders (e.g. Start menu is %StartMenu%|%CommonStartMenu%). This is particularly useful for items like Start Menu, Desktop or My Documents.<a href="../Internal.html"></a></p>
-<p class="style3">Menu items can be moved up and down by dragging them past other items.</p>
+<p class="style1" style="margin-bottom: 0;">&nbsp;</p>
+<p style="margin-top: 0;">To Add <img src="Add.png" width="24" height="23"> a new item, the user can select from the <strong>Type</strong> drop list:</p>
+<ul>
+  <li><strong style="margin-top: 0; margin-bottom: 0;">Separator</strong>.</li>
+  <li><strong style="margin-top: 0; margin-bottom: 0;">Executable</strong>, which allows to Browse <img src="BrowseFile.png" width="26" height="25" style="width: 24px; height: 23px;"> for an executable, and also for a <strong>Working Directory <img src="Browse.png" width="24" height="23"></strong> if needed<strong>.</strong></li>
+  <li><strong style="margin-top: 0; margin-bottom: 0;">Internal Commands</strong>, with a <a href="internal.html">list</a> in <strong> Command</strong>, and a window for an <strong>Argument</strong> (see in <a href="internal.html">Internal Commands</a> which commands support an argument).</li>
+  <li><span class="style4" style="margin-top: 0; margin-bottom: 0;"><strong>Date Time</strong></span>, with available formats in <strong>Format</strong> window <a href="TimeDate.html">here</a><span class="style3">.</span></li>
+  <li><strong style="margin-top: 0; margin-bottom: 0;">Special Folder, </strong>with a choice of My Computer, My Documents, My Network Places, Control Panel, and Recycle Bin.</li>
+  <li><strong style="margin-top: 0; margin-bottom: 0;">Submenu</strong>, which, after clicking Save <img src="Save.png" width="24" height="23" style="width: 24px; height: 23px;"> , is populated with any Type of items by clicking on the + sign, highlighting an item inside the Submenu, and clicking on Add <img src="Add.png" width="24" height="23" style="width: 24px; height: 23px;"> for each additional item).</li>
+  <li><span class="style4" style="margin-top: 0; margin-bottom: 0;"><strong>Folder Menu</strong></span>, which allows to select a Path <img src="Browse.png" width="24" height="23" style="width: 24px; height: 23px;"> to any Folder*.</li>
+  <li><span class="style4" style="margin-top: 0; margin-bottom: 0;"><strong>Tasks Menu</strong></span><span style="margin-top: 0; margin-bottom: 0;">, i.e. to display the running Tasks from a folder.</span></li>
+  <li><span class="style4" style="margin-top: 0; margin-bottom: 0;"><strong>Settings Menu</strong></span>, i.e. to display the Emerge Desktop menu.</li>
+  <li><span class="style4" style="margin-top: 0; margin-bottom: 0;"><strong>Help Menu</strong></span>, i.e. to display the Emerge Desktop Help menu.</li>
+</ul>
+<p><span style="margin-top: 0; margin-bottom: 0;">The user then  types a </span><span class="style1" style="margin-top: 0; margin-bottom: 0;"><strong>Name</strong></span> for the new item, and clicks on Save <img src="Save.png" width="24" height="23" style="width: 24px; height: 23px;"> (or Discard <img src="Discard.png" width="24" height="23" style="width: 24px; height: 23px;"> to start over). Pressing the <strong>OK </strong>button saves the current settings and closes the configuration dialog box.</p>
+<p style="margin-bottom: 0;">Menu items displayed in the window can be Modified <img src="Edit.png" width="24" height="23" style="width: 24px; height: 23px;"> or Deleted <img src="Delete.png" width="24" height="23" style="width: 24px; height: 23px;"> after highlighting them. </p>
+<p style="margin-top: 0;">After the user adds, deletes or modifies incorrectly an item, she can undo changes by clicking the <strong>Cancel</strong> button. A dialog box will open asking for confirmation to close the configuration dialog box without saving the changes made.</p>
+<p>* <u>Note:</u> Folder items can be merged by adding a Pipe (|) between folders (e.g. Start menu is %StartMenu%|%CommonStartMenu%). This is particularly useful for items like Start Menu, Desktop or My Documents.</p>
+<p>Menu items can be moved up and down by dragging them past other items.</p>
 <p>The context menu of any executable item in the Desktop menu includes &quot;Run as...&quot; or &quot;Run Elevated&quot;, both allowing to run these items from an administrator account after selecting the administrator's user name (or typing an other existing user name) and entering the password in the Run As dialog box. The Emerge Desktop context menu also includes &quot;Open Directory&quot;.</p>
-<p class="style1">The Right<span class="style1" style="margin-top: 0; margin-bottom: 0;">Click</span> and Middle<span class="style1" style="margin-top: 0; margin-bottom: 0;">Click</span> menus can also be edited without opening the Menu Editor, by right-clicking an item directly on the menu:</p>
+<p>The Right<span style="margin-top: 0; margin-bottom: 0;">Click</span> and Middle<span style="margin-top: 0; margin-bottom: 0;">Click</span> menus can also be edited without opening the Menu Editor, by right-clicking an item directly on the menu:</p>
 <p class="style1"><img src="InsertMenu.png" width="166" height="233"></p>
-<p class="style1"><strong>Insert Menu Item</strong> and <strong>Edit Menu Item</strong> bring up this dialog box (the fields are filled the same way as above):</p>
-<p><span class="style1"><img src="MenuItem.png" width="314" height="186"></span></p>
-<p><span class="style3" style="margin-top: 0; margin-bottom: 0;"><strong>Delete  Menu Item</strong> deletes the highlighted item. <strong>OK</strong> and <strong>Cancel</strong> close the dialog box</span></p>
+<p><strong>Insert Menu Item</strong> and <strong>Edit Menu Item</strong> bring up this dialog box (the fields are filled the same way as above):</p>
+<p class="style1"><img src="MenuItem.png" width="314" height="186"></p>
+<p>Delete  Menu Item deletes the highlighted item. <strong>OK</strong> and <strong>Cancel </strong>close the dialog box</p>
 <table bgcolor="#7f907f" cellpadding="5" cellspacing="0" width="100%">
     <tr>
       <td class="style1">
         <font color="white"><b>Usage</b></font> </td>
     </tr>
 </table>
-<p class="style1">Right-clicking on the desktop brings up the RightClick menu. The default <span class="style1" style="margin-top: 0">RightClick</span> menu includes Windows standard items and <strong>Settings</strong>, Emerge Desktop configuration options:</p>
+<p>Right-clicking on the desktop brings up the RightClick menu. The default <span style="margin-top: 0">RightClick</span> menu includes Windows standard items and <strong>Settings</strong>, Emerge Desktop configuration options:</p>
 <span class="style1"><img src="RightMenu.png" width="150" height="234" border="0" alt="RightMenu"></span>
-<p class="style1">Middle-clicking on the desktop brings up the MiddleClick menu. The default <span class="style1" style="margin-bottom: 0">MiddleClick </span>includes some of Emerge Desktop's internal commands:</p>
+<p>Middle-clicking on the desktop brings up the MiddleClick menu. The default <span style="margin-bottom: 0">MiddleClick </span>includes some of Emerge Desktop's internal commands:</p>
 </p>
 <span class="style1"><img src="MidMenu.png" width="130" height="87" border="0" alt="MidMenu"></span>
 </body>

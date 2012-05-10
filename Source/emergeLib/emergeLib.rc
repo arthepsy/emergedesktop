@@ -46,7 +46,7 @@ BEGIN
             VALUE "LegalCopyright", "Copyright (C) 2004-2012"
             VALUE "OriginalFilename", "emergeLib.dll"
             VALUE "ProductName", "emergeLib"
-            VALUE "ProductVersion", POINT_VERSION
+            VALUE "ProductVersion", PRODUCT_VERSION
         END
     END
     BLOCK "VarFileInfo"

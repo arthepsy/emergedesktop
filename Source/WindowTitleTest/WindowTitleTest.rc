@@ -46,7 +46,7 @@ VALUE "InternalName", "WindowTitleTest"
 VALUE "LegalCopyright", "Copyright (C) 2009"
 VALUE "OriginalFilename", "WindowTitleTest.exe"
 VALUE "ProductName", "WindowTitleTest"
-VALUE "ProductVersion", POINT_VERSION
+VALUE "ProductVersion", PRODUCT_VERSION
 END
 END
 BLOCK "VarFileInfo"
