@@ -161,6 +161,7 @@ LRESULT CALLBACK Applet::LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM l
             {
               TerminateThread(executeThread, 0);
               hotkeyCode = 0;
+              ResetEvent(keyUpEvent);
             }
           break;
         case WM_KEYDOWN:
@@ -171,6 +172,7 @@ LRESULT CALLBACK Applet::LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM l
             {
               TerminateThread(executeThread, 0);
               hotkeyCode = 0;
+              ResetEvent(keyUpEvent);
             }
           break;
         }
@@ -186,8 +188,6 @@ DWORD WINAPI Applet::ExecuteThreadProc(LPVOID lpParameter)
 
   // Wait for the WM_KEYUP event from the low level keyboard hook
   WaitForSingleObject(keyUpEvent, INFINITE);
-  // Reset the event after receiving it
-  ResetEvent(keyUpEvent);
 
   // execute VK_LWIN on WM_KEYUP as it can also by the MOD_WIN key
   if (hotkeyCode == VK_LWIN)
@@ -195,6 +195,7 @@ DWORD WINAPI Applet::ExecuteThreadProc(LPVOID lpParameter)
 
   // Clear the hotkeyCode and exit the thread
   hotkeyCode = 0;
+  ResetEvent(keyUpEvent);
   ExitThread(0);
 
   return 0;
@@ -219,10 +220,11 @@ void Applet::ExecuteAction(UINT index)
       // there was WM_KEYUP or a new WM_HOTKEY was activated via a WM_KEYDOWN)
       hc = pSettings->GetHotkeyListItem(item);
       hotkeyCode = hc->GetHotkeyKey();
-      // If the hotkey is not VK_LWIN, execute it right away
-      if (hotkeyCode != VK_LWIN)
+      // If the hotkey is VK_LWIN Create a thread to check for the WM_KEYUP event
+      if (hotkeyCode == VK_LWIN)
+        executeThread = CreateThread(NULL, 0, ExecuteThreadProc, hc, 0, &threadID);
+      // If not, execute it right away
+      else
         ELExecuteAll(hc->GetHotkeyAction(), (WCHAR*)TEXT("\0"));
-      // Create a thread to check for the WM_KEYUP event
-      executeThread = CreateThread(NULL, 0, ExecuteThreadProc, hc, 0, &threadID);
     }
 }
