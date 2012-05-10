@@ -144,7 +144,10 @@ LRESULT CALLBACK Command::EditProc(HWND hwnd,UINT message,WPARAM wParam,LPARAM l
             {
               buf[length] = '\0';
               if (ELExecuteAll(buf, (WCHAR*)TEXT("\0")))
-                pCommand->AddElement(buf);
+                {
+                  pCommand->AddElement(buf);
+                  SetForegroundWindow(pCommand->GetMainWnd());
+                }
               else
                 ELMessageBox(GetDesktopWindow(), error, (WCHAR*)TEXT("emergeCommand"), ELMB_ICONWARNING|ELMB_OK);
             }
