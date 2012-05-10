@@ -517,10 +517,8 @@ LOOP1:
   FindWindow $R0 "emergeCoreClass"
   IntCmp $R0 0 +1 +2 +2
   FindWindow $R0 "EmergeDesktopCore"
-  IntCmp $R0 0 +6
-    SendMessage $R0 1028 1 100
-    SendMessage $R0 2028 1 100
-    SendMessage $R0 $R1 1 100
+  IntCmp $R0 0 +4
+    SendMessage $R0 130 0 0
     Sleep 100
     Goto LOOP1
 LOOP2:
@@ -529,6 +527,18 @@ LOOP2:
     SendMessage $R0 130 0 0
     Sleep 100
     Goto LOOP2
+LOOP3:
+  FindWindow $R0 "EmergeDesktopExplorer"
+  IntCmp $R0 0 +4
+    SendMessage $R0 130 0 0
+    Sleep 100
+    Goto LOOP3
+LOOP4:
+  FindWindow $R0 "EmergeDesktopMenuBuilder"
+  IntCmp $R0 0 +4
+    SendMessage $R0 130 0 0
+    Sleep 100
+    Goto LOOP4
   Pop $R0
   Pop $R1
 FunctionEnd
@@ -541,19 +551,29 @@ LOOP1:
   FindWindow $R0 "emergeCoreClass"
   IntCmp $R0 0 +1 +2 +2
   FindWindow $R0 "EmergeDesktopCore"
-  IntCmp $R0 0 +7
+  IntCmp $R0 0 +5
   SetRebootFlag true
-        SendMessage $R0 1028 1 100
-        SendMessage $R0 2028 1 100
-        SendMessage $R0 $R1 1 100
-        Sleep 100
-        Goto LOOP1
+    SendMessage $R0 130 0 0
+    Sleep 100
+    Goto LOOP1
 LOOP2:
   FindWindow $R0 "EmergeDesktopApplet"
   IntCmp $R0 0 +4
     SendMessage $R0 130 0 0
     Sleep 100
     Goto LOOP2
+LOOP3:
+  FindWindow $R0 "EmergeDesktopExplorer"
+  IntCmp $R0 0 +4
+    SendMessage $R0 130 0 0
+    Sleep 100
+    Goto LOOP3
+LOOP4:
+  FindWindow $R0 "EmergeDesktopMenuBuilder"
+  IntCmp $R0 0 +4
+    SendMessage $R0 130 0 0
+    Sleep 100
+    Goto LOOP4
   Pop $R0
   Pop $R1
 FunctionEnd
