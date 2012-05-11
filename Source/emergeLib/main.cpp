@@ -1503,7 +1503,7 @@ bool ELExecuteInternal(LPTSTR command)
             {
               if (confirm)
                 ELMessageBox(GetDesktopWindow(), TEXT("Recycle Bin is empty."),
-                             TEXT("Emerge Desktop"), ELMB_OK|ELMB_ICONINFORMATION);
+                             TEXT("Emerge Desktop"), ELMB_OK|ELMB_ICONINFORMATION|ELMB_MODAL);
               return true;
             }
         }
