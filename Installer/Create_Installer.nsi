@@ -210,6 +210,7 @@ CreateDirectory "$APPDATA\Emerge Desktop\themes\GBRY"
 SetOutPath "$APPDATA\Emerge Desktop\themes\GBRY"
 File /r "..\Source\themes\GBRY\*"
 SetOutPath "$APPDATA\Emerge Desktop"
+IfFileExists "$APPDATA\Emerge Desktop\theme.xml" +2
 File "..\Source\themes\theme.xml"
 SectionEnd
 
@@ -510,8 +511,6 @@ Pop $R0
 FunctionEnd
 
 Function CloseCore
-  Push $R1
-  System::Call "user32::RegisterWindowMessage(t 'EmergeDispatch') isR1"
   Push $R0
 LOOP1:
   FindWindow $R0 "emergeCoreClass"
@@ -540,12 +539,9 @@ LOOP4:
     Sleep 100
     Goto LOOP4
   Pop $R0
-  Pop $R1
 FunctionEnd
 
 Function un.CloseCore
-  Push $R1
-  System::Call "user32::RegisterWindowMessage(t 'EmergeDispatch') isR1"
   Push $R0
 LOOP1:
   FindWindow $R0 "emergeCoreClass"
@@ -575,7 +571,6 @@ LOOP4:
     Sleep 100
     Goto LOOP4
   Pop $R0
-  Pop $R1
 FunctionEnd
 
 Function nsDialogOptions
