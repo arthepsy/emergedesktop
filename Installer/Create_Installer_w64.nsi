@@ -363,6 +363,7 @@ MessageBox MB_OKCANCEL|MB_SETFOREGROUND|MB_ICONQUESTION "Emerge Desktop is curre
 Abort
 Call CloseCore
 Push $1
+SetRegView 64
 ReadRegStr $1 HKCU "Software\Microsoft\Windows NT\CurrentVersion\Winlogon" "Shell"
 Push $1
 Call GetInQuotes
@@ -385,6 +386,7 @@ FunctionEnd
 ;
 ; Write uninstaller after successful installation
 Function .onInstSuccess
+SetRegView 64
 WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\Emerge Desktop" "DisplayName" "Emerge Desktop, replacement shell (remove only)"
 WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\Emerge Desktop" "UninstallString" "$INSTDIR\uninst.exe"
 WriteUnInstaller "$INSTDIR\uninst.exe"
@@ -468,6 +470,7 @@ FunctionEnd
 Function RestartShell
 Push $1
 Push $2
+SetRegView 64
 ReadRegStr $1 HKCU "Software\Microsoft\Windows NT\CurrentVersion\Winlogon" "Shell"
 StrCpy $2 $1
 Push $2
@@ -496,6 +499,7 @@ FunctionEnd
 ;   Call CheckWindowsVersion
 Function CheckWindowsVersion
 Push $R0
+SetRegView 64
 ReadRegStr $R0 HKLM "SOFTWARE\Microsoft\Windows NT\CurrentVersion" CurrentVersion
 StrCmp $R0 "" 0 WINNT
 ; we are not NT.
