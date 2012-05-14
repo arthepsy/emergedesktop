@@ -142,6 +142,7 @@ SectionEnd
 Section "emergeTray" SecemergeTray
 SetOutPath "$INSTDIR"
 File "${BINDIR}\emergeTray.exe"
+File "${BINDIR}\emergeTrayExplorerHook.dll"
 SectionEnd
 
 SubSectionEnd
@@ -293,6 +294,7 @@ Section Uninstall
   Delete "$INSTDIR\emergeLauncher.exe"
   Delete "$INSTDIR\emergeTasks.exe"
   Delete "$INSTDIR\emergeTray.exe"
+  Delete "$INSTDIR\emergeTrayExplorerHook.dll"
   Delete "$INSTDIR\emergeCore.exe"
   Delete "$INSTDIR\emergeVWM.exe"
   Delete "$INSTDIR\emergePower.exe"
