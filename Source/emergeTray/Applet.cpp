@@ -243,10 +243,7 @@ Applet::Applet(HINSTANCE hInstance)
 
 bool InjectExplorerTrayHook(HWND messageHandler)
 {
-  WCHAR szLibPath[MAX_PATH];
-  ELGetCurrentPath(szLibPath);
-  wcscat(szLibPath, TEXT("\\emergeTrayExplorerHook.dll"));
-  hookDLLaddr = LoadLibrary(szLibPath);
+  hookDLLaddr = ELLoadEmergeLibrary(TEXT("emergeTrayExplorerHook.dll"));
   if (!hookDLLaddr)
     return false;
 
