@@ -91,6 +91,7 @@ Section "emergeCore" SecemergeCore
 SectionIn RO
 SetOutPath "$INSTDIR"
 File "${BINDIR}\emergeCore.exe"
+File "${BINDIR}\Explorer.exe"
 SetOutPath "$APPDATA\Emerge Desktop\scripts"
 IfFileExists "$APPDATA\Emerge Desktop\scripts\hide.pl" +2
 File "..\Source\scripts\hide.pl"
@@ -297,6 +298,7 @@ Section Uninstall
   Delete "$INSTDIR\emergeVWM.exe"
   Delete "$INSTDIR\emergePower.exe"
   Delete "$INSTDIR\emergeSysMon.exe"
+  Delete "$INSTDIR\Explorer.exe"
   Delete "$INSTDIR\emergeLib.dll"
   Delete "$INSTDIR\libgcc_s_sjlj-1.dll"
   Delete "$INSTDIR\libstdc++-6.dll"
