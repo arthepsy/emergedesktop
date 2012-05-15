@@ -146,7 +146,7 @@ LRESULT CALLBACK Command::EditProc(HWND hwnd,UINT message,WPARAM wParam,LPARAM l
               if (ELExecuteAll(buf, (WCHAR*)TEXT("\0")))
                 {
                   pCommand->AddElement(buf);
-                  SetForegroundWindow(pCommand->GetMainWnd());
+                  pCommand->ShowAppletWindow();
                 }
               else
                 ELMessageBox(GetDesktopWindow(), error, (WCHAR*)TEXT("emergeCommand"), ELMB_ICONWARNING|ELMB_OK);
@@ -158,7 +158,7 @@ LRESULT CALLBACK Command::EditProc(HWND hwnd,UINT message,WPARAM wParam,LPARAM l
       if (wParam ==VK_ESCAPE)
         {
           SetWindowText(hwnd, TEXT(""));
-          SetForegroundWindow(pCommand->GetMainWnd());
+          pCommand->ShowAppletWindow();
           return 0;
         }
     }
@@ -171,6 +171,15 @@ void Command::AddElement(WCHAR *element)
 {
   if (history)
     history->AddElement(element);
+}
+
+void Command::ShowAppletWindow()
+{
+  KillTimer(commandWnd, FOCUS_TIMER);
+  SetWindowPos(mainWnd, NULL, 0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE |
+               SWP_NOSIZE | SWP_NOZORDER | SWP_SHOWWINDOW);
+  SetWindowPos(commandWnd, NULL, 0, 0, 0, 0, SWP_NOACTIVATE | SWP_NOMOVE |
+               SWP_NOSIZE | SWP_NOZORDER | SWP_HIDEWINDOW);
 }
 
 //----  --------------------------------------------------------------------------------------------------------
@@ -237,13 +246,10 @@ LRESULT CALLBACK Command::CommandProc(HWND hwnd, UINT message, WPARAM wParam, LP
 
     case WM_TIMER:
       if (GetForegroundWindow() != hwnd)
-        {
-          ShowWindow(hwnd, SW_HIDE);
-          pCommand->Show();
-        }
+        pCommand->ShowAppletWindow();
       return 0;
 
-      // If not handled just forward the message on
+    // If not handled just forward the message on
     default:
       return DefWindowProc (hwnd, message, wParam, lParam);
     }
@@ -448,11 +454,6 @@ void Command::UpdateEdit(GUIINFO guiInfo, int width, int height)
 HWND Command::GetCommandWnd()
 {
   return commandWnd;
-}
-
-HWND Command::GetMainWnd()
-{
-  return mainWnd;
 }
 
 WNDPROC Command::GetWndProc()

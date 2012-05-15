@@ -159,7 +159,6 @@ LRESULT MsgBox::DoInitDialog(HWND hwndDlg)
   x = rect.right - iconRect.right - 5;
   y = 5;
   SetWindowPos(iconWnd, NULL, x, y, 0, 0, SWP_NOSIZE | SWP_NOZORDER);
-  ELStealFocus(hwndDlg);
 
   SetWindowText(hwndDlg, msgTitle);
 

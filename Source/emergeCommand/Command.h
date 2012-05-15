@@ -76,7 +76,6 @@ public:
   bool Init();
   void UpdateGUI(GUIINFO guiInfo);
   HWND GetCommandWnd();
-  HWND GetMainWnd();
   WNDPROC GetWndProc();
   void UpdateEdit(GUIINFO, int width, int height);
   void ShowTextWindow();
@@ -85,6 +84,7 @@ public:
   void Show();
   void AddElement(WCHAR *element);
   void SetHidden(bool appletHidden);
+  void ShowAppletWindow();
 
 private:
   bool appletHidden;

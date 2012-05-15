@@ -1503,7 +1503,7 @@ bool ELExecuteInternal(LPTSTR command)
             {
               if (confirm)
                 ELMessageBox(GetDesktopWindow(), TEXT("Recycle Bin is empty."),
-                             TEXT("Emerge Desktop"), ELMB_OK|ELMB_ICONINFORMATION|ELMB_MODAL);
+                             TEXT("Emerge Desktop"), ELMB_OK|ELMB_ICONINFORMATION);
               return true;
             }
         }
@@ -5431,6 +5431,7 @@ bool ELPopulateInternalCommandList(HWND hwnd)
   SendMessage(hwnd, CB_ADDSTRING, 0, (LPARAM)TEXT("VWMUp"));
   SendMessage(hwnd, CB_ADDSTRING, 0, (LPARAM)TEXT("VWMPrev"));
   SendMessage(hwnd, CB_ADDSTRING, 0, (LPARAM)TEXT("VWMNext"));
+  SendMessage(hwnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Welcome"));
   SendMessage(hwnd, CB_ADDSTRING, 0, (LPARAM)TEXT("WorkspaceSettings"));
 
   return true;
