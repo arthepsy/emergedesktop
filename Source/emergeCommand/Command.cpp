@@ -239,8 +239,6 @@ LRESULT CALLBACK Command::CommandProc(HWND hwnd, UINT message, WPARAM wParam, LP
           pCommand->ShowTextWindow();
           SetTimer(hwnd, FOCUS_TIMER, 250, NULL);
         }
-      else
-        KillTimer(hwnd, FOCUS_TIMER);
     }
     return 0;
 
