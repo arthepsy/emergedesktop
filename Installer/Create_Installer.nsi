@@ -240,8 +240,6 @@ Section "Start Menu Shortcuts" SecShortcuts
 ; -------------------------------------------------------------------
   CreateShortCut "$SMPROGRAMS\Emerge Desktop\Emerge Desktop Documentation.lnk" "$INSTDIR\documentation\Emerge Desktop.chm" "" "$INSTDIR\documentation\Emerge Desktop.chm" 0
   CreateShortCut "$SMPROGRAMS\Emerge Desktop\Emerge Desktop Shell Changer.lnk" "$INSTDIR\emergeCore.exe" "/shellchanger" "$INSTDIR\emergeCore.exe" 0
-  IfFileExists "$INSTDIR\reg2xml.exe" +1 +2
-  CreateShortCut "$SMPROGRAMS\Emerge Desktop\Registry to XML converter.lnk" "$INSTDIR\reg2xml.exe" "" "$INSTDIR\emergeCore.exe" 0
   CreateShortCut "$SMPROGRAMS\Emerge Desktop\Uninstall.lnk" "$INSTDIR\uninst.exe" "" "$INSTDIR\uninst.exe" 0
 SectionEnd
 
@@ -253,6 +251,8 @@ Section Uninstall
   System::Call "kernel32::IsWow64Process(i s, *i .r0)"
   StrCmp $0 "0" +2
   SetRegView 64
+  ReadRegStr $0 HKCU "Software\Microsoft\Windows NT\CurrentVersion\Winlogon" "Shell"
+  IfErrors +4
   DeleteRegValue HKCU "Software\Microsoft\Windows NT\CurrentVersion\Winlogon" "Shell"
   WriteRegStr HKLM "Software\Microsoft\Windows NT\CurrentVersion\Winlogon" "Shell" "explorer.exe"
   SetRebootFlag true
