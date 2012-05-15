@@ -492,6 +492,7 @@ Pop $2
 IfFileExists "$2" StartShell
 StrCpy $1 "explorer.exe"
 StartShell:
+StrCmp ${EMERGERUNNING} "1" +1 +3
 MessageBox MB_OK "The installer will now restart the desktop shell.  Please note that it is possible not all tray icons will reappear."
 Exec $1
 Pop $2
