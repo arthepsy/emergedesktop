@@ -1,0 +1,29 @@
+<?xml version="1.0" ?>
+<Settings>
+    <X>28</X>
+    <Y>42</Y>
+    <Width>45</Width>
+    <Height>257</Height>
+    <ZPosition>Top</ZPosition>
+    <HorizontalDirection>Center</HorizontalDirection>
+    <VerticalDirection>Down</VerticalDirection>
+    <DirectionOrientation>Vertical</DirectionOrientation>
+    <AutoSize>true</AutoSize>
+    <IconSize>32</IconSize>
+    <IconSpacing>7</IconSpacing>
+    <Style>%ThemeDir%\Styles\Dark Glass.eds</Style>
+    <SnapMove>true</SnapMove>
+    <SnapSize>true</SnapSize>
+    <DynamicPositioning>true</DynamicPositioning>
+    <ClickThrough>0</ClickThrough>
+    <Resolution>0,0,800,1280</Resolution>
+    <Monitor>0</Monitor>
+    <HighLightActive>false</HighLightActive>
+    <FlashCount>0</FlashCount>
+    <EnableFlash>true</EnableFlash>
+    <FlashInterval>1000</FlashInterval>
+    <AnchorPoint>TopLeft</AnchorPoint>
+    <StartHidden>false</StartHidden>
+    <TitleBarFont>Arial-16</TitleBarFont>
+    <TitleBarText></TitleBarText>
+</Settings>

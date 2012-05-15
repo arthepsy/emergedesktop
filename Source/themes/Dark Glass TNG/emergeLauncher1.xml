@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<Settings>
+    <X>-18</X>
+    <Y>-31</Y>
+    <Width>408</Width>
+    <Height>293</Height>
+    <ZPosition>Top</ZPosition>
+    <HorizontalDirection>Center</HorizontalDirection>
+    <VerticalDirection>Center</VerticalDirection>
+    <DirectionOrientation>horizontal</DirectionOrientation>
+    <AutoSize>false</AutoSize>
+    <IconSize>48</IconSize>
+    <IconSpacing>3</IconSpacing>
+    <Style>%ThemeDir%\Styles\Dark Glass eCommand.eds</Style>
+    <SnapMove>true</SnapMove>
+    <SnapSize>true</SnapSize>
+    <DynamicPositioning>true</DynamicPositioning>
+    <ClickThrough>0</ClickThrough>
+    <Monitor>0</Monitor>
+    <AnchorPoint>CenterMiddle</AnchorPoint>
+    <StartHidden>true</StartHidden>
+    <TitleBarFont>Calibri-18</TitleBarFont>
+    <TitleBarText>Quick Launch</TitleBarText>
+    <Launch>
+        <item>
+            <Type>6</Type>
+            <Command>%AppData%\Microsoft\Internet Explorer\Quick Launch</Command>
+            <Icon />
+            <Tip />
+            <WorkingDir />
+        </item>
+    </Launch>
+</Settings>

@@ -1,0 +1,32 @@
+<?xml version="1.0" ?>
+<Settings>
+    <Launch>
+        <item>
+            <Command>%AppletDir%\emergeTasks.exe</Command>
+        </item>
+        <item>
+            <Command>%AppletDir%\emergeTray.exe</Command>
+        </item>
+        <item>
+            <Command>%AppletDir%\emergeWorkspace.exe</Command>
+        </item>
+        <item>
+            <Command>%AppletDir%\emergeCommand.exe</Command>
+        </item>
+        <item>
+            <Command>%AppletDir%\emergeLauncher.exe</Command>
+        </item>
+        <item>
+            <Command>%AppletDir%\emergeHotkeys.exe</Command>
+        </item>
+        <item>
+            <Command>%AppletDir%\emergeSysMon.exe</Command>
+        </item>
+        <item>
+            <Command>%AppletDir%\emergePower.exe</Command>
+        </item>
+        <item>
+            <Command>%AppletDir%\emergeVWM.exe</Command>
+        </item>
+    </Launch>
+</Settings>

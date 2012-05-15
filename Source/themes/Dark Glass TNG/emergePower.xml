@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<Settings>
+    <X>583</X>
+    <Y>0</Y>
+    <Width>100</Width>
+    <Height>32</Height>
+    <ZPosition>Top</ZPosition>
+    <HorizontalDirection>right</HorizontalDirection>
+    <VerticalDirection>down</VerticalDirection>
+    <DirectionOrientation>Horizontal</DirectionOrientation>
+    <AutoSize>false</AutoSize>
+    <IconSize>16</IconSize>
+    <IconSpacing>1</IconSpacing>
+    <Style>%ThemeDir%\Styles\Dark Glass eTray.eds</Style>
+    <SnapMove>true</SnapMove>
+    <SnapSize>true</SnapSize>
+    <DynamicPositioning>true</DynamicPositioning>
+    <ClickThrough>0</ClickThrough>
+    <Monitor>0</Monitor>
+    <AnchorPoint>TopLeft</AnchorPoint>
+    <StartHidden>false</StartHidden>
+    <TitleBarFont>Arial-16</TitleBarFont>
+    <TitleBarText></TitleBarText>
+    <Font>Tahoma-12</Font>
+    <UpdateInterval>60</UpdateInterval>
+    <TextHorizontalAlign>left</TextHorizontalAlign>
+    <TextVerticalAlign>Down</TextVerticalAlign>
+</Settings>

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<Settings>
+    <X>363</X>
+    <Y>0</Y>
+    <Width>100</Width>
+    <Height>32</Height>
+    <ZPosition>Top</ZPosition>
+    <HorizontalDirection>right</HorizontalDirection>
+    <VerticalDirection>down</VerticalDirection>
+    <DirectionOrientation>Vertical</DirectionOrientation>
+    <AutoSize>false</AutoSize>
+    <IconSize>16</IconSize>
+    <IconSpacing>1</IconSpacing>
+    <Style>%ThemeDir%\Styles\Dark Glass eTray.eds</Style>
+    <SnapMove>true</SnapMove>
+    <SnapSize>true</SnapSize>
+    <DynamicPositioning>true</DynamicPositioning>
+    <ClickThrough>0</ClickThrough>
+    <Monitor>0</Monitor>
+    <AnchorPoint>TopLeft</AnchorPoint>
+    <StartHidden>false</StartHidden>
+    <TitleBarFont>Arial-16</TitleBarFont>
+    <TitleBarText></TitleBarText>
+    <UpdateInterval>2000</UpdateInterval>
+    <MonitorCPU>false</MonitorCPU>
+    <MonitorCommitCharge>false</MonitorCommitCharge>
+    <MonitorPhysicalMem>true</MonitorPhysicalMem>
+    <MonitorPagefile>false</MonitorPagefile>
+    <HistoryMode>false</HistoryMode>
+    <ShowNumbers>true</ShowNumbers>
+    <BarDirection>left</BarDirection>
+    <NumberPosition>right</NumberPosition>
+    <Font>Tahoma-12</Font>
+    <CPUGradientMethod>Vertical</CPUGradientMethod>
+    <CPUGradientFrom>255,255,255</CPUGradientFrom>
+    <CPUGradientTo>66,66,255</CPUGradientTo>
+    <MemGradientMethod>Horizontal</MemGradientMethod>
+    <MemGradientFrom>255,0,0</MemGradientFrom>
+    <MemGradientTo>113,255,113</MemGradientTo>
+</Settings>
