@@ -75,6 +75,7 @@ LRESULT CALLBACK Applet::WindowProcedure (HWND hwnd, UINT message, WPARAM wParam
     case WM_LBUTTONDOWN:
     case WM_LBUTTONDBLCLK:
     case WM_MOUSEMOVE:
+    case WM_LBUTTONUP:
       return pApplet->TaskMouseEvent(message, lParam);
 
       // Reset the cursor back to the standard arrow after dragging
@@ -450,6 +451,10 @@ LRESULT Applet::TaskMouseEvent(UINT message, LPARAM lParam)
         {
           switch (message)
             {
+            case WM_LBUTTONUP:
+              if (movingWnd != NULL)
+                movingWnd = NULL;
+              break;
             case WM_LBUTTONDOWN:
               if (ELIsKeyDown(VK_MENU))
                 {
@@ -457,7 +462,7 @@ LRESULT Applet::TaskMouseEvent(UINT message, LPARAM lParam)
                   return 0;
                 }
               else
-                  movingWnd = NULL;
+                movingWnd = NULL;
             case WM_LBUTTONDBLCLK:
             {
               windowHandle = (*iter)->GetWnd();
@@ -498,9 +503,7 @@ LRESULT Applet::TaskMouseEvent(UINT message, LPARAM lParam)
                         }
                     }
                   else
-                    {
-                      movingWnd = NULL;
-                    }
+                    movingWnd = NULL;
                   return 0;
                 }
               if (oldTipWnd != (*iter)->GetWnd())
@@ -684,14 +687,19 @@ TaskVector::iterator Applet::FindTask(HWND hwnd)
 
 LRESULT Applet::DoTimer(UINT_PTR timerID)
 {
+  LRESULT res = 1;
+
   if (timerID == MOUSE_TIMER)
     {
       CleanTasks();
 
-      return BaseApplet::DoTimer(timerID);
+      res = BaseApplet::DoTimer(timerID);
+
+      if (!mouseOver && (movingWnd != NULL))
+        movingWnd = NULL;
     }
 
-  return 1;
+  return res;
 }
 
 LRESULT Applet::DoSizing(HWND hwnd, UINT edge, LPRECT rect)
