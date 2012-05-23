@@ -7,7 +7,7 @@
 ; -------------------------------------------------------------------
 ; help >>> General NAME and Versioning
 ; -------------------------------------------------------------------
-Name "Emerge Desktop 6.0 RC1"
+Name "Emerge Desktop 6.0 RC2"
 !define FIELD1 $R1
 !define FIELD2 $R2
 !define FIELD3 $R3
