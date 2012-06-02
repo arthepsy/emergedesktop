@@ -35,6 +35,9 @@
 			<Add option="-L../bin" />
 			<Add library="emergeLib" />
 		</Linker>
+		<ExtraCommands>
+			<Add before='[[ IO.Execute(_T(&quot;cmd /c \&quot;cd.. &amp; hgversion.bat\&quot;&quot;)) ]]' />
+		</ExtraCommands>
 		<Unit filename="emerge.rc">
 			<Option compilerVar="WINDRES" />
 		</Unit>

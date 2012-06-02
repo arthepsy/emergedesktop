@@ -45,6 +45,9 @@
 			<Add library="comctl32" />
 			<Add library="shlwapi" />
 		</Linker>
+		<ExtraCommands>
+			<Add before='[[ IO.Execute(_T(&quot;cmd /c \&quot;cd.. &amp; hgversion.bat\&quot;&quot;)) ]]' />
+		</ExtraCommands>
 		<Unit filename="Config.cpp" />
 		<Unit filename="Config.h" />
 		<Unit filename="ConfigPage.cpp" />

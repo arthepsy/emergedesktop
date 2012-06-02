@@ -47,6 +47,9 @@
 			<Add library="ole32" />
 			<Add library="shlwapi" />
 		</Linker>
+		<ExtraCommands>
+			<Add before='[[ IO.Execute(_T(&quot;cmd /c \&quot;cd.. &amp; hgversion.bat\&quot;&quot;)) ]]' />
+		</ExtraCommands>
 		<Unit filename="BImage.cpp" />
 		<Unit filename="BImage.h" />
 		<Unit filename="emergeGraphics.h" />

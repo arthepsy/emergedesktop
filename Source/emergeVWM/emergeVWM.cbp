@@ -44,6 +44,9 @@
 			<Add library="shlwapi" />
 			<Add library="comctl32" />
 		</Linker>
+		<ExtraCommands>
+			<Add before='[[ IO.Execute(_T(&quot;cmd /c \&quot;cd.. &amp; hgversion.bat\&quot;&quot;)) ]]' />
+		</ExtraCommands>
 		<Unit filename="Applet.cpp" />
 		<Unit filename="Applet.h" />
 		<Unit filename="Config.cpp" />

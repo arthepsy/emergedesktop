@@ -60,6 +60,9 @@
 			<Add library="winmm" />
 			<Add library="powrprof" />
 		</Linker>
+		<ExtraCommands>
+			<Add before='[[ IO.Execute(_T(&quot;cmd /c \&quot;cd.. &amp; hgversion.bat\&quot;&quot;)) ]]' />
+		</ExtraCommands>
 		<Unit filename="..\tinyxml\tinystr.cpp" />
 		<Unit filename="..\tinyxml\tinystr.h" />
 		<Unit filename="..\tinyxml\tinyxml.cpp" />

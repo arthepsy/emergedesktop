@@ -43,6 +43,9 @@
 			<Add library="comctl32" />
 			<Add library="ole32" />
 		</Linker>
+		<ExtraCommands>
+			<Add before='[[ IO.Execute(_T(&quot;cmd /c \&quot;cd.. &amp; hgversion.bat\&quot;&quot;)) ]]' />
+		</ExtraCommands>
 		<Unit filename="AppBar.cpp" />
 		<Unit filename="AppBar.h" />
 		<Unit filename="Applet.cpp" />

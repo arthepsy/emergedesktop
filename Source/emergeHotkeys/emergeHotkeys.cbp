@@ -40,6 +40,9 @@
 			<Add library="emergeBaseClasses" />
 			<Add library="comctl32" />
 		</Linker>
+		<ExtraCommands>
+			<Add before='[[ IO.Execute(_T(&quot;cmd /c \&quot;cd.. &amp; hgversion.bat\&quot;&quot;)) ]]' />
+		</ExtraCommands>
 		<Unit filename="Actions.cpp" />
 		<Unit filename="Actions.h" />
 		<Unit filename="Applet.cpp" />

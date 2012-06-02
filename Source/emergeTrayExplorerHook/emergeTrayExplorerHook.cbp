@@ -37,6 +37,9 @@
 		<Compiler>
 			<Add option="-DEMERGETRAYEXPLORERHOOK_EXPORTS" />
 		</Compiler>
+		<ExtraCommands>
+			<Add before='[[ IO.Execute(_T(&quot;cmd /c \&quot;cd.. &amp; hgversion.bat\&quot;&quot;)) ]]' />
+		</ExtraCommands>
 		<Unit filename="emergeTrayExplorerHook.cpp" />
 		<Unit filename="emergeTrayExplorerHook.h" />
 		<Unit filename="emergeTrayExplorerHook.rc">
