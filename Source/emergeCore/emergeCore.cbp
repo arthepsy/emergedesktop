@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="emergeCore" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="Debug">
+				<Option output="..\bin\emergeCore" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj\Debug\" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-g" />
+				</Compiler>
+			</Target>
+			<Target title="Release">
+				<Option output="..\bin\emergeCore" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj\Release\" />
+				<Option type="0" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-O2" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-pedantic" />
+			<Add option="-Wfatal-errors" />
+			<Add option="-Wextra" />
+			<Add option="-Wall" />
+		</Compiler>
+		<Linker>
+			<Add option="-L..\bin" />
+			<Add library="emergeLib" />
+			<Add library="emergeBaseClasses" />
+			<Add library="comctl32" />
+			<Add library="shlwapi" />
+			<Add library="ole32" />
+		</Linker>
+		<Unit filename="AliasEditor.cpp" />
+		<Unit filename="AliasEditor.h" />
+		<Unit filename="Config.cpp" />
+		<Unit filename="Config.h" />
+		<Unit filename="ConfigPage.cpp" />
+		<Unit filename="ConfigPage.h" />
+		<Unit filename="Core.cpp" />
+		<Unit filename="Core.h" />
+		<Unit filename="Desktop.cpp" />
+		<Unit filename="Desktop.h" />
+		<Unit filename="LaunchEditor.cpp" />
+		<Unit filename="LaunchEditor.h" />
+		<Unit filename="MessageControl.cpp" />
+		<Unit filename="MessageControl.h" />
+		<Unit filename="Settings.cpp" />
+		<Unit filename="Settings.h" />
+		<Unit filename="Shell.cpp" />
+		<Unit filename="Shell.h" />
+		<Unit filename="ShellChanger.cpp" />
+		<Unit filename="ShellChanger.h" />
+		<Unit filename="ThemeSaver.cpp" />
+		<Unit filename="ThemeSaver.h" />
+		<Unit filename="ThemeSelector.cpp" />
+		<Unit filename="ThemeSelector.h" />
+		<Unit filename="Welcome.cpp" />
+		<Unit filename="Welcome.h" />
+		<Unit filename="emergeCore.rc">
+			<Option compilerVar="WINDRES" />
+		</Unit>
+		<Unit filename="hyperlink.cpp" />
+		<Unit filename="hyperlink.h" />
+		<Unit filename="main.cpp" />
+		<Unit filename="resource.h" />
+		<Extensions>
+			<code_completion />
+			<envvars />
+			<debugger />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>
