@@ -97,9 +97,8 @@ private:
   int appletCount;
   bool allowAutoSize, allowMultipleInstances;
   RECT referenceRect;
-  HANDLE displayChangeThread, fullScreenThread, multiInstanceLock;
+  HANDLE fullScreenThread, multiInstanceLock;
   HANDLE instanceManagementMutex;
-  static DWORD WINAPI DisplayChangeThreadProc(LPVOID lpParameter);
   static DWORD WINAPI FullScreenThreadProc(LPVOID lpParameter);
   int ReadAppletCount(int defaultValue = -1);
   bool WriteAppletCount(int value, bool forceCreate = true);
