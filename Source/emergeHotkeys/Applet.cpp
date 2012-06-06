@@ -23,7 +23,7 @@
 #define VK_WIN 0x5B
 
 HANDLE executeThread = NULL, keyUpEvent = NULL;
-UINT hotkeyCode = 0;
+//UINT hotkeyCode = 0;
 
 Applet::Applet(HINSTANCE hInstance)
   :BaseApplet(hInstance, TEXT("emergeHotkeys"), false, false)
@@ -153,27 +153,10 @@ LRESULT CALLBACK Applet::LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM l
         case WM_SYSKEYUP:
           // if the WM_(SYS)KEYUP is the hotkey, trigger the event so the thread will
           // end.
-          if (pkbHookStruct->vkCode == hotkeyCode)
+          if (pkbHookStruct->vkCode == VK_LWIN)
             SetEvent(keyUpEvent);
           else
-            // If it is not, then terminate the executeThread, if not the hotkey
-            // action may still execute after hoekey's Keys action
-            {
-              TerminateThread(executeThread, 0);
-              hotkeyCode = 0;
-              ResetEvent(keyUpEvent);
-            }
-          break;
-        case WM_KEYDOWN:
-        case WM_SYSKEYDOWN:
-          // If the WM_(SYS)KEYDOWN is not the hotkey, terminate the thread
-          // without letting it execute.
-          if (pkbHookStruct->vkCode != hotkeyCode)
-            {
-              TerminateThread(executeThread, 0);
-              hotkeyCode = 0;
-              ResetEvent(keyUpEvent);
-            }
+            TerminateThread(executeThread, 0);
           break;
         }
     }
@@ -190,12 +173,8 @@ DWORD WINAPI Applet::ExecuteThreadProc(LPVOID lpParameter)
   WaitForSingleObject(keyUpEvent, INFINITE);
 
   // execute VK_LWIN on WM_KEYUP as it can also by the MOD_WIN key
-  if (hotkeyCode == VK_LWIN)
-    ELExecuteAll(hc->GetHotkeyAction(), (WCHAR*)TEXT("\0"));
+  ELExecuteAll(hc->GetHotkeyAction(), (WCHAR*)TEXT("\0"));
 
-  // Clear the hotkeyCode and exit the thread
-  hotkeyCode = 0;
-  ResetEvent(keyUpEvent);
   ExitThread(0);
 
   return 0;
@@ -210,21 +189,15 @@ void Applet::ExecuteAction(UINT index)
   if (item == pSettings->GetHotkeyListSize())
     return;
 
-  // Check the executeThread state
-  GetExitCodeThread(executeThread, &threadState);
-  // Use it to control the multiple WM_HOTKEY messages being sent while the
-  // hotkey is down.
-  if (threadState != STILL_ACTIVE)
+  hc = pSettings->GetHotkeyListItem(item);
+
+  if (hc->GetHotkeyKey() == VK_WIN)
     {
-      // If the thread is no longer active, it means it finished executing (i.e.
-      // there was WM_KEYUP or a new WM_HOTKEY was activated via a WM_KEYDOWN)
-      hc = pSettings->GetHotkeyListItem(item);
-      hotkeyCode = hc->GetHotkeyKey();
-      // If the hotkey is VK_LWIN Create a thread to check for the WM_KEYUP event
-      if (hotkeyCode == VK_LWIN)
+      ResetEvent(keyUpEvent);
+      GetExitCodeThread(executeThread, &threadState);
+      if (threadState != STILL_ACTIVE)
         executeThread = CreateThread(NULL, 0, ExecuteThreadProc, hc, 0, &threadID);
-      // If not, execute it right away
-      else
-        ELExecuteAll(hc->GetHotkeyAction(), (WCHAR*)TEXT("\0"));
     }
+  else
+    ELExecuteAll(hc->GetHotkeyAction(), (WCHAR*)TEXT("\0"));
 }
