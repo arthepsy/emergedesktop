@@ -36,7 +36,9 @@ hgversion.h
 *.opensdf
 ipch
 *.cbTemp
+*.res
 
 # switch to regexp syntax.
 #syntax: regexp
 #^\.pc/
+CppCheckResults.xml

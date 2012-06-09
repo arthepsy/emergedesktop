@@ -48,7 +48,8 @@
 #include "../emergeAppletEngine/emergeAppletEngine.h"
 #include "../emergeBaseClasses/BaseApplet.h"
 
-#define MODIFY_DELAY_TIME  200
+#define MODIFY_DELAY_TIME 200
+#define CLEAN_WAIT_TIME   250
 
 typedef std::tr1::shared_ptr<Task> TaskPtr;
 typedef std::vector<TaskPtr> TaskVector;
@@ -72,6 +73,8 @@ private:
   static DWORD WINAPI ModifyThreadProc(LPVOID lpParameter);
   static DWORD WINAPI UpdateThumbnailThreadProc(LPVOID lpParameter);
   TOOLINFO ti;
+  HANDLE cleanTaskThread;
+  static DWORD WINAPI CleanTaskThreadProc(LPVOID lpParameter);
 
 protected:
   virtual std::tr1::shared_ptr<BaseSettings> createSettings();

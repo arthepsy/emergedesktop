@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_workspace_file>
+	<Workspace title="Emerge Desktop">
+		<Project filename="emerge/emerge.cbp">
+			<Depends filename="emergeLib/emergeLib.cbp" />
+		</Project>
+		<Project filename="emergeAppletEngine/emergeAppletEngine.cbp">
+			<Depends filename="emergeLib/emergeLib.cbp" />
+		</Project>
+		<Project filename="emergeBaseClasses/emergeBaseClasses.cbp">
+			<Depends filename="emergeAppletEngine/emergeAppletEngine.cbp" />
+			<Depends filename="emergeGraphics/emergeGraphics.cbp" />
+			<Depends filename="emergeLib/emergeLib.cbp" />
+			<Depends filename="emergeStyleEngine/emergeStyleEngine.cbp" />
+		</Project>
+		<Project filename="emergeCommand/emergeCommand.cbp">
+			<Depends filename="emergeAppletEngine/emergeAppletEngine.cbp" />
+			<Depends filename="emergeBaseClasses/emergeBaseClasses.cbp" />
+			<Depends filename="emergeGraphics/emergeGraphics.cbp" />
+			<Depends filename="emergeLib/emergeLib.cbp" />
+			<Depends filename="emergeStyleEngine/emergeStyleEngine.cbp" />
+		</Project>
+		<Project filename="emergeCore/emergeCore.cbp">
+			<Depends filename="emergeBaseClasses/emergeBaseClasses.cbp" />
+			<Depends filename="emergeLib/emergeLib.cbp" />
+		</Project>
+		<Project filename="emergeGraphics/emergeGraphics.cbp">
+			<Depends filename="emergeIcons/emergeIcons.cbp" />
+			<Depends filename="emergeLib/emergeLib.cbp" />
+		</Project>
+		<Project filename="emergeHotkeys/emergeHotkeys.cbp">
+			<Depends filename="emergeBaseClasses/emergeBaseClasses.cbp" />
+			<Depends filename="emergeLib/emergeLib.cbp" />
+		</Project>
+		<Project filename="emergeIcons/emergeIcons.cbp" />
+		<Project filename="emergeLauncher/emergeLauncher.cbp">
+			<Depends filename="emergeBaseClasses/emergeBaseClasses.cbp" />
+			<Depends filename="emergeGraphics/emergeGraphics.cbp" />
+			<Depends filename="emergeLib/emergeLib.cbp" />
+			<Depends filename="emergeStyleEngine/emergeStyleEngine.cbp" />
+		</Project>
+		<Project filename="emergeLib/emergeLib.cbp" />
+		<Project filename="emergePower/emergePower.cbp">
+			<Depends filename="emergeBaseClasses/emergeBaseClasses.cbp" />
+			<Depends filename="emergeGraphics/emergeGraphics.cbp" />
+			<Depends filename="emergeLib/emergeLib.cbp" />
+			<Depends filename="emergeStyleEngine/emergeStyleEngine.cbp" />
+		</Project>
+		<Project filename="emergeStyleEngine/emergeStyleEngine.cbp">
+			<Depends filename="emergeGraphics/emergeGraphics.cbp" />
+		</Project>
+		<Project filename="emergeSysMon/emergeSysMon.cbp">
+			<Depends filename="emergeBaseClasses/emergeBaseClasses.cbp" />
+			<Depends filename="emergeGraphics/emergeGraphics.cbp" />
+			<Depends filename="emergeLib/emergeLib.cbp" />
+			<Depends filename="emergeStyleEngine/emergeStyleEngine.cbp" />
+		</Project>
+		<Project filename="emergeTasks/emergeTasks.cbp">
+			<Depends filename="emergeAppletEngine/emergeAppletEngine.cbp" />
+			<Depends filename="emergeBaseClasses/emergeBaseClasses.cbp" />
+			<Depends filename="emergeGraphics/emergeGraphics.cbp" />
+			<Depends filename="emergeLib/emergeLib.cbp" />
+			<Depends filename="emergeStyleEngine/emergeStyleEngine.cbp" />
+		</Project>
+		<Project filename="emergeTray/emergeTray.cbp">
+			<Depends filename="emergeBaseClasses/emergeBaseClasses.cbp" />
+			<Depends filename="emergeGraphics/emergeGraphics.cbp" />
+			<Depends filename="emergeLib/emergeLib.cbp" />
+			<Depends filename="emergeStyleEngine/emergeStyleEngine.cbp" />
+			<Depends filename="emergeTrayExplorerHook/emergeTrayExplorerHook.cbp" />
+		</Project>
+		<Project filename="emergeTrayExplorerHook/emergeTrayExplorerHook.cbp" />
+		<Project filename="emergeVWM/emergeVWM.cbp">
+			<Depends filename="emergeAppletEngine/emergeAppletEngine.cbp" />
+			<Depends filename="emergeBaseClasses/emergeBaseClasses.cbp" />
+			<Depends filename="emergeGraphics/emergeGraphics.cbp" />
+			<Depends filename="emergeLib/emergeLib.cbp" />
+			<Depends filename="emergeStyleEngine/emergeStyleEngine.cbp" />
+		</Project>
+		<Project filename="emergeWorkspace/emergeWorkspace.cbp">
+			<Depends filename="emergeAppletEngine/emergeAppletEngine.cbp" />
+			<Depends filename="emergeBaseClasses/emergeBaseClasses.cbp" />
+			<Depends filename="emergeGraphics/emergeGraphics.cbp" />
+			<Depends filename="emergeLib/emergeLib.cbp" />
+		</Project>
+		<Project filename="Explorer/Explorer.cbp">
+			<Depends filename="emergeLib/emergeLib.cbp" />
+		</Project>
+	</Workspace>
+</CodeBlocks_workspace_file>
