@@ -145,6 +145,8 @@ Applet::Applet(HINSTANCE hInstance)
   oldTipWnd = NULL;
   movingWnd = NULL;
 
+  cleanTaskThread = NULL;
+
   // Create a critical section to control access to the taskList vector
   InitializeCriticalSection(&vectorLock);
 
@@ -154,6 +156,11 @@ Applet::Applet(HINSTANCE hInstance)
 
 Applet::~Applet()
 {
+  DWORD threadState;
+  GetExitCodeThread(cleanTaskThread, &threadState);
+  if (threadState == STILL_ACTIVE)
+    TerminateThread(cleanTaskThread, 0);
+
   // Unregister the specified Emerge Desktop messages
   PostMessage(ELGetCoreWindow(), EMERGE_UNREGISTER, (WPARAM)mainWnd, (LPARAM)EMERGE_VWM);
 
@@ -184,9 +191,31 @@ UINT Applet::Initialize()
   // Register the exiting tasks
   BuildTasksList();
 
+  // Start the clean task thread
+  DWORD threadID;
+  cleanTaskThread = CreateThread(NULL, 0, CleanTaskThreadProc, this, 0, &threadID);
+
   PostMessage(ELGetCoreWindow(), EMERGE_REGISTER, (WPARAM)mainWnd, (LPARAM)EMERGE_VWM);
 
   return ret;
+}
+
+DWORD WINAPI Applet::CleanTaskThreadProc(LPVOID lpParameter)
+{
+  // reinterpret lpParameter as a BaseApplet*
+  Applet *pApplet = reinterpret_cast< Applet* >(lpParameter);
+
+  // loop infinitely
+  while (true)
+    {
+      // Pause the current thread for FULLSCREEN_POLL_TIME
+      WaitForSingleObject(GetCurrentThread(), CLEAN_WAIT_TIME);
+
+      // if so set fullscreen to true...
+      pApplet->CleanTasks();
+    }
+
+  return 0;
 }
 
 std::tr1::shared_ptr<BaseSettings> Applet::createSettings()
@@ -409,9 +438,9 @@ bool Applet::CleanTasks()
         iter++;
     }
 
-  if (refresh && pSettings->GetAutoSize())
+  if (refresh)
     {
-      if (ELGetWindowRect(mainWnd, &wndRect))
+      if (pSettings->GetAutoSize() && ELGetWindowRect(mainWnd, &wndRect))
         {
           AdjustRect(&wndRect);
           UpdateIcons();
@@ -422,6 +451,8 @@ bool Applet::CleanTasks()
                        wndRect.bottom - wndRect.top,
                        SWPFlags);
         }
+
+      DrawAlphaBlend();
     }
 
   return refresh;
@@ -634,7 +665,8 @@ LRESULT Applet::SetFlash(HWND task, bool flash)
       (*iter)->SetFlash(true);
       UINT timerID = flashMap.size() + 1001;
       flashMap.insert(std::pair<HWND, UINT>(task, timerID));
-      SetTimer(mainWnd, timerID, pSettings->GetFlashInterval(), (TIMERPROC)FlashTimerProc);
+      SetTimer(mainWnd, timerID, pSettings->GetFlashInterval(),
+               (TIMERPROC)FlashTimerProc);
       refresh = true;
     }
   else if (!flash && (*iter)->GetFlash())
@@ -692,8 +724,6 @@ LRESULT Applet::DoTimer(UINT_PTR timerID)
 
   if (timerID == MOUSE_TIMER)
     {
-      CleanTasks();
-
       res = BaseApplet::DoTimer(timerID);
 
       if (!mouseOver && (movingWnd != NULL))
@@ -978,7 +1008,8 @@ void Applet::AppletUpdate()
           timerID = flashMap.size() + 1001;
 
           flashMap.insert(std::pair<HWND, UINT>((*iter)->GetWnd(), timerID));
-          SetTimer(mainWnd, timerID, pSettings->GetFlashInterval(), (TIMERPROC)FlashTimerProc);
+          SetTimer(mainWnd, timerID, pSettings->GetFlashInterval(),
+                   (TIMERPROC)FlashTimerProc);
         }
 
       (*iter)->UpdateIcon();

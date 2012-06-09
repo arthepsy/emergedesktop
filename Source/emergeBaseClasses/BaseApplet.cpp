@@ -45,7 +45,6 @@ BaseApplet::BaseApplet(HINSTANCE hInstance, const WCHAR *appletName, bool allowA
   inactiveBackgroundBMP = NULL;
   inactiveBackgroundObj = NULL;
 
-  displayChangeThread = NULL;
   fullScreenThread = NULL;
 
   ZeroMemory(&oldrt, sizeof(RECT));
@@ -245,7 +244,7 @@ void BaseApplet::UpdateGUI(WCHAR *styleFile)
   int dragBorder;
   HWND hWndInsertAfter;
   RECT wndRect;
-  UINT SWPFlags = 0;
+  UINT SWPFlags = SWP_NOACTIVATE;
 
   pBaseSettings->ReadSettings();
   if (styleFile == NULL)
@@ -311,9 +310,6 @@ void BaseApplet::UpdateGUI(WCHAR *styleFile)
         SWPFlags |= SWP_SHOWWINDOW;
     }
 
-  // Seems like Windows 7 has an issue setting HWND_TOPMOST unless the window
-  // is the active window
-  ELStealFocus(mainWnd);
   SetWindowPos(mainWnd, hWndInsertAfter, wndRect.left, wndRect.top,
                wndRect.right - wndRect.left, wndRect.bottom - wndRect.top, SWPFlags);
 
@@ -470,29 +466,9 @@ LRESULT BaseApplet::DoSize(DWORD width, DWORD height)
   return 0;
 }
 
-DWORD WINAPI BaseApplet::DisplayChangeThreadProc(LPVOID lpParameter)
-{
-  // reinterpret lpParameter as a BaseApplet*
-  BaseApplet *pBaseApplet = reinterpret_cast< BaseApplet* >(lpParameter);
-
-  // Pause the thread for 500 ms to mitigate an fullscreen app changing the
-  // display resolution prior to taking full screen
-  WaitForSingleObject(GetCurrentThread(), DISPLAYCHANGE_WAIT_TIME);
-
-  // If not and Dynamic Positioning is enabled, adjust the applet position
-  if (pBaseApplet->pBaseSettings->GetDynamicPositioning() && !pBaseApplet->GetFullScreen())
-    pBaseApplet->UpdateGUI();
-
-  return 0;
-}
-
 LRESULT BaseApplet::DoDisplayChange(HWND hwnd UNUSED)
 {
-  DWORD threadID, threadState;
-
-  GetExitCodeThread(displayChangeThread, &threadState);
-  if (threadState != STILL_ACTIVE)
-    displayChangeThread = CreateThread(NULL, 0, DisplayChangeThreadProc, this, 0, &threadID);
+  UpdateGUI();
 
   return 0;
 }
@@ -1243,7 +1219,8 @@ DWORD WINAPI BaseApplet::FullScreenThreadProc(LPVOID lpParameter)
       // Pause the current thread for FULLSCREEN_POLL_TIME
       WaitForSingleObject(GetCurrentThread(), FULLSCREEN_WAIT_TIME);
 
-      // Check if the current foreground window is full screen...
+      // Based on the applet window monitor, check if the current foreground
+      // window is full screen...
       if (ELIsFullScreen(pBaseApplet->GetMainWnd()))
         // if so set fullscreen to true...
         pBaseApplet->SetFullScreen(true);
@@ -1323,9 +1300,6 @@ LRESULT BaseApplet::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
         {
           // A "task" was activated
         case HSHELL_RUDEAPPACTIVATED:
-          // Kill the display change thread
-          TerminateThread(displayChangeThread, 0);
-
           if (MonitorCheck(task))
             {
               // Create the fullscreen thread
