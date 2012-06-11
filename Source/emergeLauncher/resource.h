@@ -50,6 +50,7 @@
 #define IDC_STARTHIDDEN         208
 #define IDC_TITLEBARTEXT        209
 #define IDC_FONTBUTTON          210
+#define IDC_AUTOLIMIT           211
 
 #define IDC_APPLIST             300
 #define IDC_COMMAND             301

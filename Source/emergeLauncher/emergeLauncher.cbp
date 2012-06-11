@@ -81,6 +81,7 @@
 		<Unit filename="Config.cpp" />
 		<Unit filename="Config.h" />
 		<Unit filename="ConfigPage.cpp" />
+		<Unit filename="ConfigPage.dlg" />
 		<Unit filename="ConfigPage.h" />
 		<Unit filename="Item.cpp" />
 		<Unit filename="Item.h" />
