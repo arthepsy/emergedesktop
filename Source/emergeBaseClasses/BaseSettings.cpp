@@ -60,6 +60,7 @@ BaseSettings::BaseSettings(bool allowAutoSize)
   ZeroMemory(styleFile, MAX_PATH);
   modifiedFlag = false;
   ZeroMemory(titleBarFontString, MAX_LINE_LENGTH);
+  autoSizeLimit = 0;
 }
 
 BaseSettings::~BaseSettings()
@@ -197,6 +198,7 @@ void BaseSettings::DoReadSettings(IOHelper& helper)
   helper.ReadString(TEXT("VerticalDirection"), verticalDirection, TEXT("down"));
   helper.ReadString(TEXT("DirectionOrientation"), directionOrientation, (WCHAR*)TEXT("down"));
   helper.ReadBool(TEXT("AutoSize"), autoSize, false);
+  helper.ReadInt(TEXT("AutoSizeLimit"), autoSizeLimit, 0);
   helper.ReadInt(TEXT("IconSize"), iconSize, 16);
   helper.ReadInt(TEXT("IconSpacing"), iconSpacing, 1);
   helper.ReadBool(TEXT("SnapMove"), snapMove, true);
@@ -247,6 +249,7 @@ void BaseSettings::DoWriteSettings(IOHelper& helper)
   helper.WriteString(TEXT("VerticalDirection"), verticalDirection);
   helper.WriteString(TEXT("DirectionOrientation"), directionOrientation);
   helper.WriteBool(TEXT("AutoSize"), autoSize);
+  helper.WriteInt(TEXT("AutoSizeLimit"), autoSizeLimit);
   helper.WriteInt(TEXT("IconSize"), iconSize);
   helper.WriteInt(TEXT("IconSpacing"), iconSpacing);
   helper.WriteString(TEXT("Style"), styleFile);
@@ -313,6 +316,7 @@ void BaseSettings::ResetDefaults()
   wcscpy(verticalDirection, (WCHAR*)TEXT("down"));
   wcscpy(directionOrientation, (WCHAR*)TEXT("down"));
   autoSize = false;
+  autoSizeLimit = 0;
   iconSize = 16;
   iconSpacing = 1;
   wcscpy(styleFile, (WCHAR*)TEXT("\0"));
@@ -572,6 +576,11 @@ bool BaseSettings::GetAutoSize()
   return autoSize;
 }
 
+int BaseSettings::GetAutoSizeLimit()
+{
+  return autoSizeLimit;
+}
+
 bool BaseSettings::GetSnapMove()
 {
   return snapMove;
@@ -678,6 +687,16 @@ bool BaseSettings::SetAutoSize(bool autoSize)
   if (this->autoSize != autoSize)
     {
       this->autoSize = autoSize;
+      SetModified();
+    }
+  return true;
+}
+
+bool BaseSettings::SetAutoSizeLimit(int autoSizeLimit)
+{
+  if (this->autoSizeLimit != autoSizeLimit)
+    {
+      this->autoSizeLimit = autoSizeLimit;
       SetModified();
     }
   return true;

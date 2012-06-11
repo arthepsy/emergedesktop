@@ -350,6 +350,7 @@ void BaseApplet::AdjustRect(RECT *wndRect)
   autoSizeInfo.iconSize = pBaseSettings->GetIconSize();
   autoSizeInfo.iconSpacing = pBaseSettings->GetIconSpacing();
   autoSizeInfo.visibleIconCount = (UINT)GetVisibleIconCount();
+  autoSizeInfo.limit = (UINT)pBaseSettings->GetAutoSizeLimit();
 
   if (_wcsicmp(pBaseSettings->GetDirectionOrientation(), TEXT("vertical")) == 0)
     autoSizeInfo.orientation = ASI_VERTICAL;

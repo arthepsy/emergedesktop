@@ -135,6 +135,8 @@ public:
   POINT InstancePosition(SIZE appletSize);
   bool GetStartHidden();
   bool SetStartHidden(bool startHidden);
+  int GetAutoSizeLimit();
+  bool SetAutoSizeLimit(int autoSizeLimit);
 
 protected:
   virtual void DoReadSettings(IOHelper& helper);
@@ -153,6 +155,7 @@ protected:
   bool startHidden;
   WCHAR titleBarText[MAX_LINE_LENGTH];
   LOGFONT titleBarFont;
+  int autoSizeLimit;
 
 private:
   HWND appletWnd;
