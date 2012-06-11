@@ -4,7 +4,7 @@
 #define CONFIG_HEIGHT     220
 
 #define EMERGE_MAJOR_VERSION 6
-#define EMERGE_MINOR_VERSION 0
+#define EMERGE_MINOR_VERSION 1
 #define EMERGE_RELEASE_VERSION 0
 
 // As per http://gcc.gnu.org/onlinedocs/cpp/Stringification.html:
