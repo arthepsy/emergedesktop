@@ -75,6 +75,10 @@ BOOL ConfigPage::DoInitPage(HWND hwndDlg)
   SendDlgItemMessage(hwndDlg, IDC_CLICKTHROUGHMETHOD, CB_ADDSTRING, 0, (LPARAM)TEXT("Full"));
   SendDlgItemMessage(hwndDlg, IDC_CLICKTHROUGHMETHOD, CB_ADDSTRING, 0, (LPARAM)TEXT("Background"));
 
+  SetDlgItemText(hwndDlg, IDC_AUTOLIMIT, towstring(pSettings->GetAutoSizeLimit()).c_str());
+  if (!pSettings->GetAutoSize())
+    EnableWindow((HWND)GetDlgItem(hwndDlg, IDC_AUTOLIMIT), FALSE);
+
   if (pSettings->GetClickThrough() == 0)
     EnableWindow(clickThroughWnd, false);
 
@@ -121,6 +125,10 @@ BOOL ConfigPage::DoCommand(HWND hwndDlg, WPARAM wParam, LPARAM lParam UNUSED)
       else if (SendDlgItemMessage(hwndDlg, IDC_CLICKTHROUGH, BM_GETCHECK, 0, 0) == BST_UNCHECKED)
         EnableWindow(clickThroughWnd, false);
       return TRUE;
+    case IDC_AUTOSIZE:
+      EnableWindow((HWND)GetDlgItem(hwndDlg, IDC_AUTOLIMIT),
+                   (SendDlgItemMessage(hwndDlg, IDC_AUTOSIZE, BM_GETCHECK, 0, 0) == BST_CHECKED));
+      return true;
     }
 
   return FALSE;
@@ -145,6 +153,17 @@ bool ConfigPage::UpdateSettings(HWND hwndDlg)
     pSettings->SetAutoSize(true);
   else if (SendDlgItemMessage(hwndDlg, IDC_AUTOSIZE, BM_GETCHECK, 0, 0) == BST_UNCHECKED)
     pSettings->SetAutoSize(false);
+
+  result = GetDlgItemInt(hwndDlg, IDC_AUTOLIMIT, &success, false);
+  if (success)
+    pSettings->SetAutoSizeLimit(result);
+  else if (!success)
+    {
+      ELMessageBox(GetDesktopWindow(), (WCHAR*)TEXT("Invalid value for AutoSize wrap"),
+                   (WCHAR*)TEXT("emergeTray"), ELMB_OK|ELMB_ICONERROR|ELMB_MODAL);
+      SetDlgItemInt(hwndDlg, IDC_ICONSPACING, pSettings->GetIconSpacing(), false);
+      return false;
+    }
 
   result = GetDlgItemInt(hwndDlg, IDC_ICONSPACING, &success, false);
   if (success)
