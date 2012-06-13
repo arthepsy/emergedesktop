@@ -5236,16 +5236,15 @@ bool ELIsExplorer(HWND hwnd)
 HANDLE ELActivateActCtxForDll(LPCTSTR pszDll, PULONG_PTR pulCookie)
 {
   HANDLE hContext = INVALID_HANDLE_VALUE;
-  HMODULE kernel32 = ELGetSystemLibrary(TEXT("kernel32.dll"));
 
   typedef HANDLE (WINAPI* CreateActCtx_t)(PACTCTX pCtx);
   typedef BOOL (WINAPI* ActivateActCtx_t)(HANDLE hCtx, ULONG_PTR* pCookie);
 
   CreateActCtx_t fnCreateActCtx = (CreateActCtx_t)
-                                  GetProcAddress(kernel32, "CreateActCtxW");
+                                  GetProcAddress(kernel32DLL, "CreateActCtxW");
 
   ActivateActCtx_t fnActivateActCtx = (ActivateActCtx_t)
-                                      GetProcAddress(kernel32, "ActivateActCtx");
+                                      GetProcAddress(kernel32DLL, "ActivateActCtx");
 
   if (fnCreateActCtx != NULL && fnActivateActCtx != NULL)
     {
@@ -5329,16 +5328,14 @@ HANDLE ELActivateActCtxForClsid(REFCLSID rclsid, PULONG_PTR pulCookie)
 
 void ELDeactivateActCtx(HANDLE hActCtx, ULONG_PTR* pulCookie)
 {
-  HMODULE kernel32 = ELGetSystemLibrary(TEXT("kernel32.dll"));
-
   typedef BOOL (WINAPI* DeactivateActCtx_t)(DWORD dwFlags, ULONG_PTR ulc);
   typedef void (WINAPI* ReleaseActCtx_t)(HANDLE hActCtx);
 
   DeactivateActCtx_t fnDeactivateActCtx = (DeactivateActCtx_t)
-                                          GetProcAddress(kernel32, "DeactivateActCtx");
+                                          GetProcAddress(kernel32DLL, "DeactivateActCtx");
 
   ReleaseActCtx_t fnReleaseActCtx = (ReleaseActCtx_t)
-                                    GetProcAddress(kernel32, "ReleaseActCtx");
+                                    GetProcAddress(kernel32DLL, "ReleaseActCtx");
 
   if (fnDeactivateActCtx != NULL && fnReleaseActCtx != NULL)
     {
