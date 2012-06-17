@@ -143,6 +143,8 @@ LRESULT Applet::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 LRESULT CALLBACK Applet::LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM lParam)
 {
+  DWORD threadState;
+
   if ( nCode == HC_ACTION )
     {
       PKBDLLHOOKSTRUCT pkbHookStruct = (PKBDLLHOOKSTRUCT)lParam;
@@ -151,12 +153,26 @@ LRESULT CALLBACK Applet::LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM l
         {
         case WM_KEYUP:
         case WM_SYSKEYUP:
-          // if the WM_(SYS)KEYUP is the hotkey, trigger the event so the thread will
-          // end.
+          // if the WM_(SYS)KEYUP is VK_LWIN, trigger the event so the thread
+          // will end.  If not, terminate the thread.
           if (pkbHookStruct->vkCode == VK_LWIN)
             SetEvent(keyUpEvent);
           else
-            TerminateThread(executeThread, 0);
+            {
+              GetExitCodeThread(executeThread, &threadState);
+              if (threadState == STILL_ACTIVE)
+                TerminateThread(executeThread, 0);
+            }
+          break;
+        case WM_KEYDOWN:
+        case WM_SYSKEYDOWN:
+          // if the WM_(SYS)KEYUP is not VK_LWIN terminate the thread.
+          if (pkbHookStruct->vkCode != VK_LWIN)
+            {
+              GetExitCodeThread(executeThread, &threadState);
+              if (threadState == STILL_ACTIVE)
+                TerminateThread(executeThread, 0);
+            }
           break;
         }
     }
