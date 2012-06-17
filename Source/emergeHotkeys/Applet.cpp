@@ -210,9 +210,14 @@ void Applet::ExecuteAction(UINT index)
   if (hc->GetHotkeyKey() == VK_WIN)
     {
       ResetEvent(keyUpEvent);
+
+      // If there is an existing thread still running, kill it.
       GetExitCodeThread(executeThread, &threadState);
-      if (threadState != STILL_ACTIVE)
-        executeThread = CreateThread(NULL, 0, ExecuteThreadProc, hc, 0, &threadID);
+      if (threadState == STILL_ACTIVE)
+        TerminateThread(executeThread, 0);
+
+      // Create a thread to handle the VK_WIN special case.
+      executeThread = CreateThread(NULL, 0, ExecuteThreadProc, hc, 0, &threadID);
     }
   else
     ELExecuteAll(hc->GetHotkeyAction(), (WCHAR*)TEXT("\0"));
