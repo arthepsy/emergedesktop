@@ -67,6 +67,7 @@ INT_PTR ConfigPage::DoInitPage(HWND hwndDlg)
   SendDlgItemMessage(hwndDlg, IDC_ICONSPACINGUPDOWN, UDM_SETRANGE, (WPARAM)0, (LPARAM)100);
   SendDlgItemMessage(hwndDlg, IDC_FLASHINTERVALUPDOWN, UDM_SETRANGE, (WPARAM)0, (LPARAM)10000);
   SendDlgItemMessage(hwndDlg, IDC_FLASHCOUNTUPDOWN, UDM_SETRANGE, (WPARAM)0, (LPARAM)100);
+  SendDlgItemMessage(hwndDlg, IDC_AUTOLIMITUPDOWN, UDM_SETRANGE, (WPARAM)0, (LPARAM)100);
 
   if (pSettings->GetAutoSize())
     SendDlgItemMessage(hwndDlg, IDC_AUTOSIZE, BM_SETCHECK, BST_CHECKED, 0);

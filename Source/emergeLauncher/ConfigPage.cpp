@@ -85,6 +85,7 @@ bool ConfigPage::DoInitDialog(HWND hwndDlg)
   SetDlgItemText(hwndDlg, IDC_AUTOLIMIT, towstring(pSettings->GetAutoSizeLimit()).c_str());
   if (!pSettings->GetAutoSize())
     EnableWindow((HWND)GetDlgItem(hwndDlg, IDC_AUTOLIMIT), FALSE);
+  SendDlgItemMessage(hwndDlg, IDC_AUTOLIMITUPDOWN, UDM_SETRANGE, (WPARAM)0, (LPARAM)100);
 
   //CopyMemory(&newFont, pSettings->GetFont(), sizeof(LOGFONT));
   CopyMemory(&newFont, pSettings->GetTitleBarFont(), sizeof(LOGFONT));

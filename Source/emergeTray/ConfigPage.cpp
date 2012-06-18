@@ -78,6 +78,7 @@ BOOL ConfigPage::DoInitPage(HWND hwndDlg)
   SetDlgItemText(hwndDlg, IDC_AUTOLIMIT, towstring(pSettings->GetAutoSizeLimit()).c_str());
   if (!pSettings->GetAutoSize())
     EnableWindow((HWND)GetDlgItem(hwndDlg, IDC_AUTOLIMIT), FALSE);
+  SendDlgItemMessage(hwndDlg, IDC_AUTOLIMITUPDOWN, UDM_SETRANGE, (WPARAM)0, (LPARAM)100);
 
   if (pSettings->GetClickThrough() == 0)
     EnableWindow(clickThroughWnd, false);

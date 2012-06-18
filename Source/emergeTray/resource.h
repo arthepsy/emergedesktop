@@ -44,6 +44,7 @@
 #define IDC_CLICKTHROUGHMETHOD  205
 #define IDC_UNHIDE              206
 #define IDC_AUTOLIMIT           207
+#define IDC_AUTOLIMITUPDOWN     208
 
 #define IDC_TOP       400
 #define IDC_NORMAL    401
