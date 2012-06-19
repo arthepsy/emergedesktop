@@ -544,9 +544,6 @@ void BaseApplet::DrawAlphaBlend()
 
       ESEPaintBackground(activeBackgroundDC, clientrt, &guiInfo, true);
       ESEPaintBackground(inactiveBackgroundDC, clientrt, &guiInfo, false);
-
-      if (EGIsCompositionEnabled())
-        EGBlurWindow(mainWnd, guiInfo.windowBlur);
     }
 
   if (mouseOver)
@@ -618,6 +615,10 @@ void BaseApplet::DrawAlphaBlend()
   srcPt.y = 0;
 
   UpdateLayeredWindow(mainWnd, NULL, NULL, &wndSz, hdc, &srcPt, 0, &bf, ULW_ALPHA);
+
+  // Blur the window if required.
+  if (EGIsCompositionEnabled())
+    EGBlurWindow(mainWnd, guiInfo.windowBlur);
 
   // do cleanup
   SelectObject(hdc, hobj);
