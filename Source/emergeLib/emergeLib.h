@@ -225,7 +225,8 @@ typedef enum _ELMBFLAGS {
 #define SI_SHOW       0x08
 #define SI_ICONPATH   0x10
 #define SI_ICONINDEX  0x20
-#define SI_ALL        SI_PATH|SI_WORKINGDIR|SI_ARGUMENTS|SI_SHOW|SI_ICONPATH|SI_ICONINDEX
+#define SI_RUNAS      0x40
+#define SI_ALL        SI_PATH|SI_WORKINGDIR|SI_ARGUMENTS|SI_SHOW|SI_ICONPATH|SI_ICONINDEX|SI_RUNAS
 
 #define CTP_FULL      0
 #define CTP_RELATIVE  1
@@ -243,6 +244,7 @@ typedef struct _SHORTCUTINFO
   int ShowCmd; /*!< Initial visibility state of the shortcut */
   WCHAR IconPath[MAX_PATH]; /*!< Path to the icon for the shortcut */
   int IconIndex; /*!< Index of the icon to use for the shortcut */
+  bool runAs; /*!< Run As flag for the shortcut */
 }
 SHORTCUTINFO, *LPSHORTCUTINFO;
 

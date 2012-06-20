@@ -2087,10 +2087,12 @@ bool ELExecute(LPTSTR application, LPTSTR workingDir, int nShow, WCHAR *verb)
   else
     return false;
 
-  shortcutInfo.flags = SI_PATH | SI_ARGUMENTS | SI_WORKINGDIR | SI_SHOW;
+  shortcutInfo.flags = SI_PATH|SI_ARGUMENTS|SI_WORKINGDIR|SI_SHOW|SI_RUNAS;
   if (ELParseShortcut(workingString.c_str(), &shortcutInfo))
     {
       isShortcut = true;
+      if (shortcutInfo.runAs)
+        verb = (WCHAR*)TEXT("runas");
       wcscpy(program, shortcutInfo.Path);
       wcscpy(arguments, shortcutInfo.Arguments);
       wcscpy(directory, shortcutInfo.WorkingDirectory);
@@ -3114,9 +3116,11 @@ bool ELSetForeground(HWND wnd)
 bool ELParseShortcut(LPCTSTR shortcut, LPSHORTCUTINFO shortcutInfo)
 {
   IShellLink *psl = NULL;
+  IShellLinkDataList *psdl = NULL;
   IPersistFile* ppf = NULL;
   LPITEMIDLIST pidl = NULL;
   LPVOID lpVoid;
+  DWORD dwFlags;
   bool ret = true;
 
   if (FAILED(CoInitialize(NULL)))
@@ -3132,11 +3136,20 @@ bool ELParseShortcut(LPCTSTR shortcut, LPSHORTCUTINFO shortcutInfo)
     }
   psl = reinterpret_cast <IShellLink*> (lpVoid);
 
+  if (FAILED(psl->QueryInterface(IID_IShellLinkDataList, &lpVoid)))
+    {
+      psl->Release();
+      CoUninitialize();
+      return false;
+    }
+  psdl = reinterpret_cast <IShellLinkDataList*> (lpVoid);
+
   // Get a pointer to the IPersistFile interface.
   if (FAILED(psl->QueryInterface(IID_IPersistFile,
                                  &lpVoid)))
     {
       psl->Release();
+      psdl->Release();
       CoUninitialize();
       return false;
     }
@@ -3147,6 +3160,7 @@ bool ELParseShortcut(LPCTSTR shortcut, LPSHORTCUTINFO shortcutInfo)
     {
       ppf->Release();
       psl->Release();
+      psdl->Release();
       CoUninitialize();
       return false;
     }
@@ -3155,10 +3169,22 @@ bool ELParseShortcut(LPCTSTR shortcut, LPSHORTCUTINFO shortcutInfo)
     {
       ppf->Release();
       psl->Release();
+      psdl->Release();
       CoUninitialize();
       return false;
     }
 
+  // Get the path to the link target.
+  if ((shortcutInfo->flags & SI_RUNAS) == SI_RUNAS)
+    {
+      shortcutInfo->runAs = false;
+
+      if (SUCCEEDED(psdl->GetFlags(&dwFlags)))
+        {
+          if ((dwFlags & SLDF_RUNAS_USER) == SLDF_RUNAS_USER)
+            shortcutInfo->runAs = true;
+        }
+    }
 
   // Get the path to the link target.
   if ((shortcutInfo->flags & SI_PATH) == SI_PATH)
@@ -3200,6 +3226,7 @@ bool ELParseShortcut(LPCTSTR shortcut, LPSHORTCUTINFO shortcutInfo)
 
   ppf->Release();
   psl->Release();
+  psdl->Release();
   CoUninitialize();
   return ret;
 }
