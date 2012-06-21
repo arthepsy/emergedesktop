@@ -95,6 +95,7 @@
 		<Unit filename="Settings.h" />
 		<Unit filename="TextPage.cpp" />
 		<Unit filename="TextPage.h" />
+		<Unit filename="emergeCommand.exe.manifest" />
 		<Unit filename="emergeCommand.rc">
 			<Option compilerVar="WINDRES" />
 		</Unit>
