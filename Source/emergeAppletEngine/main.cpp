@@ -147,7 +147,7 @@ HWND EAEInitializeAppletWindow(HINSTANCE appletInstance, WNDPROC windowProcedure
 
   // The class is registered, let's create the window
   appletWindow = CreateWindowEx (
-                   WS_EX_TOOLWINDOW | WS_EX_LAYERED,
+                   WS_EX_TOOLWINDOW | WS_EX_LAYERED | WS_EX_TOPMOST,
                    appletClass,
                    NULL,
                    WS_POPUP,
