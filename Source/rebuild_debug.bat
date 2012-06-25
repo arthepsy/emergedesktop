@@ -6,7 +6,7 @@ set CB_ROOT=C:\CodeBlocks\trunk\src\output
 rem ------------------------------------------
 rem Setup GCC root folder with "bin" subfolder
 rem ------------------------------------------
-set GCC_ROOT=C:\MinGW
+set GCC_ROOT=C:\mingw32
 
 rem -------------------------------------------
 rem Usually below here no changes are required.
