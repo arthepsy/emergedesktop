@@ -614,11 +614,11 @@ void BaseApplet::DrawAlphaBlend()
   srcPt.x = 0;
   srcPt.y = 0;
 
-  UpdateLayeredWindow(mainWnd, NULL, NULL, &wndSz, hdc, &srcPt, 0, &bf, ULW_ALPHA);
-
   // Blur the window if required.
   if (EGIsCompositionEnabled())
     EGBlurWindow(mainWnd, guiInfo.windowBlur);
+
+  UpdateLayeredWindow(mainWnd, NULL, NULL, &wndSz, hdc, &srcPt, 0, &bf, ULW_ALPHA);
 
   // do cleanup
   SelectObject(hdc, hobj);
