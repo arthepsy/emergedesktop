@@ -1852,6 +1852,7 @@ LRESULT MenuBuilder::ExecuteMenuItem(UINT itemID)
                          menuItem->GetWorkingDir());
       break;
     case IT_FILE_SUBMENU:
+    case IT_FILE_MENU:
       if (!ELExecute(menuItem->GetValue()))
         ELMessageBox(GetDesktopWindow(), error, (WCHAR*)TEXT("emergeWorkspace"), ELMB_ICONWARNING|ELMB_OK);
       break;
