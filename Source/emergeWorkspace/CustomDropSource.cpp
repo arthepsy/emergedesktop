@@ -69,8 +69,6 @@ STDMETHODIMP CustomDropSource::QueryContinueDrag(BOOL fEscapePressed, DWORD grfK
 
 STDMETHODIMP CustomDropSource::GiveFeedback(DWORD dwEffect UNUSED)
 {
-  /*OutputDebugStr((WCHAR*)TEXT("GiveFeedback"));*/
-
   return DRAGDROP_S_USEDEFAULTCURSORS;
 }
 

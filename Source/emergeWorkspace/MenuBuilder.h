@@ -32,7 +32,6 @@
 #include <map>
 #include <process.h>
 #include <time.h>
-#include "MenuEditor.h"
 #include "ItemEditor.h"
 #include "MenuListItem.h"
 #include "Config.h"
@@ -105,7 +104,6 @@ typedef std::map< HMENU,std::tr1::shared_ptr<MenuListItem> > MenuMap;
 class MenuBuilder
 {
 private:
-  std::tr1::shared_ptr<MenuEditor> pMenuEditor;
   std::tr1::shared_ptr<ItemEditor> pItemEditor;
   std::tr1::shared_ptr<Settings> pSettings;
   HWND menuWnd;

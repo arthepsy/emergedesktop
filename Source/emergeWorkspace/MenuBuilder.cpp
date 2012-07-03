@@ -96,7 +96,6 @@ bool MenuBuilder::Initialize()
   RenameConfigFile();
   pSettings->Init(menuWnd, (WCHAR*)TEXT("emergeWorkspace"), 0);
   pSettings->ReadSettings();
-  pMenuEditor = std::tr1::shared_ptr<MenuEditor>(new MenuEditor(mainInst));
   pItemEditor = std::tr1::shared_ptr<ItemEditor>(new ItemEditor(mainInst, menuWnd));
 
   SetWorkArea();
@@ -553,7 +552,7 @@ LRESULT MenuBuilder::DoContextMenu()
           break;
         }
       break;
-    case IT_FILE_MENU:
+    case IT_FILE_SUBMENU:
       res = EAEDisplayFileMenu(value, menuWnd);
       if (res != 0)
         SendMessage(menuWnd, WM_CANCELMODE, 0, 0);
@@ -837,7 +836,7 @@ void MenuBuilder::BuildMenu(MenuMap::iterator iter)
     }
 
   // Path based menu
-  if (type == IT_FILE_MENU)
+  if ((type == IT_FILE_MENU) || (type == IT_FILE_SUBMENU))
     {
       BuildFileMenu(iter);
       return;
@@ -924,7 +923,7 @@ void MenuBuilder::BuildXMLMenu(MenuMap::iterator iter)
         }
 
       // Executable
-      if (type == IT_EXECUTABLE)
+      if ((type == IT_EXECUTABLE) || (type == IT_FILE))
         {
           if (ELReadXMLStringValue(child, (WCHAR*)TEXT("Value"), value, (WCHAR*)TEXT("\0")))
             {
@@ -1437,7 +1436,7 @@ void MenuBuilder::BuildFileMenuFromString(MenuMap::iterator iter, WCHAR *parsedV
 
           if (!GetPos(iter, findData.cFileName, true, &folderPos, &itemID, &itemData))
             {
-              menuItem = new MenuItem(NULL, 101, tmp, NULL, NULL);
+              menuItem = new MenuItem(NULL, IT_FILE_SUBMENU, tmp, NULL, NULL);
               MENUITEMINFO itemInfo;
 
               itemInfo.fMask = MIIM_STRING | MIIM_ID | MIIM_SUBMENU | MIIM_DATA;
@@ -1457,7 +1456,7 @@ void MenuBuilder::BuildFileMenuFromString(MenuMap::iterator iter, WCHAR *parsedV
                     }
                 }
 
-              mli = std::tr1::shared_ptr<MenuListItem>(new MenuListItem(NULL, 101, tmp, NULL));
+              mli = std::tr1::shared_ptr<MenuListItem>(new MenuListItem(NULL, IT_FILE_SUBMENU, tmp, NULL));
               HMENU subMenu = CreatePopupMenu();
 
               wcscpy(tmp, findData.cFileName);
@@ -1559,7 +1558,7 @@ void MenuBuilder::BuildFileMenuFromString(MenuMap::iterator iter, WCHAR *parsedV
               free(lwrValue);
             }
 
-          menuItem = new MenuItem(NULL, 1, entry, NULL, NULL);
+          menuItem = new MenuItem(NULL, IT_FILE, entry, NULL, NULL);
 
           itemInfo.fMask = MIIM_STRING | MIIM_ID;
           if ((winVersion < 6.0) || !pSettings->GetAeroMenus())
@@ -1658,7 +1657,7 @@ void MenuBuilder::AddTaskItem(HWND task)
     return;
 
   swprintf(tmp, TEXT("%d"), (ULONG_PTR)task);
-  menuItem = new MenuItem(windowTitle, 0, tmp, NULL, NULL);
+  menuItem = new MenuItem(windowTitle, IT_SEPARATOR, tmp, NULL, NULL);
 
   itemInfo.fMask = MIIM_STRING | MIIM_ID;
   if ((winVersion < 6.0) || !pSettings->GetAeroMenus())
@@ -1738,9 +1737,6 @@ LRESULT MenuBuilder::DoButtonDown(UINT button)
         ELFileOp(menuWnd, FO_RENAME, oldXmlFile, xmlFile);
     }
 
-  if (pMenuEditor->GetVisible())
-    return 0;
-
   GetCursorPos(&mousePT);
 
   ELStealFocus(menuWnd);
@@ -1772,7 +1768,7 @@ LRESULT MenuBuilder::DoButtonDown(UINT button)
           if (menu)
             {
               ClearAllMenus();
-              mli = std::tr1::shared_ptr<MenuListItem>(new MenuListItem(menuName, 100, NULL, menu));
+              mli = std::tr1::shared_ptr<MenuListItem>(new MenuListItem(menuName, IT_XML_MENU, NULL, menu));
               rootMenu = CreatePopupMenu();
               menuMap.insert(std::pair< HMENU, std::tr1::
                              shared_ptr<MenuListItem> >(rootMenu, mli));
@@ -1855,7 +1851,7 @@ LRESULT MenuBuilder::ExecuteMenuItem(UINT itemID)
                          menuItem->GetValue(),
                          menuItem->GetWorkingDir());
       break;
-    case IT_FILE_MENU:
+    case IT_FILE_SUBMENU:
       if (!ELExecute(menuItem->GetValue()))
         ELMessageBox(GetDesktopWindow(), error, (WCHAR*)TEXT("emergeWorkspace"), ELMB_ICONWARNING|ELMB_OK);
       break;
@@ -1997,7 +1993,7 @@ void MenuBuilder::BuildHelpMenu(MenuMap::iterator iter)
 void MenuBuilder::AddSettingsItem(MenuMap::iterator iter, WCHAR* text, UINT id)
 {
   MENUITEMINFO itemInfo;
-  MenuItem *menuItem = new MenuItem(text, 0, text, NULL, NULL);
+  MenuItem *menuItem = new MenuItem(text, IT_SEPARATOR, text, NULL, NULL);
   UINT index = GetMenuItemCount(iter->first);
 
   itemInfo.fMask = MIIM_STRING | MIIM_ID;

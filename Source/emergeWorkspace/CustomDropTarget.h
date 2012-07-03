@@ -26,7 +26,7 @@
 class CustomDropTarget : public IDropTarget
 {
 public:
-  CustomDropTarget();
+  CustomDropTarget(UINT type);
   virtual ~CustomDropTarget();
   STDMETHODIMP_(ULONG) AddRef();
   STDMETHODIMP_(ULONG) Release();
@@ -37,7 +37,7 @@ public:
   STDMETHODIMP Drop(IDataObject *pDataObj, DWORD grfKeyState, POINTL pt, DWORD *pdwEffect);
 
 private:
-  UINT refCount;
+  UINT refCount, type;
 };
 
 #endif

@@ -20,9 +20,10 @@
 
 #include "CustomDropTarget.h"
 
-CustomDropTarget::CustomDropTarget()
+CustomDropTarget::CustomDropTarget(UINT type)
 {
   refCount = 0;
+  this->type = type;
 }
 
 CustomDropTarget::~CustomDropTarget()
@@ -66,6 +67,9 @@ STDMETHODIMP CustomDropTarget::DragEnter(IDataObject *pDataObj UNUSED, DWORD grf
   else
     *pdwEffect = DROPEFFECT_MOVE;
 
+  if ((type == IT_FILE) || (type == IT_FILE_SUBMENU))
+    *pdwEffect = DROPEFFECT_NONE;
+
   return S_OK;
 }
 
@@ -77,6 +81,9 @@ STDMETHODIMP CustomDropTarget::DragOver(DWORD grfKeyState, POINTL pt UNUSED, DWO
     *pdwEffect = DROPEFFECT_COPY;
   else
     *pdwEffect = DROPEFFECT_MOVE;
+
+  if ((type == IT_FILE) || (type == IT_FILE_SUBMENU))
+    *pdwEffect = DROPEFFECT_NONE;
 
   return S_OK;
 }
