@@ -1388,7 +1388,7 @@ void MenuBuilder::BuildFileMenuFromString(MenuMap::iterator iter, WCHAR *parsedV
 {
   WIN32_FIND_DATA findData;
   HANDLE fileHandle;
-  WCHAR searchPath[MAX_LINE_LENGTH], tmp[MAX_LINE_LENGTH], *lwrEntry, *lwrValue;
+  WCHAR searchPath[MAX_LINE_LENGTH], tmp[MAX_LINE_LENGTH], *lwrEntry = NULL, *lwrValue = NULL;
   MenuMap::iterator iter2;
   std::wstring workingValue = parsedValue;
 
@@ -1526,7 +1526,13 @@ void MenuBuilder::BuildFileMenuFromString(MenuMap::iterator iter, WCHAR *parsedV
               WCHAR targetURL[MAX_LINE_LENGTH], entryURL[MAX_LINE_LENGTH];
 
               menuItem = iter->second->GetMenuItem(itemID - 1);
+
+              if (lwrEntry)
+                free(lwrEntry);
               lwrEntry = _wcslwr(_wcsdup(entry));
+
+              if (lwrValue)
+                free(lwrValue);
               lwrValue = _wcslwr(_wcsdup(menuItem->GetValue()));
 
               if (ELParseShortcut(entry, &entryInfo))
@@ -1534,11 +1540,7 @@ void MenuBuilder::BuildFileMenuFromString(MenuMap::iterator iter, WCHAR *parsedV
                   if (ELParseShortcut(menuItem->GetValue(), &targetInfo))
                     {
                       if (_wcsicmp(entryInfo.Path, targetInfo.Path) == 0)
-                        {
-                          free(lwrEntry);
-                          free(lwrValue);
-                          continue;
-                        }
+                        continue;
                     }
                 }
               else if ((wcsstr(lwrEntry, TEXT(".url")) != NULL) &&
@@ -1548,16 +1550,9 @@ void MenuBuilder::BuildFileMenuFromString(MenuMap::iterator iter, WCHAR *parsedV
                       ELReadFileString(menuItem->GetValue(), (WCHAR*)TEXT("URL"), targetURL, (WCHAR*)TEXT("")))
                     {
                       if (_wcsicmp(entryURL, targetURL) == 0)
-                        {
-                          free(lwrEntry);
-                          free(lwrValue);
-                          continue;
-                        }
+                        continue;
                     }
                 }
-
-              free(lwrEntry);
-              free(lwrValue);
             }
 
           menuItem = new MenuItem(NULL, IT_FILE, entry, NULL, NULL);
