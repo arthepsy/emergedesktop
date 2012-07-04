@@ -476,6 +476,9 @@ LRESULT MenuBuilder::DoMenuDrag(HWND hwnd UNUSED, UINT pos, HMENU menu)
   dataObject->Release();
   customDataObject->Release();
 
+  dropSource->Release();
+  customDropSource->Release();
+
   return MND_CONTINUE;
 }
 
