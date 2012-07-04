@@ -28,10 +28,6 @@ MenuListItem::MenuListItem(WCHAR *name, UINT type, WCHAR *value, TiXmlElement *s
   customDropTarget->QueryInterface(IID_IDropTarget, &lpVoid);
   dropTarget = reinterpret_cast <IDropTarget*> (lpVoid);
 
-  customDropSource = std::tr1::shared_ptr<CustomDropSource>(new CustomDropSource());
-  customDropSource->QueryInterface(IID_IDropSource, &lpVoid);
-  dropSource = reinterpret_cast <IDropSource*> (lpVoid);
-
   this->type = type;
   this->section = section;
 
@@ -70,11 +66,6 @@ WCHAR *MenuListItem::GetName()
 IDropTarget *MenuListItem::GetDropTarget()
 {
   return dropTarget;
-}
-
-IDropSource *MenuListItem::GetDropSource()
-{
-  return dropSource;
 }
 
 void MenuListItem::SetValue(WCHAR *value)
@@ -116,4 +107,3 @@ void MenuListItem::DeleteMenuItem(UINT index)
 {
   menuItems.erase(menuItems.begin() + index);
 }
-

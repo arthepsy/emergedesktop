@@ -24,7 +24,6 @@
 #include "../emergeLib/emergeLib.h"
 #include "../emergeGraphics/emergeGraphics.h"
 #include "CustomDropTarget.h"
-#include "CustomDropSource.h"
 
 class MenuItem
 {
@@ -53,8 +52,6 @@ private:
   HICON icon;
   IDropTarget *dropTarget;
   CustomDropTarget *customDropTarget;
-  IDropSource *dropSource;
-  CustomDropSource *customDropSource;
 };
 
 #endif

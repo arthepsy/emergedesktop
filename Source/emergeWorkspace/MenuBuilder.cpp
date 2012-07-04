@@ -436,9 +436,6 @@ LRESULT MenuBuilder::DoMenuDrag(HWND hwnd UNUSED, UINT pos, HMENU menu)
   DWORD effect, dropEffects;
   LPVOID lpVoid;
   HMENU submenu;
-  IDataObject *dataObject;
-  IDropSource *dropSource;
-  std::tr1::shared_ptr<CustomDataObject> customDataObject(new CustomDataObject());
 
   menuItemInfo.cbSize = sizeof(menuItemInfo);
   menuItemInfo.fMask = MIIM_FTYPE | MIIM_SUBMENU | MIIM_ID;
@@ -456,20 +453,22 @@ LRESULT MenuBuilder::DoMenuDrag(HWND hwnd UNUSED, UINT pos, HMENU menu)
       subIter = menuMap.find(submenu);
       if (subIter == menuMap.end())
         return MND_ENDMENU;
-
-      dropSource = subIter->second->GetDropSource();
     }
   else
     {
       UINT itemID = menuItemInfo.wID;
       itemID--;
-      dropSource = iter->second->GetMenuItem(itemID)->GetDropSource();
     }
 
   dropEffects = DROPEFFECT_MOVE;
 
+  std::tr1::shared_ptr<CustomDataObject> customDataObject(new CustomDataObject());
   customDataObject->QueryInterface(IID_IDataObject, &lpVoid);
-  dataObject = reinterpret_cast <IDataObject*> (lpVoid);
+  IDataObject *dataObject = reinterpret_cast <IDataObject*> (lpVoid);
+
+  std::tr1::shared_ptr<CustomDropSource> customDropSource(new CustomDropSource());
+  customDropSource->QueryInterface(IID_IDropSource, &lpVoid);
+  IDropSource *dropSource = reinterpret_cast <IDropSource*> (lpVoid);
 
   if (DoDragDrop(dataObject, dropSource, dropEffects, &effect) == DRAGDROP_S_DROP)
     MenuDrop(menu, pos);

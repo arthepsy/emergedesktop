@@ -50,7 +50,6 @@ private:
   IDropTarget *dropTarget;
   IDropSource *dropSource;
   std::tr1::shared_ptr<CustomDropTarget> customDropTarget;
-  std::tr1::shared_ptr<CustomDropSource> customDropSource;
   TiXmlElement *section;
   std::vector< std::tr1::shared_ptr<MenuItem> > menuItems;
 };
