@@ -32,7 +32,6 @@
 #include <map>
 #include <process.h>
 #include <time.h>
-#include "MenuEditor.h"
 #include "ItemEditor.h"
 #include "MenuListItem.h"
 #include "Config.h"
@@ -105,7 +104,6 @@ typedef std::map< HMENU,std::tr1::shared_ptr<MenuListItem> > MenuMap;
 class MenuBuilder
 {
 private:
-  std::tr1::shared_ptr<MenuEditor> pMenuEditor;
   std::tr1::shared_ptr<ItemEditor> pItemEditor;
   std::tr1::shared_ptr<Settings> pSettings;
   HWND menuWnd;
@@ -141,6 +139,7 @@ private:
   static BOOL CALLBACK BuildTasksMenu(HWND hwnd, LPARAM lParam);
   static LRESULT CALLBACK MenuProcedure (HWND, UINT, WPARAM, LPARAM);
   static BOOL CALLBACK SetMonitorArea(HMONITOR hMonitor, HDC hdcMonitor, LPRECT lprcMonitor, LPARAM dwData);
+  MenuMap::iterator GetMenuIterID(POINT pt, int *index);
   int DisplayRegContext(POINT pt, int type);
   bool registered;
   bool AddMenuItem(MenuMap::iterator iter, int index);
@@ -148,15 +147,18 @@ private:
   void ElevatedExecute(MenuItem *menuItem);
   float winVersion;
   HMENU activeMenu;
-//    CustomDropTarget *customDropTarget;
-//    IDropTarget *dropTarget;
+  CustomDropTarget *customDropTarget;
+  IDropTarget *dropTarget;
+  HMENU dropMenu;
+  UINT dropPos;
+  bool MenuDrop(HMENU dragMenu, UINT dragPos);
 
 public:
   MenuBuilder(HINSTANCE desktopInst);
   ~MenuBuilder();
   bool Initialize();
   LRESULT DoButtonDown(UINT button);
-  LRESULT DoMenuDrag(HWND hwnd, HMENU menu);
+  LRESULT DoMenuDrag(HWND hwnd, UINT pos, HMENU menu);
   LRESULT DoMenuGetObject(HWND hwnd, MENUGETOBJECTINFO *mgoInfo);
   LRESULT DoInitMenu(HMENU menu);
   LRESULT ExecuteMenuItem(UINT itemID);

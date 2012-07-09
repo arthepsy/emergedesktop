@@ -20,9 +20,8 @@
 
 #include "CustomDropSource.h"
 
-CustomDropSource::CustomDropSource(HWND wnd)
+CustomDropSource::CustomDropSource()
 {
-  (*this).wnd = wnd;
   refCount = 0;
 }
 
@@ -70,8 +69,6 @@ STDMETHODIMP CustomDropSource::QueryContinueDrag(BOOL fEscapePressed, DWORD grfK
 
 STDMETHODIMP CustomDropSource::GiveFeedback(DWORD dwEffect UNUSED)
 {
-  /*OutputDebugStr((WCHAR*)TEXT("GiveFeedback"));*/
-
   return DRAGDROP_S_USEDEFAULTCURSORS;
 }
 

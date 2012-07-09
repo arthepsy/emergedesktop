@@ -93,8 +93,6 @@
 		<Unit filename="ItemEditor.h" />
 		<Unit filename="MenuBuilder.cpp" />
 		<Unit filename="MenuBuilder.h" />
-		<Unit filename="MenuEditor.cpp" />
-		<Unit filename="MenuEditor.h" />
 		<Unit filename="MenuItem.cpp" />
 		<Unit filename="MenuItem.h" />
 		<Unit filename="MenuListItem.cpp" />

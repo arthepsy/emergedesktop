@@ -25,7 +25,7 @@ MenuItem::MenuItem(WCHAR *name, UINT type, WCHAR* value, WCHAR *workingDir, TiXm
 {
   LPVOID lpVoid;
 
-  customDropTarget = new CustomDropTarget();
+  customDropTarget = new CustomDropTarget(type);
   customDropTarget->QueryInterface(IID_IDropTarget, &lpVoid);
   dropTarget = reinterpret_cast <IDropTarget*> (lpVoid);
 
@@ -122,6 +122,7 @@ void MenuItem::SetIcon()
         }
       break;
     case IT_EXECUTABLE:
+    case IT_FILE:
       if ((wcsicmp(lwrValue, TEXT("%documents%")) == 0) ||
           (wcsicmp(lwrValue, TEXT("%commondocuments%")) == 0))
         icon = EGGetSpecialFolderIcon(CSIDL_PERSONAL, 16);
@@ -155,6 +156,7 @@ void MenuItem::SetIcon()
         }
       break;
     case IT_FILE_MENU:
+    case IT_FILE_SUBMENU:
       app = value;
       app = ELToLower(app.substr(0, app.find_first_of(TEXT("|"))));
       if ((app == TEXT("%documents%")) ||
@@ -189,4 +191,9 @@ void MenuItem::SetValue(WCHAR *value)
 void MenuItem::SetName(WCHAR *name)
 {
   wcscpy(this->name, name);
+}
+
+void MenuItem::SetElement(TiXmlElement *element)
+{
+  this->element = element;
 }

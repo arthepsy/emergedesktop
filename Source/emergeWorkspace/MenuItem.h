@@ -37,9 +37,11 @@ public:
   TiXmlElement *GetElement();
   HICON GetIcon();
   IDropTarget *GetDropTarget();
+  IDropSource *GetDropSource();
   void SetIcon();
   void SetValue(WCHAR *value);
   void SetName(WCHAR *name);
+  void SetElement(TiXmlElement *element);
 
 private:
   TiXmlElement *element;

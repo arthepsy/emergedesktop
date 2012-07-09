@@ -27,7 +27,6 @@
 #include "Settings.h"
 #include "resource.h"
 #include "ConfigPage.h"
-#include "MenuEditor.h"
 
 #ifdef __GNUC__
 #include <tr1/memory>
@@ -45,7 +44,6 @@ public:
   INT_PTR DoInitDialog(HWND hwndDlg);
 
 private:
-  std::tr1::shared_ptr<MenuEditor> pMenuEditor;
   std::tr1::shared_ptr<ConfigPage> pConfigPage;
   std::tr1::shared_ptr<Settings> pSettings;
   HINSTANCE hInstance;

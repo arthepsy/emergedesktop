@@ -61,11 +61,13 @@ typedef enum _ITEMTYPE {
   IT_ENTIRE_FOLDER,
   IT_LIVE_FOLDER,
   IT_LIVE_FOLDER_ITEM,
+  IT_FILE,
   IT_XML_MENU = 100,
   IT_FILE_MENU,
   IT_TASKS_MENU,
   IT_SETTINGS_MENU,
-  IT_HELP_MENU
+  IT_HELP_MENU,
+  IT_FILE_SUBMENU
 } ITEMTYPE;
 
 #include <windows.h>
@@ -402,7 +404,7 @@ DLL_EXPORT TiXmlElement *ELGetFirstXMLElement(TiXmlElement *xmlSection);
 DLL_EXPORT TiXmlElement *ELGetFirstXMLElementByName(TiXmlElement *xmlSection, WCHAR *elementName, bool createElement);
 DLL_EXPORT TiXmlElement *ELSetFirstXMLElement(TiXmlElement *xmlSection, const WCHAR *elementName);
 DLL_EXPORT TiXmlElement *ELGetSiblingXMLElement(TiXmlElement *xmlElement);
-DLL_EXPORT TiXmlElement *ELSetSibilingXMLElement(TiXmlElement *xmlElement, const WCHAR *elementName);
+DLL_EXPORT TiXmlElement *ELSetSibilingXMLElement(TiXmlElement *xmlElement, const WCHAR *elementName, bool insertAfter = true);
 DLL_EXPORT bool ELGetXMLElementText(TiXmlElement *xmlElement, WCHAR* xmlString);
 DLL_EXPORT bool ELGetXMLElementLabel(TiXmlElement *xmlElement, WCHAR* xmlString);
 DLL_EXPORT bool ELRemoveXMLElement(TiXmlElement *xmlElement);
