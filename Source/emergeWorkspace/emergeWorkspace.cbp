@@ -74,6 +74,7 @@
 			<Add library="shlwapi" />
 			<Add library="comdlg32" />
 			<Add library="gdi32" />
+			<Add library="shell32" />
 		</Linker>
 		<ExtraCommands>
 			<Add before='[[ IO.Execute(_T(&quot;cmd /c \&quot;cd.. &amp; hgversion.bat\&quot;&quot;)) ]]' />
@@ -89,6 +90,8 @@
 		<Unit filename="CustomDropSource.h" />
 		<Unit filename="CustomDropTarget.cpp" />
 		<Unit filename="CustomDropTarget.h" />
+		<Unit filename="CustomEnumFormat.cpp" />
+		<Unit filename="CustomEnumFormat.h" />
 		<Unit filename="ItemEditor.cpp" />
 		<Unit filename="ItemEditor.h" />
 		<Unit filename="MenuBuilder.cpp" />
