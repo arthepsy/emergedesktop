@@ -18,41 +18,37 @@
 //
 //----  --------------------------------------------------------------------------------------------------------
 
-#ifndef __ED_CUSTOMDROPTARGET_H
-#define __ED_CUSTOMDROPTARGET_H
+#ifndef __ED_CUSTOMDATAOBJECT_H
+#define __ED_CUSTOMENUMFORMAT_H
 
 #include "../emergeLib/emergeLib.h"
 
-class CustomDropTarget : public IDropTarget
+HRESULT CreateEnumFormatEtc(UINT nNumFormats, FORMATETC *pFormatEtc, IEnumFORMATETC **ppEnumFormatEtc);
+
+class CustomEnumFormatEtc : public IEnumFORMATETC
 {
 public:
-  // IUnknown members
-  STDMETHODIMP QueryInterface(REFIID iid, void ** ppvObject);
-  STDMETHODIMP_(ULONG) AddRef();
-  STDMETHODIMP_(ULONG) Release();
+	// IUnknown members
+	STDMETHODIMP  QueryInterface (REFIID iid, void ** ppvObject);
+	STDMETHODIMP_(ULONG) AddRef (void);
+	STDMETHODIMP_(ULONG) Release (void);
 
-  // IDropTarget members
-  STDMETHODIMP DragEnter(IDataObject *pDataObj, DWORD grfKeyState, POINTL pt, DWORD *pdwEffect);
-  STDMETHODIMP DragOver(DWORD grfKeyState, POINTL pt, DWORD *pdwEffect);
-  STDMETHODIMP DragLeave();
-  STDMETHODIMP Drop(IDataObject *pDataObj, DWORD grfKeyState, POINTL pt, DWORD *pdwEffect);
+	// IEnumFormatEtc members
+	STDMETHODIMP Next(ULONG celt, FORMATETC * rgelt, ULONG * pceltFetched);
+	STDMETHODIMP Skip(ULONG celt);
+	STDMETHODIMP Reset(void);
+	STDMETHODIMP Clone(IEnumFORMATETC ** ppEnumFormatEtc);
 
-  CustomDropTarget(UINT type);
-  virtual ~CustomDropTarget();
+	CustomEnumFormatEtc(FORMATETC *pFormatEtc, int nNumFormats);
+	virtual ~CustomEnumFormatEtc();
+  void DeepCopyFormatEtc(FORMATETC *dest, FORMATETC *source);
 
 private:
-  UINT refCount, type;
-  UINT CF_EMERGE_MENUITEM;
 
-  // internal helper function
-  DWORD DropEffect(DWORD grfKeyState, POINTL pt, DWORD dwAllowed);
-  bool QueryDataObject(IDataObject *pDataObj);
-  bool DataDrop(IDataObject *pDataObj);
-
-  // Private member variables
-  HWND   hwnd;
-  bool   allowDrop;
+	LONG refCount;		// Reference count for this COM interface
+	ULONG	index;			// current enumerator index
+	ULONG	numFormats;		// number of FORMATETC members
+	FORMATETC *pFormatEtc;		// array of FORMATETC objects
 };
 
 #endif
-

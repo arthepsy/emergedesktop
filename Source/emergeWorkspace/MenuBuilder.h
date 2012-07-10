@@ -152,6 +152,7 @@ private:
   HMENU dropMenu;
   UINT dropPos;
   bool MenuDrop(HMENU dragMenu, UINT dragPos);
+  HANDLE MenuItemInfoToHandle(MENUITEMDATA *menuItemData);
 
 public:
   MenuBuilder(HINSTANCE desktopInst);

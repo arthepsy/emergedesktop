@@ -23,33 +23,7 @@
 
 #include "../emergeLib/emergeLib.h"
 
-/*static int
-  FromDROPEFFECT(int effect)
-  {
-  int	    rc = 0;
-
-  if (effect & DROPEFFECT_COPY)
-  rc |= SW_DRAG_COPY;
-  if (effect & DROPEFFECT_MOVE)
-  rc |= SW_DRAG_MOVE;
-  if (effect & DROPEFFECT_LINK)
-  rc |= SW_DRAG_LINK;
-  return rc;
-  }*/
-
-/*static DWORD
-  ToDROPEFFECT(int effect)
-  {
-  DWORD	    rc = DROPEFFECT_NONE;
-
-  if (effect & SW_DRAG_COPY)
-  rc |= DROPEFFECT_COPY;
-  if (effect & SW_DRAG_MOVE)
-  rc |= DROPEFFECT_MOVE;
-  if (effect & SW_DRAG_LINK)
-  rc |= DROPEFFECT_LINK;
-  return rc;
-  }*/
+HRESULT CreateDropSource(IDropSource **ppDropSource);
 
 class CustomDropSource : public IDropSource
 {
@@ -57,13 +31,17 @@ private:
   ULONG refCount;
 
 public:
-  CustomDropSource();
-  virtual ~CustomDropSource();
+  // IUnknown members
+  STDMETHODIMP QueryInterface(REFIID iid, void ** ppvObject);
   STDMETHODIMP_(ULONG) AddRef();
   STDMETHODIMP_(ULONG) Release();
-  STDMETHODIMP QueryInterface(REFIID iid, void ** ppvObject);
+
+  // IDropSource members
   STDMETHODIMP QueryContinueDrag(BOOL fEscapePressed, DWORD grfKeyState);
   STDMETHODIMP GiveFeedback(DWORD dwEffect);
+
+  CustomDropSource();
+  virtual ~CustomDropSource();
 };
 
 #endif

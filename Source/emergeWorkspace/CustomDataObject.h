@@ -22,60 +22,41 @@
 #define __ED_CUSTOMDATAOBJECT_H
 
 #include "../emergeLib/emergeLib.h"
+#include <shlobj.h>
 
-/*static int
-  FromDROPEFFECT(int effect)
-  {
-  int	    rc = 0;
-
-  if (effect & DROPEFFECT_COPY)
-  rc |= SW_DRAG_COPY;
-  if (effect & DROPEFFECT_MOVE)
-  rc |= SW_DRAG_MOVE;
-  if (effect & DROPEFFECT_LINK)
-  rc |= SW_DRAG_LINK;
-  return rc;
-  }*/
-
-/*static DWORD
-  ToDROPEFFECT(int effect)
-  {
-  DWORD	    rc = DROPEFFECT_NONE;
-
-  if (effect & SW_DRAG_COPY)
-  rc |= DROPEFFECT_COPY;
-  if (effect & SW_DRAG_MOVE)
-  rc |= DROPEFFECT_MOVE;
-  if (effect & SW_DRAG_LINK)
-  rc |= DROPEFFECT_LINK;
-  return rc;
-  }*/
+HRESULT CreateDataObject(FORMATETC *fmtetc, STGMEDIUM *stgmeds, UINT count, IDataObject **ppDataObject);
+HRESULT CreateEnumFormatEtc(UINT nNumFormats, FORMATETC *pFormatEtc, IEnumFORMATETC **ppEnumFormatEtc);
 
 class CustomDataObject : public IDataObject
 {
 private:
   ULONG refCount;
-  std::tr1::shared_ptr<IDataAdviseHolder> advise;
-  std::tr1::shared_ptr<FORMATETC> fetc;
-  std::tr1::shared_ptr<STGMEDIUM> stgm;
-  BOOL deleteMedium;
+  UINT numFormats;
+  UINT CF_EMERGE_MENUITEM;
+  LPFORMATETC pFormatEtc;
+  LPSTGMEDIUM pStgMedium;
 
 public:
-  CustomDataObject();
-  virtual ~CustomDataObject();
+  // IUnknown members
+  STDMETHODIMP QueryInterface(REFIID iid, void ** ppvObject);
   STDMETHODIMP_(ULONG) AddRef();
   STDMETHODIMP_(ULONG) Release();
-  STDMETHODIMP QueryInterface(REFIID iid, void ** ppvObject);
-  STDMETHODIMP DAdvise(FORMATETC FAR* pformatetc, DWORD advf, LPADVISESINK pAdvSink, DWORD FAR* pdwConnection);
-  STDMETHODIMP DUnadvise(DWORD dwConnection);
-  STDMETHODIMP EnumDAdvise(LPENUMSTATDATA FAR* ppenumAdvise);
-  STDMETHODIMP EnumFormatEtc(DWORD dwDirection, LPENUMFORMATETC FAR* ppenumFormatEtc);
-  STDMETHODIMP GetCanonicalFormatEtc(LPFORMATETC pformatetc, LPFORMATETC pformatetcOut);
+
+  // IDataObject members
   STDMETHODIMP GetData(LPFORMATETC pformatetcIn, LPSTGMEDIUM pmedium);
   STDMETHODIMP GetDataHere(LPFORMATETC pformatetc, LPSTGMEDIUM pmedium);
   STDMETHODIMP QueryGetData(LPFORMATETC pformatetc);
+  STDMETHODIMP GetCanonicalFormatEtc(LPFORMATETC pformatetc, LPFORMATETC pformatetcOut);
   STDMETHODIMP SetData(LPFORMATETC pformatetc, STGMEDIUM FAR * pmedium, BOOL fRelease);
+  STDMETHODIMP EnumFormatEtc(DWORD dwDirection, LPENUMFORMATETC FAR* ppenumFormatEtc);
+  STDMETHODIMP DAdvise(FORMATETC FAR* pformatetc, DWORD advf, LPADVISESINK pAdvSink, DWORD FAR* pdwConnection);
+  STDMETHODIMP DUnadvise(DWORD dwConnection);
+  STDMETHODIMP EnumDAdvise(LPENUMSTATDATA FAR* ppenumAdvise);
+
+  CustomDataObject(FORMATETC *fmtetc, STGMEDIUM *stgmed, UINT count);
+  virtual ~CustomDataObject();
+  int LookupFormatEtc(FORMATETC *pFormatEtc);
+  HGLOBAL DupGlobalMem(HGLOBAL hMem);
 };
 
 #endif
-

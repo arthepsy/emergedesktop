@@ -20,6 +20,16 @@
 
 #include "CustomDropSource.h"
 
+HRESULT CreateDropSource(IDropSource **ppDropSource)
+{
+  if(ppDropSource == NULL)
+    return E_INVALIDARG;
+
+  *ppDropSource = new CustomDropSource();
+
+  return (*ppDropSource) ? S_OK : E_OUTOFMEMORY;
+}
+
 CustomDropSource::CustomDropSource()
 {
   refCount = 0;
@@ -59,12 +69,16 @@ STDMETHODIMP CustomDropSource::QueryInterface(REFIID riid, void ** ppvObject)
 
 STDMETHODIMP CustomDropSource::QueryContinueDrag(BOOL fEscapePressed, DWORD grfKeyState)
 {
-  if (fEscapePressed)
+  // if the Escape key has been pressed since the last call, cancel the drop
+  if(fEscapePressed == TRUE)
     return DRAGDROP_S_CANCEL;
-  else if (grfKeyState & MK_LBUTTON)
-    return S_OK;
-  else
+
+  // if the LeftMouse button has been released, then do the drop!
+  if((grfKeyState & MK_LBUTTON) == 0)
     return DRAGDROP_S_DROP;
+
+  // continue with the drag-drop
+  return S_OK;
 }
 
 STDMETHODIMP CustomDropSource::GiveFeedback(DWORD dwEffect UNUSED)

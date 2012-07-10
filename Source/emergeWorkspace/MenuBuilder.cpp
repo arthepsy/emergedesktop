@@ -434,8 +434,6 @@ LRESULT MenuBuilder::DoMenuDrag(HWND hwnd UNUSED, UINT pos, HMENU menu)
   MenuMap::iterator iter, subIter;
   MENUITEMINFO menuItemInfo;
   DWORD effect, dropEffects;
-  LPVOID lpVoid;
-  HMENU submenu;
 
   menuItemInfo.cbSize = sizeof(menuItemInfo);
   menuItemInfo.fMask = MIIM_FTYPE | MIIM_SUBMENU | MIIM_ID;
@@ -447,39 +445,65 @@ LRESULT MenuBuilder::DoMenuDrag(HWND hwnd UNUSED, UINT pos, HMENU menu)
   if (!GetMenuItemInfo(iter->first, pos, TRUE, &menuItemInfo))
     return MND_ENDMENU;
 
-  submenu = menuItemInfo.hSubMenu;
-  if (submenu)
-    {
-      subIter = menuMap.find(submenu);
-      if (subIter == menuMap.end())
-        return MND_ENDMENU;
-    }
-  else
-    {
-      UINT itemID = menuItemInfo.wID;
-      itemID--;
-    }
+  UINT itemID = menuItemInfo.wID;
+  itemID--;
+  MenuItem *menuItem = iter->second->GetMenuItem(itemID);
+
+  FORMATETC fmtetc;
+  STGMEDIUM stgmed;
+  MENUITEMDATA menuItemData;
+
+  UINT CF_EMERGE_MENUITEM = RegisterClipboardFormat(TEXT("CF_EMERGE_MENUITEM"));
+  if (CF_EMERGE_MENUITEM == 0)
+    ELMessageBox(GetDesktopWindow(), (WCHAR*)TEXT("Failed to register Emerge Desktop Menu Item clipboard format."), (WCHAR*)TEXT("emergeWorkspace"),
+                 ELMB_OK|ELMB_ICONERROR|ELMB_MODAL);
+
+  ZeroMemory(&fmtetc, sizeof(FORMATETC));
+  fmtetc.cfFormat = CF_EMERGE_MENUITEM;
+  fmtetc.dwAspect = DVASPECT_CONTENT;
+  fmtetc.lindex = -1;
+  fmtetc.tymed = TYMED_HGLOBAL;
+
+  ZeroMemory(&stgmed, sizeof(STGMEDIUM));
+  stgmed.tymed = TYMED_HGLOBAL;
+
+  wcsncpy(menuItemData.name, menuItem->GetName(), wcslen(menuItem->GetName()));
+  menuItemData.type = menuItem->GetType();
+  wcsncpy(menuItemData.value, menuItem->GetValue(), wcslen(menuItem->GetValue()));
+  wcsncpy(menuItemData.workingDir, menuItem->GetWorkingDir(), wcslen(menuItem->GetWorkingDir()));
+
+  stgmed.hGlobal = MenuItemInfoToHandle(&menuItemData);
 
   dropEffects = DROPEFFECT_MOVE;
 
-  std::tr1::shared_ptr<CustomDataObject> customDataObject(new CustomDataObject());
-  customDataObject->QueryInterface(IID_IDataObject, &lpVoid);
-  IDataObject *dataObject = reinterpret_cast <IDataObject*> (lpVoid);
+  IDataObject *pDataObject;
+  IDropSource *pDropSource;
 
-  std::tr1::shared_ptr<CustomDropSource> customDropSource(new CustomDropSource());
-  customDropSource->QueryInterface(IID_IDropSource, &lpVoid);
-  IDropSource *dropSource = reinterpret_cast <IDropSource*> (lpVoid);
+  CreateDataObject(&fmtetc, &stgmed, 1, &pDataObject);
+  CreateDropSource(&pDropSource);
 
-  if (DoDragDrop(dataObject, dropSource, dropEffects, &effect) == DRAGDROP_S_DROP)
-    MenuDrop(menu, pos);
+  DoDragDrop(pDataObject, pDropSource, dropEffects, &effect);
+    //MenuDrop(menu, pos);
 
-  dataObject->Release();
-  customDataObject->Release();
+  pDropSource->Release();
+  pDataObject->Release();
 
-  dropSource->Release();
-  customDropSource->Release();
+  ReleaseStgMedium(&stgmed);
 
   return MND_CONTINUE;
+}
+
+HANDLE MenuBuilder::MenuItemInfoToHandle(MENUITEMDATA *menuItemData)
+{
+  void *ptr = NULL;
+
+  // allocate and lock a global memory buffer. Make it fixed
+  // data so we don't have to use GlobalLock
+  ptr = (void *)GlobalAlloc(GMEM_FIXED, sizeof(MENUITEMDATA));
+  if (ptr != NULL)
+    memcpy(ptr, menuItemData, sizeof(MENUITEMDATA));
+
+  return reinterpret_cast< HANDLE >(ptr);
 }
 
 LRESULT MenuBuilder::DoContextMenu()

@@ -309,6 +309,15 @@ typedef struct _NOTIFYINFO
 }
 NOTIFYINFO, *LPNOTIFYINFO;
 
+typedef struct _MENUITEMDATA
+{
+  WCHAR name[MAX_LINE_LENGTH];
+  int type;
+  WCHAR value[MAX_LINE_LENGTH];
+  WCHAR workingDir[MAX_LINE_LENGTH];
+}
+MENUITEMDATA;
+
 #define MAX(x, y) ((x) < (y) ? (y) : (x))
 #define MIN(x, y) ((x) < (y) ? (x) : (y))
 
