@@ -20,10 +20,12 @@
 
 #include "CustomDropTarget.h"
 
-CustomDropTarget::CustomDropTarget(UINT type)
+CustomDropTarget::CustomDropTarget(UINT type, TiXmlElement *dropElement, HMENU dropMenu)
 {
   refCount = 0;
   this->type = type;
+  this->dropElement = dropElement;
+  this->dropMenu = dropMenu;
 
   CF_EMERGE_MENUITEM = RegisterClipboardFormat(TEXT("CF_EMERGE_MENUITEM"));
   if (CF_EMERGE_MENUITEM == 0)
@@ -73,10 +75,11 @@ DWORD CustomDropTarget::DropEffect(DWORD grfKeyState, POINTL pt UNUSED, DWORD dw
   return dwEffect;
 }
 
-bool CustomDropTarget::DataDrop(IDataObject *pDataObj)
+bool CustomDropTarget::DataDrop(IDataObject *pDataObj, POINTL pt)
 {
   FORMATETC fmtetc;
   STGMEDIUM stgmed;
+  MENUITEMINFO menuItemInfo;
 
   ZeroMemory(&fmtetc, sizeof(FORMATETC));
   fmtetc.cfFormat = CF_EMERGE_MENUITEM;
@@ -91,7 +94,45 @@ bool CustomDropTarget::DataDrop(IDataObject *pDataObj)
           void *data = GlobalLock(stgmed.hGlobal);
           MENUITEMDATA *menuItemData = reinterpret_cast< MENUITEMDATA* >(data);
 
-          ELMessageBox(GetDesktopWindow(), menuItemData->value, menuItemData->name, ELMB_OK);
+          TiXmlElement *newElement = ELSetSibilingXMLElement(dropElement, (WCHAR*)TEXT("item"), true);
+          if (newElement)
+            {
+              TiXmlDocument *configXML = ELGetXMLConfig(dropElement);
+
+              // Set the new element attributes based on the drag item attributes
+              ELWriteXMLStringValue(newElement, TEXT("Name"), menuItemData->name);
+              ELWriteXMLIntValue(newElement, TEXT("Type"), menuItemData->type);
+              ELWriteXMLStringValue(newElement, TEXT("Value"), menuItemData->value);
+              ELWriteXMLStringValue(newElement, TEXT("WorkingDir"), menuItemData->workingDir);
+
+              ZeroMemory(&menuItemInfo, sizeof(MENUITEMINFO));
+              menuItemInfo.cbSize = sizeof(MENUITEMINFO);
+              menuItemInfo.fMask = MIIM_ID | MIIM_STRING | MIIM_BITMAP;
+              menuItemInfo.dwTypeData = menuItemData->name;
+              menuItemInfo.cch = MAX_LINE_LENGTH;
+
+              // Insert the new element
+              UINT dropPos = 0;
+              UINT menuItemCount = (UINT)GetMenuItemCount(dropMenu);
+              RECT menuItemRect;
+              POINT menuItemPt;
+              menuItemPt.x = pt.x;
+              menuItemPt.y = pt.y;
+
+              while (dropPos < menuItemCount)
+                {
+                  if (GetMenuItemRect(NULL, dropMenu, dropPos, &menuItemRect))
+                    {
+                      if (PtInRect(&menuItemRect, menuItemPt))
+                        break;
+                    }
+
+                  dropPos++;
+                }
+
+              InsertMenuItem(dropMenu, dropPos, TRUE, &menuItemInfo);
+              ELWriteXMLConfig(configXML);
+            }
 
           GlobalUnlock(stgmed.hGlobal);
 
@@ -163,7 +204,7 @@ STDMETHODIMP CustomDropTarget::Drop(IDataObject *pDataObj, DWORD grfKeyState, PO
 {
   if(allowDrop)
     {
-      DataDrop(pDataObj);
+      DataDrop(pDataObj, pt);
       *pdwEffect = DropEffect(grfKeyState, pt, *pdwEffect);
     }
   else

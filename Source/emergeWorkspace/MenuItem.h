@@ -28,7 +28,7 @@
 class MenuItem
 {
 public:
-  MenuItem(WCHAR *name, UINT type, WCHAR *value, WCHAR *workingDir, TiXmlElement *element);
+  MenuItem(WCHAR *name, UINT type, WCHAR *value, WCHAR *workingDir, TiXmlElement *element, HMENU menu);
   ~MenuItem();
   UINT GetType();
   WCHAR *GetName();
@@ -52,6 +52,7 @@ private:
   HICON icon;
   IDropTarget *dropTarget;
   CustomDropTarget *customDropTarget;
+  HMENU menu;
 };
 
 #endif

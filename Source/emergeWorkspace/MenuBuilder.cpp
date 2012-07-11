@@ -389,7 +389,7 @@ LRESULT MenuBuilder::DoMenuGetObject(HWND hwnd UNUSED, MENUGETOBJECTINFO *mgoInf
   IID menuInterface = IID_IDropTarget;
   MENUITEMINFO menuItemInfo;
   HMENU menu;
-  IDropTarget *dropTarget;
+  IDropTarget *dropTarget = NULL;
 
   dropPos = 0;
   dropMenu = NULL;
@@ -474,7 +474,7 @@ LRESULT MenuBuilder::DoMenuDrag(HWND hwnd UNUSED, UINT pos, HMENU menu)
 
   stgmed.hGlobal = MenuItemInfoToHandle(&menuItemData);
 
-  dropEffects = DROPEFFECT_MOVE;
+  dropEffects = DROPEFFECT_MOVE | DROPEFFECT_COPY;
 
   IDataObject *pDataObject;
   IDropSource *pDropSource;
@@ -482,8 +482,20 @@ LRESULT MenuBuilder::DoMenuDrag(HWND hwnd UNUSED, UINT pos, HMENU menu)
   CreateDataObject(&fmtetc, &stgmed, 1, &pDataObject);
   CreateDropSource(&pDropSource);
 
-  DoDragDrop(pDataObject, pDropSource, dropEffects, &effect);
-    //MenuDrop(menu, pos);
+  if (DoDragDrop(pDataObject, pDropSource, dropEffects, &effect) == DRAGDROP_S_DROP)
+    {
+      if (effect == DROPEFFECT_MOVE)
+        {
+          // Remove the menu element
+          TiXmlElement *menuElement = menuItem->GetElement();
+          TiXmlDocument *configXML = ELGetXMLConfig(menuElement);
+          if (ELRemoveXMLElement(menuElement))
+            {
+              ELWriteXMLConfig(configXML);
+              DeleteMenu(menu, pos, MF_BYPOSITION);
+            }
+        }
+    }
 
   pDropSource->Release();
   pDataObject->Release();
@@ -636,7 +648,7 @@ bool MenuBuilder::AddMenuItem(MenuMap::iterator iter, int index)
   if (!element)
     return false;
 
-  menuItem = new MenuItem((WCHAR*)TEXT("New Item"), -1, NULL, NULL, NULL);
+  menuItem = new MenuItem((WCHAR*)TEXT("New Item"), -1, NULL, NULL, NULL, iter->first);
 
   menuItemInfo.wID = GetMenuItemCount(iter->first) + 1;
 
@@ -935,7 +947,7 @@ void MenuBuilder::BuildXMLMenu(MenuMap::iterator iter)
       // Separator
       if (type == IT_SEPARATOR)
         {
-          MenuItem *menuItem = new MenuItem(NULL, type, NULL, NULL, child);
+          MenuItem *menuItem = new MenuItem(NULL, type, NULL, NULL, child, iter->first);
 
           itemInfo.fMask = MIIM_FTYPE|MIIM_ID;
           itemInfo.cbSize = sizeof(MENUITEMINFO);
@@ -956,7 +968,7 @@ void MenuBuilder::BuildXMLMenu(MenuMap::iterator iter)
               ELReadXMLStringValue(child, (WCHAR*)TEXT("WorkingDir"), workingDir, (WCHAR*)TEXT("\0"));
               ELReadXMLStringValue(child, (WCHAR*)TEXT("Name"), name, (WCHAR*)TEXT("\0"));
               NoPrefixString(name);
-              MenuItem *menuItem = new MenuItem(name, type, value, workingDir, child);
+              MenuItem *menuItem = new MenuItem(name, type, value, workingDir, child, iter->first);
 
               itemInfo.fMask = MIIM_STRING | MIIM_ID;
               itemInfo.cbSize = sizeof(MENUITEMINFO);
@@ -996,7 +1008,7 @@ void MenuBuilder::BuildXMLMenu(MenuMap::iterator iter)
               else
                 {
                   NoPrefixString(name);
-                  MenuItem *menuItem = new MenuItem(name, type, value, NULL, child);
+                  MenuItem *menuItem = new MenuItem(name, type, value, NULL, child, iter->first);
 
                   itemInfo.fMask = MIIM_STRING | MIIM_ID;
                   itemInfo.cbSize = sizeof(MENUITEMINFO);
@@ -1030,7 +1042,7 @@ void MenuBuilder::BuildXMLMenu(MenuMap::iterator iter)
         {
           if (ELReadXMLStringValue(child, (WCHAR*)TEXT("Value"), value, (WCHAR*)TEXT("\0")))
             {
-              MenuItem *menuItem = new MenuItem(NULL, type, value, NULL, child);
+              MenuItem *menuItem = new MenuItem(NULL, type, value, NULL, child, iter->first);
               WCHAR datetimeString[MAX_LINE_LENGTH];
               time_t tVal;
               struct tm *stVal;
@@ -1060,7 +1072,7 @@ void MenuBuilder::BuildXMLMenu(MenuMap::iterator iter)
             {
               ELReadXMLStringValue(child, (WCHAR*)TEXT("Name"), name, (WCHAR*)TEXT("\0"));
               NoPrefixString(name);
-              MenuItem *menuItem = new MenuItem(name, type, value, NULL, child);
+              MenuItem *menuItem = new MenuItem(name, type, value, NULL, child, iter->first);
 
               itemInfo.fMask = MIIM_STRING | MIIM_ID;
               itemInfo.cbSize = sizeof(MENUITEMINFO);
@@ -1096,7 +1108,7 @@ void MenuBuilder::BuildXMLMenu(MenuMap::iterator iter)
           subSection = ELGetFirstXMLElementByName(child, (WCHAR*)TEXT("Submenu"), false);
           subMenu = CreatePopupMenu();
           NoPrefixString(name);
-          MenuItem *menuItem = new MenuItem(name, type, NULL, NULL, child);
+          MenuItem *menuItem = new MenuItem(name, type, NULL, NULL, child, iter->first);
 
           itemInfo.fMask = MIIM_STRING | MIIM_ID | MIIM_SUBMENU;
           itemInfo.cbSize = sizeof(MENUITEMINFO);
@@ -1126,7 +1138,7 @@ void MenuBuilder::BuildXMLMenu(MenuMap::iterator iter)
           iter2 = menuMap.find(iter->first);
           if (iter2 != menuMap.end())
             {
-              std::tr1::shared_ptr<MenuListItem> mli(new MenuListItem(name, type, NULL, subSection));
+              std::tr1::shared_ptr<MenuListItem> mli(new MenuListItem(name, type, NULL, subSection, subMenu));
               menuMap.insert(std::pair< HMENU, std::tr1::shared_ptr<MenuListItem> >(subMenu, mli));
             }
         }
@@ -1138,7 +1150,7 @@ void MenuBuilder::BuildXMLMenu(MenuMap::iterator iter)
           ELReadXMLStringValue(child, (WCHAR*)TEXT("Value"), value, (WCHAR*)TEXT("\0"));
           subMenu = CreatePopupMenu();
           NoPrefixString(name);
-          MenuItem *menuItem = new MenuItem(name, type, value, NULL, child);
+          MenuItem *menuItem = new MenuItem(name, type, value, NULL, child, iter->first);
 
           itemInfo.fMask = MIIM_STRING | MIIM_ID | MIIM_SUBMENU;
           itemInfo.cbSize = sizeof(MENUITEMINFO);
@@ -1167,7 +1179,7 @@ void MenuBuilder::BuildXMLMenu(MenuMap::iterator iter)
           iter2 = menuMap.find(iter->first);
           if (iter2 != menuMap.end())
             {
-              std::tr1::shared_ptr<MenuListItem> mli(new MenuListItem(name, type, value, NULL));
+              std::tr1::shared_ptr<MenuListItem> mli(new MenuListItem(name, type, value, NULL, iter->first));
               menuMap.insert(std::pair< HMENU, std::tr1::shared_ptr<MenuListItem> >(subMenu, mli));
             }
         }
@@ -1178,7 +1190,7 @@ void MenuBuilder::BuildXMLMenu(MenuMap::iterator iter)
           ELReadXMLStringValue(child, (WCHAR*)TEXT("Name"), name, (WCHAR*)TEXT("\0"));
           subMenu = CreatePopupMenu();
           NoPrefixString(name);
-          MenuItem *menuItem = new MenuItem(name, type, NULL, NULL, child);
+          MenuItem *menuItem = new MenuItem(name, type, NULL, NULL, child, iter->first);
 
           itemInfo.fMask = MIIM_STRING | MIIM_ID | MIIM_SUBMENU;
           itemInfo.cbSize = sizeof(MENUITEMINFO);
@@ -1207,7 +1219,7 @@ void MenuBuilder::BuildXMLMenu(MenuMap::iterator iter)
           iter2 = menuMap.find(iter->first);
           if (iter2 != menuMap.end())
             {
-              std::tr1::shared_ptr<MenuListItem> mli(new MenuListItem(name, type, NULL, NULL));
+              std::tr1::shared_ptr<MenuListItem> mli(new MenuListItem(name, type, NULL, NULL, subMenu));
               menuMap.insert(std::pair< HMENU, std::tr1::shared_ptr<MenuListItem> >(subMenu, mli));
             }
         }
@@ -1462,7 +1474,7 @@ void MenuBuilder::BuildFileMenuFromString(MenuMap::iterator iter, WCHAR *parsedV
 
           if (!GetPos(iter, findData.cFileName, true, &folderPos, &itemID, &itemData))
             {
-              menuItem = new MenuItem(NULL, IT_FILE_SUBMENU, tmp, NULL, NULL);
+              menuItem = new MenuItem(NULL, IT_FILE_SUBMENU, tmp, NULL, NULL, iter->first);
               MENUITEMINFO itemInfo;
 
               itemInfo.fMask = MIIM_STRING | MIIM_ID | MIIM_SUBMENU | MIIM_DATA;
@@ -1482,7 +1494,7 @@ void MenuBuilder::BuildFileMenuFromString(MenuMap::iterator iter, WCHAR *parsedV
                     }
                 }
 
-              mli = std::tr1::shared_ptr<MenuListItem>(new MenuListItem(NULL, IT_FILE_SUBMENU, tmp, NULL));
+              mli = std::tr1::shared_ptr<MenuListItem>(new MenuListItem(NULL, IT_FILE_SUBMENU, tmp, NULL, iter->first));
               HMENU subMenu = CreatePopupMenu();
 
               wcscpy(tmp, findData.cFileName);
@@ -1579,7 +1591,7 @@ void MenuBuilder::BuildFileMenuFromString(MenuMap::iterator iter, WCHAR *parsedV
                 }
             }
 
-          menuItem = new MenuItem(NULL, IT_FILE, entry, NULL, NULL);
+          menuItem = new MenuItem(NULL, IT_FILE, entry, NULL, NULL, iter->first);
 
           itemInfo.fMask = MIIM_STRING | MIIM_ID;
           if ((winVersion < 6.0) || !pSettings->GetAeroMenus())
@@ -1678,7 +1690,7 @@ void MenuBuilder::AddTaskItem(HWND task)
     return;
 
   swprintf(tmp, TEXT("%d"), (ULONG_PTR)task);
-  menuItem = new MenuItem(windowTitle, IT_SEPARATOR, tmp, NULL, NULL);
+  menuItem = new MenuItem(windowTitle, IT_SEPARATOR, tmp, NULL, NULL, iter->first);
 
   itemInfo.fMask = MIIM_STRING | MIIM_ID;
   if ((winVersion < 6.0) || !pSettings->GetAeroMenus())
@@ -1789,8 +1801,8 @@ LRESULT MenuBuilder::DoButtonDown(UINT button)
           if (menu)
             {
               ClearAllMenus();
-              mli = std::tr1::shared_ptr<MenuListItem>(new MenuListItem(menuName, IT_XML_MENU, NULL, menu));
               rootMenu = CreatePopupMenu();
+              mli = std::tr1::shared_ptr<MenuListItem>(new MenuListItem(menuName, IT_XML_MENU, NULL, menu, rootMenu));
               menuMap.insert(std::pair< HMENU, std::tr1::
                              shared_ptr<MenuListItem> >(rootMenu, mli));
               iter = menuMap.begin();
@@ -2015,7 +2027,7 @@ void MenuBuilder::BuildHelpMenu(MenuMap::iterator iter)
 void MenuBuilder::AddSettingsItem(MenuMap::iterator iter, WCHAR* text, UINT id)
 {
   MENUITEMINFO itemInfo;
-  MenuItem *menuItem = new MenuItem(text, IT_SEPARATOR, text, NULL, NULL);
+  MenuItem *menuItem = new MenuItem(text, IT_SEPARATOR, text, NULL, NULL, iter->first);
   UINT index = GetMenuItemCount(iter->first);
 
   itemInfo.fMask = MIIM_STRING | MIIM_ID;

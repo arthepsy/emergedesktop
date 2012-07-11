@@ -37,17 +37,19 @@ public:
   STDMETHODIMP DragLeave();
   STDMETHODIMP Drop(IDataObject *pDataObj, DWORD grfKeyState, POINTL pt, DWORD *pdwEffect);
 
-  CustomDropTarget(UINT type);
+  CustomDropTarget(UINT type, TiXmlElement *dropElement, HMENU dropMenu);
   virtual ~CustomDropTarget();
 
 private:
   UINT refCount, type;
   UINT CF_EMERGE_MENUITEM;
+  HMENU dropMenu;
+  TiXmlElement *dropElement;
 
   // internal helper function
   DWORD DropEffect(DWORD grfKeyState, POINTL pt, DWORD dwAllowed);
   bool QueryDataObject(IDataObject *pDataObj);
-  bool DataDrop(IDataObject *pDataObj);
+  bool DataDrop(IDataObject *pDataObj, POINTL pt);
 
   // Private member variables
   HWND   hwnd;
