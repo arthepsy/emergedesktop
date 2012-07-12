@@ -41,14 +41,10 @@ public:
   UINT GetMenuItemCount();
   void AddMenuItem(MenuItem *menuItem);
   void DeleteMenuItem(UINT index);
-  IDropTarget *GetDropTarget();
 
 private:
   WCHAR value[MAX_LINE_LENGTH], name[MAX_LINE_LENGTH];
   UINT type;
-  IDropTarget *dropTarget;
-  IDropSource *dropSource;
-  std::tr1::shared_ptr<CustomDropTarget> customDropTarget;
   TiXmlElement *section;
   std::vector< std::tr1::shared_ptr<MenuItem> > menuItems;
   HMENU menu;

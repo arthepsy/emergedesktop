@@ -404,21 +404,9 @@ LRESULT MenuBuilder::DoMenuGetObject(HWND hwnd UNUSED, MENUGETOBJECTINFO *mgoInf
   if (!GetMenuItemInfo(iter->first, mgoInfo->uPos, TRUE, &menuItemInfo))
     return MNGO_NOINTERFACE;
 
-  menu = menuItemInfo.hSubMenu;
-  if (menu)
-    {
-      subIter = menuMap.find(menu);
-      if (subIter == menuMap.end())
-        return MNGO_NOINTERFACE;
-
-      dropTarget = subIter->second->GetDropTarget();
-    }
-  else
-    {
-      UINT itemID = menuItemInfo.wID;
-      itemID--;
-      dropTarget = iter->second->GetMenuItem(itemID)->GetDropTarget();
-    }
+  UINT itemID = menuItemInfo.wID;
+  itemID--;
+  dropTarget = iter->second->GetMenuItem(itemID)->GetDropTarget();
 
   dropMenu = mgoInfo->hmenu;
   dropPos = mgoInfo->uPos;

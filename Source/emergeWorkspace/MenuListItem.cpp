@@ -22,12 +22,6 @@
 
 MenuListItem::MenuListItem(WCHAR *name, UINT type, WCHAR *value, TiXmlElement *section, HMENU menu)
 {
-  LPVOID lpVoid;
-
-  customDropTarget = std::tr1::shared_ptr<CustomDropTarget>(new CustomDropTarget(type, section, menu));
-  customDropTarget->QueryInterface(IID_IDropTarget, &lpVoid);
-  dropTarget = reinterpret_cast <IDropTarget*> (lpVoid);
-
   this->type = type;
   this->section = section;
   this->menu = menu;
@@ -45,8 +39,6 @@ MenuListItem::MenuListItem(WCHAR *name, UINT type, WCHAR *value, TiXmlElement *s
 
 MenuListItem::~MenuListItem()
 {
-  if (dropTarget)
-    dropTarget->Release();
 }
 
 WCHAR *MenuListItem::GetValue()
@@ -62,11 +54,6 @@ TiXmlElement *MenuListItem::GetSection()
 WCHAR *MenuListItem::GetName()
 {
   return name;
-}
-
-IDropTarget *MenuListItem::GetDropTarget()
-{
-  return dropTarget;
 }
 
 void MenuListItem::SetValue(WCHAR *value)
