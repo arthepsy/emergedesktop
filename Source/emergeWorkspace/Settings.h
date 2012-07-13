@@ -18,8 +18,7 @@
 //
 //---
 
-#ifndef __ED_SETTINGS_H
-#define __ED_SETTINGS_H
+#pragma once
 
 #include "../emergeLib/emergeLib.h"
 #include "../emergeBaseClasses/BaseSettings.h"
@@ -57,6 +56,3 @@ private:
   int menuAlpha, topBorder, bottomBorder, leftBorder, rightBorder;
   bool menuIcons,borderPrimary, aeroMenus;
 };
-
-#endif
-

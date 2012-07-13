@@ -18,8 +18,7 @@
 //
 //----  --------------------------------------------------------------------------------------------------------
 
-#ifndef __ED_CUSTOMDATAOBJECT_H
-#define __ED_CUSTOMENUMFORMAT_H
+#pragma once
 
 #include "../emergeLib/emergeLib.h"
 
@@ -50,5 +49,3 @@ private:
 	ULONG	numFormats;		// number of FORMATETC members
 	FORMATETC *pFormatEtc;		// array of FORMATETC objects
 };
-
-#endif

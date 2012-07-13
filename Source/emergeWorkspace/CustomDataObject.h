@@ -18,8 +18,7 @@
 //
 //----  --------------------------------------------------------------------------------------------------------
 
-#ifndef __ED_CUSTOMDATAOBJECT_H
-#define __ED_CUSTOMDATAOBJECT_H
+#pragma once
 
 #include "../emergeLib/emergeLib.h"
 #include <shlobj.h>
@@ -58,5 +57,3 @@ public:
   int LookupFormatEtc(FORMATETC *pFormatEtc);
   HGLOBAL DupGlobalMem(HGLOBAL hMem);
 };
-
-#endif

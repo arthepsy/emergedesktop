@@ -18,8 +18,7 @@
 //
 //---
 
-#ifndef __ED_CONFIG_H
-#define __ED_CONFIG_H
+#pragma once
 
 #undef _WIN32_IE
 #define _WIN32_IE 0x0600
@@ -49,6 +48,3 @@ private:
   HINSTANCE hInstance;
   static INT_PTR CALLBACK ConfigDlgProc(HWND hwndDlg, UINT message, WPARAM wParam, LPARAM lParam);
 };
-
-#endif
-

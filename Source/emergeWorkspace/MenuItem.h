@@ -18,8 +18,7 @@
 //
 //---
 
-#ifndef __ED_MENUITEM_H
-#define __ED_MENUITEM_H
+#pragma once
 
 #include "../emergeLib/emergeLib.h"
 #include "../emergeGraphics/emergeGraphics.h"
@@ -51,9 +50,5 @@ private:
   WCHAR workingDir[MAX_PATH];
   HICON icon;
   IDropTarget *dropTarget;
-  CustomDropTarget *customDropTarget;
   HMENU menu;
 };
-
-#endif
-

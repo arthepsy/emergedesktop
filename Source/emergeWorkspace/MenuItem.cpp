@@ -23,12 +23,7 @@
 
 MenuItem::MenuItem(WCHAR *name, UINT type, WCHAR* value, WCHAR *workingDir, TiXmlElement *element, HMENU menu)
 {
-  LPVOID lpVoid;
-
-  customDropTarget = new CustomDropTarget(type, element, menu);
-  customDropTarget->QueryInterface(IID_IDropTarget, &lpVoid);
-  dropTarget = reinterpret_cast <IDropTarget*> (lpVoid);
-
+  CreateDropTarget(&dropTarget, type, element, menu);
   this->element = element;
   this->type = type;
   icon = NULL;
@@ -54,8 +49,6 @@ MenuItem::~MenuItem()
 {
   if (dropTarget)
     dropTarget->Release();
-
-  delete customDropTarget;
 
   DestroyIcon(icon);
 }

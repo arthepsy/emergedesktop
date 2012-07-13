@@ -20,6 +20,16 @@
 
 #include "CustomDropTarget.h"
 
+HRESULT CreateDropTarget(IDropTarget **ppDropTarget, UINT type, TiXmlElement *dropElement, HMENU dropMenu)
+{
+  if(ppDropTarget == NULL)
+    return E_INVALIDARG;
+
+  *ppDropTarget = new CustomDropTarget(type, dropElement, dropMenu);
+
+  return (*ppDropTarget) ? S_OK : E_OUTOFMEMORY;
+}
+
 CustomDropTarget::CustomDropTarget(UINT type, TiXmlElement *dropElement, HMENU dropMenu)
 {
   refCount = 0;
@@ -94,7 +104,7 @@ bool CustomDropTarget::DataDrop(IDataObject *pDataObj, POINTL pt)
           void *data = GlobalLock(stgmed.hGlobal);
           MENUITEMDATA *menuItemData = reinterpret_cast< MENUITEMDATA* >(data);
 
-          TiXmlElement *newElement = ELSetSibilingXMLElement(dropElement, (WCHAR*)TEXT("item"), true);
+          TiXmlElement *newElement = ELSetSibilingXMLElement(dropElement, (WCHAR*)TEXT("item"), false);
           if (newElement)
             {
               TiXmlDocument *configXML = ELGetXMLConfig(dropElement);
@@ -104,12 +114,30 @@ bool CustomDropTarget::DataDrop(IDataObject *pDataObj, POINTL pt)
               ELWriteXMLIntValue(newElement, TEXT("Type"), menuItemData->type);
               ELWriteXMLStringValue(newElement, TEXT("Value"), menuItemData->value);
               ELWriteXMLStringValue(newElement, TEXT("WorkingDir"), menuItemData->workingDir);
+              ELWriteXMLConfig(configXML);
+
+              NEWMENUITEMDATA newMenuItemData;
+              COPYDATASTRUCT cds;
+
+              ZeroMemory(&newMenuItemData, sizeof(NEWMENUITEMDATA));
+              CopyMemory(&newMenuItemData.menuItemData, menuItemData, sizeof(NEWMENUITEMDATA));
+              newMenuItemData.menu = dropMenu;
+              newMenuItemData.newElement = newElement;
+
+              cds.dwData = EMERGE_NEWITEM;
+              cds.cbData = sizeof(NEWMENUITEMDATA);
+              cds.lpData = &newMenuItemData;
+
+              SendMessageTimeout(FindWindow(TEXT("EmergeDesktopMenuBuilder"), NULL),
+                                 WM_COPYDATA, 0, (LPARAM)&cds,
+                                 SMTO_ABORTIFHUNG, 500, NULL);
 
               ZeroMemory(&menuItemInfo, sizeof(MENUITEMINFO));
               menuItemInfo.cbSize = sizeof(MENUITEMINFO);
               menuItemInfo.fMask = MIIM_ID | MIIM_STRING | MIIM_BITMAP;
               menuItemInfo.dwTypeData = menuItemData->name;
               menuItemInfo.cch = MAX_LINE_LENGTH;
+              menuItemInfo.wID = GetMenuItemCount(dropMenu) + 1;
 
               // Insert the new element
               UINT dropPos = 0;
@@ -131,7 +159,6 @@ bool CustomDropTarget::DataDrop(IDataObject *pDataObj, POINTL pt)
                 }
 
               InsertMenuItem(dropMenu, dropPos, TRUE, &menuItemInfo);
-              ELWriteXMLConfig(configXML);
             }
 
           GlobalUnlock(stgmed.hGlobal);

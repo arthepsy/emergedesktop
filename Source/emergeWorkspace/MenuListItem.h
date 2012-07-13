@@ -18,12 +18,11 @@
 //
 //---
 
-#ifndef __ED_MENULISTITEM_H
-#define __ED_MENULISTITEM_H
+#pragma once
 
+#include <vector>
 #include "../emergeLib/emergeLib.h"
 #include "MenuItem.h"
-#include <vector>
 
 class MenuListItem
 {
@@ -49,6 +48,3 @@ private:
   std::vector< std::tr1::shared_ptr<MenuItem> > menuItems;
   HMENU menu;
 };
-
-#endif
-

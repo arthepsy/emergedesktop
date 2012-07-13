@@ -18,10 +18,20 @@
 //
 //----  --------------------------------------------------------------------------------------------------------
 
-#ifndef __ED_CUSTOMDROPTARGET_H
-#define __ED_CUSTOMDROPTARGET_H
+#pragma once
 
 #include "../emergeLib/emergeLib.h"
+
+typedef struct _NEWMENUITEMDATA
+{
+  MENUITEMDATA menuItemData;
+  TiXmlElement *newElement;
+  HMENU menu;
+}
+NEWMENUITEMDATA, *LPNEWMENUITEMDATA;
+
+
+static const UINT EMERGE_NEWITEM = RegisterWindowMessage(TEXT("EmergeNewItem"));
 
 class CustomDropTarget : public IDropTarget
 {
@@ -56,5 +66,4 @@ private:
   bool   allowDrop;
 };
 
-#endif
-
+HRESULT CreateDropTarget(IDropTarget **ppDropTarget, UINT type, TiXmlElement *dropElement, HMENU dropMenu);

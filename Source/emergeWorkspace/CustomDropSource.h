@@ -18,8 +18,7 @@
 //
 //----  --------------------------------------------------------------------------------------------------------
 
-#ifndef __ED_CUSTOMDROPSOURCE_H
-#define __ED_CUSTOMDROPSOURCE_H
+#pragma once
 
 #include "../emergeLib/emergeLib.h"
 
@@ -43,6 +42,3 @@ public:
   CustomDropSource();
   virtual ~CustomDropSource();
 };
-
-#endif
-

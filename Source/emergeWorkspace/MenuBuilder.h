@@ -18,8 +18,7 @@
 //
 //----  --------------------------------------------------------------------------------------------------------
 
-#ifndef __ED_MENUBUILDER_H
-#define __ED_MENUBUILDER_H
+#pragma once
 
 // Define required for the Window Transparency
 #undef _WIN32_WINNT
@@ -37,9 +36,6 @@
 #include "Config.h"
 #include "../emergeGraphics/emergeGraphics.h"
 #include "../emergeAppletEngine/emergeAppletEngine.h"
-#include "CustomDropSource.h"
-#include "CustomDropTarget.h"
-#include "CustomDataObject.h"
 
 // Define Menu Types
 #define MENU_RIGHT           0x01
@@ -147,8 +143,6 @@ private:
   void ElevatedExecute(MenuItem *menuItem);
   float winVersion;
   HMENU activeMenu;
-  CustomDropTarget *customDropTarget;
-  IDropTarget *dropTarget;
   HMENU dropMenu;
   UINT dropPos;
   bool MenuDrop(HMENU dragMenu, UINT dragPos);
@@ -176,7 +170,5 @@ public:
   void RenameConfigFile();
   BYTE GetMenuAlpha();
   void SetActiveMenu(HMENU menu);
+  bool NewMenuItem(MENUITEMDATA *menuItemData, TiXmlElement *newElement, HMENU menu);
 };
-
-#endif
-

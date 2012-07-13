@@ -21,6 +21,8 @@
 //----  --------------------------------------------------------------------------------------------------------
 
 #include "MenuBuilder.h"
+#include "CustomDropSource.h"
+#include "CustomDataObject.h"
 
 WCHAR menuBuilderClass[ ] = TEXT("EmergeDesktopMenuBuilder");
 
@@ -231,6 +233,14 @@ LRESULT CALLBACK MenuBuilder::MenuProcedure (HWND hwnd, UINT message, WPARAM wPa
 
 LRESULT MenuBuilder::DoCopyData(COPYDATASTRUCT *cds)
 {
+  if (cds->dwData == EMERGE_NEWITEM)
+    {
+      LPNEWMENUITEMDATA newMenuItemData = reinterpret_cast< LPNEWMENUITEMDATA >(cds->lpData);
+
+      NewMenuItem(&newMenuItemData->menuItemData, newMenuItemData->newElement, newMenuItemData->menu);
+
+      return 1;
+    }
 
   if (cds->dwData == EMERGE_MESSAGE)
     {
@@ -388,7 +398,6 @@ LRESULT MenuBuilder::DoMenuGetObject(HWND hwnd UNUSED, MENUGETOBJECTINFO *mgoInf
   MenuMap::iterator iter, subIter;
   IID menuInterface = IID_IDropTarget;
   MENUITEMINFO menuItemInfo;
-  HMENU menu;
   IDropTarget *dropTarget = NULL;
 
   dropPos = 0;
@@ -612,6 +621,18 @@ LRESULT MenuBuilder::DoContextMenu()
 void MenuBuilder::ElevatedExecute(MenuItem *menuItem)
 {
   ELExecute(menuItem->GetValue(), menuItem->GetWorkingDir(), SW_SHOW, (WCHAR*)TEXT("runas"));
+}
+
+bool MenuBuilder::NewMenuItem(MENUITEMDATA *menuItemData, TiXmlElement *newElement, HMENU menu)
+{
+  MenuMap::iterator iter = menuMap.find(menu);
+
+  if (iter == menuMap.end())
+    return false;
+
+  iter->second->AddMenuItem(new MenuItem(menuItemData->name, menuItemData->type, menuItemData->value, menuItemData->workingDir, newElement, menu));
+
+  return true;
 }
 
 bool MenuBuilder::AddMenuItem(MenuMap::iterator iter, int index)
