@@ -170,5 +170,5 @@ public:
   void RenameConfigFile();
   BYTE GetMenuAlpha();
   void SetActiveMenu(HMENU menu);
-  bool NewMenuItem(MENUITEMDATA *menuItemData, TiXmlElement *newElement, HMENU menu, POINT pt);
+  bool NewMenuItem(MENUITEMDATA *menuItemData, HMENU menu, POINT pt);
 };

@@ -237,7 +237,7 @@ LRESULT MenuBuilder::DoCopyData(COPYDATASTRUCT *cds)
     {
       LPNEWMENUITEMDATA newMenuItemData = reinterpret_cast< LPNEWMENUITEMDATA >(cds->lpData);
 
-      NewMenuItem(&newMenuItemData->menuItemData, newMenuItemData->newElement, newMenuItemData->menu, newMenuItemData->pt);
+      NewMenuItem(&newMenuItemData->menuItemData, newMenuItemData->menu, newMenuItemData->pt);
 
       return 1;
     }
@@ -461,6 +461,7 @@ LRESULT MenuBuilder::DoMenuDrag(HWND hwnd UNUSED, UINT pos, HMENU menu)
   menuItemData.type = menuItem->GetType();
   wcscpy(menuItemData.value, menuItem->GetValue());
   wcscpy(menuItemData.workingDir, menuItem->GetWorkingDir());
+  menuItemData.element =  menuItem->GetElement();
 
   stgmed.hGlobal = MenuItemInfoToHandle(&menuItemData);
 
@@ -613,21 +614,14 @@ void MenuBuilder::ElevatedExecute(MenuItem *menuItem)
   ELExecute(menuItem->GetValue(), menuItem->GetWorkingDir(), SW_SHOW, (WCHAR*)TEXT("runas"));
 }
 
-bool MenuBuilder::NewMenuItem(MENUITEMDATA *menuItemData, TiXmlElement *newElement, HMENU menu, POINT pt)
+bool MenuBuilder::NewMenuItem(MENUITEMDATA *menuItemData, HMENU menu, POINT pt)
 {
   MenuMap::iterator iter = menuMap.find(menu);
 
   if (iter == menuMap.end())
     return false;
 
-  TiXmlDocument *configXML = ELGetXMLConfig(newElement);
-  ELWriteXMLStringValue(newElement, TEXT("Name"), menuItemData->name);
-  ELWriteXMLIntValue(newElement, TEXT("Type"), menuItemData->type);
-  ELWriteXMLStringValue(newElement, TEXT("Value"), menuItemData->value);
-  ELWriteXMLStringValue(newElement, TEXT("WorkingDir"), menuItemData->workingDir);
-  ELWriteXMLConfig(configXML);
-
-  MenuItem *menuItem = new MenuItem(menuItemData->name, menuItemData->type, menuItemData->value, menuItemData->workingDir, newElement, menu);
+  MenuItem *menuItem = new MenuItem(menuItemData->name, menuItemData->type, menuItemData->value, menuItemData->workingDir, menuItemData->element, menu);
   iter->second->AddMenuItem(menuItem);
 
   MENUITEMINFO menuItemInfo;

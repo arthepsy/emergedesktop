@@ -778,6 +778,15 @@ TiXmlElement *ELGetSiblingXMLElement(TiXmlElement *xmlElement)
   return xmlElement->NextSiblingElement();
 }
 
+TiXmlElement *ELCloneXMLElement(TiXmlElement *sourceElement, TiXmlElement *targetElement)
+{
+  TiXmlElement *sibling, *newElement = sourceElement->Clone()->ToElement();
+
+  sibling = targetElement->Parent()->InsertBeforeChild(targetElement, *newElement)->ToElement();
+
+  return sibling;
+}
+
 TiXmlElement *ELSetSibilingXMLElement(TiXmlElement *xmlElement, const WCHAR *elementName, bool insertAfter)
 {
   std::string narrowElement = ELwstringTostring(elementName);

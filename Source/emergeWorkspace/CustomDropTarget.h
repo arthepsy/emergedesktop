@@ -25,7 +25,6 @@
 typedef struct _NEWMENUITEMDATA
 {
   MENUITEMDATA menuItemData;
-  TiXmlElement *newElement;
   HMENU menu;
   POINT pt;
 }

@@ -103,9 +103,11 @@ bool CustomDropTarget::DataDrop(IDataObject *pDataObj, POINTL pt)
           void *data = GlobalLock(stgmed.hGlobal);
           MENUITEMDATA *menuItemData = reinterpret_cast< MENUITEMDATA* >(data);
 
-          TiXmlElement *newElement = ELSetSibilingXMLElement(dropElement, (WCHAR*)TEXT("item"), false);
+          TiXmlElement *newElement = ELCloneXMLElement(menuItemData->element, dropElement);
           if (newElement)
             {
+              ELWriteXMLConfig(ELGetXMLConfig(newElement));
+
               NEWMENUITEMDATA newMenuItemData;
               COPYDATASTRUCT cds;
               POINT menuItemPt;
@@ -115,7 +117,6 @@ bool CustomDropTarget::DataDrop(IDataObject *pDataObj, POINTL pt)
               ZeroMemory(&newMenuItemData, sizeof(NEWMENUITEMDATA));
               CopyMemory(&newMenuItemData.menuItemData, menuItemData, sizeof(NEWMENUITEMDATA));
               newMenuItemData.menu = dropMenu;
-              newMenuItemData.newElement = newElement;
               newMenuItemData.pt = menuItemPt;
 
               cds.dwData = EMERGE_NEWITEM;
