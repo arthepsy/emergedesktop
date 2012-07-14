@@ -1912,22 +1912,25 @@ LRESULT MenuBuilder::ExecuteMenuItem(UINT itemID)
   if (iter == menuMap.end())
     return 1;
 
-  menuItem = iter->second->FindMenuItem(itemID);
-  swprintf(error, TEXT("Failed to execute \"%ls\""), menuItem->GetValue());
-
   switch (iter->second->GetType())
     {
     case IT_XML_MENU:
+      menuItem = iter->second->FindMenuItem(itemID);
       ExecuteXMLMenuItem(menuItem->GetType(),
                          menuItem->GetValue(),
                          menuItem->GetWorkingDir());
       break;
     case IT_FILE_SUBMENU:
     case IT_FILE_MENU:
+      menuItem = iter->second->FindMenuItem(itemID);
       if (!ELExecute(menuItem->GetValue()))
-        ELMessageBox(GetDesktopWindow(), error, (WCHAR*)TEXT("emergeWorkspace"), ELMB_ICONWARNING|ELMB_OK);
+        {
+          swprintf(error, TEXT("Failed to execute \"%ls\""), menuItem->GetValue());
+          ELMessageBox(GetDesktopWindow(), error, (WCHAR*)TEXT("emergeWorkspace"), ELMB_ICONWARNING|ELMB_OK);
+        }
       break;
     case IT_TASKS_MENU:
+      menuItem = iter->second->FindMenuItem(itemID);
 #ifdef _W64
       ELSwitchToThisWindow((HWND)_wcstoi64(menuItem->GetValue(), NULL, 10));
 #else
@@ -2120,7 +2123,7 @@ void MenuBuilder::ExecuteSettingsMenuItem(UINT index)
   std::wstring aliasFile;
   Config config(mainInst, pSettings);
 
-  switch (++index)
+  switch (index)
     {
       int res;
     case BSM_CONFIGURE:
@@ -2145,7 +2148,7 @@ void MenuBuilder::ExecuteSettingsMenuItem(UINT index)
 
 void MenuBuilder::ExecuteHelpMenuItem(UINT index)
 {
-  switch (++index)
+  switch (index)
     {
     case BHM_ABOUT:
       ELExecuteInternal((WCHAR*)TEXT("About"));
