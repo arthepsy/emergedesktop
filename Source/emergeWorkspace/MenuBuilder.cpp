@@ -237,7 +237,7 @@ LRESULT MenuBuilder::DoCopyData(COPYDATASTRUCT *cds)
     {
       LPNEWMENUITEMDATA newMenuItemData = reinterpret_cast< LPNEWMENUITEMDATA >(cds->lpData);
 
-      NewMenuItem(&newMenuItemData->menuItemData, newMenuItemData->newElement, newMenuItemData->menu);
+      NewMenuItem(&newMenuItemData->menuItemData, newMenuItemData->newElement, newMenuItemData->menu, newMenuItemData->pt);
 
       return 1;
     }
@@ -306,7 +306,7 @@ LRESULT MenuBuilder::DoCopyData(COPYDATASTRUCT *cds)
   return 0;
 }
 
-bool MenuBuilder::MenuDrop(HMENU dragMenu, UINT dragPos)
+/*bool MenuBuilder::MenuDrop(HMENU dragMenu, UINT dragPos)
 {
   MENUITEMINFO dragItemInfo, dropItemInfo;
   MenuItem *dragItem, *dropItem;
@@ -343,15 +343,11 @@ bool MenuBuilder::MenuDrop(HMENU dragMenu, UINT dragPos)
     return false;
 
   // Retrieve the drag menu item and XML element based on the menu item ID
-  UINT dragItemID = dragItemInfo.wID;
-  dragItemID--;
-  dragItem = dragIter->second->GetMenuItem(dragItemID);
+  dragItem = dragIter->second->FindMenuItem(dragItemInfo.wID);
   TiXmlElement *dragElement = dragItem->GetElement();
 
   // Retrieve the drop menu item and XML element based on the menu item ID
-  UINT dropItemID = dropItemInfo.wID;
-  dropItemID--;
-  dropItem = dropIter->second->GetMenuItem(dropItemID);
+  dropItem = dropIter->second->FindMenuItem(dropItemInfo.wID);
   TiXmlElement *dropElement = dropItem->GetElement();
 
   TiXmlDocument *configXML = ELGetXMLConfig(dragElement);
@@ -386,7 +382,7 @@ bool MenuBuilder::MenuDrop(HMENU dragMenu, UINT dragPos)
       ELWriteXMLConfig(configXML);
     }
   return true;
-}
+}*/
 
 LRESULT MenuBuilder::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
@@ -413,9 +409,7 @@ LRESULT MenuBuilder::DoMenuGetObject(HWND hwnd UNUSED, MENUGETOBJECTINFO *mgoInf
   if (!GetMenuItemInfo(iter->first, mgoInfo->uPos, TRUE, &menuItemInfo))
     return MNGO_NOINTERFACE;
 
-  UINT itemID = menuItemInfo.wID;
-  itemID--;
-  dropTarget = iter->second->GetMenuItem(itemID)->GetDropTarget();
+  dropTarget = iter->second->FindMenuItem(menuItemInfo.wID)->GetDropTarget();
 
   dropMenu = mgoInfo->hmenu;
   dropPos = mgoInfo->uPos;
@@ -442,9 +436,7 @@ LRESULT MenuBuilder::DoMenuDrag(HWND hwnd UNUSED, UINT pos, HMENU menu)
   if (!GetMenuItemInfo(iter->first, pos, TRUE, &menuItemInfo))
     return MND_ENDMENU;
 
-  UINT itemID = menuItemInfo.wID;
-  itemID--;
-  MenuItem *menuItem = iter->second->GetMenuItem(itemID);
+  MenuItem *menuItem = iter->second->FindMenuItem(menuItemInfo.wID);
 
   FORMATETC fmtetc;
   STGMEDIUM stgmed;
@@ -464,10 +456,11 @@ LRESULT MenuBuilder::DoMenuDrag(HWND hwnd UNUSED, UINT pos, HMENU menu)
   ZeroMemory(&stgmed, sizeof(STGMEDIUM));
   stgmed.tymed = TYMED_HGLOBAL;
 
-  wcsncpy(menuItemData.name, menuItem->GetName(), wcslen(menuItem->GetName()));
+  ZeroMemory(&menuItemData, sizeof(MENUITEMDATA));
+  wcscpy(menuItemData.name, menuItem->GetName());
   menuItemData.type = menuItem->GetType();
-  wcsncpy(menuItemData.value, menuItem->GetValue(), wcslen(menuItem->GetValue()));
-  wcsncpy(menuItemData.workingDir, menuItem->GetWorkingDir(), wcslen(menuItem->GetWorkingDir()));
+  wcscpy(menuItemData.value, menuItem->GetValue());
+  wcscpy(menuItemData.workingDir, menuItem->GetWorkingDir());
 
   stgmed.hGlobal = MenuItemInfoToHandle(&menuItemData);
 
@@ -523,7 +516,6 @@ LRESULT MenuBuilder::DoContextMenu()
   TiXmlElement *element;
   TiXmlDocument *configXML;
   WCHAR value[MAX_LINE_LENGTH];
-  UINT itemID = 0;
   POINT pt;
   int index;
 
@@ -545,8 +537,6 @@ LRESULT MenuBuilder::DoContextMenu()
     return 0;
 
   subMenu = menuItemInfo.hSubMenu;
-  itemID = menuItemInfo.wID;
-  itemID--;
 
   if (subMenu)
     {
@@ -557,15 +547,15 @@ LRESULT MenuBuilder::DoContextMenu()
       wcscpy(value, subIter->second->GetValue());
     }
   else
-    wcscpy(value, iter->second->GetMenuItem(itemID)->GetValue());
+    wcscpy(value, iter->second->FindMenuItem(menuItemInfo.wID)->GetValue());
 
-  element = iter->second->GetMenuItem(itemID)->GetElement();
+  element = iter->second->FindMenuItem(menuItemInfo.wID)->GetElement();
 
   switch (iter->second->GetType())
     {
       int res;
     case IT_XML_MENU:
-      res = DisplayRegContext(pt, iter->second->GetMenuItem(itemID)->GetType());
+      res = DisplayRegContext(pt, iter->second->FindMenuItem(menuItemInfo.wID)->GetType());
       switch (res)
         {
         case DRM_DELETE:
@@ -583,7 +573,7 @@ LRESULT MenuBuilder::DoContextMenu()
           AddMenuItem(iter, index);
           break;
         case DRM_RUNAS:
-          ElevatedExecute(iter->second->GetMenuItem(itemID));
+          ElevatedExecute(iter->second->FindMenuItem(menuItemInfo.wID));
           break;
         }
       break;
@@ -623,21 +613,64 @@ void MenuBuilder::ElevatedExecute(MenuItem *menuItem)
   ELExecute(menuItem->GetValue(), menuItem->GetWorkingDir(), SW_SHOW, (WCHAR*)TEXT("runas"));
 }
 
-bool MenuBuilder::NewMenuItem(MENUITEMDATA *menuItemData, TiXmlElement *newElement, HMENU menu)
+bool MenuBuilder::NewMenuItem(MENUITEMDATA *menuItemData, TiXmlElement *newElement, HMENU menu, POINT pt)
 {
   MenuMap::iterator iter = menuMap.find(menu);
 
   if (iter == menuMap.end())
     return false;
 
-  iter->second->AddMenuItem(new MenuItem(menuItemData->name, menuItemData->type, menuItemData->value, menuItemData->workingDir, newElement, menu));
+  TiXmlDocument *configXML = ELGetXMLConfig(newElement);
+  ELWriteXMLStringValue(newElement, TEXT("Name"), menuItemData->name);
+  ELWriteXMLIntValue(newElement, TEXT("Type"), menuItemData->type);
+  ELWriteXMLStringValue(newElement, TEXT("Value"), menuItemData->value);
+  ELWriteXMLStringValue(newElement, TEXT("WorkingDir"), menuItemData->workingDir);
+  ELWriteXMLConfig(configXML);
+
+  MenuItem *menuItem = new MenuItem(menuItemData->name, menuItemData->type, menuItemData->value, menuItemData->workingDir, newElement, menu);
+  iter->second->AddMenuItem(menuItem);
+
+  MENUITEMINFO menuItemInfo;
+  ZeroMemory(&menuItemInfo, sizeof(MENUITEMINFO));
+  menuItemInfo.cbSize = sizeof(MENUITEMINFO);
+  menuItemInfo.fMask = MIIM_ID | MIIM_STRING;
+  menuItemInfo.dwTypeData = menuItemData->name;
+  menuItemInfo.cch = MAX_LINE_LENGTH;
+  menuItemInfo.wID = reinterpret_cast< UINT >(menuItem);
+
+  if (pSettings->GetMenuIcons())
+    {
+      menuItem->SetIcon();
+      if ((winVersion >= 6.0) && pSettings->GetAeroMenus())
+        {
+          menuItemInfo.fMask |= MIIM_BITMAP;
+          menuItemInfo.hbmpItem = EGGetIconBitmap(menuItem->GetIcon());
+        }
+    }
+
+  // Insert the new element
+  UINT dropPos = 0;
+  UINT menuItemCount = (UINT)GetMenuItemCount(menu);
+  RECT menuItemRect;
+
+  while (dropPos < menuItemCount)
+    {
+      if (GetMenuItemRect(NULL, dropMenu, dropPos, &menuItemRect))
+        {
+          if (PtInRect(&menuItemRect, pt))
+            break;
+        }
+
+      dropPos++;
+    }
+
+  InsertMenuItem(dropMenu, dropPos, TRUE, &menuItemInfo);
 
   return true;
 }
 
 bool MenuBuilder::AddMenuItem(MenuMap::iterator iter, int index)
 {
-  UINT itemID;
   int type;
   MENUITEMINFO menuItemInfo;
   TiXmlElement *element, *newElement, *subMenu, *subItem;;
@@ -650,16 +683,14 @@ bool MenuBuilder::AddMenuItem(MenuMap::iterator iter, int index)
   if (!GetMenuItemInfo(iter->first, index, TRUE, &menuItemInfo))
     return false;
 
-  itemID = menuItemInfo.wID;
-  itemID--;
-  element = iter->second->GetMenuItem(itemID)->GetElement();
+  element = iter->second->FindMenuItem(menuItemInfo.wID)->GetElement();
 
   if (!element)
     return false;
 
   menuItem = new MenuItem((WCHAR*)TEXT("New Item"), -1, NULL, NULL, NULL, iter->first);
 
-  menuItemInfo.wID = GetMenuItemCount(iter->first) + 1;
+  menuItemInfo.wID = reinterpret_cast< UINT >(menuItem);
 
   iter->second->AddMenuItem(menuItem);
 
@@ -706,7 +737,7 @@ bool MenuBuilder::AddMenuItem(MenuMap::iterator iter, int index)
 bool MenuBuilder::EditMenuItem(MenuMap::iterator iter, int index)
 {
   WCHAR name[MAX_LINE_LENGTH], value[MAX_LINE_LENGTH], workingDir[MAX_LINE_LENGTH];
-  UINT type, itemID;
+  UINT type;
   MENUITEMINFO menuItemInfo;
   TiXmlElement *element;
 
@@ -716,13 +747,12 @@ bool MenuBuilder::EditMenuItem(MenuMap::iterator iter, int index)
   if (!GetMenuItemInfo(iter->first, index, TRUE, &menuItemInfo))
     return false;
 
-  itemID = menuItemInfo.wID;
-  itemID--;
-  wcscpy(value, iter->second->GetMenuItem(itemID)->GetValue());
-  wcscpy(name, iter->second->GetMenuItem(itemID)->GetName());
-  wcscpy(workingDir, iter->second->GetMenuItem(itemID)->GetWorkingDir());
-  type = iter->second->GetMenuItem(itemID)->GetType();
-  element = iter->second->GetMenuItem(itemID)->GetElement();
+  MenuItem *menuItem = iter->second->FindMenuItem(menuItemInfo.wID);
+  wcscpy(value, menuItem->GetValue());
+  wcscpy(name, menuItem->GetName());
+  wcscpy(workingDir, menuItem->GetWorkingDir());
+  type = menuItem->GetType();
+  element = menuItem->GetElement();
 
   pItemEditor->Show(element, name, value, type, workingDir);
 
@@ -783,7 +813,7 @@ BOOL MenuBuilder::DoDrawItem(LPDRAWITEMSTRUCT lpDrawItem)
     {
       iter = menuMap.find((HMENU)lpDrawItem->hwndItem);
       if (iter != menuMap.end())
-        icon = iter->second->GetMenuItem(lpDrawItem->itemID - 1)->GetIcon();
+        icon = iter->second->FindMenuItem(lpDrawItem->itemID)->GetIcon();
 
       if (icon != NULL)
         DrawIconEx(lpDrawItem->hDC, lpDrawItem->rcItem.left, lpDrawItem->rcItem.top, icon, 16, 16, 0, NULL, DI_NORMAL);
@@ -962,7 +992,7 @@ void MenuBuilder::BuildXMLMenu(MenuMap::iterator iter)
           itemInfo.cbSize = sizeof(MENUITEMINFO);
           itemInfo.dwTypeData = name;
           itemInfo.fType = MFT_SEPARATOR;
-          itemInfo.wID = GetMenuItemCount(iter->first) + 1;
+          itemInfo.wID = reinterpret_cast< UINT >(menuItem);
 
           iter->second->AddMenuItem(menuItem);
 
@@ -998,7 +1028,7 @@ void MenuBuilder::BuildXMLMenu(MenuMap::iterator iter)
                     }
                 }
 
-              itemInfo.wID = GetMenuItemCount(iter->first) + 1;
+              itemInfo.wID = reinterpret_cast< UINT >(menuItem);
 
               iter->second->AddMenuItem(menuItem);
 
@@ -1038,7 +1068,7 @@ void MenuBuilder::BuildXMLMenu(MenuMap::iterator iter)
                         }
                     }
 
-                  itemInfo.wID = GetMenuItemCount(iter->first) + 1;
+                  itemInfo.wID = reinterpret_cast< UINT >(menuItem);
 
                   iter->second->AddMenuItem(menuItem);
 
@@ -1066,7 +1096,7 @@ void MenuBuilder::BuildXMLMenu(MenuMap::iterator iter)
               itemInfo.fMask = MIIM_STRING|MIIM_ID;
               itemInfo.cbSize = sizeof(MENUITEMINFO);
               itemInfo.dwTypeData = datetimeString;
-              itemInfo.wID = GetMenuItemCount(iter->first) + 1;
+              itemInfo.wID = reinterpret_cast< UINT >(menuItem);
 
               iter->second->AddMenuItem(menuItem);
 
@@ -1102,7 +1132,7 @@ void MenuBuilder::BuildXMLMenu(MenuMap::iterator iter)
                     }
                 }
 
-              itemInfo.wID = GetMenuItemCount(iter->first) + 1;
+              itemInfo.wID = reinterpret_cast< UINT >(menuItem);
 
               iter->second->AddMenuItem(menuItem);
 
@@ -1139,7 +1169,7 @@ void MenuBuilder::BuildXMLMenu(MenuMap::iterator iter)
                 }
             }
 
-          itemInfo.wID = GetMenuItemCount(iter->first) + 1;
+          itemInfo.wID = reinterpret_cast< UINT >(menuItem);
 
           iter->second->AddMenuItem(menuItem);
           InsertMenuItem(iter->first, i, TRUE, &itemInfo);
@@ -1181,7 +1211,7 @@ void MenuBuilder::BuildXMLMenu(MenuMap::iterator iter)
                 }
             }
 
-          itemInfo.wID = GetMenuItemCount(iter->first) + 1;
+          itemInfo.wID = reinterpret_cast< UINT >(menuItem);
           iter->second->AddMenuItem(menuItem);
           InsertMenuItem(iter->first, i, TRUE, &itemInfo);
 
@@ -1221,7 +1251,7 @@ void MenuBuilder::BuildXMLMenu(MenuMap::iterator iter)
                 }
             }
 
-          itemInfo.wID = GetMenuItemCount(iter->first) + 1;
+          itemInfo.wID = reinterpret_cast< UINT >(menuItem);
           iter->second->AddMenuItem(menuItem);
           InsertMenuItem(iter->first, i, TRUE, &itemInfo);
 
@@ -1516,7 +1546,7 @@ void MenuBuilder::BuildFileMenuFromString(MenuMap::iterator iter, WCHAR *parsedV
               menuItem->SetName(tmp);
               mli->SetName(tmp);
 
-              itemInfo.wID = GetMenuItemCount(iter->first) + 1;
+              itemInfo.wID = reinterpret_cast< UINT >(menuItem);
               itemInfo.dwItemData = (ULONG_PTR)subMenu;
 
               iter->second->AddMenuItem(menuItem);
@@ -1531,7 +1561,7 @@ void MenuBuilder::BuildFileMenuFromString(MenuMap::iterator iter, WCHAR *parsedV
               WCHAR path[MAX_LINE_LENGTH];
               iter2 = menuMap.find((HMENU)itemData);
 
-              menuItem = iter->second->GetMenuItem(itemID - 1);
+              menuItem = iter->second->FindMenuItem(itemID);
               mli = iter2->second;
 
               wcscpy(path, menuItem->GetValue());
@@ -1570,7 +1600,7 @@ void MenuBuilder::BuildFileMenuFromString(MenuMap::iterator iter, WCHAR *parsedV
               targetInfo.flags = SI_PATH;
               WCHAR targetURL[MAX_LINE_LENGTH], entryURL[MAX_LINE_LENGTH];
 
-              menuItem = iter->second->GetMenuItem(itemID - 1);
+              menuItem = iter->second->FindMenuItem(itemID);
 
               if (lwrEntry)
                 free(lwrEntry);
@@ -1625,7 +1655,7 @@ void MenuBuilder::BuildFileMenuFromString(MenuMap::iterator iter, WCHAR *parsedV
           itemInfo.cbSize = sizeof(MENUITEMINFO);
           itemInfo.dwTypeData = tmp;
 
-          itemInfo.wID = GetMenuItemCount(iter->first) + 1;
+          itemInfo.wID = reinterpret_cast< UINT >(menuItem);
 
           iter->second->AddMenuItem(menuItem);
 
@@ -1721,7 +1751,7 @@ void MenuBuilder::AddTaskItem(HWND task)
   itemInfo.cbSize = sizeof(MENUITEMINFO);
   itemInfo.dwTypeData = windowTitle;
 
-  itemInfo.wID = GetMenuItemCount(iter->first) + 1;
+  itemInfo.wID = reinterpret_cast< UINT >(menuItem);
 
   iter->second->AddMenuItem(menuItem);
 
@@ -1876,14 +1906,13 @@ LRESULT MenuBuilder::ExecuteMenuItem(UINT itemID)
 {
   MenuMap::iterator iter;
   MenuItem *menuItem;
-  itemID--;
   WCHAR error[MAX_LINE_LENGTH];
 
   iter = menuMap.find(SelectedMenu);
   if (iter == menuMap.end())
     return 1;
 
-  menuItem = iter->second->GetMenuItem(itemID);
+  menuItem = iter->second->FindMenuItem(itemID);
   swprintf(error, TEXT("Failed to execute \"%ls\""), menuItem->GetValue());
 
   switch (iter->second->GetType())

@@ -53,6 +53,11 @@ MenuItem::~MenuItem()
   DestroyIcon(icon);
 }
 
+UINT MenuItem::GetID()
+{
+  return reinterpret_cast<UINT>(this);
+}
+
 UINT MenuItem::GetType()
 {
   return type;

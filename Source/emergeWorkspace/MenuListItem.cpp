@@ -76,6 +76,25 @@ UINT MenuListItem::GetType()
   return type;
 }
 
+MenuItem *MenuListItem::FindMenuItem(UINT id)
+{
+  MenuItem *menuItem = NULL;
+  std::vector< std::tr1::shared_ptr<MenuItem> >::iterator iter = menuItems.begin();
+
+  while (iter != menuItems.end())
+  {
+    if ((*iter)->GetID() == id)
+      break;
+
+    iter++;
+  }
+
+  if (iter != menuItems.end())
+    menuItem = iter->get();
+
+  return menuItem;
+}
+
 MenuItem *MenuListItem::GetMenuItem(UINT index)
 {
   return menuItems[index].get();

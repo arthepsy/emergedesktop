@@ -89,7 +89,6 @@ bool CustomDropTarget::DataDrop(IDataObject *pDataObj, POINTL pt)
 {
   FORMATETC fmtetc;
   STGMEDIUM stgmed;
-  MENUITEMINFO menuItemInfo;
 
   ZeroMemory(&fmtetc, sizeof(FORMATETC));
   fmtetc.cfFormat = CF_EMERGE_MENUITEM;
@@ -107,22 +106,17 @@ bool CustomDropTarget::DataDrop(IDataObject *pDataObj, POINTL pt)
           TiXmlElement *newElement = ELSetSibilingXMLElement(dropElement, (WCHAR*)TEXT("item"), false);
           if (newElement)
             {
-              TiXmlDocument *configXML = ELGetXMLConfig(dropElement);
-
-              // Set the new element attributes based on the drag item attributes
-              ELWriteXMLStringValue(newElement, TEXT("Name"), menuItemData->name);
-              ELWriteXMLIntValue(newElement, TEXT("Type"), menuItemData->type);
-              ELWriteXMLStringValue(newElement, TEXT("Value"), menuItemData->value);
-              ELWriteXMLStringValue(newElement, TEXT("WorkingDir"), menuItemData->workingDir);
-              ELWriteXMLConfig(configXML);
-
               NEWMENUITEMDATA newMenuItemData;
               COPYDATASTRUCT cds;
+              POINT menuItemPt;
+              menuItemPt.x = pt.x;
+              menuItemPt.y = pt.y;
 
               ZeroMemory(&newMenuItemData, sizeof(NEWMENUITEMDATA));
               CopyMemory(&newMenuItemData.menuItemData, menuItemData, sizeof(NEWMENUITEMDATA));
               newMenuItemData.menu = dropMenu;
               newMenuItemData.newElement = newElement;
+              newMenuItemData.pt = menuItemPt;
 
               cds.dwData = EMERGE_NEWITEM;
               cds.cbData = sizeof(NEWMENUITEMDATA);
@@ -131,34 +125,6 @@ bool CustomDropTarget::DataDrop(IDataObject *pDataObj, POINTL pt)
               SendMessageTimeout(FindWindow(TEXT("EmergeDesktopMenuBuilder"), NULL),
                                  WM_COPYDATA, 0, (LPARAM)&cds,
                                  SMTO_ABORTIFHUNG, 500, NULL);
-
-              ZeroMemory(&menuItemInfo, sizeof(MENUITEMINFO));
-              menuItemInfo.cbSize = sizeof(MENUITEMINFO);
-              menuItemInfo.fMask = MIIM_ID | MIIM_STRING | MIIM_BITMAP;
-              menuItemInfo.dwTypeData = menuItemData->name;
-              menuItemInfo.cch = MAX_LINE_LENGTH;
-              menuItemInfo.wID = GetMenuItemCount(dropMenu) + 1;
-
-              // Insert the new element
-              UINT dropPos = 0;
-              UINT menuItemCount = (UINT)GetMenuItemCount(dropMenu);
-              RECT menuItemRect;
-              POINT menuItemPt;
-              menuItemPt.x = pt.x;
-              menuItemPt.y = pt.y;
-
-              while (dropPos < menuItemCount)
-                {
-                  if (GetMenuItemRect(NULL, dropMenu, dropPos, &menuItemRect))
-                    {
-                      if (PtInRect(&menuItemRect, menuItemPt))
-                        break;
-                    }
-
-                  dropPos++;
-                }
-
-              InsertMenuItem(dropMenu, dropPos, TRUE, &menuItemInfo);
             }
 
           GlobalUnlock(stgmed.hGlobal);

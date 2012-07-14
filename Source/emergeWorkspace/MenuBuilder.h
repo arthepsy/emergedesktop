@@ -145,7 +145,7 @@ private:
   HMENU activeMenu;
   HMENU dropMenu;
   UINT dropPos;
-  bool MenuDrop(HMENU dragMenu, UINT dragPos);
+  //bool MenuDrop(HMENU dragMenu, UINT dragPos);
   HANDLE MenuItemInfoToHandle(MENUITEMDATA *menuItemData);
 
 public:
@@ -170,5 +170,5 @@ public:
   void RenameConfigFile();
   BYTE GetMenuAlpha();
   void SetActiveMenu(HMENU menu);
-  bool NewMenuItem(MENUITEMDATA *menuItemData, TiXmlElement *newElement, HMENU menu);
+  bool NewMenuItem(MENUITEMDATA *menuItemData, TiXmlElement *newElement, HMENU menu, POINT pt);
 };

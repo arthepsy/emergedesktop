@@ -40,6 +40,7 @@ public:
   UINT GetMenuItemCount();
   void AddMenuItem(MenuItem *menuItem);
   void DeleteMenuItem(UINT index);
+  MenuItem *FindMenuItem(UINT id);
 
 private:
   WCHAR value[MAX_LINE_LENGTH], name[MAX_LINE_LENGTH];
