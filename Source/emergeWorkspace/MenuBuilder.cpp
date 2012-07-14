@@ -482,7 +482,7 @@ LRESULT MenuBuilder::DoMenuDrag(HWND hwnd UNUSED, UINT pos, HMENU menu)
           if (ELRemoveXMLElement(menuElement))
             {
               ELWriteXMLConfig(configXML);
-              DeleteMenu(menu, pos, MF_BYPOSITION);
+              DeleteMenu(menu, menuItem->GetID(), MF_BYCOMMAND);
             }
         }
     }
