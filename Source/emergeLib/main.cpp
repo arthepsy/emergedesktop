@@ -780,9 +780,12 @@ TiXmlElement *ELGetSiblingXMLElement(TiXmlElement *xmlElement)
 
 TiXmlElement *ELCloneXMLElement(TiXmlElement *sourceElement, TiXmlElement *targetElement)
 {
-  TiXmlElement *sibling, *newElement = sourceElement->Clone()->ToElement();
+  TiXmlElement *sibling = NULL, *newElement = NULL;
+  if (sourceElement)
+    newElement = sourceElement->Clone()->ToElement();
 
-  sibling = targetElement->Parent()->InsertBeforeChild(targetElement, *newElement)->ToElement();
+  if (targetElement && newElement)
+    sibling = targetElement->Parent()->InsertBeforeChild(targetElement, *newElement)->ToElement();
 
   return sibling;
 }
