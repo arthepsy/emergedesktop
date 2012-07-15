@@ -116,6 +116,7 @@ bool CustomDropTarget::DataDrop(IDataObject *pDataObj, POINTL pt)
 
               ZeroMemory(&newMenuItemData, sizeof(NEWMENUITEMDATA));
               CopyMemory(&newMenuItemData.menuItemData, menuItemData, sizeof(NEWMENUITEMDATA));
+              newMenuItemData.newElement = newElement;
               newMenuItemData.menu = dropMenu;
               newMenuItemData.pt = menuItemPt;
 
@@ -123,9 +124,8 @@ bool CustomDropTarget::DataDrop(IDataObject *pDataObj, POINTL pt)
               cds.cbData = sizeof(NEWMENUITEMDATA);
               cds.lpData = &newMenuItemData;
 
-              SendMessageTimeout(FindWindow(TEXT("EmergeDesktopMenuBuilder"), NULL),
-                                 WM_COPYDATA, 0, (LPARAM)&cds,
-                                 SMTO_ABORTIFHUNG, 500, NULL);
+              SendMessage(FindWindow(TEXT("EmergeDesktopMenuBuilder"), NULL),
+                          WM_COPYDATA, 0, (LPARAM)&cds);
             }
 
           GlobalUnlock(stgmed.hGlobal);
