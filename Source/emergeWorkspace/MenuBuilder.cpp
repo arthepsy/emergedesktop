@@ -237,7 +237,7 @@ LRESULT MenuBuilder::DoCopyData(COPYDATASTRUCT *cds)
     {
       LPNEWMENUITEMDATA newMenuItemData = reinterpret_cast< LPNEWMENUITEMDATA >(cds->lpData);
 
-      NewMenuItem(&newMenuItemData->menuItemData, newMenuItemData->menu, newMenuItemData->pt);
+      DropMenuItem(&newMenuItemData->menuItemData, newMenuItemData->newElement, newMenuItemData->menu, newMenuItemData->pt);
 
       return 1;
     }
@@ -463,7 +463,7 @@ LRESULT MenuBuilder::DoMenuDrag(HWND hwnd UNUSED, UINT pos, HMENU menu)
   wcscpy(menuItemData.workingDir, menuItem->GetWorkingDir());
   menuItemData.element =  menuItem->GetElement();
 
-  stgmed.hGlobal = MenuItemInfoToHandle(&menuItemData);
+  stgmed.hGlobal = MenuItemDataToHandle(&menuItemData);
 
   dropEffects = DROPEFFECT_MOVE | DROPEFFECT_COPY;
 
@@ -483,6 +483,12 @@ LRESULT MenuBuilder::DoMenuDrag(HWND hwnd UNUSED, UINT pos, HMENU menu)
           if (ELRemoveXMLElement(menuElement))
             {
               ELWriteXMLConfig(configXML);
+              if (menuItem->GetType() == IT_XML_MENU)
+                {
+                  subIter = menuMap.find(menuItemInfo.hSubMenu);
+                  if (subIter != menuMap.end())
+                    ClearMenu(subIter);
+                }
               DeleteMenu(menu, menuItem->GetID(), MF_BYCOMMAND);
             }
         }
@@ -496,7 +502,7 @@ LRESULT MenuBuilder::DoMenuDrag(HWND hwnd UNUSED, UINT pos, HMENU menu)
   return MND_CONTINUE;
 }
 
-HANDLE MenuBuilder::MenuItemInfoToHandle(MENUITEMDATA *menuItemData)
+HANDLE MenuBuilder::MenuItemDataToHandle(MENUITEMDATA *menuItemData)
 {
   void *ptr = NULL;
 
@@ -614,14 +620,14 @@ void MenuBuilder::ElevatedExecute(MenuItem *menuItem)
   ELExecute(menuItem->GetValue(), menuItem->GetWorkingDir(), SW_SHOW, (WCHAR*)TEXT("runas"));
 }
 
-bool MenuBuilder::NewMenuItem(MENUITEMDATA *menuItemData, HMENU menu, POINT pt)
+bool MenuBuilder::DropMenuItem(MENUITEMDATA *menuItemData, TiXmlElement *newElement, HMENU menu, POINT pt)
 {
   MenuMap::iterator iter = menuMap.find(menu);
 
   if (iter == menuMap.end())
     return false;
 
-  MenuItem *menuItem = new MenuItem(menuItemData->name, menuItemData->type, menuItemData->value, menuItemData->workingDir, menuItemData->element, menu);
+  MenuItem *menuItem = new MenuItem(menuItemData->name, menuItemData->type, menuItemData->value, menuItemData->workingDir, newElement, menu);
   iter->second->AddMenuItem(menuItem);
 
   MENUITEMINFO menuItemInfo;
@@ -631,6 +637,11 @@ bool MenuBuilder::NewMenuItem(MENUITEMDATA *menuItemData, HMENU menu, POINT pt)
   menuItemInfo.dwTypeData = menuItemData->name;
   menuItemInfo.cch = MAX_LINE_LENGTH;
   menuItemInfo.wID = reinterpret_cast< UINT >(menuItem);
+  if ((winVersion < 6.0) || !pSettings->GetAeroMenus())
+    {
+      menuItemInfo.hbmpItem = HBMMENU_CALLBACK;
+      menuItemInfo.fMask |= MIIM_BITMAP;
+    }
 
   if (pSettings->GetMenuIcons())
     {
@@ -642,23 +653,21 @@ bool MenuBuilder::NewMenuItem(MENUITEMDATA *menuItemData, HMENU menu, POINT pt)
         }
     }
 
-  // Insert the new element
-  UINT dropPos = 0;
-  UINT menuItemCount = (UINT)GetMenuItemCount(menu);
-  RECT menuItemRect;
-
-  while (dropPos < menuItemCount)
+  if (menuItemData->type == IT_XML_MENU)
     {
-      if (GetMenuItemRect(NULL, dropMenu, dropPos, &menuItemRect))
-        {
-          if (PtInRect(&menuItemRect, pt))
-            break;
-        }
-
-      dropPos++;
+      menuItemInfo.fMask |= MIIM_SUBMENU;
+      menuItemInfo.hSubMenu = CreatePopupMenu();
+      TiXmlElement *subSection = ELGetFirstXMLElementByName(menuItemData->element, (WCHAR*)TEXT("Submenu"), false);
+      std::tr1::shared_ptr<MenuListItem> mli(new MenuListItem(menuItemData->name,
+                                             menuItemData->type,
+                                             NULL,
+                                             subSection,
+                                             menuItemInfo.hSubMenu));
+      menuMap.insert(std::pair< HMENU, std::tr1::shared_ptr<MenuListItem> >(menuItemInfo.hSubMenu, mli));
     }
 
-  InsertMenuItem(dropMenu, dropPos, TRUE, &menuItemInfo);
+  // Insert the new element
+  InsertMenuItem(dropMenu, MenuItemFromPoint(NULL, dropMenu, pt), TRUE, &menuItemInfo);
 
   return true;
 }

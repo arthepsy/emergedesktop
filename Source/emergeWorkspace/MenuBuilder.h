@@ -145,8 +145,7 @@ private:
   HMENU activeMenu;
   HMENU dropMenu;
   UINT dropPos;
-  //bool MenuDrop(HMENU dragMenu, UINT dragPos);
-  HANDLE MenuItemInfoToHandle(MENUITEMDATA *menuItemData);
+  HANDLE MenuItemDataToHandle(MENUITEMDATA *menuItemData);
 
 public:
   MenuBuilder(HINSTANCE desktopInst);
@@ -170,5 +169,5 @@ public:
   void RenameConfigFile();
   BYTE GetMenuAlpha();
   void SetActiveMenu(HMENU menu);
-  bool NewMenuItem(MENUITEMDATA *menuItemData, HMENU menu, POINT pt);
+  bool DropMenuItem(MENUITEMDATA *menuItemData, TiXmlElement *newElement, HMENU menu, POINT pt);
 };

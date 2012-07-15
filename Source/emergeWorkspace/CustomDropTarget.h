@@ -27,6 +27,7 @@ typedef struct _NEWMENUITEMDATA
   MENUITEMDATA menuItemData;
   HMENU menu;
   POINT pt;
+  TiXmlElement *newElement;
 }
 NEWMENUITEMDATA, *LPNEWMENUITEMDATA;
 
