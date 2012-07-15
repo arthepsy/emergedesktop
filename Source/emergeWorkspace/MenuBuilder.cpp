@@ -636,7 +636,7 @@ bool MenuBuilder::DropMenuItem(MENUITEMDATA *menuItemData, TiXmlElement *newElem
   menuItemInfo.fMask = MIIM_ID | MIIM_STRING;
   menuItemInfo.dwTypeData = menuItemData->name;
   menuItemInfo.cch = MAX_LINE_LENGTH;
-  menuItemInfo.wID = reinterpret_cast< UINT >(menuItem);
+  menuItemInfo.wID = reinterpret_cast< UINT_PTR >(menuItem);
   if ((winVersion < 6.0) || !pSettings->GetAeroMenus())
     {
       menuItemInfo.hbmpItem = HBMMENU_CALLBACK;
@@ -693,7 +693,7 @@ bool MenuBuilder::AddMenuItem(MenuMap::iterator iter, int index)
 
   menuItem = new MenuItem((WCHAR*)TEXT("New Item"), -1, NULL, NULL, NULL, iter->first);
 
-  menuItemInfo.wID = reinterpret_cast< UINT >(menuItem);
+  menuItemInfo.wID = reinterpret_cast< UINT_PTR >(menuItem);
 
   iter->second->AddMenuItem(menuItem);
 
@@ -995,7 +995,7 @@ void MenuBuilder::BuildXMLMenu(MenuMap::iterator iter)
           itemInfo.cbSize = sizeof(MENUITEMINFO);
           itemInfo.dwTypeData = name;
           itemInfo.fType = MFT_SEPARATOR;
-          itemInfo.wID = reinterpret_cast< UINT >(menuItem);
+          itemInfo.wID = reinterpret_cast< UINT_PTR >(menuItem);
 
           iter->second->AddMenuItem(menuItem);
 
@@ -1031,7 +1031,7 @@ void MenuBuilder::BuildXMLMenu(MenuMap::iterator iter)
                     }
                 }
 
-              itemInfo.wID = reinterpret_cast< UINT >(menuItem);
+              itemInfo.wID = reinterpret_cast< UINT_PTR >(menuItem);
 
               iter->second->AddMenuItem(menuItem);
 
@@ -1071,7 +1071,7 @@ void MenuBuilder::BuildXMLMenu(MenuMap::iterator iter)
                         }
                     }
 
-                  itemInfo.wID = reinterpret_cast< UINT >(menuItem);
+                  itemInfo.wID = reinterpret_cast< UINT_PTR >(menuItem);
 
                   iter->second->AddMenuItem(menuItem);
 
@@ -1099,7 +1099,7 @@ void MenuBuilder::BuildXMLMenu(MenuMap::iterator iter)
               itemInfo.fMask = MIIM_STRING|MIIM_ID;
               itemInfo.cbSize = sizeof(MENUITEMINFO);
               itemInfo.dwTypeData = datetimeString;
-              itemInfo.wID = reinterpret_cast< UINT >(menuItem);
+              itemInfo.wID = reinterpret_cast< UINT_PTR >(menuItem);
 
               iter->second->AddMenuItem(menuItem);
 
@@ -1135,7 +1135,7 @@ void MenuBuilder::BuildXMLMenu(MenuMap::iterator iter)
                     }
                 }
 
-              itemInfo.wID = reinterpret_cast< UINT >(menuItem);
+              itemInfo.wID = reinterpret_cast< UINT_PTR >(menuItem);
 
               iter->second->AddMenuItem(menuItem);
 
@@ -1172,7 +1172,7 @@ void MenuBuilder::BuildXMLMenu(MenuMap::iterator iter)
                 }
             }
 
-          itemInfo.wID = reinterpret_cast< UINT >(menuItem);
+          itemInfo.wID = reinterpret_cast< UINT_PTR >(menuItem);
 
           iter->second->AddMenuItem(menuItem);
           InsertMenuItem(iter->first, i, TRUE, &itemInfo);
@@ -1214,7 +1214,7 @@ void MenuBuilder::BuildXMLMenu(MenuMap::iterator iter)
                 }
             }
 
-          itemInfo.wID = reinterpret_cast< UINT >(menuItem);
+          itemInfo.wID = reinterpret_cast< UINT_PTR >(menuItem);
           iter->second->AddMenuItem(menuItem);
           InsertMenuItem(iter->first, i, TRUE, &itemInfo);
 
@@ -1254,7 +1254,7 @@ void MenuBuilder::BuildXMLMenu(MenuMap::iterator iter)
                 }
             }
 
-          itemInfo.wID = reinterpret_cast< UINT >(menuItem);
+          itemInfo.wID = reinterpret_cast< UINT_PTR >(menuItem);
           iter->second->AddMenuItem(menuItem);
           InsertMenuItem(iter->first, i, TRUE, &itemInfo);
 
@@ -1549,7 +1549,7 @@ void MenuBuilder::BuildFileMenuFromString(MenuMap::iterator iter, WCHAR *parsedV
               menuItem->SetName(tmp);
               mli->SetName(tmp);
 
-              itemInfo.wID = reinterpret_cast< UINT >(menuItem);
+              itemInfo.wID = reinterpret_cast< UINT_PTR >(menuItem);
               itemInfo.dwItemData = (ULONG_PTR)subMenu;
 
               iter->second->AddMenuItem(menuItem);
@@ -1658,7 +1658,7 @@ void MenuBuilder::BuildFileMenuFromString(MenuMap::iterator iter, WCHAR *parsedV
           itemInfo.cbSize = sizeof(MENUITEMINFO);
           itemInfo.dwTypeData = tmp;
 
-          itemInfo.wID = reinterpret_cast< UINT >(menuItem);
+          itemInfo.wID = reinterpret_cast< UINT_PTR >(menuItem);
 
           iter->second->AddMenuItem(menuItem);
 
@@ -1754,7 +1754,7 @@ void MenuBuilder::AddTaskItem(HWND task)
   itemInfo.cbSize = sizeof(MENUITEMINFO);
   itemInfo.dwTypeData = windowTitle;
 
-  itemInfo.wID = reinterpret_cast< UINT >(menuItem);
+  itemInfo.wID = reinterpret_cast< UINT_PTR >(menuItem);
 
   iter->second->AddMenuItem(menuItem);
 

@@ -41,7 +41,7 @@ public:
   void SetValue(WCHAR *value);
   void SetName(WCHAR *name);
   void SetElement(TiXmlElement *element);
-  UINT GetID();
+  UINT_PTR GetID();
 
 private:
   TiXmlElement *element;
