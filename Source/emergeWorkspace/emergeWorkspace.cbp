@@ -9,7 +9,7 @@
 			<Target title="Debug">
 				<Option output="..\bin\emergeWorkspace" prefix_auto="1" extension_auto="1" />
 				<Option object_output="obj\Debug\" />
-				<Option type="1" />
+				<Option type="0" />
 				<Option compiler="gcc" />
 				<Compiler>
 					<Add option="-g" />
@@ -34,7 +34,7 @@
 			<Target title="Debug64">
 				<Option output="..\bin64\emergeWorkspace" prefix_auto="1" extension_auto="1" />
 				<Option object_output="obj64\Debug\" />
-				<Option type="1" />
+				<Option type="0" />
 				<Option compiler="gnu_gcc_compiler_for_mingw64" />
 				<Compiler>
 					<Add option="-g" />

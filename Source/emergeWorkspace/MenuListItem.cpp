@@ -86,7 +86,7 @@ MenuItem *MenuListItem::FindMenuItem(UINT id)
     if ((*iter)->GetID() == id)
       break;
 
-    iter++;
+    ++iter;
   }
 
   if (iter != menuItems.end())
