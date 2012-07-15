@@ -657,7 +657,7 @@ bool MenuBuilder::DropMenuItem(MENUITEMDATA *menuItemData, TiXmlElement *newElem
     {
       menuItemInfo.fMask |= MIIM_SUBMENU;
       menuItemInfo.hSubMenu = CreatePopupMenu();
-      TiXmlElement *subSection = ELGetFirstXMLElementByName(menuItemData->element, (WCHAR*)TEXT("Submenu"), false);
+      TiXmlElement *subSection = ELGetFirstXMLElementByName(newElement, (WCHAR*)TEXT("Submenu"), false);
       std::tr1::shared_ptr<MenuListItem> mli(new MenuListItem(menuItemData->name,
                                              menuItemData->type,
                                              NULL,
