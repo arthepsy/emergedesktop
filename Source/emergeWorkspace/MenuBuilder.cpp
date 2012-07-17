@@ -653,17 +653,46 @@ bool MenuBuilder::DropMenuItem(MENUITEMDATA *menuItemData, TiXmlElement *newElem
         }
     }
 
-  if (menuItemData->type == IT_XML_MENU)
+  if (menuItemData->type >= IT_XML_MENU)
     {
       menuItemInfo.fMask |= MIIM_SUBMENU;
       menuItemInfo.hSubMenu = CreatePopupMenu();
-      TiXmlElement *subSection = ELGetFirstXMLElementByName(newElement, (WCHAR*)TEXT("Submenu"), false);
-      std::tr1::shared_ptr<MenuListItem> mli(new MenuListItem(menuItemData->name,
-                                             menuItemData->type,
-                                             NULL,
-                                             subSection,
-                                             menuItemInfo.hSubMenu));
-      menuMap.insert(std::pair< HMENU, std::tr1::shared_ptr<MenuListItem> >(menuItemInfo.hSubMenu, mli));
+      switch (menuItemData->type)
+        {
+        case IT_XML_MENU:
+        {
+          TiXmlElement *subSection = ELGetFirstXMLElementByName(newElement, (WCHAR*)TEXT("Submenu"), false);
+          std::tr1::shared_ptr<MenuListItem> mli(new MenuListItem(menuItemData->name,
+                                                 menuItemData->type,
+                                                 NULL,
+                                                 subSection,
+                                                 menuItemInfo.hSubMenu));
+          menuMap.insert(std::pair< HMENU, std::tr1::shared_ptr<MenuListItem> >(menuItemInfo.hSubMenu, mli));
+        }
+        break;
+
+        case IT_FILE_MENU:
+        {
+          std::tr1::shared_ptr<MenuListItem> mli(new MenuListItem(menuItemData->name,
+                                                 menuItemData->type,
+                                                 menuItemData->value,
+                                                 NULL,
+                                                 menuItemInfo.hSubMenu));
+          menuMap.insert(std::pair< HMENU, std::tr1::shared_ptr<MenuListItem> >(menuItemInfo.hSubMenu, mli));
+        }
+        break;
+
+        default:
+        {
+          std::tr1::shared_ptr<MenuListItem> mli(new MenuListItem(menuItemData->name,
+                                                                  menuItemData->type,
+                                                                  NULL,
+                                                                  NULL,
+                                                                  menuItemInfo.hSubMenu));
+          menuMap.insert(std::pair< HMENU, std::tr1::shared_ptr<MenuListItem> >(menuItemInfo.hSubMenu, mli));
+        }
+        break;
+        }
     }
 
   // Insert the new element
