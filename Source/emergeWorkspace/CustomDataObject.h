@@ -54,6 +54,6 @@ public:
 
   CustomDataObject(FORMATETC *fmtetc, STGMEDIUM *stgmed, UINT count);
   virtual ~CustomDataObject();
-  int LookupFormatEtc(FORMATETC *pFormatEtc);
+  int LookupFormatEtc(FORMATETC *pFormatEtcIn);
   HGLOBAL DupGlobalMem(HGLOBAL hMem);
 };

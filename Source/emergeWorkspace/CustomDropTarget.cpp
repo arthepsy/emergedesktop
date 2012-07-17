@@ -47,18 +47,26 @@ CustomDropTarget::~CustomDropTarget()
 {
 }
 
-bool CustomDropTarget::QueryDataObject(IDataObject *pDataObject)
+bool CustomDropTarget::QueryDataObject(IDataObject *pDataObj)
 {
   FORMATETC fmtetc;
 
   ZeroMemory(&fmtetc, sizeof(FORMATETC));
-  fmtetc.tymed = TYMED_HGLOBAL;
   fmtetc.dwAspect = DVASPECT_CONTENT;
   fmtetc.lindex = -1;
-  fmtetc.cfFormat = CF_EMERGE_MENUITEM;
+  if ((type == IT_FILE) || (type == IT_FILE_SUBMENU))
+    {
+      fmtetc.cfFormat = CF_HDROP;
+      fmtetc.tymed = TYMED_FILE;
+    }
+  else
+    {
+      fmtetc.cfFormat = CF_EMERGE_MENUITEM;
+      fmtetc.tymed = TYMED_HGLOBAL;
+    }
 
   // does the data object support CF_EMERGE_MENUITEM using a HGLOBAL?
-  return pDataObject->QueryGetData(&fmtetc) == S_OK ? true : false;
+  return pDataObj->QueryGetData(&fmtetc) == S_OK ? true : false;
 }
 
 DWORD CustomDropTarget::DropEffect(DWORD grfKeyState, POINTL pt UNUSED, DWORD dwAllowed)

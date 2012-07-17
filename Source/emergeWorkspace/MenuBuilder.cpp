@@ -448,22 +448,32 @@ LRESULT MenuBuilder::DoMenuDrag(HWND hwnd UNUSED, UINT pos, HMENU menu)
                  ELMB_OK|ELMB_ICONERROR|ELMB_MODAL);
 
   ZeroMemory(&fmtetc, sizeof(FORMATETC));
-  fmtetc.cfFormat = CF_EMERGE_MENUITEM;
+  ZeroMemory(&stgmed, sizeof(STGMEDIUM));
   fmtetc.dwAspect = DVASPECT_CONTENT;
   fmtetc.lindex = -1;
-  fmtetc.tymed = TYMED_HGLOBAL;
 
-  ZeroMemory(&stgmed, sizeof(STGMEDIUM));
-  stgmed.tymed = TYMED_HGLOBAL;
 
-  ZeroMemory(&menuItemData, sizeof(MENUITEMDATA));
-  wcscpy(menuItemData.name, menuItem->GetName());
-  menuItemData.type = menuItem->GetType();
-  wcscpy(menuItemData.value, menuItem->GetValue());
-  wcscpy(menuItemData.workingDir, menuItem->GetWorkingDir());
-  menuItemData.element =  menuItem->GetElement();
+  if ((menuItem->GetType() == IT_FILE) || (menuItem->GetType() == IT_FILE_SUBMENU))
+    {
+      ELWriteDebug(L"Using CF_HDROP");
+      fmtetc.cfFormat = CF_HDROP;
+      fmtetc.tymed = TYMED_FILE;
+      stgmed.tymed = TYMED_FILE;
+    }
+  else
+    {
+      ZeroMemory(&menuItemData, sizeof(MENUITEMDATA));
+      wcscpy(menuItemData.name, menuItem->GetName());
+      menuItemData.type = menuItem->GetType();
+      wcscpy(menuItemData.value, menuItem->GetValue());
+      wcscpy(menuItemData.workingDir, menuItem->GetWorkingDir());
+      menuItemData.element =  menuItem->GetElement();
 
-  stgmed.hGlobal = MenuItemDataToHandle(&menuItemData);
+      fmtetc.cfFormat = CF_EMERGE_MENUITEM;
+      fmtetc.tymed = TYMED_HGLOBAL;
+      stgmed.tymed = TYMED_HGLOBAL;
+      stgmed.hGlobal = MenuItemDataToHandle(&menuItemData);
+    }
 
   dropEffects = DROPEFFECT_MOVE | DROPEFFECT_COPY;
 
@@ -685,10 +695,10 @@ bool MenuBuilder::DropMenuItem(MENUITEMDATA *menuItemData, TiXmlElement *newElem
         default:
         {
           std::tr1::shared_ptr<MenuListItem> mli(new MenuListItem(menuItemData->name,
-                                                                  menuItemData->type,
-                                                                  NULL,
-                                                                  NULL,
-                                                                  menuItemInfo.hSubMenu));
+                                                 menuItemData->type,
+                                                 NULL,
+                                                 NULL,
+                                                 menuItemInfo.hSubMenu));
           menuMap.insert(std::pair< HMENU, std::tr1::shared_ptr<MenuListItem> >(menuItemInfo.hSubMenu, mli));
         }
         break;

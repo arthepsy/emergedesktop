@@ -50,14 +50,14 @@ CustomDataObject::~CustomDataObject()
 {
 }
 
-int CustomDataObject::LookupFormatEtc(FORMATETC *pFormatEtc)
+int CustomDataObject::LookupFormatEtc(FORMATETC *pFormatEtcIn)
 {
   // check each of our formats in turn to see if one matches
   for(UINT i = 0; i < numFormats; i++)
     {
-      if((pFormatEtc[i].tymed    &  pFormatEtc->tymed)   &&
-          pFormatEtc[i].cfFormat == pFormatEtc->cfFormat &&
-          pFormatEtc[i].dwAspect == pFormatEtc->dwAspect)
+      if((pFormatEtc[i].tymed    &  pFormatEtcIn->tymed)   &&
+          pFormatEtc[i].cfFormat == pFormatEtcIn->cfFormat &&
+          pFormatEtc[i].dwAspect == pFormatEtcIn->dwAspect)
         {
           // return index of stored format
           return i;
