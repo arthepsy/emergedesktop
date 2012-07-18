@@ -137,7 +137,7 @@ bool BaseSettings::CopyTheme()
     {
       if (ELCreateDirectory(newThemePath))
         {
-          if (ELFileOp(appletWnd, FO_COPY, oldThemePath, newThemePath))
+          if (ELFileOp(appletWnd, false, FO_COPY, oldThemePath, newThemePath))
             return CopyStyle();
         }
     }
@@ -776,7 +776,7 @@ bool BaseSettings::CopyStyle()
         if (!ELCreateDirectory(destStyle))
           return false;
 
-      if (ELFileOp(NULL, FO_COPY, workingStyle, destStyle) && !workingStyle.empty())
+      if (ELFileOp(NULL, false, FO_COPY, workingStyle, destStyle) && !workingStyle.empty())
         {
           destStyle += workingStyle.substr(workingStyle.rfind(L"\\"));
           wcscpy(styleFile, destStyle.c_str());

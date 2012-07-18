@@ -128,7 +128,7 @@ void MenuBuilder::RenameConfigFile()
   if (!PathFileExists(xmlFile.c_str()))
     {
       if (PathFileExists(oldXMLFile.c_str()))
-        ELFileOp(menuWnd, FO_RENAME, oldXMLFile, xmlFile);
+        ELFileOp(menuWnd, false, FO_RENAME, oldXMLFile, xmlFile);
     }
 }
 
@@ -1870,7 +1870,7 @@ LRESULT MenuBuilder::DoButtonDown(UINT button)
     {
       std::wstring oldXmlFile = xmlPath + TEXT("emergeDesktop.xml");
       if (PathFileExists(oldXmlFile.c_str()))
-        ELFileOp(menuWnd, FO_RENAME, oldXmlFile, xmlFile);
+        ELFileOp(menuWnd, false, FO_RENAME, oldXmlFile, xmlFile);
     }
 
   GetCursorPos(&mousePT);

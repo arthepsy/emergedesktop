@@ -640,7 +640,7 @@ bool LaunchEditor::UpdateLaunch(HWND hwndDlg)
       if (!ELPathIsDirectory(newThemePath.c_str()))
         {
           if (ELCreateDirectory(newThemePath))
-            ELFileOp(mainWnd, FO_COPY, oldThemePath, newThemePath);
+            ELFileOp(mainWnd, false, FO_COPY, oldThemePath, newThemePath);
         }
     }
 

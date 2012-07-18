@@ -188,7 +188,8 @@ bool CustomDropTarget::FileDrop(HDROP hdrop)
           DragQueryFile(hdrop, i, filename, sizeof(filename) / sizeof(WCHAR));
           std::wstring workingFilename = filename;
 
-          ret = ELFileOp(NULL, FO_COPY, workingFilename, workingValue);
+          ret = ELFileOp(FindWindow(TEXT("EmergeDesktopMenuBuilder"), NULL),
+                         true, FO_COPY, workingFilename, workingValue);
         }
     }
 

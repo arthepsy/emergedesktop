@@ -160,7 +160,7 @@ bool ESEWriteStyle(WCHAR *styleFile, LPGUIINFO guiInfo, HWND hwnd)
           if (!ELPathIsDirectory(newThemePath.c_str()))
             ELCreateDirectory(newThemePath);
 
-          if (!ELFileOp(hwnd, FO_COPY, oldThemePath, newThemePath))
+          if (!ELFileOp(hwnd, false, FO_COPY, oldThemePath, newThemePath))
             {
               errorMessage = L"Cannot create \'";
               errorMessage += newThemePath;

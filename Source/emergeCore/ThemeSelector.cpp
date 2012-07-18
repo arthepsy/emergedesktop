@@ -302,7 +302,7 @@ void ThemeSelector::DoExport(HWND hwndDlg)
                                    ELMB_YESNO|ELMB_ICONQUESTION) == IDNO)
                     return;
                   else
-                    ELFileOp(hwndDlg, FO_DELETE, target);
+                    ELFileOp(hwndDlg, false, FO_DELETE, target);
                 }
               if (ELMakeZip(target, themeRoot, themePath) == 0)
                 swprintf(message, TEXT("Successfully exported '%ls' theme to '%ls'."),
@@ -371,12 +371,12 @@ void ThemeSelector::DoSave(HWND hwndDlg)
   // If the destTheme directory exists, remove it and re-create it (to make
   // sure its empty.
   if (ELPathIsDirectory(ELExpandVars(destTheme).c_str()))
-    ELFileOp(hwndDlg, FO_DELETE, destTheme);
+    ELFileOp(hwndDlg, false, FO_DELETE, destTheme);
   if (ELCreateDirectory(destTheme))
     {
-      if (ELFileOp(hwndDlg, FO_COPY, copySource, destTheme))
+      if (ELFileOp(hwndDlg, false, FO_COPY, copySource, destTheme))
         {
-          ELFileOp(hwndDlg, FO_DELETE, sourceTheme);
+          ELFileOp(hwndDlg, false, FO_DELETE, sourceTheme);
           ELSetTheme(destTheme);
         }
     }
@@ -401,7 +401,7 @@ void ThemeSelector::DoDelTheme(HWND hwndDlg)
                        ELMB_YESNO | ELMB_ICONWARNING) == IDNO)
         return;
     }
-  if (ELFileOp(hwndDlg, FO_DELETE, themePath))
+  if (ELFileOp(hwndDlg, false, FO_DELETE, themePath))
     PopulateThemes(themeWnd, (WCHAR*)ELGetThemeName().c_str());
 }
 
@@ -452,7 +452,7 @@ BOOL ThemeSelector::DoThemeCheck(HWND hwndDlg)
         }
       else
         {
-          if (ELFileOp(hwndDlg, FO_DELETE, themePath))
+          if (ELFileOp(hwndDlg, false, FO_DELETE, themePath))
             PopulateThemes(themeWnd, theme);
         }
     }

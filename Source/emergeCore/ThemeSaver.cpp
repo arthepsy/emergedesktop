@@ -131,12 +131,12 @@ bool ThemeSaver::SaveTheme(HWND hwndDlg)
         return false;
     }
 
-  if (ELFileOp(hwndDlg, FO_COPY, copySource, copyDest))
+  if (ELFileOp(hwndDlg, false, FO_COPY, copySource, copyDest))
     {
       if (ELIsModifiedTheme(ELGetThemeName().c_str()))
         {
           copySource = themePath + theme;
-          ELFileOp(hwndDlg, FO_DELETE, copySource);
+          ELFileOp(hwndDlg, false, FO_DELETE, copySource);
         }
     }
   if (ELPathIsDirectory(copyDest.c_str()))

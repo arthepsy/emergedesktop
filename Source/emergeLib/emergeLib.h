@@ -476,7 +476,7 @@ DLL_EXPORT std::wstring ELGetThemeName();
 DLL_EXPORT bool ELSetTheme(std::wstring theme);
 DLL_EXPORT std::wstring ELToLower(std::wstring workingString);
 DLL_EXPORT bool ELSetAppletsTheme(std::wstring theme);
-DLL_EXPORT bool ELFileOp(HWND appletWnd, UINT function, std::wstring source, std::wstring destination = TEXT(""));
+DLL_EXPORT bool ELFileOp(HWND appletWnd, bool feedback, UINT function, std::wstring source, std::wstring destination = TEXT(""));
 DLL_EXPORT std::wstring ELGetProcessIDApp(DWORD processID, bool fullName);
 DLL_EXPORT int ELMakeZip(std::wstring zipFile, std::wstring zipRoot, std::wstring zipPath);
 DLL_EXPORT int ELExtractZip(std::wstring zipFile, std::wstring unzipPath);

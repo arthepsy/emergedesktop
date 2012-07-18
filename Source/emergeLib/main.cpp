@@ -1114,7 +1114,7 @@ std::wstring ELstringTowstring(std::string inString, UINT codePage)
   return returnString;
 }
 
-bool ELFileOp(HWND appletWnd, UINT function, std::wstring source, std::wstring destination)
+bool ELFileOp(HWND appletWnd, bool feedback, UINT function, std::wstring source, std::wstring destination)
 {
   SHFILEOPSTRUCT fileOpStruct;
   WCHAR *fromString = NULL, *toString = NULL;
@@ -1126,7 +1126,8 @@ bool ELFileOp(HWND appletWnd, UINT function, std::wstring source, std::wstring d
 
   fileOpStruct.hwnd = appletWnd;
   fileOpStruct.wFunc = function;
-  fileOpStruct.fFlags = FOF_NOCONFIRMATION | FOF_SILENT | FOF_NOCONFIRMMKDIR | FOF_NOERRORUI;
+  if (!feedback)
+    fileOpStruct.fFlags = FOF_NOCONFIRMATION | FOF_SILENT | FOF_NOCONFIRMMKDIR | FOF_NOERRORUI;
 
   fromString = (WCHAR*)GlobalAlloc(GPTR, sizeof(WCHAR) * (source.length() + 2));
   wcscpy(fromString, source.c_str());
