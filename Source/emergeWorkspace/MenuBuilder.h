@@ -146,6 +146,7 @@ private:
   HMENU dropMenu;
   UINT dropPos;
   HANDLE MenuItemDataToHandle(MENUITEMDATA *menuItemData);
+  HDROP FileToHandle(WCHAR *file);
 
 public:
   MenuBuilder(HINSTANCE desktopInst);

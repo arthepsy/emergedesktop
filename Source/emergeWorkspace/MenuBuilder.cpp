@@ -451,14 +451,14 @@ LRESULT MenuBuilder::DoMenuDrag(HWND hwnd UNUSED, UINT pos, HMENU menu)
   ZeroMemory(&stgmed, sizeof(STGMEDIUM));
   fmtetc.dwAspect = DVASPECT_CONTENT;
   fmtetc.lindex = -1;
+  fmtetc.tymed = TYMED_HGLOBAL;
+  stgmed.tymed = fmtetc.tymed;
 
 
   if ((menuItem->GetType() == IT_FILE) || (menuItem->GetType() == IT_FILE_SUBMENU))
     {
-      ELWriteDebug(L"Using CF_HDROP");
       fmtetc.cfFormat = CF_HDROP;
-      fmtetc.tymed = TYMED_FILE;
-      stgmed.tymed = TYMED_FILE;
+      stgmed.hGlobal = FileToHandle(menuItem->GetValue());
     }
   else
     {
@@ -470,8 +470,6 @@ LRESULT MenuBuilder::DoMenuDrag(HWND hwnd UNUSED, UINT pos, HMENU menu)
       menuItemData.element =  menuItem->GetElement();
 
       fmtetc.cfFormat = CF_EMERGE_MENUITEM;
-      fmtetc.tymed = TYMED_HGLOBAL;
-      stgmed.tymed = TYMED_HGLOBAL;
       stgmed.hGlobal = MenuItemDataToHandle(&menuItemData);
     }
 
@@ -512,6 +510,26 @@ LRESULT MenuBuilder::DoMenuDrag(HWND hwnd UNUSED, UINT pos, HMENU menu)
   return MND_CONTINUE;
 }
 
+HDROP MenuBuilder::FileToHandle(WCHAR *file)
+{
+  ELWriteDebug(file);
+
+  // allocate and lock a global memory buffer.
+  HDROP ptr = (HDROP)GlobalAlloc(GMEM_ZEROINIT, sizeof(DROPFILES) + (sizeof(WCHAR) * (wcslen(file) + 2)));
+
+  LPDROPFILES pDropFiles = (LPDROPFILES)GlobalLock(ptr);
+  pDropFiles->pFiles = sizeof(DROPFILES);
+  pDropFiles->fWide = TRUE;
+
+  LPBYTE pData = (LPBYTE) pDropFiles + sizeof(DROPFILES);
+
+  // copy the string into the buffer
+  CopyMemory(pData, file, sizeof(WCHAR) * (wcslen(file) + 1));
+  GlobalUnlock(ptr);
+
+  return ptr;
+}
+
 HANDLE MenuBuilder::MenuItemDataToHandle(MENUITEMDATA *menuItemData)
 {
   void *ptr = NULL;
@@ -520,7 +538,7 @@ HANDLE MenuBuilder::MenuItemDataToHandle(MENUITEMDATA *menuItemData)
   // data so we don't have to use GlobalLock
   ptr = (void *)GlobalAlloc(GMEM_FIXED, sizeof(MENUITEMDATA));
   if (ptr != NULL)
-    memcpy(ptr, menuItemData, sizeof(MENUITEMDATA));
+    CopyMemory(ptr, menuItemData, sizeof(MENUITEMDATA));
 
   return reinterpret_cast< HANDLE >(ptr);
 }

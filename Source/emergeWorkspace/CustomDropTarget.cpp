@@ -53,17 +53,12 @@ bool CustomDropTarget::QueryDataObject(IDataObject *pDataObj)
 
   ZeroMemory(&fmtetc, sizeof(FORMATETC));
   fmtetc.dwAspect = DVASPECT_CONTENT;
+  fmtetc.tymed = TYMED_HGLOBAL;
   fmtetc.lindex = -1;
   if ((type == IT_FILE) || (type == IT_FILE_SUBMENU))
-    {
-      fmtetc.cfFormat = CF_HDROP;
-      fmtetc.tymed = TYMED_FILE;
-    }
+    fmtetc.cfFormat = CF_HDROP;
   else
-    {
-      fmtetc.cfFormat = CF_EMERGE_MENUITEM;
-      fmtetc.tymed = TYMED_HGLOBAL;
-    }
+    fmtetc.cfFormat = CF_EMERGE_MENUITEM;
 
   // does the data object support CF_EMERGE_MENUITEM using a HGLOBAL?
   return pDataObj->QueryGetData(&fmtetc) == S_OK ? true : false;
