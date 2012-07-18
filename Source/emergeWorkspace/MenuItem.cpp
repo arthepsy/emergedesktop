@@ -23,7 +23,7 @@
 
 MenuItem::MenuItem(WCHAR *name, UINT type, WCHAR* value, WCHAR *workingDir, TiXmlElement *element, HMENU menu)
 {
-  CreateDropTarget(&dropTarget, type, element, menu);
+  CreateDropTarget(&dropTarget, type, value, element, menu);
   this->element = element;
   this->type = type;
   icon = NULL;

@@ -20,22 +20,23 @@
 
 #include "CustomDropTarget.h"
 
-HRESULT CreateDropTarget(IDropTarget **ppDropTarget, UINT type, TiXmlElement *dropElement, HMENU dropMenu)
+HRESULT CreateDropTarget(IDropTarget **ppDropTarget, UINT type, WCHAR *value, TiXmlElement *dropElement, HMENU dropMenu)
 {
   if(ppDropTarget == NULL)
     return E_INVALIDARG;
 
-  *ppDropTarget = new CustomDropTarget(type, dropElement, dropMenu);
+  *ppDropTarget = new CustomDropTarget(type, value, dropElement, dropMenu);
 
   return (*ppDropTarget) ? S_OK : E_OUTOFMEMORY;
 }
 
-CustomDropTarget::CustomDropTarget(UINT type, TiXmlElement *dropElement, HMENU dropMenu)
+CustomDropTarget::CustomDropTarget(UINT type, WCHAR *value, TiXmlElement *dropElement, HMENU dropMenu)
 {
   refCount = 0;
   this->type = type;
   this->dropElement = dropElement;
   this->dropMenu = dropMenu;
+  this->value = _wcsdup(value);
 
   CF_EMERGE_MENUITEM = RegisterClipboardFormat(TEXT("CF_EMERGE_MENUITEM"));
   if (CF_EMERGE_MENUITEM == 0)
@@ -45,6 +46,7 @@ CustomDropTarget::CustomDropTarget(UINT type, TiXmlElement *dropElement, HMENU d
 
 CustomDropTarget::~CustomDropTarget()
 {
+  free(value);
 }
 
 bool CustomDropTarget::QueryDataObject(IDataObject *pDataObj)
@@ -92,6 +94,7 @@ bool CustomDropTarget::DataDrop(IDataObject *pDataObj, POINTL pt)
 {
   FORMATETC fmtetc;
   STGMEDIUM stgmed;
+  bool ret = false;
 
   ZeroMemory(&fmtetc, sizeof(FORMATETC));
   fmtetc.cfFormat = CF_EMERGE_MENUITEM;
@@ -104,37 +107,77 @@ bool CustomDropTarget::DataDrop(IDataObject *pDataObj, POINTL pt)
       if (SUCCEEDED(pDataObj->GetData(&fmtetc, &stgmed)))
         {
           void *data = GlobalLock(stgmed.hGlobal);
+          POINT menuItemPt;
+          menuItemPt.x = pt.x;
+          menuItemPt.y = pt.y;
           MENUITEMDATA *menuItemData = reinterpret_cast< MENUITEMDATA* >(data);
 
-          TiXmlElement *newElement = ELCloneXMLElement(menuItemData->element, dropElement);
-          if (newElement)
-            {
-              ELWriteXMLConfig(ELGetXMLConfig(newElement));
+          MenuItemDrop(menuItemData, menuItemPt);
 
-              NEWMENUITEMDATA newMenuItemData;
-              COPYDATASTRUCT cds;
-              POINT menuItemPt;
-              menuItemPt.x = pt.x;
-              menuItemPt.y = pt.y;
-
-              ZeroMemory(&newMenuItemData, sizeof(NEWMENUITEMDATA));
-              CopyMemory(&newMenuItemData.menuItemData, menuItemData, sizeof(NEWMENUITEMDATA));
-              newMenuItemData.newElement = newElement;
-              newMenuItemData.menu = dropMenu;
-              newMenuItemData.pt = menuItemPt;
-
-              cds.dwData = EMERGE_NEWITEM;
-              cds.cbData = sizeof(NEWMENUITEMDATA);
-              cds.lpData = &newMenuItemData;
-
-              SendMessage(FindWindow(TEXT("EmergeDesktopMenuBuilder"), NULL),
-                          WM_COPYDATA, 0, (LPARAM)&cds);
-            }
-
-          GlobalUnlock(stgmed.hGlobal);
-
-          return true;
+          ret = GlobalUnlock(stgmed.hGlobal);
         }
+    }
+
+  fmtetc.cfFormat = CF_HDROP;
+
+  if (SUCCEEDED(pDataObj->QueryGetData(&fmtetc)))
+    {
+      if (SUCCEEDED(pDataObj->GetData(&fmtetc, &stgmed)))
+        {
+          HDROP hdrop = (HDROP)GlobalLock(stgmed.hGlobal);
+
+          FileDrop(hdrop);
+
+          ret = GlobalUnlock(stgmed.hGlobal);
+        }
+    }
+
+  return ret;
+}
+
+bool CustomDropTarget::MenuItemDrop(MENUITEMDATA *menuItemData, POINT menuItemPt)
+{
+  TiXmlElement *newElement = ELCloneXMLElement(menuItemData->element, dropElement);
+  if (newElement)
+    {
+      ELWriteXMLConfig(ELGetXMLConfig(newElement));
+
+      NEWMENUITEMDATA newMenuItemData;
+      COPYDATASTRUCT cds;
+
+      ZeroMemory(&newMenuItemData, sizeof(NEWMENUITEMDATA));
+      CopyMemory(&newMenuItemData.menuItemData, menuItemData, sizeof(NEWMENUITEMDATA));
+      newMenuItemData.newElement = newElement;
+      newMenuItemData.menu = dropMenu;
+      newMenuItemData.pt = menuItemPt;
+
+      cds.dwData = EMERGE_NEWITEM;
+      cds.cbData = sizeof(NEWMENUITEMDATA);
+      cds.lpData = &newMenuItemData;
+
+      SendMessage(FindWindow(TEXT("EmergeDesktopMenuBuilder"), NULL),
+                  WM_COPYDATA, 0, (LPARAM)&cds);
+
+      return true;
+    }
+
+  return false;
+}
+
+bool CustomDropTarget::FileDrop(HDROP hdrop)
+{
+  if (hdrop)
+    {
+      UINT count = DragQueryFile(hdrop, (UINT)-1, NULL, 0);
+      WCHAR filename[MAX_PATH];
+
+      for (UINT i = 0; i < count; i++)
+        {
+          DragQueryFile(hdrop, i, filename, sizeof(filename) / sizeof(WCHAR));
+          ELWriteDebug(filename);
+        }
+
+      return true;
     }
 
   return false;
