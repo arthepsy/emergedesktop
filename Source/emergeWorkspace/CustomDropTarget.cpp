@@ -166,21 +166,33 @@ bool CustomDropTarget::MenuItemDrop(MENUITEMDATA *menuItemData, POINT menuItemPt
 
 bool CustomDropTarget::FileDrop(HDROP hdrop)
 {
+  bool ret = false;
+
   if (hdrop)
     {
       UINT count = DragQueryFile(hdrop, (UINT)-1, NULL, 0);
       WCHAR filename[MAX_PATH];
+      std::wstring workingValue = value;
+      if (!ELPathIsDirectory(value))
+      {
+        size_t backslash = workingValue.rfind('\\');
+        if (backslash != std::wstring::npos)
+          workingValue = workingValue.substr(0, backslash);
+
+        if (!ELPathIsDirectory(workingValue.c_str()))
+          return false;
+      }
 
       for (UINT i = 0; i < count; i++)
         {
           DragQueryFile(hdrop, i, filename, sizeof(filename) / sizeof(WCHAR));
-          ELWriteDebug(filename);
-        }
+          std::wstring workingFilename = filename;
 
-      return true;
+          ret = ELFileOp(NULL, FO_COPY, workingFilename, workingValue);
+        }
     }
 
-  return false;
+  return ret;
 }
 
 STDMETHODIMP_(ULONG) CustomDropTarget::AddRef()

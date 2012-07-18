@@ -485,19 +485,25 @@ LRESULT MenuBuilder::DoMenuDrag(HWND hwnd UNUSED, UINT pos, HMENU menu)
     {
       if (effect == DROPEFFECT_MOVE)
         {
-          // Remove the menu element
-          TiXmlElement *menuElement = menuItem->GetElement();
-          TiXmlDocument *configXML = ELGetXMLConfig(menuElement);
-          if (ELRemoveXMLElement(menuElement))
-            {
-              ELWriteXMLConfig(configXML);
-              if (menuItem->GetType() == IT_XML_MENU)
+          if ((menuItem->GetType() == IT_FILE) || (menuItem->GetType() == IT_FILE_SUBMENU))
+          {
+          }
+        else
+          {
+            // Remove the menu element
+            TiXmlElement *menuElement = menuItem->GetElement();
+              TiXmlDocument *configXML = ELGetXMLConfig(menuElement);
+              if (ELRemoveXMLElement(menuElement))
                 {
-                  subIter = menuMap.find(menuItemInfo.hSubMenu);
-                  if (subIter != menuMap.end())
-                    ClearMenu(subIter);
+                  ELWriteXMLConfig(configXML);
+                  if (menuItem->GetType() == IT_XML_MENU)
+                    {
+                      subIter = menuMap.find(menuItemInfo.hSubMenu);
+                      if (subIter != menuMap.end())
+                        ClearMenu(subIter);
+                    }
+                  DeleteMenu(menu, menuItem->GetID(), MF_BYCOMMAND);
                 }
-              DeleteMenu(menu, menuItem->GetID(), MF_BYCOMMAND);
             }
         }
     }
