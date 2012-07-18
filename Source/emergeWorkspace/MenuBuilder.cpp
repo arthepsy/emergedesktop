@@ -512,8 +512,6 @@ LRESULT MenuBuilder::DoMenuDrag(HWND hwnd UNUSED, UINT pos, HMENU menu)
 
 HDROP MenuBuilder::FileToHandle(WCHAR *file)
 {
-  ELWriteDebug(file);
-
   // allocate and lock a global memory buffer.
   HDROP ptr = (HDROP)GlobalAlloc(GMEM_ZEROINIT, sizeof(DROPFILES) + (sizeof(WCHAR) * (wcslen(file) + 2)));
 
