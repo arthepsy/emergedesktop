@@ -485,10 +485,7 @@ LRESULT MenuBuilder::DoMenuDrag(HWND hwnd UNUSED, UINT pos, HMENU menu)
     {
       if (effect == DROPEFFECT_MOVE)
         {
-          if ((menuItem->GetType() == IT_FILE) || (menuItem->GetType() == IT_FILE_SUBMENU))
-          {
-          }
-        else
+          if ((menuItem->GetType() != IT_FILE) && (menuItem->GetType() != IT_FILE_SUBMENU))
           {
             // Remove the menu element
             TiXmlElement *menuElement = menuItem->GetElement();

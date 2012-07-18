@@ -61,9 +61,9 @@ private:
   // internal helper function
   DWORD DropEffect(DWORD grfKeyState, POINTL pt, DWORD dwAllowed);
   bool QueryDataObject(IDataObject *pDataObj);
-  bool DataDrop(IDataObject *pDataObj, POINTL pt);
+  bool DataDrop(IDataObject *pDataObj, POINTL pt, DWORD dropEffect);
   bool MenuItemDrop(MENUITEMDATA *menuItemData, POINT menuItemPt);
-  bool FileDrop(HDROP hdrop);
+  bool FileDrop(HDROP hdrop, DWORD dropEffect);
 
   // Private member variables
   HWND   hwnd;

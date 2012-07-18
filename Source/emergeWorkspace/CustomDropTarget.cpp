@@ -90,7 +90,7 @@ DWORD CustomDropTarget::DropEffect(DWORD grfKeyState, POINTL pt UNUSED, DWORD dw
   return dwEffect;
 }
 
-bool CustomDropTarget::DataDrop(IDataObject *pDataObj, POINTL pt)
+bool CustomDropTarget::DataDrop(IDataObject *pDataObj, POINTL pt, DWORD dropEffect)
 {
   FORMATETC fmtetc;
   STGMEDIUM stgmed;
@@ -126,7 +126,7 @@ bool CustomDropTarget::DataDrop(IDataObject *pDataObj, POINTL pt)
         {
           HDROP hdrop = (HDROP)GlobalLock(stgmed.hGlobal);
 
-          FileDrop(hdrop);
+          FileDrop(hdrop, dropEffect);
 
           ret = GlobalUnlock(stgmed.hGlobal);
         }
@@ -164,7 +164,7 @@ bool CustomDropTarget::MenuItemDrop(MENUITEMDATA *menuItemData, POINT menuItemPt
   return false;
 }
 
-bool CustomDropTarget::FileDrop(HDROP hdrop)
+bool CustomDropTarget::FileDrop(HDROP hdrop, DWORD dropEffect)
 {
   bool ret = false;
 
@@ -173,15 +173,19 @@ bool CustomDropTarget::FileDrop(HDROP hdrop)
       UINT count = DragQueryFile(hdrop, (UINT)-1, NULL, 0);
       WCHAR filename[MAX_PATH];
       std::wstring workingValue = value;
-      if (!ELPathIsDirectory(value))
-      {
-        size_t backslash = workingValue.rfind('\\');
-        if (backslash != std::wstring::npos)
-          workingValue = workingValue.substr(0, backslash);
+      UINT fileOp = FO_COPY;
+      if (dropEffect & DROPEFFECT_MOVE)
+        fileOp = FO_MOVE;
 
-        if (!ELPathIsDirectory(workingValue.c_str()))
-          return false;
-      }
+      if (!ELPathIsDirectory(value))
+        {
+          size_t backslash = workingValue.rfind('\\');
+          if (backslash != std::wstring::npos)
+            workingValue = workingValue.substr(0, backslash);
+
+          if (!ELPathIsDirectory(workingValue.c_str()))
+            return false;
+        }
 
       for (UINT i = 0; i < count; i++)
         {
@@ -189,7 +193,7 @@ bool CustomDropTarget::FileDrop(HDROP hdrop)
           std::wstring workingFilename = filename;
 
           ret = ELFileOp(FindWindow(TEXT("EmergeDesktopMenuBuilder"), NULL),
-                         true, FO_COPY, workingFilename, workingValue);
+                         true, fileOp, workingFilename, workingValue);
         }
     }
 
@@ -255,10 +259,12 @@ STDMETHODIMP CustomDropTarget::DragLeave()
 
 STDMETHODIMP CustomDropTarget::Drop(IDataObject *pDataObj, DWORD grfKeyState, POINTL pt, DWORD *pdwEffect)
 {
+  DWORD dropEffect = DropEffect(grfKeyState, pt, *pdwEffect);
+
   if(allowDrop)
     {
-      DataDrop(pDataObj, pt);
-      *pdwEffect = DropEffect(grfKeyState, pt, *pdwEffect);
+      DataDrop(pDataObj, pt, dropEffect);
+      *pdwEffect = dropEffect;
     }
   else
     *pdwEffect = DROPEFFECT_NONE;
