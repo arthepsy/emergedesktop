@@ -66,7 +66,6 @@ private:
   bool FileDrop(HDROP hdrop, DWORD dropEffect);
 
   // Private member variables
-  HWND   hwnd;
   bool   allowDrop;
 };
 

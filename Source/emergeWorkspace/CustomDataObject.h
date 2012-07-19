@@ -31,7 +31,6 @@ class CustomDataObject : public IDataObject
 private:
   ULONG refCount;
   UINT numFormats;
-  UINT CF_EMERGE_MENUITEM;
   LPFORMATETC pFormatEtc;
   LPSTGMEDIUM pStgMedium;
 

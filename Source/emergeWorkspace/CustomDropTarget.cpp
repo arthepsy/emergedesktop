@@ -33,6 +33,7 @@ HRESULT CreateDropTarget(IDropTarget **ppDropTarget, UINT type, WCHAR *value, Ti
 CustomDropTarget::CustomDropTarget(UINT type, WCHAR *value, TiXmlElement *dropElement, HMENU dropMenu)
 {
   refCount = 0;
+  allowDrop = false;
   this->type = type;
   this->dropElement = dropElement;
   this->dropMenu = dropMenu;

@@ -31,6 +31,7 @@ MenuBuilder::MenuBuilder(HINSTANCE desktopInst)
   mainInst = desktopInst;
   menuWnd = NULL;
   rootMenu = NULL;
+  taskMenu = NULL;
   MButtonDown = false;
   registered = false;
   winVersion = ELVersionInfo();
