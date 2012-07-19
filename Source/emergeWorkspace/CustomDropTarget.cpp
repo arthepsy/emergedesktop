@@ -56,7 +56,10 @@ bool CustomDropTarget::QueryDataObject(IDataObject *pDataObj)
 
   ZeroMemory(&fmtetc, sizeof(FORMATETC));
   fmtetc.dwAspect = DVASPECT_CONTENT;
-  fmtetc.tymed = TYMED_HGLOBAL;
+  if (type == IT_TASK)
+    fmtetc.tymed = TYMED_NULL;
+  else
+    fmtetc.tymed = TYMED_HGLOBAL;
   fmtetc.lindex = -1;
   if ((type == IT_FILE) || (type == IT_FILE_SUBMENU))
     fmtetc.cfFormat = CF_HDROP;

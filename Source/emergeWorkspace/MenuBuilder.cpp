@@ -1795,7 +1795,7 @@ void MenuBuilder::AddTaskItem(HWND task)
     return;
 
   swprintf(tmp, TEXT("%d"), (ULONG_PTR)task);
-  menuItem = new MenuItem(windowTitle, IT_SEPARATOR, tmp, NULL, NULL, iter->first);
+  menuItem = new MenuItem(windowTitle, IT_TASK, tmp, NULL, NULL, iter->first);
 
   itemInfo.fMask = MIIM_STRING | MIIM_ID;
   if ((winVersion < 6.0) || !pSettings->GetAeroMenus())
