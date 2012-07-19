@@ -487,9 +487,9 @@ LRESULT MenuBuilder::DoMenuDrag(HWND hwnd UNUSED, UINT pos, HMENU menu)
       if (effect == DROPEFFECT_MOVE)
         {
           if ((menuItem->GetType() != IT_FILE) && (menuItem->GetType() != IT_FILE_SUBMENU))
-          {
-            // Remove the menu element
-            TiXmlElement *menuElement = menuItem->GetElement();
+            {
+              // Remove the menu element
+              TiXmlElement *menuElement = menuItem->GetElement();
               TiXmlDocument *configXML = ELGetXMLConfig(menuElement);
               if (ELRemoveXMLElement(menuElement))
                 {
@@ -875,7 +875,11 @@ BOOL MenuBuilder::DoDrawItem(LPDRAWITEMSTRUCT lpDrawItem)
     {
       iter = menuMap.find((HMENU)lpDrawItem->hwndItem);
       if (iter != menuMap.end())
-        icon = iter->second->FindMenuItem(lpDrawItem->itemID)->GetIcon();
+        {
+          MenuItem *menuItem = iter->second->FindMenuItem(lpDrawItem->itemID);
+          if (menuItem)
+            icon = menuItem->GetIcon();
+        }
 
       if (icon != NULL)
         DrawIconEx(lpDrawItem->hDC, lpDrawItem->rcItem.left, lpDrawItem->rcItem.top, icon, 16, 16, 0, NULL, DI_NORMAL);
