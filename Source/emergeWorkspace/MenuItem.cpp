@@ -104,7 +104,7 @@ void MenuItem::SetIcon()
 
   switch (type)
     {
-    case IT_SEPARATOR:
+    case IT_TASK:
 #ifdef _W64
       task = (HWND)_wcstoi64(value, NULL, 10);
 #else
