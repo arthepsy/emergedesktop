@@ -143,8 +143,6 @@ private:
   void ElevatedExecute(MenuItem *menuItem);
   float winVersion;
   HMENU activeMenu;
-  HMENU dropMenu;
-  UINT dropPos;
   HANDLE MenuItemDataToHandle(MENUITEMDATA *menuItemData);
   HDROP FileToHandle(WCHAR *file);
 

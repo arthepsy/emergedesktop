@@ -43,8 +43,6 @@ MenuBuilder::MenuBuilder(HINSTANCE desktopInst)
   SelectedItemType = 0;
   ShellMessage = 0;
   activeMenu = NULL;
-  dropPos = 0;
-  dropMenu = NULL;
 
   menuHook = SetWindowsHookEx(WH_CALLWNDPROC, HookCallWndProc, 0, GetCurrentThreadId());
 }
@@ -299,84 +297,6 @@ LRESULT MenuBuilder::DoCopyData(COPYDATASTRUCT *cds)
   return 0;
 }
 
-/*bool MenuBuilder::MenuDrop(HMENU dragMenu, UINT dragPos)
-{
-  MENUITEMINFO dragItemInfo, dropItemInfo;
-  MenuItem *dragItem, *dropItem;
-  WCHAR name[MAX_LINE_LENGTH];
-
-  // If drop menu is NULL return false
-  if (!dropMenu)
-    return false;
-
-  // Get the menu item ID for the drop target
-  ZeroMemory(&dropItemInfo, sizeof(dropItemInfo));
-  dropItemInfo.cbSize = sizeof(dropItemInfo);
-  dropItemInfo.fMask = MIIM_ID;
-
-  if (!GetMenuItemInfo(dropMenu, dropPos, TRUE, &dropItemInfo))
-    return false;
-
-  // Get the menu item info for the drag object
-  ZeroMemory(&dragItemInfo, sizeof(dragItemInfo));
-  dragItemInfo.cbSize = sizeof(dragItemInfo);
-  dragItemInfo.fMask = MIIM_ID | MIIM_STRING | MIIM_BITMAP;
-  dragItemInfo.dwTypeData = name;
-  dragItemInfo.cch = MAX_LINE_LENGTH;
-
-  if (!GetMenuItemInfo(dragMenu, dragPos, TRUE, &dragItemInfo))
-    return false;
-
-  MenuMap::iterator dropIter = menuMap.find(dropMenu);
-  if (dropIter == menuMap.end())
-    return false;
-
-  MenuMap::iterator dragIter = menuMap.find(dragMenu);
-  if (dragIter == menuMap.end())
-    return false;
-
-  // Retrieve the drag menu item and XML element based on the menu item ID
-  dragItem = dragIter->second->FindMenuItem(dragItemInfo.wID);
-  TiXmlElement *dragElement = dragItem->GetElement();
-
-  // Retrieve the drop menu item and XML element based on the menu item ID
-  dropItem = dropIter->second->FindMenuItem(dropItemInfo.wID);
-  TiXmlElement *dropElement = dropItem->GetElement();
-
-  TiXmlDocument *configXML = ELGetXMLConfig(dragElement);
-  TiXmlElement *newElement = NULL;
-  // If both the drag and drop objects are the same just return
-  if ((dragMenu == dropMenu) && (dropPos == dragPos))
-    return true;
-  // If the drop pos is less than the drag pos, insert the new element
-  // above the drop element
-  else if (dropPos < dragPos)
-    newElement = ELSetSibilingXMLElement(dropElement, (WCHAR*)TEXT("item"), false);
-  // Default to inserting the new element after the drop element
-  else
-    newElement = ELSetSibilingXMLElement(dropElement, (WCHAR*)TEXT("item"), true);
-  if (newElement)
-    {
-      // Set the new element attributes based on the drag item attributes
-      ELWriteXMLStringValue(newElement, TEXT("Name"), dragItem->GetName());
-      ELWriteXMLIntValue(newElement, TEXT("Type"), dragItem->GetType());
-      ELWriteXMLStringValue(newElement, TEXT("Value"), dragItem->GetValue());
-      ELWriteXMLStringValue(newElement, TEXT("WorkingDir"), dragItem->GetWorkingDir());
-
-      // Remove the drag element
-      if (ELRemoveXMLElement(dragElement))
-        DeleteMenu(dragMenu, dragPos, MF_BYPOSITION);
-
-      // Update drag item's XML element
-      dragItem->SetElement(newElement);
-
-      // Insert the new element
-      InsertMenuItem(dropMenu, dropPos, TRUE, &dragItemInfo);
-      ELWriteXMLConfig(configXML);
-    }
-  return true;
-}*/
-
 LRESULT MenuBuilder::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
   return DefWindowProc(hwnd, message, wParam, lParam);
@@ -388,9 +308,6 @@ LRESULT MenuBuilder::DoMenuGetObject(HWND hwnd UNUSED, MENUGETOBJECTINFO *mgoInf
   IID menuInterface = IID_IDropTarget;
   MENUITEMINFO menuItemInfo;
   IDropTarget *dropTarget = NULL;
-
-  dropPos = 0;
-  dropMenu = NULL;
 
   menuItemInfo.cbSize = sizeof(menuItemInfo);
   menuItemInfo.fMask = MIIM_FTYPE | MIIM_SUBMENU | MIIM_ID;
@@ -407,9 +324,6 @@ LRESULT MenuBuilder::DoMenuGetObject(HWND hwnd UNUSED, MENUGETOBJECTINFO *mgoInf
     return MNGO_NOINTERFACE;
 
   dropTarget = menuItem->GetDropTarget();
-
-  dropMenu = mgoInfo->hmenu;
-  dropPos = mgoInfo->uPos;
 
   mgoInfo->riid = &menuInterface;
   mgoInfo->pvObj = dropTarget;
@@ -722,7 +636,7 @@ bool MenuBuilder::DropMenuItem(MENUITEMDATA *menuItemData, TiXmlElement *newElem
     }
 
   // Insert the new element
-  InsertMenuItem(dropMenu, MenuItemFromPoint(NULL, dropMenu, pt), TRUE, &menuItemInfo);
+  InsertMenuItem(menu, MenuItemFromPoint(NULL, menu, pt), TRUE, &menuItemInfo);
 
   return true;
 }
