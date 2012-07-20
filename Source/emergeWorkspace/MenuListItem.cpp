@@ -20,16 +20,11 @@
 
 #include "MenuListItem.h"
 
-MenuListItem::MenuListItem(WCHAR *name, UINT type, WCHAR *value, TiXmlElement *section, HMENU menu)
+MenuListItem::MenuListItem(UINT type, WCHAR *value, TiXmlElement *section, HMENU menu)
 {
   this->type = type;
   this->section = section;
   this->menu = menu;
-
-  if (name)
-    wcscpy(this->name, name);
-  else
-    wcscpy(this->name, (WCHAR*)TEXT("\0"));
 
   if (value)
     wcscpy(this->value, value);
@@ -51,19 +46,9 @@ TiXmlElement *MenuListItem::GetSection()
   return section;
 }
 
-WCHAR *MenuListItem::GetName()
-{
-  return name;
-}
-
 void MenuListItem::SetValue(WCHAR *value)
 {
   wcscpy((*this).value, value);
-}
-
-void MenuListItem::SetName(WCHAR *name)
-{
-  wcscpy((*this).name, name);
 }
 
 void MenuListItem::SetSection(TiXmlElement *section)

@@ -27,13 +27,11 @@
 class MenuListItem
 {
 public:
-  MenuListItem(WCHAR *name, UINT type, WCHAR *value, TiXmlElement *section, HMENU menu);
+  MenuListItem(UINT type, WCHAR *value, TiXmlElement *section, HMENU menu);
   ~MenuListItem();
-  WCHAR *GetName();
   WCHAR *GetValue();
   TiXmlElement *GetSection();
   void SetValue(WCHAR *value);
-  void SetName(WCHAR *name);
   void SetSection(TiXmlElement *section);
   UINT GetType();
   MenuItem *GetMenuItem(UINT index);
@@ -43,7 +41,7 @@ public:
   MenuItem *FindMenuItem(UINT id);
 
 private:
-  WCHAR value[MAX_LINE_LENGTH], name[MAX_LINE_LENGTH];
+  WCHAR value[MAX_LINE_LENGTH];
   UINT type;
   TiXmlElement *section;
   std::vector< std::tr1::shared_ptr<MenuItem> > menuItems;
