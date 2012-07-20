@@ -577,12 +577,17 @@ bool MenuBuilder::DropMenuItem(MENUITEMDATA *menuItemData, TiXmlElement *newElem
   menuItemInfo.dwTypeData = menuItemData->name;
   menuItemInfo.cch = MAX_LINE_LENGTH;
   menuItemInfo.wID = reinterpret_cast< UINT_PTR >(menuItem);
+  if (menuItemData->type == IT_SEPARATOR)
+    {
+      menuItemInfo.fMask |= MIIM_FTYPE;
+      menuItemInfo.fType = MFT_SEPARATOR;
+    }
+
   if ((winVersion < 6.0) || !pSettings->GetAeroMenus())
     {
       menuItemInfo.hbmpItem = HBMMENU_CALLBACK;
       menuItemInfo.fMask |= MIIM_BITMAP;
     }
-
   if (pSettings->GetMenuIcons())
     {
       menuItem->SetIcon();
