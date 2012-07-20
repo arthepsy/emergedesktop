@@ -52,6 +52,9 @@ CustomDropTarget::~CustomDropTarget()
 
 bool CustomDropTarget::QueryDataObject(IDataObject *pDataObj)
 {
+  if (pDataObj == NULL)
+    return false;
+
   FORMATETC fmtetc;
 
   ZeroMemory(&fmtetc, sizeof(FORMATETC));

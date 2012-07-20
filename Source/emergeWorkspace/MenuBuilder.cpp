@@ -109,14 +109,6 @@ bool MenuBuilder::Initialize()
   // Register to recieve the specified Emerge Desktop messages
   PostMessage(ELGetCoreWindow(), EMERGE_REGISTER, (WPARAM)menuWnd, (LPARAM)EMERGE_CORE);
 
-  //  LPVOID lpVoid;
-  //  customDropTarget = new CustomDropTarget(menuWnd);
-  //  customDropTarget->QueryInterface(IID_IDropTarget, &lpVoid);
-  //  dropTarget = reinterpret_cast <IDropTarget*> (lpVoid);
-
-  //  if (RegisterDragDrop(menuWnd, dropTarget) != S_OK)
-  //    return false;
-
   return true;
 }
 
@@ -410,7 +402,11 @@ LRESULT MenuBuilder::DoMenuGetObject(HWND hwnd UNUSED, MENUGETOBJECTINFO *mgoInf
   if (!GetMenuItemInfo(iter->first, mgoInfo->uPos, TRUE, &menuItemInfo))
     return MNGO_NOINTERFACE;
 
-  dropTarget = iter->second->FindMenuItem(menuItemInfo.wID)->GetDropTarget();
+  MenuItem *menuItem = iter->second->FindMenuItem(menuItemInfo.wID);
+  if (!menuItem)
+    return MNGO_NOINTERFACE;
+
+  dropTarget = menuItem->GetDropTarget();
 
   dropMenu = mgoInfo->hmenu;
   dropPos = mgoInfo->uPos;
