@@ -459,7 +459,6 @@ LRESULT MenuBuilder::DoContextMenu()
 {
   MENUITEMINFO menuItemInfo;
   MenuMap::iterator iter, subIter;
-  HMENU subMenu = NULL;
   TiXmlElement *element;
   TiXmlDocument *configXML;
   WCHAR value[MAX_LINE_LENGTH];
@@ -483,26 +482,18 @@ LRESULT MenuBuilder::DoContextMenu()
   if (!GetMenuItemInfo(iter->first, index, TRUE, &menuItemInfo))
     return 0;
 
-  subMenu = menuItemInfo.hSubMenu;
+  MenuItem *menuItem = iter->second->FindMenuItem(menuItemInfo.wID);
+  if (!menuItem)
+    return 0;
 
-  if (subMenu)
-    {
-      subIter = menuMap.find(subMenu);
-      if (subIter == menuMap.end())
-        return 0;
-
-      wcscpy(value, subIter->second->GetValue());
-    }
-  else
-    wcscpy(value, iter->second->FindMenuItem(menuItemInfo.wID)->GetValue());
-
-  element = iter->second->FindMenuItem(menuItemInfo.wID)->GetElement();
+  wcscpy(value, menuItem->GetValue());
+  element = menuItem->GetElement();
 
   switch (iter->second->GetType())
     {
       int res;
     case IT_XML_MENU:
-      res = DisplayRegContext(pt, iter->second->FindMenuItem(menuItemInfo.wID)->GetType());
+      res = DisplayRegContext(pt, menuItem->GetType());
       switch (res)
         {
         case DRM_DELETE:
@@ -520,11 +511,12 @@ LRESULT MenuBuilder::DoContextMenu()
           AddMenuItem(iter, index);
           break;
         case DRM_RUNAS:
-          ElevatedExecute(iter->second->FindMenuItem(menuItemInfo.wID));
+          ElevatedExecute(menuItem);
           break;
         }
       break;
     case IT_FILE_SUBMENU:
+    case IT_FILE_MENU:
       res = EAEDisplayFileMenu(value, menuWnd);
       if (res != 0)
         SendMessage(menuWnd, WM_CANCELMODE, 0, 0);
