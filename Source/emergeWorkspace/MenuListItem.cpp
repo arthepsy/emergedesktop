@@ -20,11 +20,10 @@
 
 #include "MenuListItem.h"
 
-MenuListItem::MenuListItem(UINT type, WCHAR *value, TiXmlElement *section, HMENU menu)
+MenuListItem::MenuListItem(UINT type, WCHAR *value, TiXmlElement *section)
 {
   this->type = type;
   this->section = section;
-  this->menu = menu;
 
   if (value)
     wcscpy(this->value, value);

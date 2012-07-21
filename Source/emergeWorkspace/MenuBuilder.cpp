@@ -601,8 +601,7 @@ bool MenuBuilder::DropMenuItem(MENUITEMDATA *menuItemData, TiXmlElement *newElem
           TiXmlElement *subSection = ELGetFirstXMLElementByName(newElement, (WCHAR*)TEXT("Submenu"), false);
           std::tr1::shared_ptr<MenuListItem> mli(new MenuListItem(menuItemData->type,
                                                  NULL,
-                                                 subSection,
-                                                 menuItemInfo.hSubMenu));
+                                                 subSection));
           menuMap.insert(std::pair< HMENU, std::tr1::shared_ptr<MenuListItem> >(menuItemInfo.hSubMenu, mli));
         }
         break;
@@ -611,8 +610,7 @@ bool MenuBuilder::DropMenuItem(MENUITEMDATA *menuItemData, TiXmlElement *newElem
         {
           std::tr1::shared_ptr<MenuListItem> mli(new MenuListItem(menuItemData->type,
                                                  menuItemData->value,
-                                                 NULL,
-                                                 menuItemInfo.hSubMenu));
+                                                 NULL));
           menuMap.insert(std::pair< HMENU, std::tr1::shared_ptr<MenuListItem> >(menuItemInfo.hSubMenu, mli));
         }
         break;
@@ -621,8 +619,7 @@ bool MenuBuilder::DropMenuItem(MENUITEMDATA *menuItemData, TiXmlElement *newElem
         {
           std::tr1::shared_ptr<MenuListItem> mli(new MenuListItem(menuItemData->type,
                                                  NULL,
-                                                 NULL,
-                                                 menuItemInfo.hSubMenu));
+                                                 NULL));
           menuMap.insert(std::pair< HMENU, std::tr1::shared_ptr<MenuListItem> >(menuItemInfo.hSubMenu, mli));
         }
         break;
@@ -1147,7 +1144,7 @@ void MenuBuilder::BuildXMLMenu(MenuMap::iterator iter)
           iter2 = menuMap.find(iter->first);
           if (iter2 != menuMap.end())
             {
-              std::tr1::shared_ptr<MenuListItem> mli(new MenuListItem(type, NULL, subSection, subMenu));
+              std::tr1::shared_ptr<MenuListItem> mli(new MenuListItem(type, NULL, subSection));
               menuMap.insert(std::pair< HMENU, std::tr1::shared_ptr<MenuListItem> >(subMenu, mli));
             }
         }
@@ -1188,7 +1185,7 @@ void MenuBuilder::BuildXMLMenu(MenuMap::iterator iter)
           iter2 = menuMap.find(iter->first);
           if (iter2 != menuMap.end())
             {
-              std::tr1::shared_ptr<MenuListItem> mli(new MenuListItem(type, value, NULL, iter->first));
+              std::tr1::shared_ptr<MenuListItem> mli(new MenuListItem(type, value, NULL));
               menuMap.insert(std::pair< HMENU, std::tr1::shared_ptr<MenuListItem> >(subMenu, mli));
             }
         }
@@ -1228,7 +1225,7 @@ void MenuBuilder::BuildXMLMenu(MenuMap::iterator iter)
           iter2 = menuMap.find(iter->first);
           if (iter2 != menuMap.end())
             {
-              std::tr1::shared_ptr<MenuListItem> mli(new MenuListItem(type, NULL, NULL, subMenu));
+              std::tr1::shared_ptr<MenuListItem> mli(new MenuListItem(type, NULL, NULL));
               menuMap.insert(std::pair< HMENU, std::tr1::shared_ptr<MenuListItem> >(subMenu, mli));
             }
         }
@@ -1502,7 +1499,7 @@ void MenuBuilder::BuildFileMenuFromString(MenuMap::iterator iter, WCHAR *parsedV
                     }
                 }
 
-              mli = std::tr1::shared_ptr<MenuListItem>(new MenuListItem(IT_FILE_SUBMENU, tmp, NULL, iter->first));
+              mli = std::tr1::shared_ptr<MenuListItem>(new MenuListItem(IT_FILE_SUBMENU, tmp, NULL));
               HMENU subMenu = CreatePopupMenu();
 
               wcscpy(tmp, findData.cFileName);
@@ -1810,7 +1807,7 @@ LRESULT MenuBuilder::DoButtonDown(UINT button)
             {
               ClearAllMenus();
               rootMenu = CreatePopupMenu();
-              mli = std::tr1::shared_ptr<MenuListItem>(new MenuListItem(IT_XML_MENU, NULL, menu, rootMenu));
+              mli = std::tr1::shared_ptr<MenuListItem>(new MenuListItem(IT_XML_MENU, NULL, menu));
               menuMap.insert(std::pair< HMENU, std::tr1::
                              shared_ptr<MenuListItem> >(rootMenu, mli));
               iter = menuMap.begin();
@@ -1826,6 +1823,7 @@ LRESULT MenuBuilder::DoButtonDown(UINT button)
                 }
 
               UINT itemID = TrackPopupMenuEx(rootMenu, TPM_RETURNCMD|TPM_RECURSE, mousePT.x, mousePT.y, menuWnd, NULL);
+              ELWriteDebug(towstring(itemID));
               if (itemID != 0)
                 ExecuteMenuItem(itemID);
 

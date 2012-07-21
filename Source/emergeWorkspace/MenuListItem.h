@@ -27,7 +27,7 @@
 class MenuListItem
 {
 public:
-  MenuListItem(UINT type, WCHAR *value, TiXmlElement *section, HMENU menu);
+  MenuListItem(UINT type, WCHAR *value, TiXmlElement *section);
   ~MenuListItem();
   WCHAR *GetValue();
   TiXmlElement *GetSection();
@@ -45,5 +45,4 @@ private:
   UINT type;
   TiXmlElement *section;
   std::vector< std::tr1::shared_ptr<MenuItem> > menuItems;
-  HMENU menu;
 };
