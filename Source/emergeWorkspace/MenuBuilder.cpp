@@ -443,28 +443,20 @@ HANDLE MenuBuilder::MenuItemDataToHandle(MENUITEMDATA *menuItemData)
 LRESULT MenuBuilder::DoContextMenu()
 {
   MENUITEMINFO menuItemInfo;
-  MenuMap::iterator iter, subIter;
   TiXmlElement *element;
   TiXmlDocument *configXML;
   WCHAR value[MAX_LINE_LENGTH];
   POINT pt;
   int index;
 
-  if (menuMap.empty())
-    return 0;
-
-  iter = menuMap.find(activeMenu);
-  if (iter == menuMap.end())
-    return 0;
-
   GetCursorPos(&pt);
-  index = MenuItemFromPoint(menuWnd, iter->first, pt);
+  index = MenuItemFromPoint(menuWnd, activeMenu, pt);
   if (index == -1)
     return 0;
 
   menuItemInfo.cbSize = sizeof(menuItemInfo);
   menuItemInfo.fMask = MIIM_FTYPE | MIIM_SUBMENU | MIIM_ID;
-  if (!GetMenuItemInfo(iter->first, index, TRUE, &menuItemInfo))
+  if (!GetMenuItemInfo(activeMenu, index, TRUE, &menuItemInfo))
     return 0;
 
   std::tr1::shared_ptr<MenuItem> menuItem = menuItemMap.find(menuItemInfo.wID)->second;
@@ -474,39 +466,10 @@ LRESULT MenuBuilder::DoContextMenu()
   wcscpy(value, menuItem->GetValue());
   element = menuItem->GetElement();
 
-  switch (iter->second->GetType())
+  switch (menuItem->GetType())
     {
       int res;
-    case IT_XML_MENU:
-      res = DisplayRegContext(pt, menuItem->GetType());
-      switch (res)
-        {
-        case DRM_DELETE:
-          configXML = ELGetXMLConfig(element);
-          if (ELRemoveXMLElement(element))
-            {
-              if (ELWriteXMLConfig(configXML))
-                DeleteMenu(iter->first, index, MF_BYPOSITION);
-            }
-          break;
-        case DRM_EDIT:
-          EditMenuItem(iter, index);
-          break;
-        case DRM_ADD:
-          AddMenuItem(iter, index);
-          break;
-        case DRM_RUNAS:
-          ElevatedExecute(menuItem);
-          break;
-        }
-      break;
-    case IT_FILE_SUBMENU:
-    case IT_FILE_MENU:
-      res = EAEDisplayFileMenu(value, menuWnd);
-      if (res != 0)
-        SendMessage(menuWnd, WM_CANCELMODE, 0, 0);
-      break;
-    case IT_TASKS_MENU:
+    case IT_TASK:
     {
 #ifdef _W64
       HWND task = (HWND)_wcstoi64(value, NULL, 10);
@@ -517,7 +480,7 @@ LRESULT MenuBuilder::DoContextMenu()
       if (res)
         {
           if (res == SC_CLOSE)
-            DeleteMenu(iter->first, index, MF_BYPOSITION);
+            DeleteMenu(activeMenu, index, MF_BYPOSITION);
           else
             {
               SendMessage(menuWnd, WM_CANCELMODE, 0, 0);
@@ -527,6 +490,35 @@ LRESULT MenuBuilder::DoContextMenu()
         }
     }
     break;
+    case IT_FILE_SUBMENU:
+    case IT_FILE:
+      res = EAEDisplayFileMenu(value, menuWnd);
+      if (res != 0)
+        SendMessage(menuWnd, WM_CANCELMODE, 0, 0);
+      break;
+    default:
+      res = DisplayRegContext(pt, menuItem->GetType());
+      switch (res)
+        {
+        case DRM_DELETE:
+          configXML = ELGetXMLConfig(element);
+          if (ELRemoveXMLElement(element))
+            {
+              if (ELWriteXMLConfig(configXML))
+                DeleteMenu(activeMenu, index, MF_BYPOSITION);
+            }
+          break;
+        case DRM_EDIT:
+          EditMenuItem(activeMenu, index);
+          break;
+        case DRM_ADD:
+          AddMenuItem(activeMenu, index);
+          break;
+        case DRM_RUNAS:
+          ElevatedExecute(menuItem);
+          break;
+        }
+      break;
     }
 
   return 1;
@@ -617,7 +609,7 @@ bool MenuBuilder::DropMenuItem(MENUITEMDATA *menuItemData, TiXmlElement *newElem
   return true;
 }
 
-bool MenuBuilder::AddMenuItem(MenuMap::iterator iter, int index)
+bool MenuBuilder::AddMenuItem(HMENU menu, int index)
 {
   int type;
   MENUITEMINFO menuItemInfo;
@@ -628,7 +620,7 @@ bool MenuBuilder::AddMenuItem(MenuMap::iterator iter, int index)
   menuItemInfo.cbSize = sizeof(menuItemInfo);
   menuItemInfo.fMask = MIIM_ID;
 
-  if (!GetMenuItemInfo(iter->first, index, TRUE, &menuItemInfo))
+  if (!GetMenuItemInfo(menu, index, TRUE, &menuItemInfo))
     return false;
 
   element = menuItemMap.find(menuItemInfo.wID)->second->GetElement();
@@ -636,12 +628,12 @@ bool MenuBuilder::AddMenuItem(MenuMap::iterator iter, int index)
   if (!element)
     return false;
 
-  menuItem = new MenuItem((WCHAR*)TEXT("New Item"), -1, NULL, NULL, NULL, iter->first);
+  menuItem = new MenuItem((WCHAR*)TEXT("New Item"), -1, NULL, NULL, NULL, menu);
 
   menuItemInfo.wID = reinterpret_cast< UINT_PTR >(menuItem);
   menuItemMap.insert(MenuItemPair(menuItemInfo.wID, std::tr1::shared_ptr<MenuItem>(menuItem)));
 
-  InsertMenuItem(iter->first, index, TRUE, &menuItemInfo);
+  InsertMenuItem(menu, index, TRUE, &menuItemInfo);
 
   newElement = ELSetSibilingXMLElement(element, (WCHAR*)TEXT("item"));
   if (!newElement)
@@ -681,7 +673,7 @@ bool MenuBuilder::AddMenuItem(MenuMap::iterator iter, int index)
   return true;
 }
 
-bool MenuBuilder::EditMenuItem(MenuMap::iterator iter, int index)
+bool MenuBuilder::EditMenuItem(HMENU menu, int index)
 {
   WCHAR name[MAX_LINE_LENGTH], value[MAX_LINE_LENGTH], workingDir[MAX_LINE_LENGTH];
   UINT type;
@@ -691,7 +683,7 @@ bool MenuBuilder::EditMenuItem(MenuMap::iterator iter, int index)
   menuItemInfo.cbSize = sizeof(menuItemInfo);
   menuItemInfo.fMask = MIIM_ID;
 
-  if (!GetMenuItemInfo(iter->first, index, TRUE, &menuItemInfo))
+  if (!GetMenuItemInfo(menu, index, TRUE, &menuItemInfo))
     return false;
 
   std::tr1::shared_ptr<MenuItem> menuItem = menuItemMap.find(menuItemInfo.wID)->second;

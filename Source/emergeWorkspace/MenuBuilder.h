@@ -138,8 +138,8 @@ private:
   MenuMap::iterator GetMenuIterID(POINT pt, int *index);
   int DisplayRegContext(POINT pt, int type);
   bool registered;
-  bool AddMenuItem(MenuMap::iterator iter, int index);
-  bool EditMenuItem(MenuMap::iterator iter, int index);
+  bool AddMenuItem(HMENU menu, int index);
+  bool EditMenuItem(HMENU menu, int index);
   void ElevatedExecute(std::tr1::shared_ptr<MenuItem> menuItem);
   float winVersion;
   HMENU activeMenu;
