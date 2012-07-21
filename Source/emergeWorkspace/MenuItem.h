@@ -51,5 +51,4 @@ private:
   WCHAR workingDir[MAX_PATH];
   HICON icon;
   IDropTarget *dropTarget;
-  HMENU menu;
 };

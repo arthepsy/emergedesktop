@@ -27,7 +27,6 @@ MenuItem::MenuItem(WCHAR *name, UINT type, WCHAR* value, WCHAR *workingDir, TiXm
   this->element = element;
   this->type = type;
   icon = NULL;
-  this->menu = menu;
 
   if (name)
     wcscpy(this->name, name);
