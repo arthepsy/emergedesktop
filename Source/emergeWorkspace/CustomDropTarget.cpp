@@ -59,7 +59,7 @@ bool CustomDropTarget::QueryDataObject(IDataObject *pDataObj)
 
   ZeroMemory(&fmtetc, sizeof(FORMATETC));
   fmtetc.dwAspect = DVASPECT_CONTENT;
-  if (type == IT_TASK)
+  if ((type == IT_TASK) || (type == IT_SETTING_ITEM) || (type == IT_HELP_ITEM))
     fmtetc.tymed = TYMED_NULL;
   else
     fmtetc.tymed = TYMED_HGLOBAL;

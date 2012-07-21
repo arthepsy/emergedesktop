@@ -22,7 +22,6 @@
 
 #include <vector>
 #include "../emergeLib/emergeLib.h"
-#include "MenuItem.h"
 
 class MenuListItem
 {
@@ -34,15 +33,9 @@ public:
   void SetValue(WCHAR *value);
   void SetSection(TiXmlElement *section);
   UINT GetType();
-  MenuItem *GetMenuItem(UINT index);
-  UINT GetMenuItemCount();
-  void AddMenuItem(MenuItem *menuItem);
-  void DeleteMenuItem(UINT index);
-  MenuItem *FindMenuItem(UINT id);
 
 private:
   WCHAR value[MAX_LINE_LENGTH];
   UINT type;
   TiXmlElement *section;
-  std::vector< std::tr1::shared_ptr<MenuItem> > menuItems;
 };

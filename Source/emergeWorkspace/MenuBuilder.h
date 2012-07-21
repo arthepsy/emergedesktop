@@ -33,6 +33,7 @@
 #include <time.h>
 #include "ItemEditor.h"
 #include "MenuListItem.h"
+#include "MenuItem.h"
 #include "Config.h"
 #include "../emergeGraphics/emergeGraphics.h"
 #include "../emergeAppletEngine/emergeAppletEngine.h"
@@ -96,6 +97,9 @@ typedef enum _BUILDHELPMENU {
 } BUILDHELPMENU;
 
 typedef std::map< HMENU,std::tr1::shared_ptr<MenuListItem> > MenuMap;
+typedef std::pair< HMENU,std::tr1::shared_ptr<MenuListItem> > MenuPair;
+typedef std::map< UINT_PTR,std::tr1::shared_ptr<MenuItem> > MenuItemMap;
+typedef std::pair< UINT_PTR,std::tr1::shared_ptr<MenuItem> > MenuItemPair;
 
 class MenuBuilder
 {
@@ -129,7 +133,7 @@ private:
   void ExecuteHelpMenuItem(UINT index);
   void ExpandEmergeVar(LPTSTR value, LPTSTR var);
   void ClearMenu(MenuMap::iterator iter);
-  void AddSettingsItem(MenuMap::iterator iter, WCHAR* text, UINT id);
+  void AddSpecialItem(MenuMap::iterator iter, UINT type, WCHAR* text, UINT id);
   bool GetPos(MenuMap::iterator iter, WCHAR *input, bool directory, UINT *pos, UINT *itemID, ULONG_PTR *itemData);
   static LRESULT CALLBACK HookCallWndProc(int nCode, WPARAM wParam, LPARAM lParam);
   static BOOL CALLBACK BuildTasksMenu(HWND hwnd, LPARAM lParam);
@@ -140,11 +144,12 @@ private:
   bool registered;
   bool AddMenuItem(MenuMap::iterator iter, int index);
   bool EditMenuItem(MenuMap::iterator iter, int index);
-  void ElevatedExecute(MenuItem *menuItem);
+  void ElevatedExecute(std::tr1::shared_ptr<MenuItem> menuItem);
   float winVersion;
   HMENU activeMenu;
   HANDLE MenuItemDataToHandle(MENUITEMDATA *menuItemData);
   HDROP FileToHandle(WCHAR *file);
+  MenuItemMap menuItemMap;
 
 public:
   MenuBuilder(HINSTANCE desktopInst);
