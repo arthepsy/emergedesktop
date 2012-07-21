@@ -911,8 +911,6 @@ void MenuBuilder::BuildXMLMenu(MenuMap::iterator iter)
   bool found = false;
   WCHAR value[MAX_LINE_LENGTH], name[MAX_LINE_LENGTH], workingDir[MAX_PATH];
   MENUITEMINFO itemInfo;
-  MenuMap::iterator iter2;
-  MenuItemMap::iterator itemIter;
   HMENU subMenu;
   TiXmlElement *tmp, *subSection, *child = ELGetFirstXMLElement(iter->second->GetSection());
 

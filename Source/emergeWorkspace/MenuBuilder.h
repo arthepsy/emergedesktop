@@ -135,7 +135,6 @@ private:
   static BOOL CALLBACK BuildTasksMenu(HWND hwnd, LPARAM lParam);
   static LRESULT CALLBACK MenuProcedure (HWND, UINT, WPARAM, LPARAM);
   static BOOL CALLBACK SetMonitorArea(HMONITOR hMonitor, HDC hdcMonitor, LPRECT lprcMonitor, LPARAM dwData);
-  MenuMap::iterator GetMenuIterID(POINT pt, int *index);
   int DisplayRegContext(POINT pt, int type);
   bool registered;
   bool AddMenuItem(HMENU menu, int index);
