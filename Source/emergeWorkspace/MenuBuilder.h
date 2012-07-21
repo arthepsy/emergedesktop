@@ -110,10 +110,6 @@ private:
   HINSTANCE mainInst;
   HMENU rootMenu, taskMenu;
   bool MButtonDown;
-  UINT SelectedMenuType, SelectedMenuIndex;
-  HMENU SelectedMenu;
-  WORD SelectedItem;
-  WORD SelectedItemType;
   UINT ShellMessage;
   void BuildMenu(MenuMap::iterator iter);
   void BuildXMLMenu(MenuMap::iterator iter);

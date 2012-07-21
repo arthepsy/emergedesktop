@@ -36,11 +36,6 @@ MenuBuilder::MenuBuilder(HINSTANCE desktopInst)
   registered = false;
   winVersion = ELVersionInfo();
   SetRectEmpty(&explorerWorkArea);
-  SelectedMenuType = 0;
-  SelectedMenuIndex = 0;
-  SelectedMenu = NULL;
-  SelectedItem = 0;
-  SelectedItemType = 0;
   ShellMessage = 0;
   activeMenu = NULL;
 
@@ -184,9 +179,6 @@ LRESULT CALLBACK MenuBuilder::MenuProcedure (HWND hwnd, UINT message, WPARAM wPa
 
     case WM_INITMENUPOPUP:
       return pMenuBuilder->DoInitMenu((HMENU)wParam);
-
-    case WM_MENUSELECT:
-      return pMenuBuilder->DoMenuSelect((HMENU)lParam, HIWORD(wParam), LOWORD(wParam));
 
     case WM_MEASUREITEM:
       return pMenuBuilder->DoMeasureItem((LPMEASUREITEMSTRUCT)lParam);
@@ -729,18 +721,6 @@ int MenuBuilder::DisplayRegContext(POINT pt, int type)
   AppendMenu(menu, MF_STRING, DRM_DELETE, TEXT("Delete Menu Item"));
 
   return TrackPopupMenuEx(menu, TPM_RETURNCMD|TPM_RECURSE, pt.x, pt.y, menuWnd, NULL);
-}
-
-LRESULT MenuBuilder::DoMenuSelect(HMENU menu, WORD itemType, WORD item)
-{
-  if (menu != NULL)
-    {
-      SelectedMenu = menu;
-      SelectedItem = item;
-      SelectedItemType = itemType;
-    }
-
-  return 1;
 }
 
 BOOL MenuBuilder::DoMeasureItem(LPMEASUREITEMSTRUCT lpMeasureItem)
