@@ -469,6 +469,9 @@ LRESULT MenuBuilder::DoContextMenu()
   switch (menuItem->GetType())
     {
       int res;
+    case IT_HELP_ITEM:
+    case IT_SETTING_ITEM:
+      break;
     case IT_TASK:
     {
 #ifdef _W64
