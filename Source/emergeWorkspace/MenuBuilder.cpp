@@ -328,11 +328,16 @@ LRESULT MenuBuilder::DoMenuDrag(HWND hwnd UNUSED, UINT pos, HMENU menu)
   menuItemInfo.fMask = MIIM_FTYPE | MIIM_SUBMENU | MIIM_ID;
 
   if (!GetMenuItemInfo(menu, pos, TRUE, &menuItemInfo))
-    return MND_ENDMENU;
+    return MND_CONTINUE;
 
   std::tr1::shared_ptr<MenuItem> menuItem = menuItemMap.find(menuItemInfo.wID)->second;
   if (!menuItem)
-    return MND_ENDMENU;
+    return MND_CONTINUE;
+
+  if ((menuItem->GetType() == IT_TASK) ||
+      (menuItem->GetType() == IT_HELP_ITEM) ||
+      (menuItem->GetType() == IT_SETTING_ITEM))
+    return MND_CONTINUE;
 
   FORMATETC fmtetc;
   STGMEDIUM stgmed;
