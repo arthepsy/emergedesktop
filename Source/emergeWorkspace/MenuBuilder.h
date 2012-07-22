@@ -154,7 +154,7 @@ public:
   LRESULT DoMenuDrag(HWND hwnd, UINT pos, HMENU menu);
   LRESULT DoMenuGetObject(HWND hwnd, MENUGETOBJECTINFO *mgoInfo);
   LRESULT DoInitMenu(HMENU menu);
-  LRESULT ExecuteMenuItem(UINT itemID);
+  LRESULT ExecuteMenuItem(UINT_PTR itemID);
   LRESULT DoContextMenu();
   LRESULT DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
   LRESULT DoCopyData(COPYDATASTRUCT *cds);
