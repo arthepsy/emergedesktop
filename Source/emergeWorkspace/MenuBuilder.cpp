@@ -488,7 +488,7 @@ LRESULT MenuBuilder::DoContextMenu()
       if (res)
         {
           if (res == SC_CLOSE)
-            DeleteMenu(activeMenu, index, MF_BYPOSITION);
+            DeleteMenu(menuItem->GetMenu(), menuItem->GetID(), MF_BYCOMMAND);
           else
             {
               SendMessage(menuWnd, WM_CANCELMODE, 0, 0);
@@ -513,14 +513,14 @@ LRESULT MenuBuilder::DoContextMenu()
           if (ELRemoveXMLElement(element))
             {
               if (ELWriteXMLConfig(configXML))
-                DeleteMenu(activeMenu, index, MF_BYPOSITION);
+                DeleteMenu(menuItem->GetMenu(), menuItem->GetID(), MF_BYCOMMAND);
             }
           break;
         case DRM_EDIT:
-          EditMenuItem(activeMenu, index);
+          EditMenuItem(menuItem);
           break;
         case DRM_ADD:
-          AddMenuItem(activeMenu, index);
+          AddMenuItem(menuItem);
           break;
         case DRM_RUNAS:
           ElevatedExecute(menuItem);
@@ -617,43 +617,35 @@ bool MenuBuilder::DropMenuItem(MENUITEMDATA *menuItemData, TiXmlElement *newElem
   return true;
 }
 
-bool MenuBuilder::AddMenuItem(HMENU menu, int index)
+bool MenuBuilder::AddMenuItem(std::tr1::shared_ptr<MenuItem> menuItem)
 {
   int type;
   MENUITEMINFO menuItemInfo;
-  TiXmlElement *element, *newElement, *subMenu, *subItem;;
+  TiXmlElement *newElement, *subMenu, *subItem;;
   TiXmlDocument *configXML;
-  MenuItem *menuItem;
+  MenuItem *newMenuItem;
 
   menuItemInfo.cbSize = sizeof(menuItemInfo);
   menuItemInfo.fMask = MIIM_ID;
 
-  if (!GetMenuItemInfo(menu, index, TRUE, &menuItemInfo))
-    return false;
+  newMenuItem = new MenuItem((WCHAR*)TEXT("New Item"), -1, NULL, NULL, NULL, menuItem->GetMenu());
 
-  element = menuItemMap.find(menuItemInfo.wID)->second->GetElement();
+  menuItemInfo.wID = reinterpret_cast< UINT_PTR >(newMenuItem);
+  menuItemMap.insert(MenuItemPair(menuItemInfo.wID, std::tr1::shared_ptr<MenuItem>(newMenuItem)));
 
-  if (!element)
-    return false;
+  InsertMenuItem(menuItem->GetMenu(), menuItem->GetID(), FALSE, &menuItemInfo);
 
-  menuItem = new MenuItem((WCHAR*)TEXT("New Item"), -1, NULL, NULL, NULL, menu);
-
-  menuItemInfo.wID = reinterpret_cast< UINT_PTR >(menuItem);
-  menuItemMap.insert(MenuItemPair(menuItemInfo.wID, std::tr1::shared_ptr<MenuItem>(menuItem)));
-
-  InsertMenuItem(menu, index, TRUE, &menuItemInfo);
-
-  newElement = ELSetSibilingXMLElement(element, (WCHAR*)TEXT("item"));
+  newElement = ELSetSibilingXMLElement(menuItem->GetElement(), (WCHAR*)TEXT("item"));
   if (!newElement)
     return false;
 
   configXML = ELGetXMLConfig(newElement);
 
   if (pItemEditor->Show(newElement,
-                        menuItem->GetName(),
-                        menuItem->GetValue(),
-                        menuItem->GetType(),
-                        menuItem->GetWorkingDir()) == IDCANCEL)
+                        newMenuItem->GetName(),
+                        newMenuItem->GetValue(),
+                        newMenuItem->GetType(),
+                        newMenuItem->GetWorkingDir()) == IDCANCEL)
     {
       ELRemoveXMLElement(newElement);
       ELWriteXMLConfig(configXML);
@@ -681,27 +673,9 @@ bool MenuBuilder::AddMenuItem(HMENU menu, int index)
   return true;
 }
 
-bool MenuBuilder::EditMenuItem(HMENU menu, int index)
+bool MenuBuilder::EditMenuItem(std::tr1::shared_ptr<MenuItem> menuItem)
 {
-  WCHAR name[MAX_LINE_LENGTH], value[MAX_LINE_LENGTH], workingDir[MAX_LINE_LENGTH];
-  UINT type;
-  MENUITEMINFO menuItemInfo;
-  TiXmlElement *element;
-
-  menuItemInfo.cbSize = sizeof(menuItemInfo);
-  menuItemInfo.fMask = MIIM_ID;
-
-  if (!GetMenuItemInfo(menu, index, TRUE, &menuItemInfo))
-    return false;
-
-  std::tr1::shared_ptr<MenuItem> menuItem = menuItemMap.find(menuItemInfo.wID)->second;
-  wcscpy(value, menuItem->GetValue());
-  wcscpy(name, menuItem->GetName());
-  wcscpy(workingDir, menuItem->GetWorkingDir());
-  type = menuItem->GetType();
-  element = menuItem->GetElement();
-
-  pItemEditor->Show(element, name, value, type, workingDir);
+  pItemEditor->Show(menuItem->GetElement(), menuItem->GetName(), menuItem->GetValue(), menuItem->GetType(), menuItem->GetWorkingDir());
 
   return true;
 }
@@ -1675,7 +1649,7 @@ void MenuBuilder::AddTaskItem(HWND task)
   itemInfo.wID = reinterpret_cast< UINT_PTR >(menuItem);
   menuItemMap.insert(MenuItemPair(itemInfo.wID, std::tr1::shared_ptr<MenuItem>(menuItem)));
 
-  InsertMenuItem(iter->first, itemInfo.wID, TRUE, &itemInfo);
+  InsertMenuItem(iter->first, GetMenuItemCount(iter->first), TRUE, &itemInfo);
 }
 
 //----  --------------------------------------------------------------------------------------------------------

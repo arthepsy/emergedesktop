@@ -33,6 +33,7 @@ public:
   WCHAR *GetName();
   WCHAR *GetValue();
   WCHAR *GetWorkingDir();
+  HMENU GetMenu();
   TiXmlElement *GetElement();
   HICON GetIcon();
   IDropTarget *GetDropTarget();
@@ -51,4 +52,5 @@ private:
   WCHAR workingDir[MAX_PATH];
   HICON icon;
   IDropTarget *dropTarget;
+  HMENU menu;
 };

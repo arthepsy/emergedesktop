@@ -26,6 +26,7 @@ MenuItem::MenuItem(WCHAR *name, UINT type, WCHAR* value, WCHAR *workingDir, TiXm
   CreateDropTarget(&dropTarget, type, value, element, menu);
   this->element = element;
   this->type = type;
+  this->menu = menu;
   icon = NULL;
 
   if (name)
@@ -50,6 +51,11 @@ MenuItem::~MenuItem()
     dropTarget->Release();
 
   DestroyIcon(icon);
+}
+
+HMENU MenuItem::GetMenu()
+{
+  return menu;
 }
 
 UINT_PTR MenuItem::GetID()

@@ -137,8 +137,8 @@ private:
   static BOOL CALLBACK SetMonitorArea(HMONITOR hMonitor, HDC hdcMonitor, LPRECT lprcMonitor, LPARAM dwData);
   int DisplayRegContext(POINT pt, int type);
   bool registered;
-  bool AddMenuItem(HMENU menu, int index);
-  bool EditMenuItem(HMENU menu, int index);
+  bool AddMenuItem(std::tr1::shared_ptr<MenuItem> menuItem);
+  bool EditMenuItem(std::tr1::shared_ptr<MenuItem> menuItem);
   void ElevatedExecute(std::tr1::shared_ptr<MenuItem> menuItem);
   float winVersion;
   HMENU activeMenu;
