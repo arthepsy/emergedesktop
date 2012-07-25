@@ -400,7 +400,8 @@ LRESULT MenuBuilder::DoMenuDrag(HWND hwnd UNUSED, UINT pos, HMENU menu)
                       if (subIter != menuMap.end())
                         ClearMenu(subIter);
                     }
-                  DeleteMenu(menu, menuItem->GetID(), MF_BYCOMMAND);
+                  if (DeleteMenu(menu, menuItem->GetID(), MF_BYCOMMAND))
+                    menuItemMap.erase(menuItemMap.find(menuItem->GetID()));
                 }
             }
         }
@@ -453,6 +454,7 @@ LRESULT MenuBuilder::DoContextMenu()
   WCHAR value[MAX_LINE_LENGTH];
   POINT pt;
   int index;
+  MenuMap::iterator subIter;
 
   GetCursorPos(&pt);
   index = MenuItemFromPoint(menuWnd, activeMenu, pt);
@@ -488,7 +490,10 @@ LRESULT MenuBuilder::DoContextMenu()
       if (res)
         {
           if (res == SC_CLOSE)
-            DeleteMenu(menuItem->GetMenu(), menuItem->GetID(), MF_BYCOMMAND);
+            {
+              if (DeleteMenu(menuItem->GetMenu(), menuItem->GetID(), MF_BYCOMMAND))
+                menuItemMap.erase(menuItemMap.find(menuItem->GetID()));
+            }
           else
             {
               SendMessage(menuWnd, WM_CANCELMODE, 0, 0);
@@ -512,8 +517,15 @@ LRESULT MenuBuilder::DoContextMenu()
           configXML = ELGetXMLConfig(element);
           if (ELRemoveXMLElement(element))
             {
-              if (ELWriteXMLConfig(configXML))
-                DeleteMenu(menuItem->GetMenu(), menuItem->GetID(), MF_BYCOMMAND);
+              ELWriteXMLConfig(configXML);
+              if (menuItem->GetType() == IT_XML_MENU)
+                {
+                  subIter = menuMap.find(menuItemInfo.hSubMenu);
+                  if (subIter != menuMap.end())
+                    ClearMenu(subIter);
+                }
+              if (DeleteMenu(menuItem->GetMenu(), menuItem->GetID(), MF_BYCOMMAND))
+                menuItemMap.erase(menuItemMap.find(menuItem->GetID()));
             }
           break;
         case DRM_EDIT:
