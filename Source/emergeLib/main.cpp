@@ -778,7 +778,7 @@ TiXmlElement *ELGetSiblingXMLElement(TiXmlElement *xmlElement)
   return xmlElement->NextSiblingElement();
 }
 
-TiXmlElement *ELCloneXMLElement(TiXmlElement *sourceElement, TiXmlElement *targetElement)
+TiXmlElement *ELCloneXMLElementAsSibling(TiXmlElement *sourceElement, TiXmlElement *targetElement)
 {
   TiXmlElement *sibling = NULL, *newElement = NULL;
   if (sourceElement)
@@ -788,6 +788,18 @@ TiXmlElement *ELCloneXMLElement(TiXmlElement *sourceElement, TiXmlElement *targe
     sibling = targetElement->Parent()->InsertBeforeChild(targetElement, *newElement)->ToElement();
 
   return sibling;
+}
+
+TiXmlElement *ELCloneXMLElementAsChild(TiXmlElement *sourceElement, TiXmlElement *targetElement)
+{
+  TiXmlElement *newElement = NULL;
+  if (sourceElement)
+    newElement = sourceElement->Clone()->ToElement();
+
+  if (targetElement && newElement)
+    targetElement->LinkEndChild(newElement);
+
+  return newElement;
 }
 
 TiXmlElement *ELSetSibilingXMLElement(TiXmlElement *xmlElement, const WCHAR *elementName, bool insertAfter)

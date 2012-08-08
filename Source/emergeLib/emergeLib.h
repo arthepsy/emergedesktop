@@ -510,5 +510,6 @@ DLL_EXPORT void *ELLockShared(HANDLE sharedMem, DWORD processID);
 DLL_EXPORT BOOL ELUnlockShared(void *sharedPtr);
 DLL_EXPORT bool ELGetUNCFromMap(LPCTSTR map, LPTSTR unc, size_t uncLength);
 DLL_EXPORT bool ELIsAppletRunning(std::wstring applet);
-DLL_EXPORT TiXmlElement *ELCloneXMLElement(TiXmlElement *sourceElement, TiXmlElement *targetElement);
+DLL_EXPORT TiXmlElement *ELCloneXMLElementAsSibling(TiXmlElement *sourceElement, TiXmlElement *targetElement);
+DLL_EXPORT TiXmlElement *ELCloneXMLElementAsChild(TiXmlElement *sourceElement, TiXmlElement *targetElement);
 #endif

@@ -144,7 +144,15 @@ bool CustomDropTarget::DataDrop(IDataObject *pDataObj, POINTL pt, DWORD dropEffe
 
 bool CustomDropTarget::MenuItemDrop(MENUITEMDATA *menuItemData, POINT menuItemPt)
 {
-  TiXmlElement *newElement = ELCloneXMLElement(menuItemData->element, dropElement);
+  TiXmlElement *newElement = NULL;
+
+  ELWriteDebug(menuItemData->name);
+
+  if (type == IT_XML_MENU)
+    newElement = ELCloneXMLElementAsChild(menuItemData->element, dropElement);
+  else
+    newElement = ELCloneXMLElementAsSibling(menuItemData->element, dropElement);
+
   if (newElement)
     {
       ELWriteXMLConfig(ELGetXMLConfig(newElement));

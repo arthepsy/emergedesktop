@@ -1072,7 +1072,7 @@ void MenuBuilder::BuildXMLMenu(MenuMap::iterator iter)
           subSection = ELGetFirstXMLElementByName(child, (WCHAR*)TEXT("Submenu"), false);
           subMenu = CreatePopupMenu();
           NoPrefixString(name);
-          MenuItem *menuItem = new MenuItem(name, type, NULL, NULL, child, iter->first);
+          MenuItem *menuItem = new MenuItem(name, type, NULL, NULL, subSection, subMenu);
 
           itemInfo.fMask = MIIM_STRING | MIIM_ID | MIIM_SUBMENU;
           itemInfo.cbSize = sizeof(MENUITEMINFO);
