@@ -376,13 +376,7 @@ LRESULT MenuBuilder::DoMenuDrag(HWND hwnd UNUSED, UINT pos, HMENU menu)
     }
   else
     {
-      ZeroMemory(&menuItemData, sizeof(MENUITEMDATA));
-      wcscpy(menuItemData.name, menuItem->GetName());
-      menuItemData.type = menuItem->GetType();
-      wcscpy(menuItemData.value, menuItem->GetValue());
-      wcscpy(menuItemData.workingDir, menuItem->GetWorkingDir());
-      menuItemData.element =  menuItem->GetElement();
-
+      CopyMemory(&menuItemData, menuItem->GetMenuItemData(), sizeof(MENUITEMDATA));
       fmtetc.cfFormat = CF_EMERGE_MENUITEM;
       stgmed.hGlobal = MenuItemDataToHandle(&menuItemData);
     }

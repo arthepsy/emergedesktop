@@ -43,6 +43,7 @@ public:
   void SetName(WCHAR *name);
   void SetElement(TiXmlElement *element);
   UINT_PTR GetID();
+  MENUITEMDATA *GetMenuItemData();
 
 private:
   MENUITEMDATA menuItemData;

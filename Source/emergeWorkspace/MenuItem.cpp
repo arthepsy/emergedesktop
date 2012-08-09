@@ -83,6 +83,11 @@ HICON MenuItem::GetIcon()
   return icon;
 }
 
+MENUITEMDATA *MenuItem::GetMenuItemData()
+{
+  return &menuItemData;
+}
+
 void MenuItem::SetIcon()
 {
   WCHAR command[MAX_PATH], args[MAX_PATH], lwrValue[MAX_LINE_LENGTH];
