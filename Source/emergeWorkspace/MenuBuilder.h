@@ -145,6 +145,7 @@ private:
   HANDLE MenuItemDataToHandle(MENUITEMDATA *menuItemData);
   HDROP FileToHandle(WCHAR *file);
   MenuItemMap menuItemMap;
+  bool topGap, bottomGap;
 
 public:
   MenuBuilder(HINSTANCE desktopInst);

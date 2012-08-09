@@ -38,6 +38,8 @@ MenuBuilder::MenuBuilder(HINSTANCE desktopInst)
   SetRectEmpty(&explorerWorkArea);
   ShellMessage = 0;
   activeMenu = NULL;
+  topGap = false;
+  bottomGap = false;
 
   menuHook = SetWindowsHookEx(WH_CALLWNDPROC, HookCallWndProc, 0, GetCurrentThreadId());
 }
@@ -303,10 +305,13 @@ LRESULT MenuBuilder::DoMenuGetObject(HWND hwnd UNUSED, MENUGETOBJECTINFO *mgoInf
   MENUITEMINFO menuItemInfo;
   IDropTarget *dropTarget = NULL;
 
+  topGap = false;
+  bottomGap = false;
+
   if (mgoInfo->dwFlags & MNGOF_BOTTOMGAP)
-    ELWriteDebug(L"Bottom Gap");
-  if (mgoInfo->dwFlags & MNGOF_TOPGAP)
-    ELWriteDebug(L"Top Gap");
+    bottomGap = true;
+  else if (mgoInfo->dwFlags & MNGOF_TOPGAP)
+    topGap = true;
 
   menuItemInfo.cbSize = sizeof(menuItemInfo);
   menuItemInfo.fMask = MIIM_FTYPE | MIIM_SUBMENU | MIIM_ID;
@@ -562,14 +567,20 @@ void MenuBuilder::ElevatedExecute(std::tr1::shared_ptr<MenuItem> menuItem)
 
 bool MenuBuilder::DropMenuItem(MENUITEMDATA *menuItemData, MENUITEMDATA *dropItemData, HMENU menu, POINT pt)
 {
-  if (dropItemData->type == IT_XML_MENU)
+  UINT pos = MenuItemFromPoint(NULL, menu, pt);
+
+  if ((dropItemData->type == IT_XML_MENU) && !topGap && !bottomGap)
     {
       menu = dropItemData->subMenu;
       TiXmlElement *subSection = ELGetFirstXMLElementByName(dropItemData->element, (WCHAR*)TEXT("Submenu"), false);
       ELSetFirstXMLElement(subSection, menuItemData->element);
     }
   else
-    ELSetSibilingXMLElement(dropItemData->element, menuItemData->element, false);
+    {
+      menuItemData->element = ELSetSibilingXMLElement(dropItemData->element, menuItemData->element, bottomGap);
+      if (bottomGap)
+        ++pos;
+    }
 
   ELWriteXMLConfig(ELGetXMLConfig(dropItemData->element));
 
@@ -641,7 +652,7 @@ bool MenuBuilder::DropMenuItem(MENUITEMDATA *menuItemData, MENUITEMDATA *dropIte
     }
 
   // Insert the new element
-  InsertMenuItem(menu, MenuItemFromPoint(NULL, menu, pt), TRUE, &menuItemInfo);
+  InsertMenuItem(menu, pos, TRUE, &menuItemInfo);
 
   return true;
 }
