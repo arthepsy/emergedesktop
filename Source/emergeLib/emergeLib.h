@@ -512,4 +512,5 @@ DLL_EXPORT bool ELGetUNCFromMap(LPCTSTR map, LPTSTR unc, size_t uncLength);
 DLL_EXPORT bool ELIsAppletRunning(std::wstring applet);
 DLL_EXPORT TiXmlElement *ELCloneXMLElementAsSibling(TiXmlElement *sourceElement, TiXmlElement *targetElement);
 DLL_EXPORT TiXmlElement *ELCloneXMLElementAsChild(TiXmlElement *sourceElement, TiXmlElement *targetElement);
+DLL_EXPORT TiXmlElement *ELGetXMLElementParent(TiXmlElement *xmlElement);
 #endif

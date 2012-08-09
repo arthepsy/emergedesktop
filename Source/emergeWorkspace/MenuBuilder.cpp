@@ -390,18 +390,21 @@ LRESULT MenuBuilder::DoMenuDrag(HWND hwnd UNUSED, UINT pos, HMENU menu)
             {
               // Remove the menu element
               TiXmlElement *menuElement = menuItem->GetElement();
-              TiXmlDocument *configXML = ELGetXMLConfig(menuElement);
-              if (ELRemoveXMLElement(menuElement))
+              if (menuElement)
                 {
-                  ELWriteXMLConfig(configXML);
-                  if (menuItem->GetType() == IT_XML_MENU)
+                  TiXmlDocument *configXML = ELGetXMLConfig(menuElement);
+                  if (ELRemoveXMLElement(menuElement))
                     {
-                      subIter = menuMap.find(menuItemInfo.hSubMenu);
-                      if (subIter != menuMap.end())
-                        ClearMenu(subIter);
+                      ELWriteXMLConfig(configXML);
+                      if (menuItem->GetType() == IT_XML_MENU)
+                        {
+                          subIter = menuMap.find(menuItemInfo.hSubMenu);
+                          if (subIter != menuMap.end())
+                            ClearMenu(subIter);
+                        }
+                      if (DeleteMenu(menu, menuItem->GetID(), MF_BYCOMMAND))
+                        menuItemMap.erase(menuItemMap.find(menuItem->GetID()));
                     }
-                  if (DeleteMenu(menu, menuItem->GetID(), MF_BYCOMMAND))
-                    menuItemMap.erase(menuItemMap.find(menuItem->GetID()));
                 }
             }
         }
@@ -906,7 +909,10 @@ void MenuBuilder::BuildXMLMenu(MenuMap::iterator iter)
   WCHAR value[MAX_LINE_LENGTH], name[MAX_LINE_LENGTH], workingDir[MAX_PATH];
   MENUITEMINFO itemInfo;
   HMENU subMenu;
-  TiXmlElement *tmp, *subSection, *child = ELGetFirstXMLElement(iter->second->GetSection());
+  TiXmlElement *tmp, *subSection, *child = NULL;
+
+  if (iter->second->GetSection())
+    child = ELGetFirstXMLElement(iter->second->GetSection());
 
   while (child)
     {

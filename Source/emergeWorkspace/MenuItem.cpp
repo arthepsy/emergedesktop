@@ -70,6 +70,11 @@ UINT MenuItem::GetType()
 
 TiXmlElement *MenuItem::GetElement()
 {
+  // If type is IT_XML_MENU, return the parent element for dragging.  In this
+  // case the element is the submenu.
+  if (type == IT_XML_MENU)
+    return ELGetXMLElementParent(element);
+
   return element;
 }
 

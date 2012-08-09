@@ -762,6 +762,11 @@ TiXmlElement *ELGetFirstXMLElementByName(TiXmlElement *xmlSection, WCHAR *elemen
   return child;
 }
 
+TiXmlElement *ELGetXMLElementParent(TiXmlElement *xmlElement)
+{
+  return xmlElement->Parent();
+}
+
 TiXmlElement *ELSetFirstXMLElement(TiXmlElement *xmlSection, const WCHAR *elementName)
 {
   std::string narrowElement = ELwstringTostring(elementName);
