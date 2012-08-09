@@ -20,24 +20,23 @@
 
 #include "CustomDropTarget.h"
 
-HRESULT CreateDropTarget(IDropTarget **ppDropTarget, UINT type, WCHAR *value, TiXmlElement *dropElement, HMENU dropMenu)
+HRESULT CreateDropTarget(IDropTarget **ppDropTarget, MENUITEMDATA dropItemData, HMENU dropMenu)
 {
   if(ppDropTarget == NULL)
     return E_INVALIDARG;
 
-  *ppDropTarget = new CustomDropTarget(type, value, dropElement, dropMenu);
+  *ppDropTarget = new CustomDropTarget(dropItemData, dropMenu);
 
   return (*ppDropTarget) ? S_OK : E_OUTOFMEMORY;
 }
 
-CustomDropTarget::CustomDropTarget(UINT type, WCHAR *value, TiXmlElement *dropElement, HMENU dropMenu)
+CustomDropTarget::CustomDropTarget(MENUITEMDATA dropItemData, HMENU dropMenu)
 {
   refCount = 0;
   allowDrop = false;
-  this->type = type;
-  this->dropElement = dropElement;
+
+  CopyMemory(&this->dropItemData, &dropItemData, sizeof(MENUITEMDATA));
   this->dropMenu = dropMenu;
-  this->value = _wcsdup(value);
 
   CF_EMERGE_MENUITEM = RegisterClipboardFormat(TEXT("CF_EMERGE_MENUITEM"));
   if (CF_EMERGE_MENUITEM == 0)
@@ -47,7 +46,6 @@ CustomDropTarget::CustomDropTarget(UINT type, WCHAR *value, TiXmlElement *dropEl
 
 CustomDropTarget::~CustomDropTarget()
 {
-  free(value);
 }
 
 bool CustomDropTarget::QueryDataObject(IDataObject *pDataObj)
@@ -59,12 +57,12 @@ bool CustomDropTarget::QueryDataObject(IDataObject *pDataObj)
 
   ZeroMemory(&fmtetc, sizeof(FORMATETC));
   fmtetc.dwAspect = DVASPECT_CONTENT;
-  if ((type == IT_TASK) || (type == IT_SETTING_ITEM) || (type == IT_HELP_ITEM))
+  if ((dropItemData.type == IT_TASK) || (dropItemData.type == IT_SETTING_ITEM) || (dropItemData.type == IT_HELP_ITEM))
     fmtetc.tymed = TYMED_NULL;
   else
     fmtetc.tymed = TYMED_HGLOBAL;
   fmtetc.lindex = -1;
-  if ((type == IT_FILE) || (type == IT_FILE_SUBMENU))
+  if ((dropItemData.type == IT_FILE) || (dropItemData.type == IT_FILE_SUBMENU))
     fmtetc.cfFormat = CF_HDROP;
   else
     fmtetc.cfFormat = CF_EMERGE_MENUITEM;
@@ -144,25 +142,22 @@ bool CustomDropTarget::DataDrop(IDataObject *pDataObj, POINTL pt, DWORD dropEffe
 
 bool CustomDropTarget::MenuItemDrop(MENUITEMDATA *menuItemData, POINT menuItemPt)
 {
-  TiXmlElement *newElement = NULL;
+  TiXmlElement *newElement = ELCloneXMLElement(menuItemData->element);
 
-  ELWriteDebug(menuItemData->name);
-
-  if (type == IT_XML_MENU)
+  /*if (type == IT_XML_MENU)
     newElement = ELCloneXMLElementAsChild(menuItemData->element, dropElement);
   else
-    newElement = ELCloneXMLElementAsSibling(menuItemData->element, dropElement);
+    newElement = ELCloneXMLElementAsSibling(menuItemData->element, dropElement);*/
 
   if (newElement)
     {
-      ELWriteXMLConfig(ELGetXMLConfig(newElement));
-
       NEWMENUITEMDATA newMenuItemData;
       COPYDATASTRUCT cds;
 
       ZeroMemory(&newMenuItemData, sizeof(NEWMENUITEMDATA));
-      CopyMemory(&newMenuItemData.menuItemData, menuItemData, sizeof(NEWMENUITEMDATA));
-      newMenuItemData.newElement = newElement;
+      CopyMemory(&newMenuItemData.menuItemData, menuItemData, sizeof(MENUITEMDATA));
+      newMenuItemData.menuItemData.element = newElement;
+      CopyMemory(&newMenuItemData.dropItemData, &dropItemData, sizeof(MENUITEMDATA));
       newMenuItemData.menu = dropMenu;
       newMenuItemData.pt = menuItemPt;
 
@@ -187,12 +182,12 @@ bool CustomDropTarget::FileDrop(HDROP hdrop, DWORD dropEffect)
     {
       UINT count = DragQueryFile(hdrop, (UINT)-1, NULL, 0);
       WCHAR filename[MAX_PATH];
-      std::wstring workingValue = value;
+      std::wstring workingValue = dropItemData.value;
       UINT fileOp = FO_COPY;
       if (dropEffect & DROPEFFECT_MOVE)
         fileOp = FO_MOVE;
 
-      if (!ELPathIsDirectory(value))
+      if (!ELPathIsDirectory(dropItemData.value))
         {
           size_t backslash = workingValue.rfind('\\');
           if (backslash != std::wstring::npos)
@@ -286,4 +281,3 @@ STDMETHODIMP CustomDropTarget::Drop(IDataObject *pDataObj, DWORD grfKeyState, PO
 
   return S_OK;
 }
-

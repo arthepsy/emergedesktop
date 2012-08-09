@@ -914,7 +914,7 @@ bool BaseSettings::IOHelper::SetElement(const WCHAR *name)
 
   if (section)
     {
-      item = ELSetFirstXMLElement(section, name);
+      item = ELSetFirstXMLElementByName(section, name);
       if (item)
         {
           ret = true;

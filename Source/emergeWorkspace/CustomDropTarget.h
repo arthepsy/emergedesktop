@@ -25,9 +25,9 @@
 typedef struct _NEWMENUITEMDATA
 {
   MENUITEMDATA menuItemData;
+  MENUITEMDATA dropItemData;
   HMENU menu;
   POINT pt;
-  TiXmlElement *newElement;
 }
 NEWMENUITEMDATA, *LPNEWMENUITEMDATA;
 
@@ -48,15 +48,14 @@ public:
   STDMETHODIMP DragLeave();
   STDMETHODIMP Drop(IDataObject *pDataObj, DWORD grfKeyState, POINTL pt, DWORD *pdwEffect);
 
-  CustomDropTarget(UINT type, WCHAR *value, TiXmlElement *dropElement, HMENU dropMenu);
+  CustomDropTarget(MENUITEMDATA menuItemData, HMENU dropMenu);
   virtual ~CustomDropTarget();
 
 private:
-  UINT refCount, type;
+  UINT refCount;
   UINT CF_EMERGE_MENUITEM;
   HMENU dropMenu;
-  TiXmlElement *dropElement;
-  WCHAR *value;
+  MENUITEMDATA dropItemData;
 
   // internal helper function
   DWORD DropEffect(DWORD grfKeyState, POINTL pt, DWORD dwAllowed);
@@ -69,4 +68,4 @@ private:
   bool   allowDrop;
 };
 
-HRESULT CreateDropTarget(IDropTarget **ppDropTarget, UINT type, WCHAR *value, TiXmlElement *dropElement, HMENU dropMenu);
+HRESULT CreateDropTarget(IDropTarget **ppDropTarget, MENUITEMDATA menuItemData, HMENU dropMenu);

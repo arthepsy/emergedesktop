@@ -589,7 +589,7 @@ bool Core::BuildLaunchList()
     {
       settings = ELGetXMLSection(configXML.get(), (WCHAR*)TEXT("Settings"), true);
       if (settings)
-        section = ELSetFirstXMLElement(settings, (WCHAR*)TEXT("Launch"));
+        section = ELSetFirstXMLElementByName(settings, (WCHAR*)TEXT("Launch"));
       if (section)
         {
           while (!launchMap.empty())
@@ -598,7 +598,7 @@ bool Core::BuildLaunchList()
               iter = launchMap.begin();
               ELParseCommand((WCHAR*)iter->first.c_str(), program, arguments);
               swprintf(command, TEXT("%ls %ls"), PathFindFileName(program), arguments);
-              item = ELSetFirstXMLElement(section, TEXT("item"));
+              item = ELSetFirstXMLElementByName(section, TEXT("item"));
               if (item)
                 ELWriteXMLStringValue(item, TEXT("Command"), command);
               launchMap.erase(iter);
@@ -654,7 +654,7 @@ void Core::ConvertTheme()
                       if (ELReadXMLStringValue(first, TEXT("Command"), data, TEXT("")))
                         {
                           ELStringReplace(data, TEXT("emergeDesktop"), TEXT("emergeWorkspace"), true);
-                          tmp = ELSetFirstXMLElement(section, TEXT("item"));
+                          tmp = ELSetFirstXMLElementByName(section, TEXT("item"));
                           if (tmp)
                             ELWriteXMLStringValue(tmp, TEXT("Command"), data);
                         }

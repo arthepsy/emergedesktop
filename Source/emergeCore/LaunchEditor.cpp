@@ -659,7 +659,7 @@ bool LaunchEditor::UpdateLaunch(HWND hwndDlg)
           section = ELGetFirstXMLElementByName(settings, (WCHAR*)TEXT("Launch"), false);
           if (section)
             ELRemoveXMLElement(section);
-          section = ELSetFirstXMLElement(settings, (WCHAR*)TEXT("Launch"));
+          section = ELSetFirstXMLElementByName(settings, (WCHAR*)TEXT("Launch"));
         }
 
       if (section)
@@ -669,7 +669,7 @@ bool LaunchEditor::UpdateLaunch(HWND hwndDlg)
           while (i < ListView_GetItemCount(listWnd))
             {
               ListView_GetItemText(listWnd, i, 1, applet, MAX_PATH);
-              first = ELSetFirstXMLElement(section, TEXT("item"));
+              first = ELSetFirstXMLElementByName(section, TEXT("item"));
               if (first)
                 ELWriteXMLStringValue(first, TEXT("Command"), applet);
 

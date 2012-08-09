@@ -757,7 +757,7 @@ TiXmlElement *ELGetFirstXMLElementByName(TiXmlElement *xmlSection, WCHAR *elemen
 
   child = xmlSection->FirstChildElement(narrowElement.c_str());
   if (!child && createElement)
-    child = ELSetFirstXMLElement(xmlSection, elementName);
+    child = ELSetFirstXMLElementByName(xmlSection, elementName);
 
   return child;
 }
@@ -767,7 +767,7 @@ TiXmlElement *ELGetXMLElementParent(TiXmlElement *xmlElement)
   return xmlElement->Parent()->ToElement();
 }
 
-TiXmlElement *ELSetFirstXMLElement(TiXmlElement *xmlSection, const WCHAR *elementName)
+TiXmlElement *ELSetFirstXMLElementByName(TiXmlElement *xmlSection, const WCHAR *elementName)
 {
   std::string narrowElement = ELwstringTostring(elementName);
   TiXmlElement *child;
@@ -778,9 +778,19 @@ TiXmlElement *ELSetFirstXMLElement(TiXmlElement *xmlSection, const WCHAR *elemen
   return child;
 }
 
+void ELSetFirstXMLElement(TiXmlElement *xmlSection, TiXmlElement *element)
+{
+  xmlSection->LinkEndChild(element);
+}
+
 TiXmlElement *ELGetSiblingXMLElement(TiXmlElement *xmlElement)
 {
   return xmlElement->NextSiblingElement();
+}
+
+TiXmlElement *ELCloneXMLElement(TiXmlElement *sourceElement)
+{
+  return sourceElement->Clone()->ToElement();
 }
 
 TiXmlElement *ELCloneXMLElementAsSibling(TiXmlElement *sourceElement, TiXmlElement *targetElement)
@@ -807,7 +817,19 @@ TiXmlElement *ELCloneXMLElementAsChild(TiXmlElement *sourceElement, TiXmlElement
   return newElement;
 }
 
-TiXmlElement *ELSetSibilingXMLElement(TiXmlElement *xmlElement, const WCHAR *elementName, bool insertAfter)
+TiXmlElement *ELSetSibilingXMLElement(TiXmlElement *targetElement, TiXmlElement *sourceElement, bool insertAfter)
+{
+  TiXmlElement *sibling;
+
+  if (insertAfter)
+    sibling = targetElement->Parent()->InsertAfterChild(targetElement, *sourceElement)->ToElement();
+  else
+    sibling = targetElement->Parent()->InsertBeforeChild(targetElement, *sourceElement)->ToElement();
+
+  return sibling;
+}
+
+TiXmlElement *ELSetSibilingXMLElementByName(TiXmlElement *xmlElement, const WCHAR *elementName, bool insertAfter)
 {
   std::string narrowElement = ELwstringTostring(elementName);
   TiXmlElement *sibling, newSibling(narrowElement.c_str());

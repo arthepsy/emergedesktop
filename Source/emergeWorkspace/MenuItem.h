@@ -27,7 +27,7 @@
 class MenuItem
 {
 public:
-  MenuItem(WCHAR *name, UINT type, WCHAR *value, WCHAR *workingDir, TiXmlElement *element, HMENU menu);
+  MenuItem(MENUITEMDATA menuItemData, HMENU menu);
   ~MenuItem();
   UINT GetType();
   WCHAR *GetName();
@@ -45,11 +45,7 @@ public:
   UINT_PTR GetID();
 
 private:
-  TiXmlElement *element;
-  UINT type;
-  WCHAR name[MAX_LINE_LENGTH];
-  WCHAR value[MAX_LINE_LENGTH];
-  WCHAR workingDir[MAX_PATH];
+  MENUITEMDATA menuItemData;
   HICON icon;
   IDropTarget *dropTarget;
   HMENU menu;

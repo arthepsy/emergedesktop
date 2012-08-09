@@ -319,6 +319,7 @@ typedef struct _MENUITEMDATA
   WCHAR value[MAX_LINE_LENGTH];
   WCHAR workingDir[MAX_LINE_LENGTH];
   TiXmlElement *element;
+  HMENU subMenu;
 }
 MENUITEMDATA, *LPMENUITEMDATA;
 
@@ -415,9 +416,11 @@ DLL_EXPORT bool ELWriteXMLStringValue(TiXmlElement *section, const WCHAR *item, 
 DLL_EXPORT TiXmlElement *ELGetXMLSection(TiXmlDocument *configXML, WCHAR *section, bool createSection);
 DLL_EXPORT TiXmlElement *ELGetFirstXMLElement(TiXmlElement *xmlSection);
 DLL_EXPORT TiXmlElement *ELGetFirstXMLElementByName(TiXmlElement *xmlSection, WCHAR *elementName, bool createElement);
-DLL_EXPORT TiXmlElement *ELSetFirstXMLElement(TiXmlElement *xmlSection, const WCHAR *elementName);
+DLL_EXPORT void ELSetFirstXMLElement(TiXmlElement *xmlSection, TiXmlElement *element);
+DLL_EXPORT TiXmlElement *ELSetFirstXMLElementByName(TiXmlElement *xmlSection, const WCHAR *elementName);
 DLL_EXPORT TiXmlElement *ELGetSiblingXMLElement(TiXmlElement *xmlElement);
-DLL_EXPORT TiXmlElement *ELSetSibilingXMLElement(TiXmlElement *xmlElement, const WCHAR *elementName, bool insertAfter = true);
+DLL_EXPORT TiXmlElement *ELSetSibilingXMLElement(TiXmlElement *targetElement, TiXmlElement *sourceElement, bool insertAfter);
+DLL_EXPORT TiXmlElement *ELSetSibilingXMLElementByName(TiXmlElement *xmlElement, const WCHAR *elementName, bool insertAfter = true);
 DLL_EXPORT bool ELGetXMLElementText(TiXmlElement *xmlElement, WCHAR* xmlString);
 DLL_EXPORT bool ELGetXMLElementLabel(TiXmlElement *xmlElement, WCHAR* xmlString);
 DLL_EXPORT bool ELRemoveXMLElement(TiXmlElement *xmlElement);
@@ -510,6 +513,7 @@ DLL_EXPORT void *ELLockShared(HANDLE sharedMem, DWORD processID);
 DLL_EXPORT BOOL ELUnlockShared(void *sharedPtr);
 DLL_EXPORT bool ELGetUNCFromMap(LPCTSTR map, LPTSTR unc, size_t uncLength);
 DLL_EXPORT bool ELIsAppletRunning(std::wstring applet);
+DLL_EXPORT TiXmlElement *ELCloneXMLElement(TiXmlElement *sourceElement);
 DLL_EXPORT TiXmlElement *ELCloneXMLElementAsSibling(TiXmlElement *sourceElement, TiXmlElement *targetElement);
 DLL_EXPORT TiXmlElement *ELCloneXMLElementAsChild(TiXmlElement *sourceElement, TiXmlElement *targetElement);
 DLL_EXPORT TiXmlElement *ELGetXMLElementParent(TiXmlElement *xmlElement);
