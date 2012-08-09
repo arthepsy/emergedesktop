@@ -764,7 +764,7 @@ TiXmlElement *ELGetFirstXMLElementByName(TiXmlElement *xmlSection, WCHAR *elemen
 
 TiXmlElement *ELGetXMLElementParent(TiXmlElement *xmlElement)
 {
-  return xmlElement->Parent();
+  return xmlElement->Parent()->ToElement();
 }
 
 TiXmlElement *ELSetFirstXMLElement(TiXmlElement *xmlSection, const WCHAR *elementName)
