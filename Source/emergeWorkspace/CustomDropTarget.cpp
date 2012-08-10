@@ -54,13 +54,9 @@ bool CustomDropTarget::QueryDataObject(IDataObject *pDataObj)
     return false;
 
   FORMATETC fmtetc;
-
   ZeroMemory(&fmtetc, sizeof(FORMATETC));
   fmtetc.dwAspect = DVASPECT_CONTENT;
-  if ((dropItemData.type == IT_TASK) || (dropItemData.type == IT_SETTING_ITEM) || (dropItemData.type == IT_HELP_ITEM))
-    fmtetc.tymed = TYMED_NULL;
-  else
-    fmtetc.tymed = TYMED_HGLOBAL;
+  fmtetc.tymed = TYMED_HGLOBAL;
   fmtetc.lindex = -1;
   if ((dropItemData.type == IT_FILE) || (dropItemData.type == IT_FILE_SUBMENU))
     fmtetc.cfFormat = CF_HDROP;

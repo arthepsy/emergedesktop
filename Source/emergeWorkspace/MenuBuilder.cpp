@@ -323,6 +323,20 @@ LRESULT MenuBuilder::DoMenuGetObject(HWND hwnd UNUSED, MENUGETOBJECTINFO *mgoInf
   if (!menuItem)
     return MNGO_NOINTERFACE;
 
+  // Don't allow drop directly on settings, help or task menu.  Allow for top
+  // gap and bottom gap.
+  if (!bottomGap && !topGap &&
+      ((menuItem->GetType() == IT_SETTINGS_MENU) ||
+       (menuItem->GetType() == IT_HELP_MENU) ||
+       (menuItem->GetType() == IT_TASKS_MENU)))
+    return MNGO_NOINTERFACE;
+
+  // Don't allow for drop anywhere on setting, help or task item.
+  if ((menuItem->GetType() == IT_SETTING_ITEM) ||
+      (menuItem->GetType() == IT_HELP_ITEM) ||
+      (menuItem->GetType() == IT_TASK))
+    return MNGO_NOINTERFACE;
+
   dropTarget = menuItem->GetDropTarget();
 
   mgoInfo->riid = &menuInterface;
