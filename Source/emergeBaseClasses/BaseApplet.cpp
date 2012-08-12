@@ -651,7 +651,7 @@ LRESULT BaseApplet::PaintContent(HDC hdc, RECT clientrt)
   else if (_wcsicmp(pBaseSettings->GetHorizontalDirection(), TEXT("center")) == 0)
     {
       xdefault = clientrt.left;
-      xdefault += (width / 2);
+      xdefault += (width / 2) - ((visibleIconCount > 1 ? (int)pBaseSettings->GetIconSpacing() / 2 : 0));
 
       if (_wcsicmp(pBaseSettings->GetDirectionOrientation(), TEXT("horizontal")) == 0)
         {
