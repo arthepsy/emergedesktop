@@ -52,7 +52,7 @@
 #define CLEAN_WAIT_TIME   250
 
 //ROBLARKY - 2012-08-11 -	Added the following two lines for multimonitor support
-//							This was added to support multiple instances of emergeTasks running on different monitors, so only the tasks on the 
+//							This was added to support multiple instances of emergeTasks running on different monitors, so only the tasks on the
 //							monitor where the applet resides displays the tasks on that monitor
 #define COMPILE_MULTIMON_STUBS
 
@@ -74,7 +74,7 @@ private:
   static VOID CALLBACK FlashTimerProc(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime);
 
   //ROBLARKY - 2012-08-11 -	Added IsWindowOnSameMonitor
-  //						This was added to support multiple instances of emergeTasks running on different monitors, so only the tasks on the 
+  //						This was added to support multiple instances of emergeTasks running on different monitors, so only the tasks on the
   //						monitor where the applet resides displays the tasks on that monitor
   bool IsWindowOnSameMonitor(HWND hwnd);
 
@@ -112,6 +112,7 @@ public:
   void ShowConfig();
   bool PaintItem(HDC hdc, size_t index, int x, int y, RECT rect);
   size_t GetIconCount();
+  size_t GetVisibleIconCount();
   void DoTaskFlash(UINT id);
   LRESULT ModifyTaskByThread(DWORD threadID);
   LRESULT DoSize(LPARAM lParam);

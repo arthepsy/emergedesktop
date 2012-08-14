@@ -263,14 +263,16 @@ bool Applet::IsWindowOnSameMonitor(HWND hwnd)
 //----  --------------------------------------------------------------------------------------------------------
 bool Applet::PaintItem(HDC hdc, size_t index, int x, int y, RECT rect)
 {
-
   TaskVector::iterator iter = taskList.begin() + index;
+
+  if ((*iter)->GetHidden())
+    return false;
 
   (*iter)->SetRect(rect);
 
   (*iter)->CreateNewIcon(guiInfo.alphaForeground, guiInfo.alphaBackground);
 
-  if ((*iter)->GetVisible() && !(*iter)->GetHidden())
+  if ((*iter)->GetVisible())
     {
       if (((*iter)->GetWnd() == activeWnd) && pSettings->GetHiliteActive())
         {
@@ -310,6 +312,7 @@ LRESULT Applet::AddTask(HWND task)
 
   TaskPtr taskPtr(new Task(task, mainInst));
   taskPtr->SetIcon(icon, pSettings->GetIconSize());
+  taskPtr->SetHidden(IsWindowOnSameMonitor(task));
   EnterCriticalSection(&vectorLock);
   taskList.push_back(taskPtr);
   LeaveCriticalSection(&vectorLock);
@@ -677,13 +680,7 @@ BOOL CALLBACK Applet::EnumTasksList(HWND hwnd, LPARAM lParam)
   static Applet *pApplet = reinterpret_cast<Applet*>(lParam);
 
   if (ELCheckWindow(hwnd))
-    {
-      //ROBLARKY - 2012-08-11: Added call to IsWindowOnSameMonitor and prevent itself from getting an icon
-      if((pApplet->IsWindowOnSameMonitor(hwnd)) && (pApplet->GetMainWnd() != hwnd))
-        {
-          pApplet->AddTask(hwnd);
-        }
-    }
+    pApplet->AddTask(hwnd);
 
   return true;
 }
@@ -1061,6 +1058,11 @@ void Applet::ShowConfig()
 
 size_t Applet::GetIconCount()
 {
+  return taskList.size();
+}
+
+size_t Applet::GetVisibleIconCount()
+{
   TaskVector::iterator iter = taskList.begin();
   size_t iconCount = 0;
 
@@ -1074,4 +1076,3 @@ size_t Applet::GetIconCount()
 
   return iconCount;
 }
-
