@@ -46,8 +46,19 @@ Task::Task(HWND task, HINSTANCE mainInstance)
   visible = true;
   flashCount = 0;
   origIcon = NULL;
+  hidden = false;
 
   convertIcon = true;
+}
+
+bool Task::GetHidden()
+{
+  return hidden;
+}
+
+void Task::SetHidden(bool hidden)
+{
+  this->hidden = hidden;
 }
 
 void Task::CreateNewIcon(BYTE foregroundAlpha, BYTE backgroundAlpha)

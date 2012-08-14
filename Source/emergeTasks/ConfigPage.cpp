@@ -81,6 +81,10 @@ INT_PTR ConfigPage::DoInitPage(HWND hwndDlg)
   if (pSettings->GetHiliteActive())
     SendDlgItemMessage(hwndDlg, IDC_ACTIVETASK, BM_SETCHECK, BST_CHECKED, 0);
 
+  //ROBLARKY - 2012-08-11: Added for option to only show tasks on same monitor
+  if (pSettings->GetSameMonitorOnly())
+    SendDlgItemMessage(hwndDlg, IDC_SAMEMONITOR, BM_SETCHECK, BST_CHECKED, 0);
+
   if (pSettings->GetEnableFlash())
     SendDlgItemMessage(hwndDlg, IDC_ENABLEFLASH, BM_SETCHECK, BST_CHECKED, 0);
 
@@ -198,6 +202,12 @@ bool ConfigPage::UpdateSettings(HWND hwndDlg)
     pSettings->SetEnableFlash(true);
   else if (SendDlgItemMessage(hwndDlg, IDC_ENABLEFLASH, BM_GETCHECK, 0, 0) == BST_UNCHECKED)
     pSettings->SetEnableFlash(false);
+
+  //ROBLARKY - 2012-08-11: Added for option to only show tasks on same monitor
+  if (SendDlgItemMessage(hwndDlg, IDC_SAMEMONITOR, BM_GETCHECK, 0, 0) == BST_CHECKED)
+    pSettings->SetSameMonitorOnly(true);
+  else if (SendDlgItemMessage(hwndDlg, IDC_SAMEMONITOR, BM_GETCHECK, 0, 0) == BST_UNCHECKED)
+    pSettings->SetSameMonitorOnly(false);
 
   result = GetDlgItemInt(hwndDlg, IDC_AUTOLIMIT, &success, false);
   if (success)

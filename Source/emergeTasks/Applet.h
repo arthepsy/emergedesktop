@@ -51,6 +51,11 @@
 #define MODIFY_DELAY_TIME 200
 #define CLEAN_WAIT_TIME   250
 
+//ROBLARKY - 2012-08-11 -	Added the following two lines for multimonitor support
+//							This was added to support multiple instances of emergeTasks running on different monitors, so only the tasks on the 
+//							monitor where the applet resides displays the tasks on that monitor
+#define COMPILE_MULTIMON_STUBS
+
 typedef std::tr1::shared_ptr<Task> TaskPtr;
 typedef std::vector<TaskPtr> TaskVector;
 
@@ -67,6 +72,12 @@ private:
   static LRESULT CALLBACK WindowProcedure (HWND, UINT, WPARAM, LPARAM);
   static BOOL CALLBACK EnumTasksList(HWND hwnd, LPARAM lParam);
   static VOID CALLBACK FlashTimerProc(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime);
+
+  //ROBLARKY - 2012-08-11 -	Added IsWindowOnSameMonitor
+  //						This was added to support multiple instances of emergeTasks running on different monitors, so only the tasks on the 
+  //						monitor where the applet resides displays the tasks on that monitor
+  bool IsWindowOnSameMonitor(HWND hwnd);
+
   CRITICAL_SECTION vectorLock, mapLock;
   LRESULT DoTaskIcon(HWND task, HICON icon);
   static DWORD WINAPI ModifyThreadProc(LPVOID lpParameter);

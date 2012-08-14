@@ -60,14 +60,15 @@ public:
   UINT GetFlashCount();
   void CreateNewIcon(BYTE foregroundAlpha, BYTE backgroundAlpha);
   void UpdateIcon();
+  void SetHidden(bool hidden);
+  bool GetHidden();
 
 private:
   HWND wnd;
   HICON origIcon, newIcon;
   HINSTANCE mainInstance;
   RECT rect;
-  bool flash;
-  bool visible;
+  bool flash, visible, hidden;
   UINT flashCount;
   bool convertIcon;
 };

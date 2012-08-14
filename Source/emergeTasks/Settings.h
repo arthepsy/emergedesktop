@@ -30,6 +30,8 @@ public:
   Settings();
   bool GetHiliteActive();
   bool SetHiliteActive(bool autoSize);
+  bool GetSameMonitorOnly(); //ROBLARKY - 2012-08-11: Added for option to only show tasks on same monitor
+  bool SetSameMonitorOnly(bool sameMonitorOnly); //ROBLARKY - 2012-08-11: Added for option to only show tasks on same monitor
   bool SetFlashCount(int flashCount);
   bool SetFlashInterval(int flashInterval);
   bool SetEnableFlash(bool enableFlash);
@@ -43,7 +45,7 @@ protected:
   virtual void ResetDefaults();
 
 private:
-  bool hiliteActive, enableFlash;
+  bool hiliteActive, enableFlash, sameMonitorOnly; //ROBLARKY - 2012-08-11: Added for option to only show tasks on same monitor
   int flashInterval, flashCount;
 };
 

@@ -3623,16 +3623,21 @@ bool ELExit(UINT uFlag, bool prompt)
 
 bool ELCheckWindow(HWND hwnd)
 {
-  RECT hwndRt;
-  GetClientRect(hwnd, &hwndRt);
+  RECT hwndRT;
+  GetWindowRect(hwnd, &hwndRT);
 
-  /* If the window is visible, not a toolwindow, has no parent, and it's client
-   * rect isn't empty, it's a valid task window.
-   */
-  if ((IsWindowVisible(hwnd)) &&
+  // To be a valid task it should be visible...
+  if (IsWindowVisible(hwnd) &&
+      // ... be enabled ...
+      IsWindowEnabled(hwnd) &&
+      // ... not be a toolwindow ...
       !(GetWindowLongPtr(hwnd, GWL_EXSTYLE) & WS_EX_TOOLWINDOW) &&
+      // ... have no parent ...
       !GetParent(hwnd) &&
-      !(IsRectEmpty(&hwndRt) && !IsIconic(hwnd)))
+      // ... have no owner ...
+      !GetWindow(hwnd,GW_OWNER) &&
+      // ... and have a window rect of some size when not iconic.
+      !(IsRectEmpty(&hwndRT) && !IsIconic(hwnd)))
     return true;
 
   return false;
