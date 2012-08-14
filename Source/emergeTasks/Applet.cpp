@@ -263,25 +263,25 @@ bool Applet::IsWindowOnSameMonitor(HWND hwnd)
 //----  --------------------------------------------------------------------------------------------------------
 bool Applet::PaintItem(HDC hdc, size_t index, int x, int y, RECT rect)
 {
-  TaskVector::iterator iter = taskList.begin() + index;
+  Task *task = taskList.at(index).get();
 
-  if ((*iter)->GetHidden())
+  if (task->GetHidden())
     return false;
 
-  (*iter)->SetRect(rect);
+  task->SetRect(rect);
 
-  (*iter)->CreateNewIcon(guiInfo.alphaForeground, guiInfo.alphaBackground);
+  task->CreateNewIcon(guiInfo.alphaForeground, guiInfo.alphaBackground);
 
-  if ((*iter)->GetVisible())
+  if (task->GetVisible())
     {
-      if (((*iter)->GetWnd() == activeWnd) && pSettings->GetHiliteActive())
+      if ((task->GetWnd() == activeWnd) && pSettings->GetHiliteActive())
         {
           InflateRect(&rect, 1, 1);
           EGFillRect(hdc, &rect, guiInfo.alphaSelected, guiInfo.colorSelected);
         }
 
       // Draw the icon
-      DrawIconEx(hdc, x, y, (*iter)->GetIcon(), pSettings->GetIconSize(),
+      DrawIconEx(hdc, x, y, task->GetIcon(), pSettings->GetIconSize(),
                  pSettings->GetIconSize(), 0, NULL, DI_NORMAL);
     }
 
@@ -312,27 +312,30 @@ LRESULT Applet::AddTask(HWND task)
 
   TaskPtr taskPtr(new Task(task, mainInst));
   taskPtr->SetIcon(icon, pSettings->GetIconSize());
-  taskPtr->SetHidden(IsWindowOnSameMonitor(task));
+  taskPtr->SetHidden(!IsWindowOnSameMonitor(task));
   EnterCriticalSection(&vectorLock);
   taskList.push_back(taskPtr);
   LeaveCriticalSection(&vectorLock);
 
-  if (pSettings->GetAutoSize())
+  if (!taskPtr->GetHidden())
     {
-      if (ELGetWindowRect(mainWnd, &wndRect))
+      if (pSettings->GetAutoSize())
         {
-          AdjustRect(&wndRect);
-          UpdateIcons();
-          if ((GetVisibleIconCount() > 0) && !appletHidden)
-            SWPFlags |= SWP_SHOWWINDOW;
-          SetWindowPos(mainWnd, NULL, wndRect.left, wndRect.top,
-                       wndRect.right - wndRect.left,
-                       wndRect.bottom - wndRect.top,
-                       SWPFlags);
+          if (ELGetWindowRect(mainWnd, &wndRect))
+            {
+              AdjustRect(&wndRect);
+              UpdateIcons();
+              if ((GetVisibleIconCount() > 0) && !appletHidden)
+                SWPFlags |= SWP_SHOWWINDOW;
+              SetWindowPos(mainWnd, NULL, wndRect.left, wndRect.top,
+                           wndRect.right - wndRect.left,
+                           wndRect.bottom - wndRect.top,
+                           SWPFlags);
+            }
         }
-    }
 
-  DrawAlphaBlend();
+      DrawAlphaBlend();
+    }
 
   return 0;
 }
