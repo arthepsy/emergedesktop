@@ -314,12 +314,9 @@ LRESULT MenuBuilder::DoMenuGetObject(HWND hwnd UNUSED, MENUGETOBJECTINFO *mgoInf
     topGap = true;
 
   menuItemInfo.cbSize = sizeof(menuItemInfo);
-  menuItemInfo.fMask = MIIM_FTYPE | MIIM_SUBMENU | MIIM_ID | MIIM_STATE;
+  menuItemInfo.fMask = MIIM_FTYPE | MIIM_SUBMENU | MIIM_ID;
 
   if (!GetMenuItemInfo(mgoInfo->hmenu, mgoInfo->uPos, TRUE, &menuItemInfo))
-    return MNGO_NOINTERFACE;
-
-  if (menuItemInfo.fState & MFS_GRAYED)
     return MNGO_NOINTERFACE;
 
   std::tr1::shared_ptr<MenuItem> menuItem = menuItemMap.find(menuItemInfo.wID)->second;
@@ -355,12 +352,9 @@ LRESULT MenuBuilder::DoMenuDrag(HWND hwnd UNUSED, UINT pos, HMENU menu)
   DWORD effect, dropEffects;
 
   menuItemInfo.cbSize = sizeof(menuItemInfo);
-  menuItemInfo.fMask = MIIM_FTYPE | MIIM_SUBMENU | MIIM_ID | MIIM_STATE;
+  menuItemInfo.fMask = MIIM_FTYPE | MIIM_SUBMENU | MIIM_ID;
 
   if (!GetMenuItemInfo(menu, pos, TRUE, &menuItemInfo))
-    return MND_CONTINUE;
-
-  if (menuItemInfo.fState & MFS_GRAYED)
     return MND_CONTINUE;
 
   std::tr1::shared_ptr<MenuItem> menuItem = menuItemMap.find(menuItemInfo.wID)->second;
@@ -409,13 +403,11 @@ LRESULT MenuBuilder::DoMenuDrag(HWND hwnd UNUSED, UINT pos, HMENU menu)
   CreateDataObject(&fmtetc, &stgmed, 1, &pDataObject);
   CreateDropSource(&pDropSource);
 
-  if (DoDragDrop(pDataObject, pDropSource, dropEffects, &effect) ==
-      DRAGDROP_S_DROP)
+  if (DoDragDrop(pDataObject, pDropSource, dropEffects, &effect) == DRAGDROP_S_DROP)
     {
       if (effect == DROPEFFECT_MOVE)
         {
-          if ((menuItem->GetType() != IT_FILE) &&
-              (menuItem->GetType() != IT_FILE_SUBMENU))
+          if ((menuItem->GetType() != IT_FILE) && (menuItem->GetType() != IT_FILE_SUBMENU))
             {
               // Remove the menu element
               TiXmlElement *menuElement = menuItem->GetElement();
@@ -431,8 +423,8 @@ LRESULT MenuBuilder::DoMenuDrag(HWND hwnd UNUSED, UINT pos, HMENU menu)
                           if (subIter != menuMap.end())
                             ClearMenu(subIter);
                         }
-                      EnableMenuItem(menu, menuItem->GetID(),
-                                     MF_BYCOMMAND | MF_GRAYED);
+                      if (DeleteMenu(menu, menuItem->GetID(), MF_BYCOMMAND))
+                        menuItemMap.erase(menuItemMap.find(menuItem->GetID()));
                     }
                 }
             }
@@ -494,11 +486,8 @@ LRESULT MenuBuilder::DoContextMenu()
     return 0;
 
   menuItemInfo.cbSize = sizeof(menuItemInfo);
-  menuItemInfo.fMask = MIIM_FTYPE | MIIM_SUBMENU | MIIM_ID | MIIM_STATE;
+  menuItemInfo.fMask = MIIM_FTYPE | MIIM_SUBMENU | MIIM_ID;
   if (!GetMenuItemInfo(activeMenu, index, TRUE, &menuItemInfo))
-    return 0;
-
-  if (menuItemInfo.fState & MFS_GRAYED)
     return 0;
 
   std::tr1::shared_ptr<MenuItem> menuItem = menuItemMap.find(menuItemInfo.wID)->second;

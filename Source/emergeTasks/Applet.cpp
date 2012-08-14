@@ -492,8 +492,6 @@ bool Applet::CleanTasks()
           UpdateIcons();
           if (GetVisibleIconCount() == 0)
             SWPFlags |= SWP_HIDEWINDOW;
-          else
-            SWPFlags |= SWP_SHOWWINDOW;
           SetWindowPos(mainWnd, NULL, wndRect.left, wndRect.top,
                        wndRect.right - wndRect.left,
                        wndRect.bottom - wndRect.top,
