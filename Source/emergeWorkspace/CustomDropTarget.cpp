@@ -140,11 +140,6 @@ bool CustomDropTarget::MenuItemDrop(MENUITEMDATA *menuItemData, POINT menuItemPt
 {
   TiXmlElement *newElement = ELCloneXMLElement(menuItemData->element);
 
-  /*if (type == IT_XML_MENU)
-    newElement = ELCloneXMLElementAsChild(menuItemData->element, dropElement);
-  else
-    newElement = ELCloneXMLElementAsSibling(menuItemData->element, dropElement);*/
-
   if (newElement)
     {
       NEWMENUITEMDATA newMenuItemData;
