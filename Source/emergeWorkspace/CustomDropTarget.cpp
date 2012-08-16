@@ -20,7 +20,7 @@
 
 #include "CustomDropTarget.h"
 
-HRESULT CreateDropTarget(IDropTarget **ppDropTarget, MENUITEMDATA dropItemData, UINT dropID, HMENU dropMenu)
+HRESULT CreateDropTarget(IDropTarget **ppDropTarget, MENUITEMDATA dropItemData, UINT_PTR dropID, HMENU dropMenu)
 {
   if(ppDropTarget == NULL)
     return E_INVALIDARG;
@@ -30,7 +30,7 @@ HRESULT CreateDropTarget(IDropTarget **ppDropTarget, MENUITEMDATA dropItemData, 
   return (*ppDropTarget) ? S_OK : E_OUTOFMEMORY;
 }
 
-CustomDropTarget::CustomDropTarget(MENUITEMDATA dropItemData, UINT dropID, HMENU dropMenu)
+CustomDropTarget::CustomDropTarget(MENUITEMDATA dropItemData, UINT_PTR dropID, HMENU dropMenu)
 {
   refCount = 0;
   allowDrop = false;

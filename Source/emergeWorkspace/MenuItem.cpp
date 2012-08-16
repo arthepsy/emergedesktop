@@ -27,7 +27,7 @@ MenuItem::MenuItem(MENUITEMDATA menuItemData, HMENU menu)
   this->menu = menu;
   icon = NULL;
 
-  CreateDropTarget(&dropTarget, this->menuItemData, (UINT)this, menu);
+  CreateDropTarget(&dropTarget, this->menuItemData, (UINT_PTR)this, menu);
 }
 
 MenuItem::~MenuItem()
