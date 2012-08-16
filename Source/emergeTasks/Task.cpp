@@ -241,28 +241,6 @@ void Task::SetFlashCount(UINT flashCount)
 }
 
 //----  --------------------------------------------------------------------------------------------------------
-// Function:	GetDwmThumbnail
-// Requires:	Nothing
-// Returns:	HTHUMBNAIL
-// Purpose:	Returns the current task's DWM thumbnail
-//----  --------------------------------------------------------------------------------------------------------
-HTHUMBNAIL Task::GetDwmThumbnail()
-{
-  return dwmThumbnailId;
-}
-
-//----  --------------------------------------------------------------------------------------------------------
-// Function:	SetDwmThumbnail
-// Requires:	HTHUMBNAIL dwmThumbnailId - Value for DWM thumbnail
-// Returns:	Nothing
-// Purpose:	Sets the current task's DWM thumbnail
-//----  --------------------------------------------------------------------------------------------------------
-void Task::SetDwmThumbnail(HTHUMBNAIL dwmThumbnailId)
-{
-  (*this).dwmThumbnailId = dwmThumbnailId;
-}
-
-//----  --------------------------------------------------------------------------------------------------------
 // Function:	GetDwmThumbnailWnd
 // Requires:	Nothing
 // Returns:	HWND
