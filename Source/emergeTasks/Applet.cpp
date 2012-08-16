@@ -104,9 +104,6 @@ LRESULT CALLBACK Applet::WindowProcedure (HWND hwnd, UINT message, WPARAM wParam
     case WM_SIZING:
       return pApplet->DoSizing(hwnd, (UINT)wParam, (LPRECT)lParam);
 
-    case WM_SIZE:
-      return pApplet->DoSize(lParam);
-
     case WM_MOVING:
       return pApplet->DoMoving(hwnd, (LPRECT)lParam);
 
@@ -118,9 +115,6 @@ LRESULT CALLBACK Applet::WindowProcedure (HWND hwnd, UINT message, WPARAM wParam
 
     case WM_TIMER:
       return pApplet->DoTimer((UINT_PTR)wParam);
-
-    case WM_NOTIFY:
-      return pApplet->DoNotify(hwnd, lParam);
 
     case WM_DESTROY:
     case WM_NCDESTROY:
@@ -515,9 +509,13 @@ bool Applet::CleanTasks()
 //----  --------------------------------------------------------------------------------------------------------
 LRESULT Applet::TaskMouseEvent(UINT message, LPARAM lParam)
 {
+  std::pair<Applet*, HWND> *thumbnailPair;
+  std::map<HWND, HANDLE>::iterator thumbnailIter;
   TaskVector::iterator iter;
   HWND windowHandle;
   POINT pt;
+  DWORD threadID, threadState;
+  HWND task;
 
   pt.x = LOWORD(lParam);
   pt.y = HIWORD(lParam);
@@ -591,6 +589,22 @@ LRESULT Applet::TaskMouseEvent(UINT message, LPARAM lParam)
                   oldTipWnd = (*iter)->GetWnd();
                   SendMessage(toolWnd, TTM_UPDATE, 0, 0);
                 }
+              task = (*iter)->GetWnd();
+              thumbnailIter = thumbnailMap.find(task);
+              if (thumbnailIter == thumbnailMap.end())
+                {
+                  thumbnailPair = new std::pair<Applet*, HWND>(this, task);
+                  thumbnailMap.insert(std::pair<HWND, HANDLE>(task, CreateThread(NULL, 0, UpdateThumbnailThreadProc, thumbnailPair, 0, &threadID)));
+                }
+              else
+                {
+                  GetExitCodeThread(thumbnailIter->second, &threadState);
+                  if (threadState != STILL_ACTIVE)
+                    {
+                      thumbnailPair = new std::pair<Applet*, HWND>(this, task);
+                      thumbnailIter->second = CreateThread(NULL, 0, UpdateThumbnailThreadProc, thumbnailPair, 0, &threadID);
+                    }
+                }
               break;
             }
 
@@ -603,54 +617,6 @@ LRESULT Applet::TaskMouseEvent(UINT message, LPARAM lParam)
     {
       ELExecute((WCHAR*)TEXT("taskmgr.exe"));
       return 0;
-    }
-
-  return 1;
-}
-
-LRESULT Applet::DoNotify(HWND hwnd, LPARAM lParam)
-{
-  LPNMHDR pnmh = (LPNMHDR)lParam;
-
-  // Fetch tooltip text
-  if (pnmh->code == TTN_NEEDTEXT)
-    {
-      LPTOOLTIPTEXT lpttt = (LPTOOLTIPTEXT) lParam;
-      TaskVector::iterator iter;
-      POINT pt;
-      RECT rt;
-      WCHAR windowTitle[TIP_SIZE];
-      ULONG_PTR response = 0;
-
-      ELGetWindowRect(hwnd, &rt);
-      GetCursorPos(&pt);
-      pt.x -= rt.left;
-      pt.y -= rt.top;
-
-      // Traverse the valid icon vector to see if the mouse is in the bounding rectangle
-      // of the current icon
-      iter = taskList.begin();
-      while (iter < taskList.end())
-        {
-          if (PtInRect((*iter)->GetRect(), pt))
-            {
-              // Update the tooltip
-              SendMessageTimeout((*iter)->GetWnd(), WM_GETTEXT, TIP_SIZE, reinterpret_cast<LPARAM>(windowTitle), SMTO_ABORTIFHUNG, 100, &response);
-              if (response != 0)
-                {
-                  lpttt->lpszText = windowTitle;
-                  SetWindowPos(toolWnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOACTIVATE);
-                }
-              else
-                lpttt->lpszText = (WCHAR*)TEXT("\0");
-
-              return 0;
-            }
-
-          iter++;
-        }
-
-      lpttt->lpszText = (WCHAR*)TEXT("\0");
     }
 
   return 1;
@@ -873,6 +839,31 @@ DWORD WINAPI Applet::ModifyThreadProc(LPVOID lpParameter)
   return 0;
 }
 
+DWORD WINAPI Applet::UpdateThumbnailThreadProc(LPVOID lpParameter)
+{
+  // reinterpret lpParameter as a Applet*,HWND pair
+  std::pair<Applet*, HWND> *thumbnailPair = reinterpret_cast< std::pair<Applet*, HWND>* >(lpParameter);
+  TaskVector::iterator iter = thumbnailPair->first->FindTask(thumbnailPair->second);
+  //Task* currentTask = reinterpret_cast< Task* >(lpParameter);
+  POINT pt;
+
+  (*iter)->CreateDwmThumbnail(thumbnailPair->first->GetMainWnd());
+
+  do
+    {
+      WaitForSingleObject(GetCurrentThread(), 100);
+      GetCursorPos(&pt);
+      ScreenToClient(thumbnailPair->first->GetMainWnd(), &pt);
+    }
+  while (PtInRect((*iter)->GetRect(), pt));
+
+  (*iter)->DestroyDwmThumbnail();
+
+  delete thumbnailPair;
+
+  return 0;
+}
+
 LRESULT Applet::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
   HWND task = (HWND)lParam;
@@ -993,33 +984,6 @@ void Applet::ResetTaskIcons()
 
       iter++;
     }
-}
-
-LRESULT Applet::DoSize(LPARAM lParam)
-{
-  UINT dragBorder = guiInfo.dragBorder + guiInfo.bevelWidth + guiInfo.padding;
-
-  // fill in the TOOLINFO structure
-  ZeroMemory(&ti, sizeof(TOOLINFO));
-  ti.cbSize = TTTOOLINFOW_V2_SIZE;
-  ti.hwnd = mainWnd;
-  ti.uId = (ULONG_PTR)mainWnd;
-  ti.hinst =  mainInst;
-  ti.uFlags = TTF_SUBCLASS;
-  ti.lpszText = LPSTR_TEXTCALLBACK;
-
-  // Remove the tooltip region
-  SendMessage(toolWnd, TTM_DELTOOL, 0, (LPARAM)&ti);
-
-  ti.rect.left = dragBorder;
-  ti.rect.top = dragBorder;
-  ti.rect.right = ti.rect.left + LOWORD(lParam) - dragBorder;
-  ti.rect.bottom = ti.rect.top + HIWORD(lParam) - dragBorder;
-
-  // Add the main window as a tooltip region
-  SendMessage(toolWnd, TTM_ADDTOOL, 0, (LPARAM)&ti);
-
-  return 0;
 }
 
 void Applet::AppletUpdate()

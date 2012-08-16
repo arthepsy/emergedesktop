@@ -63,6 +63,26 @@
 #define DWM_BB_TRANSITIONONMAXIMIZED 0x00000004
 #endif
 
+#ifndef DWM_TNP_RECTDESTINATION
+#define DWM_TNP_RECTDESTINATION 0x00000001
+#endif
+
+#ifndef DWM_TNP_RECTSOURCE
+#define DWM_TNP_RECTSOURCE 0x00000002
+#endif
+
+#ifndef DWM_TNP_OPACITY
+#define DWM_TNP_OPACITY 0x00000004
+#endif
+
+#ifndef DWM_TNP_VISIBLE
+#define DWM_TNP_VISIBLE 0x00000008
+#endif
+
+#ifndef DWM_TNP_SOURCECLIENTAREAONLY
+#define DWM_TNP_SOURCECLIENTAREAONLY 0x00000010
+#endif
+
 #define ICON_DEFAULT        0
 #define ICON_RUN            4
 #define ICON_SHUTDOWN       5
@@ -87,6 +107,10 @@
 #define FE_FONTSMOOTHINGCLEARTYPE 2
 #endif
 
+typedef HANDLE HTHUMBNAIL;
+typedef HTHUMBNAIL* PHTHUMBNAIL;
+
+
 typedef struct _MARGINS
 {
   int cxLeftWidth;
@@ -104,6 +128,17 @@ typedef struct _DWM_BLURBEHIND
   BOOL  fTransitionOnMaximized;
 }
 DWM_BLURBEHIND, *PDWM_BLURBEHIND;
+
+typedef struct _DWM_THUMBNAIL_PROPERTIES
+{
+  DWORD dwFlags;
+  RECT  rcDestination;
+  RECT  rcSource;
+  BYTE  opacity;
+  BOOL  fVisible;
+  BOOL  fSourceClientAreaOnly;
+}
+DWM_THUMBNAIL_PROPERTIES, *PDWM_THUMBNAIL_PROPERTIES;
 
 // Format Info
 typedef struct _FORMATINFO
@@ -180,5 +215,8 @@ DLL_EXPORT bool EGGetTextRect(WCHAR *text, HFONT font, RECT *rect, UINT flags);
 DLL_EXPORT HBITMAP EGGetIconBitmap(HICON sourceIcon);
 DLL_EXPORT BOOL EGIsCompositionEnabled();
 DLL_EXPORT HRESULT EGBlurWindow(HWND hwnd, bool enable);
-
+DLL_EXPORT HRESULT EGDwmRegisterThumbnail(HWND hwndDestination, HWND hwndSource, PHTHUMBNAIL phThumbnailId);
+DLL_EXPORT HRESULT EGDwmUpdateThumbnailProperties(HTHUMBNAIL hThumbnailId, const DWM_THUMBNAIL_PROPERTIES *ptnProperties);
+DLL_EXPORT HRESULT EGDwmUnregisterThumbnail(HTHUMBNAIL hThumbnailId);
+DLL_EXPORT HRESULT EGDwmQueryThumbnailSourceSize(HTHUMBNAIL hThumbnailId, PSIZE pSize);
 #endif

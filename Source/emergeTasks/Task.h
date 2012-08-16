@@ -38,6 +38,8 @@
 
 #define TIP_SIZE 256
 
+const WCHAR dwmWndClassName[] = TEXT("dwmThumbnailWnd");
+
 //====================
 // The Task Class
 class Task
@@ -46,6 +48,8 @@ public:
   Task(HWND task, HINSTANCE mainInstance);
   ~Task();
 
+  void UpdateTip(HWND mainWnd, HWND toolWnd, WCHAR *tip);
+  void DeleteTip(HWND mainWnd, HWND toolWnd);
   HWND GetWnd();
   HICON GetIcon();
   RECT *GetRect();
@@ -62,6 +66,10 @@ public:
   void UpdateIcon();
   void SetHidden(bool hidden);
   bool GetHidden();
+  void SetDwmThumbnailWnd(HWND dwmThumbnailWnd);
+  HWND GetDwmThumbnailWnd();
+  void CreateDwmThumbnail(HWND ownerWnd);
+  void DestroyDwmThumbnail();
 
 private:
   HWND wnd;
@@ -71,6 +79,9 @@ private:
   bool flash, visible, hidden;
   UINT flashCount;
   bool convertIcon;
+  HTHUMBNAIL dwmThumbnailId;
+  HWND dwmThumbnailWnd;
+  static LRESULT CALLBACK dwmWindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
 };
 
 //====================
