@@ -133,7 +133,7 @@ LRESULT CALLBACK Applet::WindowProcedure (HWND hwnd, UINT message, WPARAM wParam
 }
 
 Applet::Applet(HINSTANCE hInstance)
-  :BaseApplet(hInstance, myName, true, false)
+  :BaseApplet(hInstance, myName, true, true) //ROBLARKY - 2012-08-11: Changed last param to true to allow multiple instances to support multimonitor tasks applets
 {
   activeWnd = NULL;
   oldTipWnd = NULL;
@@ -202,11 +202,10 @@ DWORD WINAPI Applet::CleanTaskThreadProc(LPVOID lpParameter)
   // loop infinitely
   while (true)
     {
-      // Pause the current thread for FULLSCREEN_POLL_TIME
       WaitForSingleObject(GetCurrentThread(), CLEAN_WAIT_TIME);
 
-      // if so set fullscreen to true...
       pApplet->CleanTasks();
+      //pApplet->BuildTasksList(); //ROBLARKY - 2012-08-11: Added call to BuildTasksList for multiple monitor, multiple task applet support. It seems this is really the least troublesome way to handle it
     }
 
   return 0;
@@ -231,6 +230,24 @@ void Applet::UpdateIcons()
   LeaveCriticalSection(&vectorLock);
 }
 
+//ROBLARKY - 2012-08-11 -	Added IsWindowOnSameMonitor
+//						This was added to support multiple instances of emergeTasks running on different monitors, so only the tasks on the
+//						monitor where the applet resides displays the tasks on that monitor
+bool Applet::IsWindowOnSameMonitor(HWND hwnd)
+{
+  if(!pSettings->GetSameMonitorOnly())
+    return true;
+
+  if(MonitorFromWindow(GetMainWnd(), MONITOR_DEFAULTTONEAREST) == MonitorFromWindow(hwnd, MONITOR_DEFAULTTONEAREST))
+    {
+      return true;
+    }
+  else
+    {
+      return false;
+    }
+}
+
 //----  --------------------------------------------------------------------------------------------------------
 // Function:	PaintIcons
 // Required:	HDC hdc - Device contect of calling window
@@ -240,23 +257,25 @@ void Applet::UpdateIcons()
 //----  --------------------------------------------------------------------------------------------------------
 bool Applet::PaintItem(HDC hdc, size_t index, int x, int y, RECT rect)
 {
+  Task *task = taskList.at(index).get();
 
-  TaskVector::iterator iter = taskList.begin() + index;
+  if (task->GetHidden())
+    return false;
 
-  (*iter)->SetRect(rect);
+  task->SetRect(rect);
 
-  (*iter)->CreateNewIcon(guiInfo.alphaForeground, guiInfo.alphaBackground);
+  task->CreateNewIcon(guiInfo.alphaForeground, guiInfo.alphaBackground);
 
-  if ((*iter)->GetVisible())
+  if (task->GetVisible())
     {
-      if (((*iter)->GetWnd() == activeWnd) && pSettings->GetHiliteActive())
+      if ((task->GetWnd() == activeWnd) && pSettings->GetHiliteActive())
         {
           InflateRect(&rect, 1, 1);
           EGFillRect(hdc, &rect, guiInfo.alphaSelected, guiInfo.colorSelected);
         }
 
       // Draw the icon
-      DrawIconEx(hdc, x, y, (*iter)->GetIcon(), pSettings->GetIconSize(),
+      DrawIconEx(hdc, x, y, task->GetIcon(), pSettings->GetIconSize(),
                  pSettings->GetIconSize(), 0, NULL, DI_NORMAL);
     }
 
@@ -287,26 +306,30 @@ LRESULT Applet::AddTask(HWND task)
 
   TaskPtr taskPtr(new Task(task, mainInst));
   taskPtr->SetIcon(icon, pSettings->GetIconSize());
+  taskPtr->SetHidden(!IsWindowOnSameMonitor(task));
   EnterCriticalSection(&vectorLock);
   taskList.push_back(taskPtr);
   LeaveCriticalSection(&vectorLock);
 
-  if (pSettings->GetAutoSize())
+  if (!taskPtr->GetHidden())
     {
-      if (ELGetWindowRect(mainWnd, &wndRect))
+      if (pSettings->GetAutoSize())
         {
-          AdjustRect(&wndRect);
-          UpdateIcons();
-          if ((GetVisibleIconCount() > 0) && !appletHidden)
-            SWPFlags |= SWP_SHOWWINDOW;
-          SetWindowPos(mainWnd, NULL, wndRect.left, wndRect.top,
-                       wndRect.right - wndRect.left,
-                       wndRect.bottom - wndRect.top,
-                       SWPFlags);
+          if (ELGetWindowRect(mainWnd, &wndRect))
+            {
+              AdjustRect(&wndRect);
+              UpdateIcons();
+              if ((GetVisibleIconCount() > 0) && !appletHidden)
+                SWPFlags |= SWP_SHOWWINDOW;
+              SetWindowPos(mainWnd, NULL, wndRect.left, wndRect.top,
+                           wndRect.right - wndRect.left,
+                           wndRect.bottom - wndRect.top,
+                           SWPFlags);
+            }
         }
-    }
 
-  DrawAlphaBlend();
+      DrawAlphaBlend();
+    }
 
   return 0;
 }
@@ -417,6 +440,10 @@ bool Applet::CleanTasks()
   // Go through each of the elements in the trayIcons array
   while (iter < taskList.end())
     {
+      //ROBLARKY - 2012-08-11 -	Added check to see if window is on same monitor, prevent self (or possibly other/base instance?) from getting icon, and making sure window not minimized
+      //						This was added to support multiple instances of emergeTasks running on different monitors, so only the tasks on the
+      //						monitor where the applet resides displays the tasks on that monitor
+
       // If the icon does not have a valid window handle, remove it
       if (!IsWindow((*iter)->GetWnd()))
         {
@@ -427,9 +454,28 @@ bool Applet::CleanTasks()
           // known state.
           iter = taskList.begin();
           LeaveCriticalSection(&vectorLock);
+
+          continue;
+        }
+
+      if (!IsWindowOnSameMonitor((*iter)->GetWnd()))
+        {
+          if (!(*iter)->GetHidden())
+            {
+              (*iter)->SetHidden(true);
+              refresh = true;
+            }
         }
       else
-        iter++;
+        {
+          if ((*iter)->GetHidden())
+            {
+              (*iter)->SetHidden(false);
+              refresh = true;
+            }
+        }
+
+      ++iter;
     }
 
   if (refresh)
@@ -440,6 +486,8 @@ bool Applet::CleanTasks()
           UpdateIcons();
           if (GetVisibleIconCount() == 0)
             SWPFlags |= SWP_HIDEWINDOW;
+          else
+            SWPFlags |= SWP_SHOWWINDOW;
           SetWindowPos(mainWnd, NULL, wndRect.left, wndRect.top,
                        wndRect.right - wndRect.left,
                        wndRect.bottom - wndRect.top,
@@ -838,12 +886,6 @@ LRESULT Applet::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 
           // A "task" was modified
         case HSHELL_REDRAW:
-          // Given that not all tasks are identified with an
-          // HSHELL_WINDOWCREATED message, check to see if the window exists
-          // when this message is passed.  If so, check to see if the window
-          // is valid and if it is add it.
-          if (ELCheckWindow(task))
-            AddTask(task);
 
           // Some apps continually updating their title bar which causes a
           // flood of HSHELL_REDRAW messages.  This will cause emergeTasks to
@@ -878,12 +920,7 @@ LRESULT Applet::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
           // A "task" was activated
         case HSHELL_RUDEAPPACTIVATED:
         case HSHELL_WINDOWACTIVATED:
-          // Given that not all tasks are identified with an
-          // HSHELL_WINDOWCREATED message, check to see if the window exists
-          // when this message is passed.  If so, check to see if the window
-          // is valid and if it is add it.
-          if (ELCheckWindow(task))
-            AddTask(task);
+
           SetFlash(task, false);
 
           /**< Set the icon when the task is activiated to address issues with some apps (like Outlook) */
@@ -993,3 +1030,18 @@ size_t Applet::GetIconCount()
   return taskList.size();
 }
 
+size_t Applet::GetVisibleIconCount()
+{
+  TaskVector::iterator iter = taskList.begin();
+  size_t iconCount = 0;
+
+  while (iter < taskList.end())
+    {
+      if (!(*iter)->GetHidden())
+        ++iconCount;
+
+      ++iter;
+    }
+
+  return iconCount;
+}

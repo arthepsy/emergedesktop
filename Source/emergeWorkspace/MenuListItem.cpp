@@ -20,21 +20,10 @@
 
 #include "MenuListItem.h"
 
-MenuListItem::MenuListItem(WCHAR *name, UINT type, WCHAR *value, TiXmlElement *section)
+MenuListItem::MenuListItem(UINT type, WCHAR *value, TiXmlElement *section)
 {
-  LPVOID lpVoid;
-
-  customDropTarget = std::tr1::shared_ptr<CustomDropTarget>(new CustomDropTarget());
-  customDropTarget->QueryInterface(IID_IDropTarget, &lpVoid);
-  dropTarget = reinterpret_cast <IDropTarget*> (lpVoid);
-
   this->type = type;
   this->section = section;
-
-  if (name)
-    wcscpy(this->name, name);
-  else
-    wcscpy(this->name, (WCHAR*)TEXT("\0"));
 
   if (value)
     wcscpy(this->value, value);
@@ -44,8 +33,6 @@ MenuListItem::MenuListItem(WCHAR *name, UINT type, WCHAR *value, TiXmlElement *s
 
 MenuListItem::~MenuListItem()
 {
-  if (dropTarget)
-    dropTarget->Release();
 }
 
 WCHAR *MenuListItem::GetValue()
@@ -58,24 +45,9 @@ TiXmlElement *MenuListItem::GetSection()
   return section;
 }
 
-WCHAR *MenuListItem::GetName()
-{
-  return name;
-}
-
-IDropTarget *MenuListItem::GetDropTarget()
-{
-  return dropTarget;
-}
-
 void MenuListItem::SetValue(WCHAR *value)
 {
   wcscpy((*this).value, value);
-}
-
-void MenuListItem::SetName(WCHAR *name)
-{
-  wcscpy((*this).name, name);
 }
 
 void MenuListItem::SetSection(TiXmlElement *section)
@@ -87,24 +59,3 @@ UINT MenuListItem::GetType()
 {
   return type;
 }
-
-MenuItem *MenuListItem::GetMenuItem(UINT index)
-{
-  return menuItems[index].get();
-}
-
-UINT MenuListItem::GetMenuItemCount()
-{
-  return (UINT)menuItems.size();
-}
-
-void MenuListItem::AddMenuItem(MenuItem *menuItem)
-{
-  menuItems.push_back( std::tr1::shared_ptr<MenuItem>(menuItem) );
-}
-
-void MenuListItem::DeleteMenuItem(UINT index)
-{
-  menuItems.erase(menuItems.begin() + index);
-}
-

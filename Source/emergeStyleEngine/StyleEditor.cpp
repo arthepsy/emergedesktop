@@ -742,7 +742,7 @@ void StyleEditor::DoSaveAs(HWND hwndDlg)
       if (!ELPathIsDirectory(newThemePath.c_str()))
         ELCreateDirectory(newThemePath);
 
-      ELFileOp(mainWnd, FO_COPY, oldThemePath, newThemePath);
+      ELFileOp(mainWnd, false, FO_COPY, oldThemePath, newThemePath);
     }
 
   wcscpy(extension, TEXT("eds"));
@@ -772,7 +772,7 @@ void StyleEditor::DoSaveAs(HWND hwndDlg)
       if (!oldThemePath.empty())
         {
           size_t styledir = newThemePath.find_last_of(TEXT("\\"));
-          ELFileOp(mainWnd, FO_DELETE, newThemePath.substr(0, styledir));
+          ELFileOp(mainWnd, false, FO_DELETE, newThemePath.substr(0, styledir));
           size_t copystar = oldThemePath.find_last_of(TEXT("\\"));
           oldThemePath = ELExpandVars(oldThemePath.substr(0, copystar));
           ELSetTheme(oldThemePath);

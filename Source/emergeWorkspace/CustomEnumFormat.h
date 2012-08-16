@@ -22,23 +22,30 @@
 
 #include "../emergeLib/emergeLib.h"
 
-HRESULT CreateDropSource(IDropSource **ppDropSource);
+HRESULT CreateEnumFormatEtc(UINT nNumFormats, FORMATETC *pFormatEtc, IEnumFORMATETC **ppEnumFormatEtc);
 
-class CustomDropSource : public IDropSource
+class CustomEnumFormatEtc : public IEnumFORMATETC
 {
-private:
-  ULONG refCount;
-
 public:
-  // IUnknown members
-  STDMETHODIMP QueryInterface(REFIID iid, void ** ppvObject);
-  STDMETHODIMP_(ULONG) AddRef();
-  STDMETHODIMP_(ULONG) Release();
+	// IUnknown members
+	STDMETHODIMP  QueryInterface (REFIID iid, void ** ppvObject);
+	STDMETHODIMP_(ULONG) AddRef (void);
+	STDMETHODIMP_(ULONG) Release (void);
 
-  // IDropSource members
-  STDMETHODIMP QueryContinueDrag(BOOL fEscapePressed, DWORD grfKeyState);
-  STDMETHODIMP GiveFeedback(DWORD dwEffect);
+	// IEnumFormatEtc members
+	STDMETHODIMP Next(ULONG celt, FORMATETC * rgelt, ULONG * pceltFetched);
+	STDMETHODIMP Skip(ULONG celt);
+	STDMETHODIMP Reset(void);
+	STDMETHODIMP Clone(IEnumFORMATETC ** ppEnumFormatEtc);
 
-  CustomDropSource();
-  virtual ~CustomDropSource();
+	CustomEnumFormatEtc(FORMATETC *pFormatEtc, int nNumFormats);
+	virtual ~CustomEnumFormatEtc();
+  void DeepCopyFormatEtc(FORMATETC *dest, FORMATETC *source);
+
+private:
+
+	LONG refCount;		// Reference count for this COM interface
+	ULONG	index;			// current enumerator index
+	ULONG	numFormats;		// number of FORMATETC members
+	FORMATETC *pFormatEtc;		// array of FORMATETC objects
 };

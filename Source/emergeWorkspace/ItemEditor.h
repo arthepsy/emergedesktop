@@ -18,8 +18,7 @@
 //
 //---
 
-#ifndef __ED_ITEMEDITOR_H
-#define __ED_ITEMEDITOR_H
+#pragma once
 
 #undef _WIN32_IE
 #define _WIN32_IE	0x501
@@ -65,6 +64,3 @@ private:
   bool DoSaveItem(HWND hwndDlg);
   bool DoBrowseItem(HWND hwndDlg, bool workingDir);
 };
-
-#endif
-

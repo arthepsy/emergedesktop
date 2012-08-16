@@ -67,6 +67,7 @@ INT_PTR ConfigPage::DoInitPage(HWND hwndDlg)
   SendDlgItemMessage(hwndDlg, IDC_ICONSPACINGUPDOWN, UDM_SETRANGE, (WPARAM)0, (LPARAM)100);
   SendDlgItemMessage(hwndDlg, IDC_FLASHINTERVALUPDOWN, UDM_SETRANGE, (WPARAM)0, (LPARAM)10000);
   SendDlgItemMessage(hwndDlg, IDC_FLASHCOUNTUPDOWN, UDM_SETRANGE, (WPARAM)0, (LPARAM)100);
+  SendDlgItemMessage(hwndDlg, IDC_AUTOLIMITUPDOWN, UDM_SETRANGE, (WPARAM)0, (LPARAM)100);
 
   if (pSettings->GetAutoSize())
     SendDlgItemMessage(hwndDlg, IDC_AUTOSIZE, BM_SETCHECK, BST_CHECKED, 0);
@@ -80,6 +81,10 @@ INT_PTR ConfigPage::DoInitPage(HWND hwndDlg)
   if (pSettings->GetHiliteActive())
     SendDlgItemMessage(hwndDlg, IDC_ACTIVETASK, BM_SETCHECK, BST_CHECKED, 0);
 
+  //ROBLARKY - 2012-08-11: Added for option to only show tasks on same monitor
+  if (pSettings->GetSameMonitorOnly())
+    SendDlgItemMessage(hwndDlg, IDC_SAMEMONITOR, BM_SETCHECK, BST_CHECKED, 0);
+
   if (pSettings->GetEnableFlash())
     SendDlgItemMessage(hwndDlg, IDC_ENABLEFLASH, BM_SETCHECK, BST_CHECKED, 0);
 
@@ -88,6 +93,10 @@ INT_PTR ConfigPage::DoInitPage(HWND hwndDlg)
 
   SendDlgItemMessage(hwndDlg, IDC_ICONSIZE, CB_ADDSTRING, 0, (LPARAM)TEXT("16x16"));
   SendDlgItemMessage(hwndDlg, IDC_ICONSIZE, CB_ADDSTRING, 0, (LPARAM)TEXT("32x32"));
+
+  SetDlgItemText(hwndDlg, IDC_AUTOLIMIT, towstring(pSettings->GetAutoSizeLimit()).c_str());
+  if (!pSettings->GetAutoSize())
+    EnableWindow((HWND)GetDlgItem(hwndDlg, IDC_AUTOLIMIT), FALSE);
 
   if (pSettings->GetIconSize() == 32)
     SendDlgItemMessage(hwndDlg, IDC_ICONSIZE, CB_SETCURSEL, (WPARAM)1, 0);
@@ -129,6 +138,10 @@ INT_PTR ConfigPage::DoCommand(HWND hwndDlg, WPARAM wParam, LPARAM lParam UNUSED)
       else if (SendDlgItemMessage(hwndDlg, IDC_DYNAMICPOSITIONING, BM_GETCHECK, 0, 0) == BST_UNCHECKED)
         EnableWindow(anchorWnd, false);
       return 1;
+    case IDC_AUTOSIZE:
+      EnableWindow((HWND)GetDlgItem(hwndDlg, IDC_AUTOLIMIT),
+                   (SendDlgItemMessage(hwndDlg, IDC_AUTOSIZE, BM_GETCHECK, 0, 0) == BST_CHECKED));
+      return true;
     }
 
   return 0;
@@ -189,6 +202,23 @@ bool ConfigPage::UpdateSettings(HWND hwndDlg)
     pSettings->SetEnableFlash(true);
   else if (SendDlgItemMessage(hwndDlg, IDC_ENABLEFLASH, BM_GETCHECK, 0, 0) == BST_UNCHECKED)
     pSettings->SetEnableFlash(false);
+
+  //ROBLARKY - 2012-08-11: Added for option to only show tasks on same monitor
+  if (SendDlgItemMessage(hwndDlg, IDC_SAMEMONITOR, BM_GETCHECK, 0, 0) == BST_CHECKED)
+    pSettings->SetSameMonitorOnly(true);
+  else if (SendDlgItemMessage(hwndDlg, IDC_SAMEMONITOR, BM_GETCHECK, 0, 0) == BST_UNCHECKED)
+    pSettings->SetSameMonitorOnly(false);
+
+  result = GetDlgItemInt(hwndDlg, IDC_AUTOLIMIT, &success, false);
+  if (success)
+    pSettings->SetAutoSizeLimit(result);
+  else if (!success)
+    {
+      ELMessageBox(GetDesktopWindow(), (WCHAR*)TEXT("Invalid value for AutoSize wrap"),
+                   (WCHAR*)TEXT("emergeTasks"), ELMB_OK|ELMB_ICONERROR|ELMB_MODAL);
+      SetDlgItemInt(hwndDlg, IDC_ICONSPACING, pSettings->GetIconSpacing(), false);
+      return false;
+    }
 
   if (SendDlgItemMessage(hwndDlg, IDC_CLICKTHROUGH, BM_GETCHECK, 0, 0) == BST_CHECKED)
     {

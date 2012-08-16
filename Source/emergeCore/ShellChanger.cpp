@@ -551,7 +551,7 @@ bool ShellChanger::WriteShells(HWND hwndDlg)
                 {
                   iter = shellMap.find(name);
 
-                  first = ELSetFirstXMLElement(section, TEXT("item"));
+                  first = ELSetFirstXMLElementByName(section, TEXT("item"));
                   ELWriteXMLStringValue(first, (WCHAR*)TEXT("Name"), name);
                   ELWriteXMLStringValue(first, (WCHAR*)TEXT("Command"), (WCHAR*)iter->second.c_str());
                 }

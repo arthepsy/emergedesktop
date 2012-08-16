@@ -37,6 +37,7 @@ hgversion.h
 ipch
 *.cbTemp
 *.res
+*.orig
 
 # switch to regexp syntax.
 #syntax: regexp

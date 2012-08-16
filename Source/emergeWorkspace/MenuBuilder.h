@@ -18,8 +18,7 @@
 //
 //----  --------------------------------------------------------------------------------------------------------
 
-#ifndef __ED_MENUBUILDER_H
-#define __ED_MENUBUILDER_H
+#pragma once
 
 // Define required for the Window Transparency
 #undef _WIN32_WINNT
@@ -32,15 +31,12 @@
 #include <map>
 #include <process.h>
 #include <time.h>
-#include "MenuEditor.h"
 #include "ItemEditor.h"
 #include "MenuListItem.h"
+#include "MenuItem.h"
 #include "Config.h"
 #include "../emergeGraphics/emergeGraphics.h"
 #include "../emergeAppletEngine/emergeAppletEngine.h"
-#include "CustomDropSource.h"
-#include "CustomDropTarget.h"
-#include "CustomDataObject.h"
 
 // Define Menu Types
 #define MENU_RIGHT           0x01
@@ -101,21 +97,19 @@ typedef enum _BUILDHELPMENU {
 } BUILDHELPMENU;
 
 typedef std::map< HMENU,std::tr1::shared_ptr<MenuListItem> > MenuMap;
+typedef std::pair< HMENU,std::tr1::shared_ptr<MenuListItem> > MenuPair;
+typedef std::map< UINT_PTR,std::tr1::shared_ptr<MenuItem> > MenuItemMap;
+typedef std::pair< UINT_PTR,std::tr1::shared_ptr<MenuItem> > MenuItemPair;
 
 class MenuBuilder
 {
 private:
-  std::tr1::shared_ptr<MenuEditor> pMenuEditor;
   std::tr1::shared_ptr<ItemEditor> pItemEditor;
   std::tr1::shared_ptr<Settings> pSettings;
   HWND menuWnd;
   HINSTANCE mainInst;
   HMENU rootMenu, taskMenu;
   bool MButtonDown;
-  UINT SelectedMenuType, SelectedMenuIndex;
-  HMENU SelectedMenu;
-  WORD SelectedItem;
-  WORD SelectedItemType;
   UINT ShellMessage;
   void BuildMenu(MenuMap::iterator iter);
   void BuildXMLMenu(MenuMap::iterator iter);
@@ -135,7 +129,7 @@ private:
   void ExecuteHelpMenuItem(UINT index);
   void ExpandEmergeVar(LPTSTR value, LPTSTR var);
   void ClearMenu(MenuMap::iterator iter);
-  void AddSettingsItem(MenuMap::iterator iter, WCHAR* text, UINT id);
+  void AddSpecialItem(MenuMap::iterator iter, UINT type, WCHAR* text, UINT id);
   bool GetPos(MenuMap::iterator iter, WCHAR *input, bool directory, UINT *pos, UINT *itemID, ULONG_PTR *itemData);
   static LRESULT CALLBACK HookCallWndProc(int nCode, WPARAM wParam, LPARAM lParam);
   static BOOL CALLBACK BuildTasksMenu(HWND hwnd, LPARAM lParam);
@@ -143,23 +137,25 @@ private:
   static BOOL CALLBACK SetMonitorArea(HMONITOR hMonitor, HDC hdcMonitor, LPRECT lprcMonitor, LPARAM dwData);
   int DisplayRegContext(POINT pt, int type);
   bool registered;
-  bool AddMenuItem(MenuMap::iterator iter, int index);
-  bool EditMenuItem(MenuMap::iterator iter, int index);
-  void ElevatedExecute(MenuItem *menuItem);
+  bool AddMenuItem(std::tr1::shared_ptr<MenuItem> menuItem);
+  bool EditMenuItem(std::tr1::shared_ptr<MenuItem> menuItem);
+  void ElevatedExecute(std::tr1::shared_ptr<MenuItem> menuItem);
   float winVersion;
   HMENU activeMenu;
-//    CustomDropTarget *customDropTarget;
-//    IDropTarget *dropTarget;
+  HANDLE DragItemDataToHandle(DRAGITEMDATA *menuItemData);
+  HDROP FileToHandle(WCHAR *file);
+  MenuItemMap menuItemMap;
+  bool topGap, bottomGap;
 
 public:
   MenuBuilder(HINSTANCE desktopInst);
   ~MenuBuilder();
   bool Initialize();
   LRESULT DoButtonDown(UINT button);
-  LRESULT DoMenuDrag(HWND hwnd, HMENU menu);
+  LRESULT DoMenuDrag(HWND hwnd, UINT pos, HMENU menu);
   LRESULT DoMenuGetObject(HWND hwnd, MENUGETOBJECTINFO *mgoInfo);
   LRESULT DoInitMenu(HMENU menu);
-  LRESULT ExecuteMenuItem(UINT itemID);
+  LRESULT ExecuteMenuItem(UINT_PTR itemID);
   LRESULT DoContextMenu();
   LRESULT DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
   LRESULT DoCopyData(COPYDATASTRUCT *cds);
@@ -173,7 +169,5 @@ public:
   void RenameConfigFile();
   BYTE GetMenuAlpha();
   void SetActiveMenu(HMENU menu);
+  bool DropMenuItem(MENUITEMDATA *menuItemData, MENUITEMDATA *dropItemData, HMENU menu, POINT pt);
 };
-
-#endif
-

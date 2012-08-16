@@ -18,8 +18,7 @@
 //
 //---
 
-#ifndef __ED_CONFIG_H
-#define __ED_CONFIG_H
+#pragma once
 
 #undef _WIN32_IE
 #define _WIN32_IE 0x0600
@@ -27,7 +26,6 @@
 #include "Settings.h"
 #include "resource.h"
 #include "ConfigPage.h"
-#include "MenuEditor.h"
 
 #ifdef __GNUC__
 #include <tr1/memory>
@@ -45,12 +43,8 @@ public:
   INT_PTR DoInitDialog(HWND hwndDlg);
 
 private:
-  std::tr1::shared_ptr<MenuEditor> pMenuEditor;
   std::tr1::shared_ptr<ConfigPage> pConfigPage;
   std::tr1::shared_ptr<Settings> pSettings;
   HINSTANCE hInstance;
   static INT_PTR CALLBACK ConfigDlgProc(HWND hwndDlg, UINT message, WPARAM wParam, LPARAM lParam);
 };
-
-#endif
-

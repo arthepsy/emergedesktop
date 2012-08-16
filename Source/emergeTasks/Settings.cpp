@@ -28,12 +28,14 @@ Settings::Settings()
   flashCount = 0;
   enableFlash = true;
   flashInterval = 1000;
+  sameMonitorOnly = false; //ROBLARKY - 2012-08-11: Added for option to only show tasks on same monitor
 }
 
 void Settings::DoReadSettings(IOHelper& helper)
 {
   BaseSettings::DoReadSettings(helper);
   helper.ReadBool(TEXT("HighLightActive"), hiliteActive, true);
+  helper.ReadBool(TEXT("SameMonitorOnly"), sameMonitorOnly, false); //ROBLARKY - 2012-08-11: Added for option to only show tasks on same monitor
   helper.ReadInt(TEXT("FlashCount"), flashCount, 0);
   helper.ReadBool(TEXT("EnableFlash"), enableFlash, true);
   helper.ReadInt(TEXT("FlashInterval"), flashInterval, 1000);
@@ -43,6 +45,7 @@ void Settings::DoWriteSettings(IOHelper& helper)
 {
   BaseSettings::DoWriteSettings(helper);
   helper.WriteBool(TEXT("HighLightActive"), hiliteActive);
+  helper.WriteBool(TEXT("SameMonitorOnly"), sameMonitorOnly); //ROBLARKY - 2012-08-11: Added for option to only show tasks on same monitor
   helper.WriteInt(TEXT("FlashCount"), flashCount);
   helper.WriteBool(TEXT("EnableFlash"), enableFlash);
   helper.WriteInt(TEXT("FlashInterval"), flashInterval);
@@ -72,6 +75,7 @@ void Settings::ResetDefaults()
   clickThrough = 0;
   appletMonitor = 0;
   wcscpy(anchorPoint, TEXT("BottomLeft"));
+  sameMonitorOnly = false; //ROBLARKY - 2012-08-11: Added for option to only show tasks on same monitor
 }
 
 bool Settings::GetHiliteActive()
@@ -84,6 +88,22 @@ bool Settings::SetHiliteActive(bool hiliteActive)
   if (this->hiliteActive != hiliteActive)
     {
       this->hiliteActive = hiliteActive;
+      SetModified();
+    }
+  return true;
+}
+
+//ROBLARKY - 2012-08-11: Added for option to only show tasks on same monitor
+bool Settings::GetSameMonitorOnly()
+{
+  return sameMonitorOnly;
+}
+
+bool Settings::SetSameMonitorOnly(bool sameMonitorOnly)
+{
+  if (this->sameMonitorOnly != sameMonitorOnly)
+    {
+      this->sameMonitorOnly = sameMonitorOnly;
       SetModified();
     }
   return true;

@@ -22,7 +22,6 @@ set CB_CMD=--rebuild "%~dp0Emerge Desktop.workspace"
 
 set CB_TARGET=--target=Debug64
 %START_CMD% %CB_EXE% %CB_PARAMS% %CB_TARGET% %CB_CMD%
-echo Do not forget to run "update.bat" after successful build!
 goto TheEnd
 
 :ErrNoCB

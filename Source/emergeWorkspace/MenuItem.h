@@ -18,8 +18,7 @@
 //
 //---
 
-#ifndef __ED_MENUITEM_H
-#define __ED_MENUITEM_H
+#pragma once
 
 #include "../emergeLib/emergeLib.h"
 #include "../emergeGraphics/emergeGraphics.h"
@@ -28,29 +27,27 @@
 class MenuItem
 {
 public:
-  MenuItem(WCHAR *name, UINT type, WCHAR *value, WCHAR *workingDir, TiXmlElement *element);
+  MenuItem(MENUITEMDATA menuItemData, HMENU menu);
   ~MenuItem();
   UINT GetType();
   WCHAR *GetName();
   WCHAR *GetValue();
   WCHAR *GetWorkingDir();
+  HMENU GetMenu();
   TiXmlElement *GetElement();
   HICON GetIcon();
   IDropTarget *GetDropTarget();
+  IDropSource *GetDropSource();
   void SetIcon();
   void SetValue(WCHAR *value);
   void SetName(WCHAR *name);
+  void SetElement(TiXmlElement *element);
+  UINT_PTR GetID();
+  MENUITEMDATA *GetMenuItemData();
 
 private:
-  TiXmlElement *element;
-  UINT type;
-  WCHAR name[MAX_LINE_LENGTH];
-  WCHAR value[MAX_LINE_LENGTH];
-  WCHAR workingDir[MAX_PATH];
+  MENUITEMDATA menuItemData;
   HICON icon;
   IDropTarget *dropTarget;
-  CustomDropTarget *customDropTarget;
+  HMENU menu;
 };
-
-#endif
-

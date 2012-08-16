@@ -757,12 +757,17 @@ TiXmlElement *ELGetFirstXMLElementByName(TiXmlElement *xmlSection, WCHAR *elemen
 
   child = xmlSection->FirstChildElement(narrowElement.c_str());
   if (!child && createElement)
-    child = ELSetFirstXMLElement(xmlSection, elementName);
+    child = ELSetFirstXMLElementByName(xmlSection, elementName);
 
   return child;
 }
 
-TiXmlElement *ELSetFirstXMLElement(TiXmlElement *xmlSection, const WCHAR *elementName)
+TiXmlElement *ELGetXMLElementParent(TiXmlElement *xmlElement)
+{
+  return xmlElement->Parent()->ToElement();
+}
+
+TiXmlElement *ELSetFirstXMLElementByName(TiXmlElement *xmlSection, const WCHAR *elementName)
 {
   std::string narrowElement = ELwstringTostring(elementName);
   TiXmlElement *child;
@@ -773,17 +778,66 @@ TiXmlElement *ELSetFirstXMLElement(TiXmlElement *xmlSection, const WCHAR *elemen
   return child;
 }
 
+void ELSetFirstXMLElement(TiXmlElement *xmlSection, TiXmlElement *element)
+{
+  xmlSection->LinkEndChild(element);
+}
+
 TiXmlElement *ELGetSiblingXMLElement(TiXmlElement *xmlElement)
 {
   return xmlElement->NextSiblingElement();
 }
 
-TiXmlElement *ELSetSibilingXMLElement(TiXmlElement *xmlElement, const WCHAR *elementName)
+TiXmlElement *ELCloneXMLElement(TiXmlElement *sourceElement)
+{
+  return sourceElement->Clone()->ToElement();
+}
+
+TiXmlElement *ELCloneXMLElementAsSibling(TiXmlElement *sourceElement, TiXmlElement *targetElement)
+{
+  TiXmlElement *sibling = NULL, *newElement = NULL;
+  if (sourceElement)
+    newElement = sourceElement->Clone()->ToElement();
+
+  if (targetElement && newElement)
+    sibling = targetElement->Parent()->InsertBeforeChild(targetElement, *newElement)->ToElement();
+
+  return sibling;
+}
+
+TiXmlElement *ELCloneXMLElementAsChild(TiXmlElement *sourceElement, TiXmlElement *targetElement)
+{
+  TiXmlElement *newElement = NULL;
+  if (sourceElement)
+    newElement = sourceElement->Clone()->ToElement();
+
+  if (targetElement && newElement)
+    targetElement->LinkEndChild(newElement);
+
+  return newElement;
+}
+
+TiXmlElement *ELSetSibilingXMLElement(TiXmlElement *targetElement, TiXmlElement *sourceElement, bool insertAfter)
+{
+  TiXmlElement *sibling;
+
+  if (insertAfter)
+    sibling = targetElement->Parent()->InsertAfterChild(targetElement, *sourceElement)->ToElement();
+  else
+    sibling = targetElement->Parent()->InsertBeforeChild(targetElement, *sourceElement)->ToElement();
+
+  return sibling;
+}
+
+TiXmlElement *ELSetSibilingXMLElementByName(TiXmlElement *xmlElement, const WCHAR *elementName, bool insertAfter)
 {
   std::string narrowElement = ELwstringTostring(elementName);
   TiXmlElement *sibling, newSibling(narrowElement.c_str());
 
-  sibling = xmlElement->Parent()->InsertAfterChild(xmlElement, newSibling)->ToElement();
+  if (insertAfter)
+    sibling = xmlElement->Parent()->InsertAfterChild(xmlElement, newSibling)->ToElement();
+  else
+    sibling = xmlElement->Parent()->InsertBeforeChild(xmlElement, newSibling)->ToElement();
 
   return sibling;
 }
@@ -1099,7 +1153,7 @@ std::wstring ELstringTowstring(std::string inString, UINT codePage)
   return returnString;
 }
 
-bool ELFileOp(HWND appletWnd, UINT function, std::wstring source, std::wstring destination)
+bool ELFileOp(HWND appletWnd, bool feedback, UINT function, std::wstring source, std::wstring destination)
 {
   SHFILEOPSTRUCT fileOpStruct;
   WCHAR *fromString = NULL, *toString = NULL;
@@ -1111,7 +1165,8 @@ bool ELFileOp(HWND appletWnd, UINT function, std::wstring source, std::wstring d
 
   fileOpStruct.hwnd = appletWnd;
   fileOpStruct.wFunc = function;
-  fileOpStruct.fFlags = FOF_NOCONFIRMATION | FOF_SILENT | FOF_NOCONFIRMMKDIR | FOF_NOERRORUI;
+  if (!feedback)
+    fileOpStruct.fFlags = FOF_NOCONFIRMATION | FOF_SILENT | FOF_NOCONFIRMMKDIR | FOF_NOERRORUI;
 
   fromString = (WCHAR*)GlobalAlloc(GPTR, sizeof(WCHAR) * (source.length() + 2));
   wcscpy(fromString, source.c_str());
@@ -2087,10 +2142,12 @@ bool ELExecute(LPTSTR application, LPTSTR workingDir, int nShow, WCHAR *verb)
   else
     return false;
 
-  shortcutInfo.flags = SI_PATH | SI_ARGUMENTS | SI_WORKINGDIR | SI_SHOW;
+  shortcutInfo.flags = SI_PATH|SI_ARGUMENTS|SI_WORKINGDIR|SI_SHOW|SI_RUNAS;
   if (ELParseShortcut(workingString.c_str(), &shortcutInfo))
     {
       isShortcut = true;
+      if (shortcutInfo.runAs)
+        verb = (WCHAR*)TEXT("runas");
       wcscpy(program, shortcutInfo.Path);
       wcscpy(arguments, shortcutInfo.Arguments);
       wcscpy(directory, shortcutInfo.WorkingDirectory);
@@ -3114,9 +3171,11 @@ bool ELSetForeground(HWND wnd)
 bool ELParseShortcut(LPCTSTR shortcut, LPSHORTCUTINFO shortcutInfo)
 {
   IShellLink *psl = NULL;
+  IShellLinkDataList *psdl = NULL;
   IPersistFile* ppf = NULL;
   LPITEMIDLIST pidl = NULL;
   LPVOID lpVoid;
+  DWORD dwFlags;
   bool ret = true;
 
   if (FAILED(CoInitialize(NULL)))
@@ -3132,11 +3191,20 @@ bool ELParseShortcut(LPCTSTR shortcut, LPSHORTCUTINFO shortcutInfo)
     }
   psl = reinterpret_cast <IShellLink*> (lpVoid);
 
+  if (FAILED(psl->QueryInterface(IID_IShellLinkDataList, &lpVoid)))
+    {
+      psl->Release();
+      CoUninitialize();
+      return false;
+    }
+  psdl = reinterpret_cast <IShellLinkDataList*> (lpVoid);
+
   // Get a pointer to the IPersistFile interface.
   if (FAILED(psl->QueryInterface(IID_IPersistFile,
                                  &lpVoid)))
     {
       psl->Release();
+      psdl->Release();
       CoUninitialize();
       return false;
     }
@@ -3147,6 +3215,7 @@ bool ELParseShortcut(LPCTSTR shortcut, LPSHORTCUTINFO shortcutInfo)
     {
       ppf->Release();
       psl->Release();
+      psdl->Release();
       CoUninitialize();
       return false;
     }
@@ -3155,10 +3224,22 @@ bool ELParseShortcut(LPCTSTR shortcut, LPSHORTCUTINFO shortcutInfo)
     {
       ppf->Release();
       psl->Release();
+      psdl->Release();
       CoUninitialize();
       return false;
     }
 
+  // Get the path to the link target.
+  if ((shortcutInfo->flags & SI_RUNAS) == SI_RUNAS)
+    {
+      shortcutInfo->runAs = false;
+
+      if (SUCCEEDED(psdl->GetFlags(&dwFlags)))
+        {
+          if ((dwFlags & SLDF_RUNAS_USER) == SLDF_RUNAS_USER)
+            shortcutInfo->runAs = true;
+        }
+    }
 
   // Get the path to the link target.
   if ((shortcutInfo->flags & SI_PATH) == SI_PATH)
@@ -3200,6 +3281,7 @@ bool ELParseShortcut(LPCTSTR shortcut, LPSHORTCUTINFO shortcutInfo)
 
   ppf->Release();
   psl->Release();
+  psdl->Release();
   CoUninitialize();
   return ret;
 }
@@ -3541,16 +3623,21 @@ bool ELExit(UINT uFlag, bool prompt)
 
 bool ELCheckWindow(HWND hwnd)
 {
-  RECT hwndRt;
-  GetClientRect(hwnd, &hwndRt);
+  RECT hwndRT;
+  GetWindowRect(hwnd, &hwndRT);
 
-  /* If the window is visible, not a toolwindow, has no parent, and it's client
-   * rect isn't empty, it's a valid task window.
-   */
-  if ((IsWindowVisible(hwnd)) &&
+  // To be a valid task it should be visible...
+  if (IsWindowVisible(hwnd) &&
+      // ... be enabled ...
+      IsWindowEnabled(hwnd) &&
+      // ... not be a toolwindow ...
       !(GetWindowLongPtr(hwnd, GWL_EXSTYLE) & WS_EX_TOOLWINDOW) &&
+      // ... have no parent ...
       !GetParent(hwnd) &&
-      !(IsRectEmpty(&hwndRt) && !IsIconic(hwnd)))
+      // ... have no owner ...
+      !GetWindow(hwnd,GW_OWNER) &&
+      // ... and have a window rect of some size when not iconic.
+      !(IsRectEmpty(&hwndRT) && !IsIconic(hwnd)))
     return true;
 
   return false;
@@ -5236,16 +5323,15 @@ bool ELIsExplorer(HWND hwnd)
 HANDLE ELActivateActCtxForDll(LPCTSTR pszDll, PULONG_PTR pulCookie)
 {
   HANDLE hContext = INVALID_HANDLE_VALUE;
-  HMODULE kernel32 = ELGetSystemLibrary(TEXT("kernel32.dll"));
 
   typedef HANDLE (WINAPI* CreateActCtx_t)(PACTCTX pCtx);
   typedef BOOL (WINAPI* ActivateActCtx_t)(HANDLE hCtx, ULONG_PTR* pCookie);
 
   CreateActCtx_t fnCreateActCtx = (CreateActCtx_t)
-                                  GetProcAddress(kernel32, "CreateActCtxW");
+                                  GetProcAddress(kernel32DLL, "CreateActCtxW");
 
   ActivateActCtx_t fnActivateActCtx = (ActivateActCtx_t)
-                                      GetProcAddress(kernel32, "ActivateActCtx");
+                                      GetProcAddress(kernel32DLL, "ActivateActCtx");
 
   if (fnCreateActCtx != NULL && fnActivateActCtx != NULL)
     {
@@ -5329,16 +5415,14 @@ HANDLE ELActivateActCtxForClsid(REFCLSID rclsid, PULONG_PTR pulCookie)
 
 void ELDeactivateActCtx(HANDLE hActCtx, ULONG_PTR* pulCookie)
 {
-  HMODULE kernel32 = ELGetSystemLibrary(TEXT("kernel32.dll"));
-
   typedef BOOL (WINAPI* DeactivateActCtx_t)(DWORD dwFlags, ULONG_PTR ulc);
   typedef void (WINAPI* ReleaseActCtx_t)(HANDLE hActCtx);
 
   DeactivateActCtx_t fnDeactivateActCtx = (DeactivateActCtx_t)
-                                          GetProcAddress(kernel32, "DeactivateActCtx");
+                                          GetProcAddress(kernel32DLL, "DeactivateActCtx");
 
   ReleaseActCtx_t fnReleaseActCtx = (ReleaseActCtx_t)
-                                    GetProcAddress(kernel32, "ReleaseActCtx");
+                                    GetProcAddress(kernel32DLL, "ReleaseActCtx");
 
   if (fnDeactivateActCtx != NULL && fnReleaseActCtx != NULL)
     {

@@ -350,6 +350,7 @@ void BaseApplet::AdjustRect(RECT *wndRect)
   autoSizeInfo.iconSize = pBaseSettings->GetIconSize();
   autoSizeInfo.iconSpacing = pBaseSettings->GetIconSpacing();
   autoSizeInfo.visibleIconCount = (UINT)GetVisibleIconCount();
+  autoSizeInfo.limit = (UINT)pBaseSettings->GetAutoSizeLimit();
 
   if (_wcsicmp(pBaseSettings->GetDirectionOrientation(), TEXT("vertical")) == 0)
     autoSizeInfo.orientation = ASI_VERTICAL;
@@ -543,9 +544,6 @@ void BaseApplet::DrawAlphaBlend()
 
       ESEPaintBackground(activeBackgroundDC, clientrt, &guiInfo, true);
       ESEPaintBackground(inactiveBackgroundDC, clientrt, &guiInfo, false);
-
-      if (EGIsCompositionEnabled())
-        EGBlurWindow(mainWnd, guiInfo.windowBlur);
     }
 
   if (mouseOver)
@@ -616,6 +614,10 @@ void BaseApplet::DrawAlphaBlend()
   srcPt.x = 0;
   srcPt.y = 0;
 
+  // Blur the window if required.
+  if (EGIsCompositionEnabled())
+    EGBlurWindow(mainWnd, guiInfo.windowBlur);
+
   UpdateLayeredWindow(mainWnd, NULL, NULL, &wndSz, hdc, &srcPt, 0, &bf, ULW_ALPHA);
 
   // do cleanup
@@ -649,7 +651,7 @@ LRESULT BaseApplet::PaintContent(HDC hdc, RECT clientrt)
   else if (_wcsicmp(pBaseSettings->GetHorizontalDirection(), TEXT("center")) == 0)
     {
       xdefault = clientrt.left;
-      xdefault += (width / 2);
+      xdefault += (width / 2) - ((visibleIconCount > 1 ? (int)pBaseSettings->GetIconSpacing() / 2 : 0));
 
       if (_wcsicmp(pBaseSettings->GetDirectionOrientation(), TEXT("horizontal")) == 0)
         {

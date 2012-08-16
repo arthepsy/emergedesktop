@@ -82,6 +82,11 @@ bool ConfigPage::DoInitDialog(HWND hwndDlg)
 
   SetDlgItemText(hwndDlg, IDC_TITLEBARTEXT, pSettings->GetTitleBarText());
 
+  SetDlgItemText(hwndDlg, IDC_AUTOLIMIT, towstring(pSettings->GetAutoSizeLimit()).c_str());
+  if (!pSettings->GetAutoSize())
+    EnableWindow((HWND)GetDlgItem(hwndDlg, IDC_AUTOLIMIT), FALSE);
+  SendDlgItemMessage(hwndDlg, IDC_AUTOLIMITUPDOWN, UDM_SETRANGE, (WPARAM)0, (LPARAM)100);
+
   //CopyMemory(&newFont, pSettings->GetFont(), sizeof(LOGFONT));
   CopyMemory(&newFont, pSettings->GetTitleBarFont(), sizeof(LOGFONT));
 
@@ -138,8 +143,6 @@ bool ConfigPage::DoInitDialog(HWND hwndDlg)
 
 bool ConfigPage::DoCommand(HWND hwndDlg, WPARAM wParam, LPARAM lParam UNUSED)
 {
-  HWND clickThroughWnd = GetDlgItem(hwndDlg, IDC_CLICKTHROUGHMETHOD);
-
   switch (LOWORD(wParam))
     {
     case IDC_FONTBUTTON:
@@ -155,7 +158,12 @@ bool ConfigPage::DoCommand(HWND hwndDlg, WPARAM wParam, LPARAM lParam UNUSED)
         }
       break;
     case IDC_CLICKTHROUGH:
-      EnableWindow(clickThroughWnd, (SendDlgItemMessage(hwndDlg, IDC_CLICKTHROUGH, BM_GETCHECK, 0, 0) == BST_CHECKED));
+      EnableWindow((HWND)GetDlgItem(hwndDlg, IDC_CLICKTHROUGHMETHOD),
+                   (SendDlgItemMessage(hwndDlg, IDC_CLICKTHROUGH, BM_GETCHECK, 0, 0) == BST_CHECKED));
+      return true;
+    case IDC_AUTOSIZE:
+      EnableWindow((HWND)GetDlgItem(hwndDlg, IDC_AUTOLIMIT),
+                   (SendDlgItemMessage(hwndDlg, IDC_AUTOSIZE, BM_GETCHECK, 0, 0) == BST_CHECKED));
       return true;
     }
 
@@ -214,6 +222,17 @@ bool ConfigPage::UpdateSettings(HWND hwndDlg)
   else if (!success)
     {
       ELMessageBox(GetDesktopWindow(), (WCHAR*)TEXT("Invalid value for icon spacing"),
+                   (WCHAR*)TEXT("emergeLauncher"), ELMB_OK|ELMB_ICONERROR|ELMB_MODAL);
+      SetDlgItemInt(hwndDlg, IDC_ICONSPACING, pSettings->GetIconSpacing(), false);
+      return false;
+    }
+
+  result = GetDlgItemInt(hwndDlg, IDC_AUTOLIMIT, &success, false);
+  if (success)
+    pSettings->SetAutoSizeLimit(result);
+  else if (!success)
+    {
+      ELMessageBox(GetDesktopWindow(), (WCHAR*)TEXT("Invalid value for AutoSize wrap"),
                    (WCHAR*)TEXT("emergeLauncher"), ELMB_OK|ELMB_ICONERROR|ELMB_MODAL);
       SetDlgItemInt(hwndDlg, IDC_ICONSPACING, pSettings->GetIconSpacing(), false);
       return false;

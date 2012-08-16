@@ -44,6 +44,9 @@
 #define IDC_CLICKTHROUGHMETHOD  205
 #define IDC_DYNAMICPOSITIONING  206
 #define IDC_ANCHOR              207
+#define IDC_AUTOLIMIT           208
+#define IDC_AUTOLIMITUPDOWN     209
+#define IDC_SAMEMONITOR			120 //ROBLARKY - 2012-08-11: Added for option to only show tasks on same monitor
 
 #define IDC_ENABLEFLASH         300
 #define IDC_FLASHINTERVAL       301

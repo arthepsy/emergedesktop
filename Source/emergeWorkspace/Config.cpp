@@ -43,7 +43,6 @@ Config::Config(HINSTANCE hInstance, std::tr1::shared_ptr<Settings> pSettings)
   this->pSettings = pSettings;
 
   pConfigPage = std::tr1::shared_ptr<ConfigPage>(new ConfigPage(hInstance, pSettings));
-  pMenuEditor = std::tr1::shared_ptr<MenuEditor>(new MenuEditor(hInstance));
 }
 
 Config::~Config()
@@ -70,7 +69,7 @@ int Config::Show()
 INT_PTR Config::DoInitDialog(HWND hwndDlg)
 {
   int ret;
-  PROPSHEETPAGE psp[2];
+  PROPSHEETPAGE psp[1];
   PROPSHEETHEADER psh;
 
   ELStealFocus(hwndDlg);
@@ -84,15 +83,6 @@ INT_PTR Config::DoInitDialog(HWND hwndDlg)
   psp[0].pszTitle = TEXT("General");
   psp[0].lParam = reinterpret_cast<LPARAM>(pConfigPage.get());
   psp[0].pfnCallback = NULL;
-
-  psp[1].dwSize = sizeof(PROPSHEETPAGE);
-  psp[1].dwFlags = PSP_USETITLE;
-  psp[1].hInstance = hInstance;
-  psp[1].pszTemplate = MAKEINTRESOURCE(IDD_MENU);
-  psp[1].pfnDlgProc = pMenuEditor->MenuEditorDlgProc;
-  psp[1].pszTitle = TEXT("Menu Editor");
-  psp[1].lParam = reinterpret_cast<LPARAM>(pMenuEditor.get());
-  psp[1].pfnCallback = NULL;
 
   psh.dwSize = sizeof(PROPSHEETHEADER);
   psh.dwFlags = PSH_PROPSHEETPAGE | PSH_NOAPPLYNOW | PSH_NOCONTEXTHELP;

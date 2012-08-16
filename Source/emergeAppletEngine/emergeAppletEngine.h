@@ -67,6 +67,7 @@ typedef struct _AUTOSIZEINFO
   UINT orientation;
   UINT verticalDirection;
   UINT horizontalDirection;
+  UINT limit;
 }
 AUTOSIZEINFO, *LPAUTOSIZEINFO;
 

@@ -19,21 +19,64 @@
 //----  --------------------------------------------------------------------------------------------------------
 
 #include "CustomDataObject.h"
+#include "CustomEnumFormat.h"
 
-CustomDataObject::CustomDataObject(HMENU menu)
+HRESULT CreateDataObject(FORMATETC *fmtetc, STGMEDIUM *stgmeds, UINT count, IDataObject **ppDataObject)
 {
-  deleteMedium = FALSE;
-  this->menu = menu;
+  if(ppDataObject == NULL)
+    return E_INVALIDARG;
+
+  *ppDataObject = new CustomDataObject(fmtetc, stgmeds, count);
+
+  return (*ppDataObject) ? S_OK : E_OUTOFMEMORY;
+}
+
+CustomDataObject::CustomDataObject(FORMATETC *fmtetc, STGMEDIUM *stgmed, UINT count)
+{
   refCount = 0;
+  numFormats  = count;
+
+  pFormatEtc = new FORMATETC[count];
+  pStgMedium = new STGMEDIUM[count];
+
+  for(UINT i = 0; i < count; i++)
+    {
+      pFormatEtc[i] = fmtetc[i];
+      pStgMedium[i] = stgmed[i];
+    }
 }
 
 CustomDataObject::~CustomDataObject()
 {
-  if (stgm != NULL)
+}
+
+int CustomDataObject::LookupFormatEtc(FORMATETC *pFormatEtcIn)
+{
+  // check each of our formats in turn to see if one matches
+  for(UINT i = 0; i < numFormats; i++)
     {
-      if (deleteMedium)
-        ReleaseStgMedium(stgm.get());
+      if((pFormatEtc[i].tymed    &  pFormatEtcIn->tymed)   &&
+          pFormatEtc[i].cfFormat == pFormatEtcIn->cfFormat &&
+          pFormatEtc[i].dwAspect == pFormatEtcIn->dwAspect)
+        {
+          // return index of stored format
+          return i;
+        }
     }
+
+  // error, format not found
+  return -1;
+}
+
+HGLOBAL CustomDataObject::DupGlobalMem(HGLOBAL hMem)
+{
+  DWORD len = GlobalSize(hMem);
+  PVOID source = GlobalLock(hMem);
+  PVOID dest = GlobalAlloc(GMEM_FIXED, len);
+
+  memcpy(dest, source, len);
+  GlobalUnlock(hMem);
+  return dest;
 }
 
 STDMETHODIMP_(ULONG) CustomDataObject::AddRef()
@@ -64,42 +107,59 @@ STDMETHODIMP CustomDataObject::QueryInterface(REFIID riid, void ** ppvObject)
     }
 }
 
-STDMETHODIMP CustomDataObject::DAdvise(FORMATETC FAR* pformatetc, DWORD advf, LPADVISESINK pAdvSink, DWORD FAR* pdwConnection)
+STDMETHODIMP CustomDataObject::DAdvise(FORMATETC FAR* pformatetc UNUSED, DWORD advf UNUSED, LPADVISESINK pAdvSink UNUSED, DWORD FAR* pdwConnection UNUSED)
 {
-  IDataAdviseHolder *myadvise = advise.get();
-  if (!myadvise)
-    CreateDataAdviseHolder(&myadvise);
-
-  return myadvise->Advise(this, pformatetc, advf, pAdvSink, pdwConnection);
+  return OLE_E_ADVISENOTSUPPORTED;
 }
 
-STDMETHODIMP CustomDataObject::DUnadvise(DWORD dwConnection)
+STDMETHODIMP CustomDataObject::DUnadvise(DWORD dwConnection UNUSED)
 {
-  return advise->Unadvise(dwConnection);
+  return OLE_E_ADVISENOTSUPPORTED;
 }
 
-STDMETHODIMP CustomDataObject::EnumDAdvise(LPENUMSTATDATA FAR* ppenumAdvise)
+STDMETHODIMP CustomDataObject::EnumDAdvise(LPENUMSTATDATA FAR* ppenumAdvise UNUSED)
 {
-  return advise->EnumAdvise(ppenumAdvise);
+  return OLE_E_ADVISENOTSUPPORTED;
 }
 
-STDMETHODIMP CustomDataObject::EnumFormatEtc(DWORD dwDirection UNUSED, LPENUMFORMATETC FAR* ppenumFormatEtc)
+STDMETHODIMP CustomDataObject::EnumFormatEtc(DWORD dwDirection, LPENUMFORMATETC FAR* ppEnumFormatEtc)
 {
-  *ppenumFormatEtc = NULL;
-
-  return E_NOTIMPL;
+  // only the get direction is supported for OLE
+  if(dwDirection == DATADIR_GET)
+    return CreateEnumFormatEtc(numFormats, pFormatEtc, ppEnumFormatEtc);
+  else
+    return E_NOTIMPL;
 }
 
 STDMETHODIMP CustomDataObject::GetCanonicalFormatEtc(LPFORMATETC pformatetc UNUSED, LPFORMATETC pformatetcOut)
 {
   pformatetcOut->ptd = NULL;
-
   return E_NOTIMPL;
 }
 
-STDMETHODIMP CustomDataObject::GetData(LPFORMATETC pformatetcIn UNUSED, LPSTGMEDIUM pmedium UNUSED)
+STDMETHODIMP CustomDataObject::GetData(LPFORMATETC pformatetcIn, LPSTGMEDIUM pmedium)
 {
-  return DV_E_FORMATETC;
+  int idx;
+
+  // try to match the specified FORMATETC with one of our supported formats
+  if((idx = LookupFormatEtc(pformatetcIn)) == -1)
+    return DV_E_FORMATETC;
+
+  // found a match - transfer data into supplied storage medium
+  pmedium->tymed = pFormatEtc[idx].tymed;
+  pmedium->pUnkForRelease  = 0;
+
+  // copy the data into the caller's storage medium
+  switch(pFormatEtc[idx].tymed)
+    {
+    case TYMED_HGLOBAL:
+      pmedium->hGlobal = DupGlobalMem(pStgMedium[idx].hGlobal);
+      break;
+
+    default:
+      return DV_E_FORMATETC;
+    }
+  return S_OK;
 }
 
 STDMETHODIMP CustomDataObject::GetDataHere(LPFORMATETC pformatetc UNUSED, LPSTGMEDIUM pmedium UNUSED)
@@ -107,26 +167,12 @@ STDMETHODIMP CustomDataObject::GetDataHere(LPFORMATETC pformatetc UNUSED, LPSTGM
   return DV_E_FORMATETC;
 }
 
-STDMETHODIMP CustomDataObject::QueryGetData(LPFORMATETC pformatetc UNUSED)
+STDMETHODIMP CustomDataObject::QueryGetData(LPFORMATETC pformatetc)
+{
+  return (LookupFormatEtc(pformatetc) == -1) ? DV_E_FORMATETC : S_OK;
+}
+
+STDMETHODIMP CustomDataObject::SetData(LPFORMATETC pformatetc UNUSED, STGMEDIUM FAR * pmedium UNUSED, BOOL fRelease UNUSED)
 {
   return E_NOTIMPL;
 }
-
-STDMETHODIMP CustomDataObject::SetData(LPFORMATETC pformatetc, STGMEDIUM FAR * pmedium, BOOL fRelease UNUSED)
-{
-  if(pformatetc == NULL || pmedium == NULL)
-    return E_INVALIDARG;
-
-  fetc=std::tr1::shared_ptr<FORMATETC>(new FORMATETC);
-  stgm=std::tr1::shared_ptr<STGMEDIUM>(new STGMEDIUM);
-
-  if(fetc == NULL || stgm == NULL)
-    return E_OUTOFMEMORY;
-
-  *fetc = *pformatetc;
-  *stgm = *pmedium;
-  deleteMedium = fRelease;
-
-  return S_OK;
-}
-

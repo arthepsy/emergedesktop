@@ -21,32 +21,13 @@
 
 #include "MenuItem.h"
 
-MenuItem::MenuItem(WCHAR *name, UINT type, WCHAR* value, WCHAR *workingDir, TiXmlElement *element)
+MenuItem::MenuItem(MENUITEMDATA menuItemData, HMENU menu)
 {
-  LPVOID lpVoid;
-
-  customDropTarget = new CustomDropTarget();
-  customDropTarget->QueryInterface(IID_IDropTarget, &lpVoid);
-  dropTarget = reinterpret_cast <IDropTarget*> (lpVoid);
-
-  this->element = element;
-  this->type = type;
+  CopyMemory(&this->menuItemData, &menuItemData, sizeof(MENUITEMDATA));
+  this->menu = menu;
   icon = NULL;
 
-  if (name)
-    wcscpy(this->name, name);
-  else
-    wcscpy(this->name, (WCHAR*)TEXT("\0"));
-
-  if (value)
-    wcscpy(this->value, value);
-  else
-    wcscpy(this->value, (WCHAR*)TEXT("\0"));
-
-  if (workingDir)
-    wcscpy(this->workingDir, workingDir);
-  else
-    wcscpy(this->workingDir, (WCHAR*)TEXT("\0"));
+  CreateDropTarget(&dropTarget, this->menuItemData, (UINT_PTR)this, menu);
 }
 
 MenuItem::~MenuItem()
@@ -54,29 +35,37 @@ MenuItem::~MenuItem()
   if (dropTarget)
     dropTarget->Release();
 
-  delete customDropTarget;
-
   DestroyIcon(icon);
+}
+
+HMENU MenuItem::GetMenu()
+{
+  return menu;
+}
+
+UINT_PTR MenuItem::GetID()
+{
+  return reinterpret_cast<UINT_PTR>(this);
 }
 
 UINT MenuItem::GetType()
 {
-  return type;
+  return menuItemData.type;
 }
 
 TiXmlElement *MenuItem::GetElement()
 {
-  return element;
+  return menuItemData.element;
 }
 
 WCHAR *MenuItem::GetValue()
 {
-  return value;
+  return menuItemData.value;
 }
 
 WCHAR *MenuItem::GetName()
 {
-  return name;
+  return menuItemData.name;
 }
 
 IDropTarget *MenuItem::GetDropTarget()
@@ -86,12 +75,17 @@ IDropTarget *MenuItem::GetDropTarget()
 
 WCHAR *MenuItem::GetWorkingDir()
 {
-  return workingDir;
+  return menuItemData.workingDir;
 }
 
 HICON MenuItem::GetIcon()
 {
   return icon;
+}
+
+MENUITEMDATA *MenuItem::GetMenuItemData()
+{
+  return &menuItemData;
 }
 
 void MenuItem::SetIcon()
@@ -100,16 +94,16 @@ void MenuItem::SetIcon()
   HWND task;
   std::wstring app;
 
-  wcscpy(lwrValue, value);
+  wcscpy(lwrValue, menuItemData.value);
   _wcslwr(lwrValue);
 
-  switch (type)
+  switch (menuItemData.type)
     {
-    case IT_SEPARATOR:
+    case IT_TASK:
 #ifdef _W64
-      task = (HWND)_wcstoi64(value, NULL, 10);
+      task = (HWND)_wcstoi64(menuItemData.value, NULL, 10);
 #else
-      task = (HWND)wcstol(value, NULL, 10);
+      task = (HWND)wcstol(menuItemData.value, NULL, 10);
 #endif
       icon = EGGetWindowIcon(NULL, task, true, true);
       /* If the task icon is NULL, generate a default icon using the
@@ -122,6 +116,7 @@ void MenuItem::SetIcon()
         }
       break;
     case IT_EXECUTABLE:
+    case IT_FILE:
       if ((wcsicmp(lwrValue, TEXT("%documents%")) == 0) ||
           (wcsicmp(lwrValue, TEXT("%commondocuments%")) == 0))
         icon = EGGetSpecialFolderIcon(CSIDL_PERSONAL, 16);
@@ -135,7 +130,7 @@ void MenuItem::SetIcon()
         }
       break;
     case IT_INTERNAL_COMMAND:
-      app = value;
+      app = menuItemData.value;
       app = ELToLower(app.substr(0, app.find_first_of(TEXT(" \t"))));
       if (app == TEXT("logoff"))
         icon = EGGetSystemIcon(ICON_LOGOFF, 16);
@@ -150,12 +145,13 @@ void MenuItem::SetIcon()
       break;
     case IT_SPECIAL_FOLDER:
         {
-          UINT specialFolder = ELIsSpecialFolder(value);
+          UINT specialFolder = ELIsSpecialFolder(menuItemData.value);
           icon = EGGetSpecialFolderIcon(specialFolder, 16);
         }
       break;
     case IT_FILE_MENU:
-      app = value;
+    case IT_FILE_SUBMENU:
+      app = menuItemData.value;
       app = ELToLower(app.substr(0, app.find_first_of(TEXT("|"))));
       if ((app == TEXT("%documents%")) ||
           (app == TEXT("%commondocuments%")))
@@ -183,10 +179,15 @@ void MenuItem::SetIcon()
 
 void MenuItem::SetValue(WCHAR *value)
 {
-  wcscpy(this->value, value);
+  wcscpy(menuItemData.value, value);
 }
 
 void MenuItem::SetName(WCHAR *name)
 {
-  wcscpy(this->name, name);
+  wcscpy(menuItemData.name, name);
+}
+
+void MenuItem::SetElement(TiXmlElement *element)
+{
+  menuItemData.element = element;
 }

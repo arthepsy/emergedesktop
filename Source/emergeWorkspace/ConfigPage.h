@@ -18,8 +18,7 @@
 //
 //---
 
-#ifndef __ED_CONFIGPAGE_H
-#define __ED_CONFIGPAGE_H
+#pragma once
 
 #undef _WIN32_IE
 #define _WIN32_IE	0x501
@@ -55,6 +54,3 @@ private:
   HINSTANCE hInstance;
   HWND toolWnd;
 };
-
-#endif
-

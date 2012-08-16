@@ -7,7 +7,7 @@
 ; -------------------------------------------------------------------
 ; help >>> General NAME and Versioning
 ; -------------------------------------------------------------------
-Name "Emerge Desktop 6.0"
+Name "Emerge Desktop 6.1.1"
 !define FIELD1 $R1
 !define FIELD2 $R2
 !define FIELD3 $R3
@@ -60,7 +60,7 @@ UninstPage custom un.nsDialogOptions un.nsDialogOptionsLeave
 ; -------------------------------------------------------------------
 Icon "emerge.ico"
 UninstallIcon "unemerge.ico"
-OutFile "EmergeDesktop-6.0.exe"
+OutFile "EmergeDesktop-6.1.1.exe"
 
 ; -------------------------------------------------------------------
 ; help >>> Branding the installer makes it nice an unique... ;)
@@ -197,7 +197,7 @@ SubSectionEnd
 Section "-Libraries"
 SetOutPath "$INSTDIR"
 File "${BINDIR}\emergeLib.dll"
-File "${BINDIR}\libgcc_s_dw2-1.dll"
+File "${BINDIR}\libgcc_s_sjlj-1.dll"
 File "${BINDIR}\libstdc++-6.dll"
 File "${BINDIR}\emergeIcons.dll"
 File "${BINDIR}\emergeGraphics.dll"
@@ -305,6 +305,7 @@ Section Uninstall
   Delete "$INSTDIR\Explorer.exe"
   Delete "$INSTDIR\emergeLib.dll"
   Delete "$INSTDIR\libgcc_s_dw2-1.dll"
+  Delete "$INSTDIR\libgcc_s_sjlj-1.dll"
   Delete "$INSTDIR\libstdc++-6.dll"
   Delete "$INSTDIR\emergeIcons.dll"
   Delete "$INSTDIR\emergeAppletEngine.dll"

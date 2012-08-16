@@ -64,8 +64,8 @@ public:
   UINT GetFlashCount();
   void CreateNewIcon(BYTE foregroundAlpha, BYTE backgroundAlpha);
   void UpdateIcon();
-  void SetDwmThumbnail(HTHUMBNAIL dwmThumbnailId);
-  HTHUMBNAIL GetDwmThumbnail();
+  void SetHidden(bool hidden);
+  bool GetHidden();
   void SetDwmThumbnailWnd(HWND dwmThumbnailWnd);
   HWND GetDwmThumbnailWnd();
   void CreateDwmThumbnail(HWND ownerWnd);
@@ -76,8 +76,7 @@ private:
   HICON origIcon, newIcon;
   HINSTANCE mainInstance;
   RECT rect;
-  bool flash;
-  bool visible;
+  bool flash, visible, hidden;
   UINT flashCount;
   bool convertIcon;
   HTHUMBNAIL dwmThumbnailId;

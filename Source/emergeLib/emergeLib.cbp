@@ -96,6 +96,7 @@
 		<Unit filename="..\tinyxml\tinyxml.h" />
 		<Unit filename="..\tinyxml\tinyxmlerror.cpp" />
 		<Unit filename="..\tinyxml\tinyxmlparser.cpp" />
+		<Unit filename="..\version.h" />
 		<Unit filename="MsgBox.cpp" />
 		<Unit filename="MsgBox.h" />
 		<Unit filename="Shutdown.cpp" />

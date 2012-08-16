@@ -18,39 +18,24 @@
 //
 //---
 
-#ifndef __ED_MENULISTITEM_H
-#define __ED_MENULISTITEM_H
+#pragma once
 
-#include "../emergeLib/emergeLib.h"
-#include "MenuItem.h"
 #include <vector>
+#include "../emergeLib/emergeLib.h"
 
 class MenuListItem
 {
 public:
-  MenuListItem(WCHAR *name, UINT type, WCHAR *value, TiXmlElement *section);
+  MenuListItem(UINT type, WCHAR *value, TiXmlElement *section);
   ~MenuListItem();
-  WCHAR *GetName();
   WCHAR *GetValue();
   TiXmlElement *GetSection();
   void SetValue(WCHAR *value);
-  void SetName(WCHAR *name);
   void SetSection(TiXmlElement *section);
   UINT GetType();
-  MenuItem *GetMenuItem(UINT index);
-  UINT GetMenuItemCount();
-  void AddMenuItem(MenuItem *menuItem);
-  void DeleteMenuItem(UINT index);
-  IDropTarget *GetDropTarget();
 
 private:
-  WCHAR value[MAX_LINE_LENGTH], name[MAX_LINE_LENGTH];
+  WCHAR value[MAX_LINE_LENGTH];
   UINT type;
-  IDropTarget *dropTarget;
-  std::tr1::shared_ptr<CustomDropTarget> customDropTarget;
   TiXmlElement *section;
-  std::vector< std::tr1::shared_ptr<MenuItem> > menuItems;
 };
-
-#endif
-

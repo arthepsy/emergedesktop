@@ -82,6 +82,7 @@
 		<ExtraCommands>
 			<Add before='[[ IO.Execute(_T(&quot;cmd /c \&quot;cd.. &amp; hgversion.bat\&quot;&quot;)) ]]' />
 		</ExtraCommands>
+		<Unit filename="..\version.h" />
 		<Unit filename="StyleEditor.cpp" />
 		<Unit filename="StyleEditor.h" />
 		<Unit filename="emergeStyleEngine.h" />
