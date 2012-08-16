@@ -20,23 +20,25 @@
 
 #include "CustomDropTarget.h"
 
-HRESULT CreateDropTarget(IDropTarget **ppDropTarget, MENUITEMDATA dropItemData, HMENU dropMenu)
+HRESULT CreateDropTarget(IDropTarget **ppDropTarget, MENUITEMDATA dropItemData, UINT dropID, HMENU dropMenu)
 {
   if(ppDropTarget == NULL)
     return E_INVALIDARG;
 
-  *ppDropTarget = new CustomDropTarget(dropItemData, dropMenu);
+  *ppDropTarget = new CustomDropTarget(dropItemData, dropID, dropMenu);
 
   return (*ppDropTarget) ? S_OK : E_OUTOFMEMORY;
 }
 
-CustomDropTarget::CustomDropTarget(MENUITEMDATA dropItemData, HMENU dropMenu)
+CustomDropTarget::CustomDropTarget(MENUITEMDATA dropItemData, UINT dropID, HMENU dropMenu)
 {
   refCount = 0;
   allowDrop = false;
 
   CopyMemory(&this->dropItemData, &dropItemData, sizeof(MENUITEMDATA));
   this->dropMenu = dropMenu;
+
+  this->dropID = dropID;
 
   CF_EMERGE_MENUITEM = RegisterClipboardFormat(TEXT("CF_EMERGE_MENUITEM"));
   if (CF_EMERGE_MENUITEM == 0)
@@ -53,18 +55,35 @@ bool CustomDropTarget::QueryDataObject(IDataObject *pDataObj)
   if (pDataObj == NULL)
     return false;
 
+  bool ret = false;
+  STGMEDIUM stgmed;
   FORMATETC fmtetc;
   ZeroMemory(&fmtetc, sizeof(FORMATETC));
   fmtetc.dwAspect = DVASPECT_CONTENT;
   fmtetc.tymed = TYMED_HGLOBAL;
   fmtetc.lindex = -1;
   if ((dropItemData.type == IT_FILE) || (dropItemData.type == IT_FILE_SUBMENU))
-    fmtetc.cfFormat = CF_HDROP;
+    {
+      fmtetc.cfFormat = CF_HDROP;
+      return pDataObj->QueryGetData(&fmtetc) == S_OK ? true : false;
+    }
   else
     fmtetc.cfFormat = CF_EMERGE_MENUITEM;
 
-  // does the data object support CF_EMERGE_MENUITEM using a HGLOBAL?
-  return pDataObj->QueryGetData(&fmtetc) == S_OK ? true : false;
+  if (SUCCEEDED(pDataObj->QueryGetData(&fmtetc)))
+    {
+      if (SUCCEEDED(pDataObj->GetData(&fmtetc, &stgmed)))
+        {
+          void *data = GlobalLock(stgmed.hGlobal);
+          DRAGITEMDATA *dragItemData = reinterpret_cast< DRAGITEMDATA* >(data);
+
+          ret = (dragItemData->itemID != dropID);
+
+          GlobalUnlock(stgmed.hGlobal);
+        }
+    }
+
+  return ret;
 }
 
 DWORD CustomDropTarget::DropEffect(DWORD grfKeyState, POINTL pt UNUSED, DWORD dwAllowed)
@@ -111,9 +130,9 @@ bool CustomDropTarget::DataDrop(IDataObject *pDataObj, POINTL pt, DWORD dropEffe
           POINT menuItemPt;
           menuItemPt.x = pt.x;
           menuItemPt.y = pt.y;
-          MENUITEMDATA *menuItemData = reinterpret_cast< MENUITEMDATA* >(data);
+          DRAGITEMDATA *dragItemData = reinterpret_cast< DRAGITEMDATA* >(data);
 
-          MenuItemDrop(menuItemData, menuItemPt);
+          MenuItemDrop(&dragItemData->menuItemData, menuItemPt);
 
           ret = GlobalUnlock(stgmed.hGlobal);
         }

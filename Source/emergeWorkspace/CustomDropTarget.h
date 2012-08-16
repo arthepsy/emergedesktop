@@ -31,6 +31,13 @@ typedef struct _NEWMENUITEMDATA
 }
 NEWMENUITEMDATA, *LPNEWMENUITEMDATA;
 
+typedef struct _DRAGITEMDATA
+{
+  MENUITEMDATA menuItemData;
+  UINT itemID;
+}
+DRAGITEMDATA, *LPDRAGITEMDATA;
+
 
 static const UINT EMERGE_NEWITEM = RegisterWindowMessage(TEXT("EmergeNewItem"));
 
@@ -48,15 +55,10 @@ public:
   STDMETHODIMP DragLeave();
   STDMETHODIMP Drop(IDataObject *pDataObj, DWORD grfKeyState, POINTL pt, DWORD *pdwEffect);
 
-  CustomDropTarget(MENUITEMDATA menuItemData, HMENU dropMenu);
+  CustomDropTarget(MENUITEMDATA menuItemData, UINT dropID, HMENU dropMenu);
   virtual ~CustomDropTarget();
 
 private:
-  UINT refCount;
-  UINT CF_EMERGE_MENUITEM;
-  HMENU dropMenu;
-  MENUITEMDATA dropItemData;
-
   // internal helper function
   DWORD DropEffect(DWORD grfKeyState, POINTL pt, DWORD dwAllowed);
   bool QueryDataObject(IDataObject *pDataObj);
@@ -66,6 +68,11 @@ private:
 
   // Private member variables
   bool   allowDrop;
+  UINT dropID;
+  UINT refCount;
+  UINT CF_EMERGE_MENUITEM;
+  HMENU dropMenu;
+  MENUITEMDATA dropItemData;
 };
 
-HRESULT CreateDropTarget(IDropTarget **ppDropTarget, MENUITEMDATA menuItemData, HMENU dropMenu);
+HRESULT CreateDropTarget(IDropTarget **ppDropTarget, MENUITEMDATA menuItemData, UINT dropID, HMENU dropMenu);

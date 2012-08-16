@@ -319,7 +319,7 @@ LRESULT MenuBuilder::DoMenuGetObject(HWND hwnd UNUSED, MENUGETOBJECTINFO *mgoInf
   if (!GetMenuItemInfo(mgoInfo->hmenu, mgoInfo->uPos, TRUE, &menuItemInfo))
     return MNGO_NOINTERFACE;
 
-  if (menuItemInfo.fState & MFS_GRAYED)
+  if ((menuItemInfo.fState & MFS_GRAYED) && (menuItemInfo.fType != MFT_SEPARATOR))
     return MNGO_NOINTERFACE;
 
   std::tr1::shared_ptr<MenuItem> menuItem = menuItemMap.find(menuItemInfo.wID)->second;
@@ -360,7 +360,7 @@ LRESULT MenuBuilder::DoMenuDrag(HWND hwnd UNUSED, UINT pos, HMENU menu)
   if (!GetMenuItemInfo(menu, pos, TRUE, &menuItemInfo))
     return MND_CONTINUE;
 
-  if (menuItemInfo.fState & MFS_GRAYED)
+  if ((menuItemInfo.fState & MFS_GRAYED) && (menuItemInfo.fType != MFT_SEPARATOR))
     return MND_CONTINUE;
 
   std::tr1::shared_ptr<MenuItem> menuItem = menuItemMap.find(menuItemInfo.wID)->second;
@@ -374,7 +374,7 @@ LRESULT MenuBuilder::DoMenuDrag(HWND hwnd UNUSED, UINT pos, HMENU menu)
 
   FORMATETC fmtetc;
   STGMEDIUM stgmed;
-  MENUITEMDATA menuItemData;
+  DRAGITEMDATA dragItemData;
 
   UINT CF_EMERGE_MENUITEM = RegisterClipboardFormat(TEXT("CF_EMERGE_MENUITEM"));
   if (CF_EMERGE_MENUITEM == 0)
@@ -396,9 +396,10 @@ LRESULT MenuBuilder::DoMenuDrag(HWND hwnd UNUSED, UINT pos, HMENU menu)
     }
   else
     {
-      CopyMemory(&menuItemData, menuItem->GetMenuItemData(), sizeof(MENUITEMDATA));
+      CopyMemory(&dragItemData.menuItemData, menuItem->GetMenuItemData(), sizeof(MENUITEMDATA));
+      dragItemData.itemID = menuItem->GetID();
       fmtetc.cfFormat = CF_EMERGE_MENUITEM;
-      stgmed.hGlobal = MenuItemDataToHandle(&menuItemData);
+      stgmed.hGlobal = DragItemDataToHandle(&dragItemData);
     }
 
   dropEffects = DROPEFFECT_MOVE | DROPEFFECT_COPY;
@@ -465,15 +466,15 @@ HDROP MenuBuilder::FileToHandle(WCHAR *file)
   return ptr;
 }
 
-HANDLE MenuBuilder::MenuItemDataToHandle(MENUITEMDATA *menuItemData)
+HANDLE MenuBuilder::DragItemDataToHandle(DRAGITEMDATA *dragItemData)
 {
   void *ptr = NULL;
 
   // allocate and lock a global memory buffer. Make it fixed
   // data so we don't have to use GlobalLock
-  ptr = (void *)GlobalAlloc(GMEM_FIXED, sizeof(MENUITEMDATA));
+  ptr = (void *)GlobalAlloc(GMEM_FIXED, sizeof(DRAGITEMDATA));
   if (ptr != NULL)
-    CopyMemory(ptr, menuItemData, sizeof(MENUITEMDATA));
+    CopyMemory(ptr, dragItemData, sizeof(DRAGITEMDATA));
 
   return reinterpret_cast< HANDLE >(ptr);
 }
@@ -498,7 +499,7 @@ LRESULT MenuBuilder::DoContextMenu()
   if (!GetMenuItemInfo(activeMenu, index, TRUE, &menuItemInfo))
     return 0;
 
-  if (menuItemInfo.fState & MFS_GRAYED)
+  if ((menuItemInfo.fState & MFS_GRAYED) && (menuItemInfo.fType != MFT_SEPARATOR))
     return 0;
 
   std::tr1::shared_ptr<MenuItem> menuItem = menuItemMap.find(menuItemInfo.wID)->second;

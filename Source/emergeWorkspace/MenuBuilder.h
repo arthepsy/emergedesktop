@@ -142,7 +142,7 @@ private:
   void ElevatedExecute(std::tr1::shared_ptr<MenuItem> menuItem);
   float winVersion;
   HMENU activeMenu;
-  HANDLE MenuItemDataToHandle(MENUITEMDATA *menuItemData);
+  HANDLE DragItemDataToHandle(DRAGITEMDATA *menuItemData);
   HDROP FileToHandle(WCHAR *file);
   MenuItemMap menuItemMap;
   bool topGap, bottomGap;
