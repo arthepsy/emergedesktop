@@ -35,14 +35,14 @@
 #include "../emergeGraphics/emergeGraphics.h"
 #include "../emergeAppletEngine/emergeAppletEngine.h"
 #include <commctrl.h>
+#include "Thumbnail.h"
 
 #define TIP_SIZE 256
 
-const WCHAR dwmWndClassName[] = TEXT("dwmThumbnailWnd");
 
 //====================
 // The Task Class
-class Task
+class Task: public Thumbnail
 {
 public:
   Task(HWND task, HINSTANCE mainInstance);
@@ -66,10 +66,6 @@ public:
   void UpdateIcon();
   void SetHidden(bool hidden);
   bool GetHidden();
-  void SetDwmThumbnailWnd(HWND dwmThumbnailWnd);
-  HWND GetDwmThumbnailWnd();
-  void CreateDwmThumbnail(HWND ownerWnd);
-  void DestroyDwmThumbnail();
 
 private:
   HWND wnd;
@@ -79,9 +75,6 @@ private:
   bool flash, visible, hidden;
   UINT flashCount;
   bool convertIcon;
-  HTHUMBNAIL dwmThumbnailId;
-  HWND dwmThumbnailWnd;
-  static LRESULT CALLBACK dwmWindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
 };
 
 //====================

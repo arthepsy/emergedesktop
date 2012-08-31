@@ -86,6 +86,11 @@
 		<Unit filename="Settings.h" />
 		<Unit filename="Task.cpp" />
 		<Unit filename="Task.h" />
+		<Unit filename="Thumbnail.cpp" />
+		<Unit filename="Thumbnail.h" />
+		<Unit filename="ThumbnailPage.cpp" />
+		<Unit filename="ThumbnailPage.dlg" />
+		<Unit filename="ThumbnailPage.h" />
 		<Unit filename="emergeTasks.rc">
 			<Option compilerVar="WINDRES" />
 		</Unit>
