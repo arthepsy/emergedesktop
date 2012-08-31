@@ -33,46 +33,6 @@ Thumbnail::~Thumbnail()
 {
 }
 
-/*bool Thumbnail::Show(POINT showPt)
-{
-  int x, y, xoffset, width, height;
-  HMONITOR balloonMonitor = MonitorFromWindow(balloonWnd, MONITOR_DEFAULTTONULL);
-  MONITORINFO balloonMonitorInfo;
-  balloonMonitorInfo.cbSize = sizeof(MONITORINFO);
-
-  if (!GetMonitorInfo(balloonMonitor, &balloonMonitorInfo))
-    return false;
-
-  // If the string length of info or infoTitle is 0, do not display a balloon.
-  if ((wcslen(info) == 0) || (wcslen(infoTitle) == 0))
-    return false;
-
-  width = infoRect.right;
-  if (titleRect.right > infoRect.right)
-    width = titleRect.right;
-  width += 5;
-  height = infoRect.bottom + 5;
-
-  y = showPt.y - height;
-  if (y < balloonMonitorInfo.rcMonitor.top)
-    y = showPt.y + ICON_SIZE;
-
-  x = showPt.x - (width / 2);
-  xoffset = balloonMonitorInfo.rcMonitor.right - (x + width);
-  if (xoffset < 0)
-    x += xoffset;
-  if (x < balloonMonitorInfo.rcMonitor.left)
-    x = balloonMonitorInfo.rcMonitor.left;
-
-  SendMessage(NIN_BALLOONSHOW);
-  SetTimer(balloonWnd, BALLOON_TIMER_ID, 10000, NULL);
-
-  if (SetWindowPos(balloonWnd, HWND_TOPMOST, x, y, width, height, SWP_SHOWWINDOW))
-    return DrawAlphaBlend();
-
-  return false;
-}*/
-
 LRESULT CALLBACK Thumbnail::ThumbnailProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
   return DefWindowProc(hwnd, message, wParam, lParam);
@@ -92,12 +52,19 @@ void Thumbnail::CreateThumbnail(HWND ownerWnd, HWND sourceWnd, RECT *taskRect)
   if ((dwmThumbnailId != NULL) || (dwmThumbnailWnd != NULL))
     DestroyThumbnail(); //remove any existing thumbnail before creating a new one
 
-  HWND hwndSource = sourceWnd;
+  HMONITOR thumbnailMonitor = MonitorFromWindow(ownerWnd, MONITOR_DEFAULTTONULL);
+  MONITORINFO thumbnailMonitorInfo;
+  thumbnailMonitorInfo.cbSize = sizeof(MONITORINFO);
+  if (!GetMonitorInfo(thumbnailMonitor, &thumbnailMonitorInfo))
+    return;
+
+  RECT ownerRect;
+  if (!GetWindowRect(ownerWnd, &ownerRect))
+    return;
+
+  int x, y;
   SIZE thumbnailDimensions;
-  POINT centerPoint;
-  RECT appletRect;
   DWM_THUMBNAIL_PROPERTIES thumbnailProperties;
-  SNAPMOVEINFO thumbnailWndSnapMoveInfo;
   WNDCLASSEX wincl;
   ZeroMemory(&wincl, sizeof(WNDCLASSEX));
 
@@ -118,7 +85,7 @@ void Thumbnail::CreateThumbnail(HWND ownerWnd, HWND sourceWnd, RECT *taskRect)
   if (dwmThumbnailWnd == NULL)
     return;
 
-  if (EGDwmRegisterThumbnail(dwmThumbnailWnd, hwndSource, &dwmThumbnailId) == E_FAIL)
+  if (EGDwmRegisterThumbnail(dwmThumbnailWnd, sourceWnd, &dwmThumbnailId) == E_FAIL)
     {
       DestroyWindow(dwmThumbnailWnd);
       return;
@@ -129,25 +96,19 @@ void Thumbnail::CreateThumbnail(HWND ownerWnd, HWND sourceWnd, RECT *taskRect)
   thumbnailDimensions.cx = thumbnailDimensions.cx / 4;
   thumbnailDimensions.cy = thumbnailDimensions.cy / 4;
 
-  centerPoint.x = ELMid(taskRect->left, taskRect->right);
-  centerPoint.y = taskRect->top;
-  ClientToScreen(ownerWnd, &centerPoint);
-  centerPoint.x = centerPoint.x - (thumbnailDimensions.cx/2);
-  centerPoint.y = centerPoint.y - thumbnailDimensions.cy;
-  thumbnailWndSnapMoveInfo.AppletWindow = dwmThumbnailWnd;
-  thumbnailWndSnapMoveInfo.origin = ELGetAnchorPoint(ownerWnd);
-  appletRect.left = centerPoint.x;
-  appletRect.top = centerPoint.y;
-  appletRect.right = centerPoint.x + thumbnailDimensions.cx;
-  appletRect.bottom = centerPoint.y + thumbnailDimensions.cy;
-  thumbnailWndSnapMoveInfo.AppletRect = &appletRect;
+  y = (ownerRect.top + taskRect->top) - thumbnailDimensions.cy;
+  if (y < thumbnailMonitorInfo.rcMonitor.top)
+    y = ownerRect.top + taskRect->top + taskRect->bottom;
 
-  ELSnapMove(&thumbnailWndSnapMoveInfo); //snap the thumbnail window to the applet
-  SetWindowPos(dwmThumbnailWnd, NULL, thumbnailWndSnapMoveInfo.AppletRect->left,
-               thumbnailWndSnapMoveInfo.AppletRect->top - (thumbnailWndSnapMoveInfo.AppletRect->bottom - thumbnailWndSnapMoveInfo.AppletRect->top),
-               (thumbnailWndSnapMoveInfo.AppletRect->right - thumbnailWndSnapMoveInfo.AppletRect->left),
-               (thumbnailWndSnapMoveInfo.AppletRect->bottom - thumbnailWndSnapMoveInfo.AppletRect->top),
-               SWP_NOZORDER|SWP_SHOWWINDOW);
+  x = (ownerRect.left + taskRect->left) - (thumbnailDimensions.cx / 2);
+  int xoffset = thumbnailMonitorInfo.rcMonitor.right - (x + thumbnailDimensions.cx);
+  if (xoffset < 0)
+    x += xoffset;
+  if (x < thumbnailMonitorInfo.rcMonitor.left)
+    x = thumbnailMonitorInfo.rcMonitor.left;
+
+  SetWindowPos(dwmThumbnailWnd, HWND_TOPMOST, x, y, thumbnailDimensions.cx,
+               thumbnailDimensions.cy, SWP_SHOWWINDOW);
 
   //set the thumbnail's properties; ideally, most/all of these would be configurable by the user
   thumbnailProperties.dwFlags = DWM_TNP_RECTDESTINATION|DWM_TNP_SOURCECLIENTAREAONLY|DWM_TNP_OPACITY|DWM_TNP_VISIBLE;
