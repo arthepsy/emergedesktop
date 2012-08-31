@@ -40,9 +40,6 @@
 #include <process.h>
 #include <psapi.h>
 #include <commctrl.h>
-#ifdef __MINGW32__
-#include <w32api.h>
-#endif
 
 #define TIP_SIZE 256
 
