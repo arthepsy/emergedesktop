@@ -34,7 +34,7 @@
 // Purpose:	Creates TrayIcon Class Object
 //----  --------------------------------------------------------------------------------------------------------
 Task::Task(HWND task, HINSTANCE mainInstance)
-  :Thumbnail(mainInstance)
+  :Thumbnail(task, mainInstance)
 {
   (*this).mainInstance = mainInstance;
   newIcon = NULL;

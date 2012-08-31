@@ -847,7 +847,7 @@ DWORD WINAPI Applet::UpdateThumbnailThreadProc(LPVOID lpParameter)
   //Task* currentTask = reinterpret_cast< Task* >(lpParameter);
   POINT pt;
 
-  (*iter)->CreateThumbnail(thumbnailPair->first->GetMainWnd(), thumbnailPair->second, (*iter)->GetRect());
+  (*iter)->ShowThumbnail(thumbnailPair->first->GetMainWnd(), (*iter)->GetRect());
 
   do
     {
@@ -857,7 +857,7 @@ DWORD WINAPI Applet::UpdateThumbnailThreadProc(LPVOID lpParameter)
     }
   while (PtInRect((*iter)->GetRect(), pt));
 
-  (*iter)->DestroyThumbnail();
+  (*iter)->HideThumbnail();
 
   delete thumbnailPair;
 

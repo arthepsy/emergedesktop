@@ -21,16 +21,38 @@
 
 #include "Thumbnail.h"
 
-WCHAR thumbnailName[] = TEXT("emergeTaskThumbnail");
 WCHAR dwmWndClassName[] = TEXT("dwmThumbnailWnd");
 
-Thumbnail::Thumbnail(HINSTANCE instance)
+Thumbnail::Thumbnail(HWND taskWnd, HINSTANCE instance)
 {
-  mainInstance = instance;
+  WNDCLASSEX wincl;
+  ZeroMemory(&wincl, sizeof(WNDCLASSEX));
+
+  // Register the window class
+  wincl.hInstance = instance;
+  wincl.lpszClassName = dwmWndClassName;
+  wincl.lpfnWndProc = ThumbnailProcedure;
+  wincl.cbSize = sizeof (WNDCLASSEX);
+  //wincl.style = CS_DROPSHADOW;
+  wincl.hIcon = LoadIcon (NULL, IDI_APPLICATION);
+  wincl.hIconSm = LoadIcon (NULL, IDI_APPLICATION);
+  wincl.hCursor = LoadCursor (NULL, IDC_ARROW);
+  wincl.hbrBackground = NULL;
+
+  RegisterClassEx (&wincl);
+
+  dwmThumbnailWnd = CreateWindowEx(WS_EX_TOOLWINDOW, dwmWndClassName, NULL, WS_POPUP, 0, 0, 0, 0, NULL, NULL, NULL, NULL);
+  if (dwmThumbnailWnd)
+    {
+      if (EGDwmRegisterThumbnail(dwmThumbnailWnd, taskWnd, &dwmThumbnailId) == E_FAIL)
+        DestroyWindow(dwmThumbnailWnd);
+    }
 }
 
 Thumbnail::~Thumbnail()
 {
+  EGDwmUnregisterThumbnail(dwmThumbnailId);
+  DestroyWindow(dwmThumbnailWnd);
 }
 
 LRESULT CALLBACK Thumbnail::ThumbnailProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
@@ -38,20 +60,8 @@ LRESULT CALLBACK Thumbnail::ThumbnailProcedure (HWND hwnd, UINT message, WPARAM 
   return DefWindowProc(hwnd, message, wParam, lParam);
 }
 
-void Thumbnail::DestroyThumbnail()
+void Thumbnail::ShowThumbnail(HWND ownerWnd, RECT *taskRect)
 {
-  if ((dwmThumbnailId != NULL) && (EGDwmUnregisterThumbnail(dwmThumbnailId) == S_OK))
-    dwmThumbnailId = NULL;
-
-  if ((dwmThumbnailWnd != NULL) && (DestroyWindow(dwmThumbnailWnd)))
-    dwmThumbnailWnd = NULL;
-}
-
-void Thumbnail::CreateThumbnail(HWND ownerWnd, HWND sourceWnd, RECT *taskRect)
-{
-  if ((dwmThumbnailId != NULL) || (dwmThumbnailWnd != NULL))
-    DestroyThumbnail(); //remove any existing thumbnail before creating a new one
-
   HMONITOR thumbnailMonitor = MonitorFromWindow(ownerWnd, MONITOR_DEFAULTTONULL);
   MONITORINFO thumbnailMonitorInfo;
   thumbnailMonitorInfo.cbSize = sizeof(MONITORINFO);
@@ -65,31 +75,6 @@ void Thumbnail::CreateThumbnail(HWND ownerWnd, HWND sourceWnd, RECT *taskRect)
   int x, y;
   SIZE thumbnailDimensions;
   DWM_THUMBNAIL_PROPERTIES thumbnailProperties;
-  WNDCLASSEX wincl;
-  ZeroMemory(&wincl, sizeof(WNDCLASSEX));
-
-  // Register the window class
-  wincl.hInstance = mainInstance;
-  wincl.lpszClassName = dwmWndClassName;
-  wincl.lpfnWndProc = ThumbnailProcedure;
-  wincl.cbSize = sizeof (WNDCLASSEX);
-  wincl.style = CS_DROPSHADOW;
-  wincl.hIcon = LoadIcon (NULL, IDI_APPLICATION);
-  wincl.hIconSm = LoadIcon (NULL, IDI_APPLICATION);
-  wincl.hCursor = LoadCursor (NULL, IDC_ARROW);
-  wincl.hbrBackground = NULL;
-
-  RegisterClassEx (&wincl);
-
-  dwmThumbnailWnd = CreateWindowEx(WS_EX_TOOLWINDOW, dwmWndClassName, NULL, WS_POPUP, 0, 0, 0, 0, NULL, NULL, NULL, NULL);
-  if (dwmThumbnailWnd == NULL)
-    return;
-
-  if (EGDwmRegisterThumbnail(dwmThumbnailWnd, sourceWnd, &dwmThumbnailId) == E_FAIL)
-    {
-      DestroyWindow(dwmThumbnailWnd);
-      return;
-    }
 
   EGDwmQueryThumbnailSourceSize(dwmThumbnailId, &thumbnailDimensions);
   //4 is an arbitrary zoom factor; ideally, this would be configurable by the user
@@ -120,4 +105,9 @@ void Thumbnail::CreateThumbnail(HWND ownerWnd, HWND sourceWnd, RECT *taskRect)
   thumbnailProperties.opacity = 255;
   thumbnailProperties.fVisible = true;
   EGDwmUpdateThumbnailProperties(dwmThumbnailId, &thumbnailProperties);
+}
+
+void Thumbnail::HideThumbnail()
+{
+  ShowWindow(dwmThumbnailWnd, SW_HIDE);
 }
