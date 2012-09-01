@@ -45,7 +45,10 @@ Thumbnail::Thumbnail(HWND taskWnd, HINSTANCE instance)
   if (dwmThumbnailWnd)
     {
       if (EGDwmRegisterThumbnail(dwmThumbnailWnd, taskWnd, &dwmThumbnailId) == E_FAIL)
-        DestroyWindow(dwmThumbnailWnd);
+        {
+          DestroyWindow(dwmThumbnailWnd);
+          dwmThumbnailWnd = NULL;
+        }
     }
 }
 
@@ -110,4 +113,9 @@ void Thumbnail::ShowThumbnail(HWND ownerWnd, RECT *taskRect)
 void Thumbnail::HideThumbnail()
 {
   ShowWindow(dwmThumbnailWnd, SW_HIDE);
+}
+
+HWND Thumbnail::GetThumbnailWnd()
+{
+  return dwmThumbnailWnd;
 }

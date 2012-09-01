@@ -58,6 +58,7 @@ public:
   ~Thumbnail();
   void ShowThumbnail(HWND ownerWnd, RECT *taskRect);
   void HideThumbnail();
+  HWND GetThumbnailWnd();
 
 private:
   HTHUMBNAIL dwmThumbnailId;

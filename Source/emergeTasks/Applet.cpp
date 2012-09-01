@@ -638,25 +638,31 @@ LRESULT Applet::TaskMouseEvent(UINT message, LPARAM lParam)
                     movingWnd = NULL;
                   return 0;
                 }
-              if (oldTipWnd != (*iter)->GetWnd())
+              if ((*iter)->GetThumbnailWnd())
                 {
-                  oldTipWnd = (*iter)->GetWnd();
-                  SendMessage(toolWnd, TTM_UPDATE, 0, 0);
-                }
-              task = (*iter)->GetWnd();
-              thumbnailIter = thumbnailMap.find(task);
-              if (thumbnailIter == thumbnailMap.end())
-                {
-                  thumbnailPair = new std::pair<Applet*, HWND>(this, task);
-                  thumbnailMap.insert(std::pair<HWND, HANDLE>(task, CreateThread(NULL, 0, UpdateThumbnailThreadProc, thumbnailPair, 0, &threadID)));
+                  task = (*iter)->GetWnd();
+                  thumbnailIter = thumbnailMap.find(task);
+                  if (thumbnailIter == thumbnailMap.end())
+                    {
+                      thumbnailPair = new std::pair<Applet*, HWND>(this, task);
+                      thumbnailMap.insert(std::pair<HWND, HANDLE>(task, CreateThread(NULL, 0, UpdateThumbnailThreadProc, thumbnailPair, 0, &threadID)));
+                    }
+                  else
+                    {
+                      GetExitCodeThread(thumbnailIter->second, &threadState);
+                      if (threadState != STILL_ACTIVE)
+                        {
+                          thumbnailPair = new std::pair<Applet*, HWND>(this, task);
+                          thumbnailIter->second = CreateThread(NULL, 0, UpdateThumbnailThreadProc, thumbnailPair, 0, &threadID);
+                        }
+                    }
                 }
               else
                 {
-                  GetExitCodeThread(thumbnailIter->second, &threadState);
-                  if (threadState != STILL_ACTIVE)
+                  if (oldTipWnd != (*iter)->GetWnd())
                     {
-                      thumbnailPair = new std::pair<Applet*, HWND>(this, task);
-                      thumbnailIter->second = CreateThread(NULL, 0, UpdateThumbnailThreadProc, thumbnailPair, 0, &threadID);
+                      oldTipWnd = (*iter)->GetWnd();
+                      SendMessage(toolWnd, TTM_UPDATE, 0, 0);
                     }
                 }
               break;
