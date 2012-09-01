@@ -48,8 +48,6 @@ public:
   Task(HWND task, HINSTANCE mainInstance);
   ~Task();
 
-  void UpdateTip(HWND mainWnd, HWND toolWnd, WCHAR *tip);
-  void DeleteTip(HWND mainWnd, HWND toolWnd);
   HWND GetWnd();
   HICON GetIcon();
   RECT *GetRect();

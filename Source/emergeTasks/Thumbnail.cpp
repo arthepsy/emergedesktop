@@ -96,7 +96,7 @@ void Thumbnail::ShowThumbnail(HWND ownerWnd, RECT *taskRect)
                thumbnailDimensions.cy, SWP_SHOWWINDOW);
 
   //set the thumbnail's properties; ideally, most/all of these would be configurable by the user
-  thumbnailProperties.dwFlags = DWM_TNP_RECTDESTINATION|DWM_TNP_SOURCECLIENTAREAONLY|DWM_TNP_OPACITY|DWM_TNP_VISIBLE;
+  thumbnailProperties.dwFlags = DWM_TNP_RECTDESTINATION/*|DWM_TNP_SOURCECLIENTAREAONLY*/|DWM_TNP_OPACITY|DWM_TNP_VISIBLE;
   thumbnailProperties.rcDestination.left = 0;
   thumbnailProperties.rcDestination.top = 0;
   thumbnailProperties.rcDestination.right = thumbnailDimensions.cx;

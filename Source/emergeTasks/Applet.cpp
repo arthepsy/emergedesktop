@@ -104,6 +104,9 @@ LRESULT CALLBACK Applet::WindowProcedure (HWND hwnd, UINT message, WPARAM wParam
     case WM_SIZING:
       return pApplet->DoSizing(hwnd, (UINT)wParam, (LPRECT)lParam);
 
+    case WM_SIZE:
+      return pApplet->DoSize(lParam);
+
     case WM_MOVING:
       return pApplet->DoMoving(hwnd, (LPRECT)lParam);
 
@@ -115,6 +118,9 @@ LRESULT CALLBACK Applet::WindowProcedure (HWND hwnd, UINT message, WPARAM wParam
 
     case WM_TIMER:
       return pApplet->DoTimer((UINT_PTR)wParam);
+
+    case WM_NOTIFY:
+      return pApplet->DoNotify(hwnd, lParam);
 
     case WM_DESTROY:
     case WM_NCDESTROY:
@@ -146,6 +152,54 @@ Applet::Applet(HINSTANCE hInstance)
 
   // Create a critical section to control access to the modifyMap map
   InitializeCriticalSection(&mapLock);
+}
+
+LRESULT Applet::DoNotify(HWND hwnd, LPARAM lParam)
+{
+  LPNMHDR pnmh = (LPNMHDR)lParam;
+
+  // Fetch tooltip text
+  if (pnmh->code == TTN_NEEDTEXT)
+    {
+      LPTOOLTIPTEXT lpttt = (LPTOOLTIPTEXT) lParam;
+      TaskVector::iterator iter;
+      POINT pt;
+      RECT rt;
+      WCHAR windowTitle[TIP_SIZE];
+      ULONG_PTR response = 0;
+
+      ELGetWindowRect(hwnd, &rt);
+      GetCursorPos(&pt);
+      pt.x -= rt.left;
+      pt.y -= rt.top;
+
+      // Traverse the valid icon vector to see if the mouse is in the bounding rectangle
+      // of the current icon
+      iter = taskList.begin();
+      while (iter < taskList.end())
+        {
+          if (PtInRect((*iter)->GetRect(), pt))
+            {
+              // Update the tooltip
+              SendMessageTimeout((*iter)->GetWnd(), WM_GETTEXT, TIP_SIZE, reinterpret_cast<LPARAM>(windowTitle), SMTO_ABORTIFHUNG, 100, &response);
+              if (response != 0)
+                {
+                  lpttt->lpszText = windowTitle;
+                  SetWindowPos(toolWnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOACTIVATE);
+                }
+              else
+                lpttt->lpszText = (WCHAR*)TEXT("\0");
+
+              return 0;
+            }
+
+          iter++;
+        }
+
+      lpttt->lpszText = (WCHAR*)TEXT("\0");
+    }
+
+  return 1;
 }
 
 Applet::~Applet()
@@ -745,6 +799,33 @@ LRESULT Applet::DoTimer(UINT_PTR timerID)
     }
 
   return res;
+}
+
+LRESULT Applet::DoSize(LPARAM lParam)
+{
+  UINT dragBorder = guiInfo.dragBorder + guiInfo.bevelWidth + guiInfo.padding;
+
+  // fill in the TOOLINFO structure
+  ZeroMemory(&ti, sizeof(TOOLINFO));
+  ti.cbSize = TTTOOLINFOW_V2_SIZE;
+  ti.hwnd = mainWnd;
+  ti.uId = (ULONG_PTR)mainWnd;
+  ti.hinst =  mainInst;
+  ti.uFlags = TTF_SUBCLASS;
+  ti.lpszText = LPSTR_TEXTCALLBACK;
+
+  // Remove the tooltip region
+  SendMessage(toolWnd, TTM_DELTOOL, 0, (LPARAM)&ti);
+
+  ti.rect.left = dragBorder;
+  ti.rect.top = dragBorder;
+  ti.rect.right = ti.rect.left + LOWORD(lParam) - dragBorder;
+  ti.rect.bottom = ti.rect.top + HIWORD(lParam) - dragBorder;
+
+  // Add the main window as a tooltip region
+  SendMessage(toolWnd, TTM_ADDTOOL, 0, (LPARAM)&ti);
+
+  return 0;
 }
 
 LRESULT Applet::DoSizing(HWND hwnd, UINT edge, LPRECT rect)
