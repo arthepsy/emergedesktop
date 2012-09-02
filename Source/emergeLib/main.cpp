@@ -4723,6 +4723,10 @@ bool ELSetEmergeVars()
   if (!SetEnvironmentVariable(TEXT("PortableMode"), portableMode.c_str()))
     return false;
 
+  // Clear the __COMPAT_LAYER variable as it seems to cause some applications
+  // to misbehave when inherited as part of the Environment block.
+  SetEnvironmentVariable(L"__COMPAT_LAYER", NULL);
+
   return true;
 }
 
