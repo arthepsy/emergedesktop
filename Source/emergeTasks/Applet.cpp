@@ -973,6 +973,12 @@ LRESULT Applet::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 
           // A "task" was modified
         case HSHELL_REDRAW:
+          // Given that not all tasks are identified with an
+          // HSHELL_WINDOWCREATED message, check to see if the window exists
+          // when this message is passed.  If so, check to see if the window
+          // is valid and if it is add it.
+          if (ELCheckWindow(task))
+            AddTask(task);
 
           // Some apps continually updating their title bar which causes a
           // flood of HSHELL_REDRAW messages.  This will cause emergeTasks to
@@ -1007,7 +1013,12 @@ LRESULT Applet::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
           // A "task" was activated
         case HSHELL_RUDEAPPACTIVATED:
         case HSHELL_WINDOWACTIVATED:
-
+          // Given that not all tasks are identified with an
+          // HSHELL_WINDOWCREATED message, check to see if the window exists
+          // when this message is passed.  If so, check to see if the window
+          // is valid and if it is add it.
+          if (ELCheckWindow(task))
+            AddTask(task);
           SetFlash(task, false);
 
           /**< Set the icon when the task is activiated to address issues with some apps (like Outlook) */
