@@ -624,9 +624,9 @@ void Core::StartExplorer(bool showDesktop)
 
   explorerWnd = FindWindow(TEXT("EmergeDesktopExplorer"), NULL);
   if (explorerWnd)
-    SendMessage(explorerWnd, WM_NCDESTROY, 0, 0);
-
-  ELExecute(explorerCmd);
+    SendMessage(explorerWnd, EMERGE_MESSAGE, (LPARAM)showDesktop, 0);
+  else
+    ELExecute(explorerCmd);
 }
 
 void Core::ConvertTheme()

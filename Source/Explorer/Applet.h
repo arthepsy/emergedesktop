@@ -43,6 +43,7 @@ public:
   UINT Initialize(bool showDesktop);
   static LRESULT CALLBACK WindowProcedure (HWND, UINT, WPARAM, LPARAM);
 	static DWORD WINAPI ThreadFunc(LPVOID pvParam);
+	LRESULT DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
 };
 
 #endif

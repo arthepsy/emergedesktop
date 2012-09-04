@@ -87,8 +87,7 @@ UINT Applet::Initialize(bool showDesktop)
   ShellServicesInit();
 
   // Create Desktop Thread if showDesktop specified
-  if (showDesktop)
-    m_hThread = CreateThread(NULL, 0, ThreadFunc, NULL, 0, &m_dwThreadID);
+  m_hThread = CreateThread(NULL, 0, ThreadFunc, &showDesktop, 0, &m_dwThreadID);
 
   return 1;
 }
@@ -162,13 +161,13 @@ LRESULT CALLBACK Applet::WindowProcedure (HWND hwnd, UINT message, WPARAM wParam
 
       // If not handled just forward the message on to MessageControl
     default:
-      return DefWindowProc (hwnd, message, wParam, lParam);
+      return pApplet->DoDefault(hwnd, message, wParam, lParam);
     }
 
   return 0;
 }
 
-DWORD WINAPI Applet::ThreadFunc(LPVOID pvParam UNUSED)
+DWORD WINAPI Applet::ThreadFunc(LPVOID pvParam)
 {
   LPVOID lpVoid;
   DWORD registerCookie;
@@ -176,7 +175,9 @@ DWORD WINAPI Applet::ThreadFunc(LPVOID pvParam UNUSED)
   TShellDesktopTray *explorerTray = NULL;
   HMODULE shell32DLL = ELLoadSystemLibrary(TEXT("shell32.dll"));
   if (!shell32DLL)
-	  return 1;
+    return 1;
+
+  bool *showDesktop = reinterpret_cast< bool* >(pvParam);
 
   // Initialize COM for this thread
   CoInitializeEx(NULL, COINIT_APARTMENTTHREADED);
@@ -204,6 +205,11 @@ DWORD WINAPI Applet::ThreadFunc(LPVOID pvParam UNUSED)
 
       SendMessage(GetDesktopWindow(), 0x400, 0, 0);
 
+      // if showDesktop is not specified, hide the Progman window so it doesn't
+      // interfere with emergeCore's desktop window.
+      if (!(*showDesktop))
+        ShowWindow(FindWindow(L"Progman", NULL), SW_HIDE);
+
       // Run the desktop message loop
       if (hDesktop)
         SHDesktopMessageLoop(hDesktop);
@@ -221,6 +227,20 @@ DWORD WINAPI Applet::ThreadFunc(LPVOID pvParam UNUSED)
   FreeLibrary(shell32DLL);
 
   return 0;
+}
+
+LRESULT Applet::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
+{
+  if (message == EMERGE_MESSAGE)
+    {
+      int nCmdShow = SW_SHOW;
+      if (!wParam)
+        nCmdShow = SW_HIDE;
+
+      return (ShowWindow(FindWindow(L"Progman", NULL), nCmdShow) == TRUE);
+    }
+
+  return DefWindowProc (hwnd, message, wParam, lParam);
 }
 
 void Applet::ShellServicesInit()
