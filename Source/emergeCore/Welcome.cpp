@@ -99,7 +99,7 @@ BOOL Welcome::DoInitDialog(HWND hwndDlg)
                                       (WCHAR*)L"http://ed.xaerolimit.net/wiki/");*/
   pTutorialLink->ConvertStaticToHyperlink(hwndDlg,
                                           IDC_TUTORIALLINK,
-                                          (WCHAR*)L"http://sites.google.com/site/emergedesktop/Home/getting-started/the-basics");
+                                          (WCHAR*)L"http://www.emergedesktop.org/?page_id=204");
   pOfflineLink->ConvertStaticToHyperlink(hwndDlg,
                                           IDC_HELPLINK,
                                           (WCHAR*)L"%AppletDir%\\Documentation\\Emerge Desktop.chm");
