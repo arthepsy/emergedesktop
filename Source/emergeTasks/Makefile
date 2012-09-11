@@ -1,4 +1,6 @@
 LIBS += -lshell32 \
+				-lgdi32 \
+				-lcomdlg32 \
 				-lcomctl32 \
 				-lemergeLib \
 				-lemergeGraphics \
