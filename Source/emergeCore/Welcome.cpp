@@ -93,16 +93,16 @@ BOOL Welcome::DoInitDialog(HWND hwndDlg)
 
   pForumLink->ConvertStaticToHyperlink(hwndDlg,
                                        IDC_FORUMLINK,
-                                       (WCHAR*)L"http://emergedesktop.org/");
+                                       (WCHAR*)L"Homepage");
   /*pWikiLink->ConvertStaticToHyperlink(hwndDlg,
                                       IDC_WIKILINK,
                                       (WCHAR*)L"http://ed.xaerolimit.net/wiki/");*/
   pTutorialLink->ConvertStaticToHyperlink(hwndDlg,
                                           IDC_TUTORIALLINK,
-                                          (WCHAR*)L"http://www.emergedesktop.org/?page_id=204");
+                                          (WCHAR*)L"Tutorial");
   pOfflineLink->ConvertStaticToHyperlink(hwndDlg,
                                           IDC_HELPLINK,
-                                          (WCHAR*)L"%AppletDir%\\Documentation\\Emerge Desktop.chm");
+                                          (WCHAR*)L"Help");
 
   return TRUE;
 }
