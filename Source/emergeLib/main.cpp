@@ -1729,7 +1729,7 @@ bool ELExecuteInternal(LPTSTR command)
       if (!tempArg.empty())
         return false;
 
-      ELExecute((WCHAR*)TEXT("http://sites.google.com/site/emergedesktop/Home/getting-started/the-basics"));
+      ELExecute((WCHAR*)TEXT("http://www.emergedesktop.org/?page_id=204"));
       return true;
     }
   /*  else if (_wcsicmp(command, TEXT("BrowserBack")) == 0)
