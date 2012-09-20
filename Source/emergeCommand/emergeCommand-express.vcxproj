@@ -138,6 +138,7 @@
   <ItemGroup>
     <ClInclude Include="Applet.h" />
     <ClInclude Include="Command.h" />
+    <ClInclude Include="CommandSource.h" />
     <ClInclude Include="Config.h" />
     <ClInclude Include="ConfigPage.h" />
     <ClInclude Include="CustomSource.h" />
@@ -154,6 +155,7 @@
   <ItemGroup>
     <ClCompile Include="Applet.cpp" />
     <ClCompile Include="Command.cpp" />
+    <ClCompile Include="CommandSource.cpp" />
     <ClCompile Include="Config.cpp" />
     <ClCompile Include="ConfigPage.cpp" />
     <ClCompile Include="CustomSource.cpp" />

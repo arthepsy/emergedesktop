@@ -141,9 +141,9 @@
     <ClInclude Include="CustomDataObject.h" />
     <ClInclude Include="CustomDropSource.h" />
     <ClInclude Include="CustomDropTarget.h" />
+    <ClInclude Include="CustomEnumFormat.h" />
     <ClInclude Include="ItemEditor.h" />
     <ClInclude Include="MenuBuilder.h" />
-    <ClInclude Include="MenuEditor.h" />
     <ClInclude Include="MenuItem.h" />
     <ClInclude Include="MenuListItem.h" />
     <ClInclude Include="resource.h" />
@@ -161,10 +161,10 @@
     <ClCompile Include="CustomDataObject.cpp" />
     <ClCompile Include="CustomDropSource.cpp" />
     <ClCompile Include="CustomDropTarget.cpp" />
+    <ClCompile Include="CustomEnumFormat.cpp" />
     <ClCompile Include="ItemEditor.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MenuBuilder.cpp" />
-    <ClCompile Include="MenuEditor.cpp" />
     <ClCompile Include="MenuItem.cpp" />
     <ClCompile Include="MenuListItem.cpp" />
     <ClCompile Include="Settings.cpp" />
