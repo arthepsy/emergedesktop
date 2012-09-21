@@ -35,14 +35,13 @@
 // Returns:	Nothing
 // Purpose:	Creates TrayIcon Class Object
 //-----
-TrayIcon::TrayIcon(HINSTANCE appInstance, HWND wnd, UINT id, HWND mainWnd, HWND toolWnd, Settings *pSettings)
+TrayIcon::TrayIcon(HINSTANCE appInstance, HWND wnd, UINT id, HWND mainWnd, Settings *pSettings)
 {
   this->appInstance = appInstance;
   this->wnd = wnd;
   this->id = id;
   iconVersion = 0;
   this->mainWnd = mainWnd;
-  this->toolWnd = toolWnd;
   origIcon = NULL;
   newIcon = NULL;
   origIconSource = NULL;
@@ -274,7 +273,6 @@ bool TrayIcon::SetTip(WCHAR *tip)
   if (wcscmp((*this).tip, tip) != 0)
     {
       wcscpy((*this).tip, tip);
-      UpdateTip();
 
       // changed
       return true;
@@ -391,69 +389,6 @@ void TrayIcon::SetShared(bool shared)
 void TrayIcon::UpdateIcon()
 {
   convertIcon = true;
-}
-
-//-----
-// Function:	UpdateTip
-// Requires:	HWND mainWnd - handle of calling window
-// 		HWND toolWnd - handle to the tooltip window
-// Returns:	Nothing
-// Purpose:	Updates the window handler with the icon tooltip.  If
-// 		the tip already exists, its updated.  If not, it is
-// 		created.
-//-----
-void TrayIcon::UpdateTip()
-{
-  TOOLINFO ti;
-  ZeroMemory(&ti, sizeof(TOOLINFO));
-
-  bool exists;
-
-  // fill in the TOOLINFO structure
-  ti.cbSize = TTTOOLINFOW_V2_SIZE;
-  ti.uFlags = TTF_SUBCLASS;
-  ti.hwnd = mainWnd;
-  ti.uId = id + (ULONG_PTR)wnd;
-
-  // Check to see if the tooltip exists
-  exists = ::SendMessage(toolWnd, TTM_GETTOOLINFO, 0,(LPARAM) (LPTOOLINFO) &ti) ? true : false;
-
-  //  complete the rest of the TOOLINFO structure
-  ti.hinst =  appInstance;
-  ti.lpszText = tip;
-  ti.rect = rect;
-
-  // If it exists, modify the tooltip, if not add it
-  if (exists)
-    ::SendMessage(toolWnd, TTM_SETTOOLINFO, 0, (LPARAM)(LPTOOLINFO)&ti);
-  else
-    ::SendMessage(toolWnd, TTM_ADDTOOL, 0, (LPARAM)(LPTOOLINFO)&ti);
-}
-
-//-----
-// Function:	DeleteTip
-// Requires:	HWND mainWnd - handle of calling window
-// 		HWND toolWnd - handle to the tooltip window
-// Returns:	Nothing
-// Purpose:	Deletes the icon tooltip from the tooltip window
-//-----
-void TrayIcon::DeleteTip()
-{
-  TOOLINFO ti;
-  ZeroMemory(&ti, sizeof(TOOLINFO));
-
-  bool exists;
-
-  // fill in the TOOLINFO structure
-  ti.cbSize = TTTOOLINFOW_V2_SIZE;
-  ti.hwnd = mainWnd;
-  ti.uId = id + (ULONG_PTR)wnd;
-
-  // Check to see if the tooltip exists
-  exists = ::SendMessage(toolWnd, TTM_GETTOOLINFO, 0,(LPARAM) (LPTOOLINFO) &ti) ? true : false;
-
-  if (exists)
-    ::SendMessage(toolWnd, TTM_DELTOOL, 0, (LPARAM)(LPTOOLINFO)&ti);
 }
 
 void TrayIcon::DeleteBalloon()

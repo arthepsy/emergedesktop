@@ -492,6 +492,8 @@ private:
   bool autoHideLeft, autoHideRight, autoHideTop, autoHideBottom;
   APPBARDATA *LockAppBarMemory(HANDLE sharedMem, DWORD processID);
   CRITICAL_SECTION trayVectorCS;
+  TOOLINFO ti;
+  TrayIcon *oldTipIcon;
 
 public:
   Applet(HINSTANCE hInstance);
@@ -502,10 +504,11 @@ public:
   size_t GetTrayIconListSize();
   LRESULT DoTimer(UINT timerID);
   LRESULT DoSetCursor();
-  LRESULT MySize();
+  LRESULT MySize(LPARAM lParam);
   LRESULT MyMove();
   LRESULT DoSizing(HWND hwnd, UINT edge, LPRECT rect);
   LRESULT DoEnterSizeMove(HWND hwnd);
+  LRESULT DoNotify(HWND hwnd, LPARAM lParam);
   void AdjustIcons();
   void AppletUpdate();
   void UnloadSSO();

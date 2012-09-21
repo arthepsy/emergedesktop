@@ -66,11 +66,9 @@
 class TrayIcon
 {
 public:
-  TrayIcon(HINSTANCE appInstance, HWND wnd, UINT id, HWND mainWnd, HWND toolWnd, Settings *pSettings);
+  TrayIcon(HINSTANCE appInstance, HWND wnd, UINT id, HWND mainWnd, Settings *pSettings);
   ~TrayIcon();
 
-  void UpdateTip();
-  void DeleteTip();
   void DeleteBalloon();
   HWND GetWnd();
   HICON GetIcon();
@@ -97,7 +95,7 @@ public:
   void HideBalloon();
 
 private:
-  HWND wnd, mainWnd, toolWnd;
+  HWND wnd, mainWnd;
   HINSTANCE appInstance;
   HICON origIcon, newIcon;
   UINT id;

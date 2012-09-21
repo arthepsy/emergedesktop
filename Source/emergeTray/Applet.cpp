@@ -197,7 +197,10 @@ LRESULT CALLBACK Applet::WindowProcedure (HWND hwnd, UINT message, WPARAM wParam
 
       // Write the width height to the registry if the size changed
     case WM_SIZE:
-      return pApplet->MySize();
+      return pApplet->MySize(lParam);
+
+    case WM_NOTIFY:
+      return pApplet->DoNotify(hwnd, lParam);
 
     case WM_SYSCOMMAND:
       return pApplet->DoSysCommand(hwnd, message, wParam, lParam);
@@ -225,7 +228,7 @@ LRESULT CALLBACK Applet::WindowProcedure (HWND hwnd, UINT message, WPARAM wParam
 }
 
 Applet::Applet(HINSTANCE hInstance)
-  :BaseApplet(hInstance, myName, true, false)
+:BaseApplet(hInstance, myName, true, false)
 {
   mainInst = hInstance;
 
@@ -241,6 +244,7 @@ Applet::Applet(HINSTANCE hInstance)
 
   activeIcon = NULL;
   trayWnd = NULL;
+  oldTipIcon = NULL;
 
   InitializeCriticalSection(&trayVectorCS);
 }
@@ -446,6 +450,9 @@ bool Applet::AcquireExplorerTrayIconList()
 
 Applet::~Applet()
 {
+  // Remove the tooltip region
+  SendMessage(toolWnd, TTM_DELTOOL, 0, (LPARAM)(LPTOOLINFO)&ti);
+
   // A quit message was received, so unload the 2K/XP system icons and the Explorer tray hook
 
   if (ELIsExplorerShell()) //we're probably running on top of Explorer
@@ -459,7 +466,6 @@ Applet::~Applet()
   EnterCriticalSection(&trayVectorCS);
   while (!trayIconList.empty())
     {
-      trayIconList.front()->DeleteTip();
       trayIconList.front()->DeleteBalloon();
       trayIconList.erase(trayIconList.begin());
     }
@@ -469,6 +475,46 @@ Applet::~Applet()
 
   // Return control to the default shell
   SendNotifyMessage(HWND_BROADCAST, RegisterWindowMessage(TEXT("TaskbarCreated")), 0, 0);
+}
+
+LRESULT Applet::DoNotify(HWND hwnd, LPARAM lParam)
+{
+  LPNMHDR pnmh = (LPNMHDR)lParam;
+
+  // Fetch tooltip text
+  if (pnmh->code == TTN_NEEDTEXT)
+    {
+      LPTOOLTIPTEXT lpttt = (LPTOOLTIPTEXT) lParam;
+      std::vector< std::tr1::shared_ptr<TrayIcon> >::iterator iter;
+      POINT pt;
+      RECT rt;
+
+      ELGetWindowRect(hwnd, &rt);
+      GetCursorPos(&pt);
+      pt.x -= rt.left;
+      pt.y -= rt.top;
+
+      // Traverse the valid icon vector to see if the mouse is in the bounding rectangle
+      // of the current icon
+      iter = trayIconList.begin();
+      while (iter < trayIconList.end())
+        {
+          if (PtInRect((*iter)->GetRect(), pt))
+            {
+              // Update the tooltip
+              lpttt->lpszText = (*iter)->GetTip();
+              SetWindowPos(toolWnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOACTIVATE);
+
+              return 0;
+            }
+
+          iter++;
+        }
+
+      lpttt->lpszText = (WCHAR*)TEXT("\0");
+    }
+
+  return 1;
 }
 
 UINT Applet::Initialize()
@@ -599,33 +645,33 @@ UINT Applet::PortableInitialize()
   // icons in a separate location.  In order for emergeTray to pull them from
   // Explorer, they must first all be made visible.
   /*DWORD enableAutoTray = 0;
-  ULONG_PTR result = 0;
-  HKEY explorerKey;
-  HWND trayWnd = FindWindow(szTrayName, NULL);
-  if (trayWnd)
+    ULONG_PTR result = 0;
+    HKEY explorerKey;
+    HWND trayWnd = FindWindow(szTrayName, NULL);
+    if (trayWnd)
     {
-      if (RegOpenKeyEx(HKEY_CURRENT_USER,
-                       TEXT("Software\\Microsoft\\Windows\\CurrentVersion\\Explorer"),
-                       0,
-                       KEY_ALL_ACCESS,
-                       &explorerKey) == ERROR_SUCCESS)
-        {
-          if (RegSetValueEx(explorerKey,
-                            TEXT("EnableAutoTray"),
-                            0,
-                            REG_DWORD,
-                            (BYTE*)&enableAutoTray,
-                            sizeof(enableAutoTray)) == ERROR_SUCCESS)
-            {
-              // TODO (Chris#1#): Figure out a way to have Explorer take the EnableAutoTray settings change into effect.
-              SendMessage(trayWnd, WM_WININICHANGE, 0, 0);
-              SendMessageTimeout(HWND_BROADCAST, WM_SETTINGCHANGE, 0, 0,
-                                 SMTO_ABORTIFHUNG, 2000, &result);
-            }
+    if (RegOpenKeyEx(HKEY_CURRENT_USER,
+    TEXT("Software\\Microsoft\\Windows\\CurrentVersion\\Explorer"),
+    0,
+    KEY_ALL_ACCESS,
+    &explorerKey) == ERROR_SUCCESS)
+    {
+    if (RegSetValueEx(explorerKey,
+    TEXT("EnableAutoTray"),
+    0,
+    REG_DWORD,
+    (BYTE*)&enableAutoTray,
+    sizeof(enableAutoTray)) == ERROR_SUCCESS)
+    {
+  // TODO (Chris#1#): Figure out a way to have Explorer take the EnableAutoTray settings change into effect.
+  SendMessage(trayWnd, WM_WININICHANGE, 0, 0);
+  SendMessageTimeout(HWND_BROADCAST, WM_SETTINGCHANGE, 0, 0,
+  SMTO_ABORTIFHUNG, 2000, &result);
+  }
 
-          RegCloseKey(explorerKey);
-        }
-    }*/
+  RegCloseKey(explorerKey);
+  }
+  }*/
 
   movesizeinprogress = false;
 
@@ -658,8 +704,6 @@ bool Applet::PaintItem(HDC hdc, size_t index, int x, int y, RECT rect)
     return false;
 
   pTrayIcon->SetRect(rect);
-  // Update the tooltip
-  pTrayIcon->UpdateTip();
 
   // Convert the icon
   pTrayIcon->CreateNewIcon(guiInfo.alphaForeground, guiInfo.alphaBackground);
@@ -745,9 +789,32 @@ LRESULT Applet::MyMove()
   return 0;
 }
 
-LRESULT Applet::MySize()
+LRESULT Applet::MySize(LPARAM lParam)
 {
+  UINT dragBorder = guiInfo.dragBorder + guiInfo.bevelWidth + guiInfo.padding;
+
+  // fill in the TOOLINFO structure
+  ZeroMemory(&ti, sizeof(TOOLINFO));
+  ti.cbSize = TTTOOLINFOW_V2_SIZE;
+  ti.hwnd = mainWnd;
+  ti.uId = (ULONG_PTR)mainWnd;
+  ti.hinst =  mainInst;
+  ti.uFlags = TTF_SUBCLASS;
+  ti.lpszText = LPSTR_TEXTCALLBACK;
+
+  // Remove the tooltip region
+  SendMessage(toolWnd, TTM_DELTOOL, 0, (LPARAM)&ti);
+
+  ti.rect.left = dragBorder;
+  ti.rect.top = dragBorder;
+  ti.rect.right = ti.rect.left + LOWORD(lParam) - dragBorder;
+  ti.rect.bottom = ti.rect.top + HIWORD(lParam) - dragBorder;
+
+  // Add the main window as a tooltip region
+  SendMessage(toolWnd, TTM_ADDTOOL, 0, (LPARAM)&ti);
+
   movesizeinprogress = false;
+
   return 0;
 }
 
@@ -836,13 +903,7 @@ void Applet::ShowHiddenIcons(bool cmd, bool force)
       for (iter = trayIconList.begin(); iter != trayIconList.end(); iter++)
         {
           if (pSettings->CheckHide((*iter)->GetTip()))
-            {
-              (*iter)->SetHidden(!cmd);
-              if (cmd)
-                (*iter)->UpdateTip();
-              else
-                (*iter)->DeleteTip();
-            }
+            (*iter)->SetHidden(!cmd);
         }
       LeaveCriticalSection(&trayVectorCS);
 
@@ -890,7 +951,6 @@ void Applet::CleanTray()
         {
           hidden = pTrayIcon->GetHidden();
 
-          pTrayIcon->DeleteTip();
           pTrayIcon->HideBalloon();
           pTrayIcon->DeleteBalloon();
           removed = true;
@@ -977,7 +1037,6 @@ LRESULT Applet::RemoveTrayIcon(HWND hwnd, UINT uID)
       }
       }*/
 
-  pTrayIcon->DeleteTip();
   pTrayIcon->HideBalloon();
   pTrayIcon->DeleteBalloon();
   RemoveTrayIconListItem(pTrayIcon);
@@ -1012,7 +1071,7 @@ LRESULT Applet::SetTrayIconVersion(HWND hwnd, UINT uID, UINT iconVersion)
 
   pTrayIcon->SetIconVersion(iconVersion);
   if ((iconVersion == NOTIFYICON_VERSION_4) && ((pTrayIcon->GetFlags() & NIF_SHOWTIP) != NIF_SHOWTIP))
-    pTrayIcon->DeleteTip();
+    pTrayIcon->SetTip((WCHAR*)L"\0");
 
   return 1;
 }
@@ -1152,7 +1211,7 @@ LRESULT Applet::AddTrayIcon(HWND hwnd, UINT uID, UINT uFlags, UINT uCallbackMess
   if (pTrayIcon)
     return 0;
 
-  pTrayIcon = new TrayIcon(mainInst, hwnd, uID, mainWnd, toolWnd, pSettings.get());
+  pTrayIcon = new TrayIcon(mainInst, hwnd, uID, mainWnd, pSettings.get());
 
   if ((uFlags & NIF_MESSAGE) == NIF_MESSAGE)
     pTrayIcon->SetCallback(uCallbackMessage);
@@ -1233,6 +1292,12 @@ LRESULT Applet::TrayMouseEvent(UINT message, LPARAM lParam)
     {
       if (PtInRect((*iter)->GetRect(), lparamPT) && !(*iter)->GetHidden())
         {
+          if (oldTipIcon != (*iter).get())
+            {
+              oldTipIcon = (*iter).get();
+              SendMessage(toolWnd, TTM_UPDATE, 0, 0);
+            }
+
           //  If holding down ALT while left-click, add tip to
           //  hideList and hide the icon from the tray.
           if (ELIsKeyDown(VK_MENU) && (message == WM_LBUTTONDOWN))
@@ -1253,7 +1318,6 @@ LRESULT Applet::TrayMouseEvent(UINT message, LPARAM lParam)
               if (!pSettings->GetUnhideIcons())
                 {
                   (*iter)->SetHidden(true);
-                  (*iter)->DeleteTip();
                   UpdateGUI();
                 }
 
@@ -1461,22 +1525,22 @@ LRESULT Applet::AppBarEvent(COPYDATASTRUCT *cpData)
       return 1;
 
     case ABM_GETSTATE:
-    {
-      LRESULT result = 0;
-
-      if (!IsWindowVisible(mainWnd))
-        result = ABS_AUTOHIDE;
-
-      if (ELVersionInfo() > 6.0)
-        result |= ABS_ALWAYSONTOP;
-      else
         {
-          if (_wcsicmp(pSettings->GetZPosition(), TEXT("Top")) == 0)
-            result |= ABS_ALWAYSONTOP;
-        }
+          LRESULT result = 0;
 
-      return result;
-    }
+          if (!IsWindowVisible(mainWnd))
+            result = ABS_AUTOHIDE;
+
+          if (ELVersionInfo() > 6.0)
+            result |= ABS_ALWAYSONTOP;
+          else
+            {
+              if (_wcsicmp(pSettings->GetZPosition(), TEXT("Top")) == 0)
+                result |= ABS_ALWAYSONTOP;
+            }
+
+          return result;
+        }
 
     case ABM_SETSTATE:
       return 1;
