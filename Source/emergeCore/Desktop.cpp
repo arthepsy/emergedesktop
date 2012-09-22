@@ -267,9 +267,11 @@ void Desktop::ToggleDesktop()
   std::deque<HWND>::iterator iter;
   if (!minimizedWindowDeque.empty())
     {
-      for (iter = minimizedWindowDeque.begin(); iter != minimizedWindowDeque.end(); ++iter)
-        ShowWindow(*iter, SW_SHOWNOACTIVATE);
-      minimizedWindowDeque.clear();
+      while (!minimizedWindowDeque.empty())
+        {
+          ShowWindow(minimizedWindowDeque.front(), SW_RESTORE);
+          minimizedWindowDeque.pop_front();
+        }
       if (!explorerDesktop)
         SetWindowPos(mainWnd, HWND_BOTTOM, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOSENDCHANGING | SWP_NOACTIVATE);
     }
