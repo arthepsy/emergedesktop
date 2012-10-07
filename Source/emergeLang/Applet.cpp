@@ -208,6 +208,8 @@ void Applet::ShowConfig()
 	Config config(mainInst, mainWnd, appletName, pSettings);
 	if (config.Show() == IDOK)
 	{
+		displayLang = 0;
+		UpdateLanguage();
 		UpdateGUI();
 	}
 }
@@ -255,6 +257,10 @@ void Applet::UpdateLabel(LCID lang)
 	if (pSettings->IsUpperCase())
 	{
 		CharUpper((LPWSTR)&label);
+	}
+	else
+	{
+		CharLower((LPWSTR)&label);
 	}
 
 	wcscpy_s(displayLabel, MAX_LABEL, label);
