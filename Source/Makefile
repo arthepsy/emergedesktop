@@ -8,7 +8,7 @@ LIBS = emergeLib emergeGraphics emergeAppletEngine emergeStyleEngine \
 			 emergeBaseClasses emergeIcons emergeTrayExplorerHook
 APPLETS = emergeCore emergeWorkspace emergeHotkeys emergeTasks emergeCommand \
 					emergeLauncher emergeVWM emergeTray emerge emergePower emergeSysMon \
-					Explorer
+					Explorer emergeLang
 VERSION = 6.0
 PACKAGE = EmergeDesktop
 BIN_DIR = bin
