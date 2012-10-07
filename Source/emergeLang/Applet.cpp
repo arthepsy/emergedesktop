@@ -222,6 +222,25 @@ void Applet::AppletUpdate()
 	mainFont = CreateFontIndirect(pSettings->GetFont());
 }
 
+DWORD Applet::GetCurrentActiveThread()
+{
+	HWND hwnd = GetForegroundWindow();
+	DWORD threadId = GetWindowThreadProcessId(hwnd, NULL);
+
+	// Get GUI thread information
+	GUITHREADINFO gui;
+	ZeroMemory(&gui, sizeof(GUITHREADINFO));
+	gui.cbSize = sizeof(GUITHREADINFO);
+	GetGUIThreadInfo(threadId, &gui);
+
+	// Get the most interesting hwnd of an application
+	HWND active = (gui.hwndCaret != NULL) ? gui.hwndCaret :
+		(gui.hwndFocus != NULL) ? gui.hwndFocus : 
+		(gui.hwndActive != NULL) ? gui.hwndActive : hwnd;
+
+	return (active != hwnd) ? GetWindowThreadProcessId(active, NULL) : threadId;
+}
+
 LCID Applet::GetLocaleId(DWORD threadId)
 {
 	HKL hkl = GetKeyboardLayout(threadId);
@@ -236,8 +255,7 @@ void Applet::UpdateLanguage()
 	// 2. get language of this thread
 	// 3. compare to currently displayed language
 	// 4. if not the same: update language, tooltip and initiate redraw
-	HWND hwnd = GetForegroundWindow();
-	DWORD threadId = GetWindowThreadProcessId(hwnd, NULL);
+	DWORD threadId = GetCurrentActiveThread();
 	LCID currentLang = GetLocaleId(threadId);
 	if (currentLang != displayLang)
 	{

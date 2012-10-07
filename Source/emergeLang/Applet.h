@@ -48,6 +48,7 @@ class Applet: public BaseApplet
 private:
 	HFONT mainFont;
 	static LRESULT CALLBACK WindowProcedure (HWND, UINT, WPARAM, LPARAM);
+	DWORD GetCurrentActiveThread();
 	LCID GetLocaleId(DWORD threadId);
 	std::tr1::shared_ptr<Settings> pSettings;
 
