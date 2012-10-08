@@ -33,287 +33,287 @@ WCHAR myName[] = TEXT("emergeLang");
 //----  --------------------------------------------------------------------------------------------------------
 LRESULT CALLBACK Applet::WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	CREATESTRUCT *cs;
-	static Applet *pApplet = NULL;
-	
-	if (message == WM_CREATE)
-	{
-		// Register to recieve the specified Emerge Desktop messages
-		PostMessage(ELGetCoreWindow(), EMERGE_REGISTER, (WPARAM)hwnd, (LPARAM)EMERGE_CORE);
-		
-		cs = (CREATESTRUCT*)lParam;
-		pApplet = reinterpret_cast<Applet*>(cs->lpCreateParams);
-		return DefWindowProc(hwnd, message, wParam, lParam);
-	}
-	
-	if (pApplet == NULL)
-		return DefWindowProc(hwnd, message, wParam, lParam);
-	
-	switch (message)
-	{
-		case WM_COPYDATA:
-			return pApplet->DoCopyData((COPYDATASTRUCT *)lParam);
-		
-		// Needed to handle changing the system colors.  It forces
-		// a repaint of the window as well as the frame.
-		case WM_SYSCOLORCHANGE:
-			return pApplet->DoSysColorChange();
-		
-		// Allow for window dragging via Ctrl - Left - Click dragging
-		case WM_NCLBUTTONDOWN:
-			pApplet->DoNCLButtonDown();
-			return DefWindowProc(hwnd, message, wParam, lParam);
-		
-		// Display the mainMenu via Ctrl - Right - Click
-		case WM_NCRBUTTONUP:
-			return pApplet->DoNCRButtonUp();
-		
-		// Reset the cursor back to the standard arrow after dragging
-		case WM_NCLBUTTONUP:
-			pApplet->DoNCLButtonUp();
-			return DefWindowProc(hwnd, message, wParam, lParam);
-		
-		case WM_SETCURSOR:
-			pApplet->DoSetCursor();
-			return DefWindowProc(hwnd, message, wParam, lParam);
+  CREATESTRUCT *cs;
+  static Applet *pApplet = NULL;
 
-		// Handles the resizing of the window
-		case WM_NCHITTEST:
-			return pApplet->DoHitTest(lParam);
+  if (message == WM_CREATE)
+    {
+      // Register to recieve the specified Emerge Desktop messages
+      PostMessage(ELGetCoreWindow(), EMERGE_REGISTER, (WPARAM)hwnd, (LPARAM)EMERGE_CORE);
 
-		// Repaint the icons as the window size is changing
-		case WM_WINDOWPOSCHANGING:
-			return pApplet->DoWindowPosChanging((WINDOWPOS *)lParam);
+      cs = (CREATESTRUCT*)lParam;
+      pApplet = reinterpret_cast<Applet*>(cs->lpCreateParams);
+      return DefWindowProc(hwnd, message, wParam, lParam);
+    }
 
-		case WM_ENTERSIZEMOVE:
-			return pApplet->DoEnterSizeMove(hwnd);
+  if (pApplet == NULL)
+    return DefWindowProc(hwnd, message, wParam, lParam);
 
-		case WM_EXITSIZEMOVE:
-			return pApplet->DoExitSizeMove(hwnd);
+  switch (message)
+    {
+    case WM_COPYDATA:
+      return pApplet->DoCopyData((COPYDATASTRUCT *)lParam);
 
-		case WM_SIZING:
-			return pApplet->DoSizing(hwnd, (UINT)wParam, (LPRECT)lParam);
+      // Needed to handle changing the system colors.  It forces
+      // a repaint of the window as well as the frame.
+    case WM_SYSCOLORCHANGE:
+      return pApplet->DoSysColorChange();
 
-		case WM_MOVING:
-			return pApplet->DoMoving(hwnd, (LPRECT)lParam);
+      // Allow for window dragging via Ctrl - Left - Click dragging
+    case WM_NCLBUTTONDOWN:
+      pApplet->DoNCLButtonDown();
+      return DefWindowProc(hwnd, message, wParam, lParam);
 
-		case WM_DISPLAYCHANGE:
-			return pApplet->DoDisplayChange(hwnd);
+      // Display the mainMenu via Ctrl - Right - Click
+    case WM_NCRBUTTONUP:
+      return pApplet->DoNCRButtonUp();
 
-		case WM_SYSCOMMAND:
-			return pApplet->DoSysCommand(hwnd, message, wParam, lParam);
+      // Reset the cursor back to the standard arrow after dragging
+    case WM_NCLBUTTONUP:
+      pApplet->DoNCLButtonUp();
+      return DefWindowProc(hwnd, message, wParam, lParam);
 
-		case WM_TIMER:
-			return pApplet->DoTimer((UINT_PTR)wParam);
+    case WM_SETCURSOR:
+      pApplet->DoSetCursor();
+      return DefWindowProc(hwnd, message, wParam, lParam);
 
-		case WM_DESTROY:
-		case WM_NCDESTROY:
-			// Unregister the specified Emerge Desktop messages
-			PostMessage(ELGetCoreWindow(), EMERGE_UNREGISTER, (WPARAM)hwnd, (LPARAM)EMERGE_CORE);
+      // Handles the resizing of the window
+    case WM_NCHITTEST:
+      return pApplet->DoHitTest(lParam);
 
-			PostQuitMessage(0);
-			break;
+      // Repaint the icons as the window size is changing
+    case WM_WINDOWPOSCHANGING:
+      return pApplet->DoWindowPosChanging((WINDOWPOS *)lParam);
 
-		// If not handled just forward the message on
-		default:
-			return pApplet->DoDefault(hwnd, message, wParam, lParam);
-	}
-	
-	return 0;
+    case WM_ENTERSIZEMOVE:
+      return pApplet->DoEnterSizeMove(hwnd);
+
+    case WM_EXITSIZEMOVE:
+      return pApplet->DoExitSizeMove(hwnd);
+
+    case WM_SIZING:
+      return pApplet->DoSizing(hwnd, (UINT)wParam, (LPRECT)lParam);
+
+    case WM_MOVING:
+      return pApplet->DoMoving(hwnd, (LPRECT)lParam);
+
+    case WM_DISPLAYCHANGE:
+      return pApplet->DoDisplayChange(hwnd);
+
+    case WM_SYSCOMMAND:
+      return pApplet->DoSysCommand(hwnd, message, wParam, lParam);
+
+    case WM_TIMER:
+      return pApplet->DoTimer((UINT_PTR)wParam);
+
+    case WM_DESTROY:
+    case WM_NCDESTROY:
+      // Unregister the specified Emerge Desktop messages
+      PostMessage(ELGetCoreWindow(), EMERGE_UNREGISTER, (WPARAM)hwnd, (LPARAM)EMERGE_CORE);
+
+      PostQuitMessage(0);
+      break;
+
+      // If not handled just forward the message on
+    default:
+      return pApplet->DoDefault(hwnd, message, wParam, lParam);
+    }
+
+  return 0;
 }
 
 Applet::Applet(HINSTANCE hInstance)
-	:BaseApplet(hInstance, myName, true, false)
+  :BaseApplet(hInstance, myName, true, false)
 {
-	mainFont = NULL;
-	displayLang = 0;
+  mainFont = NULL;
+  displayLang = 0;
 }
 
 Applet::~Applet()
 {
-	// stop timer
-	UINT langID = (ULONG_PTR)mainWnd + 100;
-	KillTimer(mainWnd, langID);
+  // stop timer
+  UINT langID = (ULONG_PTR)mainWnd + 100;
+  KillTimer(mainWnd, langID);
 
-	// Unregister the specified Emerge Desktop messages
-	PostMessage(ELGetCoreWindow(), EMERGE_UNREGISTER, (WPARAM)mainWnd, (LPARAM)EMERGE_VWM);
+  // Unregister the specified Emerge Desktop messages
+  PostMessage(ELGetCoreWindow(), EMERGE_UNREGISTER, (WPARAM)mainWnd, (LPARAM)EMERGE_VWM);
 
-	if (mainFont)
-		DeleteObject(mainFont);
+  if (mainFont)
+    DeleteObject(mainFont);
 }
 
 UINT Applet::Initialize()
 {
-	pSettings = std::tr1::shared_ptr<Settings>(new Settings());
-	UINT ret = BaseApplet::Initialize(WindowProcedure, this, pSettings);
-	if (ret == 0)
-		return ret;
+  pSettings = std::tr1::shared_ptr<Settings>(new Settings());
+  UINT ret = BaseApplet::Initialize(WindowProcedure, this, pSettings);
+  if (ret == 0)
+    return ret;
 
-	// Set initial label
-	UpdateLabel(GetLocaleId(0));
+  // Set initial label
+  UpdateLabel(GetLocaleId(0));
 
-	// Set the window transparency
-	UpdateGUI();
+  // Set the window transparency
+  UpdateGUI();
 
-	// setup timer
-	UINT langID = (ULONG_PTR)mainWnd + 100;
-	SetTimer(mainWnd, langID, 1000, NULL);
+  // setup timer
+  UINT langID = (ULONG_PTR)mainWnd + 100;
+  SetTimer(mainWnd, langID, 1000, NULL);
 
-	return ret;
+  return ret;
 }
 
 LRESULT Applet::DoTimer(UINT_PTR timerID)
 {
-	if (timerID == MOUSE_TIMER)
-		return BaseApplet::DoTimer(timerID);
-	else
-		UpdateLanguage();
-	
-	return 1;
+  if (timerID == MOUSE_TIMER)
+    return BaseApplet::DoTimer(timerID);
+  else
+    UpdateLanguage();
+
+  return 1;
 }
 
 LRESULT Applet::PaintContent(HDC hdc, RECT clientrt)
 {
-	CLIENTINFO clientInfo;
-	FORMATINFO formatInfo;
+  CLIENTINFO clientInfo;
+  FORMATINFO formatInfo;
 
-	if (_wcsicmp(pSettings->GetHorizontalDirection(), TEXT("center")) == 0)
-		formatInfo.horizontalAlignment = EGDAT_HCENTER;
-	else if (_wcsicmp(pSettings->GetHorizontalDirection(), TEXT("right")) == 0)
-		formatInfo.horizontalAlignment = EGDAT_RIGHT;
-	else
-		formatInfo.horizontalAlignment = EGDAT_LEFT;
-	if (_wcsicmp(pSettings->GetVerticalDirection(), TEXT("center")) == 0)
-		formatInfo.verticalAlignment = EGDAT_VCENTER;
-	else if (_wcsicmp(pSettings->GetVerticalDirection(), TEXT("bottom")) == 0)
-		formatInfo.verticalAlignment = EGDAT_BOTTOM;
-	else
-		formatInfo.verticalAlignment = EGDAT_TOP;
+  if (_wcsicmp(pSettings->GetHorizontalDirection(), TEXT("center")) == 0)
+    formatInfo.horizontalAlignment = EGDAT_HCENTER;
+  else if (_wcsicmp(pSettings->GetHorizontalDirection(), TEXT("right")) == 0)
+    formatInfo.horizontalAlignment = EGDAT_RIGHT;
+  else
+    formatInfo.horizontalAlignment = EGDAT_LEFT;
+  if (_wcsicmp(pSettings->GetVerticalDirection(), TEXT("center")) == 0)
+    formatInfo.verticalAlignment = EGDAT_VCENTER;
+  else if (_wcsicmp(pSettings->GetVerticalDirection(), TEXT("bottom")) == 0)
+    formatInfo.verticalAlignment = EGDAT_BOTTOM;
+  else
+    formatInfo.verticalAlignment = EGDAT_TOP;
 
-	formatInfo.font = mainFont;
-	formatInfo.color = guiInfo.colorFont;
-	formatInfo.flags = 0;
+  formatInfo.font = mainFont;
+  formatInfo.color = guiInfo.colorFont;
+  formatInfo.flags = 0;
 
-	clientInfo.hdc = hdc;
-	CopyRect(&clientInfo.rt, &clientrt);
-	clientInfo.bgAlpha = guiInfo.alphaBackground;
-	
-	EGDrawAlphaText(guiInfo.alphaText, clientInfo, formatInfo, displayLabel);
+  clientInfo.hdc = hdc;
+  CopyRect(&clientInfo.rt, &clientrt);
+  clientInfo.bgAlpha = guiInfo.alphaBackground;
 
-	return 0;
+  EGDrawAlphaText(guiInfo.alphaText, clientInfo, formatInfo, displayLabel);
+
+  return 0;
 }
 
 void Applet::ShowConfig()
 {
-	Config config(mainInst, mainWnd, appletName, pSettings);
-	if (config.Show() == IDOK)
-	{
-		displayLang = 0;
-		UpdateLanguage();
-		UpdateGUI();
-	}
+  Config config(mainInst, mainWnd, appletName, pSettings);
+  if (config.Show() == IDOK)
+    {
+      displayLang = 0;
+      UpdateLanguage();
+      UpdateGUI();
+    }
 }
 
 void Applet::AppletUpdate()
 {
-	if (mainFont != NULL)
-		DeleteObject(mainFont);
+  if (mainFont != NULL)
+    DeleteObject(mainFont);
 
-	mainFont = CreateFontIndirect(pSettings->GetFont());
+  mainFont = CreateFontIndirect(pSettings->GetFont());
 }
 
 DWORD Applet::GetCurrentActiveThread()
 {
-	HWND hwnd = GetForegroundWindow();
-	DWORD threadId = GetWindowThreadProcessId(hwnd, NULL);
+  HWND hwnd = GetForegroundWindow();
+  DWORD threadId = GetWindowThreadProcessId(hwnd, NULL);
 
-	// Get GUI thread information
-	GUITHREADINFO gui;
-	ZeroMemory(&gui, sizeof(GUITHREADINFO));
-	gui.cbSize = sizeof(GUITHREADINFO);
-	GetGUIThreadInfo(threadId, &gui);
+  // Get GUI thread information
+  GUITHREADINFO gui;
+  ZeroMemory(&gui, sizeof(GUITHREADINFO));
+  gui.cbSize = sizeof(GUITHREADINFO);
+  GetGUIThreadInfo(threadId, &gui);
 
-	// Get the most interesting hwnd of an application
-	HWND active = (gui.hwndCaret != NULL) ? gui.hwndCaret :
-		(gui.hwndFocus != NULL) ? gui.hwndFocus : 
-		(gui.hwndActive != NULL) ? gui.hwndActive : hwnd;
+  // Get the most interesting hwnd of an application
+  HWND active = (gui.hwndCaret != NULL) ? gui.hwndCaret :
+                (gui.hwndFocus != NULL) ? gui.hwndFocus :
+                (gui.hwndActive != NULL) ? gui.hwndActive : hwnd;
 
-	return (active != hwnd) ? GetWindowThreadProcessId(active, NULL) : threadId;
+  return (active != hwnd) ? GetWindowThreadProcessId(active, NULL) : threadId;
 }
 
 LCID Applet::GetLocaleId(DWORD threadId)
 {
-	HKL hkl = GetKeyboardLayout(threadId);
-	DWORD lgid = LOWORD(hkl);
+  HKL hkl = GetKeyboardLayout(threadId);
+  DWORD lgid = LOWORD(hkl);
 
-	return MAKELCID(lgid, SORT_DEFAULT);
+  return MAKELCID(lgid, SORT_DEFAULT);
 }
 
 void Applet::UpdateLanguage()
 {
-	// 1. get main thread ID of currently active application
-	// 2. get language of this thread
-	// 3. compare to currently displayed language
-	// 4. if not the same: update language, tooltip and initiate redraw
-	DWORD threadId = GetCurrentActiveThread();
-	LCID currentLang = GetLocaleId(threadId);
-	if (currentLang != displayLang)
-	{
-		displayLang = currentLang;
-		UpdateLabel(displayLang);
-		UpdateTooltip(displayLang);
-		// UpdateGUI();
-		DrawAlphaBlend();
-	}
+  // 1. get main thread ID of currently active application
+  // 2. get language of this thread
+  // 3. compare to currently displayed language
+  // 4. if not the same: update language, tooltip and initiate redraw
+  DWORD threadId = GetCurrentActiveThread();
+  LCID currentLang = GetLocaleId(threadId);
+  if (currentLang != displayLang)
+    {
+      displayLang = currentLang;
+      UpdateLabel(displayLang);
+      UpdateTooltip(displayLang);
+      // UpdateGUI();
+      DrawAlphaBlend();
+    }
 }
 
 void Applet::UpdateLabel(LCID lang)
 {
-	// update language label
-	WCHAR label[MAX_LABEL];
-	GetLocaleInfo(lang, pSettings->GetDisplayLCType(), (LPWSTR)&label, MAX_LABEL);
-	if (pSettings->IsUpperCase())
-	{
-		CharUpper((LPWSTR)&label);
-	}
-	else
-	{
-		CharLower((LPWSTR)&label);
-	}
+  // update language label
+  WCHAR label[MAX_LABEL];
+  GetLocaleInfo(lang, pSettings->GetDisplayLCType(), (LPWSTR)&label, MAX_LABEL);
+  if (pSettings->IsUpperCase())
+    {
+      CharUpper((LPWSTR)&label);
+    }
+  else
+    {
+      CharLower((LPWSTR)&label);
+    }
 
-	wcscpy_s(displayLabel, MAX_LABEL, label);
+  wcscpy_s(displayLabel, MAX_LABEL, label);
 }
 
 void Applet::UpdateTooltip(LCID lang)
 {
-	// update tooltip
-	WCHAR tooltip[MAX_LABEL];
-	GetLocaleInfo(lang, LOCALE_SLANGUAGE, (LPWSTR)&tooltip, MAX_LABEL);
+  // update tooltip
+  WCHAR tooltip[MAX_LABEL];
+  GetLocaleInfo(lang, LOCALE_SLANGUAGE, (LPWSTR)&tooltip, MAX_LABEL);
 
-	TOOLINFO ti;
-	ZeroMemory(&ti, sizeof(TOOLINFO));
-	RECT rect;
-	bool exists;
+  TOOLINFO ti;
+  ZeroMemory(&ti, sizeof(TOOLINFO));
+  RECT rect;
+  bool exists;
 
-	GetClientRect(mainWnd, &rect);
+  GetClientRect(mainWnd, &rect);
 
-	// fill in the TOOLINFO structure
-	ti.cbSize = TTTOOLINFOW_V2_SIZE;
-	ti.uFlags = TTF_SUBCLASS;
-	ti.hwnd = mainWnd;
-	ti.uId = (ULONG_PTR)toolWnd;
+  // fill in the TOOLINFO structure
+  ti.cbSize = TTTOOLINFOW_V2_SIZE;
+  ti.uFlags = TTF_SUBCLASS;
+  ti.hwnd = mainWnd;
+  ti.uId = (ULONG_PTR)toolWnd;
 
-	// Check to see if the tooltip exists
-	exists = SendMessage(toolWnd, TTM_GETTOOLINFO, 0,(LPARAM) (LPTOOLINFO) &ti) ? true : false;
+  // Check to see if the tooltip exists
+  exists = SendMessage(toolWnd, TTM_GETTOOLINFO, 0,(LPARAM) (LPTOOLINFO) &ti) ? true : false;
 
-	//  complete the rest of the TOOLINFO structure
-	ti.hinst = mainInst;
-	ti.lpszText = tooltip;
-	ti.rect = rect;
+  //  complete the rest of the TOOLINFO structure
+  ti.hinst = mainInst;
+  ti.lpszText = tooltip;
+  ti.rect = rect;
 
-	// If it exists, modify the tooltip, if not add it
-	if (exists)
-		SendMessage(toolWnd, TTM_SETTOOLINFO, 0, (LPARAM)(LPTOOLINFO)&ti);
-	else
-		SendMessage(toolWnd, TTM_ADDTOOL, 0, (LPARAM)(LPTOOLINFO)&ti);
+  // If it exists, modify the tooltip, if not add it
+  if (exists)
+    SendMessage(toolWnd, TTM_SETTOOLINFO, 0, (LPARAM)(LPTOOLINFO)&ti);
+  else
+    SendMessage(toolWnd, TTM_ADDTOOL, 0, (LPARAM)(LPTOOLINFO)&ti);
 }

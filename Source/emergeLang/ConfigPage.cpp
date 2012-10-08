@@ -22,35 +22,35 @@
 
 INT_PTR CALLBACK ConfigPage::ConfigPageDlgProc(HWND hwndDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	static ConfigPage *pConfigPage = NULL;
-	PROPSHEETPAGE *psp;
+  static ConfigPage *pConfigPage = NULL;
+  PROPSHEETPAGE *psp;
 
-	switch (message)
-	{
-	case WM_INITDIALOG:
-		psp = (PROPSHEETPAGE*)lParam;
-		pConfigPage = reinterpret_cast<ConfigPage*>(psp->lParam);
-		if (!pConfigPage)
-			break;
-		return pConfigPage->DoInitPage(hwndDlg);
-	
-	case WM_COMMAND:
-		if (!pConfigPage)
-			break;
-		return pConfigPage->DoCommand(hwndDlg, wParam, lParam);
+  switch (message)
+    {
+    case WM_INITDIALOG:
+      psp = (PROPSHEETPAGE*)lParam;
+      pConfigPage = reinterpret_cast<ConfigPage*>(psp->lParam);
+      if (!pConfigPage)
+        break;
+      return pConfigPage->DoInitPage(hwndDlg);
 
-	case WM_NOTIFY:
-		if (!pConfigPage)
-			break;
-		return pConfigPage->DoNotify(hwndDlg, lParam);
-	}
+    case WM_COMMAND:
+      if (!pConfigPage)
+        break;
+      return pConfigPage->DoCommand(hwndDlg, wParam, lParam);
 
-	return FALSE;
+    case WM_NOTIFY:
+      if (!pConfigPage)
+        break;
+      return pConfigPage->DoNotify(hwndDlg, lParam);
+    }
+
+  return FALSE;
 }
 
 ConfigPage::ConfigPage(std::tr1::shared_ptr<Settings> pSettings)
 {
-	this->pSettings = pSettings;
+  this->pSettings = pSettings;
 }
 
 ConfigPage::~ConfigPage()
@@ -59,146 +59,146 @@ ConfigPage::~ConfigPage()
 
 INT_PTR ConfigPage::DoInitPage(HWND hwndDlg)
 {
-	HWND clickThroughWnd = GetDlgItem(hwndDlg, IDC_CLICKTHROUGHMETHOD);
+  HWND clickThroughWnd = GetDlgItem(hwndDlg, IDC_CLICKTHROUGHMETHOD);
 
-	if (pSettings->GetSnapMove())
-		SendDlgItemMessage(hwndDlg, IDC_SNAPMOVE, BM_SETCHECK, BST_CHECKED, 0);
+  if (pSettings->GetSnapMove())
+    SendDlgItemMessage(hwndDlg, IDC_SNAPMOVE, BM_SETCHECK, BST_CHECKED, 0);
 
-	if (pSettings->GetSnapSize())
-		SendDlgItemMessage(hwndDlg, IDC_SNAPSIZE, BM_SETCHECK, BST_CHECKED, 0);
+  if (pSettings->GetSnapSize())
+    SendDlgItemMessage(hwndDlg, IDC_SNAPSIZE, BM_SETCHECK, BST_CHECKED, 0);
 
-	if (pSettings->GetClickThrough())
-		SendDlgItemMessage(hwndDlg, IDC_CLICKTHROUGH, BM_SETCHECK, BST_CHECKED, 0);
+  if (pSettings->GetClickThrough())
+    SendDlgItemMessage(hwndDlg, IDC_CLICKTHROUGH, BM_SETCHECK, BST_CHECKED, 0);
 
-	CopyMemory(&newFont, pSettings->GetFont(), sizeof(LOGFONT));
-	if (buttonFont)
-		DeleteObject(buttonFont);
-	buttonFont = CreateFontIndirect(&newFont);
-	SendDlgItemMessage(hwndDlg, IDC_FONTBUTTON, WM_SETFONT, (WPARAM)buttonFont, (LPARAM)TRUE);
-	SetDlgItemText(hwndDlg, IDC_FONTBUTTON, newFont.lfFaceName);
+  CopyMemory(&newFont, pSettings->GetFont(), sizeof(LOGFONT));
+  if (buttonFont)
+    DeleteObject(buttonFont);
+  buttonFont = CreateFontIndirect(&newFont);
+  SendDlgItemMessage(hwndDlg, IDC_FONTBUTTON, WM_SETFONT, (WPARAM)buttonFont, (LPARAM)TRUE);
+  SetDlgItemText(hwndDlg, IDC_FONTBUTTON, newFont.lfFaceName);
 
-	SendDlgItemMessage(hwndDlg, IDC_CLICKTHROUGHMETHOD, CB_ADDSTRING, 0, (LPARAM)TEXT("Full"));
-	SendDlgItemMessage(hwndDlg, IDC_CLICKTHROUGHMETHOD, CB_ADDSTRING, 0, (LPARAM)TEXT("Background"));
+  SendDlgItemMessage(hwndDlg, IDC_CLICKTHROUGHMETHOD, CB_ADDSTRING, 0, (LPARAM)TEXT("Full"));
+  SendDlgItemMessage(hwndDlg, IDC_CLICKTHROUGHMETHOD, CB_ADDSTRING, 0, (LPARAM)TEXT("Background"));
 
-	if (pSettings->GetClickThrough() == 0)
-		EnableWindow(clickThroughWnd, false);
+  if (pSettings->GetClickThrough() == 0)
+    EnableWindow(clickThroughWnd, false);
 
-	if (pSettings->GetClickThrough() == 1)
-		SendDlgItemMessage(hwndDlg, IDC_CLICKTHROUGHMETHOD, CB_SETCURSEL, (WPARAM)0, 0);
-	else
-		SendDlgItemMessage(hwndDlg, IDC_CLICKTHROUGHMETHOD, CB_SETCURSEL, (WPARAM)1, 0);
+  if (pSettings->GetClickThrough() == 1)
+    SendDlgItemMessage(hwndDlg, IDC_CLICKTHROUGHMETHOD, CB_SETCURSEL, (WPARAM)0, 0);
+  else
+    SendDlgItemMessage(hwndDlg, IDC_CLICKTHROUGHMETHOD, CB_SETCURSEL, (WPARAM)1, 0);
 
-	SendDlgItemMessage(hwndDlg, IDC_DISPLAYTYPE, CB_ADDSTRING, 0, (LPARAM)TEXT("Language Code (ISO639-2)"));
-	SendDlgItemMessage(hwndDlg, IDC_DISPLAYTYPE, CB_ADDSTRING, 0, (LPARAM)TEXT("Language Abbreviation"));
-	SendDlgItemMessage(hwndDlg, IDC_DISPLAYTYPE, CB_ADDSTRING, 0, (LPARAM)TEXT("Country Code (ISO3166)"));
-	SendDlgItemMessage(hwndDlg, IDC_DISPLAYTYPE, CB_SETCURSEL, (WPARAM)pSettings->GetDisplayType(), 0);
+  SendDlgItemMessage(hwndDlg, IDC_DISPLAYTYPE, CB_ADDSTRING, 0, (LPARAM)TEXT("Language Code (ISO639-2)"));
+  SendDlgItemMessage(hwndDlg, IDC_DISPLAYTYPE, CB_ADDSTRING, 0, (LPARAM)TEXT("Language Abbreviation"));
+  SendDlgItemMessage(hwndDlg, IDC_DISPLAYTYPE, CB_ADDSTRING, 0, (LPARAM)TEXT("Country Code (ISO3166)"));
+  SendDlgItemMessage(hwndDlg, IDC_DISPLAYTYPE, CB_SETCURSEL, (WPARAM)pSettings->GetDisplayType(), 0);
 
-	if (pSettings->IsUpperCase())
-		SendDlgItemMessage(hwndDlg, IDC_UPPERCASE, BM_SETCHECK, BST_CHECKED, 0);
+  if (pSettings->IsUpperCase())
+    SendDlgItemMessage(hwndDlg, IDC_UPPERCASE, BM_SETCHECK, BST_CHECKED, 0);
 
-	return 1;
+  return 1;
 }
 
 INT_PTR ConfigPage::DoNotify(HWND hwndDlg, LPARAM lParam)
 {
-	NMHDR *phdr = (NMHDR*)lParam;
-	switch (phdr->code)
-	{
-	case PSN_APPLY:
-		if (UpdateSettings(hwndDlg))
-			SetWindowLongPtr(hwndDlg, DWLP_MSGRESULT, PSNRET_NOERROR);
-		else
-			SetWindowLongPtr(hwndDlg, DWLP_MSGRESULT, PSNRET_INVALID);
-		return 1;
+  NMHDR *phdr = (NMHDR*)lParam;
+  switch (phdr->code)
+    {
+    case PSN_APPLY:
+      if (UpdateSettings(hwndDlg))
+        SetWindowLongPtr(hwndDlg, DWLP_MSGRESULT, PSNRET_NOERROR);
+      else
+        SetWindowLongPtr(hwndDlg, DWLP_MSGRESULT, PSNRET_INVALID);
+      return 1;
 
-	case PSN_SETACTIVE:
-		SetWindowLongPtr(hwndDlg, DWLP_MSGRESULT, 0);
-		return 1;
+    case PSN_SETACTIVE:
+      SetWindowLongPtr(hwndDlg, DWLP_MSGRESULT, 0);
+      return 1;
 
-	case PSN_KILLACTIVE:
-		SetWindowLongPtr(hwndDlg, DWLP_MSGRESULT, FALSE);
-		return 1;
-	}
+    case PSN_KILLACTIVE:
+      SetWindowLongPtr(hwndDlg, DWLP_MSGRESULT, FALSE);
+      return 1;
+    }
 
-	return 0;
+  return 0;
 }
 
 INT_PTR ConfigPage::DoCommand(HWND hwndDlg, WPARAM wParam, LPARAM lParam UNUSED)
 {
-	HWND clickThroughWnd = GetDlgItem(hwndDlg, IDC_CLICKTHROUGHMETHOD);
+  HWND clickThroughWnd = GetDlgItem(hwndDlg, IDC_CLICKTHROUGHMETHOD);
 
-	switch (LOWORD(wParam))
-	{
+  switch (LOWORD(wParam))
+    {
     case IDC_FONTBUTTON:
-		if (DoFontChooser(hwndDlg))
-		{
-			if (buttonFont)
-				DeleteObject(buttonFont);
-			buttonFont = CreateFontIndirect(&newFont);
-			SendDlgItemMessage(hwndDlg, IDC_FONTBUTTON, WM_SETFONT, (WPARAM)buttonFont, (LPARAM)TRUE);
-			SetDlgItemText(hwndDlg, IDC_FONTBUTTON, newFont.lfFaceName);
-			
-			return TRUE;
+      if (DoFontChooser(hwndDlg))
+        {
+          if (buttonFont)
+            DeleteObject(buttonFont);
+          buttonFont = CreateFontIndirect(&newFont);
+          SendDlgItemMessage(hwndDlg, IDC_FONTBUTTON, WM_SETFONT, (WPARAM)buttonFont, (LPARAM)TRUE);
+          SetDlgItemText(hwndDlg, IDC_FONTBUTTON, newFont.lfFaceName);
+
+          return TRUE;
         }
-		
-		return FALSE;
 
-	case IDC_CLICKTHROUGH:
-		if (SendDlgItemMessage(hwndDlg, IDC_CLICKTHROUGH, BM_GETCHECK, 0, 0) == BST_CHECKED)
-			EnableWindow(clickThroughWnd, true);
-		else if (SendDlgItemMessage(hwndDlg, IDC_CLICKTHROUGH, BM_GETCHECK, 0, 0) == BST_UNCHECKED)
-			EnableWindow(clickThroughWnd, false);
-		return TRUE;
-	}
+      return FALSE;
 
-	return FALSE;
+    case IDC_CLICKTHROUGH:
+      if (SendDlgItemMessage(hwndDlg, IDC_CLICKTHROUGH, BM_GETCHECK, 0, 0) == BST_CHECKED)
+        EnableWindow(clickThroughWnd, true);
+      else if (SendDlgItemMessage(hwndDlg, IDC_CLICKTHROUGH, BM_GETCHECK, 0, 0) == BST_UNCHECKED)
+        EnableWindow(clickThroughWnd, false);
+      return TRUE;
+    }
+
+  return FALSE;
 }
 
 bool ConfigPage::UpdateSettings(HWND hwndDlg)
 {
-	if (SendDlgItemMessage(hwndDlg, IDC_SNAPMOVE, BM_GETCHECK, 0, 0) == BST_CHECKED)
-		pSettings->SetSnapMove(true);
-	else if (SendDlgItemMessage(hwndDlg, IDC_SNAPMOVE, BM_GETCHECK, 0, 0) == BST_UNCHECKED)
-		pSettings->SetSnapMove(false);
+  if (SendDlgItemMessage(hwndDlg, IDC_SNAPMOVE, BM_GETCHECK, 0, 0) == BST_CHECKED)
+    pSettings->SetSnapMove(true);
+  else if (SendDlgItemMessage(hwndDlg, IDC_SNAPMOVE, BM_GETCHECK, 0, 0) == BST_UNCHECKED)
+    pSettings->SetSnapMove(false);
 
-	if (SendDlgItemMessage(hwndDlg, IDC_SNAPSIZE, BM_GETCHECK, 0, 0) == BST_CHECKED)
-		pSettings->SetSnapSize(true);
-	else if (SendDlgItemMessage(hwndDlg, IDC_SNAPSIZE, BM_GETCHECK, 0, 0) == BST_UNCHECKED)
-		pSettings->SetSnapSize(false);
+  if (SendDlgItemMessage(hwndDlg, IDC_SNAPSIZE, BM_GETCHECK, 0, 0) == BST_CHECKED)
+    pSettings->SetSnapSize(true);
+  else if (SendDlgItemMessage(hwndDlg, IDC_SNAPSIZE, BM_GETCHECK, 0, 0) == BST_UNCHECKED)
+    pSettings->SetSnapSize(false);
 
-	if (SendDlgItemMessage(hwndDlg, IDC_CLICKTHROUGH, BM_GETCHECK, 0, 0) == BST_CHECKED)
-	{
-		int index = (int)SendDlgItemMessage(hwndDlg, IDC_CLICKTHROUGHMETHOD, CB_GETCURSEL, 0, 0);
-		index++;
-		pSettings->SetClickThrough(index);
-	}
-	else if (SendDlgItemMessage(hwndDlg, IDC_CLICKTHROUGH, BM_GETCHECK, 0, 0) == BST_UNCHECKED)
-		pSettings->SetClickThrough(0);
+  if (SendDlgItemMessage(hwndDlg, IDC_CLICKTHROUGH, BM_GETCHECK, 0, 0) == BST_CHECKED)
+    {
+      int index = (int)SendDlgItemMessage(hwndDlg, IDC_CLICKTHROUGHMETHOD, CB_GETCURSEL, 0, 0);
+      index++;
+      pSettings->SetClickThrough(index);
+    }
+  else if (SendDlgItemMessage(hwndDlg, IDC_CLICKTHROUGH, BM_GETCHECK, 0, 0) == BST_UNCHECKED)
+    pSettings->SetClickThrough(0);
 
-	pSettings->SetFont(&newFont);
+  pSettings->SetFont(&newFont);
 
-	int type = (int)SendDlgItemMessage(hwndDlg, IDC_DISPLAYTYPE, CB_GETCURSEL, 0, 0);
-	pSettings->SetDisplayType(type);
+  int type = (int)SendDlgItemMessage(hwndDlg, IDC_DISPLAYTYPE, CB_GETCURSEL, 0, 0);
+  pSettings->SetDisplayType(type);
 
-	if (SendDlgItemMessage(hwndDlg, IDC_UPPERCASE, BM_GETCHECK, 0, 0) == BST_CHECKED)
-		pSettings->SetUpperCase(true);
-	else if (SendDlgItemMessage(hwndDlg, IDC_UPPERCASE, BM_GETCHECK, 0, 0) == BST_UNCHECKED)
-		pSettings->SetUpperCase(false);
+  if (SendDlgItemMessage(hwndDlg, IDC_UPPERCASE, BM_GETCHECK, 0, 0) == BST_CHECKED)
+    pSettings->SetUpperCase(true);
+  else if (SendDlgItemMessage(hwndDlg, IDC_UPPERCASE, BM_GETCHECK, 0, 0) == BST_UNCHECKED)
+    pSettings->SetUpperCase(false);
 
-	pSettings->WriteSettings();
+  pSettings->WriteSettings();
 
-	return true;
+  return true;
 }
 
 bool ConfigPage::DoFontChooser(HWND hwndDlg)
 {
-	CHOOSEFONT chooseFont;
-	
-	ZeroMemory(&chooseFont, sizeof(CHOOSEFONT));
-	chooseFont.lStructSize = sizeof(CHOOSEFONT);
-	chooseFont.hwndOwner = hwndDlg;
-	chooseFont.Flags = CF_SCREENFONTS | CF_INITTOLOGFONTSTRUCT | CF_NOSCRIPTSEL;
-	chooseFont.lpLogFont = &newFont;
-	
-	return (ChooseFont(&chooseFont) == TRUE);
+  CHOOSEFONT chooseFont;
+
+  ZeroMemory(&chooseFont, sizeof(CHOOSEFONT));
+  chooseFont.lStructSize = sizeof(CHOOSEFONT);
+  chooseFont.hwndOwner = hwndDlg;
+  chooseFont.Flags = CF_SCREENFONTS | CF_INITTOLOGFONTSTRUCT | CF_NOSCRIPTSEL;
+  chooseFont.lpLogFont = &newFont;
+
+  return (ChooseFont(&chooseFont) == TRUE);
 }

@@ -22,96 +22,96 @@
 #include <stdio.h>
 
 Settings::Settings()
-	:BaseSettings(false)
+  :BaseSettings(false)
 {
 }
 
 void Settings::DoReadSettings(IOHelper& helper)
 {
-	BaseSettings::DoReadSettings(helper);
-	helper.ReadString(TEXT("Font"), fontString, TEXT("Tahoma-12"));
-	helper.ReadInt(TEXT("DisplayType"), displayType, 0);
-	helper.ReadBool(TEXT("UpperCase"), upperCase, true);
+  BaseSettings::DoReadSettings(helper);
+  helper.ReadString(TEXT("Font"), fontString, TEXT("Tahoma-12"));
+  helper.ReadInt(TEXT("DisplayType"), displayType, 0);
+  helper.ReadBool(TEXT("UpperCase"), upperCase, true);
 }
 
 void Settings::DoWriteSettings(IOHelper& helper)
 {
-	BaseSettings::DoWriteSettings(helper);
-	EGFontToString(logFont, fontString);
-	helper.WriteString(TEXT("Font"), fontString);
-	helper.WriteInt(TEXT("DisplayType"), displayType);
-	helper.WriteBool(TEXT("UpperCase"), upperCase);
+  BaseSettings::DoWriteSettings(helper);
+  EGFontToString(logFont, fontString);
+  helper.WriteString(TEXT("Font"), fontString);
+  helper.WriteInt(TEXT("DisplayType"), displayType);
+  helper.WriteBool(TEXT("UpperCase"), upperCase);
 }
 
 void Settings::DoInitialize()
 {
-	BaseSettings::DoInitialize();
-	EGStringToFont(fontString, logFont);
+  BaseSettings::DoInitialize();
+  EGStringToFont(fontString, logFont);
 }
 
 void Settings::ResetDefaults()
 {
-	BaseSettings::ResetDefaults();
-	wcscpy(fontString, (WCHAR*)TEXT("Tahoma-12"));
-	displayType = 0;
+  BaseSettings::ResetDefaults();
+  wcscpy(fontString, (WCHAR*)TEXT("Tahoma-12"));
+  displayType = 0;
 }
 
 void Settings::SetFont(LOGFONT *logFont)
 {
-	WCHAR tmp[MAX_LINE_LENGTH];
-	EGFontToString(*logFont, tmp);
-	if (!EGEqualLogFont(this->logFont, *logFont))
-	{
-		wcscpy(fontString, tmp);
-		CopyMemory(&this->logFont, logFont, sizeof(LOGFONT));
-		SetModified();
-	}
+  WCHAR tmp[MAX_LINE_LENGTH];
+  EGFontToString(*logFont, tmp);
+  if (!EGEqualLogFont(this->logFont, *logFont))
+    {
+      wcscpy(fontString, tmp);
+      CopyMemory(&this->logFont, logFont, sizeof(LOGFONT));
+      SetModified();
+    }
 }
 
 LOGFONT *Settings::GetFont()
 {
-	return &logFont;
+  return &logFont;
 }
 
 LCTYPE Settings::GetDisplayLCType()
 {
-	switch(displayType)
-	{
-	case 0:
-		return LOCALE_SISO639LANGNAME;
-	case 1:
-		return LOCALE_SABBREVLANGNAME;
-	case 2:
-		return LOCALE_SISO3166CTRYNAME;
-	default:
-		return LOCALE_SISO639LANGNAME;
-	}
+  switch(displayType)
+    {
+    case 0:
+      return LOCALE_SISO639LANGNAME;
+    case 1:
+      return LOCALE_SABBREVLANGNAME;
+    case 2:
+      return LOCALE_SISO3166CTRYNAME;
+    default:
+      return LOCALE_SISO639LANGNAME;
+    }
 }
 
 int Settings::GetDisplayType()
 {
-	return displayType;
+  return displayType;
 }
 
 void Settings::SetDisplayType(int value)
 {
-	if (displayType != value)
-	{
-		displayType = value;
-		SetModified();
-	}
+  if (displayType != value)
+    {
+      displayType = value;
+      SetModified();
+    }
 }
 
 bool Settings::IsUpperCase()
 {
-	return upperCase;
+  return upperCase;
 }
 
 void Settings::SetUpperCase(bool value)
 {
-	if (upperCase != value)
-	{
-		upperCase = value;
-		SetModified();
-	}
+  if (upperCase != value)
+    {
+      upperCase = value;
+      SetModified();
+    }
 }

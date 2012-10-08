@@ -31,27 +31,27 @@
 // 		windows
 //-----
 int WINAPI WinMain(HINSTANCE hInstance,
-				   HINSTANCE hPrevInstance UNUSED,
-				   LPSTR lpCmdLine UNUSED,
-				   int nCmdShow UNUSED)
+                   HINSTANCE hPrevInstance UNUSED,
+                   LPSTR lpCmdLine UNUSED,
+                   int nCmdShow UNUSED)
 {
-	MSG messages;
+  MSG messages;
 
-	// Initialize the main Applet class
-	Applet applet(hInstance);
+  // Initialize the main Applet class
+  Applet applet(hInstance);
 
-	if (!applet.Initialize())
-		return 1;
+  if (!applet.Initialize())
+    return 1;
 
-	// Run the message loop. It will run until GetMessage() returns 0
-	while (GetMessage(&messages, NULL, 0, 0))
-	{
-		// Translate virtual-key messages into character messages
-		TranslateMessage(&messages);
-		// Send message to WindowProcedure
-		DispatchMessage(&messages);
-	}
+  // Run the message loop. It will run until GetMessage() returns 0
+  while (GetMessage(&messages, NULL, 0, 0))
+    {
+      // Translate virtual-key messages into character messages
+      TranslateMessage(&messages);
+      // Send message to WindowProcedure
+      DispatchMessage(&messages);
+    }
 
-	// The program return-value is 0 - The value that PostQuitMessage() gave
-	return (int)messages.wParam;
+  // The program return-value is 0 - The value that PostQuitMessage() gave
+  return (int)messages.wParam;
 }
