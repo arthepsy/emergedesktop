@@ -281,7 +281,7 @@ void Applet::UpdateLabel(LCID lang)
       CharLower((LPWSTR)&label);
     }
 
-  wcscpy_s(displayLabel, MAX_LABEL, label);
+  wcsncpy(displayLabel, label, MAX_LABEL);
 }
 
 void Applet::UpdateTooltip(LCID lang)
