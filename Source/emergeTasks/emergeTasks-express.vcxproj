@@ -142,6 +142,8 @@
     <ClInclude Include="resource.h" />
     <ClInclude Include="Settings.h" />
     <ClInclude Include="Task.h" />
+    <ClInclude Include="Thumbnail.h" />
+    <ClInclude Include="ThumbnailPage.h" />
   </ItemGroup>
   <ItemGroup>
     <Manifest Include="emergeTasks.exe.manifest" />
@@ -156,6 +158,8 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Settings.cpp" />
     <ClCompile Include="Task.cpp" />
+    <ClCompile Include="Thumbnail.cpp" />
+    <ClCompile Include="ThumbnailPage.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\emergeAppletEngine\emergeAppletEngine-express.vcxproj">
