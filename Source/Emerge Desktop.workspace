@@ -33,6 +33,12 @@
 			<Depends filename="emergeLib/emergeLib.cbp" />
 		</Project>
 		<Project filename="emergeIcons/emergeIcons.cbp" />
+		<Project filename="emergeLang/emergeLang.cbp">
+			<Depends filename="emergeBaseClasses/emergeBaseClasses.cbp" />
+			<Depends filename="emergeGraphics/emergeGraphics.cbp" />
+			<Depends filename="emergeLib/emergeLib.cbp" />
+			<Depends filename="emergeStyleEngine/emergeStyleEngine.cbp" />
+		</Project>
 		<Project filename="emergeLauncher/emergeLauncher.cbp">
 			<Depends filename="emergeBaseClasses/emergeBaseClasses.cbp" />
 			<Depends filename="emergeGraphics/emergeGraphics.cbp" />
