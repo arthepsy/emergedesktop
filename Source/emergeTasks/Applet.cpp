@@ -176,7 +176,7 @@ LRESULT Applet::DoNotify(HWND hwnd, LPARAM lParam)
       // Traverse the valid icon vector to see if the mouse is in the bounding rectangle
       // of the current icon
       iter = taskList.begin();
-      while (iter < taskList.end())
+      while (iter != taskList.end())
         {
           if (PtInRect((*iter)->GetRect(), pt))
             {
@@ -193,7 +193,7 @@ LRESULT Applet::DoNotify(HWND hwnd, LPARAM lParam)
               return 0;
             }
 
-          iter++;
+          ++iter;
         }
 
       lpttt->lpszText = (WCHAR*)TEXT("\0");
@@ -217,8 +217,7 @@ Applet::~Applet()
 
   // Cleanup the icon vectors
   EnterCriticalSection(&vectorLock);
-  while (!taskList.empty())
-    taskList.erase(taskList.begin());
+  taskList.clear();
   LeaveCriticalSection(&vectorLock);
 
   DeleteCriticalSection(&vectorLock);
@@ -276,10 +275,10 @@ void Applet::UpdateIcons()
 
   EnterCriticalSection(&vectorLock);
   iter = taskList.begin();
-  while (iter < taskList.end())
+  while (iter != taskList.end())
     {
       (*iter)->UpdateIcon();
-      iter++;
+      ++iter;
     }
   LeaveCriticalSection(&vectorLock);
 }
@@ -292,14 +291,7 @@ bool Applet::IsWindowOnSameMonitor(HWND hwnd)
   if(!pSettings->GetSameMonitorOnly())
     return true;
 
-  if(MonitorFromWindow(GetMainWnd(), MONITOR_DEFAULTTONEAREST) == MonitorFromWindow(hwnd, MONITOR_DEFAULTTONEAREST))
-    {
-      return true;
-    }
-  else
-    {
-      return false;
-    }
+  return (MonitorFromWindow(GetMainWnd(), MONITOR_DEFAULTTONEAREST) == MonitorFromWindow(hwnd, MONITOR_DEFAULTTONEAREST));
 }
 
 //----  --------------------------------------------------------------------------------------------------------
@@ -404,7 +396,7 @@ LRESULT Applet::ModifyTaskByThread(DWORD threadID)
           // ...and break
           break;
         }
-      iter++;
+      ++iter;
     }
   LeaveCriticalSection(&mapLock);
 
@@ -492,7 +484,7 @@ bool Applet::CleanTasks()
   UINT SWPFlags = SWP_NOZORDER | SWP_NOACTIVATE;
 
   // Go through each of the elements in the trayIcons array
-  while (iter < taskList.end())
+  while (iter != taskList.end())
     {
       //ROBLARKY - 2012-08-11 -	Added check to see if window is on same monitor, prevent self (or possibly other/base instance?) from getting icon, and making sure window not minimized
       //						This was added to support multiple instances of emergeTasks running on different monitors, so only the tasks on the
@@ -502,11 +494,9 @@ bool Applet::CleanTasks()
       if (!IsWindow((*iter)->GetWnd()))
         {
           refresh = true;
-          EnterCriticalSection(&vectorLock);
-          taskList.erase(iter);
-          // Restart from the begining of the taskList so that iter is in a
-          // known state.
-          iter = taskList.begin();
+          EnterCriticalSection(&vectorLock);          
+          // delete and continue with next element in list, returned by erase
+          iter = taskList.erase(iter);
           LeaveCriticalSection(&vectorLock);
 
           continue;
@@ -577,7 +567,7 @@ LRESULT Applet::TaskMouseEvent(UINT message, LPARAM lParam)
   // Traverse the valid icon vector to see if the mouse is in the bounding rectangle
   // of the current icon
   iter = taskList.begin();
-  while (iter < taskList.end())
+  while (iter != taskList.end())
     {
       if (PtInRect((*iter)->GetRect(), pt))
         {
@@ -670,7 +660,7 @@ LRESULT Applet::TaskMouseEvent(UINT message, LPARAM lParam)
 
           return 0;
         }
-      iter++;
+      ++iter;
     }
 
   if (message == WM_LBUTTONDBLCLK)
@@ -781,11 +771,11 @@ TaskVector::iterator Applet::FindTask(HWND hwnd)
   // Go through each of the elements in the trayIcons array
   EnterCriticalSection(&vectorLock);
   iter = taskList.begin();
-  while (iter < taskList.end())
+  while (iter != taskList.end())
     {
       if ((*iter)->GetWnd() == hwnd)
         break;
-      iter++;
+      ++iter;
     }
   LeaveCriticalSection(&vectorLock);
 
@@ -898,7 +888,7 @@ void Applet::DoTaskFlash(UINT id)
               return;
             }
         }
-      mapIter++;
+      ++mapIter;
     }
 }
 
@@ -946,7 +936,7 @@ DWORD WINAPI Applet::UpdateThumbnailThreadProc(LPVOID lpParameter)
 
   (*iter)->HideThumbnail();
 
-  delete thumbnailPair;
+  delete thumbnailPair; // is created in TaskMouseEvent
 
   return 0;
 }
@@ -1071,7 +1061,7 @@ void Applet::ResetTaskIcons()
   TaskVector::iterator iter = taskList.begin();
   HICON icon = NULL;
 
-  while (iter < taskList.end())
+  while (iter != taskList.end())
     {
       if (pSettings->GetIconSize() == 32)
         icon = EGGetWindowIcon(mainWnd, (*iter)->GetWnd(), false, false);
@@ -1080,7 +1070,7 @@ void Applet::ResetTaskIcons()
 
       (*iter)->SetIcon(icon, pSettings->GetIconSize());
 
-      iter++;
+      ++iter;
     }
 }
 
@@ -1100,7 +1090,7 @@ void Applet::AppletUpdate()
     }
 
   iter = taskList.begin();
-  while (iter < taskList.end())
+  while (iter != taskList.end())
     {
       if ((*iter)->GetFlash())
         {
@@ -1112,7 +1102,7 @@ void Applet::AppletUpdate()
         }
 
       (*iter)->UpdateIcon();
-      iter++;
+      ++iter;
     }
 }
 
@@ -1133,7 +1123,7 @@ size_t Applet::GetVisibleIconCount()
   TaskVector::iterator iter = taskList.begin();
   size_t iconCount = 0;
 
-  while (iter < taskList.end())
+  while (iter != taskList.end())
     {
       if (!(*iter)->GetHidden())
         ++iconCount;
