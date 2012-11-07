@@ -65,7 +65,7 @@ LRESULT Shell::HideExplorerBar()
 // Returns:	bool - true if entries exist, false otherwise
 // Purpose:	Enumerates and executes the registry key contents
 //----  --------------------------------------------------------------------------------------------------------
-bool Shell::RunRegEntries(HKEY key, bool clearEntry, bool wait UNUSED, bool showStartupErrors)
+bool Shell::RunRegEntries(HKEY key, bool clearEntry, bool showStartupErrors)
 {
   DWORD type, index = 0, valueSize = MAX_LINE_LENGTH, dataSize = MAX_LINE_LENGTH;
   BYTE data[MAX_LINE_LENGTH];
@@ -209,73 +209,179 @@ void Shell::RunRegStartup(bool showStartupErrors)
 {
   HKEY key;
 
-  // Execute the HKLM Run key
-  if (RegOpenKeyEx(HKEY_LOCAL_MACHINE,
-                   TEXT("Software\\Microsoft\\Windows\\CurrentVersion\\Run"),
-                   0,
-                   KEY_READ,
-                   &key) == ERROR_SUCCESS)
+  std::vector<StartKey> keyVector;
+
+  // HKCU startup keys
+  keyVector.push_back(StartKey(HKEY_CURRENT_USER,
+                               L"Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer\\Run",
+                               false));
+  keyVector.push_back(StartKey(HKEY_CURRENT_USER,
+                               L"Software\\Microsoft\\Windows\\CurrentVersion\\Run",
+                               false));
+  keyVector.push_back(StartKey(HKEY_CURRENT_USER,
+                               L"Software\\Microsoft\\Windows\\CurrentVersion\\RunOnce",
+                               true));
+  keyVector.push_back(StartKey(HKEY_CURRENT_USER,
+                               L"Software\\Microsoft\\Windows\\CurrentVersion\\RunServices",
+                               false));
+  keyVector.push_back(StartKey(HKEY_CURRENT_USER,
+                               L"Software\\Microsoft\\Windows\\CurrentVersion\\RunServicesOnce",
+                               true));
+  keyVector.push_back(StartKey(HKEY_CURRENT_USER,
+                               L"Software\\Microsoft\\Windows NT\\CurrentVersion\\Windows",
+                               false));
+
+  // HKCU startup keys (32-bit keys on 64-bit machines)
+  keyVector.push_back(StartKey(HKEY_CURRENT_USER,
+                               L"Software\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer\\Run",
+                               false));
+  keyVector.push_back(StartKey(HKEY_CURRENT_USER,
+                               L"Software\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\Run",
+                               false));
+  keyVector.push_back(StartKey(HKEY_CURRENT_USER,
+                               L"Software\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\RunOnce",
+                               true));
+  keyVector.push_back(StartKey(HKEY_CURRENT_USER,
+                               L"Software\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\RunServices",
+                               false));
+  keyVector.push_back(StartKey(HKEY_CURRENT_USER,
+                               L"Software\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\RunServicesOnce",
+                               true));
+  keyVector.push_back(StartKey(HKEY_CURRENT_USER,
+                               L"Software\\Wow6432Node\\Microsoft\\Windows NT\\CurrentVersion\\Windows",
+                               false));
+
+  // HKLM startup keys
+  keyVector.push_back(StartKey(HKEY_LOCAL_MACHINE,
+                               L"Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer\\Run",
+                               false));
+  keyVector.push_back(StartKey(HKEY_LOCAL_MACHINE,
+                               L"Software\\Microsoft\\Windows\\CurrentVersion\\Run",
+                               false));
+  keyVector.push_back(StartKey(HKEY_LOCAL_MACHINE,
+                               L"Software\\Microsoft\\Windows\\CurrentVersion\\RunOnce",
+                               true));
+  keyVector.push_back(StartKey(HKEY_LOCAL_MACHINE,
+                               L"Software\\Microsoft\\Windows\\CurrentVersion\\RunOnceEx",
+                               true));
+  keyVector.push_back(StartKey(HKEY_LOCAL_MACHINE,
+                               L"Software\\Microsoft\\Windows\\CurrentVersion\\RunServices",
+                               false));
+  keyVector.push_back(StartKey(HKEY_LOCAL_MACHINE,
+                               L"Software\\Microsoft\\Windows\\CurrentVersion\\RunServicesOnce",
+                               true));
+  keyVector.push_back(StartKey(HKEY_LOCAL_MACHINE,
+                               L"Software\\Microsoft\\Windows NT\\CurrentVersion\\Winlogon\\Userinit",
+                               false));
+
+  // HKLM startup keys (32-bit keys on 64-bit machines)
+  keyVector.push_back(StartKey(HKEY_LOCAL_MACHINE,
+                               L"Software\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer\\Run",
+                               false));
+  keyVector.push_back(StartKey(HKEY_LOCAL_MACHINE,
+                               L"Software\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\Run",
+                               false));
+  keyVector.push_back(StartKey(HKEY_LOCAL_MACHINE,
+                               L"Software\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\RunOnce",
+                               true));
+  keyVector.push_back(StartKey(HKEY_LOCAL_MACHINE,
+                               L"Software\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\RunOnceEx",
+                               true));
+  keyVector.push_back(StartKey(HKEY_LOCAL_MACHINE,
+                               L"Software\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\RunServices",
+                               false));
+  keyVector.push_back(StartKey(HKEY_LOCAL_MACHINE,
+                               L"Software\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\RunServicesOnce",
+                               true));
+  keyVector.push_back(StartKey(HKEY_LOCAL_MACHINE,
+                               L"Software\\Wow6432Node\\Microsoft\\Windows NT\\CurrentVersion\\Winlogon\\Userinit",
+                               false));
+
+  // Execute all keys defined in keyVector
+  while (!keyVector.empty())
     {
-      RunRegEntries(key, false, false, showStartupErrors);
-      ELCloseRegKey(key);
+      if (RegOpenKeyEx(keyVector.begin()->key,
+                       keyVector.begin()->subkey.c_str(),
+                       0,
+                       ((keyVector.begin()->clear) ? KEY_ALL_ACCESS : KEY_READ),
+                       &key) == ERROR_SUCCESS)
+        {
+          RunRegEntries(key, keyVector.begin()->clear, showStartupErrors);
+          ELCloseRegKey(key);
+        }
+
+      keyVector.erase(keyVector.begin());
     }
 
+  /*
   // Execute the HKCU Run key
   if (RegOpenKeyEx(HKEY_CURRENT_USER,
-                   TEXT("Software\\Microsoft\\Windows\\CurrentVersion\\Run"),
-                   0,
-                   KEY_READ,
-                   &key) == ERROR_SUCCESS)
-    {
-      RunRegEntries(key, false, false, showStartupErrors);
-      ELCloseRegKey(key);
-    }
-
-  // Execute the HKLM 32-bit Run key if it exists
-  if (RegOpenKeyEx(HKEY_LOCAL_MACHINE,
-                   TEXT("Software\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\Run"),
-                   0,
-                   KEY_READ,
-                   &key) == ERROR_SUCCESS)
-    {
-      RunRegEntries(key, false, false, showStartupErrors);
-      ELCloseRegKey(key);
-    }
-
-  // Execute the HKLM RunOnce key, and remove the entry when
-  // executed
-  if (RegOpenKeyEx(HKEY_LOCAL_MACHINE,
-                   TEXT("Software\\Microsoft\\Windows\\CurrentVersion\\RunOnce"),
-                   0,
-                   KEY_ALL_ACCESS,
-                   &key) == ERROR_SUCCESS)
-    {
-      RunRegEntries(key, true, false, showStartupErrors);
-      ELCloseRegKey(key);
-    }
+  TEXT("Software\\Microsoft\\Windows\\CurrentVersion\\Run"),
+  0,
+  KEY_READ,
+  &key) == ERROR_SUCCESS)
+  {
+  RunRegEntries(key, false, false, showStartupErrors);
+  ELCloseRegKey(key);
+  }
 
   // Execute the HKCU RunOnce key, and remove the entry when
   // executed
   if (RegOpenKeyEx(HKEY_CURRENT_USER,
-                   TEXT("Software\\Microsoft\\Windows\\CurrentVersion\\RunOnce"),
-                   0,
-                   KEY_ALL_ACCESS,
-                   &key) == ERROR_SUCCESS)
-    {
-      RunRegEntries(key, true, false, showStartupErrors);
-      ELCloseRegKey(key);
-    }
+  TEXT("Software\\Microsoft\\Windows\\CurrentVersion\\RunOnce"),
+  0,
+  KEY_ALL_ACCESS,
+  &key) == ERROR_SUCCESS)
+  {
+  RunRegEntries(key, true, false, showStartupErrors);
+  ELCloseRegKey(key);
+  }
+
+  // Execute the HKLM Run key
+  if (RegOpenKeyEx(HKEY_LOCAL_MACHINE,
+  TEXT("Software\\Microsoft\\Windows\\CurrentVersion\\Run"),
+  0,
+  KEY_READ,
+  &key) == ERROR_SUCCESS)
+  {
+  RunRegEntries(key, false, false, showStartupErrors);
+  ELCloseRegKey(key);
+  }
+
+  // Execute the HKLM 32-bit Run key if it exists
+  if (RegOpenKeyEx(HKEY_LOCAL_MACHINE,
+  TEXT("Software\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\Run"),
+  0,
+  KEY_READ,
+  &key) == ERROR_SUCCESS)
+  {
+  RunRegEntries(key, false, false, showStartupErrors);
+  ELCloseRegKey(key);
+  }
+
+  // Execute the HKLM RunOnce key, and remove the entry when
+  // executed
+  if (RegOpenKeyEx(HKEY_LOCAL_MACHINE,
+  TEXT("Software\\Microsoft\\Windows\\CurrentVersion\\RunOnce"),
+  0,
+  KEY_ALL_ACCESS,
+  &key) == ERROR_SUCCESS)
+  {
+  RunRegEntries(key, true, false, showStartupErrors);
+  ELCloseRegKey(key);
+  }
+
 
   // Execute the HKLM 32-bit RunOnce key if it exists
   if (RegOpenKeyEx(HKEY_LOCAL_MACHINE,
-                   TEXT("Software\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\RunOnce"),
-                   0,
-                   KEY_READ,
-                   &key) == ERROR_SUCCESS)
-    {
-      RunRegEntries(key, true, false, showStartupErrors);
-      ELCloseRegKey(key);
-    }
+  TEXT("Software\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\RunOnce"),
+  0,
+  KEY_READ,
+  &key) == ERROR_SUCCESS)
+  {
+  RunRegEntries(key, true, false, showStartupErrors);
+  ELCloseRegKey(key);
+  }*/
 }
 
 //----  --------------------------------------------------------------------------------------------------------

@@ -34,6 +34,19 @@
 
 #define MAX_HANDLES 500
 
+struct StartKey
+{
+    HKEY key;
+    std::wstring subkey;
+    bool clear;
+    StartKey(HKEY K, const WCHAR *S, bool C)
+      {
+        key = K;
+        subkey = S;
+        clear = C;
+      }
+};
+
 //====================
 // Methods are variables used by Emerge Desktop
 class Shell
@@ -41,7 +54,7 @@ class Shell
 public:
   Shell();
   ~Shell();
-  bool RunRegEntries(HKEY key, bool clearEntry, bool wait, bool showStartupErrors);
+  bool RunRegEntries(HKEY key, bool clearEntry, bool showStartupErrors);
   void RunRegStartup(bool showStartupErrors);
   void RunFolderEntries(LPTSTR path, bool showStartupErrors);
   void RunFolderStartup(bool showStartupErrors);
