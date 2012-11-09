@@ -569,7 +569,7 @@ LRESULT Applet::TaskMouseEvent(UINT message, LPARAM lParam)
   iter = taskList.begin();
   while (iter != taskList.end())
     {
-      if (PtInRect((*iter)->GetRect(), pt))
+      if (PtInRect((*iter)->GetRect(), pt) && !(*iter)->GetHidden())
         {
           switch (message)
             {
