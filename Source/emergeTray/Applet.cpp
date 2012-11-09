@@ -19,12 +19,6 @@
 //
 //----  --------------------------------------------------------------------------------------------------------
 //
-// Note:
-//
-// The LoadSSO and UnloadSSO code are from TrayManager.cpp which is part
-// of the LiteStep code base.  Original inspiration for the icon handling code
-// was curtousy of the GeoShell TrayService code.
-//
 // Many thanx go to Jaykul (of GeoShell fame) and Message (of LiteStep fame)
 // for helping wrap my head around Windows deals with the systray.
 //
@@ -457,8 +451,6 @@ Applet::~Applet()
 
   if (ELIsExplorerShell()) //we're probably running on top of Explorer
     removeExplorerTrayHook();
-  else
-    UnloadSSO();
 
   DestroyWindow(trayWnd);
 
@@ -595,9 +587,6 @@ UINT Applet::Initialize()
 
   // Tell the applications that a systray was created
   SendNotifyMessage(HWND_BROADCAST, RegisterWindowMessage(TEXT("TaskbarCreated")), 0, 0);
-
-  // Load the 2K/XP system icons
-  LoadSSO();
 
   return 1;
 }
@@ -821,74 +810,6 @@ LRESULT Applet::MySize(LPARAM lParam)
 void Applet::AppletUpdate()
 {
   UpdateIcons();
-}
-
-//----  --------------------------------------------------------------------------------------------------------
-// Function:	LoadSSO
-// Required:	Nothing
-// Returns:	Nothing
-// Purpose:	Loads the 2K/XP system icons
-//----  --------------------------------------------------------------------------------------------------------
-void Applet::LoadSSO()
-{
-  HKEY key;
-  int i = 0;
-  WCHAR valueName[32];
-  WCHAR data[40];
-  DWORD valueSize;
-  DWORD dataSize;
-  DWORD dwDataType;
-  CLSID clsid, clsidTray;
-  IOleCommandTarget *target;
-
-  CLSIDFromString((WCHAR*)TEXT("{35CEC8A3-2BE6-11D2-8773-92E220524153}"), &clsidTray);
-  target = ELStartSSO(clsidTray);
-  if (target)
-    ssoIconList.push_back(target);
-
-  valueSize = sizeof(valueName);
-  dataSize = sizeof(data);
-  i = 0;
-
-  if (RegOpenKeyEx(HKEY_LOCAL_MACHINE,
-                   TEXT("Software\\Microsoft\\Windows\\CurrentVersion\\ShellServiceObjectDelayLoad"),
-                   0, KEY_READ, &key) == ERROR_SUCCESS)
-    {
-      while (RegEnumValue(key, i, valueName, &valueSize, 0, &dwDataType, (LPBYTE) data, &dataSize) == ERROR_SUCCESS)
-        {
-          CLSIDFromString(data, &clsid);
-          if (clsid == clsidTray)
-            {
-              target = ELStartSSO(clsid);
-              if (target)
-                ssoIconList.push_back(target);
-            }
-
-          valueSize = sizeof(valueName);
-          dataSize = sizeof(data);
-          i++;
-        }
-
-      RegCloseKey(key);
-    }
-}
-
-//----  --------------------------------------------------------------------------------------------------------
-// Function:	UnloadSSO
-// Required:	Nothing
-// Returns:	Nothing
-// Purpose:	Unload the 2K/XP system icons
-//----  --------------------------------------------------------------------------------------------------------
-void Applet::UnloadSSO()
-{
-  // Go through each element of the array and stop it...
-  while (!ssoIconList.empty())
-    {
-      if (ssoIconList.back()->Exec(&CGID_ShellServiceObject, OLECMDID_SAVE,
-                                   OLECMDEXECOPT_DODEFAULT, NULL, NULL) == S_OK)
-        ssoIconList.back()->Release();
-      ssoIconList.pop_back();
-    }
 }
 
 void Applet::ShowHiddenIcons(bool cmd, bool force)

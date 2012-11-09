@@ -227,9 +227,6 @@ void Shell::RunRegStartup(bool showStartupErrors)
   keyVector.push_back(StartKey(HKEY_CURRENT_USER,
                                L"Software\\Microsoft\\Windows\\CurrentVersion\\RunServicesOnce",
                                true));
-  keyVector.push_back(StartKey(HKEY_CURRENT_USER,
-                               L"Software\\Microsoft\\Windows NT\\CurrentVersion\\Windows",
-                               false));
 
   // HKCU startup keys (32-bit keys on 64-bit machines)
   keyVector.push_back(StartKey(HKEY_CURRENT_USER,
@@ -247,9 +244,6 @@ void Shell::RunRegStartup(bool showStartupErrors)
   keyVector.push_back(StartKey(HKEY_CURRENT_USER,
                                L"Software\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\RunServicesOnce",
                                true));
-  keyVector.push_back(StartKey(HKEY_CURRENT_USER,
-                               L"Software\\Wow6432Node\\Microsoft\\Windows NT\\CurrentVersion\\Windows",
-                               false));
 
   // HKLM startup keys
   keyVector.push_back(StartKey(HKEY_LOCAL_MACHINE,
@@ -537,40 +531,77 @@ void Shell::LoadSSO()
   HKEY key, subkey;
   int i = 0;
   WCHAR data[40];
+  WCHAR valueName[32];
   DWORD dataSize;
+  DWORD valueSize;
+  DWORD dwDataType;
   CLSID clsid, clsidTray;
   IOleCommandTarget *target = NULL;
+
+  CLSIDFromString((WCHAR*)TEXT("{35CEC8A3-2BE6-11D2-8773-92E220524153}"), &clsidTray);
+  target = ELStartSSO(clsidTray);
+  if (target)
+    ssoIconList.push_back(target);
 
   dataSize = sizeof(data);
   i = 0;
 
-  if (RegOpenKeyEx(HKEY_LOCAL_MACHINE,
-                   TEXT("Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\ShellServiceObjects"),
-                   0, KEY_READ, &key) == ERROR_SUCCESS)
+  if (ELVersionInfo() > 6.0)
     {
-      while (RegEnumKeyEx(key, i, data, &dataSize, NULL, NULL, NULL, NULL) == ERROR_SUCCESS)
+      if (RegOpenKeyEx(HKEY_LOCAL_MACHINE,
+                       TEXT("Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\ShellServiceObjects"),
+                       0, KEY_READ, &key) == ERROR_SUCCESS)
         {
-          if (RegOpenKeyEx(key, data, 0, KEY_READ, &subkey) == ERROR_SUCCESS)
+          while (RegEnumKeyEx(key, i, data, &dataSize, NULL, NULL, NULL, NULL) == ERROR_SUCCESS)
             {
-              if (RegQueryValueEx(subkey, TEXT("AutoStart"), NULL, NULL, NULL, NULL) == ERROR_SUCCESS)
+              if (RegOpenKeyEx(key, data, 0, KEY_READ, &subkey) == ERROR_SUCCESS)
                 {
-                  CLSIDFromString(data, &clsid);
-                  if (clsid != clsidTray)
+                  if (RegQueryValueEx(subkey, TEXT("AutoStart"), NULL, NULL, NULL, NULL) == ERROR_SUCCESS)
                     {
-                      target = ELStartSSO(clsid);
-                      if (target)
-                        ssoIconList.push_back(target);
+                      CLSIDFromString(data, &clsid);
+                      if (clsid != clsidTray)
+                        {
+                          target = ELStartSSO(clsid);
+                          if (target)
+                            ssoIconList.push_back(target);
+                        }
                     }
+
+                  RegCloseKey(subkey);
                 }
 
-              RegCloseKey(subkey);
+              dataSize = sizeof(data);
+              i++;
             }
 
-          dataSize = sizeof(data);
-          i++;
+          RegCloseKey(key);
         }
 
-      RegCloseKey(key);
+      valueSize = sizeof(valueName);
+      dataSize = sizeof(data);
+      i = 0;
+
+      if (RegOpenKeyEx(HKEY_LOCAL_MACHINE,
+                       TEXT("Software\\Microsoft\\Windows\\CurrentVersion\\ShellServiceObjectDelayLoad"),
+                       0, KEY_READ, &key) == ERROR_SUCCESS)
+        {
+          while (RegEnumValue(key, i, valueName, &valueSize, 0, &dwDataType, (LPBYTE) data, &dataSize) == ERROR_SUCCESS)
+            {
+              CLSIDFromString(data, &clsid);
+              if (clsid == clsidTray)
+                {
+                  target = ELStartSSO(clsid);
+                  if (target)
+                    ssoIconList.push_back(target);
+                }
+
+              valueSize = sizeof(valueName);
+              dataSize = sizeof(data);
+              i++;
+            }
+
+          RegCloseKey(key);
+        }
     }
 }
 

@@ -39,6 +39,8 @@
 typedef std::set<HWND> WindowSet;
 typedef std::map< std::wstring, WindowSet > LaunchMap;
 
+static const UINT TASKBAR_CREATED = RegisterWindowMessage(TEXT("TaskbarCreated"));
+
 class Core
 {
 private:

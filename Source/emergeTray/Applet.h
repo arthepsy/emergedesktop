@@ -511,8 +511,6 @@ public:
   LRESULT DoNotify(HWND hwnd, LPARAM lParam);
   void AdjustIcons();
   void AppletUpdate();
-  void UnloadSSO();
-  void LoadSSO();
   void CleanTray();
   void ShowConfig();
   TrayIcon* FindTrayIcon(HWND hwnd, UINT uID);

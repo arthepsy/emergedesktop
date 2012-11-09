@@ -136,10 +136,6 @@ bool Core::Initialize(WCHAR *commandLine)
   pShell->RegisterShell(mainWnd, true);
   pShell->BuildTaskList();
 
-  /**< Only load SSO objects if not running on top of Explorer */
-  if (!ELIsExplorerShell() && (ELVersionInfo() > 6.0))
-    pShell->LoadSSO();
-
   // Load the start up entries in the registry and the startup
   // folders only if the startup items have not already been started
   // and explorer.exe is not running as the shell
@@ -498,6 +494,13 @@ LRESULT Core::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
   if (message ==  EMERGE_UNREGISTER)
     {
       pMessageControl->RemoveType((HWND)wParam, (UINT)lParam);
+      return 0;
+    }
+
+  if (message == TASKBAR_CREATED)
+    {
+      if (!ELIsExplorerShell())
+        pShell->LoadSSO();
       return 0;
     }
 
