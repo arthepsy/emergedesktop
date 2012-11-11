@@ -497,10 +497,9 @@ LRESULT Core::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
       return 0;
     }
 
-  if (message == TASKBAR_CREATED)
+  if (message == TASKBAR_CREATED && !ELIsExplorerShell())
     {
-      if (!ELIsExplorerShell())
-        pShell->LoadSSO();
+      pShell->LoadSSO();
       return 0;
     }
 
