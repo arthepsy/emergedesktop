@@ -294,10 +294,12 @@ void TrayIcon::ShowBalloon(WCHAR *infoTitle, WCHAR *info, DWORD infoFlags, HICON
 
   if (ClientToScreen(mainWnd, &balloonPt))
     {
-      pBalloon->SetInfoFlags(infoFlags, icon);
-      pBalloon->SetInfoTitle(infoTitle);
-      pBalloon->SetInfo(info);
-      pBalloon->Show(balloonPt);
+      if (pBalloon->SetInfoFlags(infoFlags, icon))
+        {
+          pBalloon->SetInfoTitle(infoTitle);
+          pBalloon->SetInfo(info);
+          pBalloon->Show(balloonPt);
+        }
     }
 }
 

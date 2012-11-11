@@ -139,9 +139,14 @@ bool Balloon::SetInfo(WCHAR *info)
 
   wcscpy(this->info, info);
 
-  infoRect.top = iconSize;
-  if (titleRect.bottom > iconSize)
-    infoRect.top = titleRect.bottom;
+  if (IsRectEmpty(&titleRect))
+    infoRect.top = 0;
+  else
+    {
+      infoRect.top = iconSize;
+      if (titleRect.bottom > iconSize)
+        infoRect.top = titleRect.bottom;
+    }
   infoRect.top += 5;
   infoRect.left = 5;
   infoRect.bottom = infoRect.top;
@@ -163,12 +168,17 @@ bool Balloon::SetInfoTitle(WCHAR *infoTitle)
 
   wcscpy(this->infoTitle, infoTitle);
 
-  titleRect.top = 5;
-  titleRect.left = 5;
-  if (icon)
-    titleRect.left += iconSize + 5;
-  titleRect.bottom = titleRect.top;
-  titleRect.right = titleRect.left;
+  if (!wcslen(infoTitle))
+    SetRectEmpty(&titleRect);
+  else
+    {
+      titleRect.top = 5;
+      titleRect.left = 5;
+      if (icon)
+        titleRect.left += iconSize + 5;
+      titleRect.bottom = titleRect.top;
+      titleRect.right = titleRect.left;
+    }
 
   ret = EGGetTextRect(infoTitle, infoTitleFont, &titleRect, DT_SINGLELINE);
 
@@ -191,7 +201,7 @@ bool Balloon::SetInfoFlags(DWORD infoFlags, HICON infoIcon)
   else
     iconSize = 16;
 
-  if (infoFlags == NIIF_NONE)
+  if ((infoFlags & NIIF_NONE) == NIIF_NONE)
     {
       if (icon)
         {
@@ -206,7 +216,7 @@ bool Balloon::SetInfoFlags(DWORD infoFlags, HICON infoIcon)
   else if ((infoFlags & NIIF_ERROR) == NIIF_ERROR)
     tmpIcon = (HICON)LoadImage(NULL, MAKEINTRESOURCE(OIC_ERROR), IMAGE_ICON, iconSize, iconSize, LR_SHARED);
   else if ((infoFlags & NIIF_USER) == NIIF_USER)
-    tmpIcon = infoIcon;
+    tmpIcon = CopyIcon(infoIcon);
 
   if (tmpIcon)
     {
@@ -214,6 +224,12 @@ bool Balloon::SetInfoFlags(DWORD infoFlags, HICON infoIcon)
         DestroyIcon(icon);
       icon = EGConvertIcon(tmpIcon, 255);
       DestroyIcon(tmpIcon);
+    }
+
+  if ((infoFlags & NIIF_RESPECT_QUIET_TIME) == NIIF_RESPECT_QUIET_TIME)
+    {
+      if (GetTickCount() < 3600000)
+        return false;
     }
 
   return true;
@@ -258,13 +274,16 @@ bool Balloon::Show(POINT showPt)
   if (!GetMonitorInfo(balloonMonitor, &balloonMonitorInfo))
     return false;
 
-  // If the string length of info or infoTitle is 0, do not display a balloon.
-  if ((wcslen(info) == 0) || (wcslen(infoTitle) == 0))
+  // If the string length of info.
+  if (wcslen(info) == 0)
     return false;
 
   width = infoRect.right;
-  if (titleRect.right > infoRect.right)
-    width = titleRect.right;
+  if (wcslen(infoTitle) != 0)
+    {
+      if (titleRect.right > infoRect.right)
+        width = titleRect.right;
+    }
   width += 5;
   height = infoRect.bottom + 5;
 

@@ -49,6 +49,10 @@
 #define NIIF_LARGE_ICON 0x20
 #endif
 
+#ifndef NIIF_RESPECT_QUIET_TIME
+#define NIIF_RESPECT_QUIET_TIME 0x80
+#endif
+
 class TrayIcon;
 
 class Balloon
