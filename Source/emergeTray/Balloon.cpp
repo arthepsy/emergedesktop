@@ -226,11 +226,12 @@ bool Balloon::SetInfoFlags(DWORD infoFlags, HICON infoIcon)
       DestroyIcon(tmpIcon);
     }
 
-  if ((infoFlags & NIIF_RESPECT_QUIET_TIME) == NIIF_RESPECT_QUIET_TIME)
+  // Disable this for now as it is not a correct implementation
+  /*if ((infoFlags & NIIF_RESPECT_QUIET_TIME) == NIIF_RESPECT_QUIET_TIME)
     {
       if (GetTickCount() < 3600000)
         return false;
-    }
+    }*/
 
   return true;
 }
