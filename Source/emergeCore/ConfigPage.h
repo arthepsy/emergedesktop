@@ -38,6 +38,7 @@ public:
   ~ConfigPage();
   INT_PTR DoInitPage(HWND hwndDlg);
   INT_PTR DoNotify(HWND hwndDlg, LPARAM lParam);
+  INT_PTR DoCommand(HWND hwndDlg, WPARAM wParam);
   bool UpdateSettings(HWND hwndDlg);
   static INT_PTR CALLBACK ConfigPageDlgProc(HWND hwndDlg, UINT message, WPARAM wParam, LPARAM lParam);
 

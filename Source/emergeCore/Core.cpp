@@ -93,17 +93,17 @@ bool Core::Initialize(WCHAR *commandLine)
 
   // The class is registered, let's create the window
   mainWnd = CreateWindowEx (
-                            WS_EX_TOOLWINDOW,
-                            emergeCoreClass,
-                            NULL,
-                            WS_POPUP,
-                            0, 0,
-                            0, 0,
-                            NULL,
-                            NULL,
-                            mainInst,
-                            reinterpret_cast<LPVOID>(this)
-  );
+              WS_EX_TOOLWINDOW,
+              emergeCoreClass,
+              NULL,
+              WS_POPUP,
+              0, 0,
+              0, 0,
+              NULL,
+              NULL,
+              mainInst,
+              reinterpret_cast<LPVOID>(this)
+            );
 
   // If the window failed to get created, unregister the class and quit the program
   if (!mainWnd)
@@ -120,7 +120,11 @@ bool Core::Initialize(WCHAR *commandLine)
   pMessageControl = std::tr1::shared_ptr<MessageControl>(new MessageControl());
   pMessageControl->AddType(mainWnd, EMERGE_CORE);
 
-  StartExplorer(pSettings->GetShowExplorerDesktop());
+  StartExplorer();
+  // Wait half a second for Explorer to start before sending messages to it
+  Sleep(500);
+  EnableExplorerDesktop(pSettings->GetEnableExplorerDesktop());
+  ShowExplorerDesktop(pSettings->GetShowExplorerDesktop());
 
   // Create desktop window
   pDesktop = std::tr1::shared_ptr<Desktop>(new Desktop(mainInst, pMessageControl));
@@ -158,7 +162,7 @@ bool Core::Initialize(WCHAR *commandLine)
   if (wtslib)
     {
       lpfnWTSRegisterSessionNotification wtsrsn = (lpfnWTSRegisterSessionNotification)
-        GetProcAddress(wtslib, "WTSRegisterSessionNotification");
+          GetProcAddress(wtslib, "WTSRegisterSessionNotification");
       if (wtsrsn)
         wtsrsn(mainWnd, NOTIFY_FOR_THIS_SESSION);
       FreeLibrary(wtslib);
@@ -179,7 +183,7 @@ Core::~Core()
       if (wtslib)
         {
           lpfnWTSUnRegisterSessionNotification wtsursn = (lpfnWTSUnRegisterSessionNotification)
-            GetProcAddress(wtslib, "WTSUnRegisterSessionNotification");
+              GetProcAddress(wtslib, "WTSUnRegisterSessionNotification");
           if (wtsursn)
             wtsursn(mainWnd);
           FreeLibrary(wtslib);
@@ -388,6 +392,7 @@ LRESULT Core::DoCopyData(COPYDATASTRUCT *cds)
               if (pThemeSelector->Show() == IDOK)
                 {
                   bool oldShowExplorerDesktop = pSettings->GetShowExplorerDesktop();
+                  bool oldEnableExplorerDesktop = pSettings->GetEnableExplorerDesktop();
 
                   ConvertTheme();
                   pSettings->ReadSettings();
@@ -395,9 +400,17 @@ LRESULT Core::DoCopyData(COPYDATASTRUCT *cds)
                   CheckLaunchList();
                   // Tell the existing applets to reconfigure
                   pMessageControl->DispatchMessage(EMERGE_CORE, CORE_RECONFIGURE, NULL);
+
+                  if (oldEnableExplorerDesktop != pSettings->GetEnableExplorerDesktop())
+                    {
+                      EnableExplorerDesktop(pSettings->GetEnableExplorerDesktop());
+                      if (!pSettings->GetEnableExplorerDesktop())
+                        pDesktop->ShowDesktop(true);
+                    }
+
                   if (oldShowExplorerDesktop != pSettings->GetShowExplorerDesktop())
                     {
-                      StartExplorer(pSettings->GetShowExplorerDesktop());
+                      ShowExplorerDesktop(pSettings->GetShowExplorerDesktop());
                       pDesktop->ShowDesktop(!pSettings->GetShowExplorerDesktop());
                     }
                 }
@@ -514,12 +527,20 @@ void Core::ShowConfig(UINT startPage)
 {
   Config config(mainInst, mainWnd, pSettings);
   bool oldShowExplorerDesktop = pSettings->GetShowExplorerDesktop();
+  bool oldEnableExplorerDesktop = pSettings->GetEnableExplorerDesktop();
 
   if (config.Show(startPage) == IDOK)
     {
+      if (oldEnableExplorerDesktop != pSettings->GetEnableExplorerDesktop())
+        {
+          EnableExplorerDesktop(pSettings->GetEnableExplorerDesktop());
+          if (!pSettings->GetEnableExplorerDesktop())
+            pDesktop->ShowDesktop(true);
+        }
+
       if (oldShowExplorerDesktop != pSettings->GetShowExplorerDesktop())
         {
-          StartExplorer(pSettings->GetShowExplorerDesktop());
+          ShowExplorerDesktop(pSettings->GetShowExplorerDesktop());
           pDesktop->ShowDesktop(!pSettings->GetShowExplorerDesktop());
         }
     }
@@ -614,21 +635,29 @@ bool Core::BuildLaunchList()
   return found;
 }
 
-void Core::StartExplorer(bool showDesktop)
+void Core::StartExplorer()
 {
-  HWND explorerWnd = NULL;
   WCHAR explorerCmd[MAX_LINE_LENGTH];
 
   ELGetCurrentPath(explorerCmd);
   wcscat(explorerCmd, TEXT("\\Explorer.exe"));
-  if (showDesktop)
-    wcscat(explorerCmd, TEXT(" /showdesktop"));
+  ELExecute(explorerCmd);
+}
 
-  explorerWnd = FindWindow(TEXT("EmergeDesktopExplorer"), NULL);
+void Core::ShowExplorerDesktop(bool showDesktop)
+{
+  HWND explorerWnd = FindWindow(TEXT("EmergeDesktopExplorer"), NULL);
+
   if (explorerWnd)
-    SendMessage(explorerWnd, EMERGE_MESSAGE, (LPARAM)showDesktop, 0);
-  else
-    ELExecute(explorerCmd);
+    SendMessage(explorerWnd, EMERGE_MESSAGE, EXPLORER_SHOW, (WPARAM)showDesktop);
+}
+
+void Core::EnableExplorerDesktop(bool enableDesktop)
+{
+  HWND explorerWnd = FindWindow(TEXT("EmergeDesktopExplorer"), NULL);
+
+  if (explorerWnd)
+    SendMessage(explorerWnd, EMERGE_MESSAGE, EXPLORER_ENABLE, (WPARAM)enableDesktop);
 }
 
 void Core::ConvertTheme()

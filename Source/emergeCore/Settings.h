@@ -45,6 +45,8 @@ public:
     void DoWriteUserSettings(IOHelper& helper);
     bool GetShowExplorerDesktop();
     void SetShowExplorerDesktop(bool showExplorerDesktop);
+    bool GetEnableExplorerDesktop();
+    void SetEnableExplorerDesktop(bool enableExplorerDesktop);
 
 protected:
   virtual void DoReadSettings(IOHelper& helper);
@@ -54,6 +56,7 @@ protected:
 private:
     bool showStartupErrors;
     bool showExplorerDesktop;
+    bool enableExplorerDesktop;
     bool userModified;
     bool showWelcome;
 };

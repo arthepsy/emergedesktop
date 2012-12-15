@@ -26,6 +26,7 @@ Settings::Settings(): BaseSettings(false)
   userModified = false;
   showStartupErrors = false;
   showExplorerDesktop = false;
+  enableExplorerDesktop = false;
   showWelcome = true;
   wcscpy(appletName, TEXT("emergeCore"));
 }
@@ -33,11 +34,13 @@ Settings::Settings(): BaseSettings(false)
 void Settings::DoReadSettings(IOHelper& helper)
 {
   helper.ReadBool(TEXT("ShowExplorerDesktop"), showExplorerDesktop, false);
+  helper.ReadBool(TEXT("EnableExplorerDesktop"), enableExplorerDesktop, false);
 }
 
 void Settings::DoWriteSettings(IOHelper& helper)
 {
   helper.WriteBool(TEXT("ShowExplorerDesktop"), showExplorerDesktop);
+  helper.WriteBool(TEXT("EnableExplorerDesktop"), enableExplorerDesktop);
 }
 
 void Settings::ResetDefaults()
@@ -50,11 +53,25 @@ bool Settings::GetShowExplorerDesktop()
   return showExplorerDesktop;
 }
 
+bool Settings::GetEnableExplorerDesktop()
+{
+  return enableExplorerDesktop;
+}
+
 void Settings::SetShowExplorerDesktop(bool showExplorerDesktop)
 {
   if (this->showExplorerDesktop != showExplorerDesktop)
     {
       this->showExplorerDesktop = showExplorerDesktop;
+      SetModified();
+    }
+}
+
+void Settings::SetEnableExplorerDesktop(bool enableExplorerDesktop)
+{
+  if (this->enableExplorerDesktop != enableExplorerDesktop)
+    {
+      this->enableExplorerDesktop = enableExplorerDesktop;
       SetModified();
     }
 }

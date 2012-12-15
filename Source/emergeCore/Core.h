@@ -61,7 +61,9 @@ private:
   bool CheckLaunchList();
   bool BuildLaunchList();
   void CheckLaunchItem(LaunchMap *launchMap, const WCHAR *item);
-  void StartExplorer(bool showDesktop);
+  void StartExplorer();
+  void ShowExplorerDesktop(bool showDesktop);
+  void EnableExplorerDesktop(bool enableDesktop);
   std::wstring xmlFile;
   void ShowWelcome();
 

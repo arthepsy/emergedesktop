@@ -34,9 +34,10 @@ INT_PTR CALLBACK ConfigPage::ConfigPageDlgProc(HWND hwndDlg, UINT message, WPARA
         break;
       return pConfigPage->DoInitPage(hwndDlg);
 
+    case WM_COMMAND:
+      return pConfigPage->DoCommand(hwndDlg, wParam);
+
     case WM_NOTIFY:
-      if (!pConfigPage)
-        break;
       return pConfigPage->DoNotify(hwndDlg, lParam);
     }
 
@@ -54,12 +55,21 @@ ConfigPage::~ConfigPage()
 INT_PTR ConfigPage::DoInitPage(HWND hwndDlg)
 {
   HWND warningWnd = GetDlgItem(hwndDlg, IDC_WARNING);
+  HWND explorerWnd = GetDlgItem(hwndDlg, IDC_EXPLORERDESKTOP);
+
+  if (pSettings->GetEnableExplorerDesktop())
+    {
+      SendDlgItemMessage(hwndDlg, IDC_ENABLEEXPLORERDESKTOP, BM_SETCHECK, BST_CHECKED, 0);
+      EnableWindow(explorerWnd, TRUE);
+    }
+  else
+    EnableWindow(explorerWnd, FALSE);
 
   if (pSettings->GetShowExplorerDesktop())
     SendDlgItemMessage(hwndDlg, IDC_EXPLORERDESKTOP, BM_SETCHECK, BST_CHECKED, 0);
 
   std::wstring warningMessage = L"Notes:\n\n";
-  warningMessage += L"When 'Explorer Desktop' is enabled:\n\n";
+  warningMessage += L"When 'Show Explorer Desktop' is enabled:\n\n";
   warningMessage += L"- Right-clicking on the desktop displays the Explorer right-click menu, and\n\n";
   warningMessage += L"- The emergeWorkspace menus can no longer be accessed by right-clicking on the desktop. They still can be accessed via emergeHotkeys, emergeCommand and emergeLauncher.\n\n";
 
@@ -93,12 +103,30 @@ INT_PTR ConfigPage::DoNotify(HWND hwndDlg, LPARAM lParam)
   return 0;
 }
 
+INT_PTR ConfigPage::DoCommand(HWND hwndDlg, WPARAM wParam)
+{
+  switch (LOWORD(wParam))
+    {
+    case IDC_ENABLEEXPLORERDESKTOP:
+      EnableWindow((HWND)GetDlgItem(hwndDlg, IDC_EXPLORERDESKTOP),
+                   (SendDlgItemMessage(hwndDlg, IDC_ENABLEEXPLORERDESKTOP, BM_GETCHECK, 0, 0) == BST_CHECKED));
+      return true;
+    }
+
+  return false;
+}
+
 bool ConfigPage::UpdateSettings(HWND hwndDlg)
 {
   if (SendDlgItemMessage(hwndDlg, IDC_EXPLORERDESKTOP, BM_GETCHECK, 0, 0) == BST_CHECKED)
     pSettings->SetShowExplorerDesktop(true);
   else if (SendDlgItemMessage(hwndDlg, IDC_EXPLORERDESKTOP, BM_GETCHECK, 0, 0) == BST_UNCHECKED)
     pSettings->SetShowExplorerDesktop(false);
+
+  if (SendDlgItemMessage(hwndDlg, IDC_ENABLEEXPLORERDESKTOP, BM_GETCHECK, 0, 0) == BST_CHECKED)
+    pSettings->SetEnableExplorerDesktop(true);
+  else if (SendDlgItemMessage(hwndDlg, IDC_ENABLEEXPLORERDESKTOP, BM_GETCHECK, 0, 0) == BST_UNCHECKED)
+    pSettings->SetEnableExplorerDesktop(false);
 
   return true;
 }
