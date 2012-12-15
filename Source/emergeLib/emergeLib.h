@@ -117,6 +117,10 @@ static const UINT EMERGE_MESSAGE = RegisterWindowMessage(TEXT("EmergeMessage"));
 #define EMERGE_CORE     0x01
 #define EMERGE_VWM      0x02
 
+// Explorer Desktop defines
+#define EXPLORER_ENABLE 0x01
+#define EXPLORER_SHOW   0x02
+
 // EMERGE_CORE Messages
 typedef enum _COREMESSAGES {
   CORE_QUIT = 100,
