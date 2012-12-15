@@ -121,9 +121,12 @@ bool Core::Initialize(WCHAR *commandLine)
   pMessageControl->AddType(mainWnd, EMERGE_CORE);
 
   StartExplorer();
-  // Wait half a second for Explorer to start before sending messages to it
-  Sleep(500);
+  // Wait a quarter second for Explorer to start before sending messages to it
+  Sleep(250);
   EnableExplorerDesktop(pSettings->GetEnableExplorerDesktop());
+  // Wait a quarter second for Explorer thread to start before sending trying
+  // to make it visible
+  Sleep(250);
   ShowExplorerDesktop(pSettings->GetShowExplorerDesktop());
 
   // Create desktop window
@@ -391,9 +394,6 @@ LRESULT Core::DoCopyData(COPYDATASTRUCT *cds)
             case CORE_THEMESELECT:
               if (pThemeSelector->Show() == IDOK)
                 {
-                  bool oldShowExplorerDesktop = pSettings->GetShowExplorerDesktop();
-                  bool oldEnableExplorerDesktop = pSettings->GetEnableExplorerDesktop();
-
                   ConvertTheme();
                   pSettings->ReadSettings();
                   // Check existing applets and run any additional applets
@@ -401,17 +401,18 @@ LRESULT Core::DoCopyData(COPYDATASTRUCT *cds)
                   // Tell the existing applets to reconfigure
                   pMessageControl->DispatchMessage(EMERGE_CORE, CORE_RECONFIGURE, NULL);
 
-                  if (oldEnableExplorerDesktop != pSettings->GetEnableExplorerDesktop())
+                  if (pSettings->GetEnableExplorerDesktop())
                     {
-                      EnableExplorerDesktop(pSettings->GetEnableExplorerDesktop());
-                      if (!pSettings->GetEnableExplorerDesktop())
-                        pDesktop->ShowDesktop(true);
-                    }
-
-                  if (oldShowExplorerDesktop != pSettings->GetShowExplorerDesktop())
-                    {
+                      EnableExplorerDesktop(true);
+                      // Wait for thread to start
+                      Sleep(250);
                       ShowExplorerDesktop(pSettings->GetShowExplorerDesktop());
                       pDesktop->ShowDesktop(!pSettings->GetShowExplorerDesktop());
+                    }
+                  else
+                    {
+                      EnableExplorerDesktop(false);
+                      pDesktop->ShowDesktop(true);
                     }
                 }
               break;
@@ -526,22 +527,21 @@ LRESULT Core::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 void Core::ShowConfig(UINT startPage)
 {
   Config config(mainInst, mainWnd, pSettings);
-  bool oldShowExplorerDesktop = pSettings->GetShowExplorerDesktop();
-  bool oldEnableExplorerDesktop = pSettings->GetEnableExplorerDesktop();
 
   if (config.Show(startPage) == IDOK)
     {
-      if (oldEnableExplorerDesktop != pSettings->GetEnableExplorerDesktop())
+      if (pSettings->GetEnableExplorerDesktop())
         {
-          EnableExplorerDesktop(pSettings->GetEnableExplorerDesktop());
-          if (!pSettings->GetEnableExplorerDesktop())
-            pDesktop->ShowDesktop(true);
-        }
-
-      if (oldShowExplorerDesktop != pSettings->GetShowExplorerDesktop())
-        {
+          EnableExplorerDesktop(true);
+          // Wait for thread to start
+          Sleep(250);
           ShowExplorerDesktop(pSettings->GetShowExplorerDesktop());
           pDesktop->ShowDesktop(!pSettings->GetShowExplorerDesktop());
+        }
+      else
+        {
+          EnableExplorerDesktop(false);
+          pDesktop->ShowDesktop(true);
         }
     }
 }
@@ -650,6 +650,9 @@ void Core::ShowExplorerDesktop(bool showDesktop)
 
   if (explorerWnd)
     SendMessage(explorerWnd, EMERGE_MESSAGE, EXPLORER_SHOW, (WPARAM)showDesktop);
+  else
+    ELMessageBox(GetDesktopWindow(), L"Failed to show Explorer Desktop",
+                 L"emergeCore", ELMB_ICONERROR);
 }
 
 void Core::EnableExplorerDesktop(bool enableDesktop)
@@ -658,6 +661,9 @@ void Core::EnableExplorerDesktop(bool enableDesktop)
 
   if (explorerWnd)
     SendMessage(explorerWnd, EMERGE_MESSAGE, EXPLORER_ENABLE, (WPARAM)enableDesktop);
+  else
+    ELMessageBox(GetDesktopWindow(), L"Failed to enable Explorer Desktop",
+                 L"emergeCore", ELMB_ICONERROR);
 }
 
 void Core::ConvertTheme()
