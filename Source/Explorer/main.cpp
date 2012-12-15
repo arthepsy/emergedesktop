@@ -37,36 +37,28 @@ int WINAPI WinMain (HINSTANCE hInstance,
 
 {
   MSG messages;
-  bool showDesktop = false;
-  WCHAR app[MAX_PATH], args[MAX_LINE_LENGTH];
 
   // If Windows Explorer is running as the shell, then don't start
   if (ELIsExplorerShell())
     return 1;
 
-  /**< Check to see if the explorer desktop should be created */
-  ELParseCommand(GetCommandLine(), app, args);
-  if (_wcsicmp(args, TEXT("/showdesktop")) == 0)
-    showDesktop = true;
-
   // Check to see if Explorer is already running, if so exit
   HANDLE hMutex = CreateMutex(NULL, false, TEXT("Explorer"));
   if (GetLastError() == ERROR_ALREADY_EXISTS)
     {
-      if (!showDesktop)
-        {
-          WCHAR passCmd[MAX_LINE_LENGTH];
-          std::wstring explorer = TEXT("%WINDIR%\\explorer.exe");
-          swprintf(passCmd, TEXT("%ls %ls"), ELExpandVars(explorer).c_str(), args);
-          ELExecute(passCmd);
-        }
+      WCHAR app[MAX_PATH], args[MAX_LINE_LENGTH];
+      ELParseCommand(GetCommandLine(), app, args);
+      std::wstring commandLine = L"%WINDIR%\\Explorer.exe ";
+      commandLine = ELExpandVars(commandLine);
+      commandLine += args;
+      ELExecute((WCHAR*)commandLine.c_str());
       CloseHandle(hMutex);
       return 2;
     }
 
   Applet applet(hInstance);
 
-  if (!applet.Initialize(showDesktop))
+  if (!applet.Initialize())
     return 3;
 
   // Run the message loop. It will run until GetMessage() returns 0
