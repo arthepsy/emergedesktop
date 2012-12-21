@@ -29,6 +29,7 @@ Settings::Settings()
   enableFlash = true;
   flashInterval = 1000;
   sameMonitorOnly = false; //ROBLARKY - 2012-08-11: Added for option to only show tasks on same monitor
+  enableThumbnails = true;
 }
 
 void Settings::DoReadSettings(IOHelper& helper)
@@ -39,6 +40,7 @@ void Settings::DoReadSettings(IOHelper& helper)
   helper.ReadInt(TEXT("FlashCount"), flashCount, 0);
   helper.ReadBool(TEXT("EnableFlash"), enableFlash, true);
   helper.ReadInt(TEXT("FlashInterval"), flashInterval, 1000);
+  helper.ReadBool(TEXT("EnableThumbnails"), enableThumbnails, true);
 }
 
 void Settings::DoWriteSettings(IOHelper& helper)
@@ -49,6 +51,7 @@ void Settings::DoWriteSettings(IOHelper& helper)
   helper.WriteInt(TEXT("FlashCount"), flashCount);
   helper.WriteBool(TEXT("EnableFlash"), enableFlash);
   helper.WriteInt(TEXT("FlashInterval"), flashInterval);
+  helper.WriteBool(TEXT("EnableThumbnails"), enableThumbnails);
 }
 
 void Settings::ResetDefaults()
@@ -76,6 +79,7 @@ void Settings::ResetDefaults()
   appletMonitor = 0;
   wcscpy(anchorPoint, TEXT("BottomLeft"));
   sameMonitorOnly = false; //ROBLARKY - 2012-08-11: Added for option to only show tasks on same monitor
+  enableThumbnails = true;
 }
 
 bool Settings::GetHiliteActive()
@@ -149,6 +153,21 @@ bool Settings::SetEnableFlash(bool enableFlash)
   if (this->enableFlash != enableFlash)
     {
       this->enableFlash = enableFlash;
+      SetModified();
+    }
+  return true;
+}
+
+bool Settings::GetEnableThumbnails()
+{
+  return enableThumbnails;
+}
+
+bool Settings::SetEnableThumbnails(bool enableThumbnails)
+{
+  if (this->enableThumbnails != enableThumbnails)
+    {
+      this->enableThumbnails = enableThumbnails;
       SetModified();
     }
   return true;

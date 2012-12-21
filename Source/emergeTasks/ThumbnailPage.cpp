@@ -24,8 +24,6 @@
 #include "ThumbnailPage.h"
 #include "Applet.h"
 
-static COLORREF custColours[16];
-
 INT_PTR CALLBACK ThumbnailPage::ThumbnailPageDlgProc(HWND hwndDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
   static ThumbnailPage *pThumbnailPage = NULL;
@@ -80,8 +78,11 @@ ThumbnailPage::~ThumbnailPage()
     DeleteObject(hbmColourTo);
 }
 
-BOOL ThumbnailPage::DoInitDialog(HWND hwndDlg UNUSED)
+BOOL ThumbnailPage::DoInitDialog(HWND hwndDlg)
 {
+  if (pSettings->GetEnableThumbnails())
+    SendDlgItemMessage(hwndDlg, IDC_ENABLETHUMBNAIL, BM_SETCHECK, BST_CHECKED, 0);
+
   /*HWND sliderWnd = GetDlgItem(hwndDlg, IDC_SLIDER);
   SendMessage(sliderWnd, TBM_SETRANGE, (WPARAM)TRUE, (LPARAM)MAKELONG(0, 100));
   SendMessage(sliderWnd, TBM_SETPOS, (WPARAM)TRUE, (LPARAM)pSettings->GetAlpha());
@@ -254,52 +255,13 @@ INT_PTR ThumbnailPage::DoNotify(HWND hwndDlg, LPARAM lParam)
   return 0;
 }
 
-void ThumbnailPage::UpdateColorButton(HWND hwndDlg, HBITMAP bitmap, COLORREF colour, int controlId)
+bool ThumbnailPage::UpdateSettings(HWND hwndDlg)
 {
-  if (bitmap)
-    DeleteObject(bitmap);
-  bitmap = EGCreateBitmap(0xff, colour, colourRect);
-  if (bitmap)
-    DeleteObject((HBITMAP)SendDlgItemMessage(hwndDlg, controlId, BM_SETIMAGE,
-                 IMAGE_BITMAP, (LPARAM)bitmap));
-}
+  if (SendDlgItemMessage(hwndDlg, IDC_ENABLETHUMBNAIL, BM_GETCHECK, 0, 0) == BST_CHECKED)
+    pSettings->SetEnableThumbnails(true);
+  else if (SendDlgItemMessage(hwndDlg, IDC_ENABLETHUMBNAIL, BM_GETCHECK, 0, 0) == BST_UNCHECKED)
+    pSettings->SetEnableThumbnails(false);
 
-bool ThumbnailPage::DoFontChooser(HWND hwndDlg, LOGFONT *font)
-{
-  CHOOSEFONT chooseFont;
-
-  ZeroMemory(&chooseFont, sizeof(CHOOSEFONT));
-  chooseFont.lStructSize = sizeof(CHOOSEFONT);
-  chooseFont.hwndOwner = hwndDlg;
-  chooseFont.Flags = CF_SCREENFONTS | CF_INITTOLOGFONTSTRUCT | CF_NOSCRIPTSEL;
-  chooseFont.lpLogFont = font;
-
-  return (ChooseFont(&chooseFont) == TRUE);
-}
-
-BOOL ThumbnailPage::DoColourChooser(COLORREF *colour, HWND hwndDlg)
-{
-  CHOOSECOLOR chooseColour;
-  COLORREF tmpColour = *colour;
-  BOOL res;
-
-  ZeroMemory(&chooseColour, sizeof(CHOOSECOLOR));
-  chooseColour.lStructSize = sizeof(CHOOSECOLOR);
-  chooseColour.hwndOwner = hwndDlg;
-  chooseColour.rgbResult = tmpColour;
-  chooseColour.lpCustColors = (LPDWORD)custColours;
-  chooseColour.Flags = CC_RGBINIT | CC_FULLOPEN;
-
-  res = ChooseColor(&chooseColour);
-
-  if (res)
-    *colour = chooseColour.rgbResult;
-
-  return res;
-}
-
-bool ThumbnailPage::UpdateSettings(HWND hwndDlg UNUSED)
-{
   /*BOOL success;
   UINT result;
 

@@ -494,7 +494,7 @@ bool Applet::CleanTasks()
       if (!IsWindow((*iter)->GetWnd()))
         {
           refresh = true;
-          EnterCriticalSection(&vectorLock);          
+          EnterCriticalSection(&vectorLock);
           // delete and continue with next element in list, returned by erase
           iter = taskList.erase(iter);
           LeaveCriticalSection(&vectorLock);
@@ -628,7 +628,7 @@ LRESULT Applet::TaskMouseEvent(UINT message, LPARAM lParam)
                     movingWnd = NULL;
                   return 0;
                 }
-              if ((*iter)->GetThumbnailWnd())
+              if ((*iter)->GetThumbnailWnd() && pSettings->GetEnableThumbnails())
                 {
                   task = (*iter)->GetWnd();
                   thumbnailIter = thumbnailMap.find(task);
