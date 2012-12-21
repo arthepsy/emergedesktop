@@ -35,7 +35,7 @@ Settings::Settings(LPARAM lParam)
   textColour = RGB(0,0,0);
   gradientTo = RGB(0,0,0);
   gradientFrom = RGB(0,0,0);
-  alpha = 255;
+  alpha = 100;
 }
 
 void Settings::DoReadSettings(IOHelper& helper)
