@@ -25,6 +25,7 @@
 #include "../version.h"
 #include "../hgversion.h"
 #include "ConfigPage.dlg"
+#include "ThumbnailPage.dlg"
 
 VS_VERSION_INFO VERSIONINFO
  FILEVERSION COMMA_VERSION

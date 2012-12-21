@@ -29,6 +29,7 @@
 #include "../emergeBaseClasses/BasePositionPage.h"
 #include "../emergeStyleEngine/StyleEditor.h"
 #include "ConfigPage.h"
+#include "ThumbnailPage.h"
 
 #ifdef __GNUC__
 #include <tr1/memory>
@@ -50,6 +51,7 @@ private:
   std::tr1::shared_ptr<StyleEditor> pStyleEditor;
   std::tr1::shared_ptr<ConfigPage> pConfigPage;
   std::tr1::shared_ptr<Settings> pSettings;
+  std::tr1::shared_ptr<ThumbnailPage> pThumbnailPage;
   HINSTANCE hInstance;
   HWND mainWnd;
   static INT_PTR CALLBACK ConfigDlgProc(HWND hwndDlg, UINT message, WPARAM wParam, LPARAM lParam);

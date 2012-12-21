@@ -44,6 +44,7 @@ Config::Config(HINSTANCE hInstance, HWND mainWnd, WCHAR *instanceName, std::tr1:
   this->pSettings = pSettings;
 
   pConfigPage = std::tr1::shared_ptr<ConfigPage>(new ConfigPage(pSettings));
+  pThumbnailPage = std::tr1::shared_ptr<ThumbnailPage>(new ThumbnailPage(pSettings));
   pPositionPage = std::tr1::shared_ptr<BasePositionPage>
                   (new BasePositionPage(pSettings, BPP_ZORDER|BPP_HORIZONTAL|BPP_ORIENTATION|BPP_VERTICAL));
   pStyleEditor = std::tr1::shared_ptr<StyleEditor>(new StyleEditor(mainWnd, instanceName));
@@ -61,7 +62,7 @@ int Config::Show()
 INT_PTR Config::DoInitDialog(HWND hwndDlg)
 {
   int ret;
-  PROPSHEETPAGE psp[3];
+  PROPSHEETPAGE psp[4];
   PROPSHEETHEADER psh;
 
   ELStealFocus(hwndDlg);
@@ -94,6 +95,15 @@ INT_PTR Config::DoInitDialog(HWND hwndDlg)
   psp[2].pszTitle = TEXT("Style Editor");
   psp[2].lParam = reinterpret_cast<LPARAM>(pStyleEditor.get());
   psp[2].pfnCallback = NULL;
+
+  psp[3].dwSize = sizeof(PROPSHEETPAGE);
+  psp[3].dwFlags = PSP_USETITLE;
+  psp[3].hInstance = hInstance;
+  psp[3].pszTemplate = MAKEINTRESOURCE(IDD_THUMBNAIL_PAGE);
+  psp[3].pfnDlgProc = pThumbnailPage->ThumbnailPageDlgProc;
+  psp[3].pszTitle = TEXT("Thumbnails");
+  psp[3].lParam = reinterpret_cast<LPARAM>(pThumbnailPage.get());
+  psp[3].pfnCallback = NULL;
 
   psh.dwSize = sizeof(PROPSHEETHEADER);
   psh.dwFlags = PSH_PROPSHEETPAGE | PSH_NOAPPLYNOW | PSH_NOCONTEXTHELP;
