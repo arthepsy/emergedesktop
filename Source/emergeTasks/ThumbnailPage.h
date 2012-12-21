@@ -30,24 +30,12 @@ public:
   ThumbnailPage(std::tr1::shared_ptr<Settings> pSettings);
   ~ThumbnailPage();
   BOOL DoInitDialog(HWND hwndDlg);
-  BOOL DoCommand(HWND hwndDlg, WPARAM wParam, LPARAM lParam);
   bool UpdateSettings(HWND hwndDlg);
   INT_PTR DoNotify(HWND hwndDlg, LPARAM lParam);
   static INT_PTR CALLBACK ThumbnailPageDlgProc(HWND hwndDlg, UINT message, WPARAM wParam, LPARAM lParam);
 
 private:
-  LOGFONT newTitleFont, newInfoFont;
-  HFONT buttonTitleFont, buttonInfoFont;
   std::tr1::shared_ptr<Settings> pSettings;
-  RECT colourRect;
-  COLORREF ColourFrom;
-  COLORREF ColourTo;
-  HBITMAP hbmColourFrom;
-  HBITMAP hbmColourTo;
-  COLORREF ColourText;
-  COLORREF ColourBorder;
-  HBITMAP hbmColourText;
-  HBITMAP hbmColourBorder;
 };
 
 #endif

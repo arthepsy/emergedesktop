@@ -80,11 +80,11 @@ void Thumbnail::ShowThumbnail(HWND ownerWnd, RECT *taskRect)
   int x, y;
   SIZE thumbnailDimensions;
   DWM_THUMBNAIL_PROPERTIES thumbnailProperties;
+  long scale = pSettings->GetThumbnailScale();
 
   EGDwmQueryThumbnailSourceSize(dwmThumbnailId, &thumbnailDimensions);
-  //4 is an arbitrary zoom factor; ideally, this would be configurable by the user
-  thumbnailDimensions.cx = thumbnailDimensions.cx / 4;
-  thumbnailDimensions.cy = thumbnailDimensions.cy / 4;
+  thumbnailDimensions.cx = (thumbnailDimensions.cx * scale) / 100;
+  thumbnailDimensions.cy = (thumbnailDimensions.cy * scale) / 100;
 
   y = (ownerRect.top + taskRect->top) - thumbnailDimensions.cy;
   if (y < thumbnailMonitorInfo.rcMonitor.top)
@@ -101,14 +101,14 @@ void Thumbnail::ShowThumbnail(HWND ownerWnd, RECT *taskRect)
                thumbnailDimensions.cy, SWP_SHOWWINDOW);
 
   //set the thumbnail's properties; ideally, most/all of these would be configurable by the user
-  thumbnailProperties.dwFlags = DWM_TNP_RECTDESTINATION/*|DWM_TNP_SOURCECLIENTAREAONLY*/|DWM_TNP_OPACITY|DWM_TNP_VISIBLE;
+  thumbnailProperties.dwFlags = DWM_TNP_RECTDESTINATION|DWM_TNP_OPACITY|DWM_TNP_VISIBLE;
   thumbnailProperties.rcDestination.left = 0;
   thumbnailProperties.rcDestination.top = 0;
   thumbnailProperties.rcDestination.right = thumbnailDimensions.cx;
   thumbnailProperties.rcDestination.bottom = thumbnailDimensions.cy;
   thumbnailProperties.fSourceClientAreaOnly = true;
   thumbnailProperties.opacity = pSettings->GetThumbnailAlpha() * 255 / 100;
-  thumbnailProperties.fVisible = true;
+  thumbnailProperties.fVisible = pSettings->GetEnableThumbnails();
   EGDwmUpdateThumbnailProperties(dwmThumbnailId, &thumbnailProperties);
 }
 

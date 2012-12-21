@@ -31,6 +31,7 @@ Settings::Settings()
   sameMonitorOnly = false; //ROBLARKY - 2012-08-11: Added for option to only show tasks on same monitor
   enableThumbnails = true;
   thumbnailAlpha = 100;
+  thumbnailScale = 100;
 }
 
 void Settings::DoReadSettings(IOHelper& helper)
@@ -43,6 +44,7 @@ void Settings::DoReadSettings(IOHelper& helper)
   helper.ReadInt(TEXT("FlashInterval"), flashInterval, 1000);
   helper.ReadBool(TEXT("EnableThumbnails"), enableThumbnails, true);
   helper.ReadInt(TEXT("ThumbnailAlpha"), thumbnailAlpha, 100);
+  helper.ReadInt(TEXT("ThumbnailScale"), thumbnailScale, 100);
 }
 
 void Settings::DoWriteSettings(IOHelper& helper)
@@ -55,6 +57,7 @@ void Settings::DoWriteSettings(IOHelper& helper)
   helper.WriteInt(TEXT("FlashInterval"), flashInterval);
   helper.WriteBool(TEXT("EnableThumbnails"), enableThumbnails);
   helper.WriteInt(TEXT("ThumbnailAlpha"), thumbnailAlpha);
+  helper.WriteInt(TEXT("ThumbnailScale"), thumbnailScale);
 }
 
 void Settings::ResetDefaults()
@@ -83,6 +86,8 @@ void Settings::ResetDefaults()
   wcscpy(anchorPoint, TEXT("BottomLeft"));
   sameMonitorOnly = false; //ROBLARKY - 2012-08-11: Added for option to only show tasks on same monitor
   enableThumbnails = true;
+  thumbnailAlpha = 100;
+  thumbnailScale = 100;
 }
 
 bool Settings::GetHiliteActive()
@@ -186,6 +191,21 @@ bool Settings::SetThumbnailAlpha(int thumbnailAlpha)
   if (this->thumbnailAlpha != thumbnailAlpha)
     {
       this->thumbnailAlpha = thumbnailAlpha;
+      SetModified();
+    }
+  return true;
+}
+
+int Settings::GetThumbnailScale()
+{
+  return thumbnailScale;
+}
+
+bool Settings::SetThumbnailScale(int thumbnailScale)
+{
+  if (this->thumbnailScale != thumbnailScale)
+    {
+      this->thumbnailScale = thumbnailScale;
       SetModified();
     }
   return true;

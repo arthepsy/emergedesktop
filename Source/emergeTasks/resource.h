@@ -73,13 +73,9 @@
 #define IDC_ICONSPACINGUPDOWN 602
 
 #define IDC_ENABLETHUMBNAIL     700
-#define IDC_INFOFONTBUTTON      701
-#define IDC_GRADIENTMETHOD      702
-#define IDC_GRADIENTFROMCOLOUR  703
-#define IDC_GRADIENTTOCOLOUR    704
-#define IDC_SLIDER              705
-#define IDC_ALPHA               706
-#define IDC_INFOTEXTCOLOUR      707
-#define IDC_INFOBORDERCOLOUR    708
+#define IDC_ALPHASLIDER         701
+#define IDC_ALPHAVALUE          702
+#define IDC_SCALESLIDER         703
+#define IDC_SCALEVALUE          704
 
 #define IDI_DEFAULT		    1000
