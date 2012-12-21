@@ -350,7 +350,7 @@ LRESULT Applet::AddTask(HWND task)
   else
     icon = EGGetWindowIcon(mainWnd, task, true, false);
 
-  TaskPtr taskPtr(new Task(task, mainInst));
+  TaskPtr taskPtr(new Task(task, mainInst, pSettings.get()));
   taskPtr->SetIcon(icon, pSettings->GetIconSize());
   taskPtr->SetHidden(!IsWindowOnSameMonitor(task));
   EnterCriticalSection(&vectorLock);

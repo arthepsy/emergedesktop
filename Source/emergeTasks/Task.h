@@ -45,7 +45,7 @@
 class Task: public Thumbnail
 {
 public:
-  Task(HWND task, HINSTANCE mainInstance);
+  Task(HWND task, HINSTANCE mainInstance, Settings *pSettings);
   ~Task();
 
   HWND GetWnd();

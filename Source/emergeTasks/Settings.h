@@ -40,6 +40,8 @@ public:
   int GetFlashInterval();
   bool GetEnableFlash();
   bool GetEnableThumbnails();
+  int GetThumbnailAlpha();
+  bool SetThumbnailAlpha(int thumbnailAlpha);
 
 protected:
   virtual void DoReadSettings(IOHelper& helper);
@@ -50,6 +52,7 @@ private:
   bool hiliteActive, enableFlash, sameMonitorOnly; //ROBLARKY - 2012-08-11: Added for option to only show tasks on same monitor
   int flashInterval, flashCount;
   bool enableThumbnails;
+  int thumbnailAlpha;
 };
 
 #endif

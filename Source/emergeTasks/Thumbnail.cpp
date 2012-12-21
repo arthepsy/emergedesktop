@@ -23,7 +23,7 @@
 
 WCHAR dwmWndClassName[] = TEXT("dwmThumbnailWnd");
 
-Thumbnail::Thumbnail(HWND taskWnd, HINSTANCE instance)
+Thumbnail::Thumbnail(HWND taskWnd, HINSTANCE instance, Settings *pSettings)
 {
   WNDCLASSEX wincl;
   ZeroMemory(&wincl, sizeof(WNDCLASSEX));
@@ -50,6 +50,8 @@ Thumbnail::Thumbnail(HWND taskWnd, HINSTANCE instance)
           dwmThumbnailWnd = NULL;
         }
     }
+
+  this->pSettings = pSettings;
 }
 
 Thumbnail::~Thumbnail()
@@ -105,7 +107,7 @@ void Thumbnail::ShowThumbnail(HWND ownerWnd, RECT *taskRect)
   thumbnailProperties.rcDestination.right = thumbnailDimensions.cx;
   thumbnailProperties.rcDestination.bottom = thumbnailDimensions.cy;
   thumbnailProperties.fSourceClientAreaOnly = true;
-  thumbnailProperties.opacity = 255;
+  thumbnailProperties.opacity = pSettings->GetThumbnailAlpha() * 255 / 100;
   thumbnailProperties.fVisible = true;
   EGDwmUpdateThumbnailProperties(dwmThumbnailId, &thumbnailProperties);
 }

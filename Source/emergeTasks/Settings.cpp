@@ -30,6 +30,7 @@ Settings::Settings()
   flashInterval = 1000;
   sameMonitorOnly = false; //ROBLARKY - 2012-08-11: Added for option to only show tasks on same monitor
   enableThumbnails = true;
+  thumbnailAlpha = 100;
 }
 
 void Settings::DoReadSettings(IOHelper& helper)
@@ -41,6 +42,7 @@ void Settings::DoReadSettings(IOHelper& helper)
   helper.ReadBool(TEXT("EnableFlash"), enableFlash, true);
   helper.ReadInt(TEXT("FlashInterval"), flashInterval, 1000);
   helper.ReadBool(TEXT("EnableThumbnails"), enableThumbnails, true);
+  helper.ReadInt(TEXT("ThumbnailAlpha"), thumbnailAlpha, 100);
 }
 
 void Settings::DoWriteSettings(IOHelper& helper)
@@ -52,6 +54,7 @@ void Settings::DoWriteSettings(IOHelper& helper)
   helper.WriteBool(TEXT("EnableFlash"), enableFlash);
   helper.WriteInt(TEXT("FlashInterval"), flashInterval);
   helper.WriteBool(TEXT("EnableThumbnails"), enableThumbnails);
+  helper.WriteInt(TEXT("ThumbnailAlpha"), thumbnailAlpha);
 }
 
 void Settings::ResetDefaults()
@@ -168,6 +171,21 @@ bool Settings::SetEnableThumbnails(bool enableThumbnails)
   if (this->enableThumbnails != enableThumbnails)
     {
       this->enableThumbnails = enableThumbnails;
+      SetModified();
+    }
+  return true;
+}
+
+int Settings::GetThumbnailAlpha()
+{
+  return thumbnailAlpha;
+}
+
+bool Settings::SetThumbnailAlpha(int thumbnailAlpha)
+{
+  if (this->thumbnailAlpha != thumbnailAlpha)
+    {
+      this->thumbnailAlpha = thumbnailAlpha;
       SetModified();
     }
   return true;

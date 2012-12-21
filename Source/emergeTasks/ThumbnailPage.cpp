@@ -83,12 +83,12 @@ BOOL ThumbnailPage::DoInitDialog(HWND hwndDlg)
   if (pSettings->GetEnableThumbnails())
     SendDlgItemMessage(hwndDlg, IDC_ENABLETHUMBNAIL, BM_SETCHECK, BST_CHECKED, 0);
 
-  /*HWND sliderWnd = GetDlgItem(hwndDlg, IDC_SLIDER);
+  HWND sliderWnd = GetDlgItem(hwndDlg, IDC_SLIDER);
   SendMessage(sliderWnd, TBM_SETRANGE, (WPARAM)TRUE, (LPARAM)MAKELONG(0, 100));
-  SendMessage(sliderWnd, TBM_SETPOS, (WPARAM)TRUE, (LPARAM)pSettings->GetAlpha());
-  SetDlgItemInt(hwndDlg, IDC_ALPHA, pSettings->GetAlpha(), false);
+  SendMessage(sliderWnd, TBM_SETPOS, (WPARAM)TRUE, (LPARAM)pSettings->GetThumbnailAlpha());
+  SetDlgItemInt(hwndDlg, IDC_ALPHA, pSettings->GetThumbnailAlpha(), false);
 
-  CopyMemory(&newTitleFont, pSettings->GetInfoTitleFont(), sizeof(LOGFONT));
+  /*CopyMemory(&newTitleFont, pSettings->GetInfoTitleFont(), sizeof(LOGFONT));
   if (buttonTitleFont)
     DeleteObject(buttonTitleFont);
   buttonTitleFont = CreateFontIndirect(&newTitleFont);
@@ -223,16 +223,16 @@ BOOL ThumbnailPage::DoCommand(HWND hwndDlg UNUSED, WPARAM wParam UNUSED, LPARAM 
 
 INT_PTR ThumbnailPage::DoNotify(HWND hwndDlg, LPARAM lParam)
 {
-  //HWND sliderWnd = GetDlgItem(hwndDlg, IDC_SLIDER);
+  HWND sliderWnd = GetDlgItem(hwndDlg, IDC_SLIDER);
   NMHDR *phdr = (NMHDR*)lParam;
 
-  /*if (phdr->hwndFrom == sliderWnd)
+  if (phdr->hwndFrom == sliderWnd)
     {
       UINT sliderValue = (UINT)SendMessage(sliderWnd, TBM_GETPOS, 0, 0);
       SetDlgItemInt(hwndDlg, IDC_ALPHA, sliderValue, false);
 
       return 1;
-    }*/
+    }
 
   switch (phdr->code)
     {
@@ -257,15 +257,26 @@ INT_PTR ThumbnailPage::DoNotify(HWND hwndDlg, LPARAM lParam)
 
 bool ThumbnailPage::UpdateSettings(HWND hwndDlg)
 {
+  BOOL success;
+  UINT result;
+
   if (SendDlgItemMessage(hwndDlg, IDC_ENABLETHUMBNAIL, BM_GETCHECK, 0, 0) == BST_CHECKED)
     pSettings->SetEnableThumbnails(true);
   else if (SendDlgItemMessage(hwndDlg, IDC_ENABLETHUMBNAIL, BM_GETCHECK, 0, 0) == BST_UNCHECKED)
     pSettings->SetEnableThumbnails(false);
 
-  /*BOOL success;
-  UINT result;
+  result = GetDlgItemInt(hwndDlg, IDC_ALPHA, &success, false);
+  if (success)
+    pSettings->SetThumbnailAlpha(result);
+  else
+    {
+      ELMessageBox(hwndDlg, (WCHAR*)TEXT("Invalid value for alpha"), (WCHAR*)TEXT("emergeTasks"),
+                   ELMB_OK|ELMB_ICONERROR|ELMB_MODAL);
+      SetDlgItemInt(hwndDlg, IDC_MENUALPHA, pSettings->GetThumbnailAlpha(), false);
+      return false;
+    }
 
-  WCHAR methodString[MAX_LINE_LENGTH];
+  /*WCHAR methodString[MAX_LINE_LENGTH];
   GetDlgItemText(hwndDlg, IDC_GRADIENTMETHOD, methodString, MAX_LINE_LENGTH);
   pSettings->SetGradientMethod(methodString);
   pSettings->SetGradientFrom(ColourFrom);
@@ -273,17 +284,6 @@ bool ThumbnailPage::UpdateSettings(HWND hwndDlg)
 
   pSettings->SetInfoTitleFont(&newTitleFont);
   pSettings->SetInfoFont(&newInfoFont);
-
-  result = GetDlgItemInt(hwndDlg, IDC_ALPHA, &success, false);
-  if (success)
-    pSettings->SetAlpha(result);
-  else
-    {
-      ELMessageBox(hwndDlg, (WCHAR*)TEXT("Invalid value for alpha"), (WCHAR*)TEXT("emergeCore"),
-                   ELMB_OK|ELMB_ICONERROR|ELMB_MODAL);
-      SetDlgItemInt(hwndDlg, IDC_MENUALPHA, pSettings->GetAlpha(), false);
-      return false;
-    }
 
   pSettings->SetTextColor(ColourText);
   pSettings->SetBorderColor(ColourBorder);
