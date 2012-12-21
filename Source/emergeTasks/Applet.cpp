@@ -628,7 +628,7 @@ LRESULT Applet::TaskMouseEvent(UINT message, LPARAM lParam)
                     movingWnd = NULL;
                   return 0;
                 }
-              if ((*iter)->GetThumbnailWnd() && pSettings->GetEnableThumbnails())
+              if ((*iter)->GetThumbnailWnd())
                 {
                   task = (*iter)->GetWnd();
                   thumbnailIter = thumbnailMap.find(task);
