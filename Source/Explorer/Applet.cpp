@@ -32,7 +32,11 @@ HMODULE shdocvmDLL = NULL;
 HMODULE explorerFrameDLL = NULL;
 HMODULE shell32DLL = NULL;
 
+HANDLE threadReadyEvent = NULL;
+
 WCHAR explorerClass[ ] = TEXT("EmergeDesktopExplorer");
+
+int showDesktop = SW_HIDE;
 
 Applet::Applet(HINSTANCE hInstance)
 {
@@ -86,11 +90,15 @@ UINT Applet::Initialize()
   // Start the shell functions
   ShellServicesInit();
 
+  threadReadyEvent = CreateEvent(NULL, TRUE, FALSE, L"ExplorerDesktopThreadReady");
+
   return 1;
 }
 
 Applet::~Applet()
 {
+  CloseHandle(threadReadyEvent);
+
   // Send quit message to SHDesktopMessageLoop
   if(m_dwThreadID)
     PostThreadMessage(m_dwThreadID, WM_QUIT, 0, 0);
@@ -201,6 +209,7 @@ DWORD WINAPI Applet::ThreadFunc(LPVOID pvParam UNUSED)
       SendMessage(GetDesktopWindow(), 0x400, 0, 0);
 
       ShowWindow(FindWindow(L"Progman", NULL), SW_HIDE);
+      SetEvent(threadReadyEvent);
 
       // Run the desktop message loop
       if (hDesktop)
@@ -223,16 +232,21 @@ DWORD WINAPI Applet::ThreadFunc(LPVOID pvParam UNUSED)
 
 LRESULT Applet::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-  int nCmdShow = SW_SHOW;
+  DWORD threadState, threadID;
 
   if (message == EMERGE_MESSAGE)
     {
       switch (wParam)
         {
         case EXPLORER_SHOW:
-          if (!lParam)
-            nCmdShow = SW_HIDE;
-          return (ShowWindow(FindWindow(L"Progman", NULL), nCmdShow) == TRUE);
+          if (lParam)
+            showDesktop = SW_SHOW;
+          else
+            showDesktop = SW_HIDE;
+          GetExitCodeThread(showThread, &threadState);
+          if (threadState != STILL_ACTIVE)
+            showThread = CreateThread(NULL, 0, ShowDesktopThreadProc, NULL, 0, &threadID);
+          return 0;
 
         case EXPLORER_ENABLE:
           ToggleThread(lParam);
@@ -241,6 +255,14 @@ LRESULT Applet::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
     }
 
   return DefWindowProc (hwnd, message, wParam, lParam);
+}
+
+DWORD WINAPI Applet::ShowDesktopThreadProc(LPVOID lpParameter UNUSED)
+{
+  WaitForSingleObject(threadReadyEvent, INFINITE);
+  ShowWindow(FindWindow(L"Progman", NULL), showDesktop);
+
+  return 0;
 }
 
 void Applet::ToggleThread(LPARAM lParam)
@@ -257,6 +279,7 @@ void Applet::ToggleThread(LPARAM lParam)
     {
       TerminateThread(m_hThread, 0);
       m_hThread = NULL;
+      ResetEvent(threadReadyEvent);
     }
 }
 

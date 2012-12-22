@@ -32,11 +32,12 @@ class Applet
 private:
   HWND mainWnd;
   HINSTANCE mainInst;
-	HANDLE m_hThread;
+	HANDLE m_hThread, showThread;
 	DWORD m_dwThreadID;
   void ShellServicesInit();
   void ShellServicesTerminate();
   void ToggleThread(LPARAM lParam);
+  static DWORD WINAPI ShowDesktopThreadProc(LPVOID lpParameter);
 
 public:
   Applet(HINSTANCE hInstance);
