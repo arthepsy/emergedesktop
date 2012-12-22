@@ -62,10 +62,11 @@ private:
   bool BuildLaunchList();
   void CheckLaunchItem(LaunchMap *launchMap, const WCHAR *item);
   void StartExplorer();
-  void ShowExplorerDesktop(bool showDesktop);
-  void EnableExplorerDesktop(bool enableDesktop);
+  void EnableExplorerDesktop();
   std::wstring xmlFile;
   void ShowWelcome();
+  HANDLE explorerThread;
+  static DWORD WINAPI EnableExplorerThreadProc(LPVOID lpParameter);
 
 public:
   Core(HINSTANCE hInstance);

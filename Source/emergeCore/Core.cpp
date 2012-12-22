@@ -35,6 +35,7 @@ Core::Core(HINSTANCE hInstance)
   xmlFile = TEXT("%ThemeDir%\\");
   xmlFile += TEXT("emergeCore.xml");
   registered = false;
+  explorerThread = NULL;
 }
 
 bool Core::Initialize(WCHAR *commandLine)
@@ -120,18 +121,12 @@ bool Core::Initialize(WCHAR *commandLine)
   pMessageControl = std::tr1::shared_ptr<MessageControl>(new MessageControl());
   pMessageControl->AddType(mainWnd, EMERGE_CORE);
 
-  StartExplorer();
-  // Wait a quarter second for Explorer to start before sending messages to it
-  Sleep(250);
-  EnableExplorerDesktop(pSettings->GetEnableExplorerDesktop());
-  // Wait a quarter second for Explorer thread to start before sending trying
-  // to make it visible
-  Sleep(250);
-  ShowExplorerDesktop(pSettings->GetShowExplorerDesktop());
-
   // Create desktop window
   pDesktop = std::tr1::shared_ptr<Desktop>(new Desktop(mainInst, pMessageControl));
   pDesktop->Initialize(pSettings->GetShowExplorerDesktop());
+
+  StartExplorer();
+  EnableExplorerDesktop();
 
   // Hide Explorer's taskbar
   pShell->HideExplorerBar();
@@ -401,19 +396,7 @@ LRESULT Core::DoCopyData(COPYDATASTRUCT *cds)
                   // Tell the existing applets to reconfigure
                   pMessageControl->DispatchMessage(EMERGE_CORE, CORE_RECONFIGURE, NULL);
 
-                  if (pSettings->GetEnableExplorerDesktop())
-                    {
-                      EnableExplorerDesktop(true);
-                      // Wait for thread to start
-                      Sleep(250);
-                      ShowExplorerDesktop(pSettings->GetShowExplorerDesktop());
-                      pDesktop->ShowDesktop(!pSettings->GetShowExplorerDesktop());
-                    }
-                  else
-                    {
-                      EnableExplorerDesktop(false);
-                      pDesktop->ShowDesktop(true);
-                    }
+                  EnableExplorerDesktop();
                 }
               break;
 
@@ -529,21 +512,7 @@ void Core::ShowConfig(UINT startPage)
   Config config(mainInst, mainWnd, pSettings);
 
   if (config.Show(startPage) == IDOK)
-    {
-      if (pSettings->GetEnableExplorerDesktop())
-        {
-          EnableExplorerDesktop(true);
-          // Wait for thread to start
-          Sleep(250);
-          ShowExplorerDesktop(pSettings->GetShowExplorerDesktop());
-          pDesktop->ShowDesktop(!pSettings->GetShowExplorerDesktop());
-        }
-      else
-        {
-          EnableExplorerDesktop(false);
-          pDesktop->ShowDesktop(true);
-        }
-    }
+    EnableExplorerDesktop();
 }
 
 LRESULT Core::DoWTSSessionChange(UINT message)
@@ -644,26 +613,44 @@ void Core::StartExplorer()
   ELExecute(explorerCmd);
 }
 
-void Core::ShowExplorerDesktop(bool showDesktop)
+void Core::EnableExplorerDesktop()
 {
-  HWND explorerWnd = FindWindow(TEXT("EmergeDesktopExplorer"), NULL);
+  DWORD enableID, threadState;
 
-  if (explorerWnd)
-    SendMessage(explorerWnd, EMERGE_MESSAGE, EXPLORER_SHOW, (WPARAM)showDesktop);
+  // Create the thread to handle enabling Explorer Desktop
+  GetExitCodeThread(explorerThread, &threadState);
+  if (threadState != STILL_ACTIVE)
+    explorerThread = CreateThread(NULL, 0, EnableExplorerThreadProc,
+                                  pSettings.get(), 0, &enableID);
+
+  if (pSettings->GetEnableExplorerDesktop())
+    pDesktop->ShowDesktop(!pSettings->GetShowExplorerDesktop());
   else
-    ELMessageBox(GetDesktopWindow(), L"Failed to show Explorer Desktop",
-                 L"emergeCore", ELMB_ICONERROR);
+    pDesktop->ShowDesktop(true);
 }
 
-void Core::EnableExplorerDesktop(bool enableDesktop)
+DWORD WINAPI Core::EnableExplorerThreadProc(LPVOID lpParameter)
 {
-  HWND explorerWnd = FindWindow(TEXT("EmergeDesktopExplorer"), NULL);
+  Settings *pSettings = reinterpret_cast< Settings* >(lpParameter);
 
-  if (explorerWnd)
-    SendMessage(explorerWnd, EMERGE_MESSAGE, EXPLORER_ENABLE, (WPARAM)enableDesktop);
-  else
-    ELMessageBox(GetDesktopWindow(), L"Failed to enable Explorer Desktop",
-                 L"emergeCore", ELMB_ICONERROR);
+  HWND explorerWnd = FindWindow(TEXT("EmergeDesktopExplorer"), NULL);
+  while (!explorerWnd)
+    {
+      // Pause the current thread for 100 ms
+      WaitForSingleObject(GetCurrentThread(), 100);
+      explorerWnd = FindWindow(TEXT("EmergeDesktopExplorer"), NULL);
+    }
+  SendMessage(explorerWnd, EMERGE_MESSAGE, EXPLORER_ENABLE,
+              pSettings->GetEnableExplorerDesktop());
+
+  if (pSettings->GetEnableExplorerDesktop())
+    {
+      //Sleep(500);
+      SendMessage(explorerWnd, EMERGE_MESSAGE, EXPLORER_SHOW,
+                  pSettings->GetShowExplorerDesktop());
+    }
+
+  return 0;
 }
 
 void Core::ConvertTheme()
