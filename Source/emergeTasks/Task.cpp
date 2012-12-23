@@ -268,7 +268,12 @@ void Task::DisplayMenu(HWND callingWnd)
   GetCursorPos(&pt);
 
   /**< Bring the task window to the foreground like Explorer does. */
-  ELSwitchToThisWindow(wnd);
+  DWORD threadID1 = GetWindowThreadProcessId(callingWnd, NULL);
+  DWORD threadID2 = GetWindowThreadProcessId(wnd, NULL);
+
+  AttachThreadInput(threadID1, threadID2, TRUE);
+  SetWindowPos(wnd, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE|SWP_NOMOVE|SWP_NOACTIVATE);
+  AttachThreadInput(threadID1, threadID2, FALSE);
 
   res = EAEDisplayMenu(callingWnd, wnd);
   switch (res)
