@@ -577,6 +577,7 @@ LRESULT Applet::TaskMouseEvent(UINT message, LPARAM lParam)
               if (movingWnd != NULL)
                 movingWnd = NULL;
               break;
+
             case WM_LBUTTONDOWN:
               if (ELIsKeyDown(VK_MENU))
                 {
@@ -605,9 +606,11 @@ LRESULT Applet::TaskMouseEvent(UINT message, LPARAM lParam)
                 ELSwitchToThisWindow(windowHandle); // If not activate it
             }
             break;
+
             case WM_RBUTTONUP:
               (*iter)->DisplayMenu(mainWnd);
               break;
+
             case WM_MOUSEMOVE:
               if (movingWnd != NULL)
                 {
@@ -628,6 +631,7 @@ LRESULT Applet::TaskMouseEvent(UINT message, LPARAM lParam)
                     movingWnd = NULL;
                   return 0;
                 }
+
               if ((*iter)->GetThumbnailWnd())
                 {
                   task = (*iter)->GetWnd();
@@ -647,13 +651,11 @@ LRESULT Applet::TaskMouseEvent(UINT message, LPARAM lParam)
                         }
                     }
                 }
-              else
+
+              if (oldTipWnd != (*iter)->GetWnd())
                 {
-                  if (oldTipWnd != (*iter)->GetWnd())
-                    {
-                      oldTipWnd = (*iter)->GetWnd();
-                      SendMessage(toolWnd, TTM_UPDATE, 0, 0);
-                    }
+                  oldTipWnd = (*iter)->GetWnd();
+                  SendMessage(toolWnd, TTM_UPDATE, 0, 0);
                 }
               break;
             }
