@@ -71,6 +71,7 @@
 			<Add library="ole32" />
 			<Add library="comdlg32" />
 			<Add library="gdi32" />
+			<Add library="uuid" />
 		</Linker>
 		<ExtraCommands>
 			<Add before='[[ IO.Execute(_T(&quot;cmd /c \&quot;cd.. &amp; hgversion.bat\&quot;&quot;)) ]]' />
