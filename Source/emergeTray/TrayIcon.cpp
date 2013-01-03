@@ -292,13 +292,20 @@ void TrayIcon::ShowBalloon(WCHAR *infoTitle, WCHAR *info, DWORD infoFlags, HICON
   balloonPt.x = rect.left;
   balloonPt.y = rect.top;
 
+  ELWriteDebug(infoTitle);
+  ELWriteDebug(info);
+  ELWriteDebug(towstring(infoFlags));
+
   if (ClientToScreen(mainWnd, &balloonPt))
     {
       if (pBalloon->SetInfoFlags(infoFlags, icon))
         {
           pBalloon->SetInfoTitle(infoTitle);
           pBalloon->SetInfo(info);
-          pBalloon->Show(balloonPt);
+          if (wcslen(info))
+            pBalloon->Show(balloonPt);
+          else
+            pBalloon->Hide();
         }
     }
 }

@@ -45,8 +45,9 @@ LRESULT CALLBACK Balloon::BalloonProcedure (HWND hwnd, UINT message, WPARAM wPar
     case WM_LBUTTONDOWN:
       return pBalloon->DoLButtonDown();
     case WM_RBUTTONDOWN:
+      return pBalloon->Hide();
     case WM_TIMER:
-      return pBalloon->DoTimer();
+      return pBalloon->DoTimer(wParam);
     }
 
   return DefWindowProc(hwnd, message, wParam, lParam);
@@ -67,7 +68,8 @@ Balloon::Balloon(HINSTANCE hInstance, TrayIcon *pTrayIcon, Settings *pSettings)
   wcscpy(info, TEXT("\0"));
   wcscpy(infoTitle, TEXT("\0"));
   infoFlags = 0;
-  iconSize = 16;
+  iconWidth = 0;
+  iconHeight = 0;
   ZeroMemory(&titleRect, sizeof(RECT));
   ZeroMemory(&infoRect, sizeof(RECT));
   icon = NULL;
@@ -102,11 +104,22 @@ void Balloon::SetIconRect(RECT rect)
   CopyRect(&trayIconRect, &rect);
 }
 
-LRESULT Balloon::DoTimer()
+LRESULT Balloon::DoTimer(WPARAM wParam)
 {
-  ShowWindow(balloonWnd, SW_HIDE);
-  SendMessage(NIN_BALLOONTIMEOUT);
-  KillTimer(balloonWnd, BALLOON_TIMER_ID);
+  switch(wParam)
+    {
+    case BALLOON_TIMER_ID:
+      ShowWindow(balloonWnd, SW_HIDE);
+      SendMessage(NIN_BALLOONTIMEOUT);
+      KillTimer(balloonWnd, BALLOON_TIMER_ID);
+      break;
+    case START_BALLOON_TIMER_ID:
+      SetTimer(balloonWnd, BALLOON_TIMER_ID, 10000, NULL);
+      if (ShowWindow(balloonWnd, SW_SHOW))
+        DrawAlphaBlend();
+      break;
+    }
+
   return 0;
 }
 
@@ -143,8 +156,8 @@ bool Balloon::SetInfo(WCHAR *info)
     infoRect.top = 0;
   else
     {
-      infoRect.top = iconSize;
-      if (titleRect.bottom > iconSize)
+      infoRect.top = iconHeight;
+      if (titleRect.bottom > iconHeight)
         infoRect.top = titleRect.bottom;
     }
   infoRect.top += 5;
@@ -175,7 +188,7 @@ bool Balloon::SetInfoTitle(WCHAR *infoTitle)
       titleRect.top = 5;
       titleRect.left = 5;
       if (icon)
-        titleRect.left += iconSize + 5;
+        titleRect.left += iconWidth + 5;
       titleRect.bottom = titleRect.top;
       titleRect.right = titleRect.left;
     }
@@ -197,9 +210,15 @@ bool Balloon::SetInfoFlags(DWORD infoFlags, HICON infoIcon)
   this->infoFlags = infoFlags;
 
   if ((infoFlags & NIIF_LARGE_ICON) == NIIF_LARGE_ICON)
-    iconSize = 32;
+    {
+      iconWidth = GetSystemMetrics(SM_CXICON);
+      iconHeight = GetSystemMetrics(SM_CYICON);
+    }
   else
-    iconSize = 16;
+    {
+      iconWidth = GetSystemMetrics(SM_CXSMICON);
+      iconHeight = GetSystemMetrics(SM_CYSMICON);
+    }
 
   if ((infoFlags & NIIF_NONE) == NIIF_NONE)
     {
@@ -210,11 +229,11 @@ bool Balloon::SetInfoFlags(DWORD infoFlags, HICON infoIcon)
         }
     }
   else if ((infoFlags & NIIF_INFO) == NIIF_INFO)
-    tmpIcon = (HICON)LoadImage(NULL, MAKEINTRESOURCE(OIC_INFORMATION), IMAGE_ICON, iconSize, iconSize, LR_SHARED);
+    tmpIcon = (HICON)LoadImage(NULL, MAKEINTRESOURCE(OIC_INFORMATION), IMAGE_ICON, iconWidth, iconHeight, LR_SHARED);
   else if ((infoFlags & NIIF_WARNING) == NIIF_WARNING)
-    tmpIcon = (HICON)LoadImage(NULL, MAKEINTRESOURCE(OIC_WARNING), IMAGE_ICON, iconSize, iconSize, LR_SHARED);
+    tmpIcon = (HICON)LoadImage(NULL, MAKEINTRESOURCE(OIC_WARNING), IMAGE_ICON, iconWidth, iconHeight, LR_SHARED);
   else if ((infoFlags & NIIF_ERROR) == NIIF_ERROR)
-    tmpIcon = (HICON)LoadImage(NULL, MAKEINTRESOURCE(OIC_ERROR), IMAGE_ICON, iconSize, iconSize, LR_SHARED);
+    tmpIcon = (HICON)LoadImage(NULL, MAKEINTRESOURCE(OIC_ERROR), IMAGE_ICON, iconWidth, iconHeight, LR_SHARED);
   else if ((infoFlags & NIIF_USER) == NIIF_USER)
     tmpIcon = CopyIcon(infoIcon);
 
@@ -300,25 +319,22 @@ bool Balloon::Show(POINT showPt)
     x = balloonMonitorInfo.rcMonitor.left;
 
   SendMessage(NIN_BALLOONSHOW);
-  SetTimer(balloonWnd, BALLOON_TIMER_ID, 10000, NULL);
 
-  if (SetWindowPos(balloonWnd, HWND_TOPMOST, x, y, width, height, SWP_SHOWWINDOW))
-    return DrawAlphaBlend();
+  if (SetWindowPos(balloonWnd, HWND_TOPMOST, x, y, width, height, SWP_HIDEWINDOW))
+    // Start a timer to address the issue with flickering balloons
+    SetTimer(balloonWnd, START_BALLOON_TIMER_ID, 100, NULL);
 
-  return false;
+  return true;
 }
 
-bool Balloon::Hide()
+LRESULT Balloon::Hide()
 {
-  if (IsWindowVisible(balloonWnd))
-    {
-      SendMessage(NIN_BALLOONHIDE);
-      ShowWindow(balloonWnd, SW_HIDE);
+  SendMessage(NIN_BALLOONHIDE);
+  ShowWindow(balloonWnd, SW_HIDE);
+  KillTimer(balloonWnd, START_BALLOON_TIMER_ID);
+  KillTimer(balloonWnd, BALLOON_TIMER_ID);
 
-      return true;
-    }
-
-  return false;
+  return 0;
 }
 
 bool Balloon::DrawAlphaBlend()
@@ -365,7 +381,7 @@ bool Balloon::DrawAlphaBlend()
   DeleteObject(formatInfo.font);
 
   if (icon)
-    DrawIconEx(hdc, 5, 5, icon, iconSize, iconSize, 0, NULL, DI_NORMAL);
+    DrawIconEx(hdc, 5, 5, icon, iconWidth, iconHeight, 0, NULL, DI_NORMAL);
 
   bf.BlendOp = AC_SRC_OVER;
   bf.BlendFlags = 0;

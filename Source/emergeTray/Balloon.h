@@ -39,7 +39,8 @@
 #include "../emergeAppletEngine/emergeAppletEngine.h"
 #include "Settings.h"
 
-#define BALLOON_TIMER_ID 1
+#define BALLOON_TIMER_ID        1
+#define START_BALLOON_TIMER_ID  2
 
 #ifndef NIIF_USER
 #define NIIF_USER 0x4
@@ -62,9 +63,9 @@ public:
   ~Balloon();
   bool Initialize();
   bool Show(POINT showPt);
-  bool Hide();
+  LRESULT Hide();
   LRESULT DoLButtonDown();
-  LRESULT DoTimer();
+  LRESULT DoTimer(WPARAM wParam);
   bool SetInfo(WCHAR *info);
   bool SetInfoTitle(WCHAR *info);
   bool SetInfoFlags(DWORD infoFlags, HICON infoIcon);
@@ -84,12 +85,15 @@ private:
   RECT titleRect, infoRect;
   HICON icon;
   Settings *pSettings;
-  int iconSize;
+  int iconHeight;
+  int iconWidth;
   UINT trayIconID;
   UINT trayIconCallbackMessage;
   UINT trayIconVersion;
   RECT trayIconRect;
   HWND trayIconWnd;
+  HANDLE showThread;
+  static DWORD WINAPI ShowThreadProc(LPVOID lpParameter);
 };
 
 #endif
