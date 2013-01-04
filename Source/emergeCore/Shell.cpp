@@ -528,14 +528,14 @@ bool Shell::FirstRunCheck()
 //----  --------------------------------------------------------------------------------------------------------
 void Shell::LoadSSO()
 {
-  HKEY key, subkey;
-  int i = 0;
-  WCHAR data[40];
-  WCHAR valueName[32];
-  DWORD dataSize;
-  DWORD valueSize;
-  DWORD dwDataType;
-  CLSID clsid, clsidTray;
+  //HKEY key, subkey;
+  //int i = 0;
+  //WCHAR data[40];
+  //WCHAR valueName[32];
+  //DWORD dataSize;
+  //DWORD valueSize;
+  //DWORD dwDataType;
+  CLSID /*clsid,*/ clsidTray;
   IOleCommandTarget *target = NULL;
 
   CLSIDFromString((WCHAR*)TEXT("{35CEC8A3-2BE6-11D2-8773-92E220524153}"), &clsidTray);
@@ -543,7 +543,7 @@ void Shell::LoadSSO()
   if (target)
     ssoIconList.push_back(target);
 
-  dataSize = sizeof(data);
+  /*dataSize = sizeof(data);
   i = 0;
 
   if (ELVersionInfo() > 6.0)
@@ -602,7 +602,7 @@ void Shell::LoadSSO()
 
           RegCloseKey(key);
         }
-    }
+    }*/
 }
 
 //----  --------------------------------------------------------------------------------------------------------

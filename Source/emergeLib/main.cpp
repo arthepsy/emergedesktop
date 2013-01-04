@@ -5449,8 +5449,8 @@ IOleCommandTarget *ELStartSSO(CLSID clsid)
 
   // The SSO might have a custom manifest.
   // Activate it before loading the object.
-  ULONG_PTR ulCookie;
-  HANDLE hContext = ELActivateActCtxForClsid(clsid, &ulCookie);
+  //ULONG_PTR ulCookie;
+  //HANDLE hContext = ELActivateActCtxForClsid(clsid, &ulCookie);
 
   if (SUCCEEDED(CoCreateInstance(clsid, NULL, CLSCTX_INPROC_SERVER | CLSCTX_INPROC_HANDLER, IID_IOleCommandTarget,
                                  &lpVoid)))
@@ -5463,8 +5463,8 @@ IOleCommandTarget *ELStartSSO(CLSID clsid)
       target = reinterpret_cast <IOleCommandTarget*>(lpVoid);
     }
 
-  if (hContext != INVALID_HANDLE_VALUE)
-    ELDeactivateActCtx(hContext, &ulCookie);
+  //if (hContext != INVALID_HANDLE_VALUE)
+    //ELDeactivateActCtx(hContext, &ulCookie);
 
   return target;
 }
