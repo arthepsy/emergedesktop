@@ -65,7 +65,6 @@ public:
   bool Show(POINT showPt);
   LRESULT Hide();
   LRESULT DoLButtonDown();
-  LRESULT DoTimer(WPARAM wParam);
   bool SetInfo(WCHAR *info);
   bool SetInfoTitle(WCHAR *info);
   bool SetInfoFlags(DWORD infoFlags, HICON infoIcon);
@@ -74,6 +73,8 @@ public:
   void SetIconVersion(UINT iconVersion);
   void SetCallbackMessage(UINT callbackMessage);
   void SetIconRect(RECT rect);
+  bool ShowBalloon();
+  void TimeoutBalloon();
 
 private:
   static LRESULT CALLBACK BalloonProcedure (HWND, UINT, WPARAM, LPARAM);
@@ -93,6 +94,8 @@ private:
   RECT trayIconRect;
   HWND trayIconWnd;
   HANDLE showThread;
+  DWORD showID;
+  POINT showPt;
   static DWORD WINAPI ShowThreadProc(LPVOID lpParameter);
 };
 

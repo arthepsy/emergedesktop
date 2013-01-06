@@ -46,8 +46,6 @@ LRESULT CALLBACK Balloon::BalloonProcedure (HWND hwnd, UINT message, WPARAM wPar
       return pBalloon->DoLButtonDown();
     case WM_RBUTTONDOWN:
       return pBalloon->Hide();
-    case WM_TIMER:
-      return pBalloon->DoTimer(wParam);
     }
 
   return DefWindowProc(hwnd, message, wParam, lParam);
@@ -74,6 +72,10 @@ Balloon::Balloon(HINSTANCE hInstance, TrayIcon *pTrayIcon, Settings *pSettings)
   ZeroMemory(&infoRect, sizeof(RECT));
   icon = NULL;
   balloonWnd = NULL;
+  showThread = NULL;
+  showID = 0;
+  showPt.x = 0;
+  showPt.y = 0;
 }
 
 Balloon::~Balloon()
@@ -85,7 +87,7 @@ LRESULT Balloon::DoLButtonDown()
 {
   ShowWindow(balloonWnd, SW_HIDE);
   SendMessage(NIN_BALLOONUSERCLICK);
-  KillTimer(balloonWnd, BALLOON_TIMER_ID);
+  TerminateThread(showThread, 0);
   return 0;
 }
 
@@ -102,25 +104,6 @@ void Balloon::SetCallbackMessage(UINT callbackMessage)
 void Balloon::SetIconRect(RECT rect)
 {
   CopyRect(&trayIconRect, &rect);
-}
-
-LRESULT Balloon::DoTimer(WPARAM wParam)
-{
-  switch(wParam)
-    {
-    case BALLOON_TIMER_ID:
-      ShowWindow(balloonWnd, SW_HIDE);
-      SendMessage(NIN_BALLOONTIMEOUT);
-      KillTimer(balloonWnd, BALLOON_TIMER_ID);
-      break;
-    case START_BALLOON_TIMER_ID:
-      SetTimer(balloonWnd, BALLOON_TIMER_ID, 10000, NULL);
-      if (ShowWindow(balloonWnd, SW_SHOW))
-        DrawAlphaBlend();
-      break;
-    }
-
-  return 0;
 }
 
 // This is a duplication of TrayIcon::SendMessage().  There is a race condition
@@ -286,6 +269,41 @@ bool Balloon::Initialize()
 
 bool Balloon::Show(POINT showPt)
 {
+  SendMessage(NIN_BALLOONSHOW);
+
+  this->showPt = showPt;
+
+  DWORD threadState;
+  GetExitCodeThread(showThread, &threadState);
+  if (threadState != STILL_ACTIVE)
+    showThread = CreateThread(NULL, 0, ShowThreadProc, this, 0, &showID);
+
+  return true;
+}
+
+DWORD WINAPI Balloon::ShowThreadProc(LPVOID lpParameter UNUSED)
+{
+  Balloon *pBalloon = reinterpret_cast< Balloon* >(lpParameter);
+
+  // Wait for 100 ms before showing the window to handle flicking
+  WaitForSingleObject(GetCurrentThread(), 100);
+  pBalloon->ShowBalloon();
+
+  // Wait as per the timeout values before timing out the balloon
+  WaitForSingleObject(GetCurrentThread(), 10000);
+  pBalloon->TimeoutBalloon();
+
+  return 0;
+}
+
+void Balloon::TimeoutBalloon()
+{
+  ShowWindow(balloonWnd, SW_HIDE);
+  SendMessage(NIN_BALLOONTIMEOUT);
+}
+
+bool Balloon::ShowBalloon()
+{
   int x, y, xoffset, width, height;
   HMONITOR balloonMonitor = MonitorFromWindow(balloonWnd, MONITOR_DEFAULTTONULL);
   MONITORINFO balloonMonitorInfo;
@@ -318,21 +336,18 @@ bool Balloon::Show(POINT showPt)
   if (x < balloonMonitorInfo.rcMonitor.left)
     x = balloonMonitorInfo.rcMonitor.left;
 
-  SendMessage(NIN_BALLOONSHOW);
-
-  if (SetWindowPos(balloonWnd, HWND_TOPMOST, x, y, width, height, SWP_HIDEWINDOW))
-    // Start a timer to address the issue with flickering balloons
-    SetTimer(balloonWnd, START_BALLOON_TIMER_ID, 100, NULL);
+  if (SetWindowPos(balloonWnd, HWND_TOPMOST, x, y, width, height, SWP_SHOWWINDOW))
+      DrawAlphaBlend();
 
   return true;
 }
+
 
 LRESULT Balloon::Hide()
 {
   SendMessage(NIN_BALLOONHIDE);
   ShowWindow(balloonWnd, SW_HIDE);
-  KillTimer(balloonWnd, START_BALLOON_TIMER_ID);
-  KillTimer(balloonWnd, BALLOON_TIMER_ID);
+  TerminateThread(showThread, 0);
 
   return 0;
 }
