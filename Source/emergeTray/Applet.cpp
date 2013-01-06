@@ -1948,7 +1948,7 @@ void Applet::SortIcons()
   for(;srcIter != trayIconList.end(); ++srcIter)
     {
       // hidden icon? remember it for later and skip to next icon
-      if((*srcIter)->GetHidden()) 
+      if((*srcIter)->GetHidden())
         {
           hiddenIconListTmp.push_back((*srcIter));
           continue;
