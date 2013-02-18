@@ -1,4 +1,4 @@
-LIBS += -lversion -lole32 -lemergeLib -lmsimg32 -lgdi32 -lshlwapi
+LIBS += -lversion -lole32 -lemergeLib -lmsimg32 -lgdi32 -lshlwapi -luuid
 
 TARGET = emergeGraphics
 SUFFIX = .dll

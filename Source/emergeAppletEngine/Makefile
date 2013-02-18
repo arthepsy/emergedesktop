@@ -1,4 +1,4 @@
-LIBS += -lversion -lcomctl32 -lole32 -lshlwapi -lemergeLib
+LIBS += -lversion -lcomctl32 -lole32 -lshlwapi -lemergeLib -luuid
 
 TARGET = emergeAppletEngine
 SUFFIX = .dll
