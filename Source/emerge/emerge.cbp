@@ -7,8 +7,8 @@
 		<Option compiler="gcc" />
 		<Build>
 			<Target title="Debug">
-				<Option output="..\bin\emerge" prefix_auto="1" extension_auto="1" />
-				<Option object_output="obj\Debug\" />
+				<Option output="../bin/emerge" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Debug/" />
 				<Option type="0" />
 				<Option compiler="gcc" />
 				<Compiler>
@@ -19,8 +19,8 @@
 				</Linker>
 			</Target>
 			<Target title="Release">
-				<Option output="..\bin\emerge" prefix_auto="1" extension_auto="1" />
-				<Option object_output="obj\Release\" />
+				<Option output="../bin/emerge" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Release/" />
 				<Option type="0" />
 				<Option compiler="gcc" />
 				<Compiler>
@@ -32,8 +32,8 @@
 				</Linker>
 			</Target>
 			<Target title="Debug64">
-				<Option output="..\bin64\emerge" prefix_auto="1" extension_auto="1" />
-				<Option object_output="obj64\Debug\" />
+				<Option output="../bin64/emerge" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj64/Debug/" />
 				<Option type="0" />
 				<Option compiler="gnu_gcc_compiler_for_mingw64" />
 				<Compiler>
@@ -44,8 +44,8 @@
 				</Linker>
 			</Target>
 			<Target title="Release64">
-				<Option output="..\bin64\emerge" prefix_auto="1" extension_auto="1" />
-				<Option object_output="obj64\Release\" />
+				<Option output="../bin64/emerge" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj64/Release/" />
 				<Option type="0" />
 				<Option compiler="gnu_gcc_compiler_for_mingw64" />
 				<Compiler>
@@ -66,7 +66,7 @@
 		<ExtraCommands>
 			<Add before='[[ IO.Execute(_T(&quot;cmd /c \&quot;cd.. &amp; hgversion.bat\&quot;&quot;)) ]]' />
 		</ExtraCommands>
-		<Unit filename="..\version.h" />
+		<Unit filename="../version.h" />
 		<Unit filename="emerge.rc">
 			<Option compilerVar="WINDRES" />
 		</Unit>
@@ -75,6 +75,15 @@
 			<code_completion />
 			<envvars />
 			<debugger />
+			<DoxyBlocks>
+				<comment_style block="0" line="0" />
+				<doxyfile_project />
+				<doxyfile_build />
+				<doxyfile_warnings />
+				<doxyfile_output />
+				<doxyfile_dot />
+				<general />
+			</DoxyBlocks>
 		</Extensions>
 	</Project>
 </CodeBlocks_project_file>
