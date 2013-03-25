@@ -69,8 +69,8 @@ public:
   LRESULT HideExplorerBar();
 
 private:
+  IOleCommandTarget *traySSO;
   std::vector<HWND> taskList;
-  std::vector<IOleCommandTarget*> ssoIconList;
   UINT ShellMessage;
   bool UpdateSessionInformation(bool add, HWND task);
   static BOOL CALLBACK GetTaskCount(HWND hwnd, LPARAM lParam);

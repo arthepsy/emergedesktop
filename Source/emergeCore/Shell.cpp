@@ -34,6 +34,7 @@ std::vector<HANDLE> processList;
 Shell::Shell()
 {
   ShellMessage = 0;
+  traySSO = NULL;
 }
 
 Shell::~Shell()
@@ -528,81 +529,13 @@ bool Shell::FirstRunCheck()
 //----  --------------------------------------------------------------------------------------------------------
 void Shell::LoadSSO()
 {
-  //HKEY key, subkey;
-  //int i = 0;
-  //WCHAR data[40];
-  //WCHAR valueName[32];
-  //DWORD dataSize;
-  //DWORD valueSize;
-  //DWORD dwDataType;
-  CLSID /*clsid,*/ clsidTray;
-  IOleCommandTarget *target = NULL;
+  CLSID clsidTray;
 
-  CLSIDFromString((WCHAR*)TEXT("{35CEC8A3-2BE6-11D2-8773-92E220524153}"), &clsidTray);
-  target = ELStartSSO(clsidTray);
-  if (target)
-    ssoIconList.push_back(target);
-
-  /*dataSize = sizeof(data);
-  i = 0;
-
-  if (ELVersionInfo() > 6.0)
+  if (!traySSO)
     {
-      if (RegOpenKeyEx(HKEY_LOCAL_MACHINE,
-                       TEXT("Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\ShellServiceObjects"),
-                       0, KEY_READ, &key) == ERROR_SUCCESS)
-        {
-          while (RegEnumKeyEx(key, i, data, &dataSize, NULL, NULL, NULL, NULL) == ERROR_SUCCESS)
-            {
-              if (RegOpenKeyEx(key, data, 0, KEY_READ, &subkey) == ERROR_SUCCESS)
-                {
-                  if (RegQueryValueEx(subkey, TEXT("AutoStart"), NULL, NULL, NULL, NULL) == ERROR_SUCCESS)
-                    {
-                      CLSIDFromString(data, &clsid);
-                      if (clsid != clsidTray)
-                        {
-                          target = ELStartSSO(clsid);
-                          if (target)
-                            ssoIconList.push_back(target);
-                        }
-                    }
-
-                  RegCloseKey(subkey);
-                }
-
-              dataSize = sizeof(data);
-              i++;
-            }
-
-          RegCloseKey(key);
-        }
-
-      valueSize = sizeof(valueName);
-      dataSize = sizeof(data);
-      i = 0;
-
-      if (RegOpenKeyEx(HKEY_LOCAL_MACHINE,
-                       TEXT("Software\\Microsoft\\Windows\\CurrentVersion\\ShellServiceObjectDelayLoad"),
-                       0, KEY_READ, &key) == ERROR_SUCCESS)
-        {
-          while (RegEnumValue(key, i, valueName, &valueSize, 0, &dwDataType, (LPBYTE) data, &dataSize) == ERROR_SUCCESS)
-            {
-              CLSIDFromString(data, &clsid);
-              if (clsid == clsidTray)
-                {
-                  target = ELStartSSO(clsid);
-                  if (target)
-                    ssoIconList.push_back(target);
-                }
-
-              valueSize = sizeof(valueName);
-              dataSize = sizeof(data);
-              i++;
-            }
-
-          RegCloseKey(key);
-        }
-    }*/
+      CLSIDFromString((WCHAR*)TEXT("{35CEC8A3-2BE6-11D2-8773-92E220524153}"), &clsidTray);
+      traySSO = ELStartSSO(clsidTray);
+    }
 }
 
 //----  --------------------------------------------------------------------------------------------------------
@@ -613,13 +546,11 @@ void Shell::LoadSSO()
 //----  --------------------------------------------------------------------------------------------------------
 void Shell::UnloadSSO()
 {
-  // Go through each element of the array and stop it...
-  while (!ssoIconList.empty())
+  if (traySSO)
     {
-      if (ssoIconList.back()->Exec(&CGID_ShellServiceObject, OLECMDID_SAVE,
-                                   OLECMDEXECOPT_DODEFAULT, NULL, NULL) == S_OK)
-        ssoIconList.back()->Release();
-      ssoIconList.pop_back();
+      if (traySSO->Exec(&CGID_ShellServiceObject, OLECMDID_SAVE,
+                        OLECMDEXECOPT_DODEFAULT, NULL, NULL) == S_OK)
+        traySSO->Release();
     }
 }
 
