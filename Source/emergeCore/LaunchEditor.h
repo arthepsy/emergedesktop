@@ -54,7 +54,7 @@ public:
 private:
   bool CheckFields(HWND hwndDlg);
   bool PopulateList(HWND listWnd);
-  bool DoLaunchAdd(HWND listWnd);
+  bool DoLaunchAddEdit(HWND listWnd);
   bool DoLaunchSave(HWND listWnd);
   bool DoLaunchAbort(HWND listWnd);
   bool DoLaunchDelete(HWND listWnd);
@@ -76,12 +76,14 @@ private:
   HINSTANCE hInstance;
   HWND mainWnd, toolWnd, dlgWnd;
   HICON addIcon, delIcon, upIcon, downIcon, browseIcon, saveIcon, abortIcon, startIcon, stopIcon;
-  HICON infoIcon, gatherIcon, configIcon;
+  HICON infoIcon, gatherIcon, configIcon, editIcon;
   static BOOL CALLBACK AppletCheck(HWND hwnd, LPARAM lParam);
   static BOOL CALLBACK GatherApplet(HWND hwnd, LPARAM lParam);
   std::wstring xmlFile;
   std::wstring selectedApplet;
   bool FindListSubItem(HWND listWnd, int subItem, WCHAR *searchString);
+  bool edit;
+  int selectedItem;
 };
 
 #endif

@@ -91,20 +91,21 @@ LaunchEditor::LaunchEditor(HINSTANCE hInstance, HWND mainWnd)
   (*this).mainWnd = mainWnd;
   saveCount = 0;
   deleteCount = 0;
+  edit = false;
 
   InitCommonControls();
 
   toolWnd = CreateWindowEx(
-                           0,
-                           TOOLTIPS_CLASS,
-                           NULL,
-                           TTS_ALWAYSTIP|WS_POPUP|TTS_NOPREFIX,
-                           CW_USEDEFAULT, CW_USEDEFAULT,
-                           CW_USEDEFAULT, CW_USEDEFAULT,
-                           NULL,
-                           NULL,
-                           hInstance,
-                           NULL);
+              0,
+              TOOLTIPS_CLASS,
+              NULL,
+              TTS_ALWAYSTIP|WS_POPUP|TTS_NOPREFIX,
+              CW_USEDEFAULT, CW_USEDEFAULT,
+              CW_USEDEFAULT, CW_USEDEFAULT,
+              NULL,
+              NULL,
+              hInstance,
+              NULL);
 
   if (toolWnd)
     {
@@ -114,6 +115,7 @@ LaunchEditor::LaunchEditor(HINSTANCE hInstance, HWND mainWnd)
     }
 
   ExtractIconEx(TEXT("emergeIcons.dll"), 2, NULL, &addIcon, 1);
+  ExtractIconEx(TEXT("emergeIcons.dll"), 5, NULL, &editIcon, 1);
   ExtractIconEx(TEXT("emergeIcons.dll"), 3, NULL, &delIcon, 1);
   ExtractIconEx(TEXT("emergeIcons.dll"), 18, NULL, &browseIcon, 1);
   ExtractIconEx(TEXT("emergeIcons.dll"), 13, NULL, &upIcon, 1);
@@ -134,6 +136,8 @@ LaunchEditor::~LaunchEditor()
 {
   if (addIcon)
     DestroyIcon(addIcon);
+  if (editIcon)
+    DestroyIcon(editIcon);
   if (delIcon)
     DestroyIcon(delIcon);
   if (upIcon)
@@ -165,6 +169,7 @@ BOOL LaunchEditor::DoInitDialog(HWND hwndDlg)
   ZeroMemory(&ti, sizeof(TOOLINFO));
 
   HWND addWnd = GetDlgItem(hwndDlg, IDC_ADDAPP);
+  HWND editWnd = GetDlgItem(hwndDlg, IDC_EDITAPP);
   HWND delWnd = GetDlgItem(hwndDlg, IDC_DELAPP);
   HWND listWnd = GetDlgItem(hwndDlg, IDC_APPLETLIST);
   HWND browseWnd = GetDlgItem(hwndDlg, IDC_BROWSE);
@@ -210,6 +215,8 @@ BOOL LaunchEditor::DoInitDialog(HWND hwndDlg)
 
   if (addIcon)
     SendMessage(addWnd, BM_SETIMAGE, IMAGE_ICON, (LPARAM)addIcon);
+  if (editIcon)
+    SendMessage(editWnd, BM_SETIMAGE, IMAGE_ICON, (LPARAM)editIcon);
   if (delIcon)
     SendMessage(delWnd, BM_SETIMAGE, IMAGE_ICON, (LPARAM)delIcon);
   if (browseIcon)
@@ -240,6 +247,12 @@ BOOL LaunchEditor::DoInitDialog(HWND hwndDlg)
   ti.hinst = hInstance;
   ti.lpszText = (WCHAR*)TEXT("Add Launch Applet");
   GetClientRect(addWnd, &ti.rect);
+  SendMessage(toolWnd, TTM_ADDTOOL, 0, (LPARAM)(LPTOOLINFO)&ti);
+
+  ti.hwnd = editWnd;
+  ti.uId = (ULONG_PTR)editWnd;
+  ti.lpszText = (WCHAR*)TEXT("Edit Launch Applet");
+  GetClientRect(editWnd, &ti.rect);
   SendMessage(toolWnd, TTM_ADDTOOL, 0, (LPARAM)(LPTOOLINFO)&ti);
 
   ti.hwnd = delWnd;
@@ -310,6 +323,7 @@ BOOL LaunchEditor::DoInitDialog(HWND hwndDlg)
 
   PopulateList(listWnd);
 
+  EnableWindow(editWnd, false);
   EnableWindow(upWnd, false);
   EnableWindow(downWnd, false);
   EnableWindow(delWnd, false);
@@ -331,7 +345,7 @@ bool LaunchEditor::CheckSaveCount(HWND hwndDlg)
   if ((saveCount != 0) || (deleteCount != 0))
     {
       if (ELMessageBox(hwndDlg,
-                       (WCHAR*)TEXT("All current modifications will be lost.  To save and exit press OK.\n\nDo you wish to continue?"),
+                       (WCHAR*)TEXT("All current modifications will be lost.\n\nDo you wish to continue?"),
                        (WCHAR*)TEXT("emergeCore"),
                        ELMB_YESNO|ELMB_ICONQUESTION|ELMB_MODAL) == IDYES)
         return true;
@@ -371,7 +385,10 @@ BOOL LaunchEditor::DoLaunchCommand(HWND hwndDlg, WPARAM wParam, LPARAM lParam UN
     case IDC_DELAPP:
       return DoLaunchDelete(hwndDlg);
     case IDC_ADDAPP:
-      return DoLaunchAdd(hwndDlg);
+      return DoLaunchAddEdit(hwndDlg);
+    case IDC_EDITAPP:
+      edit = true;
+      return DoLaunchAddEdit(hwndDlg);
     case IDC_SAVEAPP:
       return DoLaunchSave(hwndDlg);
     case IDC_ABORTAPP:
@@ -770,6 +787,7 @@ bool LaunchEditor::DoLaunchDelete(HWND hwndDlg)
 {
   HWND listWnd = GetDlgItem(hwndDlg, IDC_APPLETLIST);
   HWND delWnd = GetDlgItem(hwndDlg, IDC_DELAPP);
+  HWND editWnd = GetDlgItem(hwndDlg, IDC_EDITAPP);
   HWND upWnd = GetDlgItem(hwndDlg, IDC_UPAPP);
   HWND downWnd = GetDlgItem(hwndDlg, IDC_DOWNAPP);
   HWND startWnd = GetDlgItem(hwndDlg, IDC_STARTAPP);
@@ -817,6 +835,7 @@ bool LaunchEditor::DoLaunchDelete(HWND hwndDlg)
 
   if (ListView_GetItemCount(listWnd) == 0)
     {
+      EnableWindow(editWnd, false);
       EnableWindow(delWnd, false);
       EnableWindow(upWnd, false);
       EnableWindow(downWnd, false);
@@ -830,7 +849,7 @@ bool LaunchEditor::DoLaunchDelete(HWND hwndDlg)
   return ret;
 }
 
-bool LaunchEditor::DoLaunchAdd(HWND hwndDlg)
+bool LaunchEditor::DoLaunchAddEdit(HWND hwndDlg)
 {
   HWND listWnd = GetDlgItem(hwndDlg, IDC_APPLETLIST);
   HWND appletWnd = GetDlgItem(hwndDlg, IDC_APPLET);
@@ -844,7 +863,8 @@ bool LaunchEditor::DoLaunchAdd(HWND hwndDlg)
   EnableWindow(abortWnd, true);
   EnableWindow(listWnd, false);
 
-  SetDlgItemText(hwndDlg, IDC_APPLET, TEXT(""));
+  if (!edit)
+    SetDlgItemText(hwndDlg, IDC_APPLET, TEXT(""));
 
   return true;
 }
@@ -863,6 +883,8 @@ bool LaunchEditor::DoLaunchAbort(HWND hwndDlg)
   EnableWindow(saveWnd, false);
   EnableWindow(abortWnd, false);
   EnableWindow(listWnd, true);
+
+  edit = false;
 
   return true;
 }
@@ -904,33 +926,58 @@ bool LaunchEditor::DoLaunchSave(HWND hwndDlg)
   GetDlgItemText(hwndDlg, IDC_APPLET, tmp, MAX_LINE_LENGTH);
   if (wcslen(tmp) > 0)
     {
-      if (!FindListSubItem(listWnd, 1, tmp))
+      if (edit)
         {
-          lvItem.iItem = ListView_GetItemCount(listWnd);
+          lvItem.iItem = selectedItem;
           lvItem.iSubItem = 0;
           lvItem.pszText = GetLaunchItemState(tmp);
           lvItem.cchTextMax = (int)wcslen(lvItem.pszText);
-          if (ListView_InsertItem(listWnd, &lvItem) != -1)
+          if (ListView_DeleteItem(listWnd, selectedItem))
             {
-              ListView_SetItemText(listWnd, lvItem.iItem, 1, tmp);
+              if (ListView_InsertItem(listWnd, &lvItem) != -1)
+                {
+                  ListView_SetItemText(listWnd, lvItem.iItem, 1, tmp);
 
-              if (ELAppletFileVersion(tmp, &versionInfo))
-                ListView_SetItemText(listWnd, lvItem.iItem, 2, versionInfo.Version);
+                  if (ELAppletFileVersion(tmp, &versionInfo))
+                    ListView_SetItemText(listWnd, lvItem.iItem, 2, versionInfo.Version);
 
-              saveCount++;
-              deleteCount++;
+                  saveCount++;
+                  deleteCount++;
 
-              ret = true;
+                  ret = true;
+                }
             }
         }
       else
         {
-          swprintf(error, TEXT("%ls is already in the applet launch list"), tmp);
-          ELMessageBox(hwndDlg, error, (WCHAR*)TEXT("emergeCore"),
-                       ELMB_OK|ELMB_ICONERROR|ELMB_MODAL);
-        }
+          if (!FindListSubItem(listWnd, 1, tmp))
+            {
+              lvItem.iItem = ListView_GetItemCount(listWnd);
+              lvItem.iSubItem = 0;
+              lvItem.pszText = GetLaunchItemState(tmp);
+              lvItem.cchTextMax = (int)wcslen(lvItem.pszText);
+              if (ListView_InsertItem(listWnd, &lvItem) != -1)
+                {
+                  ListView_SetItemText(listWnd, lvItem.iItem, 1, tmp);
 
-      SetDlgItemText(hwndDlg, IDC_APPLET, TEXT(""));
+                  if (ELAppletFileVersion(tmp, &versionInfo))
+                    ListView_SetItemText(listWnd, lvItem.iItem, 2, versionInfo.Version);
+
+                  saveCount++;
+                  deleteCount++;
+
+                  ret = true;
+                }
+            }
+          else
+            {
+              swprintf(error, TEXT("%ls is already in the applet launch list"), tmp);
+              ELMessageBox(hwndDlg, error, (WCHAR*)TEXT("emergeCore"),
+                           ELMB_OK|ELMB_ICONERROR|ELMB_MODAL);
+            }
+
+          SetDlgItemText(hwndDlg, IDC_APPLET, TEXT(""));
+        }
     }
 
   EnableWindow(saveWnd, false);
@@ -938,6 +985,8 @@ bool LaunchEditor::DoLaunchSave(HWND hwndDlg)
   EnableWindow(appletWnd, false);
   EnableWindow(browseWnd, false);
   EnableWindow(listWnd, true);
+
+  edit = false;
 
   return ret;
 }
@@ -994,6 +1043,7 @@ BOOL LaunchEditor::PopulateFields(HWND hwndDlg, int index)
 
 BOOL LaunchEditor::DoNotify(HWND hwndDlg, LPARAM lParam)
 {
+  HWND editWnd = GetDlgItem(hwndDlg, IDC_EDITAPP);
   HWND delWnd = GetDlgItem(hwndDlg, IDC_DELAPP);
   HWND upWnd = GetDlgItem(hwndDlg, IDC_UPAPP);
   HWND downWnd = GetDlgItem(hwndDlg, IDC_DOWNAPP);
@@ -1006,6 +1056,8 @@ BOOL LaunchEditor::DoNotify(HWND hwndDlg, LPARAM lParam)
   switch (((LPNMITEMACTIVATE)lParam)->hdr.code)
     {
     case LVN_ITEMCHANGED:
+      selectedItem = ((LPNMLISTVIEW)lParam)->iItem;
+      EnableWindow(editWnd, true);
       EnableWindow(delWnd, true);
       EnableWindow(upWnd, true);
       EnableWindow(downWnd, true);
@@ -1014,7 +1066,7 @@ BOOL LaunchEditor::DoNotify(HWND hwndDlg, LPARAM lParam)
       EnableWindow(infoWnd, true);
       EnableWindow(gatherWnd, true);
       EnableWindow(configWnd, true);
-      return PopulateFields(hwndDlg, ((LPNMLISTVIEW)lParam)->iItem);
+      return PopulateFields(hwndDlg, selectedItem);
 
       // Disable Right click menu for now
       //case NM_RCLICK:
