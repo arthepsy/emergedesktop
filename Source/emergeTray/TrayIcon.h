@@ -90,7 +90,7 @@ public:
   void SetShared(bool shared);
   void CreateNewIcon(BYTE foregroundAlpha, BYTE backgroundAlpha);
   void UpdateIcon();
-  BOOL SendMessage(LPARAM lParam);
+  BOOL SendMessage(UINT message);
   void ShowBalloon(WCHAR *infoTitle, WCHAR *info, DWORD infoFlags, HICON icon);
   void HideBalloon();
 

@@ -311,8 +311,11 @@ void TrayIcon::HideBalloon()
   pBalloon->Hide();
 }
 
-BOOL TrayIcon::SendMessage(LPARAM lParam)
+BOOL TrayIcon::SendMessage(UINT message)
 {
+  WPARAM wParam = WPARAM(id);
+  LPARAM lParam = LPARAM(message);
+
   // Only send an WM_LBUTTONUP message if there has been a previous
   // WM_LBUTTONDOWN or WM_LBUTTONDBLCLK message sent
   if (lParam == WM_LBUTTONUP)
@@ -335,11 +338,11 @@ BOOL TrayIcon::SendMessage(LPARAM lParam)
       messagePt.y = rect.top;
       ClientToScreen(mainWnd, &messagePt);
 
-      return SendNotifyMessage(wnd, callbackMessage, MAKEWPARAM(messagePt.x, messagePt.y),
-                               MAKELPARAM(lParam, id));
+      wParam = MAKEWPARAM(messagePt.x, messagePt.y);
+      lParam = MAKELPARAM(lParam, id);
     }
 
-  return SendNotifyMessage(wnd, callbackMessage, WPARAM(id), lParam);
+  return SendNotifyMessage(wnd, callbackMessage, wParam, lParam);
 }
 
 //-----
