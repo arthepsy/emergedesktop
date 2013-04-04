@@ -58,7 +58,12 @@ ThumbnailPage::~ThumbnailPage()
 
 BOOL ThumbnailPage::DoInitDialog(HWND hwndDlg)
 {
-  if (pSettings->GetEnableThumbnails())
+  if (ELVersionInfo() < 6.0)
+    {
+      EnableWindow(GetDlgItem(hwndDlg, IDC_ENABLETHUMBNAIL), FALSE);
+      SendDlgItemMessage(hwndDlg, IDC_ENABLETHUMBNAIL, BM_SETCHECK, BST_UNCHECKED, 0);
+    }
+  else if (pSettings->GetEnableThumbnails())
     SendDlgItemMessage(hwndDlg, IDC_ENABLETHUMBNAIL, BM_SETCHECK, BST_CHECKED, 0);
 
   HWND alphaSliderWnd = GetDlgItem(hwndDlg, IDC_ALPHASLIDER);
