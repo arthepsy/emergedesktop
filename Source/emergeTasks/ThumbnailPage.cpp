@@ -58,20 +58,24 @@ ThumbnailPage::~ThumbnailPage()
 
 BOOL ThumbnailPage::DoInitDialog(HWND hwndDlg)
 {
+  HWND alphaSliderWnd = GetDlgItem(hwndDlg, IDC_ALPHASLIDER);
+  HWND scaleSliderWnd = GetDlgItem(hwndDlg, IDC_SCALESLIDER);
+  HWND enableWnd = GetDlgItem(hwndDlg, IDC_ENABLETHUMBNAIL);
+
   if (ELVersionInfo() < 6.0)
     {
-      EnableWindow(GetDlgItem(hwndDlg, IDC_ENABLETHUMBNAIL), FALSE);
+      EnableWindow(enableWnd, FALSE);
+      EnableWindow(alphaSliderWnd, FALSE);
+      EnableWindow(scaleSliderWnd, FALSE);
       SendDlgItemMessage(hwndDlg, IDC_ENABLETHUMBNAIL, BM_SETCHECK, BST_UNCHECKED, 0);
     }
   else if (pSettings->GetEnableThumbnails())
     SendDlgItemMessage(hwndDlg, IDC_ENABLETHUMBNAIL, BM_SETCHECK, BST_CHECKED, 0);
 
-  HWND alphaSliderWnd = GetDlgItem(hwndDlg, IDC_ALPHASLIDER);
   SendMessage(alphaSliderWnd, TBM_SETRANGE, (WPARAM)TRUE, (LPARAM)MAKELONG(0, 100));
   SendMessage(alphaSliderWnd, TBM_SETPOS, (WPARAM)TRUE, (LPARAM)pSettings->GetThumbnailAlpha());
   SetDlgItemInt(hwndDlg, IDC_ALPHAVALUE, pSettings->GetThumbnailAlpha(), false);
 
-  HWND scaleSliderWnd = GetDlgItem(hwndDlg, IDC_SCALESLIDER);
   SendMessage(scaleSliderWnd, TBM_SETRANGE, (WPARAM)TRUE, (LPARAM)MAKELONG(0, 100));
   SendMessage(scaleSliderWnd, TBM_SETPOS, (WPARAM)TRUE, (LPARAM)pSettings->GetThumbnailScale());
   SetDlgItemInt(hwndDlg, IDC_SCALEVALUE, pSettings->GetThumbnailScale(), false);
