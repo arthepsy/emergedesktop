@@ -60,6 +60,8 @@ BOOL ThumbnailPage::DoInitDialog(HWND hwndDlg)
 {
   HWND alphaSliderWnd = GetDlgItem(hwndDlg, IDC_ALPHASLIDER);
   HWND scaleSliderWnd = GetDlgItem(hwndDlg, IDC_SCALESLIDER);
+  HWND scaleValueWnd = GetDlgItem(hwndDlg, IDC_SCALEVALUE);
+  HWND alphaValueWnd = GetDlgItem(hwndDlg, IDC_ALPHAVALUE);
   HWND enableWnd = GetDlgItem(hwndDlg, IDC_ENABLETHUMBNAIL);
 
   if (ELVersionInfo() < 6.0)
@@ -67,6 +69,8 @@ BOOL ThumbnailPage::DoInitDialog(HWND hwndDlg)
       EnableWindow(enableWnd, FALSE);
       EnableWindow(alphaSliderWnd, FALSE);
       EnableWindow(scaleSliderWnd, FALSE);
+      EnableWindow(alphaValueWnd, FALSE);
+      EnableWindow(scaleValueWnd, FALSE);
       SendDlgItemMessage(hwndDlg, IDC_ENABLETHUMBNAIL, BM_SETCHECK, BST_UNCHECKED, 0);
     }
   else if (pSettings->GetEnableThumbnails())
