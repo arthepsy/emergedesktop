@@ -31,7 +31,7 @@ Settings::Settings()
   sameMonitorOnly = false; //ROBLARKY - 2012-08-11: Added for option to only show tasks on same monitor
   enableThumbnails = true;
   thumbnailAlpha = 100;
-  thumbnailScale = 100;
+  thumbnailScale = 20;
 }
 
 void Settings::DoReadSettings(IOHelper& helper)
@@ -44,7 +44,7 @@ void Settings::DoReadSettings(IOHelper& helper)
   helper.ReadInt(TEXT("FlashInterval"), flashInterval, 1000);
   helper.ReadBool(TEXT("EnableThumbnails"), enableThumbnails, true);
   helper.ReadInt(TEXT("ThumbnailAlpha"), thumbnailAlpha, 100);
-  helper.ReadInt(TEXT("ThumbnailScale"), thumbnailScale, 100);
+  helper.ReadInt(TEXT("ThumbnailScale"), thumbnailScale, 20);
 }
 
 void Settings::DoWriteSettings(IOHelper& helper)
@@ -87,7 +87,7 @@ void Settings::ResetDefaults()
   sameMonitorOnly = false; //ROBLARKY - 2012-08-11: Added for option to only show tasks on same monitor
   enableThumbnails = true;
   thumbnailAlpha = 100;
-  thumbnailScale = 100;
+  thumbnailScale = 20;
 }
 
 bool Settings::GetHiliteActive()
