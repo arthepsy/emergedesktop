@@ -1,9 +1,0 @@
-bin*
-.svn
-.deps*
-.objs*
-"*.save"
-"*.swp"
-"*.7z"
-"*.o"
-"*.sdf"

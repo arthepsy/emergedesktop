@@ -38,6 +38,7 @@ ipch
 *.cbTemp
 *.res
 *.orig
+*.properties
 
 # switch to regexp syntax.
 #syntax: regexp
