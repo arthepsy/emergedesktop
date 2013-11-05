@@ -26,8 +26,11 @@
 #ifndef __ECM_COMMANDSOURCE_H
 #define __ECM_COMMANDSOURCE_H
 
+#define UNICODE 1
+
 #include <stdio.h>
-#include "../emergeLib/emergeLib.h"
+#include <objidl.h>
+#include "../emergeLib/emergeFileRegistryLib.h"
 
 //#define MAX_HISTORY 9
 

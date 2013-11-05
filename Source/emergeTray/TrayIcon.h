@@ -21,6 +21,8 @@
 #ifndef __ETR_TRAYICON_H
 #define __ETR_TRAYICON_H
 
+#define UNICODE 1
+
 // Defines required for tooltip
 #undef _WIN32_IE
 #define _WIN32_IE 0x0600
@@ -52,7 +54,6 @@
 // filesize.
 //
 //-----
-#include "../emergeLib/emergeLib.h"
 #include "../emergeGraphics/emergeGraphics.h"
 #include "Balloon.h"
 #include <commctrl.h>

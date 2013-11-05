@@ -18,8 +18,10 @@
 //
 //----  --------------------------------------------------------------------------------------------------------
 
-#ifndef __MSGBOX_H
-#define __MSGBOX_H
+#ifndef __SHUTDOWN_H
+#define __SHUTDOWN_H
+
+#define UNICODE 1
 
 #undef _WIN32_IE
 #define _WIN32_IE	0x501
@@ -27,33 +29,39 @@
 #undef _WIN32_WINNT
 #define _WIN32_WINNT	0x600
 
-#include "emergeLib.h"
-#include "resource.h"
-#include <map>
+#ifdef __GNUC__
+#define UNUSED __attribute__((unused))
+#else
+#define UNUSED
+#endif
 
-typedef std::map<HWND, HHOOK> HookMap;
-static HookMap hookMap;
+#include <windows.h>
+#include "../resource.h"
+#include "../../emergeIcons/resource.h"
+#include "../emergeOSLib.h"
+#include "../emergeWindowLib.h"
+#ifndef _W64
+#include <WtsApi32.h>
+#endif
 
-class MsgBox
+class Shutdown
 {
 public:
-  MsgBox(HINSTANCE hInstance, HWND mainWnd, const WCHAR* messageText, const WCHAR* messageTitle, DWORD iconType, DWORD buttonType);
-  ~MsgBox();
-  int Show(bool modal);
-  LRESULT DoInitDialog(HWND hwndDlg);
-  LRESULT DoCommand(HWND hwndDlg, WPARAM wParam, LPARAM lParam);
-  bool IsHookMessage(LPMSG lpMsg);
+  Shutdown(HINSTANCE hInstance, HWND mainWnd);
+  ~Shutdown();
+  int Show();
+  BOOL DoInitDialog(HWND hwndDlg);
+  BOOL DoCommand(HWND hwndDlg, WPARAM wParam, LPARAM lParam);
+  BOOL DoNotify(HWND hwndDlg, LPARAM lParam);
 
 private:
   HINSTANCE hInstance;
+  HMODULE hIconsDLL;
   HWND mainWnd, toolWnd;
-  HICON msgIcon;
-  DWORD msgButtons; // make this global for now, for some reason it causes a crash when defined as a class variable
-  WCHAR *sound;
-  bool modal;
-  WCHAR msgText[MAX_LINE_LENGTH], msgTitle[MAX_LINE_LENGTH];
-  static BOOL CALLBACK MsgBoxDlgProc(HWND hwndDlg, UINT message, WPARAM wParam, LPARAM lParam);
-  static LRESULT CALLBACK GetMsgProc(int nCode, WPARAM wParam, LPARAM lParam);
+  HBITMAP logoBMP;
+  bool enableDisconnect;
+  static BOOL CALLBACK ShutdownDlgProc(HWND hwndDlg, UINT message, WPARAM wParam, LPARAM lParam);
+  bool DoShutdown(HWND hwndDlg);
 };
 
 #endif

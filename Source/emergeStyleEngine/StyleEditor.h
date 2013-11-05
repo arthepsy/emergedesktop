@@ -21,20 +21,15 @@
 #ifndef __ESE_STYLEEDITOR_H
 #define __ESE_STYLEEDITOR_H
 
+#define UNICODE 1
+
+#define MAX_LINE_LENGTH 4096
+
 #undef _WIN32_IE
 #define _WIN32_IE	0x501
 
 #undef _WIN32_WINNT
 #define _WIN32_WINNT	0x501
-
-#include "emergeStyleEngine.h"
-#include "resource.h"
-#include "../emergeLib/emergeLib.h"
-#include <stdio.h>
-#include <wchar.h>
-#include <shlwapi.h>
-#include <map>
-#include <set>
 
 #ifdef EMERGESTYLEENGINE_EXPORTS
 #undef DLL_EXPORT
@@ -45,14 +40,40 @@
 #endif
 #endif
 
+#ifdef __GNUC__
+#define UNUSED __attribute__((unused))
+#else
+#define UNUSED
+#endif
+
+#include <stdio.h>
+#include <string>
+#include <shlwapi.h>
+#include <map>
+#include <set>
+#include "../emergeLib/emergeCoreLib.h"
+#include "../emergeLib/emergeFileRegistryLib.h"
+#include "../emergeLib/emergeOSLib.h"
+#include "../emergeLib/emergeUtilityLib.h"
+#include "../emergeLib/emergeWindowLib.h"
+#include "emergeStyleEngine.h"
+#include "resource.h"
+
+#ifdef __GNUC__
+#include <tr1/memory>
+#include <tr1/shared_ptr.h>
+#else
+#include <memory>
+#endif
+
 typedef std::set<HWND> PanelSet;
 
 class DLL_EXPORT StyleEditor
 {
 public:
-  StyleEditor(HWND mainWnd, WCHAR *instanceName);
+  StyleEditor(HWND mainWnd, std::wstring instanceName);
   ~StyleEditor();
-  int Edit(WCHAR *styleName);
+  int Edit(std::wstring styleName);
   BOOL DoInitDialog(HWND hwndDlg, bool updatePos);
   BOOL DoCommand(HWND hwndDlg, WPARAM wParam, LPARAM lParam);
   BOOL DoNotify(HWND hwndDlg, LPARAM lParam);
@@ -65,16 +86,16 @@ public:
 
 private:
   std::map< HTREEITEM, std::tr1::shared_ptr<PanelSet> > panelMap;
-  WCHAR tmpFile[MAX_PATH], instanceName[MAX_LINE_LENGTH];
+  std::wstring tmpFile, instanceName;
   RECT colourRect;
   COLORREF colourBackground, colourForeground, colourSelected, colourFrame, colourFont;
   COLORREF colourFrom, colourTo, colourBorder;
   HWND mainWnd, toolWnd;
   GUIINFO guiInfo, origGuiInfo, defaultGuiInfo;
-  WCHAR style[MAX_PATH], font[MAX_PATH], origStyle[MAX_PATH];
+  std::wstring style, font, origStyle;
   HBITMAP hbmColourBackground, hbmColourForeground, hbmColourSelected, hbmColourFrame, hbmColourFont;
   HBITMAP hbmColourFrom, hbmColourTo, hbmColourBorder;
-  bool DoSaveStyle(HWND hwndDlg, WCHAR *fileName);
+  std::wstring DoSaveStyle(HWND hwndDlg, std::wstring fileName);
   BOOL DoDefaults(HWND hwndDlg);
   void BuildPanelMap(HWND hwndDlg);
   void ClearPanelMap();

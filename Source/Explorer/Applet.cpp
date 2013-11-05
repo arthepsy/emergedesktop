@@ -90,7 +90,7 @@ UINT Applet::Initialize()
   // Start the shell functions
   ShellServicesInit();
 
-  threadReadyEvent = CreateEvent(NULL, TRUE, FALSE, L"ExplorerDesktopThreadReady");
+  threadReadyEvent = CreateEvent(NULL, TRUE, FALSE, TEXT("ExplorerDesktopThreadReady"));
 
   return 1;
 }
@@ -208,7 +208,7 @@ DWORD WINAPI Applet::ThreadFunc(LPVOID pvParam UNUSED)
 
       SendMessage(GetDesktopWindow(), 0x400, 0, 0);
 
-      ShowWindow(FindWindow(L"Progman", NULL), SW_HIDE);
+      ShowWindow(FindWindow(TEXT("Progman"), NULL), SW_HIDE);
       SetEvent(threadReadyEvent);
 
       // Run the desktop message loop
@@ -260,7 +260,7 @@ LRESULT Applet::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 DWORD WINAPI Applet::ShowDesktopThreadProc(LPVOID lpParameter UNUSED)
 {
   WaitForSingleObject(threadReadyEvent, INFINITE);
-  ShowWindow(FindWindow(L"Progman", NULL), showDesktop);
+  ShowWindow(FindWindow(TEXT("Progman"), NULL), showDesktop);
 
   return 0;
 }
@@ -305,7 +305,7 @@ void Applet::ShellServicesInit()
     lpRunInstallUninstallStubs = (void (WINAPI *)(int))GetProcAddress(shdocvmDLL, (LPCSTR)130);
 
   // Create a mutex telling that this is the Explorer shell
-  HANDLE hIsShell = CreateMutex(NULL, false, L"Local\\ExplorerIsShellMutex");
+  HANDLE hIsShell = CreateMutex(NULL, false, TEXT("Local\\ExplorerIsShellMutex"));
   WaitForSingleObject(hIsShell, INFINITE);
 
   if (lpShellDDEInit)
@@ -317,11 +317,11 @@ void Applet::ShellServicesInit()
   PeekMessageW(&msg, 0, WM_QUIT, WM_QUIT, false);
 
   // Wait for Scm to be created
-  HANDLE hGScmEvent = OpenEvent(0x100002, false, L"Global\\ScmCreatedEvent");
+  HANDLE hGScmEvent = OpenEvent(0x100002, false, TEXT("Global\\ScmCreatedEvent"));
   if (hGScmEvent == NULL)
-    hGScmEvent = OpenEvent(0x100000, false, L"Global\\ScmCreatedEvent");
+    hGScmEvent = OpenEvent(0x100000, false, TEXT("Global\\ScmCreatedEvent"));
   if (hGScmEvent == NULL)
-    hGScmEvent = CreateEvent(NULL, true, false, L"Global\\ScmCreatedEvent");
+    hGScmEvent = CreateEvent(NULL, true, false, TEXT("Global\\ScmCreatedEvent"));
 
   if (hGScmEvent)
     {
@@ -336,7 +336,7 @@ void Applet::ShellServicesInit()
     lpWinList_Init();
 
   // Event
-  HANDLE CanRegisterEvent = CreateEvent(NULL, true, true, L"Local\\_fCanRegisterWithShellService");
+  HANDLE CanRegisterEvent = CreateEvent(NULL, true, true, TEXT("Local\\_fCanRegisterWithShellService"));
 
   if (lpRunInstallUninstallStubs)
     lpRunInstallUninstallStubs(0);

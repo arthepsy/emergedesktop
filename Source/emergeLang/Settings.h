@@ -21,7 +21,9 @@
 #ifndef __ELN_SETTINGS_H
 #define __ELN_SETTINGS_H
 
-#include "../emergeLib/emergeLib.h"
+#define UNICODE 1
+
+#include <string.h>
 #include "../emergeBaseClasses/BaseSettings.h"
 
 class Settings: public BaseSettings
@@ -43,7 +45,7 @@ protected:
 	virtual void ResetDefaults();
 
 private:
-	WCHAR fontString[MAX_LINE_LENGTH];
+	std::wstring fontString;
 	LOGFONT logFont;
 	int displayType;
 	bool upperCase;

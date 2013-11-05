@@ -21,16 +21,19 @@
 #ifndef __EH_ACTIONS_H
 #define __EH_ACTIONS_H
 
+#define UNICODE 1
+
 #undef _WIN32_IE
 #define _WIN32_IE	0x501
 
 #undef _WIN32_WINNT
 #define _WIN32_WINNT	0x501
 
-#include "Settings.h"
-#include "resource.h"
 #include <shlobj.h>
 #include <stdio.h>
+#include "../emergeLib/emergeFileRegistryLib.h"
+#include "Settings.h"
+#include "resource.h"
 
 typedef struct tagLISTVIEWSORTINFO
 {

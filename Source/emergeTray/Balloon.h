@@ -21,6 +21,8 @@
 #ifndef __ETR_BALLOON_H
 #define __ETR_BALLOON_H
 
+#define UNICODE 1
+
 // Define required for the Window Transparency
 #undef _WIN32_WINNT
 #define _WIN32_WINNT 0x0501
@@ -34,7 +36,6 @@
 
 #define OEMRESOURCE 1
 
-#include "../emergeLib/emergeLib.h"
 #include "../emergeGraphics/emergeGraphics.h"
 #include "../emergeAppletEngine/emergeAppletEngine.h"
 #include "Settings.h"

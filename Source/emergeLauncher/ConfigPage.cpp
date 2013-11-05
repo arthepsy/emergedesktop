@@ -80,7 +80,7 @@ bool ConfigPage::DoInitDialog(HWND hwndDlg)
   if (pSettings->GetStartHidden())
     SendDlgItemMessage(hwndDlg, IDC_STARTHIDDEN, BM_SETCHECK, BST_CHECKED, 0);
 
-  SetDlgItemText(hwndDlg, IDC_TITLEBARTEXT, pSettings->GetTitleBarText());
+  SetDlgItemText(hwndDlg, IDC_TITLEBARTEXT, pSettings->GetTitleBarText().c_str());
 
   SetDlgItemText(hwndDlg, IDC_AUTOLIMIT, towstring(pSettings->GetAutoSizeLimit()).c_str());
   if (!pSettings->GetAutoSize())
@@ -101,7 +101,7 @@ bool ConfigPage::DoInitDialog(HWND hwndDlg)
   SendMessage(iconSizeWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("16x16"));
   SendMessage(iconSizeWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("32x32"));
   SendMessage(iconSizeWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("48x48"));
-  if (ELVersionInfo() >= 6.0)
+  if (ELOSVersionInfo() >= 6.0)
     {
       SendMessage(iconSizeWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("128x128"));
       SendMessage(iconSizeWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("256x256"));
@@ -123,7 +123,7 @@ bool ConfigPage::DoInitDialog(HWND hwndDlg)
       wParam = 1;
       break;
     }
-  if ((ELVersionInfo() < 6.0) && (wParam > 2))
+  if ((ELOSVersionInfo() < 6.0) && (wParam > 2))
     wParam = 2;
   SendMessage(iconSizeWnd, CB_SETCURSEL, wParam, 0);
 

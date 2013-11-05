@@ -135,7 +135,7 @@ BOOL AliasEditor::DoInitDialog(HWND hwndDlg)
   saveCount = 0;
   deleteCount = 0;
 
-  ELGetWindowRect(hwndDlg, &rect);
+  rect = ELGetWindowRect(hwndDlg);
 
   x = (GetSystemMetrics(SM_CXSCREEN) / 2) - ((rect.right - rect.left) / 2);
   y = (GetSystemMetrics(SM_CYSCREEN) / 2) - ((rect.bottom - rect.top) / 2);
@@ -827,13 +827,13 @@ bool AliasEditor::DoAliasBrowse(HWND hwndDlg)
 {
   bool ret = false;
   OPENFILENAME ofn;
-  WCHAR tmp[MAX_PATH], path[MAX_PATH], program[MAX_PATH], arguments[MAX_LINE_LENGTH];
-  std::wstring workingPath;
+  WCHAR tmp[MAX_PATH], program[MAX_PATH], arguments[MAX_LINE_LENGTH];
+  std::wstring workingPath, path;
 
   ZeroMemory(tmp, MAX_PATH);
   ZeroMemory(&ofn, sizeof(ofn));
 
-  ELGetCurrentPath(path);
+  path = ELGetCurrentPath();
 
   ofn.lStructSize = sizeof(ofn);
   ofn.hwndOwner = hwndDlg;
@@ -847,13 +847,13 @@ bool AliasEditor::DoAliasBrowse(HWND hwndDlg)
   ofn.nMaxFile = MAX_PATH;
   ofn.lpstrTitle = TEXT("Browse For Item");
   ofn.lpstrDefExt = NULL;
-  ofn.lpstrInitialDir = path;
+  ofn.lpstrInitialDir = path.c_str();
   ofn.Flags = OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST | OFN_EXPLORER | OFN_DONTADDTORECENT | OFN_NOCHANGEDIR | OFN_NODEREFERENCELINKS;
 
   if (GetOpenFileName(&ofn))
     {
-      ELUnExpandVars(tmp);
-      std::wstring workingTmp = ELRelativePathFromAbsPath(tmp);
+      wcscpy(tmp, ELUnExpandVars(tmp).c_str());
+      std::wstring workingTmp = ELGetRelativePath(tmp);
       SetDlgItemText(hwndDlg, IDC_APPLET, workingTmp.c_str());
 
       ret = true;

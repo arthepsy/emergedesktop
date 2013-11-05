@@ -21,16 +21,25 @@
 #ifndef __EC_SHELL_H
 #define __EC_SHELL_H
 
+#define UNICODE 1
+
+#define MAX_LINE_LENGTH 4096
+
 #undef _WIN32_WINNT
 #define _WIN32_WINNT 0x501
 
-#include "../emergeLib/emergeLib.h"
 #include <vector>
 #include <string>
+#include <windows.h>
 #include <regstr.h>
 #include <shlobj.h>
 #include <shlwapi.h>
 #include <process.h>
+#include "../emergeLib/emergeCoreLib.h"
+#include "../emergeLib/emergeFileRegistryLib.h"
+#include "../emergeLib/emergeOSLib.h"
+#include "../emergeLib/emergeUtilityLib.h"
+#include "../emergeLib/emergeWindowLib.h"
 
 #define MAX_HANDLES 500
 

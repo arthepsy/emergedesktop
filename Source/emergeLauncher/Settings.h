@@ -21,10 +21,21 @@
 #ifndef __EL_SETTINGS_H
 #define __EL_SETTINGS_H
 
-#include "../emergeLib/emergeLib.h"
+#define UNICODE 1
+
+#define MAX_LINE_LENGTH 4096
+
+#ifdef __GNUC__
+#include <tr1/memory>
+#include <tr1/shared_ptr.h>
+#else
+#include <memory>
+#endif
+
+#include <stdio.h>
+#include <string>
 #include "../emergeBaseClasses/BaseSettings.h"
 #include "Item.h"
-#include <stdio.h>
 
 class Settings: public BaseSettings
 {

@@ -26,15 +26,15 @@ Settings::Settings()
 {
   xmlFile = TEXT("%EmergeDir%\\files\\emergeCommand.xml");
   autoComplete = true;
-  ZeroMemory(timeFormat, MAX_LINE_LENGTH);
-  ZeroMemory(displayTimeFormat, MAX_LINE_LENGTH);
-  ZeroMemory(tipFormat, MAX_LINE_LENGTH);
-  ZeroMemory(displayTipFormat, MAX_LINE_LENGTH);
-  ZeroMemory(clockTextAlign, MAX_LINE_LENGTH);
-  ZeroMemory(commandTextAlign, MAX_LINE_LENGTH);
-  ZeroMemory(clockVerticalAlign, MAX_LINE_LENGTH);
-  ZeroMemory(commandVerticalAlign, MAX_LINE_LENGTH);
-  ZeroMemory(fontString, MAX_LINE_LENGTH);
+  timeFormat = TEXT("");
+  displayTimeFormat = TEXT("");
+  tipFormat = TEXT("");
+  displayTipFormat = TEXT("");
+  clockTextAlign = TEXT("");
+  commandTextAlign = TEXT("");
+  clockVerticalAlign = TEXT("");
+  commandVerticalAlign = TEXT("");
+  fontString = TEXT("");
   displayLines = 0;
 }
 
@@ -44,14 +44,14 @@ void Settings::DoReadSettings(IOHelper& helper)
   ZeroMemory(&logFont, sizeof(LOGFONT));
 
   BaseSettings::DoReadSettings(helper);
-  helper.ReadString(TEXT("ClockTextAlign"), clockTextAlign, TEXT("left"));
-  helper.ReadString(TEXT("CommandTextAlign"), commandTextAlign, TEXT("left"));
-  helper.ReadString(TEXT("CommandVerticalAlign"), commandVerticalAlign, TEXT("top"));
-  helper.ReadString(TEXT("ClockVerticalAlign"), clockVerticalAlign, TEXT("top"));
-  helper.ReadString(TEXT("TimeFormat"), timeFormat, TEXT("%A%_%x%_%X"));
-  helper.ReadString(TEXT("TipFormat"), tipFormat, TEXT("%#c"));
-  helper.ReadString(TEXT("Font"), fontString, TEXT("Tahoma-12"));
-  helper.ReadBool(TEXT("AutoComplete"), autoComplete, true);
+  clockTextAlign = helper.ReadString(TEXT("ClockTextAlign"), TEXT("left"));
+  commandTextAlign = helper.ReadString(TEXT("CommandTextAlign"), TEXT("left"));
+  commandVerticalAlign = helper.ReadString(TEXT("CommandVerticalAlign"), TEXT("top"));
+  clockVerticalAlign = helper.ReadString(TEXT("ClockVerticalAlign"), TEXT("top"));
+  timeFormat = helper.ReadString(TEXT("TimeFormat"), TEXT("%A%_%x%_%X"));
+  tipFormat = helper.ReadString(TEXT("TipFormat"), TEXT("%#c"));
+  fontString = helper.ReadString(TEXT("Font"), TEXT("Tahoma-12"));
+  autoComplete = helper.ReadBool(TEXT("AutoComplete"), true);
 }
 
 void Settings::DoWriteSettings(IOHelper& helper)
@@ -65,7 +65,7 @@ void Settings::DoWriteSettings(IOHelper& helper)
   helper.WriteString(TEXT("TipFormat"), tipFormat);
   helper.WriteBool(TEXT("AutoComplete"), autoComplete);
 
-  EGFontToString(logFont, fontString);
+  fontString = EGFontToString(logFont);
   helper.WriteString(TEXT("Font"), fontString);
 }
 
@@ -73,31 +73,36 @@ void Settings::DoInitialize()
 {
   BaseSettings::DoInitialize();
 
-  EGStringToFont(fontString, logFont);
+  WCHAR displayTimeFormatBuffer[MAX_LINE_LENGTH], displayTipFormatBuffer[MAX_LINE_LENGTH];
 
-  wcscpy(displayTimeFormat, timeFormat);
-  displayLines = ELStringReplace(displayTimeFormat, (WCHAR*)TEXT("%_"), (WCHAR*)TEXT("\n"), false) + 1;
-  wcscpy(displayTipFormat, tipFormat);
-  ELStringReplace(displayTipFormat, (WCHAR*)TEXT("%_"), (WCHAR*)TEXT("\n"), false);
+  logFont = EGStringToFont(fontString);
+
+  wcscpy(displayTimeFormatBuffer, timeFormat.c_str());
+  displayLines = ELStringReplace(displayTimeFormatBuffer, (WCHAR*)TEXT("%_"), (WCHAR*)TEXT("\n"), false) + 1;
+  displayTimeFormat = displayTimeFormatBuffer;
+
+  wcscpy(displayTipFormatBuffer, tipFormat.c_str());
+  ELStringReplace(displayTipFormatBuffer, (WCHAR*)TEXT("%_"), (WCHAR*)TEXT("\n"), false);
+  displayTipFormat = displayTipFormatBuffer;
 }
 
 void Settings::ResetDefaults()
 {
   BaseSettings::ResetDefaults();
-  wcscpy(clockTextAlign, (WCHAR*)TEXT("center"));
-  wcscpy(commandTextAlign, (WCHAR*)TEXT("left"));
-  wcscpy(commandVerticalAlign, (WCHAR*)TEXT("center"));
-  wcscpy(clockVerticalAlign, (WCHAR*)TEXT("center"));
-  wcscpy(timeFormat, (WCHAR*)TEXT("%#H:%M"));
-  wcscpy(tipFormat, (WCHAR*)TEXT("%#x"));
-  wcscpy(fontString, (WCHAR*)TEXT("Arial-16"));
+  clockTextAlign = TEXT("center");
+  commandTextAlign = TEXT("left");
+  commandVerticalAlign = TEXT("center");
+  clockVerticalAlign = TEXT("center");
+  timeFormat = TEXT("%#H:%M");
+  tipFormat = TEXT("%#x");
+  fontString = TEXT("Arial-16");
   autoComplete = true;
   width = 64;
   height = 32;
-  wcscpy(zPosition, TEXT("Top"));
-  wcscpy(horizontalDirection, TEXT("right"));
-  wcscpy(verticalDirection, TEXT("down"));
-  wcscpy(directionOrientation, TEXT("horizontal"));
+  zPosition = TEXT("Top");
+  horizontalDirection = TEXT("right");
+  verticalDirection = TEXT("down");
+  directionOrientation = TEXT("horizontal");
   autoSize = false;
   iconSize = 16;
   iconSpacing = 1;
@@ -124,7 +129,7 @@ void Settings::ResetDefaults()
     {
       x = -72;
       y = -40;
-      wcscpy(anchorPoint, TEXT("BottomRight"));
+      anchorPoint = TEXT("BottomRight");
     }
 }
 
@@ -136,12 +141,9 @@ UINT Settings::GetDisplayLines()
 
 bool Settings::SetFont(LOGFONT *logFont)
 {
-  WCHAR tmp[MAX_LINE_LENGTH];
-  EGFontToString(*logFont, tmp);
-
   if (!EGEqualLogFont(this->logFont, *logFont))
     {
-      wcscpy(fontString, tmp);
+      fontString = EGFontToString(*logFont);
       CopyMemory(&this->logFont, logFont, sizeof(LOGFONT));
       SetModified();
     }
@@ -153,7 +155,7 @@ LOGFONT *Settings::GetFont()
   return &logFont;
 }
 
-WCHAR *Settings::GetClockTextAlign()
+std::wstring Settings::GetClockTextAlign()
 {
   return clockTextAlign;
 }
@@ -163,46 +165,46 @@ bool Settings::GetAutoComplete()
   return autoComplete;
 }
 
-WCHAR *Settings::GetClockVerticalAlign()
+std::wstring Settings::GetClockVerticalAlign()
 {
   return clockVerticalAlign;
 }
 
-WCHAR *Settings::GetCommandVerticalAlign()
+std::wstring Settings::GetCommandVerticalAlign()
 {
   return commandVerticalAlign;
 }
 
-WCHAR *Settings::GetCommandTextAlign()
+std::wstring Settings::GetCommandTextAlign()
 {
   return commandTextAlign;
 }
 
-WCHAR *Settings::GetTimeFormat()
+std::wstring Settings::GetTimeFormat()
 {
   return timeFormat;
 }
 
-WCHAR *Settings::GetDisplayTimeFormat()
+std::wstring Settings::GetDisplayTimeFormat()
 {
   return displayTimeFormat;
 }
 
-WCHAR *Settings::GetDisplayTipFormat()
+std::wstring Settings::GetDisplayTipFormat()
 {
   return displayTipFormat;
 }
 
-WCHAR *Settings::GetTipFormat()
+std::wstring Settings::GetTipFormat()
 {
   return tipFormat;
 }
 
-bool Settings::SetClockTextAlign(WCHAR *clockTextAlign)
+bool Settings::SetClockTextAlign(std::wstring clockTextAlign)
 {
-  if (_wcsicmp(this->clockTextAlign, clockTextAlign) != 0)
+  if (ELToLower(this->clockTextAlign) != ELToLower(clockTextAlign))
     {
-      wcscpy(this->clockTextAlign, clockTextAlign);
+      this->clockTextAlign = clockTextAlign;
       SetModified();
     }
   return true;
@@ -218,51 +220,51 @@ bool Settings::SetAutoComplete(bool autoComplete)
   return true;
 }
 
-bool Settings::SetClockVerticalAlign(WCHAR *clockVerticalAlign)
+bool Settings::SetClockVerticalAlign(std::wstring clockVerticalAlign)
 {
-  if (_wcsicmp(this->clockVerticalAlign, clockVerticalAlign) != 0)
+  if (ELToLower(this->clockVerticalAlign) != ELToLower(clockVerticalAlign))
     {
-      wcscpy(this->clockVerticalAlign, clockVerticalAlign);
+      this->clockVerticalAlign = clockVerticalAlign;
       SetModified();
     }
   return true;
 }
 
-bool Settings::SetCommandTextAlign(WCHAR *commandTextAlign)
+bool Settings::SetCommandTextAlign(std::wstring commandTextAlign)
 {
-  if (_wcsicmp(this->commandTextAlign, commandTextAlign) != 0)
+  if (ELToLower(this->commandTextAlign) != ELToLower(commandTextAlign))
     {
-      wcscpy(this->commandTextAlign, commandTextAlign);
+      this->commandTextAlign = commandTextAlign;
       SetModified();
     }
   return true;
 }
 
-bool Settings::SetCommandVerticalAlign(WCHAR *commandVerticalAlign)
+bool Settings::SetCommandVerticalAlign(std::wstring commandVerticalAlign)
 {
-  if (_wcsicmp(this->commandVerticalAlign, commandVerticalAlign) != 0)
+  if (ELToLower(this->commandVerticalAlign) != ELToLower(commandVerticalAlign))
     {
-      wcscpy(this->commandVerticalAlign, commandVerticalAlign);
+      this->commandVerticalAlign = commandVerticalAlign;
       SetModified();
     }
   return true;
 }
 
-bool Settings::SetTimeFormat(WCHAR *timeFormat)
+bool Settings::SetTimeFormat(std::wstring timeFormat)
 {
-  if (wcscmp(this->timeFormat, timeFormat) != 0)
+  if (ELToLower(this->timeFormat) != ELToLower(timeFormat))
     {
-      wcscpy(this->timeFormat, timeFormat);
+      this->timeFormat = timeFormat;
       SetModified();
     }
   return true;
 }
 
-bool Settings::SetTipFormat(WCHAR *tipFormat)
+bool Settings::SetTipFormat(std::wstring tipFormat)
 {
-  if (wcscmp(this->tipFormat, tipFormat) != 0)
+  if (ELToLower(this->tipFormat) == ELToLower(tipFormat))
     {
-      wcscpy(this->tipFormat, tipFormat);
+      this->tipFormat = tipFormat;
       SetModified();
     }
   return true;
@@ -272,7 +274,7 @@ void Settings::BuildHistoryList()
 {
   std::tr1::shared_ptr<TiXmlDocument> configXML = ELOpenXMLConfig(xmlFile, false);
   TiXmlElement *section;
-  WCHAR data[MAX_LINE_LENGTH];
+  std::wstring data;
 
   if (configXML)
     {
@@ -286,7 +288,8 @@ void Settings::BuildHistoryList()
 
           while (userIO.GetElement())
             {
-              if (userIO.ReadString(TEXT("Command"), data, TEXT("")))
+              data = userIO.ReadString(TEXT("Command"), TEXT(""));
+              if (!data.empty())
                 historyList.push_back(data);
             }
         }
@@ -322,13 +325,11 @@ void Settings::WriteHistoryList()
     }
 }
 
-void Settings::AddHistoryItem(WCHAR *item)
+void Settings::AddHistoryItem(std::wstring item)
 {
-  UINT size = historyList.size();
-
-  for (UINT i = 0; i < size; i++)
+  for (UINT i = 0; i < historyList.size(); i++)
     {
-      if (_wcsicmp(item, historyList[i].c_str()) == 0)
+      if (ELToLower(item) == ELToLower(historyList[i]))
         return;
     }
 
@@ -344,7 +345,7 @@ UINT Settings::GetHistoryListSize()
   return historyList.size();
 }
 
-WCHAR *Settings::GetHistoryListItem(UINT index)
+std::wstring Settings::GetHistoryListItem(UINT index)
 {
-  return (WCHAR*)historyList[index].c_str();
+  return historyList[index];
 }

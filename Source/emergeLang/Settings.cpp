@@ -29,15 +29,15 @@ Settings::Settings()
 void Settings::DoReadSettings(IOHelper& helper)
 {
   BaseSettings::DoReadSettings(helper);
-  helper.ReadString(TEXT("Font"), fontString, TEXT("Tahoma-12"));
-  helper.ReadInt(TEXT("DisplayType"), displayType, 0);
-  helper.ReadBool(TEXT("UpperCase"), upperCase, true);
+  fontString = helper.ReadString(TEXT("Font"), TEXT("Tahoma-12"));
+  displayType = helper.ReadInt(TEXT("DisplayType"), 0);
+  upperCase = helper.ReadBool(TEXT("UpperCase"), true);
 }
 
 void Settings::DoWriteSettings(IOHelper& helper)
 {
   BaseSettings::DoWriteSettings(helper);
-  EGFontToString(logFont, fontString);
+  fontString = EGFontToString(logFont);
   helper.WriteString(TEXT("Font"), fontString);
   helper.WriteInt(TEXT("DisplayType"), displayType);
   helper.WriteBool(TEXT("UpperCase"), upperCase);
@@ -46,23 +46,21 @@ void Settings::DoWriteSettings(IOHelper& helper)
 void Settings::DoInitialize()
 {
   BaseSettings::DoInitialize();
-  EGStringToFont(fontString, logFont);
+  logFont = EGStringToFont(fontString);
 }
 
 void Settings::ResetDefaults()
 {
   BaseSettings::ResetDefaults();
-  wcscpy(fontString, (WCHAR*)TEXT("Tahoma-12"));
+  fontString = TEXT("Tahoma-12");
   displayType = 0;
 }
 
 void Settings::SetFont(LOGFONT *logFont)
 {
-  WCHAR tmp[MAX_LINE_LENGTH];
-  EGFontToString(*logFont, tmp);
   if (!EGEqualLogFont(this->logFont, *logFont))
     {
-      wcscpy(fontString, tmp);
+      fontString = EGFontToString(*logFont);
       CopyMemory(&this->logFont, logFont, sizeof(LOGFONT));
       SetModified();
     }

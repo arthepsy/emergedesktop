@@ -21,10 +21,10 @@
 #include "HotkeyCombo.h"
 #include <stdio.h>
 
-HotkeyCombo::HotkeyCombo(WCHAR *keyCombo, WCHAR *action, bool backup)
+HotkeyCombo::HotkeyCombo(std::wstring keyCombo, std::wstring action, bool backup)
 {
-  wcscpy(this->keyCombo, keyCombo);
-  wcscpy(this->action, action);
+  wcscpy(this->keyCombo, keyCombo.c_str());
+  wcscpy(this->action, action.c_str());
 
   modifiers = 0;
 
@@ -34,7 +34,7 @@ HotkeyCombo::HotkeyCombo(WCHAR *keyCombo, WCHAR *action, bool backup)
   // The backup list is only used to write the original hotkey combinations to
   // the XML file in the event the user cancels, so don't generate an ID
   if (!backup)
-    ID = GlobalAddAtom(keyCombo);
+    ID = GlobalAddAtom(keyCombo.c_str());
 
   valid = true;
 }

@@ -675,18 +675,23 @@ void LaunchPage::PopulateComboBoxes(HWND hwndDlg)
   HWND typeWnd = GetDlgItem(hwndDlg, IDC_TYPE);
   HWND specialFolderWnd = GetDlgItem(hwndDlg, IDC_SPECIALFOLDER);
   HWND separatorWnd = GetDlgItem(hwndDlg, IDC_SEPARATOR);
-  WCHAR tmp[MAX_PATH];
+  std::vector<int> specialFolderIDs;
+  std::vector<int>::iterator specialFolderIter;
+  std::wstring specialFolderPath;
 
-  if (ELGetSpecialFolder(CSIDL_PERSONAL, tmp))
-    SendMessage(specialFolderWnd, CB_ADDSTRING, 0, (LPARAM)tmp);
-  if (ELGetSpecialFolder(CSIDL_DRIVES, tmp))
-    SendMessage(specialFolderWnd, CB_ADDSTRING, 0, (LPARAM)tmp);
-  if (ELGetSpecialFolder(CSIDL_NETWORK, tmp))
-    SendMessage(specialFolderWnd, CB_ADDSTRING, 0, (LPARAM)tmp);
-  if (ELGetSpecialFolder(CSIDL_CONTROLS, tmp))
-    SendMessage(specialFolderWnd, CB_ADDSTRING, 0, (LPARAM)tmp);
-  if (ELGetSpecialFolder(CSIDL_BITBUCKET, tmp))
-    SendMessage(specialFolderWnd, CB_ADDSTRING, 0, (LPARAM)tmp);
+  specialFolderIter = specialFolderIDs.begin();
+  specialFolderIter = specialFolderIDs.insert(specialFolderIter, CSIDL_PERSONAL);
+  specialFolderIter = specialFolderIDs.insert(specialFolderIter, CSIDL_DRIVES);
+  specialFolderIter = specialFolderIDs.insert(specialFolderIter, CSIDL_NETWORK);
+  specialFolderIter = specialFolderIDs.insert(specialFolderIter, CSIDL_CONTROLS);
+  specialFolderIter = specialFolderIDs.insert(specialFolderIter, CSIDL_BITBUCKET);
+
+  for (specialFolderIter = specialFolderIDs.begin(); specialFolderIter < specialFolderIDs.end(); specialFolderIter++)
+  {
+    specialFolderPath = ELGetSpecialFolderPathFromID(*specialFolderIter);
+    if (!specialFolderPath.empty())
+      SendMessage(specialFolderWnd, CB_ADDSTRING, 0, (LPARAM)specialFolderPath.c_str());
+  }
 
   SendMessage(typeWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Executable"));
   SendMessage(typeWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Internal Command"));
@@ -768,7 +773,7 @@ bool LaunchPage::UpdateSettings(HWND hwndDlg)
             {
               type = IT_SPECIAL_FOLDER;
               wcscpy(tmp, command);
-              ELSpecialFolderValue(tmp, command);
+              wcscpy(command, ELGetSpecialFolderNameFromPath(tmp).c_str());
             }
           else if (_wcsicmp(typeName, TEXT("entire folder")) == 0)
             {
@@ -832,14 +837,21 @@ void LaunchPage::PopulateList(HWND listWnd)
       (void)ListView_InsertItem(listWnd, &lvItem);
       if (pSettings->GetItem(i)->GetType() == IT_SPECIAL_FOLDER)
         {
-          if (ELGetSpecialFolder(ELSpecialFolderID(pSettings->GetItem(i)->GetApp()), tmp))
+          wcscpy(tmp, ELGetSpecialFolderPathFromName(pSettings->GetItem(i)->GetApp()).c_str());
             ListView_SetItemText(listWnd, lvItem.iItem, 1, tmp);
         }
       else
-        ListView_SetItemText(listWnd, lvItem.iItem, 1, pSettings->GetItem(i)->GetApp());
-      ListView_SetItemText(listWnd, lvItem.iItem, 2, pSettings->GetItem(i)->GetWorkingDir());
-      ListView_SetItemText(listWnd, lvItem.iItem, 3, pSettings->GetItem(i)->GetIconPath());
-      ListView_SetItemText(listWnd, lvItem.iItem, 4, pSettings->GetItem(i)->GetTip());
+      {
+        wcscpy(tmp, pSettings->GetItem(i)->GetApp().c_str());
+        ListView_SetItemText(listWnd, lvItem.iItem, 1, tmp);
+      }
+
+      wcscpy(tmp, pSettings->GetItem(i)->GetWorkingDir().c_str());
+      ListView_SetItemText(listWnd, lvItem.iItem, 2, tmp);
+      wcscpy(tmp, pSettings->GetItem(i)->GetIconPath().c_str());
+      ListView_SetItemText(listWnd, lvItem.iItem, 3, tmp);
+      wcscpy(tmp, pSettings->GetItem(i)->GetTip().c_str());
+      ListView_SetItemText(listWnd, lvItem.iItem, 4, tmp);
     }
 }
 
@@ -1161,7 +1173,7 @@ bool LaunchPage::SaveItem(HWND hwndDlg)
     {
       if (GetDlgItemText(hwndDlg, IDC_INTERNAL, command, MAX_LINE_LENGTH) == 0)
         {
-          ELMessageBox(hwndDlg, (WCHAR*)TEXT("Command cannot be empty"), (WCHAR*)TEXT("emergeLauncher"),
+          ELMessageBox(hwndDlg, TEXT("Command cannot be empty"), TEXT("emergeLauncher"),
                        ELMB_OK|ELMB_ICONERROR|ELMB_MODAL);
           return false;
         }
@@ -1169,7 +1181,7 @@ bool LaunchPage::SaveItem(HWND hwndDlg)
         {
           if (GetDlgItemText(hwndDlg, IDC_ARGUMENT, argument, MAX_LINE_LENGTH) != 0)
             {
-              wcscat(command, L" ");
+              wcscat(command, TEXT(" "));
               wcscat(command, argument);
             }
         }
@@ -1178,7 +1190,7 @@ bool LaunchPage::SaveItem(HWND hwndDlg)
     {
       if (GetDlgItemText(hwndDlg, IDC_SPECIALFOLDER, command, MAX_LINE_LENGTH) == 0)
         {
-          ELMessageBox(hwndDlg, (WCHAR*)TEXT("Command cannot be empty"), (WCHAR*)TEXT("emergeLauncher"),
+          ELMessageBox(hwndDlg, TEXT("Command cannot be empty"), TEXT("emergeLauncher"),
                        ELMB_OK|ELMB_ICONERROR|ELMB_MODAL);
           return false;
         }
@@ -1262,7 +1274,7 @@ bool LaunchPage::Browse(HWND hwndDlg, UINT type)
                 }
 
               ELUnExpandVars(tmp);
-              std::wstring workingTmp = ELRelativePathFromAbsPath(tmp);
+              std::wstring workingTmp = ELGetRelativePath(tmp);
               SetDlgItemText(hwndDlg, IDC_WORKINGDIR, workingTmp.c_str());
 
               ret = true;
@@ -1291,7 +1303,7 @@ bool LaunchPage::Browse(HWND hwndDlg, UINT type)
                 }
 
               ELUnExpandVars(tmp);
-              std::wstring workingTmp = ELRelativePathFromAbsPath(tmp);
+              std::wstring workingTmp = ELGetRelativePath(tmp);
               SetDlgItemText(hwndDlg, IDC_COMMAND, workingTmp.c_str());
 
               ret = true;
@@ -1320,7 +1332,7 @@ bool LaunchPage::Browse(HWND hwndDlg, UINT type)
       if (GetOpenFileName(&ofn))
         {
           ELUnExpandVars(tmp);
-          std::wstring workingTmp = ELRelativePathFromAbsPath(tmp);
+          std::wstring workingTmp = ELGetRelativePath(tmp);
           SetDlgItemText(hwndDlg, IDC_COMMAND, workingTmp.c_str());
           ret = true;
         }
@@ -1425,11 +1437,11 @@ BOOL LaunchPage::PopulateFields(HWND hwndDlg, int itemIndex)
               ShowWindow(workingDirTextWnd, SW_HIDE);
 
               int commandIndex = (int)SendMessage(internalWnd, CB_FINDSTRINGEXACT, (WPARAM)-1,
-                                                  (LPARAM)ELStripInternalCommandArg(command).c_str());
+                                                  (LPARAM)ELStripFileArguments(command).c_str());
               if (commandIndex != CB_ERR)
                 {
                   SendMessage(internalWnd, CB_SETCURSEL, commandIndex, 0);
-                  SetDlgItemText(hwndDlg, IDC_ARGUMENT, ELGetInternalCommandArg(command).c_str());
+                  SetDlgItemText(hwndDlg, IDC_ARGUMENT, ELGetFileArguments(command).c_str());
                 }
             }
           else if (_wcsicmp(typeName, TEXT("special folder")) == 0)

@@ -48,10 +48,10 @@ int WINAPI WinMain (HINSTANCE hInstance,
     {
       WCHAR app[MAX_PATH], args[MAX_LINE_LENGTH];
       ELParseCommand(GetCommandLine(), app, args);
-      std::wstring commandLine = L"%WINDIR%\\Explorer.exe ";
+      std::wstring commandLine = TEXT("%WINDIR%\\Explorer.exe ");
       commandLine = ELExpandVars(commandLine);
       commandLine += args;
-      ELExecute((WCHAR*)commandLine.c_str());
+      ELExecuteFileOrCommand(commandLine);
       CloseHandle(hMutex);
       return 2;
     }

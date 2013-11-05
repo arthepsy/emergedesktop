@@ -38,9 +38,9 @@ Settings::~Settings()
 void Settings::DoReadSettings(IOHelper& helper)
 {
   BaseSettings::DoReadSettings(helper);
-  helper.ReadInt(TEXT("DesktopRows"), rows, 2);
-  helper.ReadInt(TEXT("DesktopColumns"), columns, 2);
-  helper.ReadBool(TEXT("HideSticky"), hideSticky, false);
+  rows = helper.ReadInt(TEXT("DesktopRows"), 2);
+  columns = helper.ReadInt(TEXT("DesktopColumns"), 2);
+  hideSticky = helper.ReadBool(TEXT("HideSticky"), false);
 }
 
 void Settings::DoWriteSettings(IOHelper& helper)
@@ -115,13 +115,13 @@ void Settings::BuildStickyList()
 {
   std::tr1::shared_ptr<TiXmlDocument> configXML = ELOpenXMLConfig(xmlFile, false);
   TiXmlElement *section;
-  WCHAR data[MAX_LINE_LENGTH];
+  std::wstring data;
 
   if (configXML)
     {
       // Clear the stickyList vector
       stickyList.clear();
-      section = ELGetXMLSection(configXML.get(), (WCHAR*)TEXT("Sticky"), false);
+      section = ELGetXMLSection(configXML.get(), TEXT("Sticky"), false);
 
       if (section)
         {
@@ -129,7 +129,8 @@ void Settings::BuildStickyList()
 
           while (userIO.GetElement())
             {
-              if (userIO.ReadString(TEXT("Application"), data, TEXT("")))
+              data = userIO.ReadString(TEXT("Application"), TEXT(""));
+              if (!data.empty())
                 stickyList.push_back(data);
             }
         }

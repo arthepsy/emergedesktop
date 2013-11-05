@@ -21,6 +21,8 @@
 #ifndef __EC_DESKTOP_H
 #define __EC_DESKTOP_H
 
+#define UNICODE 1
+
 // Define required for the Window Transparency
 #undef _WIN32_WINNT
 #define _WIN32_WINNT 0x0501
@@ -32,16 +34,21 @@
 #undef __MSVCRT_VERSION__
 #define __MSVCRT_VERSION__ 0x0601
 
-#include "MessageControl.h"
-#include <deque>
-#include <wchar.h>
-
 #define BACKGROUND_TIMER         1
 #define BACKGROUND_POLL_INTERVAL 1000
 
 #ifndef SETWALLPAPER_DEFAULT
 #define SETWALLPAPER_DEFAULT ((LPWSTR)-1)
 #endif
+
+#include <shlwapi.h>
+#include <deque>
+#include <string>
+#include "../emergeLib/emergeCoreLib.h"
+#include "../emergeLib/emergeOSLib.h"
+#include "../emergeLib/emergeUtilityLib.h"
+#include "../emergeLib/emergeWindowLib.h"
+#include "MessageControl.h"
 
 class Desktop
 {

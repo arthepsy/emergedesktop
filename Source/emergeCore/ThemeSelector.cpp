@@ -101,7 +101,7 @@ BOOL ThemeSelector::DoInitDialog(HWND hwndDlg)
   TOOLINFO ti;
   ZeroMemory(&ti, sizeof(TOOLINFO));
 
-  ELGetWindowRect(hwndDlg, &rect);
+  rect = ELGetWindowRect(hwndDlg);
 
   HWND themeWnd = GetDlgItem(hwndDlg, IDC_THEMEITEM);
   HWND saveasWnd = GetDlgItem(hwndDlg, IDC_SAVEAS);
@@ -230,7 +230,7 @@ BOOL ThemeSelector::DoThemeCommand(HWND hwndDlg, WPARAM wParam, LPARAM lParam UN
     case IDOK:
       SaveTheme(hwndDlg);
     case IDCANCEL:
-      if (!ELPathIsDirectory(themePath.c_str()))
+      if ((ELGetFileSpecialFlags(themePath) & SF_DIRECTORY) != SF_DIRECTORY)
         wParam = IDOK;
       EndDialog(hwndDlg, wParam);
       return TRUE;
@@ -356,7 +356,7 @@ void ThemeSelector::DoSave(HWND hwndDlg)
 
   GetDlgItemText(hwndDlg, IDC_THEMEITEM, source, MAX_PATH);
   wcscpy(theme, source);
-  ELStripModified(theme);
+  ELStripModifiedTheme(theme);
 
   sourceTheme = TEXT("%EmergeDir%\\themes\\");
   sourceTheme += source;
@@ -370,7 +370,7 @@ void ThemeSelector::DoSave(HWND hwndDlg)
 
   // If the destTheme directory exists, remove it and re-create it (to make
   // sure its empty.
-  if (ELPathIsDirectory(ELExpandVars(destTheme).c_str()))
+  if ((ELGetFileSpecialFlags(ELExpandVars(destTheme)) & SF_DIRECTORY) == SF_DIRECTORY)
     ELFileOp(hwndDlg, false, FO_DELETE, destTheme);
   if (ELCreateDirectory(destTheme))
     {
@@ -441,7 +441,7 @@ BOOL ThemeSelector::DoThemeCheck(HWND hwndDlg)
   EnableWindow(saveWnd, (ELIsModifiedTheme(theme) && (_wcsicmp(theme, TEXT("Default (Modified)")) != 0)));
   EnableWindow(exportWnd, (_wcsicmp(theme, TEXT("Default")) != 0));
 
-  if (ELIsModifiedTheme(ELGetThemeName().c_str()) && ELPathIsDirectory(themePath.c_str()))
+  if (ELIsModifiedTheme(ELGetThemeName()) && ((ELGetFileSpecialFlags(themePath) & SF_DIRECTORY) == SF_DIRECTORY))
     {
       swprintf (errorText, TEXT("The existing '%ls' theme will be lost, save it?"), ELGetThemeName().c_str());
       if (ELMessageBox(hwndDlg, errorText, TEXT("Theme Selector"),

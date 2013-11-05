@@ -89,19 +89,19 @@ int WINAPI WinMain (HINSTANCE hInstance,
         }
 
       // Switching shell event
-      HANDLE hEv = OpenEvent(EVENT_MODIFY_STATE, false, L"Global\\msgina: ShellReadyEvent");
+      HANDLE hEv = OpenEvent(EVENT_MODIFY_STATE, false, TEXT("Global\\msgina: ShellReadyEvent"));
       if(hEv)
         {
           SetEvent(hEv);
           CloseHandle(hEv);
         }
-      hEv = OpenEvent(EVENT_MODIFY_STATE, false, L"msgina: ShellReadyEvent");
+      hEv = OpenEvent(EVENT_MODIFY_STATE, false, TEXT("msgina: ShellReadyEvent"));
       if(hEv)
         {
           SetEvent(hEv);
           CloseHandle(hEv);
         }
-      hEv = OpenEvent(EVENT_MODIFY_STATE, false, L"ShellDesktopSwitchEvent");
+      hEv = OpenEvent(EVENT_MODIFY_STATE, false, TEXT("ShellDesktopSwitchEvent"));
       if(hEv)
         {
           SetEvent(hEv);

@@ -74,31 +74,31 @@ BOOL PositionPage::DoInitDialog(HWND hwndDlg)
   SendDlgItemMessage(hwndDlg, IDC_ANCHOR, CB_ADDSTRING, 0, (LPARAM)TEXT("BottomRight"));
 
   anchorIndex = (int)SendDlgItemMessage(hwndDlg, IDC_ANCHOR, CB_FINDSTRINGEXACT, (WPARAM)-1,
-                                        (LPARAM)pSettings->GetAnchorPoint());
+                                        (LPARAM)pSettings->GetAnchorPoint().c_str());
   SendDlgItemMessage(hwndDlg, IDC_ANCHOR, CB_SETCURSEL, anchorIndex, 0);
 
-  if (_wcsicmp(pSettings->GetDirectionOrientation(), TEXT("vertical")) == 0)
+  if (ELToLower(pSettings->GetDirectionOrientation()) == TEXT("vertical"))
     SendDlgItemMessage(hwndDlg, IDC_VERTICAL, BM_SETCHECK, BST_CHECKED, 0);
   else
     SendDlgItemMessage(hwndDlg, IDC_HORIZONTAL, BM_SETCHECK, BST_CHECKED, 0);
 
-  if (_wcsicmp(pSettings->GetHorizontalAlign(), TEXT("right")) == 0)
+  if (ELToLower(pSettings->GetHorizontalAlign()) == TEXT("right"))
     SendDlgItemMessage(hwndDlg, IDC_RIGHT, BM_SETCHECK, BST_CHECKED, 0);
-  else if (_wcsicmp(pSettings->GetHorizontalAlign(), TEXT("center")) == 0)
+  else if (ELToLower(pSettings->GetHorizontalAlign()) == TEXT("center"))
     SendDlgItemMessage(hwndDlg, IDC_HCENTER, BM_SETCHECK, BST_CHECKED, 0);
   else
     SendDlgItemMessage(hwndDlg, IDC_LEFT, BM_SETCHECK, BST_CHECKED, 0);
 
-  if (_wcsicmp(pSettings->GetVerticalAlign(), TEXT("bottom")) == 0)
+  if (ELToLower(pSettings->GetVerticalAlign()) == TEXT("bottom"))
     SendDlgItemMessage(hwndDlg, IDC_UP, BM_SETCHECK, BST_CHECKED, 0);
-  else if (_wcsicmp(pSettings->GetVerticalAlign(), TEXT("center")) == 0)
+  else if (ELToLower(pSettings->GetVerticalAlign()) == TEXT("center"))
     SendDlgItemMessage(hwndDlg, IDC_VCENTER, BM_SETCHECK, BST_CHECKED, 0);
   else
     SendDlgItemMessage(hwndDlg, IDC_DOWN, BM_SETCHECK, BST_CHECKED, 0);
 
-  if (_wcsicmp(pSettings->GetZPosition(), TEXT("top")) == 0)
+  if (ELToLower(pSettings->GetZPosition()) == TEXT("top"))
     SendDlgItemMessage(hwndDlg, IDC_TOP, BM_SETCHECK, BST_CHECKED, 0);
-  else if (_wcsicmp(pSettings->GetZPosition(), TEXT("bottom")) == 0)
+  else if (ELToLower(pSettings->GetZPosition()) == TEXT("bottom"))
     SendDlgItemMessage(hwndDlg, IDC_BOTTOM, BM_SETCHECK, BST_CHECKED, 0);
   else
     SendDlgItemMessage(hwndDlg, IDC_NORMAL, BM_SETCHECK, BST_CHECKED, 0);
@@ -151,7 +151,7 @@ INT_PTR PositionPage::DoNotify(HWND hwndDlg, LPARAM lParam)
 bool PositionPage::UpdateSettings(HWND hwndDlg)
 {
   BOOL success = false;
-  const WCHAR *tmpValue;
+  std::wstring tmpValue;
   WCHAR tmp[MAX_LINE_LENGTH];
 
   if (SendDlgItemMessage(hwndDlg, IDC_DYNAMICPOSITIONING, BM_GETCHECK, 0, 0) == BST_CHECKED)
@@ -162,7 +162,7 @@ bool PositionPage::UpdateSettings(HWND hwndDlg)
 
   if (GetDlgItemText(hwndDlg, IDC_ANCHOR, tmp, MAX_LINE_LENGTH) != 0)
     {
-      if (wcscmp(tmp, pSettings->GetAnchorPoint()) != 0)
+      if (wcscmp(tmp, pSettings->GetAnchorPoint().c_str()) != 0)
         pSettings->SetAnchorPoint(tmp);
     }
 
@@ -172,13 +172,13 @@ bool PositionPage::UpdateSettings(HWND hwndDlg)
     tmpValue = TEXT("Center");
   if (SendDlgItemMessage(hwndDlg, IDC_DOWN, BM_GETCHECK, 0, 0) == BST_CHECKED)
     tmpValue = TEXT("Down");
-  pSettings->SetVerticalAlign((WCHAR*)tmpValue);
+  pSettings->SetVerticalAlign(tmpValue);
 
   if (SendDlgItemMessage(hwndDlg, IDC_VERTICAL, BM_GETCHECK, 0, 0) == BST_CHECKED)
     tmpValue = TEXT("Vertical");
   if (SendDlgItemMessage(hwndDlg, IDC_HORIZONTAL, BM_GETCHECK, 0, 0) == BST_CHECKED)
     tmpValue = TEXT("Horizontal");
-  pSettings->SetDirectionOrientation((WCHAR*)tmpValue);
+  pSettings->SetDirectionOrientation(tmpValue);
 
   if (SendDlgItemMessage(hwndDlg, IDC_RIGHT, BM_GETCHECK, 0, 0) == BST_CHECKED)
     tmpValue = TEXT("Right");
@@ -186,7 +186,7 @@ bool PositionPage::UpdateSettings(HWND hwndDlg)
     tmpValue = TEXT("Center");
   if (SendDlgItemMessage(hwndDlg, IDC_LEFT, BM_GETCHECK, 0, 0) == BST_CHECKED)
     tmpValue = TEXT("Left");
-  pSettings->SetHorizontalAlign((WCHAR*)tmpValue);
+  pSettings->SetHorizontalAlign(tmpValue);
 
   if (SendDlgItemMessage(hwndDlg, IDC_TOP, BM_GETCHECK, 0, 0) == BST_CHECKED)
     tmpValue = TEXT("Top");
@@ -194,7 +194,7 @@ bool PositionPage::UpdateSettings(HWND hwndDlg)
     tmpValue = TEXT("Bottom");
   if (SendDlgItemMessage(hwndDlg, IDC_NORMAL, BM_GETCHECK, 0, 0) == BST_CHECKED)
     tmpValue = TEXT("Normal");
-  pSettings->SetZPosition((WCHAR*)tmpValue);
+  pSettings->SetZPosition(tmpValue);
 
   // commit changes
   pSettings->WriteSettings();

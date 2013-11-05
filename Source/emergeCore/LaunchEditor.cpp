@@ -187,7 +187,7 @@ BOOL LaunchEditor::DoInitDialog(HWND hwndDlg)
   saveCount = 0;
   deleteCount = 0;
 
-  ELGetWindowRect(hwndDlg, &rect);
+  rect = ELGetWindowRect(hwndDlg);
 
   x = (GetSystemMetrics(SM_CXSCREEN) / 2) - ((rect.right - rect.left) / 2);
   y = (GetSystemMetrics(SM_CYSCREEN) / 2) - ((rect.bottom - rect.top) / 2);
@@ -482,7 +482,7 @@ BOOL LaunchEditor::DoMultiGather(HWND hwndDlg)
           ListView_GetItemText(listWnd, i, 1, name, MAX_PATH);
           selectedApplet = name;
           selectedApplet = ELExpandVars(selectedApplet);
-          selectedApplet = ELAbsPathFromRelativePath(selectedApplet);
+          selectedApplet = ELGetAbsolutePath(selectedApplet);
           EnumWindows(GatherApplet, reinterpret_cast<LPARAM>(this));
           ret = TRUE;
         }
@@ -505,7 +505,7 @@ BOOL LaunchEditor::DoMultiStop(HWND hwndDlg)
           ListView_GetItemText(listWnd, i, 1, name, MAX_PATH);
           selectedApplet = name;
           selectedApplet = ELExpandVars(selectedApplet);
-          selectedApplet = ELAbsPathFromRelativePath(selectedApplet);
+          selectedApplet = ELGetAbsolutePath(selectedApplet);
           EnumWindows(AppletCheck, reinterpret_cast<LPARAM>(this));
           ListView_SetItemText(listWnd, i, 0, (WCHAR*)TEXT("Not Loaded"));
           ret = TRUE;
@@ -527,7 +527,7 @@ BOOL LaunchEditor::DoMultiStart(HWND hwndDlg)
       if (ListView_GetItemState(listWnd, i, LVIS_SELECTED))
         {
           ListView_GetItemText(listWnd, i, 1, name, MAX_PATH);
-          if (ELExecute(name))
+          if (ELExecuteFileOrCommand(name))
             {
               ret = TRUE;
               ListView_SetItemText(listWnd, i, 0, (WCHAR*)TEXT("Loaded"));
@@ -604,7 +604,7 @@ bool LaunchEditor::DoLaunchStart(HWND listWnd, int index)
 {
   bool ret = false;
 
-  if (ELExecute((WCHAR*)selectedApplet.c_str()))
+  if (ELExecuteFileOrCommand(selectedApplet))
     {
       ListView_SetItemText(listWnd, index, 0, (WCHAR*)TEXT("Loaded"));
       ret = true;
@@ -654,7 +654,7 @@ bool LaunchEditor::UpdateLaunch(HWND hwndDlg)
       oldThemePath += TEXT("\\*");
       newThemePath = TEXT("%ThemeDir%");
 
-      if (!ELPathIsDirectory(newThemePath.c_str()))
+      if ((ELGetFileSpecialFlags(newThemePath) & SF_DIRECTORY) != SF_DIRECTORY)
         {
           if (ELCreateDirectory(newThemePath))
             ELFileOp(mainWnd, false, FO_COPY, oldThemePath, newThemePath);
@@ -702,7 +702,7 @@ bool LaunchEditor::UpdateLaunch(HWND hwndDlg)
 bool LaunchEditor::PopulateList(HWND listWnd)
 {
   bool found = false;
-  WCHAR data[MAX_LINE_LENGTH];
+  std::wstring data;
   std::tr1::shared_ptr<TiXmlDocument> configXML;
   TiXmlElement *first, *sibling, *section = NULL, *settings;
 
@@ -720,10 +720,11 @@ bool LaunchEditor::PopulateList(HWND listWnd)
             {
               DWORD index = 0;
 
-              if (ELReadXMLStringValue(first, TEXT("Command"), data, TEXT("")))
+              data = ELReadXMLStringValue(first, TEXT("Command"), TEXT(""));
+              if (!data.empty())
                 {
                   found = true;
-                  InsertListViewItem(listWnd, index, data);
+                  InsertListViewItem(listWnd, index, data.c_str());
                 }
 
               sibling = ELGetSiblingXMLElement(first);
@@ -732,8 +733,9 @@ bool LaunchEditor::PopulateList(HWND listWnd)
                   index++;
                   first = sibling;
 
-                  if (ELReadXMLStringValue(first, TEXT("Command"), data, TEXT("")))
-                    InsertListViewItem(listWnd, index, data);
+                  data = ELReadXMLStringValue(first, TEXT("Command"), TEXT(""));
+                  if (!data.empty())
+                    InsertListViewItem(listWnd, index, data.c_str());
 
                   sibling = ELGetSiblingXMLElement(first);
                 }
@@ -995,13 +997,14 @@ bool LaunchEditor::DoLaunchBrowse(HWND hwndDlg)
 {
   bool ret = false;
   OPENFILENAME ofn;
-  WCHAR tmp[MAX_PATH], path[MAX_PATH], program[MAX_PATH], arguments[MAX_LINE_LENGTH];
+  std::wstring path;
+  WCHAR tmp[MAX_PATH], program[MAX_PATH], arguments[MAX_LINE_LENGTH];
   std::wstring workingPath;
 
   ZeroMemory(tmp, MAX_PATH);
   ZeroMemory(&ofn, sizeof(ofn));
 
-  ELGetCurrentPath(path);
+  path = ELGetCurrentPath();
 
   ofn.lStructSize = sizeof(ofn);
   ofn.hwndOwner = hwndDlg;
@@ -1015,13 +1018,13 @@ bool LaunchEditor::DoLaunchBrowse(HWND hwndDlg)
   ofn.nMaxFile = MAX_PATH;
   ofn.lpstrTitle = TEXT("Browse For Launch Applet");
   ofn.lpstrDefExt = NULL;
-  ofn.lpstrInitialDir = path;
+  ofn.lpstrInitialDir = path.c_str();
   ofn.Flags = OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST | OFN_EXPLORER | OFN_DONTADDTORECENT | OFN_NOCHANGEDIR | OFN_NODEREFERENCELINKS;
 
   if (GetOpenFileName(&ofn))
     {
       ELUnExpandVars(tmp);
-      std::wstring workingTmp = ELRelativePathFromAbsPath(tmp);
+      std::wstring workingTmp = ELGetRelativePath(tmp);
       SetDlgItemText(hwndDlg, IDC_APPLET, workingTmp.c_str());
 
       ret = true;
@@ -1148,13 +1151,13 @@ BOOL LaunchEditor::DoRightClick(HWND hwndDlg, int index)
     case 2:
       selectedApplet = applet;
       selectedApplet = ELExpandVars(selectedApplet);
-      selectedApplet = ELAbsPathFromRelativePath(selectedApplet);
+      selectedApplet = ELGetAbsolutePath(selectedApplet);
       EnumWindows(GatherApplet, reinterpret_cast<LPARAM>(this));
       break;
     case 3:
       selectedApplet = applet;
       selectedApplet = ELExpandVars(selectedApplet);
-      selectedApplet = ELAbsPathFromRelativePath(selectedApplet);
+      selectedApplet = ELGetAbsolutePath(selectedApplet);
       if (start)
         DoLaunchStart(listWnd, index);
       else

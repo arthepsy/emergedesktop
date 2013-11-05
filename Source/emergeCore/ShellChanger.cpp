@@ -112,7 +112,7 @@ BOOL ShellChanger::DoInitDialog(HWND hwndDlg)
   TOOLINFO ti;
 
   ZeroMemory(&ti, sizeof(TOOLINFO));
-  ELGetWindowRect(hwndDlg, &rect);
+  rect = ELGetWindowRect(hwndDlg);
 
   HWND nameWnd = GetDlgItem(hwndDlg, IDC_SHELLNAME);
   HWND nameTextWnd = GetDlgItem(hwndDlg, IDC_NAMETEXT);
@@ -204,7 +204,8 @@ BOOL ShellChanger::DoInitDialog(HWND hwndDlg)
 void ShellChanger::PopulateShells(HWND shellWnd)
 {
   DWORD size, result;
-  WCHAR name[MAX_LINE_LENGTH], command[MAX_LINE_LENGTH], ELPath[MAX_LINE_LENGTH], currentShell[MAX_LINE_LENGTH];
+  std::wstring name, command, ELPath;
+  WCHAR currentShell[MAX_LINE_LENGTH];
   HKEY key;
   bool doCheck = false;
   int shellIndex = -1;
@@ -230,32 +231,32 @@ void ShellChanger::PopulateShells(HWND shellWnd)
   configXML = ELOpenXMLConfig(xmlFile, false);
   if (configXML)
     {
-      settings = ELGetXMLSection(configXML.get(), (WCHAR*)TEXT("Settings"), false);
+      settings = ELGetXMLSection(configXML.get(), TEXT("Settings"), false);
       if (settings)
-        section = ELGetFirstXMLElementByName(settings, (WCHAR*)TEXT("Shells"), false);
+        section = ELGetFirstXMLElementByName(settings, TEXT("Shells"), false);
       if (section == NULL) /**< Handle the broken file format where Shells is a top level XML element */
-        section = ELGetXMLSection(configXML.get(), (WCHAR*)TEXT("Shells"), false);
+        section = ELGetXMLSection(configXML.get(), TEXT("Shells"), false);
       if (section)
         {
           first = ELGetFirstXMLElement(section);
 
           if (first)
             {
-              ELReadXMLStringValue(first, (WCHAR*)TEXT("Name"), name, (WCHAR*)TEXT("\0"));
-              ELReadXMLStringValue(first, (WCHAR*)TEXT("Command"), command, (WCHAR*)TEXT("\0"));
+              name = ELReadXMLStringValue(first, TEXT("Name"), TEXT(""));
+              command = ELReadXMLStringValue(first, TEXT("Command"), TEXT(""));
 
-              SendMessage(shellWnd, CB_ADDSTRING, 0, (LPARAM)name);
-              shellMap.insert(EmergeShellItem(std::wstring(name), std::wstring(command)));
+              SendMessage(shellWnd, CB_ADDSTRING, 0, (LPARAM)name.c_str());
+              shellMap.insert(EmergeShellItem(name, command));
 
               sibling = ELGetSiblingXMLElement(first);
               while (sibling)
                 {
                   first = sibling;
-                  ELReadXMLStringValue(first, (WCHAR*)TEXT("Name"), name, (WCHAR*)TEXT("\0"));
-                  ELReadXMLStringValue(first, (WCHAR*)TEXT("Command"), command, (WCHAR*)TEXT("\0"));
+                  name = ELReadXMLStringValue(first, TEXT("Name"), TEXT(""));
+                  command = ELReadXMLStringValue(first, TEXT("Command"), TEXT(""));
 
-                  SendMessage(shellWnd, CB_ADDSTRING, 0, (LPARAM)name);
-                  shellMap.insert(EmergeShellItem(std::wstring(name), std::wstring(command)));
+                  SendMessage(shellWnd, CB_ADDSTRING, 0, (LPARAM)name.c_str());
+                  shellMap.insert(EmergeShellItem(name, command));
 
                   sibling = ELGetSiblingXMLElement(first);
                 }
@@ -265,10 +266,9 @@ void ShellChanger::PopulateShells(HWND shellWnd)
 
   if (doCheck)
     {
-      ELGetCurrentPath(ELPath);
-      wcscat(ELPath, TEXT("\\emergeCore.exe"));
-      _wcslwr(ELPath);
-      if (wcsicmp(currentShell, ELPath) == 0)
+      ELPath = ELGetCurrentPath();
+      ELPath = ELPath + TEXT("\\emergeCore.exe");
+      if (ELToLower(currentShell) == ELToLower(ELPath))
         shellIndex = (int)SendMessage(shellWnd, CB_FINDSTRINGEXACT, (WPARAM)-1, (LPARAM)TEXT("Emerge Desktop"));
       else if (wcsstr(currentShell, TEXT("explorer.exe")))
         shellIndex = (int)SendMessage(shellWnd, CB_FINDSTRINGEXACT, (WPARAM)-1, (LPARAM)TEXT("Windows Explorer"));
@@ -301,8 +301,8 @@ bool ShellChanger::CheckFields(HWND hwndDlg)
        IsWindowEnabled(nameWnd)))
     {
       if (ELMessageBox(hwndDlg,
-                       (WCHAR*)TEXT("The current shell command will be lost.\n\nDo you wish to continue?"),
-                       (WCHAR*)TEXT("emergeCore"),
+                       TEXT("The current shell command will be lost.\n\nDo you wish to continue?"),
+                       TEXT("emergeCore"),
                        ELMB_YESNO|ELMB_ICONQUESTION|ELMB_MODAL) == IDYES)
         return true;
       else
@@ -411,9 +411,9 @@ bool ShellChanger::DoSetShell(HWND hwndDlg)
   std::wstring appletCmd = TEXT("%AppletDir%\\files\\cmd.txt"), emergeCmd = TEXT("%EmergeDir%\\files\\");
   appletCmd = ELExpandVars(appletCmd);
   emergeCmd = ELExpandVars(emergeCmd);
-  if (!ELPathIsDirectory(emergeCmd.c_str()))
+  if ((ELGetFileSpecialFlags(emergeCmd) & SF_DIRECTORY) != SF_DIRECTORY)
     ELCreateDirectory(emergeCmd);
-  emergeCmd += TEXT("cmd.txt");
+  emergeCmd = emergeCmd + TEXT("cmd.txt");
   CopyFile(appletCmd.c_str(), emergeCmd.c_str(), TRUE);
 
   if (IsWindowEnabled(startErrorWnd))
@@ -442,7 +442,7 @@ int ShellChanger::GetShellCommand(HWND hwndDlg, WCHAR *name, WCHAR *command)
 
   if (_wcsicmp(name, TEXT("Emerge Desktop")) == 0)
     {
-      ELGetCurrentPath(command);
+      wcscpy(command, ELGetCurrentPath().c_str());
       wcscat(command, TEXT("\\emergeCore.exe"));
     }
   else if (_wcsicmp(name, TEXT("Windows Explorer")) == 0)
@@ -772,15 +772,15 @@ bool ShellChanger::DoBrowseShell(HWND hwndDlg)
 {
   OPENFILENAME ofn;
   WCHAR tmp[MAX_PATH];
-  WCHAR initPath[MAX_PATH];
+  std::wstring initialPath;
 
   ZeroMemory(tmp, MAX_PATH);
   ZeroMemory(&ofn, sizeof(ofn));
 
-  ELGetCurrentPath(initPath);
+  initialPath = ELGetCurrentPath();
 
   ofn.lpstrFilter = TEXT("All Files (*.*)\0*.*\0");
-  ofn.lpstrInitialDir = initPath;
+  ofn.lpstrInitialDir = initialPath.c_str();
   ofn.lStructSize = sizeof(ofn);
   ofn.hwndOwner = hwndDlg;
   ofn.lpstrFilter = TEXT("All Files (*.*)\0*.*\0");

@@ -220,7 +220,7 @@ LRESULT CALLBACK CHyperLink::_HyperlinkParentProc(HWND hwnd, UINT message,
  */
 inline void CHyperLink::Navigate(void)
 {
-  ELExecuteAll(m_strURL, (WCHAR*)L"\0");
+  ELExecuteFileOrCommand(m_strURL);
   m_bVisited = TRUE;
 }
 

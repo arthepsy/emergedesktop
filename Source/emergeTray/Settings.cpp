@@ -28,9 +28,9 @@ Settings::Settings(LPARAM lParam)
   unhideIcons = true;
   xmlFile = TEXT("%EmergeDir%\\files\\emergeTray.xml");
   this->lParam = lParam;
-  ZeroMemory(infoFontString, MAX_LINE_LENGTH);
-  ZeroMemory(infoTitleFontString, MAX_LINE_LENGTH);
-  ZeroMemory(gradientMethod, MAX_LINE_LENGTH);
+  infoFontString = TEXT("");
+  infoTitleFontString = TEXT("");
+  gradientMethod = TEXT("");
   borderColour = RGB(0,0,0);
   textColour = RGB(0,0,0);
   gradientTo = RGB(0,0,0);
@@ -41,32 +41,32 @@ Settings::Settings(LPARAM lParam)
 void Settings::DoReadSettings(IOHelper& helper)
 {
   BaseSettings::DoReadSettings(helper);
-  helper.ReadBool(TEXT("UnhideIcons"), unhideIcons, true);
-  helper.ReadString(TEXT("InfoFont"), infoFontString, TEXT("Tahoma-10"));
-  helper.ReadString(TEXT("InfoTitleFont"), infoTitleFontString, TEXT("Tahoma-Bold-12"));
-  helper.ReadColor(TEXT("BorderColor"), borderColour, RGB(0, 0, 0));
-  helper.ReadColor(TEXT("TextColor"), textColour, RGB(0, 0, 0));
-  helper.ReadColor(TEXT("GradientFrom"), gradientFrom, RGB(255, 255, 255));
-  helper.ReadColor(TEXT("GradientTo"), gradientTo, RGB(255, 255, 128));
-  helper.ReadInt(TEXT("Alpha"), alpha, 100);
-  helper.ReadString(TEXT("GradientMethod"), gradientMethod, TEXT("Vertical"));
+  unhideIcons = helper.ReadBool(TEXT("UnhideIcons"), true);
+  infoFontString = helper.ReadString(TEXT("InfoFont"), TEXT("Tahoma-10"));
+  infoTitleFontString = helper.ReadString(TEXT("InfoTitleFont"), TEXT("Tahoma-Bold-12"));
+  borderColour = helper.ReadColor(TEXT("BorderColor"), RGB(0, 0, 0));
+  textColour = helper.ReadColor(TEXT("TextColor"), RGB(0, 0, 0));
+  gradientFrom = helper.ReadColor(TEXT("GradientFrom"), RGB(255, 255, 255));
+  gradientTo = helper.ReadColor(TEXT("GradientTo"), RGB(255, 255, 128));
+  alpha = helper.ReadInt(TEXT("Alpha"), 100);
+  gradientMethod = helper.ReadString(TEXT("GradientMethod"), TEXT("Vertical"));
 }
 
 void Settings::DoInitialize()
 {
   BaseSettings::DoInitialize();
 
-  EGStringToFont(infoFontString, infoLogFont);
-  EGStringToFont(infoTitleFontString, infoTitleLogFont);
+  infoLogFont = EGStringToFont(infoFontString);
+  infoTitleLogFont = EGStringToFont(infoTitleFontString);
 }
 
 void Settings::DoWriteSettings(IOHelper& helper)
 {
   BaseSettings::DoWriteSettings(helper);
   helper.WriteBool(TEXT("UnhideIcons"), unhideIcons);
-  EGFontToString(infoLogFont, infoFontString);
+  infoFontString = EGFontToString(infoLogFont);
   helper.WriteString(TEXT("InfoFont"), infoFontString);
-  EGFontToString(infoTitleLogFont, infoTitleFontString);
+  infoTitleFontString = EGFontToString(infoTitleLogFont);
   helper.WriteString(TEXT("InfoTitleFont"), infoTitleFontString);
   helper.WriteColor(TEXT("BorderColor"), borderColour);
   helper.WriteColor(TEXT("TextColor"), textColour);
@@ -81,23 +81,23 @@ void Settings::ResetDefaults()
   BaseSettings::ResetDefaults();
 
   unhideIcons = true;
-  wcscpy(infoFontString, TEXT("Tahoma-10"));
-  wcscpy(infoTitleFontString, TEXT("Tahoma-Bold-12"));
+  infoFontString = TEXT("Tahoma-10");
+  infoTitleFontString = TEXT("Tahoma-Bold-12");
   borderColour = RGB(0, 0, 0);
   textColour =  RGB(0, 0, 0);
   gradientFrom = RGB(255, 255, 255);
   gradientTo =  RGB(255, 255, 128);
   alpha =  100;
-  wcscpy(gradientMethod, TEXT("Vertical"));
+  gradientMethod = TEXT("Vertical");
 
   x = -72;
   y = -1;
   width = 156;
   height = 32;
-  wcscpy(zPosition, TEXT("Top"));
-  wcscpy(horizontalDirection, TEXT("left"));
-  wcscpy(verticalDirection, TEXT("up"));
-  wcscpy(directionOrientation, TEXT("horizontal"));
+  zPosition = TEXT("Top");
+  horizontalDirection = TEXT("left");
+  verticalDirection = TEXT("up");
+  directionOrientation = TEXT("horizontal");
   autoSize = false;
   iconSize = 16;
   iconSpacing = 3;
@@ -106,7 +106,7 @@ void Settings::ResetDefaults()
   dynamicPositioning = true;
   clickThrough = 0;
   appletMonitor = 0;
-  wcscpy(anchorPoint, TEXT("BottomRight"));
+  anchorPoint = TEXT("BottomRight");
 }
 
 bool Settings::GetUnhideIcons()
@@ -144,16 +144,16 @@ int Settings::GetAlpha()
   return alpha;
 }
 
-WCHAR *Settings::GetGradientMethod()
+std::wstring Settings::GetGradientMethod()
 {
   return gradientMethod;
 }
 
-bool Settings::SetGradientMethod(WCHAR *gradientMethod)
+bool Settings::SetGradientMethod(std::wstring gradientMethod)
 {
-  if (_wcsicmp(this->gradientMethod, gradientMethod) != 0)
+  if (ELToLower(this->gradientMethod) != ELToLower(gradientMethod))
     {
-      wcscpy(this->gradientMethod, gradientMethod);
+      this->gradientMethod = gradientMethod;
       SetModified();
     }
   return true;
@@ -226,12 +226,9 @@ bool Settings::SetAlpha(int alpha)
 
 bool Settings::SetInfoFont(LOGFONT *infoLogFont)
 {
-  WCHAR tmp[MAX_LINE_LENGTH];
-  EGFontToString(*infoLogFont, tmp);
-
   if (!EGEqualLogFont(this->infoLogFont, *infoLogFont))
     {
-      wcscpy(infoFontString, tmp);
+      infoFontString = EGFontToString(*infoLogFont);
       CopyMemory(&this->infoLogFont, infoLogFont, sizeof(LOGFONT));
       SetModified();
     }
@@ -240,12 +237,9 @@ bool Settings::SetInfoFont(LOGFONT *infoLogFont)
 
 bool Settings::SetInfoTitleFont(LOGFONT *infoTitleLogFont)
 {
-  WCHAR tmp[MAX_LINE_LENGTH];
-  EGFontToString(*infoTitleLogFont, tmp);
-
   if (!EGEqualLogFont(this->infoTitleLogFont, *infoTitleLogFont))
     {
-      wcscpy(infoTitleFontString, tmp);
+      infoTitleFontString = EGFontToString(*infoTitleLogFont);
       CopyMemory(&this->infoTitleLogFont, infoTitleLogFont, sizeof(LOGFONT));
       SetModified();
     }
@@ -262,13 +256,13 @@ void Settings::BuildHideList()
 {
   std::tr1::shared_ptr<TiXmlDocument> configXML = ELOpenXMLConfig(xmlFile, false);
   TiXmlElement *section;
-  WCHAR data[MAX_LINE_LENGTH];
+  std::wstring data;
 
   if (configXML)
     {
       // Clear the stickyList vector
       hideList.clear();
-      section = ELGetXMLSection(configXML.get(), (WCHAR*)TEXT("Hide"), false);
+      section = ELGetXMLSection(configXML.get(), TEXT("Hide"), false);
 
       if (section)
         {
@@ -276,7 +270,8 @@ void Settings::BuildHideList()
 
           while (userIO.GetElement())
             {
-              if (userIO.ReadString(TEXT("Icon"), data, TEXT("")))
+              data = userIO.ReadString(TEXT("Icon"), TEXT(""));
+              if (!data.empty())
                 hideList.push_back(data);
             }
         }

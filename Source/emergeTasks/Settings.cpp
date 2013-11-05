@@ -37,14 +37,14 @@ Settings::Settings()
 void Settings::DoReadSettings(IOHelper& helper)
 {
   BaseSettings::DoReadSettings(helper);
-  helper.ReadBool(TEXT("HighLightActive"), hiliteActive, true);
-  helper.ReadBool(TEXT("SameMonitorOnly"), sameMonitorOnly, false); //ROBLARKY - 2012-08-11: Added for option to only show tasks on same monitor
-  helper.ReadInt(TEXT("FlashCount"), flashCount, 0);
-  helper.ReadBool(TEXT("EnableFlash"), enableFlash, true);
-  helper.ReadInt(TEXT("FlashInterval"), flashInterval, 1000);
-  helper.ReadBool(TEXT("EnableThumbnails"), enableThumbnails, true);
-  helper.ReadInt(TEXT("ThumbnailAlpha"), thumbnailAlpha, 100);
-  helper.ReadInt(TEXT("ThumbnailScale"), thumbnailScale, 20);
+  hiliteActive = helper.ReadBool(TEXT("HighLightActive"), true);
+  sameMonitorOnly = helper.ReadBool(TEXT("SameMonitorOnly"), false); //ROBLARKY - 2012-08-11: Added for option to only show tasks on same monitor
+  flashCount = helper.ReadInt(TEXT("FlashCount"), 0);
+  enableFlash = helper.ReadBool(TEXT("EnableFlash"), true);
+  flashInterval = helper.ReadInt(TEXT("FlashInterval"), 1000);
+  enableThumbnails = helper.ReadBool(TEXT("EnableThumbnails"), true);
+  thumbnailAlpha = helper.ReadInt(TEXT("ThumbnailAlpha"), 100);
+  thumbnailScale = helper.ReadInt(TEXT("ThumbnailScale"), 20);
 }
 
 void Settings::DoWriteSettings(IOHelper& helper)
@@ -71,10 +71,10 @@ void Settings::ResetDefaults()
   y = -40;
   width = 271;
   height = 32;
-  wcscpy(zPosition, TEXT("Top"));
-  wcscpy(horizontalDirection, TEXT("right"));
-  wcscpy(verticalDirection, TEXT("up"));
-  wcscpy(directionOrientation, TEXT("horizontal"));
+  zPosition = TEXT("Top");
+  horizontalDirection = TEXT("right");
+  verticalDirection = TEXT("up");
+  directionOrientation = TEXT("horizontal");
   autoSize = false;
   iconSize = 32;
   iconSpacing = 7;
@@ -83,7 +83,7 @@ void Settings::ResetDefaults()
   dynamicPositioning = true;
   clickThrough = 0;
   appletMonitor = 0;
-  wcscpy(anchorPoint, TEXT("BottomLeft"));
+  anchorPoint = TEXT("BottomLeft");
   sameMonitorOnly = false; //ROBLARKY - 2012-08-11: Added for option to only show tasks on same monitor
   enableThumbnails = true;
   thumbnailAlpha = 100;

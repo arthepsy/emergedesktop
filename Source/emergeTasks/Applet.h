@@ -21,6 +21,8 @@
 #ifndef __ET_APPLET_H
 #define __ET_APPLET_H
 
+#define UNICODE 1
+
 // Define required for the Window Transparency
 #undef _WIN32_WINNT
 #define _WIN32_WINNT 0x0501
@@ -36,6 +38,7 @@
 #include <memory>
 #endif
 
+#include <windows.h>
 #include <vector>
 #include <map>
 #include <stdlib.h>
@@ -44,6 +47,7 @@
 #include "Task.h"
 #include "Config.h"
 #include "Settings.h"
+#include "../emergeLib/emergeWindowLib.h"
 #include "../emergeStyleEngine/emergeStyleEngine.h"
 #include "../emergeAppletEngine/emergeAppletEngine.h"
 #include "../emergeBaseClasses/BaseApplet.h"

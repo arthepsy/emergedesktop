@@ -27,9 +27,18 @@
 #ifndef __EC_MESSAGECONTROL_H
 #define __EC_MESSAGECONTROL_H
 
-#include "../emergeLib/emergeLib.h"
+#ifdef __GNUC__
+#include <tr1/memory>
+#include <tr1/shared_ptr.h>
+#else
+#include <memory>
+#endif
+
+#include <windows.h>
 #include <map>
 #include <set>
+#include "../emergeLib/emergeCoreLib.h"
+#include "../emergeLib/emergeWindowLib.h"
 
 typedef std::set<HWND> WindowSet;
 typedef std::map< UINT, std::tr1::shared_ptr<WindowSet> > TypeMap;
@@ -46,7 +55,7 @@ public:
   ~MessageControl();
   void AddType(HWND window, UINT message);
   void RemoveType(HWND window, UINT message);
-  void DispatchMessage(UINT type, UINT message, WCHAR *instanceName);
+  void Dispatch_Message(UINT type, UINT message, WCHAR *instanceName);
 };
 
 #endif

@@ -87,13 +87,13 @@ BOOL DisplayPage::DoInitDialog(HWND hwndDlg)
   if (pSettings->GetShowNumbers())
     SendDlgItemMessage(hwndDlg, IDC_SHOWNUMBERS, BM_SETCHECK, BST_CHECKED, 0);
 
-  if (_wcsicmp(pSettings->GetNumberPosition(), TEXT("left")) == 0)
+  if (ELToLower(pSettings->GetNumberPosition()) == TEXT("left"))
     SendDlgItemMessage(hwndDlg, IDC_TEXTLEFT, BM_SETCHECK, BST_CHECKED, 0);
-  if (_wcsicmp(pSettings->GetNumberPosition(), TEXT("down")) == 0)
+  if (ELToLower(pSettings->GetNumberPosition()) == TEXT("down"))
     SendDlgItemMessage(hwndDlg, IDC_TEXTDOWN, BM_SETCHECK, BST_CHECKED, 0);
-  if (_wcsicmp(pSettings->GetNumberPosition(), TEXT("right")) == 0)
+  if (ELToLower(pSettings->GetNumberPosition()) == TEXT("right"))
     SendDlgItemMessage(hwndDlg, IDC_TEXTRIGHT, BM_SETCHECK, BST_CHECKED, 0);
-  if (_wcsicmp(pSettings->GetNumberPosition(), TEXT("up")) == 0)
+  if (ELToLower(pSettings->GetNumberPosition()) == TEXT("up"))
     SendDlgItemMessage(hwndDlg, IDC_TEXTUP, BM_SETCHECK, BST_CHECKED, 0);
 
   CopyMemory(&newFont, pSettings->GetFont(), sizeof(LOGFONT));

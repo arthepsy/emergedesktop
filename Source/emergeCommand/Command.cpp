@@ -143,13 +143,13 @@ LRESULT CALLBACK Command::EditProc(HWND hwnd,UINT message,WPARAM wParam,LPARAM l
           if (length > 0)
             {
               buf[length] = '\0';
-              if (ELExecuteAll(buf, (WCHAR*)TEXT("\0")))
+              if (ELExecuteFileOrCommand(buf))
                 {
                   pCommand->AddElement(buf);
                   pCommand->ShowAppletWindow();
                 }
               else
-                ELMessageBox(GetDesktopWindow(), error, (WCHAR*)TEXT("emergeCommand"), ELMB_ICONWARNING|ELMB_OK);
+                ELMessageBox(GetDesktopWindow(), error, TEXT("emergeCommand"), ELMB_ICONWARNING|ELMB_OK);
             }
 
           return 0;
@@ -217,7 +217,7 @@ LRESULT CALLBACK Command::CommandProc(HWND hwnd, UINT message, WPARAM wParam, LP
       // Repaint the icons as the window size is changing
     case WM_WINDOWPOSCHANGING:
     {
-      if (!_wcsicmp(pCommand->GetZPosition(), TEXT("bottom")))
+      if (ELToLower(pCommand->GetZPosition()) == TEXT("bottom"))
         ((WINDOWPOS *)lParam)->flags |= SWP_NOZORDER;
     }
     break;
@@ -259,7 +259,7 @@ void Command::SetHidden(bool appletHidden)
   this->appletHidden = appletHidden;
 }
 
-WCHAR *Command::GetZPosition()
+std::wstring Command::GetZPosition()
 {
   return pSettings->GetZPosition();
 }
@@ -290,7 +290,7 @@ void Command::UpdateEdit(GUIINFO guiInfo, int width, int height)
   int dragBorder = guiInfo.dragBorder + guiInfo.bevelWidth + guiInfo.padding;
   LPVOID lpVoid;
 
-  if (_wcsicmp(pSettings->GetCommandVerticalAlign(), TEXT("center")) == 0)
+  if (ELToLower(pSettings->GetCommandVerticalAlign()) == TEXT("center"))
     {
       top = (height / 2);
       top -= (pSettings->GetFont()->lfHeight / 2);
@@ -298,7 +298,7 @@ void Command::UpdateEdit(GUIINFO guiInfo, int width, int height)
         top = dragBorder;
       bottom = height - (2 * dragBorder);
     }
-  else if (_wcsicmp(pSettings->GetCommandVerticalAlign(), TEXT("bottom")) == 0)
+  else if (ELToLower(pSettings->GetCommandVerticalAlign()) == TEXT("bottom"))
     {
       bottom = height - (2 * dragBorder);
       top = bottom - pSettings->GetFont()->lfHeight;
@@ -401,7 +401,7 @@ void Command::UpdateEdit(GUIINFO guiInfo, int width, int height)
   if (commandSource && pom)
     pom->Append(commandSource);
 
-  if (_wcsicmp(pSettings->GetCommandTextAlign(), TEXT("right")) == 0)
+  if (ELToLower(pSettings->GetCommandTextAlign()) == TEXT("right"))
     hText = CreateWindowEx(
               WS_EX_TOOLWINDOW,
               TEXT("EDIT"),
@@ -413,7 +413,7 @@ void Command::UpdateEdit(GUIINFO guiInfo, int width, int height)
               NULL,
               mainInst,
               NULL);
-  else if (_wcsicmp(pSettings->GetCommandTextAlign(), TEXT("center")) == 0)
+  else if (ELToLower(pSettings->GetCommandTextAlign()) == TEXT("center"))
     hText = CreateWindowEx(
               WS_EX_TOOLWINDOW,
               TEXT("EDIT"),

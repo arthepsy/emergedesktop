@@ -89,6 +89,8 @@
 		<Unit filename="Core.h" />
 		<Unit filename="Desktop.cpp" />
 		<Unit filename="Desktop.h" />
+		<Unit filename="InternalCommandHandler.cpp" />
+		<Unit filename="InternalCommandHandler.h" />
 		<Unit filename="LaunchEditor.cpp" />
 		<Unit filename="LaunchEditor.dlg" />
 		<Unit filename="LaunchEditor.h" />

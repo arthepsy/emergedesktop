@@ -208,7 +208,7 @@ LRESULT Applet::PaintContent(HDC hdc, RECT clientrt)
     return 0;
 
   // calculate the room for one bar
-  bool vertical = (_wcsicmp(pSettings->GetDirectionOrientation(), TEXT("vertical")) == 0);
+  bool vertical = (ELToLower(pSettings->GetDirectionOrientation()) == TEXT("vertical"));
   int roomForBar = ((vertical ? r.bottom - r.top : r.right - r.left) - padding * (totalNumOfBars - 1)) /
     totalNumOfBars;
 
@@ -220,7 +220,7 @@ LRESULT Applet::PaintContent(HDC hdc, RECT clientrt)
   else
     r.right = r.left + roomForBar;
 
-  bool gradient = (_wcsicmp(pSettings->GetCPUGradientMethod(), TEXT("solid")) != 0);
+  bool gradient = (ELToLower(pSettings->GetCPUGradientMethod()) == TEXT("solid"));
 
   // draw bars
   if (pSettings->GetMonitorCPU())
@@ -235,7 +235,7 @@ LRESULT Applet::PaintContent(HDC hdc, RECT clientrt)
         }
     }
 
-  gradient = (_wcsicmp(pSettings->GetMemGradientMethod(), TEXT("solid")) != 0);
+  gradient = (ELToLower(pSettings->GetMemGradientMethod()) == TEXT("solid"));
   if (pSettings->GetMonitorCommitCharge())
     {
       RECT tmpRect = r;
@@ -300,7 +300,7 @@ void Applet::DrawItem(HDC hdc, RECT rect, BYTE value, std::vector<BYTE>* history
       EGGradientFillRect(bkDC, &bmRect, guiInfo.alphaForeground,
                          (cpu ? pSettings->GetCPUGradientFrom() : pSettings->GetMemGradientFrom()),
                          (cpu ? pSettings->GetCPUGradientTo() : pSettings->GetMemGradientTo()),
-                         0, (WCHAR*)(cpu ? pSettings->GetCPUGradientMethod() : pSettings->GetMemGradientMethod()));
+                         0, (WCHAR*)(cpu ? pSettings->GetCPUGradientMethod().c_str() : pSettings->GetMemGradientMethod().c_str()));
       BitBlt(fillDC, bmRect.left, bmRect.top, bmRect.right - bmRect.left, bmRect.bottom - bmRect.top,
              bkDC, 0, 0, SRCCOPY);
       SelectObject(bkDC, bkObj);
@@ -343,13 +343,13 @@ void Applet::DrawItem(HDC hdc, RECT rect, BYTE value, std::vector<BYTE>* history
 void Applet::DrawBar(HDC hdc, RECT& rect, int percentage, int alpha, COLORREF color)
 {
   RECT r = rect;
-  if (_wcsicmp(pSettings->GetBarDirection(), TEXT("right")) == 0)
+  if (ELToLower(pSettings->GetBarDirection()) == TEXT("right"))
     r.right = r.left + (r.right - r.left) * percentage / 100;
-  else if (_wcsicmp(pSettings->GetBarDirection(), TEXT("left")) == 0)
+  else if (ELToLower(pSettings->GetBarDirection()) == TEXT("left"))
     r.left = r.right - (r.right - r.left) * percentage / 100;
-  else if (_wcsicmp(pSettings->GetBarDirection(), TEXT("down")) == 0)
+  else if (ELToLower(pSettings->GetBarDirection()) == TEXT("down"))
     r.bottom = r.top + (r.bottom - r.top) * percentage / 100;
-  else if (_wcsicmp(pSettings->GetBarDirection(), TEXT("up")) == 0)
+  else if (ELToLower(pSettings->GetBarDirection()) == TEXT("up"))
     r.top = r.bottom - (r.bottom - r.top) * percentage / 100;
   EGFillRect(hdc, &r, alpha, color);
 }
@@ -375,13 +375,13 @@ void Applet::DrawTextAndAdjustRect(HDC hdc, int percent, RECT& rect)
 {
   // calculate textRect
   RECT textRect = rect;
-  if (_wcsicmp(pSettings->GetNumberPosition(), TEXT("right")) == 0)
+  if (ELToLower(pSettings->GetNumberPosition()) == TEXT("right"))
     textRect.left = MAX(textRect.left, textRect.right - requiredTextWidth);
-  else if (_wcsicmp(pSettings->GetNumberPosition(), TEXT("left")) == 0)
+  else if (ELToLower(pSettings->GetNumberPosition()) == TEXT("left"))
     textRect.right = MIN(textRect.right, textRect.left + requiredTextWidth);
-  else if (_wcsicmp(pSettings->GetNumberPosition(), TEXT("down")) == 0)
+  else if (ELToLower(pSettings->GetNumberPosition()) == TEXT("down"))
     textRect.top = MAX(textRect.top, textRect.bottom - requiredTextHeight);
-  else if (_wcsicmp(pSettings->GetNumberPosition(), TEXT("up")) == 0)
+  else if (ELToLower(pSettings->GetNumberPosition()) == TEXT("up"))
     textRect.bottom = MIN(textRect.bottom, textRect.top + requiredTextHeight);
 
   // draw text
@@ -448,41 +448,41 @@ void Applet::UpdateBars()
     {
       for (unsigned int i = 0; i < CPUUsages.size(); ++i)
         {
-          wcscat(tip, L"CPU");
+          wcscat(tip, TEXT("CPU"));
           if (CPUUsages.size() > 1)
             {
               _itow(i, buf, 10);
               wcscat(tip, buf);
             }
-          wcscat(tip, L": ");
+          wcscat(tip, TEXT(": "));
           _itow(CPUUsages[i], buf, 10);
           wcscat(tip, buf);
-          wcscat(tip, L"%\n");
+          wcscat(tip, TEXT("%\n"));
         }
     }
   if (pSettings->GetMonitorCommitCharge())
     {
-      wcscat(tip, L"Commit charge: ");
+      wcscat(tip, TEXT("Commit charge: "));
       _itow(commitCharge, buf, 10);
       wcscat(tip, buf);
-      wcscat(tip, L"% (");
+      wcscat(tip, TEXT("% ("));
       _itow(usedMBytes, buf, 10);
       wcscat(tip, buf);
-      wcscat(tip, L"MB)\n");
+      wcscat(tip, TEXT("MB)\n"));
     }
   if (pSettings->GetMonitorPhysicalMem())
     {
-      wcscat(tip, L"Physical: ");
+      wcscat(tip, TEXT("Physical: "));
       _itow(physicalUsage, buf, 10);
       wcscat(tip, buf);
-      wcscat(tip, L"%\n");
+      wcscat(tip, TEXT("%\n"));
     }
   if (pSettings->GetMonitorPagefile())
     {
-      wcscat(tip, L"Pagefile: ");
+      wcscat(tip, TEXT("Pagefile: "));
       _itow(pagefile, buf, 10);
       wcscat(tip, buf);
-      wcscat(tip, L"%");
+      wcscat(tip, TEXT("%"));
     }
 
 
@@ -586,11 +586,11 @@ void Applet::GetMemUsage(int& commitCharge, int& physical, int& pagefile, int& u
   // find API function
   if(!GetPerformanceInfo)
     {
-      GetPerformanceInfo = (GetPerformanceInfoFunc)GetProcAddress(ELLoadSystemLibrary(L"psapi.dll"), "GetPerformanceInfo");
+      GetPerformanceInfo = (GetPerformanceInfoFunc)GetProcAddress(ELLoadSystemLibrary(TEXT("psapi.dll")), "GetPerformanceInfo");
       if(!GetPerformanceInfo)
         {
-          ELMessageBox(GetDesktopWindow(), (WCHAR*)TEXT("Cannot find system information function!"),
-                       (WCHAR*)TEXT("emergeSysMon"), ELMB_OK|ELMB_ICONERROR|ELMB_MODAL);
+          ELMessageBox(GetDesktopWindow(), TEXT("Cannot find system information function!"),
+                       TEXT("emergeSysMon"), ELMB_OK|ELMB_ICONERROR|ELMB_MODAL);
           PostQuitMessage(1);
           return;
         }
@@ -599,11 +599,11 @@ void Applet::GetMemUsage(int& commitCharge, int& physical, int& pagefile, int& u
   // find API function
   if(!EnumPageFiles)
     {
-      EnumPageFiles = (EnumPageFilesFunc)GetProcAddress(ELLoadSystemLibrary(L"psapi.dll"), "EnumPageFilesW");
+      EnumPageFiles = (EnumPageFilesFunc)GetProcAddress(ELLoadSystemLibrary(TEXT("psapi.dll")), "EnumPageFilesW");
       if(!EnumPageFiles)
         {
-          ELMessageBox(GetDesktopWindow(), (WCHAR*)TEXT("Cannot find system information function!"),
-                       (WCHAR*)TEXT("emergeSysMon"), ELMB_OK|ELMB_ICONERROR|ELMB_MODAL);
+          ELMessageBox(GetDesktopWindow(), TEXT("Cannot find system information function!"),
+                       TEXT("emergeSysMon"), ELMB_OK|ELMB_ICONERROR|ELMB_MODAL);
           PostQuitMessage(1);
           return;
         }
@@ -650,11 +650,11 @@ void Applet::GetCPUUsages(std::vector<BYTE>& usages)
   // find API function
   if(!NtQuerySystemInformation)
     {
-      NtQuerySystemInformation = (NtQuerySystemInformationFunc)GetProcAddress(ELLoadSystemLibrary(L"ntdll.dll"), "NtQuerySystemInformation");
+      NtQuerySystemInformation = (NtQuerySystemInformationFunc)GetProcAddress(ELLoadSystemLibrary(TEXT("ntdll.dll")), "NtQuerySystemInformation");
       if(!NtQuerySystemInformation)
         {
-          ELMessageBox(GetDesktopWindow(), (WCHAR*)TEXT("Cannot find system information function!"),
-                       (WCHAR*)TEXT("emergeSysMon"), ELMB_OK|ELMB_ICONERROR|ELMB_MODAL);
+          ELMessageBox(GetDesktopWindow(), TEXT("Cannot find system information function!"),
+                       TEXT("emergeSysMon"), ELMB_OK|ELMB_ICONERROR|ELMB_MODAL);
           PostQuitMessage(1);
           return;
         }

@@ -29,14 +29,35 @@
 
 #define UNICODE 1
 
+#define MAX_LINE_LENGTH 4096
+
+#ifdef __GNUC__
+#define UNUSED __attribute__((unused))
+#else
+#define UNUSED
+#endif
+
+#ifdef __GNUC__
+#include <tr1/memory>
+#include <tr1/shared_ptr.h>
+#else
+#include <memory>
+#endif
+
+#include <map>
+#include <string>
 #include <shlwapi.h>
 #include <commctrl.h>
-#include "resource.h"
 #include <psapi.h>
-#include <map>
 #include <process.h>
 #include <stdio.h>
-#include "../emergeLib/emergeLib.h"
+#include "../emergeLib/emergeCoreLib.h"
+#include "../emergeLib/emergeFileRegistryLib.h"
+#include "../emergeLib/emergeOSLib.h"
+#include "../emergeLib/emergeUtilityLib.h"
+#include "../emergeLib/emergeWindowLib.h"
+#include "../tinyxml/tinyxml.h"
+#include "resource.h"
 
 class LaunchEditor
 {

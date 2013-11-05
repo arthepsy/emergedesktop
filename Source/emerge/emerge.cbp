@@ -71,6 +71,7 @@
 			<Option compilerVar="WINDRES" />
 		</Unit>
 		<Unit filename="main.cpp" />
+		<Unit filename="main.h" />
 		<Extensions>
 			<code_completion />
 			<envvars />

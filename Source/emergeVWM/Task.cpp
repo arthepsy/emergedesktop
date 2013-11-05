@@ -45,7 +45,7 @@ Task::Task(HWND taskWnd, HWND mainWnd, HINSTANCE mainInst, UINT currentRow, UINT
 
   UpdateDimensions(currentColumn, currentRow, maxRows, maxColumns, guiInfo);
 
-  ELGetWindowRect(taskWnd, &referenceRect);
+  referenceRect = ELGetWindowRect(taskWnd);
 }
 
 //----  --------------------------------------------------------------------------------------------------------
@@ -129,7 +129,7 @@ void Task::UpdateDimensions(UINT currentColumn, UINT currentRow, UINT maxColumns
   int windowWidth, windowHeight;
   float rowScalar, columnScalar;
 
-  ELGetWindowRect(taskWnd, &sourceRect);
+  sourceRect = ELGetWindowRect(taskWnd);
   GetClientRect(mainWnd, &clientRect);
 
   rowScalar = (float)(clientRect.bottom - (2 * guiInfo.dragBorder)) /

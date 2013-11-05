@@ -79,9 +79,9 @@ BOOL ConfigPage::DoInitDialog(HWND hwndDlg)
   if (pSettings->GetStartHidden())
     SendDlgItemMessage(hwndDlg, IDC_STARTHIDDEN, BM_SETCHECK, BST_CHECKED, 0);
 
-  SetDlgItemText(hwndDlg, IDC_CLOCKTEXT, pSettings->GetTimeFormat());
+  SetDlgItemText(hwndDlg, IDC_CLOCKTEXT, pSettings->GetTimeFormat().c_str());
 
-  SetDlgItemText(hwndDlg, IDC_TIPTEXT, pSettings->GetTipFormat());
+  SetDlgItemText(hwndDlg, IDC_TIPTEXT, pSettings->GetTipFormat().c_str());
 
   CopyMemory(&newFont, pSettings->GetFont(), sizeof(LOGFONT));
 

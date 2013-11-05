@@ -481,7 +481,7 @@ LRESULT Applet::DoNotify(HWND hwnd, LPARAM lParam)
       POINT pt;
       RECT rt;
 
-      ELGetWindowRect(hwnd, &rt);
+      rt = ELGetWindowRect(hwnd);
       GetCursorPos(&pt);
       pt.x -= rt.left;
       pt.y -= rt.top;
@@ -766,7 +766,7 @@ LRESULT Applet::MyMove()
   RECT winRect, clientRect;
   movesizeinprogress = false;
 
-  ELGetWindowRect(mainWnd, &winRect);
+  winRect = ELGetWindowRect(mainWnd);
   SetWindowPos(trayWnd, NULL, winRect.left, winRect.top, (winRect.right - winRect.left), (winRect.bottom - winRect.top), SWP_NOZORDER | SWP_NOACTIVATE);
 
   GetClientRect(trayWnd, &clientRect);
@@ -834,7 +834,8 @@ void Applet::ShowHiddenIcons(bool cmd, bool force)
 
       if (pSettings->GetAutoSize())
         {
-          if (ELGetWindowRect(mainWnd, &wndRect))
+          wndRect = ELGetWindowRect(mainWnd);
+          if (!IsRectEmpty(&wndRect))
             {
               AdjustRect(&wndRect);
               SetWindowPos(mainWnd, NULL, wndRect.left, wndRect.top,
@@ -877,7 +878,8 @@ void Applet::CleanTray()
             {
               if (pSettings->GetAutoSize())
                 {
-                  if (ELGetWindowRect(mainWnd, &wndRect))
+                  wndRect = ELGetWindowRect(mainWnd);
+                  if (!IsRectEmpty(&wndRect))
                     {
                       AdjustRect(&wndRect);
                       if (GetVisibleIconCount() == 0)
@@ -966,7 +968,8 @@ LRESULT Applet::RemoveTrayIcon(HWND hwnd, UINT uID)
     {
       if (pSettings->GetAutoSize())
         {
-          if (ELGetWindowRect(mainWnd, &wndRect))
+          wndRect = ELGetWindowRect(mainWnd);
+          if (IsRectEmpty(&wndRect))
             {
               AdjustRect(&wndRect);
               if (GetVisibleIconCount() == 0)
@@ -992,7 +995,7 @@ LRESULT Applet::SetTrayIconVersion(HWND hwnd, UINT uID, UINT iconVersion)
 
   pTrayIcon->SetIconVersion(iconVersion);
   if ((iconVersion == NOTIFYICON_VERSION_4) && ((pTrayIcon->GetFlags() & NIF_SHOWTIP) != NIF_SHOWTIP))
-    pTrayIcon->SetTip((WCHAR*)L"\0");
+    pTrayIcon->SetTip((WCHAR*)TEXT(""));
 
   return 1;
 }
@@ -1093,7 +1096,8 @@ LRESULT Applet::ModifyTrayIcon(HWND hwnd, UINT uID, UINT uFlags, UINT uCallbackM
       SortIcons();
       if (pSettings->GetAutoSize())
         {
-          if (ELGetWindowRect(mainWnd, &wndRect))
+          wndRect = ELGetWindowRect(mainWnd);
+          if (!IsRectEmpty(&wndRect))
             {
               AdjustRect(&wndRect);
               if ((GetVisibleIconCount() > 0) && !appletHidden && !fullScreen)
@@ -1169,7 +1173,8 @@ LRESULT Applet::AddTrayIcon(HWND hwnd, UINT uID, UINT uFlags, UINT uCallbackMess
     {
       if (pSettings->GetAutoSize())
         {
-          if (ELGetWindowRect(mainWnd, &wndRect))
+          wndRect = ELGetWindowRect(mainWnd);
+          if (!IsRectEmpty(&wndRect))
             {
               AdjustRect(&wndRect);
               if ((GetVisibleIconCount() > 0) && !appletHidden && !fullScreen)
@@ -1255,7 +1260,7 @@ LRESULT Applet::TrayMouseEvent(UINT message, LPARAM lParam)
           switch (message)
             {
             case WM_MOUSEMOVE:
-              if ((ELVersionInfo() >= 6.0) && (((*iter)->GetFlags() & NIF_INFO) == NIF_INFO))
+              if ((ELOSVersionInfo() >= 6.0) && (((*iter)->GetFlags() & NIF_INFO) == NIF_INFO))
                 {
                   if (activeIcon != NULL)
                     {
@@ -1430,7 +1435,7 @@ LRESULT Applet::AppBarEvent(COPYDATASTRUCT *cpData)
 
   message = *(DWORD *) (((BYTE *)cpData->lpData) + pAppBarData->cbSize);
   offset = sizeof(DWORD);
-  if (ELVersionInfo() > 6.0)
+  if (ELOSVersionInfo() > 6.0)
     offset += sizeof(DWORD);
   sharedMem = *(HANDLE *) (((BYTE *)cpData->lpData) + pAppBarData->cbSize + offset);
   processID = *(DWORD *) (((BYTE *)cpData->lpData) + pAppBarData->cbSize + offset + sizeof(HANDLE));
@@ -1447,11 +1452,11 @@ LRESULT Applet::AppBarEvent(COPYDATASTRUCT *cpData)
           if (!IsWindowVisible(mainWnd))
             result = ABS_AUTOHIDE;
 
-          if (ELVersionInfo() > 6.0)
+          if (ELOSVersionInfo() > 6.0)
             result |= ABS_ALWAYSONTOP;
           else
             {
-              if (_wcsicmp(pSettings->GetZPosition(), TEXT("Top")) == 0)
+              if (ELToLower(pSettings->GetZPosition()) == TEXT("top"))
                 result |= ABS_ALWAYSONTOP;
             }
 

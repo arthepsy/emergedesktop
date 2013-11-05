@@ -39,6 +39,7 @@ ipch
 *.res
 *.orig
 *.properties
+*.cscope_file_list
 
 # switch to regexp syntax.
 #syntax: regexp

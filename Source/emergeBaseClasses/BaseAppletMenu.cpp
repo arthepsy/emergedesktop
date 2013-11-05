@@ -160,7 +160,7 @@ DWORD BaseAppletMenu::ActivateMenu(int x, int y, WCHAR *styleFile)
       ofn.lpstrFile = file;
       ofn.nMaxFile = MAX_PATH;
       stylePath = themePath + TEXT("\\Styles");
-      if (ELPathIsDirectory(stylePath.c_str()))
+      if ((ELGetFileSpecialFlags(stylePath) & SF_DIRECTORY) == SF_DIRECTORY)
         themePath = stylePath;
       ofn.lpstrInitialDir = themePath.c_str();
       ofn.lpstrTitle = TEXT("Load Style");
@@ -169,8 +169,8 @@ DWORD BaseAppletMenu::ActivateMenu(int x, int y, WCHAR *styleFile)
 
       if (GetOpenFileName(&ofn))
         {
-          ELUnExpandVars(file);
-          std::wstring workingFile = ELRelativePathFromAbsPath(file);
+          wcscpy(file, ELUnExpandVars(file).c_str());
+          std::wstring workingFile = ELGetRelativePath(file);
           wcscpy(styleFile, workingFile.c_str());
           break;
         }

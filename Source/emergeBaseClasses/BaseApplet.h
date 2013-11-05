@@ -27,20 +27,6 @@
 
 #define UNICODE 1
 
-#include "../emergeLib/emergeLib.h"
-#include "../emergeGraphics/emergeGraphics.h"
-#include "../emergeStyleEngine/emergeStyleEngine.h"
-#include "BaseSettings.h"
-#include "BaseAppletMenu.h"
-#include <vector>
-
-#ifdef __GNUC__
-#include <tr1/memory>
-#include <tr1/shared_ptr.h>
-#else
-#include <memory>
-#endif
-
 #ifdef EMERGEBASECLASSES_EXPORTS
 #undef DLL_EXPORT
 #define DLL_EXPORT  __declspec(dllexport)
@@ -49,12 +35,36 @@
 #define DLL_EXPORT  __declspec(dllimport)
 #endif
 
+#ifdef __GNUC__
+#define UNUSED __attribute__((unused))
+#else
+#define UNUSED
+#endif
+
 #define MIN_APPLET_SIZE 10
 #define MOUSE_TIMER 0
 #define MOUSE_POLL_TIME 250
 
 #define FULLSCREEN_WAIT_TIME    100
 #define DISPLAYCHANGE_WAIT_TIME 500
+
+#include <vector>
+#include "../emergeGraphics/emergeGraphics.h"
+#include "../emergeStyleEngine/emergeStyleEngine.h"
+#include "../emergeLib/emergeCoreLib.h"
+#include "../emergeLib/emergeFileRegistryLib.h"
+#include "../emergeLib/emergeOSLib.h"
+#include "../emergeLib/emergeUtilityLib.h"
+#include "../emergeLib/emergeWindowLib.h"
+#include "BaseSettings.h"
+#include "BaseAppletMenu.h"
+
+#ifdef __GNUC__
+#include <tr1/memory>
+#include <tr1/shared_ptr.h>
+#else
+#include <memory>
+#endif
 
 class DLL_EXPORT BaseApplet
 {
@@ -79,7 +89,7 @@ public:
   LRESULT DoSysCommand(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
   LRESULT DoHitTest(LPARAM lParam);
   LRESULT DoCopyData(COPYDATASTRUCT *cds);
-  void UpdateGUI(WCHAR *styleFile = NULL);
+  void UpdateGUI(std::wstring styleFile = TEXT(""));
   void AdjustRect(RECT *wndRect);
   bool ClickThrough();
   std::tr1::shared_ptr<BaseSettings> pBaseSettings;

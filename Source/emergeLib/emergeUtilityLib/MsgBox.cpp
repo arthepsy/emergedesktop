@@ -19,8 +19,6 @@
 //----  --------------------------------------------------------------------------------------------------------
 
 #include "MsgBox.h"
-#include <windowsx.h>
-#include <stdio.h>
 
 MsgBox *pMsgBox;
 
@@ -38,7 +36,7 @@ BOOL CALLBACK MsgBox::MsgBoxDlgProc(HWND hwndDlg, UINT message, WPARAM wParam, L
   return FALSE;
 }
 
-MsgBox::MsgBox(HINSTANCE hInstance, HWND mainWnd, const WCHAR *messageText, const WCHAR *messageTitle, DWORD iconType, DWORD buttonType)
+MsgBox::MsgBox(HINSTANCE hInstance, HWND mainWnd, std::wstring messageText, std::wstring messageTitle, DWORD iconType, DWORD buttonType)
 {
   pMsgBox = this;
   (*this).hInstance = hInstance;
@@ -46,8 +44,8 @@ MsgBox::MsgBox(HINSTANCE hInstance, HWND mainWnd, const WCHAR *messageText, cons
   msgIcon = NULL;
   modal = false;
 
-  wcscpy(msgText, messageText);
-  wcscpy(msgTitle, messageTitle);
+  wcscpy(msgText, messageText.c_str());
+  wcscpy(msgTitle, messageTitle.c_str());
 
   msgButtons = buttonType;
 
@@ -108,7 +106,7 @@ LRESULT MsgBox::DoInitDialog(HWND hwndDlg)
   HDC hdc;
   HFONT oldFont;
 
-  ELGetWindowRect(hwndDlg, &rect);
+  rect = ELGetWindowRect(hwndDlg);
   GetClientRect(textWnd, &textRect);
   GetClientRect(iconWnd, &iconRect);
 

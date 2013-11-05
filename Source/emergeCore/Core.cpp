@@ -71,6 +71,9 @@ bool Core::Initialize(WCHAR *commandLine)
   // Set the non-critical environment variables
   ELSetEnvironmentVars(pSettings->GetShowStartupErrors());
 
+  //set up the default emerge internal commands and their callbacks
+  SetupDefaultEmergeInternalCommands();
+
   // Start the shell functions
   pShell = std::tr1::shared_ptr<Shell>(new Shell());
 
@@ -202,7 +205,7 @@ Core::~Core()
         }
 
       /**< Only unload SSO objects if not running on top of Explorer */
-      if (!ELIsExplorerShell() && (ELVersionInfo() > 6.0))
+      if (!ELIsExplorerShell() && (ELOSVersionInfo() > 6.0))
         pShell->UnloadSSO();
 
       pShell->RegisterShell(mainWnd, false);
@@ -220,7 +223,7 @@ Core::~Core()
 bool Core::RunLaunchItems()
 {
   bool found = false;
-  WCHAR path[MAX_PATH], data[MAX_LINE_LENGTH], installDir[MAX_PATH];
+  std::wstring data, path, installDir;
   std::tr1::shared_ptr<TiXmlDocument> configXML;
   TiXmlElement *first, *sibling, *section = NULL, *settings;
   std::wstring theme = ELToLower(ELGetThemeName()), defaultTheme = TEXT("default");
@@ -230,18 +233,19 @@ bool Core::RunLaunchItems()
       configXML = ELOpenXMLConfig(xmlFile, false);
       if (configXML)
         {
-          settings = ELGetXMLSection(configXML.get(), (WCHAR*)TEXT("Settings"), false);
+          settings = ELGetXMLSection(configXML.get(), TEXT("Settings"), false);
           if (settings)
-            section = ELGetFirstXMLElementByName(settings, (WCHAR*)TEXT("Launch"), false);
+            section = ELGetFirstXMLElementByName(settings, TEXT("Launch"), false);
           if (section)
             {
               first = ELGetFirstXMLElement(section);
               if (first)
                 {
-                  if (ELReadXMLStringValue(first, TEXT("Command"), data, TEXT("")))
+                  data = ELReadXMLStringValue(first, TEXT("Command"), TEXT(""));
+                  if (!data.empty())
                     {
                       found = true;
-                      ELExecute(data);
+                      ELExecuteFileOrCommand(data);
                     }
 
                   sibling = ELGetSiblingXMLElement(first);
@@ -249,8 +253,9 @@ bool Core::RunLaunchItems()
                     {
                       first = sibling;
 
-                      if (ELReadXMLStringValue(first, TEXT("Command"), data, TEXT("")))
-                        ELExecute(data);
+                      data = ELReadXMLStringValue(first, TEXT("Command"), TEXT(""));
+                      if (!data.empty())
+                        ELExecuteFileOrCommand(data);
 
                       sibling = ELGetSiblingXMLElement(first);
                     }
@@ -261,38 +266,38 @@ bool Core::RunLaunchItems()
 
   if (!found)
     {
-      ELGetCurrentPath(installDir);
-      wcscat(installDir, TEXT("\\"));
+      installDir = ELGetCurrentPath();
+      installDir = installDir + TEXT("\\");
 
-      wcscpy(path, installDir);
-      wcscat(path, TEXT("emergeTasks.exe"));
-      if (ELPathFileExists(path))
-        ELExecute(path);
+      path = installDir;
+      path = path + TEXT("emergeTasks.exe");
+      if (ELFileExists(path))
+        ELExecuteFileOrCommand(path);
 
-      wcscpy(path, installDir);
-      wcscat(path, TEXT("emergeTray.exe"));
-      if (ELPathFileExists(path))
-        ELExecute(path);
+      path = installDir;
+      path = path + TEXT("emergeTray.exe");
+      if (ELFileExists(path))
+        ELExecuteFileOrCommand(path);
 
-      wcscpy(path, installDir);
-      wcscat(path, TEXT("emergeWorkspace.exe"));
-      if (ELPathFileExists(path))
-        ELExecute(path);
+      path = installDir;
+      path = path + TEXT("emergeWorkspace.exe");
+      if (ELFileExists(path))
+        ELExecuteFileOrCommand(path);
 
-      wcscpy(path, installDir);
-      wcscat(path, TEXT("emergeCommand.exe"));
-      if (ELPathFileExists(path))
-        ELExecute(path);
+      path = installDir;
+      path = path + TEXT("emergeCommand.exe");
+      if (ELFileExists(path))
+        ELExecuteFileOrCommand(path);
 
-      wcscpy(path, installDir);
-      wcscat(path, TEXT("emergeLauncher.exe"));
-      if (ELPathFileExists(path))
-        ELExecute(path);
+      path = installDir;
+      path = path + TEXT("emergeLauncher.exe");
+      if (ELFileExists(path))
+        ELExecuteFileOrCommand(path);
 
-      wcscpy(path, installDir);
-      wcscat(path, TEXT("emergeHotkeys.exe"));
-      if (ELPathFileExists(path))
-        ELExecute(path);
+      path = installDir;
+      path = path + TEXT("emergeHotkeys.exe");
+      if (ELFileExists(path))
+        ELExecuteFileOrCommand(path);
     }
 
   return found;
@@ -368,7 +373,7 @@ LRESULT Core::DoCopyData(COPYDATASTRUCT *cds)
   if ((cds->dwData == EMERGE_DISPATCH) && (cds->cbData == sizeof(NOTIFYINFO)))
     {
       LPNOTIFYINFO notifyInfo = reinterpret_cast<LPNOTIFYINFO>(cds->lpData);
-      pMessageControl->DispatchMessage(notifyInfo->Type, notifyInfo->Message, notifyInfo->InstanceName);
+      pMessageControl->Dispatch_Message(notifyInfo->Type, notifyInfo->Message, notifyInfo->InstanceName);
 
       return 1;
     }
@@ -394,7 +399,7 @@ LRESULT Core::DoCopyData(COPYDATASTRUCT *cds)
                   // Check existing applets and run any additional applets
                   CheckLaunchList();
                   // Tell the existing applets to reconfigure
-                  pMessageControl->DispatchMessage(EMERGE_CORE, CORE_RECONFIGURE, NULL);
+                  pMessageControl->Dispatch_Message(EMERGE_CORE, CORE_RECONFIGURE, NULL);
 
                   EnableExplorerDesktop();
                 }
@@ -405,11 +410,11 @@ LRESULT Core::DoCopyData(COPYDATASTRUCT *cds)
               break;
 
             case CORE_RUN:
-              ELRun();
+              ELDisplayRunDialog();
               break;
 
             case CORE_SHUTDOWN:
-              ELShutdown(mainWnd);
+              ELDisplayShutdownDialog(mainWnd);
               break;
 
             case CORE_EMPTYBIN:
@@ -417,15 +422,15 @@ LRESULT Core::DoCopyData(COPYDATASTRUCT *cds)
               break;
 
             case CORE_LOGOFF:
-              ELExit(EWX_LOGOFF, true);
+              ELExit(EMERGE_LOGOFF, true);
               break;
 
             case CORE_REBOOT:
-              ELExit(EWX_REBOOT, true);
+              ELExit(EMERGE_REBOOT, true);
               break;
 
             case CORE_HALT:
-              ELExit(EWX_POWEROFF, true);
+              ELExit(EMERGE_HALT, true);
               break;
 
             case CORE_SUSPEND:
@@ -442,7 +447,7 @@ LRESULT Core::DoCopyData(COPYDATASTRUCT *cds)
 
             case CORE_DESKTOP:
               pDesktop->ToggleDesktop();
-              pMessageControl->DispatchMessage(EMERGE_CORE, CORE_REPOSITION, NULL);
+              pMessageControl->Dispatch_Message(EMERGE_CORE, CORE_REPOSITION, NULL);
               break;
 
             case CORE_ABOUT:
@@ -537,11 +542,11 @@ void Core::About()
   WCHAR tmp[MAX_LINE_LENGTH];
   VERSIONINFO coreInfo, libInfo, graphicsInfo, styleInfo, baseInfo, engineInfo;
 
-  ELAppletFileVersion((WCHAR*)TEXT("emergeLib.dll"), &libInfo);
-  ELAppletFileVersion((WCHAR*)TEXT("emergeGraphics.dll"), &graphicsInfo);
-  ELAppletFileVersion((WCHAR*)TEXT("emergeStyleEngine.dll"), &styleInfo);
-  ELAppletFileVersion((WCHAR*)TEXT("emergeBaseClasses.dll"), &baseInfo);
-  ELAppletFileVersion((WCHAR*)TEXT("emergeAppletEngine.dll"), &engineInfo);
+  ELAppletFileVersion(TEXT("emergeLib.dll"), &libInfo);
+  ELAppletFileVersion(TEXT("emergeGraphics.dll"), &graphicsInfo);
+  ELAppletFileVersion(TEXT("emergeStyleEngine.dll"), &styleInfo);
+  ELAppletFileVersion(TEXT("emergeBaseClasses.dll"), &baseInfo);
+  ELAppletFileVersion(TEXT("emergeAppletEngine.dll"), &engineInfo);
 
   if (ELAppletVersionInfo(mainWnd, &coreInfo))
     {
@@ -556,7 +561,7 @@ void Core::About()
                engineInfo.Version,
                coreInfo.Author);
 
-      ELMessageBox(GetDesktopWindow(), tmp, (WCHAR*)TEXT("emergeCore"),
+      ELMessageBox(GetDesktopWindow(), tmp, TEXT("emergeCore"),
                    ELMB_OK|ELMB_ICONQUESTION|ELMB_MODAL);
     }
 }
@@ -606,11 +611,11 @@ bool Core::BuildLaunchList()
 
 void Core::StartExplorer()
 {
-  WCHAR explorerCmd[MAX_LINE_LENGTH];
+  std::wstring explorerCmd;
 
-  ELGetCurrentPath(explorerCmd);
-  wcscat(explorerCmd, TEXT("\\Explorer.exe"));
-  ELExecute(explorerCmd);
+  explorerCmd = ELGetCurrentPath();
+  explorerCmd = explorerCmd + TEXT("\\Explorer.exe");
+  ELExecuteFileOrCommand(explorerCmd);
 }
 
 void Core::EnableExplorerDesktop()
@@ -662,20 +667,21 @@ void Core::ConvertTheme()
   configXML = ELOpenXMLConfig(xmlFile, false);
   if (configXML)
     {
-      oldSection = ELGetXMLSection(configXML.get(), (WCHAR*)TEXT("Launch"), false);
+      oldSection = ELGetXMLSection(configXML.get(), TEXT("Launch"), false);
       if (oldSection)
         {
-          settings = ELGetXMLSection(configXML.get(), (WCHAR*)TEXT("Settings"), true);
+          settings = ELGetXMLSection(configXML.get(), TEXT("Settings"), true);
           if (settings)
             {
-              section = ELGetFirstXMLElementByName(settings, (WCHAR*)TEXT("Launch"), true);
+              section = ELGetFirstXMLElementByName(settings, TEXT("Launch"), true);
               if (section)
                 {
                   first = ELGetFirstXMLElement(oldSection);
 
                   while (first)
                     {
-                      if (ELReadXMLStringValue(first, TEXT("Command"), data, TEXT("")))
+                      wcscpy(data, ELReadXMLStringValue(first, TEXT("Command"), TEXT("")).c_str());
+                      if (wcslen(data) > 0)
                         {
                           ELStringReplace(data, TEXT("emergeDesktop"), TEXT("emergeWorkspace"), true);
                           tmp = ELSetFirstXMLElementByName(section, TEXT("item"));
@@ -702,7 +708,7 @@ bool Core::CheckLaunchList()
   WindowSet::iterator setIter;
   std::tr1::shared_ptr<TiXmlDocument> configXML;
   TiXmlElement *first, *tmp, *section = NULL, *settings;
-  WCHAR data[MAX_LINE_LENGTH];
+  std::wstring data;
   bool found = false;
 
   EnumWindows(LaunchMapEnum, (LPARAM)&launchMap);
@@ -710,16 +716,17 @@ bool Core::CheckLaunchList()
   configXML = ELOpenXMLConfig(xmlFile, false);
   if (configXML)
     {
-      settings = ELGetXMLSection(configXML.get(), (WCHAR*)TEXT("Settings"), false);
+      settings = ELGetXMLSection(configXML.get(), TEXT("Settings"), false);
       if (settings)
-        section = ELGetFirstXMLElementByName(settings, (WCHAR*)TEXT("Launch"), false);
+        section = ELGetFirstXMLElementByName(settings, TEXT("Launch"), false);
       if (section)
         {
           first = ELGetFirstXMLElement(section);
 
           while (first)
             {
-              if (ELReadXMLStringValue(first, TEXT("Command"), data, TEXT("")))
+              data = ELReadXMLStringValue(first, TEXT("Command"), TEXT(""));
+              if (!data.empty())
                 {
                   found = true;
                   CheckLaunchItem(&launchMap, data);
@@ -756,14 +763,14 @@ bool Core::CheckLaunchList()
   return true;
 }
 
-void Core::CheckLaunchItem(LaunchMap *launchMap, const WCHAR *item)
+void Core::CheckLaunchItem(LaunchMap *launchMap, std::wstring item)
 {
   LaunchMap::iterator iter;
   std::wstring program = TEXT("%AppletDir%\\");
-  WCHAR *workingItem = _wcsdup(item);
+  std::wstring workingItem = item;
 
   if (ELPathIsRelative(workingItem))
-    program += workingItem;
+    program = program + workingItem;
   else
     program = workingItem;
 
@@ -772,11 +779,9 @@ void Core::CheckLaunchItem(LaunchMap *launchMap, const WCHAR *item)
 
   iter = launchMap->find(program);
   if (iter == launchMap->end())
-    ELExecute((WCHAR*)program.c_str());
+    ELExecuteFileOrCommand(program);
   else
-    launchMap->erase(program.c_str());
-
-  free(workingItem);
+    launchMap->erase(program);
 }
 
 BOOL Core::LaunchMapEnum(HWND hwnd, LPARAM lParam)

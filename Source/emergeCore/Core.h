@@ -22,10 +22,21 @@
 #ifndef __EC_CORE_H
 #define __EC_CORE_H
 
-#include <process.h>
+#define UNICODE 1
+
+#ifdef __GNUC__
+#include <tr1/memory>
+#include <tr1/shared_ptr.h>
+#else
+#include <memory>
+#endif
+
 #include <string>
 #include <map>
 #include <set>
+#include <process.h>
+#include "../emergeLib/emergeCoreLib.h"
+#include "../emergeLib/emergeOSLib.h"
 #include "Shell.h"
 #include "MessageControl.h"
 #include "ShellChanger.h"
@@ -35,6 +46,7 @@
 #include "ThemeSelector.h"
 #include "Config.h"
 #include "Welcome.h"
+#include "InternalCommandHandler.h"
 
 typedef std::set<HWND> WindowSet;
 typedef std::map< std::wstring, WindowSet > LaunchMap;
@@ -60,7 +72,7 @@ private:
   void ConvertTheme();
   bool CheckLaunchList();
   bool BuildLaunchList();
-  void CheckLaunchItem(LaunchMap *launchMap, const WCHAR *item);
+  void CheckLaunchItem(LaunchMap *launchMap, std::wstring item);
   void StartExplorer();
   void EnableExplorerDesktop();
   std::wstring xmlFile;

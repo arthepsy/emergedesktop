@@ -168,7 +168,7 @@ LRESULT Applet::DoNotify(HWND hwnd, LPARAM lParam)
       WCHAR windowTitle[TIP_SIZE];
       ULONG_PTR response = 0;
 
-      ELGetWindowRect(hwnd, &rt);
+      rt = ELGetWindowRect(hwnd);
       GetCursorPos(&pt);
       pt.x -= rt.left;
       pt.y -= rt.top;
@@ -361,7 +361,8 @@ LRESULT Applet::AddTask(HWND task)
     {
       if (pSettings->GetAutoSize())
         {
-          if (ELGetWindowRect(mainWnd, &wndRect))
+          wndRect = ELGetWindowRect(mainWnd);
+          if (!IsRectEmpty(&wndRect))
             {
               AdjustRect(&wndRect);
               UpdateIcons();
@@ -452,7 +453,8 @@ LRESULT Applet::RemoveTask(HWND task)
 
   if (pSettings->GetAutoSize())
     {
-      if (ELGetWindowRect(mainWnd, &wndRect))
+      wndRect = ELGetWindowRect(mainWnd);
+      if (!IsRectEmpty(&wndRect))
         {
           AdjustRect(&wndRect);
           UpdateIcons();
@@ -524,7 +526,8 @@ bool Applet::CleanTasks()
 
   if (refresh)
     {
-      if (pSettings->GetAutoSize() && ELGetWindowRect(mainWnd, &wndRect))
+      wndRect = ELGetWindowRect(mainWnd);
+      if (pSettings->GetAutoSize() && !IsRectEmpty(&wndRect))
         {
           AdjustRect(&wndRect);
           UpdateIcons();
@@ -667,7 +670,7 @@ LRESULT Applet::TaskMouseEvent(UINT message, LPARAM lParam)
 
   if (message == WM_LBUTTONDBLCLK)
     {
-      ELExecute((WCHAR*)TEXT("taskmgr.exe"));
+      ELExecuteFileOrCommand(TEXT("taskmgr.exe"));
       return 0;
     }
 
@@ -702,7 +705,7 @@ BOOL CALLBACK Applet::EnumTasksList(HWND hwnd, LPARAM lParam)
 {
   static Applet *pApplet = reinterpret_cast<Applet*>(lParam);
 
-  if (ELCheckWindow(hwnd))
+  if (ELIsValidTaskWindow(hwnd))
     pApplet->AddTask(hwnd);
 
   return true;
@@ -969,7 +972,7 @@ LRESULT Applet::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
           // HSHELL_WINDOWCREATED message, check to see if the window exists
           // when this message is passed.  If so, check to see if the window
           // is valid and if it is add it.
-          if (ELCheckWindow(task))
+          if (ELIsValidTaskWindow(task))
             AddTask(task);
 
           // Some apps continually updating their title bar which causes a
@@ -1009,7 +1012,7 @@ LRESULT Applet::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
           // HSHELL_WINDOWCREATED message, check to see if the window exists
           // when this message is passed.  If so, check to see if the window
           // is valid and if it is add it.
-          if (ELCheckWindow(task))
+          if (ELIsValidTaskWindow(task))
             AddTask(task);
           SetFlash(task, false);
 

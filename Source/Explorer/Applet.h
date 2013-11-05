@@ -21,8 +21,15 @@
 #ifndef __APPLET_H
 #define __APPLET_H
 
-#include "ShellDesktopTray.h"
+#define UNICODE 1
+
+#include "../emergeLib/emergeCoreLib.h"
+#include "../emergeLib/emergeFileRegistryLib.h"
+#include "../emergeLib/emergeOSLib.h"
+#include "../emergeLib/emergeUtilityLib.h"
+#include "../emergeLib/emergeWindowLib.h"
 #include "../emergeAppletEngine/emergeAppletEngine.h"
+#include "ShellDesktopTray.h"
 
 typedef void *(WINAPI *SHCREATEDESKTOP)(void *);
 typedef bool (WINAPI *SHDESKTOPMESSAGELOOP)(void *);

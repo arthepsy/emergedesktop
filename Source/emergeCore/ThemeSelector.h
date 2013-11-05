@@ -29,8 +29,10 @@
 
 #define UNICODE 1
 
-#include "../emergeLib/emergeLib.h"
+#include <windows.h>
 #include <commctrl.h>
+#include <shlobj.h>
+#include "../emergeLib/emergeWindowLib.h"
 #include "resource.h"
 #include "ThemeSaver.h"
 

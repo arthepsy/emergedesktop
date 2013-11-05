@@ -21,13 +21,13 @@
 #ifndef __EB_BASEAPPLETMENU_H
 #define __EB_BASEAPPLETMENU_H
 
+#define UNICODE 1
+
+#define MAX_LINE_LENGTH 4096
+
 // Define required for the Window Transparency
 #undef _WIN32_WINNT
 #define _WIN32_WINNT 0x0501
-
-#define UNICODE 1
-
-#include "../emergeLib/emergeLib.h"
 
 #ifdef EMERGEBASECLASSES_EXPORTS
 #undef DLL_EXPORT
@@ -44,6 +44,11 @@
 #define EBC_EXIT          500
 #define EBC_NEWINSTANCE   600
 #define EBC_DELETEINSTANCE 602
+
+#include <windows.h>
+#include "../emergeLib/emergeCoreLib.h"
+#include "../emergeLib/emergeFileRegistryLib.h"
+#include "../emergeLib/emergeUtilityLib.h"
 
 class DLL_EXPORT BaseAppletMenu
 {

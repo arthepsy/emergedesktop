@@ -51,12 +51,12 @@ INT_PTR CALLBACK StyleEditor::StyleEditorDlgProc(HWND hwndDlg, UINT message, WPA
   return FALSE;
 }
 
-StyleEditor::StyleEditor(HWND mainWnd, WCHAR *instanceName)
+StyleEditor::StyleEditor(HWND mainWnd, std::wstring instanceName)
 {
   this->mainWnd = mainWnd;
-  wcscpy(this->instanceName, instanceName);
+  this->instanceName = instanceName;
 
-  ELGetTempFileName(tmpFile);
+  tmpFile = ELGetTempFileName();
 
   hbmColourBackground = NULL;
   hbmColourForeground = NULL;
@@ -89,13 +89,13 @@ StyleEditor::~StyleEditor()
 
   ClearPanelMap();
 
-  DeleteFile(tmpFile);
+  DeleteFile(tmpFile.c_str());
 }
 
-int StyleEditor::Edit(WCHAR *styleName)
+int StyleEditor::Edit(std::wstring styleName)
 {
-  wcsncpy(style, styleName, MAX_PATH);
-  wcsncpy(origStyle, style, MAX_PATH);
+  style = styleName;
+  origStyle = style;
 
   ESEReadStyle(style, &guiInfo);
   ESEReadStyle((WCHAR*)TEXT(""), &defaultGuiInfo);
@@ -247,18 +247,18 @@ void StyleEditor::ShowPanel(HTREEITEM panel)
 BOOL StyleEditor::DoInitDialog(HWND hwndDlg, bool updatePos)
 {
   RECT rect;
-  WCHAR *lower;
+  std::wstring lower;
 
   HWND okWnd = GetDlgItem(hwndDlg, IDOK);
   HWND treeWnd = GetDlgItem(hwndDlg, IDC_PANELTREE);
   HWND blurWnd = GetDlgItem(hwndDlg, IDC_BLUR);
-  EnableWindow(okWnd, (wcslen(style) != 0));
+  EnableWindow(okWnd, (!style.empty()));
 
   BuildPanelMap(hwndDlg);
 
   if (updatePos)
     {
-      ELGetWindowRect(hwndDlg, &rect);
+      rect = ELGetWindowRect(hwndDlg);
 
       int x = (GetSystemMetrics(SM_CXSCREEN) / 2) - ((rect.right - rect.left) / 2);
       int y = (GetSystemMetrics(SM_CYSCREEN) / 2) - ((rect.bottom - rect.top) / 2);
@@ -266,7 +266,7 @@ BOOL StyleEditor::DoInitDialog(HWND hwndDlg, bool updatePos)
       ELStealFocus(hwndDlg);
     }
 
-  SetDlgItemText(hwndDlg, IDC_STYLENAME, PathFindFileName(style));
+  SetDlgItemText(hwndDlg, IDC_STYLENAME, PathFindFileName(style.c_str()));
 
   SendDlgItemMessage(hwndDlg, IDC_PADDINGUPDOWN, UDM_SETRANGE, (WPARAM)0, (LPARAM)100);
   SendDlgItemMessage(hwndDlg, IDC_BEVELUPDOWN, UDM_SETRANGE, (WPARAM)0, (LPARAM)100);
@@ -355,38 +355,38 @@ BOOL StyleEditor::DoInitDialog(HWND hwndDlg, bool updatePos)
       SendDlgItemMessage(hwndDlg, IDC_METHOD, CB_ADDSTRING, 0, (LPARAM)TEXT("Pyramid"));
     }
 
-  lower = _wcslwr(_wcsdup(guiInfo.gradientMethod));
-  if (wcsstr(lower, TEXT("vertical")) != NULL)
+  lower = ELToLower(guiInfo.gradientMethod);
+  if (lower.find(TEXT("vertical")) != std::wstring::npos)
     SendDlgItemMessage(hwndDlg, IDC_METHOD, CB_SETCURSEL, (WPARAM)1, 0);
-  else if (wcsstr(lower, TEXT("horizontal")) != NULL)
+  else if (lower.find(TEXT("horizontal")) != std::wstring::npos)
     SendDlgItemMessage(hwndDlg, IDC_METHOD, CB_SETCURSEL, (WPARAM)2, 0);
-  else if (wcsstr(lower, TEXT("crossdiagonal")) != NULL)
+  else if (lower.find(TEXT("crossdiagonal")) != std::wstring::npos)
     SendDlgItemMessage(hwndDlg, IDC_METHOD, CB_SETCURSEL, (WPARAM)3, 0);
-  else if (wcsstr(lower, TEXT("diagonal")) != NULL)
+  else if (lower.find(TEXT("diagonal")) != std::wstring::npos)
     SendDlgItemMessage(hwndDlg, IDC_METHOD, CB_SETCURSEL, (WPARAM)4, 0);
-  else if (wcsstr(lower, TEXT("pipecross")) != NULL)
+  else if (lower.find(TEXT("pipecross")) != std::wstring::npos)
     SendDlgItemMessage(hwndDlg, IDC_METHOD, CB_SETCURSEL, (WPARAM)5, 0);
-  else if (wcsstr(lower, TEXT("elliptic")) != NULL)
+  else if (lower.find(TEXT("elliptic")) != std::wstring::npos)
     SendDlgItemMessage(hwndDlg, IDC_METHOD, CB_SETCURSEL, (WPARAM)6, 0);
-  else if (wcsstr(lower, TEXT("rectangle")) != NULL)
+  else if (lower.find(TEXT("rectangle")) != std::wstring::npos)
     SendDlgItemMessage(hwndDlg, IDC_METHOD, CB_SETCURSEL, (WPARAM)7, 0);
-  else if (wcsstr(lower, TEXT("pyramid")) != NULL)
+  else if (lower.find(TEXT("pyramid")) != std::wstring::npos)
     SendDlgItemMessage(hwndDlg, IDC_METHOD, CB_SETCURSEL, (WPARAM)8, 0);
   else
     SendDlgItemMessage(hwndDlg, IDC_METHOD, CB_SETCURSEL, (WPARAM)0, 0);
 
-  if (wcsstr(lower, TEXT("interlaced")) != NULL)
+  if (lower.find(TEXT("interlaced")) != std::wstring::npos)
     SendDlgItemMessage(hwndDlg, IDC_INTERLACED, BM_SETCHECK, BST_CHECKED, 0);
   else
     SendDlgItemMessage(hwndDlg, IDC_INTERLACED, BM_SETCHECK, BST_UNCHECKED, 0);
 
-  if (wcsstr(lower, TEXT("raised")) != NULL)
+  if (lower.find(TEXT("raised")) != std::wstring::npos)
     {
       SendDlgItemMessage(hwndDlg, IDC_RAISED, BM_SETCHECK, BST_CHECKED, 0);
       SendDlgItemMessage(hwndDlg, IDC_SUNKEN, BM_SETCHECK, BST_UNCHECKED, 0);
       SendDlgItemMessage(hwndDlg, IDC_FLAT, BM_SETCHECK, BST_UNCHECKED, 0);
     }
-  else if (wcsstr(lower, TEXT("sunken")) != NULL)
+  else if (lower.find(TEXT("sunken")) != std::wstring::npos)
     {
       SendDlgItemMessage(hwndDlg, IDC_SUNKEN, BM_SETCHECK, BST_CHECKED, 0);
       SendDlgItemMessage(hwndDlg, IDC_RAISED, BM_SETCHECK, BST_UNCHECKED, 0);
@@ -398,7 +398,6 @@ BOOL StyleEditor::DoInitDialog(HWND hwndDlg, bool updatePos)
       SendDlgItemMessage(hwndDlg, IDC_SUNKEN, BM_SETCHECK, BST_UNCHECKED, 0);
       SendDlgItemMessage(hwndDlg, IDC_RAISED, BM_SETCHECK, BST_UNCHECKED, 0);
     }
-  free(lower);
 
   hbmColourFrom = EGCreateBitmap(0xff, colourFrom, colourRect);
   if (hbmColourFrom)
@@ -451,7 +450,8 @@ BOOL StyleEditor::DoCommand(HWND hwndDlg, WPARAM wParam, LPARAM lParam UNUSED)
     {
     case IDC_SAVEAS:
       DoSaveAs(hwndDlg);
-      if (DoSaveStyle(hwndDlg, style))
+      style = DoSaveStyle(hwndDlg, style);
+      if (!style.empty())
         DoInitDialog(hwndDlg, false);
       return TRUE;
     case IDC_LOAD:
@@ -622,7 +622,8 @@ BOOL StyleEditor::DoCommand(HWND hwndDlg, WPARAM wParam, LPARAM lParam UNUSED)
       return FALSE;
     case IDC_PREVIEW:
       ESESetStyle(tmpFile);
-      if (DoSaveStyle(hwndDlg, tmpFile))
+      tmpFile = DoSaveStyle(hwndDlg, tmpFile);
+      if (!tmpFile.empty())
         ELDispatchCoreMessage(EMERGE_CORE, CORE_REFRESH, instanceName);
       return TRUE;
     }
@@ -677,7 +678,7 @@ BOOL StyleEditor::DoLoad(HWND hwndDlg)
   if (GetOpenFileName(&ofn))
     {
       ELUnExpandVars(file);
-      wcsncpy(style, file, MAX_PATH);
+      style = file;
 
       ESEReadStyle(style, &guiInfo);
 
@@ -739,7 +740,7 @@ void StyleEditor::DoSaveAs(HWND hwndDlg)
       oldThemePath = TEXT("%EmergeDir%\\themes\\") + oldTheme;
       oldThemePath += TEXT("\\*");
 
-      if (!ELPathIsDirectory(newThemePath.c_str()))
+      if ((ELGetFileSpecialFlags(newThemePath) & SF_DIRECTORY) != SF_DIRECTORY)
         ELCreateDirectory(newThemePath);
 
       ELFileOp(mainWnd, false, FO_COPY, oldThemePath, newThemePath);
@@ -754,7 +755,7 @@ void StyleEditor::DoSaveAs(HWND hwndDlg)
   ofn.lpstrTitle = TEXT("Save Style As");
   ofn.lpstrDefExt = extension;
   newThemePath += TEXT("\\Styles");
-  if (!ELPathIsDirectory(newThemePath.c_str()))
+  if ((ELGetFileSpecialFlags(newThemePath) & SF_DIRECTORY) != SF_DIRECTORY)
     ELCreateDirectory(newThemePath);
   newThemePath = ELExpandVars(newThemePath);
   ofn.lpstrInitialDir = newThemePath.c_str();
@@ -764,7 +765,7 @@ void StyleEditor::DoSaveAs(HWND hwndDlg)
     {
       EnableWindow(okWnd, (wcslen(file) != 0));
       ELUnExpandVars(file);
-      wcsncpy(style, file, MAX_PATH);
+      style = file;
       ESESetStyle(style);
     }
   else
@@ -801,14 +802,17 @@ BOOL StyleEditor::DoColourChooser(COLORREF *colour, HWND hwndDlg)
   return res;
 }
 
-bool StyleEditor::DoSaveStyle(HWND hwndDlg, WCHAR *fileName)
+std::wstring StyleEditor::DoSaveStyle(HWND hwndDlg, std::wstring fileName)
 {
-  WCHAR methodString[MAX_LINE_LENGTH];
+  std::wstring saveFile;
+  WCHAR methodBuffer[MAX_LINE_LENGTH];
+  std::wstring methodString;
 
-  if (wcslen(fileName) == 0)
+  saveFile = fileName;
+  if (saveFile.empty())
     {
       DoSaveAs(hwndDlg);
-      wcscpy(fileName, ESEGetStyle());
+      saveFile = ESEGetStyle();
     }
 
   guiInfo.alphaActive = GetDlgItemInt(hwndDlg, IDC_ACTIVEALPHA, NULL, FALSE);
@@ -845,21 +849,25 @@ bool StyleEditor::DoSaveStyle(HWND hwndDlg, WCHAR *fileName)
   guiInfo.gradientTo = colourTo;
   guiInfo.gradientFrom = colourFrom;
 
-  GetDlgItemText(hwndDlg, IDC_METHOD, methodString, MAX_LINE_LENGTH);
+  GetDlgItemText(hwndDlg, IDC_METHOD, methodBuffer, MAX_LINE_LENGTH);
+  methodString = methodBuffer;
 
   if (SendDlgItemMessage(hwndDlg, IDC_INTERLACED, BM_GETCHECK, 0, 0) == BST_CHECKED)
-    wcscat(methodString, TEXT("Interlaced"));
+    methodString = methodString + TEXT("Interlaced");
 
   if (SendDlgItemMessage(hwndDlg, IDC_RAISED, BM_GETCHECK, 0, 0) == BST_CHECKED)
-    wcscat(methodString, TEXT("Raised"));
+    methodString = methodString + TEXT("Raised");
   else if (SendDlgItemMessage(hwndDlg, IDC_SUNKEN, BM_GETCHECK, 0, 0) == BST_CHECKED)
-    wcscat(methodString, TEXT("Sunken"));
+    methodString = methodString + TEXT("Sunken");
   else
-    wcscat(methodString, TEXT("Flat"));
+    methodString = methodString + TEXT("Flat");
 
-  wcscpy(guiInfo.gradientMethod, methodString);
+  guiInfo.gradientMethod = methodString;
 
-  return ESEWriteStyle(fileName, &guiInfo, hwndDlg);
+  if (ESEWriteStyle(fileName, &guiInfo, hwndDlg))
+    return saveFile;
+  else
+    return TEXT("");
 }
 
 BOOL StyleEditor::DoNotify(HWND hwndDlg, LPARAM lParam)
@@ -881,7 +889,8 @@ BOOL StyleEditor::DoNotify(HWND hwndDlg, LPARAM lParam)
   switch (nmhdr->code)
     {
     case PSN_APPLY:
-      if (DoSaveStyle(hwndDlg, style))
+      style = DoSaveStyle(hwndDlg, style);
+      if (!style.empty())
         {
           ESESetStyle(style);
           SetWindowLongPtr(hwndDlg, DWLP_MSGRESULT, PSNRET_NOERROR);

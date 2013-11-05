@@ -183,7 +183,7 @@ BOOL Actions::DoInitDialog(HWND hwndDlg)
   HWND exWnd = GetDlgItem(hwndDlg, IDC_EXTERNAL);
 
   ZeroMemory(&ti, sizeof(TOOLINFO));
-  ELGetWindowRect(hwndDlg, &rect);
+  rect = ELGetWindowRect(hwndDlg);
 
   saveCount = 0;
   deleteCount = 0;
@@ -593,7 +593,7 @@ bool Actions::PopulateFields(HWND hwndDlg, int modIndex)
   ListView_GetItemText(listWnd, modIndex, 1, tmpAction, MAX_LINE_LENGTH);
 
   commandIndex = (int)SendMessage(commandWnd, CB_FINDSTRINGEXACT, (WPARAM)-1,
-                                  (LPARAM)ELStripInternalCommandArg(tmpAction).c_str());
+                                  (LPARAM)ELStripFileArguments(tmpAction).c_str());
 
   EnableWindow(internalWnd, true);
   EnableWindow(externalWnd, true);
@@ -609,7 +609,7 @@ bool Actions::PopulateFields(HWND hwndDlg, int modIndex)
       SendMessage(internalWnd, BM_CLICK, 0, 0);
       SendMessage(commandWnd, CB_SETCURSEL, commandIndex, 0);
       SetDlgItemText(hwndDlg, IDC_APPLICATION, TEXT(""));
-      SetDlgItemText(hwndDlg, IDC_COMMANDARG, ELGetInternalCommandArg(tmpAction).c_str());
+      SetDlgItemText(hwndDlg, IDC_COMMANDARG, ELGetFileArguments(tmpAction).c_str());
     }
   EnableWindow(internalWnd, false);
   EnableWindow(externalWnd, false);
@@ -771,7 +771,7 @@ bool Actions::DoSave(HWND hwndDlg)
       wcscpy(tmpAction, tmp);
       if (GetDlgItemText(hwndDlg, IDC_COMMANDARG, tmp, MAX_LINE_LENGTH) != 0)
         {
-          wcscat(tmpAction, L" ");
+          wcscat(tmpAction, TEXT(" "));
           wcscat(tmpAction, tmp);
         }
     }
@@ -1051,7 +1051,7 @@ bool Actions::DoBrowse(HWND hwndDlg, bool folder)
                 }
 
               ELUnExpandVars(tmp);
-              std::wstring workingTmp = ELRelativePathFromAbsPath(tmp);
+              std::wstring workingTmp = ELGetRelativePath(tmp);
               SetDlgItemText(hwndDlg, IDC_APPLICATION, workingTmp.c_str());
 
               ret = true;
@@ -1074,7 +1074,7 @@ bool Actions::DoBrowse(HWND hwndDlg, bool folder)
       if (GetOpenFileName(&ofn))
         {
           ELUnExpandVars(tmp);
-          std::wstring workingTmp = ELRelativePathFromAbsPath(tmp);
+          std::wstring workingTmp = ELGetRelativePath(tmp);
           SetDlgItemText(hwndDlg, IDC_APPLICATION, workingTmp.c_str());
 
           ret = true;

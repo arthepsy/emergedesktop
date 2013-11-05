@@ -77,10 +77,10 @@ BOOL PositionPage::DoInitDialog(HWND hwndDlg)
   SendDlgItemMessage(hwndDlg, IDC_ANCHOR, CB_ADDSTRING, 0, (LPARAM)TEXT("BottomRight"));
 
   anchorIndex = (int)SendDlgItemMessage(hwndDlg, IDC_ANCHOR, CB_FINDSTRINGEXACT, (WPARAM)-1,
-                                        (LPARAM)pSettings->GetAnchorPoint());
+                                        (LPARAM)pSettings->GetAnchorPoint().c_str());
   SendDlgItemMessage(hwndDlg, IDC_ANCHOR, CB_SETCURSEL, anchorIndex, 0);
 
-  if (_wcsicmp(pSettings->GetDirectionOrientation(), TEXT("vertical")) == 0)
+  if ((ELToLower(pSettings->GetDirectionOrientation())) == TEXT("vertical"))
     SendDlgItemMessage(hwndDlg, IDC_VERTICAL, BM_SETCHECK, BST_CHECKED, 0);
   else
     SendDlgItemMessage(hwndDlg, IDC_HORIZONTAL, BM_SETCHECK, BST_CHECKED, 0);
@@ -88,18 +88,18 @@ BOOL PositionPage::DoInitDialog(HWND hwndDlg)
   if (pSettings->GetHistoryMode())
     SendDlgItemMessage(hwndDlg, IDC_HISTORYMODE, BM_SETCHECK, BST_CHECKED, 0);
 
-  if (_wcsicmp(pSettings->GetBarDirection(), TEXT("left")) == 0)
+  if (ELToLower(pSettings->GetBarDirection()) == TEXT("left"))
     SendDlgItemMessage(hwndDlg, IDC_LEFT, BM_SETCHECK, BST_CHECKED, 0);
-  if (_wcsicmp(pSettings->GetBarDirection(), TEXT("down")) == 0)
+  if (ELToLower(pSettings->GetBarDirection()) == TEXT("down"))
     SendDlgItemMessage(hwndDlg, IDC_DOWN, BM_SETCHECK, BST_CHECKED, 0);
-  if (_wcsicmp(pSettings->GetBarDirection(), TEXT("right")) == 0)
+  if (ELToLower(pSettings->GetBarDirection()) == TEXT("right"))
     SendDlgItemMessage(hwndDlg, IDC_RIGHT, BM_SETCHECK, BST_CHECKED, 0);
-  if (_wcsicmp(pSettings->GetBarDirection(), TEXT("up")) == 0)
+  if (ELToLower(pSettings->GetBarDirection()) == TEXT("up"))
     SendDlgItemMessage(hwndDlg, IDC_UP, BM_SETCHECK, BST_CHECKED, 0);
 
-  if (_wcsicmp(pSettings->GetZPosition(), TEXT("top")) == 0)
+  if (ELToLower(pSettings->GetZPosition()) == TEXT("top"))
     SendDlgItemMessage(hwndDlg, IDC_TOP, BM_SETCHECK, BST_CHECKED, 0);
-  else if (_wcsicmp(pSettings->GetZPosition(), TEXT("bottom")) == 0)
+  else if (ELToLower(pSettings->GetZPosition()) == TEXT("bottom"))
     SendDlgItemMessage(hwndDlg, IDC_BOTTOM, BM_SETCHECK, BST_CHECKED, 0);
   else
     SendDlgItemMessage(hwndDlg, IDC_NORMAL, BM_SETCHECK, BST_CHECKED, 0);
@@ -132,7 +132,7 @@ BOOL PositionPage::DoCommand(HWND hwndDlg, WPARAM wParam, LPARAM lParam UNUSED)
 bool PositionPage::UpdateSettings(HWND hwndDlg)
 {
   BOOL success = true;
-  const WCHAR *tmpValue = NULL;
+  std::wstring tmpValue;
   WCHAR tmp[MAX_LINE_LENGTH];
 
   if (SendDlgItemMessage(hwndDlg, IDC_DYNAMICPOSITIONING, BM_GETCHECK, 0, 0) == BST_CHECKED)
@@ -143,7 +143,7 @@ bool PositionPage::UpdateSettings(HWND hwndDlg)
 
   if (GetDlgItemText(hwndDlg, IDC_ANCHOR, tmp, MAX_LINE_LENGTH) != 0)
     {
-      if (wcscmp(tmp, pSettings->GetAnchorPoint()) != 0)
+      if (wcscmp(tmp, pSettings->GetAnchorPoint().c_str()) != 0)
         pSettings->SetAnchorPoint(tmp);
     }
 
@@ -157,7 +157,7 @@ bool PositionPage::UpdateSettings(HWND hwndDlg)
     tmpValue = TEXT("Vertical");
   if (SendDlgItemMessage(hwndDlg, IDC_HORIZONTAL, BM_GETCHECK, 0, 0) == BST_CHECKED)
     tmpValue = TEXT("Horizontal");
-  pSettings->SetDirectionOrientation((WCHAR*)tmpValue);
+  pSettings->SetDirectionOrientation(tmpValue);
 
   if (SendDlgItemMessage(hwndDlg, IDC_UP, BM_GETCHECK, 0, 0) == BST_CHECKED)
     tmpValue = TEXT("up");
@@ -167,7 +167,7 @@ bool PositionPage::UpdateSettings(HWND hwndDlg)
     tmpValue = TEXT("down");
   if (SendDlgItemMessage(hwndDlg, IDC_LEFT, BM_GETCHECK, 0, 0) == BST_CHECKED)
     tmpValue = TEXT("left");
-  pSettings->SetBarDirection((WCHAR*)tmpValue);
+  pSettings->SetBarDirection(tmpValue);
 
   if (SendDlgItemMessage(hwndDlg, IDC_TOP, BM_GETCHECK, 0, 0) == BST_CHECKED)
     tmpValue = TEXT("Top");
@@ -175,7 +175,7 @@ bool PositionPage::UpdateSettings(HWND hwndDlg)
     tmpValue = TEXT("Bottom");
   if (SendDlgItemMessage(hwndDlg, IDC_NORMAL, BM_GETCHECK, 0, 0) == BST_CHECKED)
     tmpValue = TEXT("Normal");
-  pSettings->SetZPosition((WCHAR*)tmpValue);
+  pSettings->SetZPosition(tmpValue);
 
   // commit the changes, if any
   pSettings->WriteSettings();

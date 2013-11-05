@@ -27,13 +27,15 @@
 #ifndef __ET_TASK_H
 #define __ET_TASK_H
 
+#define UNICODE 1
+
 // Defines required for tooltip
 #undef _WIN32_IE
 #define _WIN32_IE 0x0600
 
-#include "../emergeLib/emergeLib.h"
 #include "../emergeGraphics/emergeGraphics.h"
 #include "../emergeAppletEngine/emergeAppletEngine.h"
+#include "../emergeLib/emergeOSLib.h"
 #include <commctrl.h>
 #include "Thumbnail.h"
 

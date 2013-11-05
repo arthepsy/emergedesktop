@@ -28,7 +28,7 @@ BOOL CALLBACK Desktop::MinimizeWindowsEnum(HWND hwnd, LPARAM lParam)
 {
   std::wstring debug;
 
-  if (ELCheckWindow(hwnd))
+  if (ELIsValidTaskWindow(hwnd))
     {
       if (!IsIconic(hwnd))
         ((std::deque<HWND>*)lParam)->push_front(hwnd);
@@ -80,8 +80,8 @@ bool Desktop::Initialize(bool explorerDesktop)
   if (!mainWnd)
     {
       ELMessageBox(GetDesktopWindow(),
-                   (WCHAR*)TEXT("Failed to create desktop window"),
-                   (WCHAR*)TEXT("emergeDesktop"),
+                   TEXT("Failed to create desktop window"),
+                   TEXT("emergeDesktop"),
                    ELMB_OK|ELMB_ICONERROR|ELMB_MODAL);
       return false;
     }
@@ -287,7 +287,7 @@ void Desktop::ToggleDesktop()
 
 void Desktop::ShowMenu(UINT menu)
 {
-  pMessageControl->DispatchMessage(EMERGE_CORE, menu, NULL);
+  pMessageControl->Dispatch_Message(EMERGE_CORE, menu, NULL);
 }
 
 bool Desktop::SetBackgroundImage()

@@ -94,12 +94,12 @@ INT_PTR BasePositionPage::DoInitPage(HWND hwndDlg)
   SendDlgItemMessage(hwndDlg, IDC_ANCHOR, CB_ADDSTRING, 0, (LPARAM)TEXT("BottomRight"));
 
   anchorIndex = (int)SendDlgItemMessage(hwndDlg, IDC_ANCHOR, CB_FINDSTRINGEXACT, (WPARAM)-1,
-                                        (LPARAM)pSettings->GetAnchorPoint());
+                                        (LPARAM)pSettings->GetAnchorPoint().c_str());
   SendDlgItemMessage(hwndDlg, IDC_ANCHOR, CB_SETCURSEL, anchorIndex, 0);
 
   if ((flags & BPP_ORIENTATION) == BPP_ORIENTATION)
     {
-      if (_wcsicmp(pSettings->GetDirectionOrientation(), TEXT("vertical")) == 0)
+      if (ELToLower(pSettings->GetDirectionOrientation()) == TEXT("vertical"))
         SendDlgItemMessage(hwndDlg, IDC_VERTICAL, BM_SETCHECK, BST_CHECKED, 0);
       else
         SendDlgItemMessage(hwndDlg, IDC_HORIZONTAL, BM_SETCHECK, BST_CHECKED, 0);
@@ -114,9 +114,9 @@ INT_PTR BasePositionPage::DoInitPage(HWND hwndDlg)
 
   if ((flags & BPP_HORIZONTAL) == BPP_HORIZONTAL)
     {
-      if (_wcsicmp(pSettings->GetHorizontalDirection(), TEXT("left")) == 0)
+      if (ELToLower(pSettings->GetHorizontalDirection()) == TEXT("left"))
         SendDlgItemMessage(hwndDlg, IDC_RIGHT, BM_SETCHECK, BST_CHECKED, 0);
-      else if (_wcsicmp(pSettings->GetHorizontalDirection(), TEXT("center")) == 0)
+      else if (ELToLower(pSettings->GetHorizontalDirection()) == TEXT("center"))
         SendDlgItemMessage(hwndDlg, IDC_HCENTER, BM_SETCHECK, BST_CHECKED, 0);
       else
         SendDlgItemMessage(hwndDlg, IDC_LEFT, BM_SETCHECK, BST_CHECKED, 0);
@@ -132,9 +132,9 @@ INT_PTR BasePositionPage::DoInitPage(HWND hwndDlg)
 
   if ((flags & BPP_VERTICAL) == BPP_VERTICAL)
     {
-      if (_wcsicmp(pSettings->GetVerticalDirection(), TEXT("up")) == 0)
+      if (ELToLower(pSettings->GetVerticalDirection()) == TEXT("up"))
         SendDlgItemMessage(hwndDlg, IDC_UP, BM_SETCHECK, BST_CHECKED, 0);
-      else if (_wcsicmp(pSettings->GetVerticalDirection(), TEXT("center")) == 0)
+      else if (ELToLower(pSettings->GetVerticalDirection()) == TEXT("center"))
         SendDlgItemMessage(hwndDlg, IDC_VCENTER, BM_SETCHECK, BST_CHECKED, 0);
       else
         SendDlgItemMessage(hwndDlg, IDC_DOWN, BM_SETCHECK, BST_CHECKED, 0);
@@ -153,9 +153,9 @@ INT_PTR BasePositionPage::DoInitPage(HWND hwndDlg)
 
   if ((flags & BPP_ZORDER) == BPP_ZORDER)
     {
-      if (_wcsicmp(pSettings->GetZPosition(), TEXT("top")) == 0)
+      if (ELToLower(pSettings->GetZPosition()) == TEXT("top"))
         SendDlgItemMessage(hwndDlg, IDC_TOP, BM_SETCHECK, BST_CHECKED, 0);
-      else if (_wcsicmp(pSettings->GetZPosition(), TEXT("bottom")) == 0)
+      else if (ELToLower(pSettings->GetZPosition()) == TEXT("bottom"))
         SendDlgItemMessage(hwndDlg, IDC_BOTTOM, BM_SETCHECK, BST_CHECKED, 0);
       else
         SendDlgItemMessage(hwndDlg, IDC_NORMAL, BM_SETCHECK, BST_CHECKED, 0);
@@ -225,44 +225,44 @@ bool BasePositionPage::UpdateSettings(HWND hwndDlg)
   if ((flags & BPP_VERTICAL) == BPP_VERTICAL)
     {
       if (SendDlgItemMessage(hwndDlg, IDC_UP, BM_GETCHECK, 0, 0) == BST_CHECKED)
-        pSettings->SetVerticalDirection((WCHAR*)TEXT("Up"));
+        pSettings->SetVerticalDirection(TEXT("Up"));
       if (SendDlgItemMessage(hwndDlg, IDC_VCENTER, BM_GETCHECK, 0, 0) == BST_CHECKED)
-        pSettings->SetVerticalDirection((WCHAR*)TEXT("Center"));
+        pSettings->SetVerticalDirection(TEXT("Center"));
       if (SendDlgItemMessage(hwndDlg, IDC_DOWN, BM_GETCHECK, 0, 0) == BST_CHECKED)
-        pSettings->SetVerticalDirection((WCHAR*)TEXT("Down"));
+        pSettings->SetVerticalDirection(TEXT("Down"));
     }
 
   if ((flags & BPP_ORIENTATION) == BPP_ORIENTATION)
     {
       if (SendDlgItemMessage(hwndDlg, IDC_VERTICAL, BM_GETCHECK, 0, 0) == BST_CHECKED)
-        pSettings->SetDirectionOrientation((WCHAR*)TEXT("Vertical"));
+        pSettings->SetDirectionOrientation(TEXT("Vertical"));
       if (SendDlgItemMessage(hwndDlg, IDC_HORIZONTAL, BM_GETCHECK, 0, 0) == BST_CHECKED)
-        pSettings->SetDirectionOrientation((WCHAR*)TEXT("Horizontal"));
+        pSettings->SetDirectionOrientation(TEXT("Horizontal"));
     }
 
   if ((flags & BPP_HORIZONTAL) == BPP_HORIZONTAL)
     {
       if (SendDlgItemMessage(hwndDlg, IDC_RIGHT, BM_GETCHECK, 0, 0) == BST_CHECKED)
-        pSettings->SetHorizontalDirection((WCHAR*)TEXT("Left"));
+        pSettings->SetHorizontalDirection(TEXT("Left"));
       if (SendDlgItemMessage(hwndDlg, IDC_HCENTER, BM_GETCHECK, 0, 0) == BST_CHECKED)
-        pSettings->SetHorizontalDirection((WCHAR*)TEXT("Center"));
+        pSettings->SetHorizontalDirection(TEXT("Center"));
       if (SendDlgItemMessage(hwndDlg, IDC_LEFT, BM_GETCHECK, 0, 0) == BST_CHECKED)
-        pSettings->SetHorizontalDirection((WCHAR*)TEXT("Right"));
+        pSettings->SetHorizontalDirection(TEXT("Right"));
     }
 
   if ((flags & BPP_ZORDER) == BPP_ZORDER)
     {
       if (SendDlgItemMessage(hwndDlg, IDC_TOP, BM_GETCHECK, 0, 0) == BST_CHECKED)
-        pSettings->SetZPosition((WCHAR*)TEXT("Top"));
+        pSettings->SetZPosition(TEXT("Top"));
       if (SendDlgItemMessage(hwndDlg, IDC_BOTTOM, BM_GETCHECK, 0, 0) == BST_CHECKED)
-        pSettings->SetZPosition((WCHAR*)TEXT("Bottom"));
+        pSettings->SetZPosition(TEXT("Bottom"));
       if (SendDlgItemMessage(hwndDlg, IDC_NORMAL, BM_GETCHECK, 0, 0) == BST_CHECKED)
-        pSettings->SetZPosition((WCHAR*)TEXT("Normal"));
+        pSettings->SetZPosition(TEXT("Normal"));
     }
 
   if (GetDlgItemText(hwndDlg, IDC_ANCHOR, tmp, MAX_LINE_LENGTH) != 0)
     {
-      if (wcscmp(tmp, pSettings->GetAnchorPoint()) != 0)
+      if (wcscmp(tmp, pSettings->GetAnchorPoint().c_str()) != 0)
         pSettings->SetAnchorPoint(tmp);
     }
 

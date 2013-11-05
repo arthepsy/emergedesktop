@@ -21,6 +21,8 @@
 #ifndef __ECM_COMMAND_H
 #define __ECM_COMMAND_H
 
+#define UNICODE 1
+
 #undef _WIN32_IE
 #define _WIN32_IE 0x0600 // Enables all the needed define's in ShellAPI.h
 
@@ -31,16 +33,25 @@
 #define MOUSE_TIMER 0
 #define MOUSE_POLL_TIME 250
 
-#include "Settings.h"
-#include "CustomSource.h"
-#include "CommandSource.h"
-#include "../emergeGraphics/emergeGraphics.h"
+#define MAX_RUN_STRING 1024
+#define FOCUS_TIMER 1
+
+#ifndef SHACF_DEFAULT
+#define SHACF_DEFAULT 0x00
+#endif
+
 #include <windows.h>
 #include <time.h>
 #include <commctrl.h>
 #include <process.h>
 #include <shlobj.h>
 #include <shldisp.h>
+#include "../emergeLib/emergeFileRegistryLib.h"
+#include "../emergeLib/emergeUtilityLib.h"
+#include "../emergeGraphics/emergeGraphics.h"
+#include "Settings.h"
+#include "CustomSource.h"
+#include "CommandSource.h"
 
 #ifdef __GNUC__
 #include <tr1/memory>
@@ -49,13 +60,7 @@
 #include <memory>
 #endif
 
-#define MAX_RUN_STRING 1024
-#define FOCUS_TIMER 1
-
-#ifndef SHACF_DEFAULT
-#define SHACF_DEFAULT 0x00
-#endif
-
+//#define whatever wasn't included in shldisp.h
 #ifndef ACO_UPDOWNKEYDROPSLIST
 #define ACO_UPDOWNKEYDROPSLIST 0x20
 #endif
@@ -79,7 +84,7 @@ public:
   WNDPROC GetWndProc();
   void UpdateEdit(GUIINFO, int width, int height);
   void ShowTextWindow();
-  WCHAR *GetZPosition();
+  std::wstring GetZPosition();
   LRESULT DoSysCommand(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
   void Show();
   void AddElement(WCHAR *element);

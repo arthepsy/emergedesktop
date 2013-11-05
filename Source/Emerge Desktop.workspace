@@ -83,12 +83,6 @@
 			<Depends filename="emergeLib/emergeLib.cbp" />
 			<Depends filename="emergeStyleEngine/emergeStyleEngine.cbp" />
 		</Project>
-		<Project filename="emergeWorkspace/emergeWorkspace.cbp">
-			<Depends filename="emergeAppletEngine/emergeAppletEngine.cbp" />
-			<Depends filename="emergeBaseClasses/emergeBaseClasses.cbp" />
-			<Depends filename="emergeGraphics/emergeGraphics.cbp" />
-			<Depends filename="emergeLib/emergeLib.cbp" />
-		</Project>
 		<Project filename="Explorer/Explorer.cbp">
 			<Depends filename="emergeLib/emergeLib.cbp" />
 		</Project>

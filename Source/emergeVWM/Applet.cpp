@@ -350,7 +350,7 @@ void Applet::MakeCurrent(HWND taskWnd)
         return;
     }
 
-  ELGetWindowRect(taskWnd, &r);
+  r = ELGetWindowRect(taskWnd);
 
   while (r.top < screenTop)
     r.top += screenHeight;
@@ -453,7 +453,8 @@ void Applet::SwitchDesktop(int row, int column, bool gather)
       while (iter < taskList.end())
         {
           // VERY IMPORTANT: Only modify a valid window
-          if (ELGetWindowRect((*iter)->GetTaskWnd(), &r))
+          r = ELGetWindowRect((*iter)->GetTaskWnd());
+          if (!IsRectEmpty(&r))
             {
               // Ignore the window if it's sticky
               if (!pSettings->CheckSticky((*iter)->GetAppName()))
@@ -480,7 +481,8 @@ void Applet::SwitchDesktop(int row, int column, bool gather)
   while (iter < taskList.end())
     {
       // VERY IMPORTANT: Only modify a valid window
-      if (ELGetWindowRect((*iter)->GetTaskWnd(), &r))
+      r = ELGetWindowRect((*iter)->GetTaskWnd());
+      if (!IsRectEmpty(&r))
         {
           // Ignore the window if it's sticky
           if (!pSettings->CheckSticky((*iter)->GetAppName()))
@@ -588,7 +590,7 @@ LRESULT Applet::DesktopMouseEvent(HWND hwnd, UINT message, LPARAM lParam)
               float xOffset, yOffset, rowScalar, columnScalar;
               RECT windowRect, clientRect;
 
-              ELGetWindowRect(selectedWindow, &windowRect);
+              windowRect = ELGetWindowRect(selectedWindow);
               GetClientRect(mainWnd, &clientRect);
 
               rowScalar = (float)(clientRect.bottom - (2 * dragBorder)) /
@@ -670,7 +672,7 @@ LRESULT Applet::DesktopMouseEvent(HWND hwnd, UINT message, LPARAM lParam)
             SwitchDesktop(row, column, false);
 
           if (message == WM_LBUTTONDBLCLK)
-            ELExecute((WCHAR*)TEXT("desk.cpl,,4"));
+            ELExecuteFileOrCommand(TEXT("desk.cpl,,4"));
 
           return 0;
         }
@@ -899,7 +901,7 @@ LRESULT Applet::DoNotify(HWND hwnd, LPARAM lParam)
       LPTOOLTIPTEXT lpttt = (LPTOOLTIPTEXT) lParam ;
       std::vector< std::tr1::shared_ptr<Task> >::reverse_iterator iter;
 
-      ELGetWindowRect(hwnd, &rt);
+      rt = ELGetWindowRect(hwnd);
 
       for (iter = taskList.rbegin(); iter != taskList.rend(); iter++)
         {
@@ -950,7 +952,7 @@ bool Applet::GetTaskRowColumn(HWND hwnd, int *row, int *column)
   int titleHeight = GetSystemMetrics(SM_CYSIZE);
   int titleWidth, titleVerticalCentre, titleHorizontalCentre;
 
-  ELGetWindowRect(hwnd, &winRect);
+  winRect = ELGetWindowRect(hwnd);
   desktopRect.left = screenLeft;
   desktopRect.right = screenLeft + screenWidth;
   desktopRect.top = screenTop;

@@ -21,7 +21,8 @@
 #ifndef __ETR_SETTINGS_H
 #define __ETR_SETTINGS_H
 
-#include "../emergeLib/emergeLib.h"
+#define UNICODE 1
+
 #include "../emergeBaseClasses/BaseSettings.h"
 
 #include <string>
@@ -55,8 +56,8 @@ public:
   COLORREF GetGradientTo();
   int GetAlpha();
   bool SetAlpha(int alpha);
-  WCHAR *GetGradientMethod();
-  bool SetGradientMethod(WCHAR *gradientMethod);
+  std::wstring GetGradientMethod();
+  bool SetGradientMethod(std::wstring gradientMethod);
 
 protected:
   virtual void DoReadSettings(IOHelper& helper);
@@ -70,7 +71,7 @@ private:
   std::wstring xmlFile;
   bool unhideIcons;
   LOGFONT infoLogFont, infoTitleLogFont;
-  WCHAR infoFontString[MAX_LINE_LENGTH], infoTitleFontString[MAX_LINE_LENGTH], gradientMethod[MAX_LINE_LENGTH];
+  std::wstring infoFontString, infoTitleFontString, gradientMethod;
   COLORREF borderColour, textColour, gradientTo, gradientFrom;
   int alpha;
 };

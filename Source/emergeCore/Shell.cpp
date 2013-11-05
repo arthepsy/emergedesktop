@@ -81,8 +81,8 @@ bool Shell::RunRegEntries(HKEY key, bool clearEntry, bool showStartupErrors)
       if ((type == REG_SZ) || (type == REG_EXPAND_SZ))
         {
           swprintf(error, TEXT("Failed to execute \"%ls\""), (WCHAR*)data);
-          if (!ELExecute((WCHAR*)data) && showStartupErrors)
-            ELMessageBox(GetDesktopWindow(), error, (WCHAR*)TEXT("emergeCore"), ELMB_ICONWARNING|ELMB_OK);
+          if (!ELExecuteFileOrCommand((WCHAR*)data) && showStartupErrors)
+            ELMessageBox(GetDesktopWindow(), error, TEXT("emergeCore"), ELMB_ICONWARNING|ELMB_OK);
 
           if (clearEntry)
             RegDeleteValue(key, value);
@@ -214,82 +214,82 @@ void Shell::RunRegStartup(bool showStartupErrors)
 
   // HKCU startup keys
   keyVector.push_back(StartKey(HKEY_CURRENT_USER,
-                               L"Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer\\Run",
+                               TEXT("Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer\\Run"),
                                false));
   keyVector.push_back(StartKey(HKEY_CURRENT_USER,
-                               L"Software\\Microsoft\\Windows\\CurrentVersion\\Run",
+                               TEXT("Software\\Microsoft\\Windows\\CurrentVersion\\Run"),
                                false));
   keyVector.push_back(StartKey(HKEY_CURRENT_USER,
-                               L"Software\\Microsoft\\Windows\\CurrentVersion\\RunOnce",
+                               TEXT("Software\\Microsoft\\Windows\\CurrentVersion\\RunOnce"),
                                true));
   keyVector.push_back(StartKey(HKEY_CURRENT_USER,
-                               L"Software\\Microsoft\\Windows\\CurrentVersion\\RunServices",
+                               TEXT("Software\\Microsoft\\Windows\\CurrentVersion\\RunServices"),
                                false));
   keyVector.push_back(StartKey(HKEY_CURRENT_USER,
-                               L"Software\\Microsoft\\Windows\\CurrentVersion\\RunServicesOnce",
+                               TEXT("Software\\Microsoft\\Windows\\CurrentVersion\\RunServicesOnce"),
                                true));
 
   // HKCU startup keys (32-bit keys on 64-bit machines)
   keyVector.push_back(StartKey(HKEY_CURRENT_USER,
-                               L"Software\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer\\Run",
+                               TEXT("Software\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer\\Run"),
                                false));
   keyVector.push_back(StartKey(HKEY_CURRENT_USER,
-                               L"Software\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\Run",
+                               TEXT("Software\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\Run"),
                                false));
   keyVector.push_back(StartKey(HKEY_CURRENT_USER,
-                               L"Software\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\RunOnce",
+                               TEXT("Software\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\RunOnce"),
                                true));
   keyVector.push_back(StartKey(HKEY_CURRENT_USER,
-                               L"Software\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\RunServices",
+                               TEXT("Software\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\RunServices"),
                                false));
   keyVector.push_back(StartKey(HKEY_CURRENT_USER,
-                               L"Software\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\RunServicesOnce",
+                               TEXT("Software\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\RunServicesOnce"),
                                true));
 
   // HKLM startup keys
   keyVector.push_back(StartKey(HKEY_LOCAL_MACHINE,
-                               L"Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer\\Run",
+                               TEXT("Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer\\Run"),
                                false));
   keyVector.push_back(StartKey(HKEY_LOCAL_MACHINE,
-                               L"Software\\Microsoft\\Windows\\CurrentVersion\\Run",
+                               TEXT("Software\\Microsoft\\Windows\\CurrentVersion\\Run"),
                                false));
   keyVector.push_back(StartKey(HKEY_LOCAL_MACHINE,
-                               L"Software\\Microsoft\\Windows\\CurrentVersion\\RunOnce",
+                               TEXT("Software\\Microsoft\\Windows\\CurrentVersion\\RunOnce"),
                                true));
   keyVector.push_back(StartKey(HKEY_LOCAL_MACHINE,
-                               L"Software\\Microsoft\\Windows\\CurrentVersion\\RunOnceEx",
+                               TEXT("Software\\Microsoft\\Windows\\CurrentVersion\\RunOnceEx"),
                                true));
   keyVector.push_back(StartKey(HKEY_LOCAL_MACHINE,
-                               L"Software\\Microsoft\\Windows\\CurrentVersion\\RunServices",
+                               TEXT("Software\\Microsoft\\Windows\\CurrentVersion\\RunServices"),
                                false));
   keyVector.push_back(StartKey(HKEY_LOCAL_MACHINE,
-                               L"Software\\Microsoft\\Windows\\CurrentVersion\\RunServicesOnce",
+                               TEXT("Software\\Microsoft\\Windows\\CurrentVersion\\RunServicesOnce"),
                                true));
   keyVector.push_back(StartKey(HKEY_LOCAL_MACHINE,
-                               L"Software\\Microsoft\\Windows NT\\CurrentVersion\\Winlogon\\Userinit",
+                               TEXT("Software\\Microsoft\\Windows NT\\CurrentVersion\\Winlogon\\Userinit"),
                                false));
 
   // HKLM startup keys (32-bit keys on 64-bit machines)
   keyVector.push_back(StartKey(HKEY_LOCAL_MACHINE,
-                               L"Software\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer\\Run",
+                               TEXT("Software\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer\\Run"),
                                false));
   keyVector.push_back(StartKey(HKEY_LOCAL_MACHINE,
-                               L"Software\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\Run",
+                               TEXT("Software\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\Run"),
                                false));
   keyVector.push_back(StartKey(HKEY_LOCAL_MACHINE,
-                               L"Software\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\RunOnce",
+                               TEXT("Software\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\RunOnce"),
                                true));
   keyVector.push_back(StartKey(HKEY_LOCAL_MACHINE,
-                               L"Software\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\RunOnceEx",
+                               TEXT("Software\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\RunOnceEx"),
                                true));
   keyVector.push_back(StartKey(HKEY_LOCAL_MACHINE,
-                               L"Software\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\RunServices",
+                               TEXT("Software\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\RunServices"),
                                false));
   keyVector.push_back(StartKey(HKEY_LOCAL_MACHINE,
-                               L"Software\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\RunServicesOnce",
+                               TEXT("Software\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\RunServicesOnce"),
                                true));
   keyVector.push_back(StartKey(HKEY_LOCAL_MACHINE,
-                               L"Software\\Wow6432Node\\Microsoft\\Windows NT\\CurrentVersion\\Winlogon\\Userinit",
+                               TEXT("Software\\Wow6432Node\\Microsoft\\Windows NT\\CurrentVersion\\Winlogon\\Userinit"),
                                false));
 
   // Execute all keys defined in keyVector
@@ -416,8 +416,8 @@ void Shell::RunFolderEntries(LPTSTR path, bool showStartupErrors)
           wcscpy(app, appPath);
           wcscat(app, findData.cFileName);
           swprintf(error, TEXT("Failed to execute \"%ls\""), app);
-          if (!ELExecute((WCHAR*)app) && showStartupErrors)
-            ELMessageBox(GetDesktopWindow(), error, (WCHAR*)TEXT("emergeCore"), ELMB_ICONWARNING|ELMB_OK);
+          if (!ELExecuteFileOrCommand(app) && showStartupErrors)
+            ELMessageBox(GetDesktopWindow(), error, TEXT("emergeCore"), ELMB_ICONWARNING|ELMB_OK);
         }
 
       // Get the next file

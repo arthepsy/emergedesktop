@@ -119,7 +119,7 @@ void MessageControl::DoRemove(HWND window, UINT type)
 // Returns:	Nothing
 // Purpose:	Sends the message to the windows that have requested it
 //----  --------------------------------------------------------------------------------------------------------
-void MessageControl::DispatchMessage(UINT type, UINT message, WCHAR *instanceName)
+void MessageControl::Dispatch_Message(UINT type, UINT message, WCHAR *instanceName)
 {
   WindowSet *winSet;
   TypeMap::iterator iter1;

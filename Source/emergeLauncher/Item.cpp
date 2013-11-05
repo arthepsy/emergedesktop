@@ -29,16 +29,16 @@
 // Returns:	Nothing
 // Purpose:	Creates TrayIcon Class Object
 //----  --------------------------------------------------------------------------------------------------------
-Item::Item(int type, LPCTSTR app, LPCTSTR icon, LPCTSTR tip, LPCTSTR workingDir)
+Item::Item(ITEMTYPE type, std::wstring app, std::wstring icon, std::wstring tip, std::wstring workingDir)
 {
   this->type = type;
-  wcscpy(this->app, app);
+  this->app = app;
   if (type == IT_SEPARATOR)
-    wcscpy(this->tip, TEXT(""));
+    this->tip = TEXT("");
   else
-    wcscpy(this->tip, tip);
-  wcscpy(iconPath, icon);
-  wcscpy(this->workingDir, workingDir);
+    this->tip = tip;
+  iconPath = icon;
+  this->workingDir = workingDir;
   convertIcon = false;
   active = false;
 
@@ -131,7 +131,7 @@ RECT *Item::GetRect()
   return &rect;
 }
 
-int Item::GetType()
+ITEMTYPE Item::GetType()
 {
   return type;
 }
@@ -142,13 +142,13 @@ int Item::GetType()
 // Returns:	Nothing
 // Purpose:	Replaces existing task icon with new icon
 //----  --------------------------------------------------------------------------------------------------------
-void Item::SetIcon(int iconSize, WCHAR *orientation)
+void Item::SetIcon(int iconSize, std::wstring orientation)
 {
-  WCHAR source[MAX_LINE_LENGTH], tmp[MAX_LINE_LENGTH], lwrApp[MAX_LINE_LENGTH];
-  std::wstring workingApp = app;
+  WCHAR source[MAX_LINE_LENGTH], tmp[MAX_LINE_LENGTH];
+  std::wstring workingApp, lwrApp;
 
-  wcscpy(lwrApp, app);
-  _wcslwr(lwrApp);
+  workingApp = app;
+  lwrApp = ELToLower(app);
 
   if (origIcon)
     DestroyIcon(origIcon);
@@ -158,44 +158,44 @@ void Item::SetIcon(int iconSize, WCHAR *orientation)
   switch (type)
     {
     case IT_SEPARATOR:
-      if (_wcsicmp(app, TEXT("single")) == 0)
+      if (ELToLower(app) == TEXT("single"))
         {
-          if (_wcsicmp(orientation, TEXT("vertical")) == 0)
+          if (ELToLower(orientation) == TEXT("vertical"))
             origIcon = EGExtractIcon(TEXT("emergeIcons.dll"), 15, iconSize);
           else
             origIcon = EGExtractIcon(TEXT("emergeIcons.dll"), 14, iconSize);
         }
-      else if (_wcsicmp(app, TEXT("double")) == 0)
+      else if (ELToLower(app) == TEXT("double"))
         {
-          if (_wcsicmp(orientation, TEXT("vertical")) == 0)
+          if (ELToLower(orientation) == TEXT("vertical"))
             origIcon = EGExtractIcon(TEXT("emergeIcons.dll"), 17, iconSize);
           else
             origIcon = EGExtractIcon(TEXT("emergeIcons.dll"), 16, iconSize);
         }
-      else if ((_wcsicmp(app, TEXT("custom")) == 0) && (wcslen(iconPath) > 0))
+      else if ((ELToLower(app) == TEXT("custom")) && (!iconPath.empty()))
         origIcon = EGGetFileIcon(iconPath, iconSize);
       break;
     default:
-      if (wcslen(iconPath) > 0)
+      if (!iconPath.empty())
         origIcon = EGGetFileIcon(iconPath, iconSize);
       else
         {
-          UINT specialFolder = ELIsSpecialFolder(app);
+          int specialFolder = ELGetSpecialFolderIDFromPath(app);
           if (specialFolder == 0)
             {
               workingApp = workingApp.substr(0, workingApp.find_first_of(TEXT(" \t")));
-              UINT internalCommand = ELIsInternalCommand(workingApp.c_str());
+              int internalCommand = ELGetInternalCommandValue(workingApp);
               if (internalCommand == 0)
                 {
-                  if ((wcsicmp(lwrApp, TEXT("%documents%")) == 0) ||
-                      (wcsicmp(lwrApp, TEXT("%commondocuments%")) == 0))
+                  if ((ELToLower(lwrApp) == TEXT("%documents%")) ||
+                      (ELToLower(lwrApp) == TEXT("%commondocuments%")))
                     origIcon = EGGetSpecialFolderIcon(CSIDL_PERSONAL, iconSize);
-                  else if ((wcsicmp(lwrApp, TEXT("%desktop%")) == 0) ||
-                           (wcsicmp(lwrApp, TEXT("%commondesktop%")) == 0))
+                  else if ((ELToLower(lwrApp) == TEXT("%desktop%")) ||
+                           (ELToLower(lwrApp) == TEXT("%commondesktop%")))
                     origIcon = EGGetSpecialFolderIcon(CSIDL_DESKTOP, iconSize);
                   else
                     {
-                      std::wstring workingApp = ELAbsPathFromRelativePath(lwrApp);
+                      std::wstring workingApp = ELGetAbsolutePath(lwrApp);
                       ELParseCommand(workingApp.c_str(), source, tmp);
                       origIcon = EGGetFileIcon(source, iconSize);
                     }
@@ -204,23 +204,23 @@ void Item::SetIcon(int iconSize, WCHAR *orientation)
                 {
                   switch (internalCommand)
                     {
-                    case COMMAND_LOGOFF:
+                    case CORE_LOGOFF:
                       origIcon = EGGetSystemIcon(ICON_LOGOFF, iconSize);
                       break;
 
-                    case COMMAND_QUIT:
+                    case CORE_QUIT:
                       origIcon = EGGetSystemIcon(ICON_QUIT, iconSize);
                       break;
 
-                    case COMMAND_RUN:
+                    case CORE_RUN:
                       origIcon = EGGetSystemIcon(ICON_RUN, iconSize);
                       break;
 
-                    case COMMAND_SHUTDOWN:
+                    case CORE_SHUTDOWN:
                       origIcon = EGGetSystemIcon(ICON_SHUTDOWN, iconSize);
                       break;
 
-                    case COMMAND_LOCK:
+                    case CORE_LOCK:
                       origIcon = EGGetSystemIcon(ICON_LOCK, iconSize);
                       break;
                     }
@@ -249,22 +249,22 @@ void Item::SetRect(RECT rect)
     }
 }
 
-WCHAR *Item::GetApp()
+std::wstring Item::GetApp()
 {
   return app;
 }
 
-WCHAR *Item::GetTip()
+std::wstring Item::GetTip()
 {
   return tip;
 }
 
-WCHAR *Item::GetIconPath()
+std::wstring Item::GetIconPath()
 {
   return iconPath;
 }
 
-WCHAR *Item::GetWorkingDir()
+std::wstring Item::GetWorkingDir()
 {
   return workingDir;
 }

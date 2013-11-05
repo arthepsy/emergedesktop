@@ -32,14 +32,15 @@
 
 #define UNICODE 1
 #include <windows.h>
+#include <string>
 #include "../emergeGraphics/emergeGraphics.h"
 
 // Declaration of functions to import
-DLL_EXPORT WCHAR *ESEGetStyle();
-DLL_EXPORT void ESESetStyle(WCHAR *styleFile);
-DLL_EXPORT bool ESEWriteStyle(WCHAR *styleFile, LPGUIINFO guiInfo, HWND hwnd);
-DLL_EXPORT void ESEReadStyle(WCHAR *styleFile, LPGUIINFO guiInfo);
-DLL_EXPORT void ESELoadStyle(WCHAR *styleFile, LPGUIINFO guiInfo);
+DLL_EXPORT std::wstring ESEGetStyle();
+DLL_EXPORT void ESESetStyle(std::wstring styleFile);
+DLL_EXPORT bool ESEWriteStyle(std::wstring styleFile, LPGUIINFO guiInfo, HWND hwnd);
+DLL_EXPORT void ESEReadStyle(std::wstring styleFile, LPGUIINFO guiInfo);
+DLL_EXPORT void ESELoadStyle(std::wstring styleFile, LPGUIINFO guiInfo);
 DLL_EXPORT bool ESEEqualStyle(LPGUIINFO sourceInfo, LPGUIINFO targetInfo);
 DLL_EXPORT void ESEPaintBackground(HDC hdc, RECT clientRect, LPGUIINFO guiInfo, bool active);
 

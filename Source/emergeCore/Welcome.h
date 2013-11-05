@@ -21,14 +21,25 @@
 #ifndef __WELCOME_H
 #define __WELCOME_H
 
+#define UNICODE 1
+
 #undef _WIN32_IE
 #define _WIN32_IE	0x501
 
 #undef _WIN32_WINNT
 #define _WIN32_WINNT	0x600
 
-#include "../emergeLib/emergeLib.h"
+#ifdef __GNUC__
+#include <tr1/memory>
+#include <tr1/shared_ptr.h>
+#else
+#include <memory>
+#endif
+
+#include <windows.h>
 #include "../emergeIcons/resource.h"
+#include "../emergeLib/emergeOSLib.h"
+#include "../emergeLib/emergeWindowLib.h"
 #include "resource.h"
 #include "Settings.h"
 #include "hyperlink.h"

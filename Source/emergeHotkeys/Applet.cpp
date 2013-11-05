@@ -33,7 +33,7 @@ Applet::Applet(HINSTANCE hInstance)
 
   keyHook = SetWindowsHookEx(WH_KEYBOARD_LL, LowLevelKeyboardProc, hInstance, 0);
 
-  keyUpEvent = CreateEvent(NULL, TRUE, FALSE, L"emergeHotkeys_KeyUpEvent");
+  keyUpEvent = CreateEvent(NULL, TRUE, FALSE, TEXT("emergeHotkeys_KeyUpEvent"));
 }
 
 UINT Applet::Initialize()
@@ -189,7 +189,7 @@ DWORD WINAPI Applet::ExecuteThreadProc(LPVOID lpParameter)
   WaitForSingleObject(keyUpEvent, INFINITE);
 
   // execute VK_LWIN on WM_KEYUP as it can also by the MOD_WIN key
-  ELExecuteAll(hc->GetHotkeyAction(), (WCHAR*)TEXT("\0"));
+  ELExecuteFileOrCommand(hc->GetHotkeyAction());
 
   ExitThread(0);
 
@@ -220,5 +220,5 @@ void Applet::ExecuteAction(UINT index)
       executeThread = CreateThread(NULL, 0, ExecuteThreadProc, hc, 0, &threadID);
     }
   else
-    ELExecuteAll(hc->GetHotkeyAction(), (WCHAR*)TEXT("\0"));
+    ELExecuteFileOrCommand(hc->GetHotkeyAction());
 }

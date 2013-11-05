@@ -23,9 +23,9 @@
 
 Settings::Settings(): BaseSettings(false)
 {
-  ZeroMemory(fontString, MAX_LINE_LENGTH);
-  ZeroMemory(textHorizontalAlign, MAX_LINE_LENGTH);
-  ZeroMemory(textVerticalAlign, MAX_LINE_LENGTH);
+  fontString = TEXT("");
+  textHorizontalAlign = TEXT("");
+  textVerticalAlign = TEXT("");
 
   updateInterval = 60;
 }
@@ -36,16 +36,16 @@ void Settings::DoReadSettings(IOHelper& helper)
   ZeroMemory(&logFont, sizeof(LOGFONT));
 
   BaseSettings::DoReadSettings(helper);
-  helper.ReadString(TEXT("Font"), fontString, TEXT("Tahoma-12"));
-  helper.ReadInt(TEXT("UpdateInterval"), updateInterval, 60);
-  helper.ReadString(TEXT("TextHorizontalAlign"), textHorizontalAlign, TEXT("left"));
-  helper.ReadString(TEXT("TextVerticalAlign"), textVerticalAlign, TEXT("top"));
+  fontString = helper.ReadString(TEXT("Font"), TEXT("Tahoma-12"));
+  updateInterval = helper.ReadInt(TEXT("UpdateInterval"), 60);
+  textHorizontalAlign = helper.ReadString(TEXT("TextHorizontalAlign"), TEXT("left"));
+  textVerticalAlign = helper.ReadString(TEXT("TextVerticalAlign"), TEXT("top"));
 }
 
 void Settings::DoWriteSettings(IOHelper& helper)
 {
   BaseSettings::DoWriteSettings(helper);
-  EGFontToString(logFont, fontString);
+  fontString = EGFontToString(logFont);
   helper.WriteString(TEXT("Font"), fontString);
   helper.WriteInt(TEXT("UpdateInterval"), updateInterval);
   helper.WriteString(TEXT("TextHorizontalAlign"), textHorizontalAlign);
@@ -55,23 +55,21 @@ void Settings::DoWriteSettings(IOHelper& helper)
 void Settings::DoInitialize()
 {
   BaseSettings::DoInitialize();
-  EGStringToFont(fontString, logFont);
+  logFont = EGStringToFont(fontString);
 }
 
 void Settings::ResetDefaults()
 {
   BaseSettings::ResetDefaults();
-  wcscpy(fontString, (WCHAR*)TEXT("Tahoma-12"));
+  fontString = TEXT("Tahoma-12");
   updateInterval = 60;
 }
 
 void Settings::SetFont(LOGFONT *logFont)
 {
-  WCHAR tmp[MAX_LINE_LENGTH];
-  EGFontToString(*logFont, tmp);
   if (!EGEqualLogFont(this->logFont, *logFont))
     {
-      wcscpy(fontString, tmp);
+      fontString = EGFontToString(*logFont);
       CopyMemory(&this->logFont, logFont, sizeof(LOGFONT));
       SetModified();
     }
@@ -86,31 +84,31 @@ void Settings::SetUpdateInterval(int interval)
     }
 }
 
-WCHAR *Settings::GetHorizontalAlign()
+std::wstring Settings::GetHorizontalAlign()
 {
   return textHorizontalAlign;
 }
 
-bool Settings::SetHorizontalAlign(WCHAR *horizontalAlign)
+bool Settings::SetHorizontalAlign(std::wstring horizontalAlign)
 {
-  if (_wcsicmp(textHorizontalAlign, horizontalAlign) != 0)
+  if (ELToLower(textHorizontalAlign) != ELToLower(horizontalAlign))
     {
-      wcscpy(textHorizontalAlign, horizontalAlign);
+      textHorizontalAlign = horizontalAlign;
       SetModified();
     }
   return true;
 }
 
-WCHAR *Settings::GetVerticalAlign()
+std::wstring Settings::GetVerticalAlign()
 {
   return textVerticalAlign;
 }
 
-bool Settings::SetVerticalAlign(WCHAR *horizontalAlign)
+bool Settings::SetVerticalAlign(std::wstring verticalAlign)
 {
-  if (_wcsicmp(textVerticalAlign, horizontalAlign) != 0)
+  if (ELToLower(textVerticalAlign) == ELToLower(verticalAlign))
     {
-      wcscpy(textVerticalAlign, horizontalAlign);
+      textVerticalAlign = verticalAlign;
       SetModified();
     }
   return true;

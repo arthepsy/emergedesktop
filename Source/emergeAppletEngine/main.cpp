@@ -18,39 +18,7 @@
 //
 //----  --------------------------------------------------------------------------------------------------------
 
-#undef _WIN32_IE
-#define _WIN32_IE 0x0501
-
-#undef _WIN32_WINNT
-#define _WIN32_WINNT 0x0501
-
-#undef WINVER
-#define WINVER 0x0501
-
-#include "emergeAppletEngine.h"
-#include <stdio.h>
-#include <shlwapi.h>
-#include <map>
-#include "../emergeLib/emergeLib.h"
-
-#define SYSMENUMIN 1
-#define SYSMENUMAX 0x7ff
-
-// Global definitions
-typedef struct tagCONTEXTINFO
-{
-  IContextMenu2 *ic2;
-  WCHAR value[MAX_PATH];
-} CONTEXTINFO;
-WCHAR appletClass[ ] = TEXT("EmergeDesktopApplet");
-WNDPROC oldWndProc = NULL;
-HMENU selectedMenu = NULL;
-typedef std::map<HMENU,CONTEXTINFO> ContextMap;
-ContextMap contextMap;
-
-// Helper functions
-LRESULT CALLBACK MenuProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
-HRESULT AddContextMenu(WCHAR *file);
+#include "main.h"
 
 //----  --------------------------------------------------------------------------------------------------------
 // Function:    EAEHitTest
@@ -68,7 +36,7 @@ LRESULT EAEHitTest(HWND hwnd, int guiBorder, bool autoSize, int x, int y)
   if (dragBorder < 5)
     dragBorder = 5;
 
-  ELGetWindowRect(hwnd, &r);
+  r = ELGetWindowRect(hwnd);
   InflateRect(&r, -dragBorder, -dragBorder);
 
   // For some reason the bottom and right check seem to be thinner than the top
@@ -106,11 +74,11 @@ LRESULT EAEHitTest(HWND hwnd, int guiBorder, bool autoSize, int x, int y)
 // Function:    EAEUpdateGUI
 // Requires:    HWND hwnd - window handle
 //              bool shadow - window shadow indicator
-//              WCHAR *zposition - z-order setting for window
+//              std::wstring zposition - z-order setting for window
 // Returns:     bool
 // Purpose:     Set the window shadow and z-order
 //----  --------------------------------------------------------------------------------------------------------
-HWND EAEUpdateGUI(HWND hwnd, bool shadow, WCHAR *zposition)
+HWND EAEUpdateGUI(HWND hwnd, bool shadow, std::wstring zposition)
 {
   if (shadow)
     SetClassLongPtr(hwnd, GCL_STYLE, GetClassLongPtr(hwnd, GCL_STYLE) | CS_DROPSHADOW);
@@ -118,7 +86,7 @@ HWND EAEUpdateGUI(HWND hwnd, bool shadow, WCHAR *zposition)
     SetClassLongPtr(hwnd, GCL_STYLE, GetClassLongPtr(hwnd, GCL_STYLE) & ~CS_DROPSHADOW);
 
   // Set window z-order
-  if (_wcsicmp(zposition, TEXT("top")) == 0)
+  if (ELToLower(zposition) == ELToLower(TEXT("Top")))
     return HWND_TOPMOST;
 
   return HWND_NOTOPMOST;
@@ -483,7 +451,7 @@ HRESULT AddContextMenu(WCHAR *file)
       return hr;
     }
 
-  if (!ELPathIsDirectory(file))
+  if ((ELGetFileSpecialFlags(file) & SF_DIRECTORY) != SF_DIRECTORY)
     {
       AppendMenu(fileMenu, MF_SEPARATOR, 0x8000, NULL);
       AppendMenu(fileMenu, MF_STRING, 0x8001, TEXT("Open Folder"));
@@ -587,7 +555,7 @@ int EAEDisplayFileMenu(WCHAR *file, HWND callingWnd)
     {
       wcscpy(directory, file);
       PathRemoveFileSpec(directory);
-      ELExecute(directory, directory);
+      ELExecuteFileOrCommand(directory, directory);
     }
 
   while (!contextMap.empty())

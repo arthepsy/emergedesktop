@@ -21,7 +21,8 @@
 #ifndef __ET_SETTINGS_H
 #define __ET_SETTINGS_H
 
-#include "../emergeLib/emergeLib.h"
+#define UNICODE 1
+
 #include "../emergeBaseClasses/BaseSettings.h"
 
 class Settings : public BaseSettings

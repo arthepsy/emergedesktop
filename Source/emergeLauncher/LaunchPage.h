@@ -21,6 +21,8 @@
 #ifndef __EL_LAUNCHPAGE_H
 #define __EL_LAUNCHPAGE_H
 
+#define UNICODE 1
+
 #undef _WIN32_IE
 #define _WIN32_IE	0x600
 
@@ -31,15 +33,16 @@
 #define BROWSE_WORKINGDIR   2
 #define BROWSE_ENTIREDIR    3
 
-#include "Settings.h"
-#include "resource.h"
-
 #ifdef __GNUC__
 #include <tr1/memory>
 #include <tr1/shared_ptr.h>
 #else
 #include <memory>
 #endif
+
+#include "../emergeLib/emergeFileRegistryLib.h"
+#include "Settings.h"
+#include "resource.h"
 
 class LaunchPage
 {

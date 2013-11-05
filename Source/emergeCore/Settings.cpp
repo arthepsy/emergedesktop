@@ -28,13 +28,13 @@ Settings::Settings(): BaseSettings(false)
   showExplorerDesktop = false;
   enableExplorerDesktop = false;
   showWelcome = true;
-  wcscpy(appletName, TEXT("emergeCore"));
+  appletName = TEXT("emergeCore");
 }
 
 void Settings::DoReadSettings(IOHelper& helper)
 {
-  helper.ReadBool(TEXT("ShowExplorerDesktop"), showExplorerDesktop, false);
-  helper.ReadBool(TEXT("EnableExplorerDesktop"), enableExplorerDesktop, false);
+  showExplorerDesktop = helper.ReadBool(TEXT("ShowExplorerDesktop"), false);
+  enableExplorerDesktop = helper.ReadBool(TEXT("EnableExplorerDesktop"), false);
 }
 
 void Settings::DoWriteSettings(IOHelper& helper)
@@ -83,7 +83,7 @@ bool Settings::ReadUserSettings()
   TiXmlElement *section = NULL;
   bool readSettings = false;
 
-  if (!ELPathIsDirectory(ELExpandVars(userFile).c_str()))
+  if ((ELGetFileSpecialFlags(ELExpandVars(userFile)) & SF_DIRECTORY) != SF_DIRECTORY)
     ELCreateDirectory(userFile);
   userFile += TEXT("emergeCore.xml");
   xmlConfig = ELOpenXMLConfig(userFile, true);
@@ -114,8 +114,8 @@ void Settings::ResetUserDefaults()
 
 void Settings::DoReadUserSettings(IOHelper& helper)
 {
-  helper.ReadBool(TEXT("ShowStartupErrors"), showStartupErrors, false);
-  helper.ReadBool(TEXT("ShowWelcome"), showWelcome, true);
+  showStartupErrors = helper.ReadBool(TEXT("ShowStartupErrors"), false);
+  showWelcome = helper.ReadBool(TEXT("ShowWelcome"), true);
 }
 
 bool Settings::GetShowStartupErrors()

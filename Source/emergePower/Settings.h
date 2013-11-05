@@ -21,7 +21,8 @@
 #ifndef __EP_SETTINGS_H
 #define __EP_SETTINGS_H
 
-#include "../emergeLib/emergeLib.h"
+#define UNICODE 1
+
 #include "../emergeBaseClasses/BaseSettings.h"
 
 class Settings: public BaseSettings
@@ -32,10 +33,10 @@ public:
   void SetUpdateInterval(int ival);
   LOGFONT *GetFont();
   int GetUpdateInterval();
-  WCHAR *GetHorizontalAlign();
-  bool SetHorizontalAlign(WCHAR *horizontalAlign);
-  WCHAR *GetVerticalAlign();
-  bool SetVerticalAlign(WCHAR *horizontalAlign);
+  std::wstring GetHorizontalAlign();
+  bool SetHorizontalAlign(std::wstring horizontalAlign);
+  std::wstring GetVerticalAlign();
+  bool SetVerticalAlign(std::wstring horizontalAlign);
 
 protected:
   virtual void DoReadSettings(IOHelper& helper);
@@ -45,7 +46,7 @@ protected:
 
 private:
   int updateInterval;
-  WCHAR fontString[MAX_LINE_LENGTH], textHorizontalAlign[MAX_LINE_LENGTH], textVerticalAlign[MAX_LINE_LENGTH];
+  std::wstring fontString, textHorizontalAlign, textVerticalAlign;
   LOGFONT logFont;
 };
 

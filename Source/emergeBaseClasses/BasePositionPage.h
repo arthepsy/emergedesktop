@@ -21,6 +21,25 @@
 #ifndef __EB_BASEPOSITIONPAGE_H
 #define __EB_BASEPOSITIONPAGE_H
 
+#ifdef EMERGEBASECLASSES_EXPORTS
+#undef DLL_EXPORT
+#define DLL_EXPORT  __declspec(dllexport)
+#else
+#undef DLL_EXPORT
+#define DLL_EXPORT  __declspec(dllimport)
+#endif
+
+#ifdef __GNUC__
+#define UNUSED __attribute__((unused))
+#else
+#define UNUSED
+#endif
+
+#define BPP_ZORDER      0x1
+#define BPP_ORIENTATION 0x2
+#define BPP_HORIZONTAL  0x4
+#define BPP_VERTICAL    0x8
+
 #ifdef __GNUC__
 #include <tr1/memory>
 #include <tr1/shared_ptr.h>
@@ -30,19 +49,6 @@
 
 #include "BaseSettings.h"
 #include "resource.h"
-
-#ifdef EMERGEBASECLASSES_EXPORTS
-#undef DLL_EXPORT
-#define DLL_EXPORT  __declspec(dllexport)
-#else
-#undef DLL_EXPORT
-#define DLL_EXPORT  __declspec(dllimport)
-#endif
-
-#define BPP_ZORDER      0x1
-#define BPP_ORIENTATION 0x2
-#define BPP_HORIZONTAL  0x4
-#define BPP_VERTICAL    0x8
 
 class DLL_EXPORT BasePositionPage
 {

@@ -23,6 +23,8 @@
 
 #define UNICODE 1
 
+#define MAX_LINE_LENGTH 4096
+
 #ifdef EMERGEBASECLASSES_EXPORTS
 #undef DLL_EXPORT
 #define DLL_EXPORT  __declspec(dllexport)
@@ -34,9 +36,13 @@
 #undef _WIN32_WINNT
 #define _WIN32_WINNT 0x501
 
-#include "../emergeLib/emergeLib.h"
-#include "../emergeStyleEngine/emergeStyleEngine.h"
 #include <shlwapi.h>
+#include "../emergeStyleEngine/emergeStyleEngine.h"
+#include "../emergeLib/emergeCoreLib.h"
+#include "../emergeLib/emergeFileRegistryLib.h"
+#include "../emergeLib/emergeUtilityLib.h"
+#include "../emergeLib/emergeWindowLib.h"
+#include "../tinyxml/tinyxml.h"
 
 typedef struct _SORTINFO
 {
@@ -58,30 +64,30 @@ public:
     ~IOHelper();
 
     bool GetElement();
-    void *GetElement(WCHAR *name);
-    bool SetElement(const WCHAR *name);
-    bool GetElementText(WCHAR *text);
-    bool RemoveElement(const WCHAR *name);
+    void *GetElement(std::wstring name);
+    bool SetElement(std::wstring name);
+    bool GetElementText(std::wstring text);
+    bool RemoveElement(std::wstring name);
     void *GetTarget();
     void Clear();
     TiXmlElement *GetSection();
-    bool ReadColor(const WCHAR* name, COLORREF& color, COLORREF def);
-    bool ReadBool(const WCHAR* name, bool& data, bool def);
-    bool ReadInt(const WCHAR* name, int& data, int def);
-    bool ReadFloat(const WCHAR* name, float& data, float def);
-    bool ReadString(const WCHAR* name, WCHAR* data, const WCHAR* def);
-    bool ReadRect(const WCHAR* name, RECT& data, RECT& def);
-    bool WriteColor(const WCHAR* name, COLORREF color);
-    bool WriteBool(const WCHAR* name, bool data);
-    bool WriteInt(const WCHAR* name, int data);
-    bool WriteFloat(const WCHAR* name, float data);
-    bool WriteString(const WCHAR* name, WCHAR* data);
-    bool WriteRect(const WCHAR* name, RECT& data);
+    COLORREF ReadColor(std::wstring name, COLORREF defaultValue);
+    bool ReadBool(std::wstring name, bool defaultValue);
+    int ReadInt(std::wstring name, int defaultValue);
+    float ReadFloat(std::wstring name, float defaultValue);
+    std::wstring ReadString(std::wstring name, std::wstring defaultValue);
+    RECT ReadRect(std::wstring name, RECT defaultValue);
+    bool WriteColor(std::wstring name, COLORREF color);
+    bool WriteBool(std::wstring name, bool data);
+    bool WriteInt(std::wstring name, int data);
+    bool WriteFloat(std::wstring name, float data);
+    bool WriteString(std::wstring name, std::wstring data);
+    bool WriteRect(std::wstring name, RECT data);
   };
 
   BaseSettings(bool allowAutoSize);
   virtual ~BaseSettings();
-  void Init(HWND appletWnd, WCHAR *appletName, int appletCount);
+  void Init(HWND appletWnd, std::wstring appletName, int appletCount);
   void ReadSettings();
   int GetIconSize();
   int GetIconSpacing();
@@ -90,31 +96,31 @@ public:
   int GetWidth();
   int GetHeight();
   int GetAppletMonitor();
-  WCHAR *GetZPosition();
-  WCHAR *GetHorizontalDirection();
-  WCHAR *GetVerticalDirection();
-  WCHAR *GetDirectionOrientation();
-  WCHAR *GetAnchorPoint();
+  std::wstring GetZPosition();
+  std::wstring GetHorizontalDirection();
+  std::wstring GetVerticalDirection();
+  std::wstring GetDirectionOrientation();
+  std::wstring GetAnchorPoint();
   bool GetAutoSize();
   bool GetSnapMove();
   bool GetSnapSize();
   bool GetDynamicPositioning();
-  WCHAR *GetStyleFile();
+  std::wstring GetStyleFile();
   int GetClickThrough();
   LOGFONT *GetTitleBarFont();
-  WCHAR* GetTitleBarText();
+  std::wstring GetTitleBarText();
   bool SetPosition();
   bool SetSize(int width, int height);
-  bool SetZPosition(WCHAR *zPosition);
-  bool SetHorizontalDirection(WCHAR *horizontalDirection);
-  bool SetVerticalDirection(WCHAR *verticalDirection);
-  bool SetDirectionOrientation(WCHAR *directionOrientation);
-  bool SetAnchorPoint(WCHAR *anchorPoint);
+  bool SetZPosition(std::wstring zPosition);
+  bool SetHorizontalDirection(std::wstring horizontalDirection);
+  bool SetVerticalDirection(std::wstring verticalDirection);
+  bool SetDirectionOrientation(std::wstring directionOrientation);
+  bool SetAnchorPoint(std::wstring anchorPoint);
   bool SetAutoSize(bool autoSize);
   bool SetSnapMove(bool snapMove);
   bool SetSnapSize(bool snapSize);
   bool SetDynamicPositioning(bool dynamicPositioning);
-  bool SetStyleFile(const WCHAR *styleFile);
+  bool SetStyleFile(std::wstring styleFile);
   bool SetIconSize(int iconSize);
   bool SetIconSpacing(int iconSpacing);
   RECT *GetResolution();
@@ -123,15 +129,15 @@ public:
   bool WriteSettings();
   bool SetAppletMonitor(int monitor);
   bool SetTitleBarFont(LOGFONT *titleBarFont);
-  void SetTitleBarText(WCHAR* titleBarText);
+  void SetTitleBarText(std::wstring titleBarText);
   bool ModifiedCheck();
   void SetModified();
   void ClearModified();
   bool GetModified();
   bool CopyTheme();
   bool CopyStyle();
-  bool GetSortInfo(WCHAR *editorName, PSORTINFO sortInfo);
-  bool SetSortInfo(WCHAR *editorName, PSORTINFO sortInfo);
+  bool GetSortInfo(std::wstring editorName, PSORTINFO sortInfo);
+  bool SetSortInfo(std::wstring editorName, PSORTINFO sortInfo);
   POINT InstancePosition(SIZE appletSize);
   bool GetStartHidden();
   bool SetStartHidden(bool startHidden);
@@ -145,26 +151,25 @@ protected:
   virtual void ResetDefaults();
   int x, y;
   int width, height, iconSize, iconSpacing, clickThrough, appletMonitor;
-  WCHAR horizontalDirection[MAX_LINE_LENGTH], verticalDirection[MAX_LINE_LENGTH],
-  directionOrientation[MAX_LINE_LENGTH];
+  std::wstring horizontalDirection, verticalDirection, directionOrientation;
   bool autoSize, snapMove, snapSize, dynamicPositioning;
-  WCHAR anchorPoint[MAX_LINE_LENGTH];
-  WCHAR zPosition[MAX_LINE_LENGTH];
-  WCHAR appletName[MAX_LINE_LENGTH];
+  std::wstring anchorPoint;
+  std::wstring zPosition;
+  std::wstring appletName;
   int appletCount;
   bool startHidden;
-  WCHAR titleBarText[MAX_LINE_LENGTH];
+  std::wstring titleBarText;
   LOGFONT titleBarFont;
   int autoSizeLimit;
 
 private:
   HWND appletWnd;
-  WCHAR keyString[MAX_LINE_LENGTH];
+  std::wstring keyString;
   bool allowAutoSize;
-  WCHAR styleFile[MAX_PATH];
+  std::wstring styleFile;
   bool modifiedFlag;
   std::wstring oldTheme, defaultTheme, GBRYTheme;
-  WCHAR titleBarFontString[MAX_LINE_LENGTH];
+  std::wstring titleBarFontString;
 };
 
 #endif

@@ -32,6 +32,7 @@
 
 #define UNICODE 1
 #include <windows.h>
+#include <string>
 
 // Defines required for SetWindowLayeredAttributes
 #ifndef WS_EX_LAYERED
@@ -182,7 +183,7 @@ typedef struct _GUIINFO
   COLORREF gradientTo;
   bool windowShadow;
   int dragBorder;
-  WCHAR gradientMethod[MAX_PATH];
+  std::wstring gradientMethod;
   int bevelWidth;
   int padding;
   bool windowBlur;
@@ -196,22 +197,22 @@ DLL_EXPORT HICON EGConvertIcon(HICON sourceIcon, BYTE foregroundAlpha);
 DLL_EXPORT HBRUSH EGCreateBrush(BYTE alpha, COLORREF colour);
 DLL_EXPORT HPEN EGCreatePen(DWORD style, DWORD width, BYTE alpha, COLORREF colour);
 DLL_EXPORT HBITMAP EGCreateBitmap(BYTE alpha, COLORREF colour, RECT wndRect);
-DLL_EXPORT HICON EGGetFileIcon(const WCHAR *file, UINT iconSize);
+DLL_EXPORT HICON EGGetFileIcon(std::wstring file, UINT iconSize);
 DLL_EXPORT HICON EGGetWindowIcon(HWND callerWnd, HWND hwnd, bool smallIcon, bool force);
 DLL_EXPORT HICON EGGetSpecialFolderIcon(int csidl, UINT iconSize);
 DLL_EXPORT HICON EGGetSystemIcon(UINT iconIndex, UINT iconSize);
 DLL_EXPORT HICON EGExtractIcon(const WCHAR *iconLocation, int iconIndex, int iconSize);
-DLL_EXPORT bool EGDrawAlphaText(BYTE alpha, CLIENTINFO clientInfo, FORMATINFO formatInfo, WCHAR *commandText);
+DLL_EXPORT bool EGDrawAlphaText(BYTE alpha, CLIENTINFO clientInfo, FORMATINFO formatInfo, std::wstring commandText);
 DLL_EXPORT bool EGFillRect(HDC hdc, RECT *rect, BYTE alpha, COLORREF colour);
-DLL_EXPORT bool EGGradientFillRect(HDC hdc, RECT *rect, BYTE alpha, COLORREF colourFrom, COLORREF colourTo, int bevelWidth, WCHAR *gradientMethod);
+DLL_EXPORT bool EGGradientFillRect(HDC hdc, RECT *rect, BYTE alpha, COLORREF colourFrom, COLORREF colourTo, int bevelWidth, std::wstring);
 DLL_EXPORT bool EGFrameRect(HDC hdc, RECT *rect, BYTE bgAlpha, COLORREF borderColour, int borderWidth);
 DLL_EXPORT UINT32 EGGetPixel(BYTE alpha, COLORREF colour);
 DLL_EXPORT BYTE EGGetMinAlpha(BYTE alphaBase, BYTE alphaDelta);
 DLL_EXPORT bool EGGetIconDialogue(HWND hwnd, WCHAR *iconPath, int iconIndex);
-DLL_EXPORT void EGFontToString(const LOGFONT& font, WCHAR *str);
-DLL_EXPORT void EGStringToFont(const WCHAR *str, LOGFONT& font);
+DLL_EXPORT std::wstring EGFontToString(const LOGFONT& font);
+DLL_EXPORT LOGFONT EGStringToFont(std::wstring str);
 DLL_EXPORT bool EGEqualLogFont(const LOGFONT& source, const LOGFONT& target);
-DLL_EXPORT bool EGGetTextRect(WCHAR *text, HFONT font, RECT *rect, UINT flags);
+DLL_EXPORT bool EGGetTextRect(std::wstring text, HFONT font, RECT *rect, UINT flags);
 DLL_EXPORT HBITMAP EGGetIconBitmap(HICON sourceIcon);
 DLL_EXPORT BOOL EGIsCompositionEnabled();
 DLL_EXPORT HRESULT EGBlurWindow(HWND hwnd, bool enable);

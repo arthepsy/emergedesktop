@@ -21,6 +21,8 @@
 #ifndef __EMERGEAPPLETENGINE_H
 #define __EMERGEAPPLETENGINE_H
 
+#define UNICODE 1
+
 #ifdef EMERGEAPPLETENGINE_EXPORTS
 #undef DLL_EXPORT
 #define DLL_EXPORT  __declspec(dllexport)
@@ -34,8 +36,8 @@
 #define TIP_SIZE 256
 #endif
 
-#define UNICODE 1
 #include <windows.h>
+#include <string>
 
 #define ASI_VERTICAL    1
 #define ASI_HORIZONTAL  2
@@ -73,12 +75,12 @@ AUTOSIZEINFO, *LPAUTOSIZEINFO;
 
 // Declaration of functions to import
 DLL_EXPORT LRESULT EAEHitTest(HWND hwnd, int guiBorder, bool autoSize, int x, int y);
-DLL_EXPORT HWND EAEUpdateGUI(HWND hwnd, bool shadow, WCHAR *zposition);
+DLL_EXPORT HWND EAEUpdateGUI(HWND hwnd, bool shadow, std::wstring zposition);
 DLL_EXPORT HWND EAEInitializeAppletWindow(HINSTANCE inst, WNDPROC windowProc, LPVOID lpParam);
 DLL_EXPORT HWND EAEInitializeTooltipWindow(HINSTANCE appletInstance);
 DLL_EXPORT bool EAEAutoSize(AUTOSIZEINFO autoSizeInfo);
 DLL_EXPORT LRESULT EAEDisplayChange(HMONITOR appletMonitor, RECT *wndRect, RECT *oldDeskRect);
 DLL_EXPORT int EAEDisplayMenu(HWND callingWnd, HWND taskWnd);
-DLL_EXPORT int EAEDisplayFileMenu(WCHAR *file, HWND callingWnd);
+DLL_EXPORT int EAEDisplayFileMenu(std::wstring file, HWND callingWnd);
 
 #endif

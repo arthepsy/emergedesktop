@@ -18,41 +18,14 @@
 //
 //----  --------------------------------------------------------------------------------------------------------
 
-#ifndef __SHUTDOWN_H
-#define __SHUTDOWN_H
+#include <winver.h>
+#include <winuser.h>
+#include <commctrl.h>
 
-#undef _WIN32_IE
-#define _WIN32_IE	0x501
+#define IDD_MSGBOX              101
 
-#undef _WIN32_WINNT
-#define _WIN32_WINNT	0x600
-
-#include "emergeLib.h"
-#include "resource.h"
-#include "../emergeIcons/resource.h"
-#ifndef _W64
-#include <WtsApi32.h>
-#endif
-
-class Shutdown
-{
-public:
-  Shutdown(HINSTANCE hInstance, HWND mainWnd);
-  ~Shutdown();
-  int Show();
-  BOOL DoInitDialog(HWND hwndDlg);
-  BOOL DoCommand(HWND hwndDlg, WPARAM wParam, LPARAM lParam);
-  BOOL DoNotify(HWND hwndDlg, LPARAM lParam);
-
-private:
-  HINSTANCE hInstance;
-  HMODULE hIconsDLL;
-  HWND mainWnd, toolWnd;
-  HBITMAP logoBMP;
-  bool enableDisconnect;
-  static BOOL CALLBACK ShutdownDlgProc(HWND hwndDlg, UINT message, WPARAM wParam, LPARAM lParam);
-  bool DoShutdown(HWND hwndDlg);
-};
-
-#endif
-
+#define IDC_STATIC              200
+#define IDC_LOGO                201
+#define IDC_METHOD              202
+#define IDC_MSGTEXT             203
+#define IDC_MSGICON             204

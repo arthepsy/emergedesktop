@@ -41,10 +41,10 @@ void Settings::ResetDefaults()
   BaseSettings::ResetDefaults();
   width = 281;
   height = 32;
-  wcscpy(zPosition, TEXT("Top"));
-  wcscpy(horizontalDirection, TEXT("right"));
-  wcscpy(verticalDirection, TEXT("down"));
-  wcscpy(directionOrientation, TEXT("horizontal"));
+  zPosition = TEXT("Top");
+  horizontalDirection = TEXT("right");
+  verticalDirection = TEXT("down");
+  directionOrientation = TEXT("horizontal");
   autoSize = true;
   iconSize = 32;
   iconSpacing = 3;
@@ -53,7 +53,7 @@ void Settings::ResetDefaults()
   dynamicPositioning = true;
   clickThrough = 0;
   appletMonitor = 0;
-  // If appletCount > 0 assume this is a new instance and place it at the centre
+  // If appletCount > 0 assume this is a new instance and place it at the center
   // of the screen.
   if (appletCount > 0)
     {
@@ -71,13 +71,13 @@ void Settings::ResetDefaults()
     {
       x = 0;
       y = -40;
-      wcscpy(anchorPoint, TEXT("BottomLeft"));
+      anchorPoint = TEXT("BottomLeft");
     }
 }
 
 void Settings::PopulateItems()
 {
-  WCHAR app[MAX_LINE_LENGTH], icon[MAX_LINE_LENGTH], tip[MAX_LINE_LENGTH], workingDir[MAX_LINE_LENGTH];
+  std::wstring app, icon, tip, workingDir;
   std::tr1::shared_ptr<TiXmlDocument> configXML;
   TiXmlElement *settingsSection, *launchSection;
   std::wstring xmlFile = TEXT("%ThemeDir%\\");
@@ -102,22 +102,22 @@ void Settings::PopulateItems()
               while (userIO.GetElement())
                 {
                   found = true;
-                  userIO.ReadInt(TEXT("Type"), type, IT_EXECUTABLE);
-                  userIO.ReadString(TEXT("Command"), app, TEXT(""));
-                  userIO.ReadString(TEXT("Icon"), icon, TEXT(""));
-                  userIO.ReadString(TEXT("Tip"), tip, TEXT(""));
-                  userIO.ReadString(TEXT("WorkingDir"), workingDir, TEXT(""));
+                  type = userIO.ReadInt(TEXT("Type"), IT_EXECUTABLE);
+                  app = userIO.ReadString(TEXT("Command"), TEXT(""));
+                  icon = userIO.ReadString(TEXT("Icon"), TEXT(""));
+                  tip = userIO.ReadString(TEXT("Tip"), TEXT(""));
+                  workingDir = userIO.ReadString(TEXT("WorkingDir"), TEXT(""));
 
                   // Convert the iconValue to a full path if relative
                   if (ELPathIsRelative(icon))
-                    ELConvertThemePath(icon, CTP_FULL);
+                    icon = ELGetAbsolutePath(icon, TEXT("%ThemeDir%\\"));
 
                   // Add new Folders item to the vector and set the icon size
-                  itemList.push_back(std::tr1::shared_ptr<Item>(new Item(type, app, icon, tip, workingDir)));
+                  itemList.push_back(std::tr1::shared_ptr<Item>(new Item((ITEMTYPE)type, app, icon, tip, workingDir)));
                   itemList.back()->SetIcon(GetIconSize(), GetDirectionOrientation());
 
                   if (type == IT_LIVE_FOLDER)
-                    loadLiveFolder(app);
+                    loadLiveFolder((WCHAR*)app.c_str());
                 }
             }
         }
@@ -126,21 +126,21 @@ void Settings::PopulateItems()
   // Populate default items
   if (!found)
     {
-      itemList.push_back(std::tr1::shared_ptr<Item>(new Item(2, L"RightDeskMenu", L"%AppletDir%\\emergeCore.exe,0", L"Start Menu", L"")));
+      itemList.push_back(std::tr1::shared_ptr<Item>(new Item(IT_INTERNAL_COMMAND, TEXT("RightDeskMenu"), TEXT("%AppletDir%\\emergeCore.exe,0"), TEXT("Start Menu"), TEXT(""))));
       itemList.back()->SetIcon(GetIconSize(), GetDirectionOrientation());
-      itemList.push_back(std::tr1::shared_ptr<Item>(new Item(0, L"Double", L"", L"", L"")));
+      itemList.push_back(std::tr1::shared_ptr<Item>(new Item(IT_SEPARATOR, TEXT("Double"), TEXT(""), TEXT(""), TEXT(""))));
       itemList.back()->SetIcon(GetIconSize(), GetDirectionOrientation());
-      itemList.push_back(std::tr1::shared_ptr<Item>(new Item(2, L"Homepage", L"%ProgramFiles%\\Internet Explorer\\iexplore.exe,0", L"Emerge Desktop Homepage", L"")));
+      itemList.push_back(std::tr1::shared_ptr<Item>(new Item(IT_INTERNAL_COMMAND, TEXT("Homepage"), TEXT("%ProgramFiles%\\Internet Explorer\\iexplore.exe,0"), TEXT("Emerge Desktop Homepage"), TEXT(""))));
       itemList.back()->SetIcon(GetIconSize(), GetDirectionOrientation());
-      itemList.push_back(std::tr1::shared_ptr<Item>(new Item(2, L"ShowDesktop", L"%WinDir%\\system32\\shell32.dll,34", L"Show Desktop", L"")));
+      itemList.push_back(std::tr1::shared_ptr<Item>(new Item(IT_INTERNAL_COMMAND, TEXT("ShowDesktop"), TEXT("%WinDir%\\system32\\shell32.dll,34"), TEXT("Show Desktop"), TEXT(""))));
       itemList.back()->SetIcon(GetIconSize(), GetDirectionOrientation());
-      itemList.push_back(std::tr1::shared_ptr<Item>(new Item(4, L"CSIDL_PERSONAL", L"", L"My Documents", L"")));
+      itemList.push_back(std::tr1::shared_ptr<Item>(new Item(IT_SPECIAL_FOLDER, TEXT("CSIDL_PERSONAL"), TEXT(""), TEXT("My Documents"), TEXT(""))));
       itemList.back()->SetIcon(GetIconSize(), GetDirectionOrientation());
-      itemList.push_back(std::tr1::shared_ptr<Item>(new Item(1, L"%AppletDir%\\documentation\\Emerge Desktop.chm", L"%SystemRoot%\\system32\\shell32.dll,23", L"Emerge Desktop Help", L"")));
+      itemList.push_back(std::tr1::shared_ptr<Item>(new Item(IT_EXECUTABLE, TEXT("%AppletDir%\\documentation\\Emerge Desktop.chm"), TEXT("%SystemRoot%\\system32\\shell32.dll,23"), TEXT("Emerge Desktop Help"), TEXT(""))));
       itemList.back()->SetIcon(GetIconSize(), GetDirectionOrientation());
-      itemList.push_back(std::tr1::shared_ptr<Item>(new Item(2, L"Tutorial", L"%WinDir%\\system32\\shell32.dll,13", L"Emerge Desktop Online Tutorial", L"")));
+      itemList.push_back(std::tr1::shared_ptr<Item>(new Item(IT_INTERNAL_COMMAND, TEXT("Tutorial"), TEXT("%WinDir%\\system32\\shell32.dll,13"), TEXT("Emerge Desktop Online Tutorial"), TEXT(""))));
       itemList.back()->SetIcon(GetIconSize(), GetDirectionOrientation());
-      itemList.push_back(std::tr1::shared_ptr<Item>(new Item(0, L"Single", L"", L"", L"")));
+      itemList.push_back(std::tr1::shared_ptr<Item>(new Item(IT_SEPARATOR, TEXT("Single"), TEXT(""), TEXT(""), TEXT(""))));
       itemList.back()->SetIcon(GetIconSize(), GetDirectionOrientation());
     }
 
@@ -161,10 +161,10 @@ void Settings::DeleteItems(bool clearXML)
       configXML = ELOpenXMLConfig(xmlFile, false);
       if (configXML)
         {
-          settingsSection = ELGetXMLSection(configXML.get(), (WCHAR*)TEXT("Settings"), false);
+          settingsSection = ELGetXMLSection(configXML.get(), TEXT("Settings"), false);
           if (settingsSection)
             {
-              launchSection = ELGetFirstXMLElementByName(settingsSection, (WCHAR*)TEXT("Launch"), false);
+              launchSection = ELGetFirstXMLElementByName(settingsSection, TEXT("Launch"), false);
               if (launchSection)
                 {
                   IOHelper userIO(launchSection);
@@ -236,9 +236,9 @@ Item *Settings::GetItem(size_t index)
 void Settings::writeEntireFolder(WCHAR *folderName)
 {
   std::wstring workingFolder = ELExpandVars(folderName);
-  workingFolder = ELAbsPathFromRelativePath(workingFolder);
+  workingFolder = ELGetAbsolutePath(workingFolder);
   WIN32_FIND_DATA FindFileData;
-  std::wstring searchFolderName = workingFolder + L"\\*.*", tmpPath;
+  std::wstring searchFolderName = workingFolder + TEXT("\\*.*"), tmpPath;
 
   HANDLE hFind = FindFirstFile(searchFolderName.c_str(), &FindFileData);
 
@@ -247,12 +247,12 @@ void Settings::writeEntireFolder(WCHAR *folderName)
 
   do
     {
-      tmpPath = workingFolder + L"\\";
+      tmpPath = workingFolder + TEXT("\\");
       tmpPath += FindFileData.cFileName;
 
       if ((_wcsicmp(TEXT("."), FindFileData.cFileName) != 0) && (_wcsicmp(TEXT(".."), FindFileData.cFileName) != 0))
         {
-          ELStripShortcutExtension(FindFileData.cFileName);
+          ELStripFileArguments(FindFileData.cFileName);
           WriteItem(IT_EXECUTABLE, (WCHAR*)tmpPath.c_str(), (WCHAR*)TEXT(""), FindFileData.cFileName, (WCHAR*)TEXT(""));
         }
     }
@@ -264,9 +264,9 @@ void Settings::writeEntireFolder(WCHAR *folderName)
 void Settings::loadLiveFolder(WCHAR *folderName)
 {
   std::wstring workingFolder = ELExpandVars(folderName);
-  workingFolder = ELAbsPathFromRelativePath(workingFolder);
+  workingFolder = ELGetAbsolutePath(workingFolder);
   WIN32_FIND_DATA FindFileData;
-  std::wstring searchFolderName = workingFolder + L"\\*.*", tmpPath;
+  std::wstring searchFolderName = workingFolder + TEXT("\\*.*"), tmpPath;
 
   HANDLE hFind = FindFirstFile(searchFolderName.c_str(), &FindFileData);
 
@@ -284,14 +284,14 @@ void Settings::loadLiveFolder(WCHAR *folderName)
 
   do
     {
-      tmpPath = workingFolder + L"\\";
+      tmpPath = workingFolder + TEXT("\\");
       tmpPath += FindFileData.cFileName;
 
       if ((_wcsicmp(TEXT("."), FindFileData.cFileName) != 0) &&
           (_wcsicmp(TEXT(".."), FindFileData.cFileName) != 0) &&
           ((FindFileData.dwFileAttributes & FILE_ATTRIBUTE_HIDDEN) != FILE_ATTRIBUTE_HIDDEN))
         {
-          ELStripShortcutExtension(FindFileData.cFileName);
+          ELStripFileArguments(FindFileData.cFileName);
           itemList.push_back(std::tr1::shared_ptr<Item>(new Item(IT_LIVE_FOLDER_ITEM,
                              (WCHAR*)tmpPath.c_str(),
                              (WCHAR*)TEXT(""),

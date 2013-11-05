@@ -161,7 +161,7 @@ bool BaseApplet::SpawnInstance()
   tempSettingsFile += appletName;
   tempSettingsFile += TEXT(".xml");
   tempSettingsFile = ELExpandVars(tempSettingsFile);
-  if ((appletCount != 0) && (!ELPathFileExists(tempSettingsFile.c_str())))
+  if ((appletCount != 0) && (!ELFileExists(tempSettingsFile)))
     return false;
 
   // Attempt to write applet count to InstanceManagement.xml
@@ -170,7 +170,7 @@ bool BaseApplet::SpawnInstance()
       // If successful spawn the next instance
       WCHAR appletPath[MAX_PATH];
       if (GetModuleFileName(0, appletPath, MAX_PATH))
-        ELExecute(appletPath);
+        ELExecuteFileOrCommand(appletPath);
     }
 
   return true;
@@ -194,7 +194,7 @@ LRESULT BaseApplet::DoMoving(HWND hwnd, RECT *lpRect)
 
 LRESULT BaseApplet::DoEnterSizeMove(HWND hwnd)
 {
-  ELGetWindowRect(hwnd, &referenceRect);
+  referenceRect = ELGetWindowRect(hwnd);
   anchor = ELGetAnchorPoint(hwnd);
 
   SetWindowPos(hwnd, HWND_TOPMOST, 0, 0, 0, 0,
@@ -208,7 +208,7 @@ LRESULT BaseApplet::DoExitSizeMove(HWND hwnd)
   RECT currentRect;
   int currentHeight, currentWidth, referenceHeight, referenceWidth;
 
-  ELGetWindowRect(hwnd, &currentRect);
+  currentRect = ELGetWindowRect(hwnd);
 
   currentWidth = currentRect.right - currentRect.left;
   currentHeight = currentRect.bottom - currentRect.top;
@@ -221,14 +221,14 @@ LRESULT BaseApplet::DoExitSizeMove(HWND hwnd)
   if ((currentWidth != referenceWidth) || (currentHeight != referenceHeight))
     DoSize(currentWidth, currentHeight);
 
-  if (_wcsicmp(pBaseSettings->GetZPosition(), TEXT("Top")) == 0)
+  if (ELToLower(pBaseSettings->GetZPosition()) == ELToLower(TEXT("Top")))
     SetWindowPos(mainWnd, HWND_TOPMOST, 0 , 0, 0, 0,
                  SWP_NOSIZE|SWP_NOMOVE|SWP_NOSENDCHANGING);
   else
     {
       SetWindowPos(mainWnd, HWND_NOTOPMOST, 0 , 0, 0, 0,
                    SWP_NOSIZE|SWP_NOMOVE|SWP_NOSENDCHANGING);
-      if (_wcsicmp(pBaseSettings->GetZPosition(), TEXT("Bottom")) == 0)
+      if (ELToLower(pBaseSettings->GetZPosition()) == ELToLower(TEXT("Bottom")))
         SetWindowPos(mainWnd, ELGetDesktopWindow(), 0 , 0, 0, 0,
                      SWP_NOSIZE|SWP_NOMOVE|SWP_NOSENDCHANGING);
     }
@@ -239,17 +239,18 @@ LRESULT BaseApplet::DoExitSizeMove(HWND hwnd)
   return 0;
 }
 
-void BaseApplet::UpdateGUI(WCHAR *styleFile)
+void BaseApplet::UpdateGUI(std::wstring styleFile)
 {
   int dragBorder;
   HWND hWndInsertAfter;
   RECT wndRect;
   UINT SWPFlags = SWP_NOACTIVATE;
+  std::wstring style = styleFile;
 
   pBaseSettings->ReadSettings();
-  if (styleFile == NULL)
-    styleFile = pBaseSettings->GetStyleFile();
-  ESELoadStyle(styleFile, &guiInfo);
+  if (style.empty())
+    style = pBaseSettings->GetStyleFile();
+  ESELoadStyle(style, &guiInfo);
 
   if (pBaseSettings->GetClickThrough() == 2)
     guiInfo.alphaBackground = 0;
@@ -289,16 +290,16 @@ void BaseApplet::UpdateGUI(WCHAR *styleFile)
     }
   else
     {
-      if (_wcsicmp(pBaseSettings->GetVerticalDirection(), TEXT("up")) == 0)
+      if (ELToLower(pBaseSettings->GetVerticalDirection()) == TEXT("up"))
         wndRect.top = pBaseSettings->GetY() - (pBaseSettings->GetHeight() + (2 * dragBorder));
-      else if (_wcsicmp(pBaseSettings->GetVerticalDirection(), TEXT("center")) == 0)
+      else if (ELToLower(pBaseSettings->GetVerticalDirection()) == TEXT("center"))
         wndRect.top = pBaseSettings->GetY() - ((pBaseSettings->GetHeight() + (2 * dragBorder)) / 2);
       else
         wndRect.top = pBaseSettings->GetY();
 
-      if (_wcsicmp(pBaseSettings->GetHorizontalDirection(), TEXT("left")) == 0)
+      if (ELToLower(pBaseSettings->GetHorizontalDirection()) == TEXT("left"))
         wndRect.left = pBaseSettings->GetX() - (pBaseSettings->GetWidth() + (2 * dragBorder));
-      else if (_wcsicmp(pBaseSettings->GetHorizontalDirection(), TEXT("center")) == 0)
+      else if (ELToLower(pBaseSettings->GetHorizontalDirection()) == TEXT("center"))
         wndRect.left = pBaseSettings->GetX() - ((pBaseSettings->GetWidth() + (2 * dragBorder)) / 2);
       else
         wndRect.left = pBaseSettings->GetX();
@@ -339,7 +340,7 @@ void BaseApplet::AdjustRect(RECT *wndRect)
 
   autoSizeInfo.hwnd = mainWnd;
   autoSizeInfo.rect = wndRect;
-  if (wcslen(pBaseSettings->GetTitleBarText()) > 0)
+  if (!(pBaseSettings->GetTitleBarText().empty()))
     {
       HFONT mainFont = CreateFontIndirect(pBaseSettings->GetTitleBarFont());
       EGGetTextRect(pBaseSettings->GetTitleBarText(), mainFont, &autoSizeInfo.titleBarRect, 0);
@@ -352,17 +353,17 @@ void BaseApplet::AdjustRect(RECT *wndRect)
   autoSizeInfo.visibleIconCount = (UINT)GetVisibleIconCount();
   autoSizeInfo.limit = (UINT)pBaseSettings->GetAutoSizeLimit();
 
-  if (_wcsicmp(pBaseSettings->GetDirectionOrientation(), TEXT("vertical")) == 0)
+  if (ELToLower(pBaseSettings->GetDirectionOrientation()) == TEXT("vertical"))
     autoSizeInfo.orientation = ASI_VERTICAL;
 
-  if (_wcsicmp(pBaseSettings->GetVerticalDirection(), TEXT("up")) == 0)
+  if (ELToLower(pBaseSettings->GetVerticalDirection()) == TEXT("up"))
     autoSizeInfo.verticalDirection = ASI_UP;
-  else if (_wcsicmp(pBaseSettings->GetVerticalDirection(), TEXT("center")) == 0)
+  else if (ELToLower(pBaseSettings->GetVerticalDirection()) == TEXT("center"))
     autoSizeInfo.verticalDirection = ASI_CENTER;
 
-  if (_wcsicmp(pBaseSettings->GetHorizontalDirection(), TEXT("left")) == 0)
+  if (ELToLower(pBaseSettings->GetHorizontalDirection()) == TEXT("left"))
     autoSizeInfo.horizontalDirection = ASI_LEFT;
-  else if (_wcsicmp(pBaseSettings->GetHorizontalDirection(), TEXT("center")) == 0)
+  else if (ELToLower(pBaseSettings->GetHorizontalDirection()) == TEXT("center"))
     autoSizeInfo.horizontalDirection = ASI_MIDDLE;
 
   EAEAutoSize(autoSizeInfo);
@@ -370,7 +371,7 @@ void BaseApplet::AdjustRect(RECT *wndRect)
 
 LRESULT BaseApplet::DoWindowPosChanging(WINDOWPOS *windowPos)
 {
-  if (_wcsicmp(pBaseSettings->GetZPosition(), TEXT("bottom")) == 0)
+  if (ELToLower(pBaseSettings->GetZPosition()) == TEXT("bottom"))
     {
       windowPos->flags |= SWP_NOACTIVATE;
       windowPos->flags &= ~SWP_NOZORDER;
@@ -553,7 +554,7 @@ void BaseApplet::DrawAlphaBlend()
     BitBlt(hdc, clientrt.left, clientrt.top, clientrt.right - clientrt.left, clientrt.bottom - clientrt.top,
            inactiveBackgroundDC, 0, 0, SRCCOPY);
 
-  if (wcslen(pBaseSettings->GetTitleBarText()) > 0)
+  if (!(pBaseSettings->GetTitleBarText().empty()))
     {
       HFONT mainFont = CreateFontIndirect(pBaseSettings->GetTitleBarFont());
       RECT titleTextSizingRect;
@@ -646,14 +647,14 @@ LRESULT BaseApplet::PaintContent(HDC hdc, RECT clientrt)
   if ((visibleIconCount == 0) || (maxHorizontal == 0) || (maxVertical == 0))
     return 0;
 
-  if (_wcsicmp(pBaseSettings->GetHorizontalDirection(), TEXT("left")) == 0)
+  if (ELToLower(pBaseSettings->GetHorizontalDirection()) == TEXT("left"))
     xdefault = clientrt.right - pBaseSettings->GetIconSize();
-  else if (_wcsicmp(pBaseSettings->GetHorizontalDirection(), TEXT("center")) == 0)
+  else if (ELToLower(pBaseSettings->GetHorizontalDirection()) == TEXT("center"))
     {
       xdefault = clientrt.left;
       xdefault += (width / 2) - ((visibleIconCount > 1 ? (int)pBaseSettings->GetIconSpacing() / 2 : 0));
 
-      if (_wcsicmp(pBaseSettings->GetDirectionOrientation(), TEXT("horizontal")) == 0)
+      if (ELToLower(pBaseSettings->GetDirectionOrientation()) == TEXT("horizontal"))
         {
           if (visibleIconCount < maxHorizontal)
             multiplier = visibleIconCount;
@@ -681,14 +682,14 @@ LRESULT BaseApplet::PaintContent(HDC hdc, RECT clientrt)
 
   x = xdefault;
 
-  if (_wcsicmp(pBaseSettings->GetVerticalDirection(), TEXT("up")) == 0)
+  if (ELToLower(pBaseSettings->GetVerticalDirection()) == TEXT("up"))
     ydefault = clientrt.bottom - pBaseSettings->GetIconSize();
-  else if (_wcsicmp(pBaseSettings->GetVerticalDirection(), TEXT("center")) == 0)
+  else if (ELToLower(pBaseSettings->GetVerticalDirection()) == TEXT("center"))
     {
       ydefault = clientrt.top;
       ydefault += (height / 2);
 
-      if (_wcsicmp(pBaseSettings->GetDirectionOrientation(), TEXT("vertical")) == 0)
+      if (ELToLower(pBaseSettings->GetDirectionOrientation()) == TEXT("vertical"))
         {
           if (visibleIconCount < maxVertical)
             multiplier = visibleIconCount;
@@ -730,10 +731,10 @@ LRESULT BaseApplet::PaintContent(HDC hdc, RECT clientrt)
       else
         paintedIcons++;
 
-      if (_wcsicmp(pBaseSettings->GetDirectionOrientation(), TEXT("vertical")) == 0)
+      if (ELToLower(pBaseSettings->GetDirectionOrientation()) == TEXT("vertical"))
         {
           // Set X and Y for the next icon
-          if (_wcsicmp(pBaseSettings->GetVerticalDirection(), TEXT("up")) == 0)
+          if (ELToLower(pBaseSettings->GetVerticalDirection()) == TEXT("up"))
             {
               y -= pBaseSettings->GetIconSize() + pBaseSettings->GetIconSpacing();
 
@@ -741,13 +742,13 @@ LRESULT BaseApplet::PaintContent(HDC hdc, RECT clientrt)
                 {
                   y = ydefault;
 
-                  if (_wcsicmp(pBaseSettings->GetHorizontalDirection(), TEXT("left")) == 0)
+                  if (ELToLower(pBaseSettings->GetHorizontalDirection()) == TEXT("left"))
                     x -= pBaseSettings->GetIconSize() + pBaseSettings->GetIconSpacing();
                   else
                     x += pBaseSettings->GetIconSize() + pBaseSettings->GetIconSpacing();
                 }
             }
-          else if (_wcsicmp(pBaseSettings->GetVerticalDirection(), TEXT("center")) == 0)
+          else if (ELToLower(pBaseSettings->GetVerticalDirection()) == TEXT("center"))
             {
               y += pBaseSettings->GetIconSize() + pBaseSettings->GetIconSpacing();
 
@@ -760,7 +761,7 @@ LRESULT BaseApplet::PaintContent(HDC hdc, RECT clientrt)
                   y -= ((int)multiplier * (int)pBaseSettings->GetIconSize()) / 2;
                   y -= ((int)multiplier * (int)pBaseSettings->GetIconSpacing()) / 2;
 
-                  if (_wcsicmp(pBaseSettings->GetHorizontalDirection(), TEXT("left")) == 0)
+                  if (ELToLower(pBaseSettings->GetHorizontalDirection()) == TEXT("left"))
                     x -= pBaseSettings->GetIconSize() + pBaseSettings->GetIconSpacing();
                   else
                     x += pBaseSettings->GetIconSize() + pBaseSettings->GetIconSpacing();
@@ -774,7 +775,7 @@ LRESULT BaseApplet::PaintContent(HDC hdc, RECT clientrt)
                 {
                   y = ydefault;
 
-                  if (_wcsicmp(pBaseSettings->GetHorizontalDirection(), TEXT("left")) == 0)
+                  if (ELToLower(pBaseSettings->GetHorizontalDirection()) == TEXT("left"))
                     x -= pBaseSettings->GetIconSize() + pBaseSettings->GetIconSpacing();
                   else
                     x += pBaseSettings->GetIconSize() + pBaseSettings->GetIconSpacing();
@@ -784,7 +785,7 @@ LRESULT BaseApplet::PaintContent(HDC hdc, RECT clientrt)
       else
         {
           // Set X and Y for the next icon
-          if (_wcsicmp(pBaseSettings->GetHorizontalDirection(), TEXT("left")) == 0)
+          if (ELToLower(pBaseSettings->GetHorizontalDirection()) == TEXT("left"))
             {
               x -= pBaseSettings->GetIconSize() + pBaseSettings->GetIconSpacing();
 
@@ -792,13 +793,13 @@ LRESULT BaseApplet::PaintContent(HDC hdc, RECT clientrt)
                 {
                   x = xdefault;
 
-                  if (_wcsicmp(pBaseSettings->GetVerticalDirection(), TEXT("up")) == 0)
+                  if (ELToLower(pBaseSettings->GetVerticalDirection()) == TEXT("up"))
                     y -= pBaseSettings->GetIconSize() + pBaseSettings->GetIconSpacing();
                   else
                     y += pBaseSettings->GetIconSize() + pBaseSettings->GetIconSpacing();
                 }
             }
-          else if (_wcsicmp(pBaseSettings->GetHorizontalDirection(), TEXT("center")) == 0)
+          else if (ELToLower(pBaseSettings->GetHorizontalDirection()) == TEXT("center"))
             {
               x += pBaseSettings->GetIconSize() + pBaseSettings->GetIconSpacing();
 
@@ -811,7 +812,7 @@ LRESULT BaseApplet::PaintContent(HDC hdc, RECT clientrt)
                   x -= ((int)multiplier * (int)pBaseSettings->GetIconSize()) / 2;
                   x -= ((int)multiplier * (int)pBaseSettings->GetIconSpacing()) / 2;
 
-                  if (_wcsicmp(pBaseSettings->GetVerticalDirection(), TEXT("up")) == 0)
+                  if (ELToLower(pBaseSettings->GetVerticalDirection()) == TEXT("up"))
                     y -= pBaseSettings->GetIconSize() + pBaseSettings->GetIconSpacing();
                   else
                     y += pBaseSettings->GetIconSize() + pBaseSettings->GetIconSpacing();
@@ -825,7 +826,7 @@ LRESULT BaseApplet::PaintContent(HDC hdc, RECT clientrt)
                 {
                   x = xdefault;
 
-                  if (_wcsicmp(pBaseSettings->GetVerticalDirection(), TEXT("up")) == 0)
+                  if (ELToLower(pBaseSettings->GetVerticalDirection()) == TEXT("up"))
                     y -= pBaseSettings->GetIconSize() + pBaseSettings->GetIconSpacing();
                   else
                     y += pBaseSettings->GetIconSize() + pBaseSettings->GetIconSpacing();
@@ -834,7 +835,7 @@ LRESULT BaseApplet::PaintContent(HDC hdc, RECT clientrt)
         }
     }
 
-  if (wcslen(pBaseSettings->GetTitleBarText()) > 0)
+  if (!(pBaseSettings->GetTitleBarText().empty()))
     {
       CLIENTINFO clientInfo;
       FORMATINFO formatInfo;
@@ -978,7 +979,7 @@ LRESULT BaseApplet::DoCopyData(COPYDATASTRUCT *cds)
             case CORE_REPOSITION:
             {
               HWND hwndInsertBehind = NULL;
-              if (_wcsicmp(pBaseSettings->GetZPosition(), TEXT("top")) != 0)
+              if (ELToLower(pBaseSettings->GetZPosition()) == TEXT("top"))
                 hwndInsertBehind = ELGetDesktopWindow();
               SetWindowPos(mainWnd, hwndInsertBehind, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
             }
@@ -1007,7 +1008,7 @@ LRESULT BaseApplet::DoCopyData(COPYDATASTRUCT *cds)
                       WriteAppletCount(0, false); // Reset the Applet Count
                       WCHAR appletPath[MAX_PATH]; // Execute the next instance
                       if (GetModuleFileName(0, appletPath, MAX_PATH))
-                        ELExecute(appletPath);
+                        ELExecuteFileOrCommand(appletPath);
                     }
                 }
               else
@@ -1035,7 +1036,7 @@ LRESULT BaseApplet::DoTimer(UINT_PTR timerID)
   if (timerID == MOUSE_TIMER)
     {
       GetCursorPos(&pt);
-      ELGetWindowRect(mainWnd, &rc);
+      rc = ELGetWindowRect(mainWnd);
       if (!PtInRect(&rc, pt))
         {
           mouseOver = false;
@@ -1095,7 +1096,7 @@ LRESULT BaseApplet::DoNCRButtonUp()
       tempSettingsFile += TEXT(".xml");
       tempSettingsFile = ELExpandVars(tempSettingsFile);
 
-      if (!ELPathFileExists(tempSettingsFile.c_str()))
+      if (!ELFileExists(tempSettingsFile))
         {
           //create a new settings file for the new applet instance
           HANDLE newSettingsFile = CreateFile(tempSettingsFile.c_str(), GENERIC_WRITE, 0, NULL, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, NULL);
@@ -1104,7 +1105,7 @@ LRESULT BaseApplet::DoNCRButtonUp()
 
       WCHAR appletPath[MAX_PATH];
       if (GetModuleFileName(0, appletPath, MAX_PATH))
-        ELExecute(appletPath);
+        ELExecuteFileOrCommand(appletPath);
 
       break;
 
@@ -1123,7 +1124,7 @@ LRESULT BaseApplet::DoNCRButtonUp()
       tempSettingsFile += TEXT(".xml");
       tempSettingsFile = ELExpandVars(tempSettingsFile);
 
-      if (ELPathFileExists(tempSettingsFile.c_str()))
+      if (ELFileExists(tempSettingsFile))
         DeleteFile(tempSettingsFile.c_str());
       PostQuitMessage(0);
     }
@@ -1324,9 +1325,9 @@ LRESULT BaseApplet::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
           return 1;
 
         case HSHELL_WINDOWCREATED:
-          if (_wcsicmp(pBaseSettings->GetZPosition(), TEXT("Top")) == 0)
+          if (ELToLower(pBaseSettings->GetZPosition()) == TEXT("top"))
             SetWindowPos(mainWnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOSIZE|SWP_NOMOVE|SWP_NOACTIVATE);
-          else if (_wcsicmp(pBaseSettings->GetZPosition(), TEXT("Bottom")) == 0)
+          else if (ELToLower(pBaseSettings->GetZPosition()) == TEXT("bottom"))
             SetWindowPos(mainWnd, ELGetDesktopWindow(), 0, 0, 0, 0, SWP_NOSIZE|SWP_NOMOVE|SWP_NOACTIVATE);
           return 1;
 
@@ -1359,14 +1360,14 @@ int BaseApplet::ReadAppletCount(int defaultValue)
 
   instanceManagementPath = ELExpandVars(instanceManagementPath);
 
-  if (ELPathFileExists(instanceManagementPath.c_str()))
+  if (ELFileExists(instanceManagementPath))
     {
       configXML = ELOpenXMLConfig(instanceManagementPath, false);
       if (configXML)
         {
           section = ELGetXMLSection(configXML.get(), baseAppletName, false);
           if (section)
-            ELReadXMLIntValue(section, TEXT("AppletCount"), &tempAppletCount, defaultValue);
+            tempAppletCount = ELReadXMLIntValue(section, TEXT("AppletCount"), defaultValue);
         }
     }
 

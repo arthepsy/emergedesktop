@@ -21,7 +21,8 @@
 #ifndef __EV_SETTINGS_H
 #define __EV_SETTINGS_H
 
-#include "../emergeLib/emergeLib.h"
+#define UNICODE 1
+
 #include "../emergeBaseClasses/BaseSettings.h"
 #include <string>
 #include <vector>

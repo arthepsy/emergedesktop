@@ -34,7 +34,6 @@
 #include "resource.h"
 #include <map>
 #include <string>
-#include "../emergeLib/emergeLib.h"
 #include "Settings.h"
 
 #ifndef RRF_RT_ANY

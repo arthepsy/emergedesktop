@@ -19,57 +19,7 @@
 //
 //----  --------------------------------------------------------------------------------------------------------
 
-#undef _WIN32_IE
-#define _WIN32_IE 0x0501
-
-#undef _WIN32_WINNT
-#define _WIN32_WINNT 0x0501
-
-#undef WINVER
-#define WINVER 0x0501
-
-#include "emergeGraphics.h"
-#include "resource.h"
-#include "BImage.h"
-#include "../emergeLib/emergeLib.h"
-#include <objbase.h>
-#include <stdio.h>
-#include <shlwapi.h>
-
-#ifndef GIL_DEFAULTICON
-#define GIL_DEFAULTICON 64
-#endif
-
-#define ICON_LOOKUP_TIMEOUT 1000
-
-typedef UINT (WINAPI *fnPrivateExtractIcons)(LPCTSTR, int, int, int, HICON*, UINT*, UINT, UINT);
-static fnPrivateExtractIcons MSPrivateExtractIcons = NULL;
-
-typedef UINT (WINAPI *fnPickIcon)(HWND, WCHAR*, UINT, int*);
-static fnPickIcon MSPickIcon = NULL;
-
-typedef HRESULT (WINAPI *fnDwmIsCompositionEnabled)(BOOL *);
-static fnDwmIsCompositionEnabled MSDwmIsCompositionEnabled = NULL;
-
-typedef HRESULT (WINAPI *fnDwmEnableBlurBehindWindow)(HWND, const DWM_BLURBEHIND *);
-static fnDwmEnableBlurBehindWindow MSDwmEnableBlurBehindWindow = NULL;
-
-typedef HRESULT (WINAPI *fnDwmRegisterThumbnail)(HWND, HWND, PHTHUMBNAIL);
-static fnDwmRegisterThumbnail MSDwmRegisterThumbnail = NULL;
-
-typedef HRESULT (WINAPI *fnDwmUpdateThumbnailProperties)(HTHUMBNAIL, const DWM_THUMBNAIL_PROPERTIES *);
-static fnDwmUpdateThumbnailProperties MSDwmUpdateThumbnailProperties = NULL;
-
-typedef HRESULT (WINAPI *fnDwmUnregisterThumbnail)(HTHUMBNAIL);
-static fnDwmUnregisterThumbnail MSDwmUnregisterThumbnail = NULL;
-
-typedef HRESULT (WINAPI *fnDwmQueryThumbnailSourceSize)(HTHUMBNAIL, PSIZE);
-static fnDwmQueryThumbnailSourceSize MSDwmQueryThumbnailSourceSize = NULL;
-
-// Globals
-static HMODULE dwmapiDLL = NULL;
-static HMODULE shell32DLL = NULL;
-static HMODULE user32DLL = NULL;
+#include "main.h"
 
 extern "C" BOOL WINAPI DllMain(HINSTANCE hinstDLL UNUSED, DWORD fdwReason, LPVOID lpvReserved UNUSED)
 {
@@ -116,7 +66,7 @@ BYTE EGGetMinAlpha(BYTE alphaBase, BYTE alphaDelta)
   // Base check on colour depth of display
   HDC hdc = CreateCompatibleDC(NULL);
   /*int devCaps = GetDeviceCaps(hdc, BITSPIXEL);
-  std::wstring debug = L"DeviceCaps: ";
+  std::wstring debug = TEXT("DeviceCaps: ");
   debug += towstring(devCaps);
   ELWriteDebug(debug);*/
   if (GetDeviceCaps(hdc, BITSPIXEL) == 32)
@@ -402,14 +352,14 @@ bool EGFrameRect(HDC hdc, RECT *rect, BYTE bgAlpha, COLORREF borderColour, int b
   return (ret != 0);
 }
 
-bool EGGradientFillRect(HDC hdc, RECT *rect, BYTE alpha, COLORREF colourFrom, COLORREF colourTo, int bevelWidth, WCHAR *gradientMethod)
+bool EGGradientFillRect(HDC hdc, RECT *rect, BYTE alpha, COLORREF colourFrom, COLORREF colourTo, int bevelWidth, std::wstring gradientMethod)
 {
   bool interlaced = false, bevelled = false, sunken = false, paintedGradient = false;
   BLENDFUNCTION bf;
   BITMAPINFO bmi;
   VOID *gradientBits;
   HDC gradientDC = CreateCompatibleDC(hdc);
-  WCHAR *lower;
+  std::wstring lower;
 
   UINT x = rect->left;
   UINT y = rect->top;
@@ -433,35 +383,34 @@ bool EGGradientFillRect(HDC hdc, RECT *rect, BYTE alpha, COLORREF colourFrom, CO
   bf.SourceConstantAlpha = alpha;
   bf.AlphaFormat = AC_SRC_ALPHA;
 
-  lower = _wcslwr(_wcsdup(gradientMethod));
-  if (wcsstr(lower, TEXT("interlaced")) != NULL)
+  lower = ELToLower(gradientMethod);
+  if (lower.find(TEXT("interlaced")) != std::wstring::npos)
     interlaced = true;
 
-  if (wcsstr(lower, TEXT("raised")) != NULL)
+  if (lower.find(TEXT("raised")) != std::wstring::npos)
     bevelled = true;
-  else if (wcsstr(lower, TEXT("sunken")) != NULL)
+  else if (lower.find(TEXT("sunken")) != std::wstring::npos)
     {
       bevelled = true;
       sunken = true;
     }
 
-  if (wcsstr(lower, TEXT("horizontal")) != NULL)
+  if (lower.find(TEXT("horizontal")) != std::wstring::npos)
     paintedGradient = hgradient(width, height, colourFrom, colourTo, (BYTE*)gradientBits, interlaced);
-  else if (wcsstr(lower, TEXT("crossdiagonal")) != NULL)
+  else if (lower.find(TEXT("crossdiagonal")) != std::wstring::npos)
     paintedGradient = cdgradient(width, height, colourFrom, colourTo, (BYTE*)gradientBits, interlaced);
-  else if (wcsstr(lower, TEXT("diagonal")) != NULL)
+  else if (lower.find(TEXT("diagonal")) != std::wstring::npos)
     paintedGradient = dgradient(width, height, colourFrom, colourTo, (BYTE*)gradientBits, interlaced);
-  else if (wcsstr(lower, TEXT("pipecross")) != NULL)
+  else if (lower.find(TEXT("pipecross")) != std::wstring::npos)
     paintedGradient = pcgradient(width, height, colourFrom, colourTo, (BYTE*)gradientBits, interlaced);
-  else if (wcsstr(lower, TEXT("elliptic")) != NULL)
+  else if (lower.find(TEXT("elliptic")) != std::wstring::npos)
     paintedGradient = egradient(width, height, colourFrom, colourTo, (BYTE*)gradientBits, interlaced);
-  else if (wcsstr(lower, TEXT("rectangle")) != NULL)
+  else if (lower.find(TEXT("rectangle")) != std::wstring::npos)
     paintedGradient = rgradient(width, height, colourFrom, colourTo, (BYTE*)gradientBits, interlaced);
-  else if (wcsstr(lower, TEXT("pyramid")) != NULL)
+  else if (lower.find(TEXT("pyramid")) != std::wstring::npos)
     paintedGradient = pgradient(width, height, colourFrom, colourTo, (BYTE*)gradientBits, interlaced);
   else
     paintedGradient = vgradient(width, height, colourFrom, colourTo, (BYTE*)gradientBits, interlaced);
-  free(lower);
 
   if (paintedGradient)
     {
@@ -589,7 +538,7 @@ HICON EGGetClassIcon(std::wstring file, int iconSize)
     {
       if (RegQueryValueEx(key, NULL, NULL, NULL, (BYTE*)type, &size) == ERROR_SUCCESS)
         {
-          wcscat(type, L"\\DefaultIcon");
+          wcscat(type, TEXT("\\DefaultIcon"));
           if (RegOpenKeyEx(HKEY_CLASSES_ROOT,
                            type,
                            0,
@@ -617,7 +566,7 @@ HICON EGGetClassIcon(std::wstring file, int iconSize)
   return icon;
 }
 
-HICON EGGetFileIcon(const WCHAR *file, UINT iconSize)
+HICON EGGetFileIcon(std::wstring file, UINT iconSize)
 {
   HICON icon = NULL, smallIcon = NULL, largeIcon = NULL;
 
@@ -634,7 +583,7 @@ HICON EGGetFileIcon(const WCHAR *file, UINT iconSize)
   bool hasIndex = false;
   std::wstring suppliedFile;
 
-  if (wcslen(file) == 0)
+  if (file.empty())
     return EGGetSystemIcon(ICON_DEFAULT, iconSize);
 
   suppliedFile = file;
@@ -700,7 +649,7 @@ HICON EGGetFileIcon(const WCHAR *file, UINT iconSize)
                           if ((suppliedFile.find(TEXT(".cpl")) != std::wstring::npos) && (wcscmp(iconLocation, TEXT("*")) == 0))
                             wcscpy(iconLocation, suppliedFile.c_str());
 
-                          if (ELPathFileExists(iconLocation) || (wcscmp(iconLocation, TEXT("*")) == 0))
+                          if (ELFileExists(iconLocation) || (wcscmp(iconLocation, TEXT("*")) == 0))
                             {
                               hr = extractIcon->Extract(iconLocation, iconIndex, &largeIcon, &smallIcon, MAKELONG(iconSize, iconSize));
                               if ((iconSize == 16) && smallIcon)
@@ -866,7 +815,7 @@ HICON EGGetSystemIcon(UINT iconIndex, UINT iconSize)
   WCHAR source[MAX_PATH];
   int iconLocation = 0;
 
-  if (ELVersionInfo() >= 6.1)
+  if (ELOSVersionInfo() >= 6.1)
     {
       wcscpy(source, TEXT("%SystemRoot%\\system32\\imageres.dll"));
       switch (iconIndex)
@@ -928,20 +877,22 @@ HICON EGGetSystemIcon(UINT iconIndex, UINT iconSize)
   return icon;
 }
 
-bool EGGetTextRect(WCHAR *text, HFONT font, RECT *rect, UINT flags)
+bool EGGetTextRect(std::wstring text, HFONT font, RECT *rect, UINT flags)
 {
+  WCHAR drawnText[MAX_LINE_LENGTH];
   int ret = 0;
   HDC hdc = CreateCompatibleDC(NULL);
 
   HGDIOBJ original = SelectObject(hdc, font);
-  ret = DrawTextEx(hdc, text, wcslen(text), rect, DT_CALCRECT | flags, NULL);
+  wcscpy(drawnText, text.c_str());
+  ret = DrawTextEx(hdc, drawnText, wcslen(drawnText), rect, DT_CALCRECT | flags, NULL);
   SelectObject(hdc, original);
   DeleteDC(hdc);
 
   return (ret != 0);
 }
 
-bool EGDrawAlphaText(BYTE alpha, CLIENTINFO clientInfo, FORMATINFO formatInfo, WCHAR *commandText)
+bool EGDrawAlphaText(BYTE alpha, CLIENTINFO clientInfo, FORMATINFO formatInfo, std::wstring commandText)
 {
   HDC maskdc, fillDC;
   HBITMAP hmask, fillBMP;
@@ -955,6 +906,9 @@ bool EGDrawAlphaText(BYTE alpha, CLIENTINFO clientInfo, FORMATINFO formatInfo, W
   BOOL ret;
   RECT maskRect, textRect;
   double alphaDelta = 0.0;
+  WCHAR drawnText[MAX_LINE_LENGTH];
+
+  wcscpy(drawnText, commandText.c_str());
 
   bf.BlendOp = AC_SRC_OVER;
   bf.BlendFlags = 0;
@@ -966,7 +920,7 @@ bool EGDrawAlphaText(BYTE alpha, CLIENTINFO clientInfo, FORMATINFO formatInfo, W
 
   ZeroMemory(&textRect, sizeof(RECT));
   textRect.right = clientInfo.rt.right;
-  if (!EGGetTextRect(commandText, formatInfo.font, &textRect, formatInfo.flags))
+  if (!EGGetTextRect(drawnText, formatInfo.font, &textRect, formatInfo.flags))
     return false;
   int displayHeight = textRect.bottom;
   if (displayHeight == 0)
@@ -1021,7 +975,7 @@ bool EGDrawAlphaText(BYTE alpha, CLIENTINFO clientInfo, FORMATINFO formatInfo, W
   SetTextColor(maskdc, RGB(255, 255, 255));
   HGDIOBJ maskOrigFont = SelectObject(maskdc, formatInfo.font);
 
-  DrawTextEx(maskdc, commandText, (int)wcslen(commandText), &maskRect, drawFlags , NULL);
+  DrawTextEx(maskdc, drawnText, (int)wcslen(drawnText), &maskRect, drawFlags , NULL);
 
   if (GetDIBits(fillDC, fillBMP, 0, displayHeight, NULL, &bmi, DIB_RGB_COLORS) == 0)
     {
@@ -1125,9 +1079,11 @@ bool EGEqualLogFont(const LOGFONT& source, const LOGFONT& target)
   return true;
 }
 
-void EGFontToString(const LOGFONT& logFont, WCHAR *fontString)
+std::wstring EGFontToString(const LOGFONT& logFont)
 {
   WCHAR tmp[MAX_LINE_LENGTH];
+  std::wstring fontString;
+
   HDC hdc = CreateCompatibleDC(NULL);
   wcscpy(tmp, logFont.lfFaceName);
   if (logFont.lfWeight == FW_BOLD)
@@ -1135,18 +1091,25 @@ void EGFontToString(const LOGFONT& logFont, WCHAR *fontString)
   if (logFont.lfItalic)
     wcscat(tmp, TEXT("-Italic"));
   int fontHeight = MulDiv(logFont.lfHeight, 72, GetDeviceCaps(hdc, LOGPIXELSY));
-  swprintf(fontString, TEXT("%ls-%d"), tmp, fontHeight);
+  swprintf(tmp, TEXT("%ls-%d"), tmp, fontHeight);
   DeleteDC(hdc);
+
+  fontString = tmp;
+
+  return fontString;
 }
 
-void EGStringToFont(const WCHAR *fontString, LOGFONT& logFont)
+LOGFONT EGStringToFont(std::wstring fontString)
 {
+  LOGFONT logFont;
   WCHAR *token;
-  WCHAR *workingFontString = _wcsdup(fontString);
+  WCHAR workingFontString[MAX_LINE_LENGTH];
   HDC hdc = CreateCompatibleDC(NULL);
 
+  wcscpy(workingFontString, fontString.c_str());
+
   ZeroMemory(&logFont, sizeof(LOGFONT));
-  token = wcstok((WCHAR*)workingFontString, TEXT("-"));
+  token = wcstok(workingFontString, TEXT("-"));
   wcscpy(logFont.lfFaceName, token);
   token = wcstok(NULL, TEXT("-"));
   while (token)
@@ -1167,11 +1130,12 @@ void EGStringToFont(const WCHAR *fontString, LOGFONT& logFont)
       token = wcstok(NULL, TEXT("-"));
     }
   DeleteDC(hdc);
-  free(workingFontString);
 
   logFont.lfCharSet = DEFAULT_CHARSET;
   logFont.lfOutPrecision = OUT_DEFAULT_PRECIS;
   logFont.lfClipPrecision = CLIP_DEFAULT_PRECIS;
+
+  return logFont;
 }
 
 HBITMAP EGGetIconBitmap(HICON sourceIcon)

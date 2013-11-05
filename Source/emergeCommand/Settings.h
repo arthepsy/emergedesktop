@@ -21,7 +21,6 @@
 #ifndef __ECM_SETTINGS_H
 #define __ECM_SETTINGS_H
 
-#include "../emergeLib/emergeLib.h"
 #include "../emergeBaseClasses/BaseSettings.h"
 
 #include <string>
@@ -33,30 +32,30 @@ class Settings : public BaseSettings
 {
 public:
   Settings();
-  WCHAR *GetTimeFormat();
-  WCHAR *GetDisplayTimeFormat();
-  WCHAR *GetTipFormat();
-  WCHAR *GetDisplayTipFormat();
-  WCHAR *GetClockTextAlign();
-  WCHAR *GetCommandTextAlign();
-  WCHAR *GetClockVerticalAlign();
-  WCHAR *GetCommandVerticalAlign();
+  std::wstring GetTimeFormat();
+  std::wstring GetDisplayTimeFormat();
+  std::wstring GetTipFormat();
+  std::wstring GetDisplayTipFormat();
+  std::wstring GetClockTextAlign();
+  std::wstring GetCommandTextAlign();
+  std::wstring GetClockVerticalAlign();
+  std::wstring GetCommandVerticalAlign();
   LOGFONT *GetFont();
   UINT GetDisplayLines();
   bool SetFont(LOGFONT *logFont);
-  bool SetTimeFormat(WCHAR *timeFormat);
-  bool SetTipFormat(WCHAR *timeFormat);
-  bool SetClockTextAlign(WCHAR *clockTextAlign);
-  bool SetCommandTextAlign(WCHAR *commandTextAlign);
-  bool SetClockVerticalAlign(WCHAR *clockVerticalAlign);
-  bool SetCommandVerticalAlign(WCHAR *commandVerticalAlign);
+  bool SetTimeFormat(std::wstring timeFormat);
+  bool SetTipFormat(std::wstring timeFormat);
+  bool SetClockTextAlign(std::wstring clockTextAlign);
+  bool SetCommandTextAlign(std::wstring commandTextAlign);
+  bool SetClockVerticalAlign(std::wstring clockVerticalAlign);
+  bool SetCommandVerticalAlign(std::wstring commandVerticalAlign);
   bool GetAutoComplete();
   bool SetAutoComplete(bool autoComplete);
   void WriteHistoryList();
   void BuildHistoryList();
-  void AddHistoryItem(WCHAR *item);
+  void AddHistoryItem(std::wstring item);
   UINT GetHistoryListSize();
-  WCHAR *GetHistoryListItem(UINT index);
+  std::wstring GetHistoryListItem(UINT index);
 
 protected:
   virtual void DoReadSettings(IOHelper& helper);
@@ -68,15 +67,15 @@ private:
   bool autoComplete;
   std::vector<std::wstring> historyList;
   std::wstring xmlFile;
-  WCHAR timeFormat[MAX_LINE_LENGTH];
-  WCHAR displayTimeFormat[MAX_LINE_LENGTH];
-  WCHAR tipFormat[MAX_LINE_LENGTH];
-  WCHAR displayTipFormat[MAX_LINE_LENGTH];
-  WCHAR clockTextAlign[MAX_LINE_LENGTH];
-  WCHAR commandTextAlign[MAX_LINE_LENGTH];
-  WCHAR clockVerticalAlign[MAX_LINE_LENGTH];
-  WCHAR commandVerticalAlign[MAX_LINE_LENGTH];
-  WCHAR fontString[MAX_LINE_LENGTH];
+  std::wstring timeFormat;
+  std::wstring displayTimeFormat;
+  std::wstring tipFormat;
+  std::wstring displayTipFormat;
+  std::wstring clockTextAlign;
+  std::wstring commandTextAlign;
+  std::wstring clockVerticalAlign;
+  std::wstring commandVerticalAlign;
+  std::wstring fontString;
   LOGFONT logFont;
   UINT displayLines;
 };

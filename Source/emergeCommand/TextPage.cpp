@@ -95,40 +95,40 @@ BOOL TextPage::DoInitDialog(HWND hwndDlg)
   SendDlgItemMessage(hwndDlg, IDC_ANCHOR, CB_ADDSTRING, 0, (LPARAM)TEXT("BottomRight"));
 
   anchorIndex = (int)SendDlgItemMessage(hwndDlg, IDC_ANCHOR, CB_FINDSTRINGEXACT, (WPARAM)-1,
-                                        (LPARAM)pSettings->GetAnchorPoint());
+                                        (LPARAM)pSettings->GetAnchorPoint().c_str());
   SendDlgItemMessage(hwndDlg, IDC_ANCHOR, CB_SETCURSEL, anchorIndex, 0);
 
-  if (_wcsicmp(pSettings->GetZPosition(), TEXT("top")) == 0)
+  if (ELToLower(pSettings->GetZPosition()) == TEXT("top"))
     SendDlgItemMessage(hwndDlg, IDC_TOP, BM_SETCHECK, BST_CHECKED, 0);
-  else if (_wcsicmp(pSettings->GetZPosition(), TEXT("bottom")) == 0)
+  else if (ELToLower(pSettings->GetZPosition()) == TEXT("bottom"))
     SendDlgItemMessage(hwndDlg, IDC_BOTTOM, BM_SETCHECK, BST_CHECKED, 0);
   else
     SendDlgItemMessage(hwndDlg, IDC_NORMAL, BM_SETCHECK, BST_CHECKED, 0);
 
-  if (_wcsicmp(pSettings->GetClockTextAlign(), TEXT("right")) == 0)
+  if (ELToLower(pSettings->GetClockTextAlign()) == TEXT("right"))
     SendDlgItemMessage(hwndDlg, IDC_CLOCKRIGHT, BM_SETCHECK, BST_CHECKED, 0);
-  else if (_wcsicmp(pSettings->GetClockTextAlign(), TEXT("center")) == 0)
+  else if (ELToLower(pSettings->GetClockTextAlign()) == TEXT("center"))
     SendDlgItemMessage(hwndDlg, IDC_CLOCKHCENTER, BM_SETCHECK, BST_CHECKED, 0);
   else
     SendDlgItemMessage(hwndDlg, IDC_CLOCKLEFT, BM_SETCHECK, BST_CHECKED, 0);
 
-  if (_wcsicmp(pSettings->GetClockVerticalAlign(), TEXT("bottom")) == 0)
+  if (ELToLower(pSettings->GetClockVerticalAlign()) == TEXT("bottom"))
     SendDlgItemMessage(hwndDlg, IDC_CLOCKBOTTOM, BM_SETCHECK, BST_CHECKED, 0);
-  else if (_wcsicmp(pSettings->GetClockVerticalAlign(), TEXT("center")) == 0)
+  else if (ELToLower(pSettings->GetClockVerticalAlign()) == TEXT("center"))
     SendDlgItemMessage(hwndDlg, IDC_CLOCKVCENTER, BM_SETCHECK, BST_CHECKED, 0);
   else
     SendDlgItemMessage(hwndDlg, IDC_CLOCKTOP, BM_SETCHECK, BST_CHECKED, 0);
 
-  if (_wcsicmp(pSettings->GetCommandTextAlign(), TEXT("right")) == 0)
+  if (ELToLower(pSettings->GetCommandTextAlign()) == TEXT("right"))
     SendDlgItemMessage(hwndDlg, IDC_COMMANDRIGHT, BM_SETCHECK, BST_CHECKED, 0);
-  else if (_wcsicmp(pSettings->GetCommandTextAlign(), TEXT("center")) == 0)
+  else if (ELToLower(pSettings->GetCommandTextAlign()) == TEXT("center"))
     SendDlgItemMessage(hwndDlg, IDC_COMMANDHCENTER, BM_SETCHECK, BST_CHECKED, 0);
   else
     SendDlgItemMessage(hwndDlg, IDC_COMMANDLEFT, BM_SETCHECK, BST_CHECKED, 0);
 
-  if (_wcsicmp(pSettings->GetCommandVerticalAlign(), TEXT("bottom")) == 0)
+  if (ELToLower(pSettings->GetCommandVerticalAlign()) == TEXT("bottom"))
     SendDlgItemMessage(hwndDlg, IDC_COMMANDBOTTOM, BM_SETCHECK, BST_CHECKED, 0);
-  else if (_wcsicmp(pSettings->GetCommandVerticalAlign(), TEXT("center")) == 0)
+  else if (ELToLower(pSettings->GetCommandVerticalAlign()) == TEXT("center"))
     SendDlgItemMessage(hwndDlg, IDC_COMMANDVCENTER, BM_SETCHECK, BST_CHECKED, 0);
   else
     SendDlgItemMessage(hwndDlg, IDC_COMMANDTOP, BM_SETCHECK, BST_CHECKED, 0);
@@ -148,16 +148,17 @@ bool TextPage::UpdateSettings(HWND hwndDlg)
 
   if (GetDlgItemText(hwndDlg, IDC_ANCHOR, tmp, MAX_LINE_LENGTH) != 0)
     {
-      if (wcscmp(tmp, pSettings->GetAnchorPoint()) != 0)
+      if (ELToLower(tmp) != ELToLower(pSettings->GetAnchorPoint()))
         pSettings->SetAnchorPoint(tmp);
     }
 
   if (SendDlgItemMessage(hwndDlg, IDC_TOP, BM_GETCHECK, 0, 0) == BST_CHECKED)
-    pSettings->SetZPosition((WCHAR*)TEXT("Top"));
+    tmpValue = TEXT("Top");
   if (SendDlgItemMessage(hwndDlg, IDC_BOTTOM, BM_GETCHECK, 0, 0) == BST_CHECKED)
-    pSettings->SetZPosition((WCHAR*)TEXT("Bottom"));
+    tmpValue = TEXT("Bottom");
   if (SendDlgItemMessage(hwndDlg, IDC_NORMAL, BM_GETCHECK, 0, 0) == BST_CHECKED)
-    pSettings->SetZPosition((WCHAR*)TEXT("Normal"));
+    tmpValue = TEXT("Normal");
+  pSettings->SetZPosition(tmpValue);
 
   if (SendDlgItemMessage(hwndDlg, IDC_COMMANDLEFT, BM_GETCHECK, 0, 0) == BST_CHECKED)
     tmpValue = TEXT("Left");
@@ -165,7 +166,7 @@ bool TextPage::UpdateSettings(HWND hwndDlg)
     tmpValue = TEXT("Center");
   if (SendDlgItemMessage(hwndDlg, IDC_COMMANDRIGHT, BM_GETCHECK, 0, 0) == BST_CHECKED)
     tmpValue = TEXT("Right");
-  pSettings->SetCommandTextAlign((WCHAR*)tmpValue);
+  pSettings->SetCommandTextAlign(tmpValue);
 
   if (SendDlgItemMessage(hwndDlg, IDC_COMMANDTOP, BM_GETCHECK, 0, 0) == BST_CHECKED)
     tmpValue = TEXT("Top");
@@ -173,7 +174,7 @@ bool TextPage::UpdateSettings(HWND hwndDlg)
     tmpValue = TEXT("Center");
   if (SendDlgItemMessage(hwndDlg, IDC_COMMANDBOTTOM, BM_GETCHECK, 0, 0) == BST_CHECKED)
     tmpValue = TEXT("Bottom");
-  pSettings->SetCommandVerticalAlign((WCHAR*)tmpValue);
+  pSettings->SetCommandVerticalAlign(tmpValue);
 
   if (SendDlgItemMessage(hwndDlg, IDC_CLOCKLEFT, BM_GETCHECK, 0, 0) == BST_CHECKED)
     tmpValue = TEXT("Left");
@@ -181,7 +182,7 @@ bool TextPage::UpdateSettings(HWND hwndDlg)
     tmpValue = TEXT("Center");
   if (SendDlgItemMessage(hwndDlg, IDC_CLOCKRIGHT, BM_GETCHECK, 0, 0) == BST_CHECKED)
     tmpValue = TEXT("Right");
-  pSettings->SetClockTextAlign((WCHAR*)tmpValue);
+  pSettings->SetClockTextAlign(tmpValue);
 
   if (SendDlgItemMessage(hwndDlg, IDC_CLOCKTOP, BM_GETCHECK, 0, 0) == BST_CHECKED)
     tmpValue = TEXT("Top");
@@ -189,7 +190,7 @@ bool TextPage::UpdateSettings(HWND hwndDlg)
     tmpValue = TEXT("Center");
   if (SendDlgItemMessage(hwndDlg, IDC_CLOCKBOTTOM, BM_GETCHECK, 0, 0) == BST_CHECKED)
     tmpValue = TEXT("Bottom");
-  pSettings->SetClockVerticalAlign((WCHAR*)tmpValue);
+  pSettings->SetClockVerticalAlign(tmpValue);
 
   // commit changes
   pSettings->WriteSettings();

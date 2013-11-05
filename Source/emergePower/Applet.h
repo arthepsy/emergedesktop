@@ -21,6 +21,8 @@
 #ifndef __EP_APPLET_H
 #define __EP_APPLET_H
 
+#define UNICODE 1
+
 // Define required for the Window Transparency
 #undef _WIN32_WINNT
 #define _WIN32_WINNT 0x0501

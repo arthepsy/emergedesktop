@@ -21,11 +21,18 @@
 #ifndef __EL_ITEM_H
 #define __EL_ITEM_H
 
-#include "../emergeLib/emergeLib.h"
-#include "../emergeGraphics/emergeGraphics.h"
+#define UNICODE 1
+
+#define MAX_LINE_LENGTH 4096
+
+#include <windows.h>
 #include <commctrl.h>
 #include <vector>
 #include <shlobj.h>
+#include "../emergeGraphics/emergeGraphics.h"
+#include "../emergeLib/emergeCoreLib.h"
+#include "../emergeLib/emergeFileRegistryLib.h"
+#include "../emergeLib/emergeUtilityLib.h"
 
 // Define icon and tip settings
 #define TIP_SIZE 256
@@ -38,36 +45,57 @@
 #define GIL_DEFAULTICON 64
 #endif
 
+typedef enum _ITEMTYPE {
+  IT_SEPARATOR = 0,
+  IT_EXECUTABLE,
+  IT_INTERNAL_COMMAND,
+  IT_DATE_TIME,
+  IT_SPECIAL_FOLDER,
+  IT_ENTIRE_FOLDER,
+  IT_LIVE_FOLDER,
+  IT_LIVE_FOLDER_ITEM,
+  IT_FILE,
+  IT_TASK,
+  IT_SETTING_ITEM,
+  IT_HELP_ITEM,
+  IT_XML_MENU = 100,
+  IT_FILE_MENU,
+  IT_TASKS_MENU,
+  IT_SETTINGS_MENU,
+  IT_HELP_MENU,
+  IT_FILE_SUBMENU
+} ITEMTYPE;
+
 //====================
 // The Item Class
 class Item
 {
 public:
-  Item(int type, LPCTSTR app, LPCTSTR icon, LPCTSTR tip, LPCTSTR workingDir);
+  Item(ITEMTYPE type, std::wstring app, std::wstring icon, std::wstring tip, std::wstring workingDir);
   ~Item();
 
   HWND GetWnd();
   HICON GetIcon();
   RECT *GetRect();
-  void SetIcon(int iconSize, WCHAR *orientation);
+  void SetIcon(int iconSize, std::wstring orientation);
   void SetRect(RECT rect);
   void CreateNewIcon(BYTE foregroundAlpha, BYTE backgroundAlpha);
-  WCHAR *GetApp();
-  WCHAR *GetTip();
-  int GetType();
-  WCHAR *GetIconPath();
-  WCHAR *GetWorkingDir();
+  std::wstring GetApp();
+  std::wstring GetTip();
+  ITEMTYPE GetType();
+  std::wstring GetIconPath();
+  std::wstring GetWorkingDir();
   bool GetActive();
   void SetActive(bool active);
 
 private:
-  WCHAR app[MAX_PATH], iconPath[MAX_PATH];
+  std::wstring app, iconPath;
   HICON origIcon, newIcon;
-  WCHAR tip[TIP_SIZE];
-  WCHAR workingDir[MAX_LINE_LENGTH];
+  std::wstring tip;
+  std::wstring workingDir;
   RECT rect;
   bool convertIcon, active;
-  int type;
+  ITEMTYPE type;
 };
 
 //====================

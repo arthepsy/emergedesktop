@@ -27,7 +27,6 @@
 #undef _WIN32_WINNT
 #define _WIN32_WINNT	0x501
 
-#include "../emergeLib/emergeLib.h"
 #include "../emergeBaseClasses/BaseSettings.h"
 
 class Settings: public BaseSettings

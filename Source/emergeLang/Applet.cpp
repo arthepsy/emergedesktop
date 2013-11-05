@@ -177,15 +177,16 @@ LRESULT Applet::PaintContent(HDC hdc, RECT clientrt)
   CLIENTINFO clientInfo;
   FORMATINFO formatInfo;
 
-  if (_wcsicmp(pSettings->GetHorizontalDirection(), TEXT("center")) == 0)
+  if (ELToLower(pSettings->GetHorizontalDirection()) == TEXT("center"))
     formatInfo.horizontalAlignment = EGDAT_HCENTER;
-  else if (_wcsicmp(pSettings->GetHorizontalDirection(), TEXT("right")) == 0)
+  else if (ELToLower(pSettings->GetHorizontalDirection()) == TEXT("right"))
     formatInfo.horizontalAlignment = EGDAT_RIGHT;
   else
     formatInfo.horizontalAlignment = EGDAT_LEFT;
-  if (_wcsicmp(pSettings->GetVerticalDirection(), TEXT("center")) == 0)
+
+  if (ELToLower(pSettings->GetVerticalDirection()) == TEXT("center"))
     formatInfo.verticalAlignment = EGDAT_VCENTER;
-  else if (_wcsicmp(pSettings->GetVerticalDirection(), TEXT("bottom")) == 0)
+  else if (ELToLower(pSettings->GetHorizontalDirection()) == TEXT("bottom"))
     formatInfo.verticalAlignment = EGDAT_BOTTOM;
   else
     formatInfo.verticalAlignment = EGDAT_TOP;

@@ -164,7 +164,7 @@ LRESULT Applet::PaintContent(HDC hdc, RECT clientrt)
 {
   RECT r = clientrt;
   InflateRect(&r, -2, -2);
-  bool vertical = _wcsicmp(pSettings->GetDirectionOrientation(), TEXT("vertical")) == 0;
+  bool vertical = (ELToLower(pSettings->GetDirectionOrientation()) == TEXT("vertical"));
   // percent
   if (status.BatteryLifePercent < 101)
     {
@@ -188,35 +188,35 @@ LRESULT Applet::PaintContent(HDC hdc, RECT clientrt)
   WCHAR text[9];
   if (status.BatteryFlag & BATTERY_FLAG_CHARGING)
     {
-      wcscpy(text, L"+");
+      wcscpy(text, TEXT("+"));
     }
   else if (status.ACLineStatus & AC_LINE_ONLINE)
     {
-      wcscpy(text, L"=");
+      wcscpy(text, TEXT("="));
     }
   else
     {
-      wcscpy(text, L"-");
+      wcscpy(text, TEXT("-"));
     }
   //
   if (vertical)
     {
-      wcscat(text, L"\n");
+      wcscat(text, TEXT("\n"));
     }
   else
     {
-      wcscat(text, L" ");
+      wcscat(text, TEXT(" "));
     }
   //
   WCHAR pct[4];
   if (status.BatteryLifePercent <= 100)
     {
       _itow(status.BatteryLifePercent, pct, 10);
-      wcscat(pct, L"%");
+      wcscat(pct, TEXT("%"));
       wcscat(text, pct);
     }
   else
-    wcscpy(text, L"AC Power");
+    wcscpy(text, TEXT("AC Power"));
   DrawStatusChar(hdc, text, r);
   //
   EGFrameRect(hdc, &clientrt, guiInfo.alphaFrame, guiInfo.colorFrame, 1);
@@ -234,15 +234,15 @@ void Applet::DrawStatusChar(HDC& hdc, WCHAR *text, RECT &clientrt)
   formatInfo.font = mainFont;
   formatInfo.color = guiInfo.colorFont;
   formatInfo.flags = 0;
-  if (_wcsicmp(pSettings->GetHorizontalAlign(), TEXT("center")) == 0)
+  if (ELToLower(pSettings->GetHorizontalAlign()) == TEXT("center"))
     formatInfo.horizontalAlignment = EGDAT_HCENTER;
-  else if (_wcsicmp(pSettings->GetHorizontalAlign(), TEXT("right")) == 0)
+  else if (ELToLower(pSettings->GetHorizontalAlign()) == TEXT("right"))
     formatInfo.horizontalAlignment = EGDAT_RIGHT;
   else
     formatInfo.horizontalAlignment = EGDAT_LEFT;
-  if (_wcsicmp(pSettings->GetVerticalAlign(), TEXT("center")) == 0)
+  if (ELToLower(pSettings->GetVerticalAlign()) == TEXT("center"))
     formatInfo.verticalAlignment = EGDAT_VCENTER;
-  else if (_wcsicmp(pSettings->GetVerticalAlign(), TEXT("bottom")) == 0)
+  else if (ELToLower(pSettings->GetVerticalAlign()) == TEXT("bottom"))
     formatInfo.verticalAlignment = EGDAT_BOTTOM;
   else
     formatInfo.verticalAlignment = EGDAT_TOP;
@@ -273,25 +273,25 @@ void Applet::UpdateStatus()
     {
       int mins = status.BatteryLifeTime / 60;
       _itow(mins / 60, tip, 10);
-      wcscat(tip, L":");
+      wcscat(tip, TEXT(":"));
       _itow(mins % 60, buf, 10);
       wcscat(tip, buf);
-      wcscat(tip, L" remaining ");
+      wcscat(tip, TEXT(" remaining "));
     }
 
   if (status.BatteryLifePercent <= 100)
     {
       _itow(status.BatteryLifePercent, buf, 10);
       wcscat(tip, buf);
-      wcscat(tip, L"%");
+      wcscat(tip, TEXT("%"));
     }
 
   if (status.BatteryFlag & BATTERY_FLAG_CHARGING)
-    wcscat(tip, L" Charging");
+    wcscat(tip, TEXT(" Charging"));
   else if (status.ACLineStatus & AC_LINE_ONLINE)
-    wcscat(tip, L" On AC power");
+    wcscat(tip, TEXT(" On AC power"));
   else
-    wcscat(tip, L" Discharging");
+    wcscat(tip, TEXT(" Discharging"));
 
 
   // update tooltip

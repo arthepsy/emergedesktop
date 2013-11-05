@@ -23,11 +23,11 @@
 
 Settings::Settings(): BaseSettings(false)
 {
-  ZeroMemory(MemGradientMethod, MAX_LINE_LENGTH);
-  ZeroMemory(CPUGradientMethod, MAX_LINE_LENGTH);
-  ZeroMemory(fontString, MAX_LINE_LENGTH);
-  ZeroMemory(numberPosition, MAX_LINE_LENGTH);
-  ZeroMemory(barDirection, MAX_LINE_LENGTH);
+  MemGradientMethod = TEXT("");
+  CPUGradientMethod = TEXT("");
+  fontString = TEXT("");
+  numberPosition = TEXT("");
+  barDirection = TEXT("");
   showNumbers = false;
   historyMode = false;
   monitorPagefile = false;
@@ -51,13 +51,13 @@ void Settings::ResetDefaults()
   monitorPagefile = false;
   historyMode = true;
   showNumbers = false;
-  wcscpy(barDirection, (WCHAR*)TEXT("right"));
-  wcscpy(numberPosition, (WCHAR*)TEXT("left"));
-  wcscpy(fontString, (WCHAR*)TEXT("Tahoma-12"));
-  wcscpy(CPUGradientMethod, (WCHAR*)TEXT("Vertical"));
+  barDirection = TEXT("right");
+  numberPosition = TEXT("left");
+  fontString = TEXT("Tahoma-12");
+  CPUGradientMethod = TEXT("Vertical");
   CPUGradientFrom = RGB(255, 255, 255);
   CPUGradientTo = RGB(66, 66, 255);
-  wcscpy(MemGradientMethod, (WCHAR*)TEXT("Vertical"));
+  MemGradientMethod = TEXT("Vertical");
   MemGradientFrom = RGB(255, 0, 0);
   MemGradientTo = RGB(113, 255, 113);
   // If appletCount > 0 assume this is a new instance and place it at the centre
@@ -84,24 +84,24 @@ void Settings::DoReadSettings(IOHelper& helper)
   ZeroMemory(&logFont, sizeof(LOGFONT));
 
   BaseSettings::DoReadSettings(helper);
-  helper.ReadInt(TEXT("UpdateInterval"), updateInterval, 2000);
+  updateInterval = helper.ReadInt(TEXT("UpdateInterval"), 2000);
   if (updateInterval < MINIMUM_UPDATE_INTERVAL)
     updateInterval = MINIMUM_UPDATE_INTERVAL;
-  helper.ReadBool(TEXT("MonitorCPU"), monitorCPU, true);
-  helper.ReadBool(TEXT("MonitorCommitCharge"), monitorCommitCharge, true);
-  helper.ReadBool(TEXT("MonitorPhysicalMem"), monitorPhysicalMem, false);
-  helper.ReadBool(TEXT("MonitorPagefile"), monitorPagefile, false);
-  helper.ReadBool(TEXT("HistoryMode"), historyMode, true);
-  helper.ReadBool(TEXT("ShowNumbers"), showNumbers, false);
-  helper.ReadString(TEXT("BarDirection"), barDirection, TEXT("right"));
-  helper.ReadString(TEXT("NumberPosition"), numberPosition, TEXT("left"));
-  helper.ReadString(TEXT("Font"), fontString, TEXT("Tahoma-12"));
-  helper.ReadString(TEXT("CPUGradientMethod"), CPUGradientMethod, TEXT("Vertical"));
-  helper.ReadColor(TEXT("CPUGradientFrom"), CPUGradientFrom, RGB(255, 255, 255));
-  helper.ReadColor(TEXT("CPUGradientTo"), CPUGradientTo, RGB(66, 66, 255));
-  helper.ReadString(TEXT("MemGradientMethod"), MemGradientMethod, TEXT("Vertical"));
-  helper.ReadColor(TEXT("MemGradientFrom"), MemGradientFrom, RGB(255, 0, 0));
-  helper.ReadColor(TEXT("MemGradientTo"), MemGradientTo, RGB(113, 255, 113));
+  monitorCPU = helper.ReadBool(TEXT("MonitorCPU"), true);
+  monitorCommitCharge = helper.ReadBool(TEXT("MonitorCommitCharge"), true);
+  monitorPhysicalMem = helper.ReadBool(TEXT("MonitorPhysicalMem"), false);
+  monitorPagefile = helper.ReadBool(TEXT("MonitorPagefile"), false);
+  historyMode = helper.ReadBool(TEXT("HistoryMode"), true);
+  showNumbers = helper.ReadBool(TEXT("ShowNumbers"), false);
+  barDirection = helper.ReadString(TEXT("BarDirection"), TEXT("right"));
+  numberPosition = helper.ReadString(TEXT("NumberPosition"), TEXT("left"));
+  fontString = helper.ReadString(TEXT("Font"), TEXT("Tahoma-12"));
+  CPUGradientMethod = helper.ReadString(TEXT("CPUGradientMethod"), TEXT("Vertical"));
+  CPUGradientFrom = helper.ReadColor(TEXT("CPUGradientFrom"), RGB(255, 255, 255));
+  CPUGradientTo = helper.ReadColor(TEXT("CPUGradientTo"), RGB(66, 66, 255));
+  MemGradientMethod = helper.ReadString(TEXT("MemGradientMethod"), TEXT("Vertical"));
+  MemGradientFrom = helper.ReadColor(TEXT("MemGradientFrom"), RGB(255, 0, 0));
+  MemGradientTo = helper.ReadColor(TEXT("MemGradientTo"), RGB(113, 255, 113));
 }
 
 void Settings::DoWriteSettings(IOHelper& helper)
@@ -116,7 +116,7 @@ void Settings::DoWriteSettings(IOHelper& helper)
   helper.WriteBool(TEXT("ShowNumbers"), showNumbers);
   helper.WriteString(TEXT("BarDirection"), barDirection);
   helper.WriteString(TEXT("NumberPosition"), numberPosition);
-  EGFontToString(logFont, fontString);
+  fontString = EGFontToString(logFont);
   helper.WriteString(TEXT("Font"), fontString);
   helper.WriteString(TEXT("CPUGradientMethod"), CPUGradientMethod);
   helper.WriteColor(TEXT("CPUGradientFrom"), CPUGradientFrom);
@@ -129,7 +129,7 @@ void Settings::DoWriteSettings(IOHelper& helper)
 void Settings::DoInitialize()
 {
   BaseSettings::DoInitialize();
-  EGStringToFont(fontString, logFont);
+  logFont = EGStringToFont(fontString);
 }
 
 void Settings::SetUpdateInterval(int interval)
@@ -197,41 +197,39 @@ void Settings::SetShowNumbers(bool b)
     }
 }
 
-void Settings::SetBarDirection(WCHAR *dir)
+void Settings::SetBarDirection(std::wstring direction)
 {
-  if (_wcsicmp(barDirection, dir) != 0)
+  if (ELToLower(barDirection) != ELToLower(direction))
     {
-      wcscpy(barDirection, dir);
+      barDirection = direction;
       SetModified();
     }
 }
 
-void Settings::SetNumberPosition(WCHAR* str)
+void Settings::SetNumberPosition(std::wstring position)
 {
-  if (_wcsicmp(numberPosition, str) != 0)
+  if (ELToLower(numberPosition) != ELToLower(position))
     {
-      wcscpy(numberPosition, str);
+      numberPosition = position;
       SetModified();
     }
 }
 
 void Settings::SetFont(LOGFONT* font)
 {
-  WCHAR tmp[MAX_LINE_LENGTH];
-  EGFontToString(*font, tmp);
   if (!EGEqualLogFont(this->logFont, *font))
     {
-      wcscpy(fontString, tmp);
+      fontString = EGFontToString(*font);
       CopyMemory(&logFont, font, sizeof(LOGFONT));
       SetModified();
     }
 }
 
-void Settings::SetCPUGradientMethod(const WCHAR* str)
+void Settings::SetCPUGradientMethod(std::wstring method)
 {
-  if (_wcsicmp(CPUGradientMethod, str) != 0)
+  if (ELToLower(CPUGradientMethod) != ELToLower(method))
     {
-      wcscpy(CPUGradientMethod, str);
+      CPUGradientMethod = method;
       SetModified();
     }
 }
@@ -254,11 +252,11 @@ void Settings::SetCPUGradientTo(COLORREF col)
     }
 }
 
-void Settings::SetMemGradientMethod(const WCHAR* str)
+void Settings::SetMemGradientMethod(std::wstring method)
 {
-  if (_wcsicmp(MemGradientMethod, str) != 0)
+  if (ELToLower(MemGradientMethod) != ELToLower(method))
     {
-      wcscpy(MemGradientMethod, str);
+      MemGradientMethod = method;
       SetModified();
     }
 }
@@ -316,12 +314,12 @@ bool Settings::GetShowNumbers()
   return showNumbers;
 }
 
-const WCHAR *Settings::GetBarDirection()
+std::wstring Settings::GetBarDirection()
 {
   return barDirection;
 }
 
-const WCHAR *Settings::GetNumberPosition()
+std::wstring Settings::GetNumberPosition()
 {
   return numberPosition;
 }
@@ -331,7 +329,7 @@ LOGFONT* Settings::GetFont()
   return &logFont;
 }
 
-const WCHAR *Settings::GetCPUGradientMethod()
+std::wstring Settings::GetCPUGradientMethod()
 {
   return CPUGradientMethod;
 }
@@ -346,7 +344,7 @@ COLORREF Settings::GetCPUGradientTo()
   return CPUGradientTo;
 }
 
-const WCHAR *Settings::GetMemGradientMethod()
+std::wstring Settings::GetMemGradientMethod()
 {
   return MemGradientMethod;
 }

@@ -36,7 +36,8 @@
 #include <map>
 #include <process.h>
 #include <stdio.h>
-#include "../emergeLib/emergeLib.h"
+#include "../emergeLib/emergeFileRegistryLib.h"
+#include "../emergeLib/emergeWindowLib.h"
 #include "settings.h"
 
 #define HOTKEY_N  1

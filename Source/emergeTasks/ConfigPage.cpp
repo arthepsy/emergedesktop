@@ -271,7 +271,7 @@ bool ConfigPage::UpdateSettings(HWND hwndDlg)
 
   if (GetDlgItemText(hwndDlg, IDC_ANCHOR, tmp, MAX_LINE_LENGTH) != 0)
     {
-      if (wcscmp(tmp, pSettings->GetAnchorPoint()) != 0)
+      if (wcscmp(tmp, pSettings->GetAnchorPoint().c_str()) != 0)
         pSettings->SetAnchorPoint(tmp);
     }
 

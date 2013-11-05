@@ -25,7 +25,9 @@
 #define   _HYPERLINK_H_
 
 #define UNICODE 1
-#include "../emergeLib/emergeLib.h"
+
+#include <windows.h>
+#include "../emergeLib/emergeFileRegistryLib.h"
 
 class CHyperLink
 {

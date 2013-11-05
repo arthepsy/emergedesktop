@@ -70,7 +70,7 @@ BOOL ThemeSaver::DoInitDialog(HWND hwndDlg)
   RECT rect;
   int x, y;
 
-  ELGetWindowRect(hwndDlg, &rect);
+  rect = ELGetWindowRect(hwndDlg);
 
   SetWindowText(hwndDlg, title);
 
@@ -110,7 +110,7 @@ bool ThemeSaver::SaveTheme(HWND hwndDlg)
   if ((_wcsicmp(themeName, TEXT("Default")) == 0) || (_wcsicmp(themeName, TEXT("GBRY")) == 0))
     {
       swprintf(errorText, TEXT("'%ls' cannot be used as a theme name"), themeName);
-      ELMessageBox(hwndDlg, errorText, (WCHAR*)TEXT("Theme Manager"), ELMB_MODAL
+      ELMessageBox(hwndDlg, errorText, TEXT("Theme Manager"), ELMB_MODAL
                    | ELMB_OK | ELMB_ICONERROR);
       return false;
     }
@@ -118,10 +118,10 @@ bool ThemeSaver::SaveTheme(HWND hwndDlg)
   copySource = themePath + theme;
   copySource += TEXT("\\*");
 
-  if (ELPathIsDirectory(copyDest.c_str()))
+  if ((ELGetFileSpecialFlags(copyDest) & SF_DIRECTORY) == SF_DIRECTORY)
     {
       swprintf(errorText, TEXT("The theme '%ls' already exists, overwrite?"), themeName);
-      if (ELMessageBox(hwndDlg, errorText, (WCHAR*)TEXT("Theme Manager"),
+      if (ELMessageBox(hwndDlg, errorText, TEXT("Theme Manager"),
                        ELMB_MODAL | ELMB_YESNO | ELMB_ICONERROR) == IDNO)
         return false;
     }
@@ -139,7 +139,7 @@ bool ThemeSaver::SaveTheme(HWND hwndDlg)
           ELFileOp(hwndDlg, false, FO_DELETE, copySource);
         }
     }
-  if (ELPathIsDirectory(copyDest.c_str()))
+  if ((ELGetFileSpecialFlags(copyDest) & SF_DIRECTORY) == SF_DIRECTORY)
     ELSetTheme(copyDest);
 
   return true;

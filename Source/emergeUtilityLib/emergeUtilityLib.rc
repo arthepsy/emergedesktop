@@ -1,0 +1,72 @@
+//----  --------------------------------------------------------------------------------------------------------
+//
+//  This file is part of Emerge Desktop.
+//  Copyright (C) 2004-2012  The Emerge Desktop Development Team
+//
+//  Emerge Desktop is free software; you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation; either version 3 of the License, or
+//  (at your option) any later version.
+//
+//  Emerge Desktop is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//
+//  You should have received a copy of the GNU General Public License
+//  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+//
+//----  --------------------------------------------------------------------------------------------------------
+
+#define UNICODE
+#define _WINGDI_
+
+#include "resource.h"
+#include "../version.h"
+#include "../hgversion.h"
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION COMMA_VERSION
+ PRODUCTVERSION COMMA_VERSION
+ FILEFLAGSMASK VS_FFI_FILEFLAGSMASK
+#ifdef DEBUG
+ FILEFLAGS VS_FF_DEBUG
+#endif
+ FILEOS VOS__WINDOWS32
+ FILETYPE VFT_DLL
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "000004B0"
+        BEGIN
+            VALUE "CompanyName", "The Emerge Desktop Development Team"
+            VALUE "FileDescription", "emergeUtilityLib - Emerge Desktop utility library"
+            VALUE "FileVersion", POINT_VERSION
+            VALUE "InternalName", "emergeUtilityLib"
+            VALUE "LegalCopyright", "Copyright (C) 2004-2012"
+            VALUE "OriginalFilename", "emergeUtilityLib.dll"
+            VALUE "ProductName", "emergeUtilityLib"
+            VALUE "ProductVersion", PRODUCT_VERSION
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x0, 1200
+    END
+END
+
+#ifdef __GNUC__
+CREATEPROCESS_MANIFEST_RESOURCE_ID RT_MANIFEST "emergeUtilityLib.dll.manifest"
+#endif
+
+IDD_MSGBOX DIALOGEX 0, 0, 137, 100
+STYLE WS_POPUP | WS_VISIBLE | WS_CAPTION
+CAPTION "Message Box"
+FONT 8, "MS Shell Dlg"
+BEGIN
+  LTEXT "Message Text",IDC_MSGTEXT,5,5,90,65
+  CONTROL "", IDC_MSGICON,"Static",SS_ICON,100,5,24,24
+
+  PUSHBUTTON "&OK",IDOK,5,80,50,14,BS_DEFPUSHBUTTON
+  PUSHBUTTON "&Cancel",IDCANCEL,60,80,50,14
+END

@@ -19,10 +19,7 @@
 //
 //----  --------------------------------------------------------------------------------------------------------
 
-#define _NO_W32_PSEUDO_MODIFIERS
-
-#include "../emergeLib/emergeLib.h"
-#include <stdio.h>
+#include "main.h"
 
 //----  --------------------------------------------------------------------------------------------------------
 // Function:	WinMain
@@ -40,21 +37,25 @@ int WINAPI WinMain (HINSTANCE hInstance UNUSED,
                     int nCmdShow UNUSED)
 
 {
-  WCHAR commandLine[MAX_LINE_LENGTH], error[MAX_LINE_LENGTH];
+  //WCHAR commandLine[MAX_LINE_LENGTH], error[MAX_LINE_LENGTH];
 
-  MultiByteToWideChar(CP_ACP, 0, _strlwr(lpCmdLine), (int)strlen(lpCmdLine) + 1, commandLine,
-                      (int)sizeof(commandLine)/(int)sizeof(commandLine[0]));
+  /*MultiByteToWideChar(CP_ACP, 0, _strlwr(lpCmdLine), (int)strlen(lpCmdLine) + 1, commandLine,
+                      (int)sizeof(commandLine)/(int)sizeof(commandLine[0]));*/
+  std::wstring commandLine, error;
 
-  if (wcslen(commandLine) == 0)
+  commandLine = ELstringTowstring(lpCmdLine, CP_ACP);
+
+  if (commandLine.empty())
     {
-      swprintf(error, TEXT("Usage: emerge <Internal Command>"));
+      error = TEXT("Usage: emerge <Internal Command>");
       ELMessageBox(GetDesktopWindow(), error, (WCHAR*)TEXT("emerge"), ELMB_ICONERROR|ELMB_OK|ELMB_MODAL);
       return 1;
     }
 
-  if (!ELExecuteInternal(commandLine))
+  if (!ELExecuteFileOrCommand(commandLine))
     {
-      swprintf(error, TEXT("Failed to execute \"%ls\""), commandLine);
+      error = TEXT("Failed to execute ");
+      error = error + commandLine;
       ELMessageBox(GetDesktopWindow(), error, (WCHAR*)TEXT("emerge"), ELMB_ICONWARNING|ELMB_OK|ELMB_MODAL);
       return 2;
     }

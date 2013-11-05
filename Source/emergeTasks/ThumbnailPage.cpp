@@ -64,7 +64,7 @@ BOOL ThumbnailPage::DoInitDialog(HWND hwndDlg)
   HWND alphaValueWnd = GetDlgItem(hwndDlg, IDC_ALPHAVALUE);
   HWND enableWnd = GetDlgItem(hwndDlg, IDC_ENABLETHUMBNAIL);
 
-  if (ELVersionInfo() < 6.0)
+  if (ELOSVersionInfo() < 6.0)
     {
       EnableWindow(enableWnd, FALSE);
       EnableWindow(alphaSliderWnd, FALSE);

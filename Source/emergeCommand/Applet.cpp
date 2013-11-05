@@ -34,7 +34,7 @@ WCHAR szClassName[ ] = TEXT("Shell_CommandWnd");
 //----  --------------------------------------------------------------------------------------------------------
 LRESULT Applet::DoTimer(UINT idEvent)
 {
-  WCHAR tmp[MAX_LINE_LENGTH];
+  std::wstring tmp;
 
   if (idEvent == MOUSE_TIMER)
     return BaseApplet::DoTimer(idEvent);
@@ -50,10 +50,10 @@ LRESULT Applet::DoTimer(UINT idEvent)
       stVal = localtime(&tVal); /**< Format the rawtime to localtime */
 
       // Format the time
-      ELwcsftime(tmp, MAX_LINE_LENGTH, pSettings->GetDisplayTimeFormat(), stVal);
+      tmp = ELwcsftime(pSettings->GetDisplayTimeFormat(), stVal);
       SetCommandText(tmp);
 
-      ELwcsftime(tmp, MAX_LINE_LENGTH, pSettings->GetDisplayTipFormat(), stVal);
+      tmp = ELwcsftime(pSettings->GetDisplayTipFormat(), stVal);
       UpdateTip(tmp);
 
       if (IsWindowVisible(mainWnd))
@@ -180,7 +180,7 @@ Applet::Applet(HINSTANCE hInstance)
 {
   setlocale(LC_TIME, "");
   mainInst = hInstance;
-  wcscpy(commandText, TEXT("\0"));
+  commandText = TEXT("");
   mainFont = NULL;
 }
 
@@ -223,15 +223,15 @@ LRESULT Applet::PaintContent(HDC hdc, RECT clientrt)
   CLIENTINFO clientInfo;
   FORMATINFO formatInfo;
 
-  if (_wcsicmp(pSettings->GetClockTextAlign(), TEXT("center")) == 0)
+  if (ELToLower(pSettings->GetClockTextAlign()) == TEXT("center"))
     formatInfo.horizontalAlignment = EGDAT_HCENTER;
-  else if (_wcsicmp(pSettings->GetClockTextAlign(), TEXT("right")) == 0)
+  else if (ELToLower(pSettings->GetClockTextAlign()) == TEXT("right"))
     formatInfo.horizontalAlignment = EGDAT_RIGHT;
   else
     formatInfo.horizontalAlignment = EGDAT_LEFT;
-  if (_wcsicmp(pSettings->GetClockVerticalAlign(), TEXT("center")) == 0)
+  if (ELToLower(pSettings->GetClockVerticalAlign()) == TEXT("center"))
     formatInfo.verticalAlignment = EGDAT_VCENTER;
-  else if (_wcsicmp(pSettings->GetClockVerticalAlign(), TEXT("bottom")) == 0)
+  else if (ELToLower(pSettings->GetClockVerticalAlign()) == TEXT("bottom"))
     formatInfo.verticalAlignment = EGDAT_BOTTOM;
   else
     formatInfo.verticalAlignment = EGDAT_TOP;
@@ -255,12 +255,15 @@ void Applet::ShowConfig()
     UpdateGUI();
 }
 
-void Applet::UpdateTip(WCHAR *tip)
+void Applet::UpdateTip(std::wstring tip)
 {
   TOOLINFO ti;
   ZeroMemory(&ti, sizeof(TOOLINFO));
   RECT rect;
   bool exists;
+  WCHAR tipBuffer[MAX_LINE_LENGTH];
+
+  wcscpy(tipBuffer, tip.c_str());
 
   GetClientRect(mainWnd, &rect);
 
@@ -275,7 +278,7 @@ void Applet::UpdateTip(WCHAR *tip)
 
   //  complete the rest of the TOOLINFO structure
   ti.hinst = mainInst;
-  ti.lpszText = tip;
+  ti.lpszText = tipBuffer;
   ti.rect = rect;
 
   // If it exists, modify the tooltip, if not add it
@@ -313,9 +316,9 @@ void Applet::Show()
     ShowWindow(mainWnd, SW_SHOWNOACTIVATE);
 }
 
-void Applet::SetCommandText(WCHAR *commandText)
+void Applet::SetCommandText(std::wstring commandText)
 {
-  wcscpy((*this).commandText, commandText);
+  this->commandText = commandText;
 }
 
 GUIINFO Applet::GetGUIInfo()

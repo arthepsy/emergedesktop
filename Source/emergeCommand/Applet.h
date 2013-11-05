@@ -52,7 +52,7 @@ class Applet: public BaseApplet
 private:
   std::tr1::shared_ptr<Settings> pSettings;
   std::tr1::shared_ptr<Command> pCommand;
-  WCHAR commandText[MAX_LINE_LENGTH];
+  std::wstring commandText;
   HFONT mainFont;
   static LRESULT CALLBACK WindowProcedure (HWND, UINT, WPARAM, LPARAM);
 
@@ -68,8 +68,8 @@ public:
   void WriteAppletSettings();
   LRESULT DoButtonDown(UINT message, WPARAM wParam, LPARAM lParam);
   LRESULT ShowCommand();
-  void SetCommandText(WCHAR *commandText);
-  void UpdateTip(WCHAR *tip);
+  void SetCommandText(std::wstring commandText);
+  void UpdateTip(std::wstring tip);
   LRESULT PaintContent(HDC hdc, RECT clientrt);
   void Activate();
   void Show();

@@ -129,7 +129,7 @@ BOOL IconHidePage::DoInitPage(HWND hwndDlg)
   TOOLINFO ti;
 
   ZeroMemory(&ti, sizeof(TOOLINFO));
-  ELGetWindowRect(hwndDlg, &rect);
+  rect = ELGetWindowRect(hwndDlg);
 
   saveCount = 0;
   deleteCount = 0;

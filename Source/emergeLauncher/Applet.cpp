@@ -230,13 +230,11 @@ LRESULT Applet::ItemMouseEvent(UINT message, LPARAM lParam)
                 {
                 case IT_EXECUTABLE:
                 case IT_LIVE_FOLDER_ITEM:
-                  ELExecute(pSettings->GetItem(i)->GetApp(), pSettings->GetItem(i)->GetWorkingDir());
+                  ELExecuteFileOrCommand(pSettings->GetItem(i)->GetApp(), TEXT(""), pSettings->GetItem(i)->GetWorkingDir());
                   break;
                 case IT_INTERNAL_COMMAND:
-                  ELExecuteInternal(pSettings->GetItem(i)->GetApp());
-                  break;
                 case IT_SPECIAL_FOLDER:
-                  ELExecuteSpecialFolder(pSettings->GetItem(i)->GetApp());
+                  ELExecuteFileOrCommand(pSettings->GetItem(i)->GetApp());
                   break;
                 }
             }
@@ -387,7 +385,10 @@ DWORD WINAPI Applet::LiveFolderThreadProc(LPVOID lpParameter)
 //----  --------------------------------------------------------------------------------------------------------
 void Applet::UpdateTip(UINT index)
 {
+  WCHAR tipBuffer[MAX_LINE_LENGTH];
   TOOLINFO ti;
+
+  wcscpy(tipBuffer, pSettings->GetItem(index)->GetTip().c_str());
   ZeroMemory(&ti, sizeof(TOOLINFO));
 
   bool exists;
@@ -403,7 +404,7 @@ void Applet::UpdateTip(UINT index)
 
   //  complete the rest of the TOOLINFO structure
   ti.hinst =  mainInst;
-  ti.lpszText = pSettings->GetItem(index)->GetTip();
+  ti.lpszText = tipBuffer;
   ti.rect = (*pSettings->GetItem(index)->GetRect());
 
   // If it exists, modify the tooltip, if not add it

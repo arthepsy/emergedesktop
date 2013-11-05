@@ -21,18 +21,23 @@
 #ifndef __EH_HOTKEYCOMBO_H
 #define __EH_HOTKEYCOMBO_H
 
+#define UNICODE 1
+
+#define MAX_LINE_LENGTH 4096
+
 #undef _WIN32_IE
 #define _WIN32_IE	0x501
 
 #undef _WIN32_WINNT
 #define _WIN32_WINNT	0x501
 
-#include "../emergeLib/emergeLib.h"
+#include <windows.h>
+#include <string>
 
 class HotkeyCombo
 {
 public:
-  HotkeyCombo(WCHAR *keyCombo, WCHAR *action, bool backup);
+  HotkeyCombo(std::wstring keyCombo, std::wstring action, bool backup);
   ~HotkeyCombo();
   WCHAR *GetHotkeyAction();
   UINT GetHotkeyModifiers();

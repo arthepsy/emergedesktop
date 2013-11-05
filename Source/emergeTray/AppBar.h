@@ -21,6 +21,8 @@
 #ifndef __ETR_APPBAR_H
 #define __ETR_APPBAR_H
 
+#define UNICODE 1
+
 // Define required for the Window Transparency
 #undef _WIN32_WINNT
 #define _WIN32_WINNT 0x0501
@@ -29,15 +31,15 @@
 #undef WINVER
 #define WINVER 0x0501
 
-#include "../emergeLib/emergeLib.h"
+#define MAKEHWND(a) ((HWND)((DWORD_PTR)(a)))
+#define MAKEHICON(a) ((HICON)((DWORD_PTR)(a)))
+#define MAKEHANDLE(a) ((HANDLE)((DWORD_PTR)(a)))
+
+#include <windows.h>
 
 typedef DWORD HWND32;
 typedef DWORD HICON32;
 typedef DWORD HANDLE32;
-
-#define MAKEHWND(a) ((HWND)((DWORD_PTR)(a)))
-#define MAKEHICON(a) ((HICON)((DWORD_PTR)(a)))
-#define MAKEHANDLE(a) ((HANDLE)((DWORD_PTR)(a)))
 
 typedef struct
 {

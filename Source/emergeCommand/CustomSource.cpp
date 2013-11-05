@@ -18,7 +18,6 @@
 //
 //---
 
-#include "../emergeLib/emergeLib.h"
 #include "CustomSource.h"
 
 CustomSource::CustomSource(std::tr1::shared_ptr<Settings> pSettings)
@@ -70,7 +69,7 @@ STDMETHODIMP CustomSource::Next(ULONG current, LPOLESTR *nextString, ULONG *next
 {
   UINT i, size = pSettings->GetHistoryListSize();
   int wideSize;
-  WCHAR *tmp;
+  WCHAR tmp[MAX_LINE_LENGTH];
 
   *next = 0;
 
@@ -79,7 +78,7 @@ STDMETHODIMP CustomSource::Next(ULONG current, LPOLESTR *nextString, ULONG *next
       if (currentElement == size)
         break;
 
-      tmp = pSettings->GetHistoryListItem(currentElement);
+      wcscpy(tmp, pSettings->GetHistoryListItem(currentElement).c_str());
 
       wideSize = sizeof(WCHAR) * (int)(wcslen(tmp) + 1);
       nextString[i] = (LPWSTR)CoTaskMemAlloc((ULONG)wideSize);

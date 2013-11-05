@@ -21,6 +21,8 @@
 #ifndef __EL_CONFIGPAGE_H
 #define __EL_CONFIGPAGE_H
 
+#define UNICODE 1
+
 #undef _WIN32_IE
 #define _WIN32_IE	0x600
 
@@ -30,6 +32,7 @@
 #define BROWSE_COMMAND      1
 #define BROWSE_WORKINGDIR   2
 
+#include "../emergeLib/emergeOSLib.h"
 #include "Settings.h"
 #include "resource.h"
 

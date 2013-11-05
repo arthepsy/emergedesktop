@@ -79,7 +79,7 @@ BOOL Welcome::DoInitDialog(HWND hwndDlg)
   RECT rect;
   int x, y;
 
-  ELGetWindowRect(hwndDlg, &rect);
+  rect = ELGetWindowRect(hwndDlg);
   x = (GetSystemMetrics(SM_CXSCREEN) / 2) - ((rect.right - rect.left) / 2);
   y = (GetSystemMetrics(SM_CYSCREEN) / 2) - ((rect.bottom - rect.top) / 2);
   SetWindowPos(hwndDlg, HWND_TOPMOST, x, y, 0, 0, SWP_NOSIZE);
@@ -93,16 +93,16 @@ BOOL Welcome::DoInitDialog(HWND hwndDlg)
 
   pForumLink->ConvertStaticToHyperlink(hwndDlg,
                                        IDC_FORUMLINK,
-                                       (WCHAR*)L"Homepage");
+                                       (WCHAR*)TEXT("Homepage"));
   /*pWikiLink->ConvertStaticToHyperlink(hwndDlg,
                                       IDC_WIKILINK,
-                                      (WCHAR*)L"http://ed.xaerolimit.net/wiki/");*/
+                                      (WCHAR*)TEXT("http://ed.xaerolimit.net/wiki/"));*/
   pTutorialLink->ConvertStaticToHyperlink(hwndDlg,
                                           IDC_TUTORIALLINK,
-                                          (WCHAR*)L"Tutorial");
+                                          (WCHAR*)TEXT("Tutorial"));
   pOfflineLink->ConvertStaticToHyperlink(hwndDlg,
                                           IDC_HELPLINK,
-                                          (WCHAR*)L"Help");
+                                          (WCHAR*)TEXT("Help"));
 
   return TRUE;
 }
