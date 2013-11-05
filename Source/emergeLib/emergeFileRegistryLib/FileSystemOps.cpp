@@ -550,6 +550,8 @@ std::wstring ELGetSpecialFolderNameFromID(int specialFolderID)
     if (specialFolderID == specialFolderMapIter->first)
       return specialFolderMapIter->second;
   }
+
+  return TEXT("");
 }
 
 int ELGetSpecialFolderIDFromName(std::wstring specialFolderName)

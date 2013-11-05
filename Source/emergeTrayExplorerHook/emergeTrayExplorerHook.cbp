@@ -7,8 +7,8 @@
 		<Option compiler="gcc" />
 		<Build>
 			<Target title="Debug">
-				<Option output="..\bin\emergeTrayExplorerHook" prefix_auto="1" extension_auto="1" />
-				<Option object_output="obj\Debug\" />
+				<Option output="../bin/Lib/emergeTrayExplorerHook" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Debug/" />
 				<Option type="3" />
 				<Option compiler="gcc" />
 				<Option createDefFile="1" />
@@ -18,8 +18,8 @@
 				</Compiler>
 			</Target>
 			<Target title="Release">
-				<Option output="..\bin\emergeTrayExplorerHook" prefix_auto="1" extension_auto="1" />
-				<Option object_output="obj\Release\" />
+				<Option output="../bin/emergeTrayExplorerHook" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Release/" />
 				<Option type="3" />
 				<Option compiler="gcc" />
 				<Option createDefFile="1" />
@@ -32,8 +32,8 @@
 				</Linker>
 			</Target>
 			<Target title="Debug64">
-				<Option output="..\bin64\emergeTrayExplorerHook" prefix_auto="1" extension_auto="1" />
-				<Option object_output="obj64\Debug\" />
+				<Option output="../bin64/emergeTrayExplorerHook" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj64/Debug/" />
 				<Option type="3" />
 				<Option compiler="gnu_gcc_compiler_for_mingw64" />
 				<Option createDefFile="1" />
@@ -43,8 +43,8 @@
 				</Compiler>
 			</Target>
 			<Target title="Release64">
-				<Option output="..\bin64\emergeTrayExplorerHook" prefix_auto="1" extension_auto="1" />
-				<Option object_output="obj64\Release\" />
+				<Option output="../bin64/emergeTrayExplorerHook" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj64/Release/" />
 				<Option type="3" />
 				<Option compiler="gnu_gcc_compiler_for_mingw64" />
 				<Option createDefFile="1" />
@@ -63,7 +63,7 @@
 		<ExtraCommands>
 			<Add before='[[ IO.Execute(_T(&quot;cmd /c \&quot;cd.. &amp; hgversion.bat\&quot;&quot;)) ]]' />
 		</ExtraCommands>
-		<Unit filename="..\version.h" />
+		<Unit filename="../version.h" />
 		<Unit filename="emergeTrayExplorerHook.cpp" />
 		<Unit filename="emergeTrayExplorerHook.h" />
 		<Unit filename="emergeTrayExplorerHook.rc">
