@@ -60,14 +60,14 @@ class TrayIcon;
 class Balloon
 {
 public:
-  Balloon(HINSTANCE hInstance, TrayIcon *pTrayIcon, Settings *pSettings);
+  Balloon(HINSTANCE hInstance, TrayIcon* pTrayIcon, Settings* pSettings);
   ~Balloon();
   bool Initialize();
   bool Show(POINT showPt);
   LRESULT Hide();
   LRESULT DoLButtonDown();
-  bool SetInfo(WCHAR *info);
-  bool SetInfoTitle(WCHAR *info);
+  bool SetInfo(WCHAR* info);
+  bool SetInfoTitle(WCHAR* info);
   bool SetInfoFlags(DWORD infoFlags, HICON infoIcon);
   bool DrawAlphaBlend();
   BOOL SendMessage(LPARAM lParam);
@@ -86,7 +86,7 @@ private:
   WCHAR infoTitle[TIP_SIZE];
   RECT titleRect, infoRect;
   HICON icon;
-  Settings *pSettings;
+  Settings* pSettings;
   int iconHeight;
   int iconWidth;
   UINT trayIconID;

@@ -41,91 +41,101 @@ int WINAPI WinMain (HINSTANCE hInstance,
   bool abort = true, block = false;
 
   if (!ELParseCommand(GetCommandLine(), app, argsTmp))
-    {
-      ELMessageBox(GetDesktopWindow(), (WCHAR*)TEXT("Failed to parse command line"), (WCHAR*)TEXT("emergeCore"),
-                   ELMB_OK|ELMB_ICONERROR|ELMB_MODAL);
-      return 1;
-    }
+  {
+    ELMessageBox(GetDesktopWindow(), (WCHAR*)TEXT("Failed to parse command line"), (WCHAR*)TEXT("emergeCore"),
+                 ELMB_OK | ELMB_ICONERROR | ELMB_MODAL);
+    return 1;
+  }
 
   token = wcstok(argsTmp, TEXT(" \t"));
 
   if (token == NULL)
+  {
     wcscpy(args, TEXT("\0"));
+  }
   else
+  {
     wcscpy(args, token);
+  }
 
   if (wcslen(args) == 0)
+  {
+    abort = false;
+    block = true;
+  }
+  else
+  {
+    if (wcsstr(args, TEXT("/shellchanger")) != NULL)
+    {
+      abort = false;
+    }
+
+    if (wcsstr(args, TEXT("/nostartup")) != NULL)
     {
       abort = false;
       block = true;
     }
-  else
-    {
-      if (wcsstr(args, TEXT("/shellchanger")) != NULL)
-        abort = false;
-
-      if (wcsstr(args, TEXT("/nostartup")) != NULL)
-        {
-          abort = false;
-          block = true;
-        }
-    }
+  }
 
   if (abort)
+  {
+    ELMessageBox(GetDesktopWindow(), (WCHAR*)TEXT("Invalid command line switch"), (WCHAR*)TEXT("emergeCore"),
+                 ELMB_OK | ELMB_ICONERROR | ELMB_MODAL);
+    return 1;
+  }
+
+  if (block)
+  {
+    // Check to see if emergeCore is already running, if so exit
+    hMutex = CreateMutex(NULL, false, TEXT("emergeCore"));
+    if (GetLastError() == ERROR_ALREADY_EXISTS)
     {
-      ELMessageBox(GetDesktopWindow(), (WCHAR*)TEXT("Invalid command line switch"), (WCHAR*)TEXT("emergeCore"),
-                   ELMB_OK|ELMB_ICONERROR|ELMB_MODAL);
+      CloseHandle(hMutex);
       return 1;
     }
 
-  if (block)
+    // Switching shell event
+    HANDLE hEv = OpenEvent(EVENT_MODIFY_STATE, false, TEXT("Global\\msgina: ShellReadyEvent"));
+    if(hEv)
     {
-      // Check to see if emergeCore is already running, if so exit
-      hMutex = CreateMutex(NULL, false, TEXT("emergeCore"));
-      if (GetLastError() == ERROR_ALREADY_EXISTS)
-        {
-          CloseHandle(hMutex);
-          return 1;
-        }
-
-      // Switching shell event
-      HANDLE hEv = OpenEvent(EVENT_MODIFY_STATE, false, TEXT("Global\\msgina: ShellReadyEvent"));
-      if(hEv)
-        {
-          SetEvent(hEv);
-          CloseHandle(hEv);
-        }
-      hEv = OpenEvent(EVENT_MODIFY_STATE, false, TEXT("msgina: ShellReadyEvent"));
-      if(hEv)
-        {
-          SetEvent(hEv);
-          CloseHandle(hEv);
-        }
-      hEv = OpenEvent(EVENT_MODIFY_STATE, false, TEXT("ShellDesktopSwitchEvent"));
-      if(hEv)
-        {
-          SetEvent(hEv);
-          CloseHandle(hEv);
-        }
+      SetEvent(hEv);
+      CloseHandle(hEv);
     }
+    hEv = OpenEvent(EVENT_MODIFY_STATE, false, TEXT("msgina: ShellReadyEvent"));
+    if(hEv)
+    {
+      SetEvent(hEv);
+      CloseHandle(hEv);
+    }
+    hEv = OpenEvent(EVENT_MODIFY_STATE, false, TEXT("ShellDesktopSwitchEvent"));
+    if(hEv)
+    {
+      SetEvent(hEv);
+      CloseHandle(hEv);
+    }
+  }
 
   Core core(hInstance);
 
   if (!core.Initialize(args))
+  {
     return 0;
+  }
 
   // Run the message loop. It will run until GetMessage() returns 0
   while (GetMessage (&messages, NULL, 0, 0))
-    {
-      // Translate virtual-key messages into character messages
-      TranslateMessage(&messages);
-      // Send message to WindowProcedure
-      DispatchMessage(&messages);
-    }
+  {
+    // Translate virtual-key messages into character messages
+    TranslateMessage(&messages);
+    // Send message to WindowProcedure
+    DispatchMessage(&messages);
+  }
 
   // Clean-up the Mutex
   if (hMutex)
+  {
     CloseHandle(hMutex);
+  }
 
   // The program return-value is 0 - The value that PostQuitMessage() gave
   return (int)messages.wParam;

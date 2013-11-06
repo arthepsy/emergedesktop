@@ -22,16 +22,18 @@
 
 INT_PTR CALLBACK Config::ConfigDlgProc(HWND hwndDlg, UINT message, WPARAM wParam UNUSED, LPARAM lParam UNUSED)
 {
-  static Config *pConfig = NULL;
+  static Config* pConfig = NULL;
 
   switch (message)
+  {
+  case WM_INITDIALOG:
+    pConfig = reinterpret_cast<Config*>(lParam);
+    if (!pConfig)
     {
-    case WM_INITDIALOG:
-      pConfig = reinterpret_cast<Config*>(lParam);
-      if (!pConfig)
-        break;
-      return pConfig->DoInitDialog(hwndDlg);
+      break;
     }
+    return pConfig->DoInitDialog(hwndDlg);
+  }
 
   return 0;
 }
@@ -66,7 +68,7 @@ INT_PTR Config::DoInitDialog(HWND hwndDlg)
   PROPSHEETHEADER psh;
 
   ELStealFocus(hwndDlg);
-  SetWindowPos(hwndDlg, HWND_TOPMOST, 0, 0, 0, 0,  SWP_NOSIZE|SWP_NOMOVE);
+  SetWindowPos(hwndDlg, HWND_TOPMOST, 0, 0, 0, 0,  SWP_NOSIZE | SWP_NOMOVE);
 
   psp[0].dwSize = sizeof(PROPSHEETPAGE);
   psp[0].dwFlags = PSP_USETITLE;
@@ -109,12 +111,14 @@ INT_PTR Config::DoInitDialog(HWND hwndDlg)
   ret = PropertySheet(&psh);
 
   if (ret >= 1)
-    {
-      pSettings->WriteSettings();
-      EndDialog(hwndDlg, IDOK);
-    }
+  {
+    pSettings->WriteSettings();
+    EndDialog(hwndDlg, IDOK);
+  }
   if (ret <= 0)
+  {
     EndDialog(hwndDlg, IDCANCEL);
+  }
 
   return 1;
 }

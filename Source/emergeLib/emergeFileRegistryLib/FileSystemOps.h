@@ -52,7 +52,7 @@
 #define SEE_MASK_NOASYNC 0x00000100
 #endif
 
-typedef DWORD (WINAPI *fnWNetGetConnection)(LPCTSTR, LPTSTR, LPDWORD);
+typedef DWORD (WINAPI* fnWNetGetConnection)(LPCTSTR, LPTSTR, LPDWORD);
 static fnWNetGetConnection MSWNetGetConnection = NULL;
 
 //Helper functions

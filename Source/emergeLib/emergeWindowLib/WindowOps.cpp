@@ -43,12 +43,18 @@ HWND ELGetDesktopWindow()
   // Explorer.
   HWND deskWindow = FindWindow(TEXT("EmergeDesktopProgman"), NULL);
   if (deskWindow == NULL)
+  {
     deskWindow = FindWindow(TEXT("progman"), NULL);
+  }
 
   if (deskWindow == NULL)
+  {
     deskWindow = HWND_BOTTOM;
+  }
   else
+  {
     deskWindow = GetNextWindow(deskWindow, GW_HWNDPREV);
+  }
 
   return deskWindow;
 }
@@ -62,27 +68,31 @@ RECT ELGetMonitorRect(int monitor)
 
   enumCount = 0;
   if (EnumDisplayMonitors(NULL, NULL, (MONITORENUMPROC)MonitorRectEnum, (LPARAM)&appMonInfo))
-    {
-      appMonInfo.appletMonitorRect.top = 0;
-      appMonInfo.appletMonitorRect.left = 0;
-      appMonInfo.appletMonitorRect.right = GetSystemMetrics(SM_CXFULLSCREEN);
-      appMonInfo.appletMonitorRect.bottom = GetSystemMetrics(SM_CYFULLSCREEN);
-    }
+  {
+    appMonInfo.appletMonitorRect.top = 0;
+    appMonInfo.appletMonitorRect.left = 0;
+    appMonInfo.appletMonitorRect.right = GetSystemMetrics(SM_CXFULLSCREEN);
+    appMonInfo.appletMonitorRect.bottom = GetSystemMetrics(SM_CYFULLSCREEN);
+  }
 
   return appMonInfo.appletMonitorRect;
 }
 
-HMONITOR ELGetDesktopRect(RECT *appletRect, RECT *rect)
+HMONITOR ELGetDesktopRect(RECT* appletRect, RECT* rect)
 {
   MONITORINFO appletMonitorInfo;
   HMONITOR appletMonitor = MonitorFromRect(appletRect, MONITOR_DEFAULTTONEAREST);
 
   appletMonitorInfo.cbSize = sizeof(MONITORINFO);
   if (!GetMonitorInfo(appletMonitor, &appletMonitorInfo))
+  {
     return NULL;
+  }
 
   if (!CopyRect(rect, &appletMonitorInfo.rcMonitor))
+  {
     return NULL;
+  }
 
   return appletMonitor;
 }
@@ -93,27 +103,35 @@ RECT ELGetWindowRect(HWND hwnd)
   RECT returnValue;
 
   if (emergeLibGlobals::getDwmapiDLL())
+  {
+    if (MSDwmIsCompositionEnabled == NULL)
     {
-      if (MSDwmIsCompositionEnabled == NULL)
-        MSDwmIsCompositionEnabled = (fnDwmIsCompositionEnabled)GetProcAddress(emergeLibGlobals::getDwmapiDLL(), "DwmIsCompositionEnabled");
-      if (MSDwmGetWindowAttribute == NULL)
-        MSDwmGetWindowAttribute = (fnDwmGetWindowAttribute)GetProcAddress(emergeLibGlobals::getDwmapiDLL(), "DwmGetWindowAttribute");
+      MSDwmIsCompositionEnabled = (fnDwmIsCompositionEnabled)GetProcAddress(emergeLibGlobals::getDwmapiDLL(), "DwmIsCompositionEnabled");
     }
+    if (MSDwmGetWindowAttribute == NULL)
+    {
+      MSDwmGetWindowAttribute = (fnDwmGetWindowAttribute)GetProcAddress(emergeLibGlobals::getDwmapiDLL(), "DwmGetWindowAttribute");
+    }
+  }
 
   if (MSDwmIsCompositionEnabled && MSDwmGetWindowAttribute)
+  {
+    if (SUCCEEDED(MSDwmIsCompositionEnabled(&dwmCompositionEnabled)))
     {
-      if (SUCCEEDED(MSDwmIsCompositionEnabled(&dwmCompositionEnabled)))
+      if (dwmCompositionEnabled)
+      {
+        if (SUCCEEDED(MSDwmGetWindowAttribute(hwnd, DWMWA_EXTENDED_FRAME_BOUNDS, &returnValue, sizeof(RECT))))
         {
-          if (dwmCompositionEnabled)
-            {
-              if (SUCCEEDED(MSDwmGetWindowAttribute(hwnd, DWMWA_EXTENDED_FRAME_BOUNDS, &returnValue, sizeof(RECT))))
-                return returnValue;
-            }
+          return returnValue;
         }
+      }
     }
+  }
 
   if ((!dwmCompositionEnabled) || (IsRectEmpty(&returnValue)))
+  {
     GetWindowRect(hwnd, &returnValue);
+  }
 
   return returnValue;
 }
@@ -127,13 +145,15 @@ bool ELStealFocus(HWND hwnd)
   threadID2 = GetWindowThreadProcessId(hwnd, NULL);
 
   if (threadID1 != threadID2)
-    {
-      AttachThreadInput(threadID1, threadID2, TRUE);
-      result = ((SetFocus(hwnd) != NULL) && SetForegroundWindow(hwnd));
-      AttachThreadInput(threadID1, threadID2, FALSE);
-    }
-  else
+  {
+    AttachThreadInput(threadID1, threadID2, TRUE);
     result = ((SetFocus(hwnd) != NULL) && SetForegroundWindow(hwnd));
+    AttachThreadInput(threadID1, threadID2, FALSE);
+  }
+  else
+  {
+    result = ((SetFocus(hwnd) != NULL) && SetForegroundWindow(hwnd));
+  }
 
   return result;
 }
@@ -147,12 +167,14 @@ bool ELStealFocus(HWND hwnd)
 bool ELSwitchToThisWindow(HWND wnd)
 {
   if ((emergeLibGlobals::getUser32DLL()) && (MSSwitchToThisWindow == NULL))
+  {
     MSSwitchToThisWindow = (lpfnMSSwitchToThisWindow)GetProcAddress(emergeLibGlobals::getUser32DLL(), "SwitchToThisWindow");
+  }
   if (MSSwitchToThisWindow)
-    {
-      MSSwitchToThisWindow(wnd, TRUE);
-      return true;
-    }
+  {
+    MSSwitchToThisWindow(wnd, TRUE);
+    return true;
+  }
 
   return false;
 }
@@ -163,13 +185,19 @@ bool ELSetForeground(HWND wnd)
   winPlacement.length = sizeof(WINDOWPLACEMENT);
 
   if (!GetWindowPlacement(wnd, &winPlacement))
+  {
     return false;
+  }
 
   if ((winPlacement.showCmd == SW_SHOWMINIMIZED) &&
       (winPlacement.flags == WPF_RESTORETOMAXIMIZED))
+  {
     PostMessage(wnd, WM_SYSCOMMAND, SC_MAXIMIZE, 0);
+  }
   else if (winPlacement.showCmd == SW_SHOWMINIMIZED)
+  {
     PostMessage(wnd, WM_SYSCOMMAND, SC_RESTORE, 0);
+  }
 
   return (SetForegroundWindow(wnd) == TRUE);
 }
@@ -185,11 +213,13 @@ bool ELIsModal(HWND window)
   WCHAR windowClass[MAX_LINE_LENGTH];
 
   if (IsWindowVisible(lastWnd))
+  {
+    RealGetWindowClass(lastWnd, windowClass, MAX_LINE_LENGTH);
+    if (_wcsicmp(windowClass, TEXT("#32770")) == 0)
     {
-      RealGetWindowClass(lastWnd, windowClass, MAX_LINE_LENGTH);
-      if (_wcsicmp(windowClass, TEXT("#32770")) == 0)
-        return true;
+      return true;
     }
+  }
 
   return false;
 }
@@ -214,10 +244,12 @@ bool ELIsValidTaskWindow(HWND hwnd)
       // ... have no parent ...
       !GetParent(hwnd) &&
       // ... have no owner ...
-      !GetWindow(hwnd,GW_OWNER) &&
+      !GetWindow(hwnd, GW_OWNER) &&
       // ... and have a window rect of some size when not iconic.
       !(IsRectEmpty(&hwndRT) && !IsIconic(hwnd)))
+  {
     return true;
+  }
 
   return false;
 }
@@ -229,19 +261,27 @@ bool ELIsApplet(HWND hwnd)
 
   // emergeApplet Class
   if (_wcsicmp(windowClass, TEXT("EmergeDesktopApplet")) == 0)
+  {
     return true;
+  }
 
   // emergeCore Class
   if (_wcsicmp(windowClass, TEXT("EmergeDesktopCore")) == 0)
+  {
     return true;
+  }
 
   // emergeDesktop Class
   if (_wcsicmp(windowClass, TEXT("EmergeDesktopMenuBuilder")) == 0)
+  {
     return true;
+  }
 
   // Desktop Class
   if (_wcsicmp(windowClass, TEXT("EmergeDesktopProgman")) == 0)
+  {
     return true;
+  }
 
   return false;
 }
@@ -253,11 +293,15 @@ bool ELIsExplorer(HWND hwnd)
 
   // Explorer Class
   if (_wcsicmp(windowClass, TEXT("progman")) == 0)
+  {
     return true;
+  }
 
   // Explorer Desktop Class
   if (_wcsicmp(windowClass, TEXT("WorkerW")) == 0)
+  {
     return true;
+  }
 
   return false;
 }
@@ -297,21 +341,25 @@ bool ELSnapMove(LPSNAPMOVEINFO snapMove)
 
   if ((snapMove->AppletRect->left == snapMove->AppletRect->right) ||
       (snapMove->AppletRect->top == snapMove->AppletRect->bottom))
+  {
     return false;
+  }
 
   GetCursorPos(&pt);
   OffsetRect(snapMove->AppletRect, pt.x - (snapMove->AppletRect->left + snapMove->origin.x),
              pt.y - (snapMove->AppletRect->top + snapMove->origin.y));
 
   if (EnumWindows(SnapMoveEnum, (LPARAM)snapMove) == ERROR_SUCCESS)
+  {
     moved = true;
+  }
 
   moved = ELSnapMoveToDesk(snapMove->AppletRect);
 
   return moved;
 }
 
-bool ELSnapMoveToDesk(RECT *AppletRect)
+bool ELSnapMoveToDesk(RECT* AppletRect)
 {
   bool verticalMove = false;
   bool horizontalMove = false;
@@ -323,44 +371,48 @@ bool ELSnapMoveToDesk(RECT *AppletRect)
   HMONITOR appletMonitor = MonitorFromRect(AppletRect, MONITOR_DEFAULTTONULL);
 
   if (appletMonitor == NULL)
+  {
     return false;
+  }
 
   if (!GetMonitorInfo(appletMonitor, &appletMonitorInfo))
+  {
     return false;
+  }
 
   if (IsClose(AppletRect->top, appletMonitorInfo.rcMonitor.top))
-    {
-      verticalMove = true;
-      verticalOffset = appletMonitorInfo.rcMonitor.top - AppletRect->top;
-    }
+  {
+    verticalMove = true;
+    verticalOffset = appletMonitorInfo.rcMonitor.top - AppletRect->top;
+  }
   else if (IsClose(AppletRect->bottom, appletMonitorInfo.rcMonitor.bottom))
-    {
-      verticalMove = true;
-      verticalOffset = appletMonitorInfo.rcMonitor.bottom - AppletRect->bottom;
-    }
+  {
+    verticalMove = true;
+    verticalOffset = appletMonitorInfo.rcMonitor.bottom - AppletRect->bottom;
+  }
 
   if (IsClose(AppletRect->left, appletMonitorInfo.rcMonitor.left))
-    {
-      horizontalMove = true;
-      horizontalOffset = appletMonitorInfo.rcMonitor.left - AppletRect->left;
-    }
+  {
+    horizontalMove = true;
+    horizontalOffset = appletMonitorInfo.rcMonitor.left - AppletRect->left;
+  }
   else if (IsClose(AppletRect->right, appletMonitorInfo.rcMonitor.right))
-    {
-      horizontalMove = true;
-      horizontalOffset = appletMonitorInfo.rcMonitor.right - AppletRect->right;
-    }
+  {
+    horizontalMove = true;
+    horizontalOffset = appletMonitorInfo.rcMonitor.right - AppletRect->right;
+  }
 
   if (horizontalMove)
-    {
-      OffsetRect(AppletRect, horizontalOffset, 0);
-      moved = true;
-    }
+  {
+    OffsetRect(AppletRect, horizontalOffset, 0);
+    moved = true;
+  }
 
   if (verticalMove)
-    {
-      OffsetRect(AppletRect, 0, verticalOffset);
-      moved = true;
-    }
+  {
+    OffsetRect(AppletRect, 0, verticalOffset);
+    moved = true;
+  }
 
   return moved;
 }
@@ -372,92 +424,96 @@ bool ELSnapSize(LPSNAPSIZEINFO snapSize)
 
   if ((snapSize->AppletRect->left == snapSize->AppletRect->right) ||
       (snapSize->AppletRect->top == snapSize->AppletRect->bottom))
+  {
     return false;
+  }
 
   if (EnumWindows(SnapSizeEnum, (LPARAM)snapSize) == ERROR_SUCCESS)
+  {
     moved = true;
+  }
 
   ELGetDesktopRect(snapSize->AppletRect, &rt);
 
   switch (snapSize->AppletEdge)
+  {
+  case WMSZ_TOP:
+    if ((IsClose(snapSize->AppletRect->top, rt.top)) || (snapSize->AppletRect->top < rt.top))
     {
-    case WMSZ_TOP:
-      if ((IsClose(snapSize->AppletRect->top, rt.top)) || (snapSize->AppletRect->top < rt.top))
-        {
-          moved = true;
-          snapSize->AppletRect->top = rt.top;
-        }
-      break;
-    case WMSZ_TOPLEFT:
-      if ((IsClose(snapSize->AppletRect->top, rt.top)) || (snapSize->AppletRect->top < rt.top))
-        {
-          moved = true;
-          snapSize->AppletRect->top = rt.top;
-        }
-      if ((IsClose(snapSize->AppletRect->left, rt.left)) || (snapSize->AppletRect->left < rt.left))
-        {
-          moved = true;
-          snapSize->AppletRect->left = rt.left;
-        }
-      break;
-    case WMSZ_TOPRIGHT:
-      if ((IsClose(snapSize->AppletRect->top, rt.top)) || (snapSize->AppletRect->top < rt.top))
-        {
-          moved = true;
-          snapSize->AppletRect->top = rt.top;
-        }
-      if ((IsClose(snapSize->AppletRect->right, rt.right)) || (snapSize->AppletRect->right > rt.right))
-        {
-          moved = true;
-          snapSize->AppletRect->right = rt.right;
-        }
-      break;
-    case WMSZ_LEFT:
-      if ((IsClose(snapSize->AppletRect->left, rt.left)) || (snapSize->AppletRect->left < rt.left))
-        {
-          moved = true;
-          snapSize->AppletRect->left = rt.left;
-        }
-      break;
-    case WMSZ_RIGHT:
-      if ((IsClose(snapSize->AppletRect->right, rt.right)) || (snapSize->AppletRect->right > rt.right))
-        {
-          moved = true;
-          snapSize->AppletRect->right = rt.right;
-        }
-      break;
-    case WMSZ_BOTTOM:
-      if ((IsClose(snapSize->AppletRect->bottom, rt.bottom)) || (snapSize->AppletRect->bottom > rt.bottom))
-        {
-          moved = true;
-          snapSize->AppletRect->bottom = rt.bottom;
-        }
-      break;
-    case WMSZ_BOTTOMLEFT:
-      if ((IsClose(snapSize->AppletRect->bottom, rt.bottom)) || (snapSize->AppletRect->bottom > rt.bottom))
-        {
-          moved = true;
-          snapSize->AppletRect->bottom = rt.bottom;
-        }
-      if ((IsClose(snapSize->AppletRect->left, rt.left)) || (snapSize->AppletRect->left < rt.left))
-        {
-          moved = true;
-          snapSize->AppletRect->left = rt.left;
-        }
-      break;
-    case WMSZ_BOTTOMRIGHT:
-      if ((IsClose(snapSize->AppletRect->bottom, rt.bottom)) || (snapSize->AppletRect->bottom > rt.bottom))
-        {
-          moved = true;
-          snapSize->AppletRect->bottom = rt.bottom;
-        }
-      if ((IsClose(snapSize->AppletRect->right, rt.right)) || (snapSize->AppletRect->right > rt.right))
-        {
-          moved = true;
-          snapSize->AppletRect->right = rt.right;
-        }
-      break;
+      moved = true;
+      snapSize->AppletRect->top = rt.top;
     }
+    break;
+  case WMSZ_TOPLEFT:
+    if ((IsClose(snapSize->AppletRect->top, rt.top)) || (snapSize->AppletRect->top < rt.top))
+    {
+      moved = true;
+      snapSize->AppletRect->top = rt.top;
+    }
+    if ((IsClose(snapSize->AppletRect->left, rt.left)) || (snapSize->AppletRect->left < rt.left))
+    {
+      moved = true;
+      snapSize->AppletRect->left = rt.left;
+    }
+    break;
+  case WMSZ_TOPRIGHT:
+    if ((IsClose(snapSize->AppletRect->top, rt.top)) || (snapSize->AppletRect->top < rt.top))
+    {
+      moved = true;
+      snapSize->AppletRect->top = rt.top;
+    }
+    if ((IsClose(snapSize->AppletRect->right, rt.right)) || (snapSize->AppletRect->right > rt.right))
+    {
+      moved = true;
+      snapSize->AppletRect->right = rt.right;
+    }
+    break;
+  case WMSZ_LEFT:
+    if ((IsClose(snapSize->AppletRect->left, rt.left)) || (snapSize->AppletRect->left < rt.left))
+    {
+      moved = true;
+      snapSize->AppletRect->left = rt.left;
+    }
+    break;
+  case WMSZ_RIGHT:
+    if ((IsClose(snapSize->AppletRect->right, rt.right)) || (snapSize->AppletRect->right > rt.right))
+    {
+      moved = true;
+      snapSize->AppletRect->right = rt.right;
+    }
+    break;
+  case WMSZ_BOTTOM:
+    if ((IsClose(snapSize->AppletRect->bottom, rt.bottom)) || (snapSize->AppletRect->bottom > rt.bottom))
+    {
+      moved = true;
+      snapSize->AppletRect->bottom = rt.bottom;
+    }
+    break;
+  case WMSZ_BOTTOMLEFT:
+    if ((IsClose(snapSize->AppletRect->bottom, rt.bottom)) || (snapSize->AppletRect->bottom > rt.bottom))
+    {
+      moved = true;
+      snapSize->AppletRect->bottom = rt.bottom;
+    }
+    if ((IsClose(snapSize->AppletRect->left, rt.left)) || (snapSize->AppletRect->left < rt.left))
+    {
+      moved = true;
+      snapSize->AppletRect->left = rt.left;
+    }
+    break;
+  case WMSZ_BOTTOMRIGHT:
+    if ((IsClose(snapSize->AppletRect->bottom, rt.bottom)) || (snapSize->AppletRect->bottom > rt.bottom))
+    {
+      moved = true;
+      snapSize->AppletRect->bottom = rt.bottom;
+    }
+    if ((IsClose(snapSize->AppletRect->right, rt.right)) || (snapSize->AppletRect->right > rt.right))
+    {
+      moved = true;
+      snapSize->AppletRect->right = rt.right;
+    }
+    break;
+  }
 
   return moved;
 }
@@ -482,64 +538,64 @@ bool SnapMoveToEdge(LPSNAPMOVEINFO snapMove, RECT rt)
   int horizontalOffset = 0;
 
   if (IsClose(snapMove->AppletRect->top, rt.top))
-    {
-      verticalSnap = true;
-      verticalOffset = rt.top - snapMove->AppletRect->top;
-    }
+  {
+    verticalSnap = true;
+    verticalOffset = rt.top - snapMove->AppletRect->top;
+  }
   else if (IsClose(snapMove->AppletRect->bottom, rt.top))
-    {
-      verticalSnap = true;
-      verticalOffset = rt.top - snapMove->AppletRect->bottom;
-    }
+  {
+    verticalSnap = true;
+    verticalOffset = rt.top - snapMove->AppletRect->bottom;
+  }
   else if (IsClose(snapMove->AppletRect->bottom, rt.bottom))
-    {
-      verticalSnap = true;
-      verticalOffset = rt.bottom - snapMove->AppletRect->bottom;
-    }
+  {
+    verticalSnap = true;
+    verticalOffset = rt.bottom - snapMove->AppletRect->bottom;
+  }
   else if (IsClose(snapMove->AppletRect->top, rt.bottom))
-    {
-      verticalSnap = true;
-      verticalOffset = rt.bottom - snapMove->AppletRect->top;
-    }
+  {
+    verticalSnap = true;
+    verticalOffset = rt.bottom - snapMove->AppletRect->top;
+  }
   else if (((snapMove->AppletRect->top < rt.bottom) && (snapMove->AppletRect->top > rt.top)) ||
            ((snapMove->AppletRect->bottom > rt.top) && (snapMove->AppletRect->bottom < rt.bottom)))
-    {
-      verticalSnap = true;
-      verticalOffset = 0;
-    }
+  {
+    verticalSnap = true;
+    verticalOffset = 0;
+  }
 
   if (IsClose(snapMove->AppletRect->left, rt.left))
-    {
-      horizontalSnap = true;
-      horizontalOffset = rt.left - snapMove->AppletRect->left;
-    }
+  {
+    horizontalSnap = true;
+    horizontalOffset = rt.left - snapMove->AppletRect->left;
+  }
   else if (IsClose(snapMove->AppletRect->right, rt.left))
-    {
-      horizontalSnap = true;
-      horizontalOffset = rt.left - snapMove->AppletRect->right;
-    }
+  {
+    horizontalSnap = true;
+    horizontalOffset = rt.left - snapMove->AppletRect->right;
+  }
   else if (IsClose(snapMove->AppletRect->right, rt.right))
-    {
-      horizontalSnap = true;
-      horizontalOffset = rt.right - snapMove->AppletRect->right;
-    }
+  {
+    horizontalSnap = true;
+    horizontalOffset = rt.right - snapMove->AppletRect->right;
+  }
   else if (IsClose(snapMove->AppletRect->left, rt.right))
-    {
-      horizontalSnap = true;
-      horizontalOffset = rt.right - snapMove->AppletRect->left;
-    }
+  {
+    horizontalSnap = true;
+    horizontalOffset = rt.right - snapMove->AppletRect->left;
+  }
   else if (((snapMove->AppletRect->left < rt.right) && (snapMove->AppletRect->left > rt.left)) ||
            ((snapMove->AppletRect->right > rt.left) && (snapMove->AppletRect->right < rt.right)))
-    {
-      horizontalSnap = true;
-      horizontalOffset = 0;
-    }
+  {
+    horizontalSnap = true;
+    horizontalOffset = 0;
+  }
 
   if (verticalSnap && horizontalSnap)
-    {
-      OffsetRect(snapMove->AppletRect, horizontalOffset, verticalOffset);
-      return true;
-    }
+  {
+    OffsetRect(snapMove->AppletRect, horizontalOffset, verticalOffset);
+    return true;
+  }
 
   return false;
 }
@@ -552,157 +608,163 @@ bool SnapSizeToEdge(LPSNAPSIZEINFO snapSize, RECT rt)
 
   if (IsClose(snapSize->AppletRect->top, rt.bottom) || IsClose(snapSize->AppletRect->top, rt.top) ||
       IsClose(snapSize->AppletRect->bottom, rt.bottom) || IsClose(snapSize->AppletRect->bottom, rt.top))
+  {
     verticalSnap = true;
+  }
   if (IsClose(snapSize->AppletRect->left, rt.right) || IsClose(snapSize->AppletRect->left, rt.left) ||
       IsClose(snapSize->AppletRect->right, rt.right) || IsClose(snapSize->AppletRect->right, rt.left))
+  {
     horizontalSnap = true;
+  }
 
   if (!verticalSnap || !horizontalSnap)
+  {
     return false;
+  }
 
   switch (snapSize->AppletEdge)
+  {
+  case WMSZ_TOP:
+    if (IsClose(snapSize->AppletRect->top, rt.top))
     {
-    case WMSZ_TOP:
-      if (IsClose(snapSize->AppletRect->top, rt.top))
-        {
-          snapSize->AppletRect->top = rt.top;
-          moved = true;
-        }
-      else if (IsClose(snapSize->AppletRect->top, rt.bottom))
-        {
-          snapSize->AppletRect->top = rt.bottom;
-          moved = true;
-        }
-      break;
-    case WMSZ_TOPLEFT:
-      if (IsClose(snapSize->AppletRect->top, rt.top))
-        {
-          snapSize->AppletRect->top = rt.top;
-          moved = true;
-        }
-      else if (IsClose(snapSize->AppletRect->top, rt.bottom))
-        {
-          snapSize->AppletRect->top = rt.bottom;
-          moved = true;
-        }
-
-      if (IsClose(snapSize->AppletRect->left, rt.left))
-        {
-          moved = true;
-          snapSize->AppletRect->left = rt.left;
-        }
-      else if (IsClose(snapSize->AppletRect->left, rt.right))
-        {
-          moved = true;
-          snapSize->AppletRect->left = rt.right;
-        }
-      break;
-    case WMSZ_TOPRIGHT:
-      if (IsClose(snapSize->AppletRect->top, rt.top))
-        {
-          snapSize->AppletRect->top = rt.top;
-          moved = true;
-        }
-      else if (IsClose(snapSize->AppletRect->top, rt.bottom))
-        {
-          snapSize->AppletRect->top = rt.bottom;
-          moved = true;
-        }
-
-      if (IsClose(snapSize->AppletRect->right, rt.right))
-        {
-          moved = true;
-          snapSize->AppletRect->right = rt.right;
-        }
-      else if (IsClose(snapSize->AppletRect->right, rt.left))
-        {
-          moved = true;
-          snapSize->AppletRect->right = rt.left;
-        }
-      break;
-    case WMSZ_LEFT:
-      if (IsClose(snapSize->AppletRect->left, rt.left))
-        {
-          moved = true;
-          snapSize->AppletRect->left = rt.left;
-        }
-      else if (IsClose(snapSize->AppletRect->left, rt.right))
-        {
-          moved = true;
-          snapSize->AppletRect->left = rt.right;
-        }
-      break;
-    case WMSZ_RIGHT:
-      if (IsClose(snapSize->AppletRect->right, rt.right))
-        {
-          moved = true;
-          snapSize->AppletRect->right = rt.right;
-        }
-      else if (IsClose(snapSize->AppletRect->right, rt.left))
-        {
-          moved = true;
-          snapSize->AppletRect->right = rt.left;
-        }
-      break;
-    case WMSZ_BOTTOM:
-      if (IsClose(snapSize->AppletRect->bottom, rt.bottom))
-        {
-          moved = true;
-          snapSize->AppletRect->bottom = rt.bottom;
-        }
-      else if (IsClose(snapSize->AppletRect->bottom, rt.top))
-        {
-          moved = true;
-          snapSize->AppletRect->bottom = rt.top;
-        }
-      break;
-    case WMSZ_BOTTOMLEFT:
-      if (IsClose(snapSize->AppletRect->bottom, rt.bottom))
-        {
-          moved = true;
-          snapSize->AppletRect->bottom = rt.bottom;
-        }
-      else if (IsClose(snapSize->AppletRect->bottom, rt.top))
-        {
-          moved = true;
-          snapSize->AppletRect->bottom = rt.top;
-        }
-
-      if (IsClose(snapSize->AppletRect->left, rt.left))
-        {
-          moved = true;
-          snapSize->AppletRect->left = rt.left;
-        }
-      else if (IsClose(snapSize->AppletRect->left, rt.right))
-        {
-          moved = true;
-          snapSize->AppletRect->left = rt.right;
-        }
-      break;
-    case WMSZ_BOTTOMRIGHT:
-      if (IsClose(snapSize->AppletRect->bottom, rt.bottom))
-        {
-          moved = true;
-          snapSize->AppletRect->bottom = rt.bottom;
-        }
-      else if (IsClose(snapSize->AppletRect->bottom, rt.top))
-        {
-          moved = true;
-          snapSize->AppletRect->bottom = rt.top;
-        }
-
-      if (IsClose(snapSize->AppletRect->right, rt.right))
-        {
-          moved = true;
-          snapSize->AppletRect->right = rt.right;
-        }
-      else if (IsClose(snapSize->AppletRect->right, rt.left))
-        {
-          moved = true;
-          snapSize->AppletRect->right = rt.left;
-        }
-      break;
+      snapSize->AppletRect->top = rt.top;
+      moved = true;
     }
+    else if (IsClose(snapSize->AppletRect->top, rt.bottom))
+    {
+      snapSize->AppletRect->top = rt.bottom;
+      moved = true;
+    }
+    break;
+  case WMSZ_TOPLEFT:
+    if (IsClose(snapSize->AppletRect->top, rt.top))
+    {
+      snapSize->AppletRect->top = rt.top;
+      moved = true;
+    }
+    else if (IsClose(snapSize->AppletRect->top, rt.bottom))
+    {
+      snapSize->AppletRect->top = rt.bottom;
+      moved = true;
+    }
+
+    if (IsClose(snapSize->AppletRect->left, rt.left))
+    {
+      moved = true;
+      snapSize->AppletRect->left = rt.left;
+    }
+    else if (IsClose(snapSize->AppletRect->left, rt.right))
+    {
+      moved = true;
+      snapSize->AppletRect->left = rt.right;
+    }
+    break;
+  case WMSZ_TOPRIGHT:
+    if (IsClose(snapSize->AppletRect->top, rt.top))
+    {
+      snapSize->AppletRect->top = rt.top;
+      moved = true;
+    }
+    else if (IsClose(snapSize->AppletRect->top, rt.bottom))
+    {
+      snapSize->AppletRect->top = rt.bottom;
+      moved = true;
+    }
+
+    if (IsClose(snapSize->AppletRect->right, rt.right))
+    {
+      moved = true;
+      snapSize->AppletRect->right = rt.right;
+    }
+    else if (IsClose(snapSize->AppletRect->right, rt.left))
+    {
+      moved = true;
+      snapSize->AppletRect->right = rt.left;
+    }
+    break;
+  case WMSZ_LEFT:
+    if (IsClose(snapSize->AppletRect->left, rt.left))
+    {
+      moved = true;
+      snapSize->AppletRect->left = rt.left;
+    }
+    else if (IsClose(snapSize->AppletRect->left, rt.right))
+    {
+      moved = true;
+      snapSize->AppletRect->left = rt.right;
+    }
+    break;
+  case WMSZ_RIGHT:
+    if (IsClose(snapSize->AppletRect->right, rt.right))
+    {
+      moved = true;
+      snapSize->AppletRect->right = rt.right;
+    }
+    else if (IsClose(snapSize->AppletRect->right, rt.left))
+    {
+      moved = true;
+      snapSize->AppletRect->right = rt.left;
+    }
+    break;
+  case WMSZ_BOTTOM:
+    if (IsClose(snapSize->AppletRect->bottom, rt.bottom))
+    {
+      moved = true;
+      snapSize->AppletRect->bottom = rt.bottom;
+    }
+    else if (IsClose(snapSize->AppletRect->bottom, rt.top))
+    {
+      moved = true;
+      snapSize->AppletRect->bottom = rt.top;
+    }
+    break;
+  case WMSZ_BOTTOMLEFT:
+    if (IsClose(snapSize->AppletRect->bottom, rt.bottom))
+    {
+      moved = true;
+      snapSize->AppletRect->bottom = rt.bottom;
+    }
+    else if (IsClose(snapSize->AppletRect->bottom, rt.top))
+    {
+      moved = true;
+      snapSize->AppletRect->bottom = rt.top;
+    }
+
+    if (IsClose(snapSize->AppletRect->left, rt.left))
+    {
+      moved = true;
+      snapSize->AppletRect->left = rt.left;
+    }
+    else if (IsClose(snapSize->AppletRect->left, rt.right))
+    {
+      moved = true;
+      snapSize->AppletRect->left = rt.right;
+    }
+    break;
+  case WMSZ_BOTTOMRIGHT:
+    if (IsClose(snapSize->AppletRect->bottom, rt.bottom))
+    {
+      moved = true;
+      snapSize->AppletRect->bottom = rt.bottom;
+    }
+    else if (IsClose(snapSize->AppletRect->bottom, rt.top))
+    {
+      moved = true;
+      snapSize->AppletRect->bottom = rt.top;
+    }
+
+    if (IsClose(snapSize->AppletRect->right, rt.right))
+    {
+      moved = true;
+      snapSize->AppletRect->right = rt.right;
+    }
+    else if (IsClose(snapSize->AppletRect->right, rt.left))
+    {
+      moved = true;
+      snapSize->AppletRect->right = rt.left;
+    }
+    break;
+  }
 
   return moved;
 }
@@ -710,7 +772,9 @@ bool SnapSizeToEdge(LPSNAPSIZEINFO snapSize, RECT rt)
 BOOL CALLBACK AppletMonitorEnum(HMONITOR hMonitor, HDC hdcMonitor UNUSED, LPRECT lprcMonitor UNUSED, LPARAM dwData)
 {
   if (((LPAPPLETMONITORINFO)dwData)->appletMonitor == hMonitor)
+  {
     return FALSE;
+  }
 
   ((LPAPPLETMONITORINFO)dwData)->appletMonitorNum++;
 
@@ -758,10 +822,10 @@ BOOL CALLBACK FullscreenEnum(HWND hwnd, LPARAM lParam)
 BOOL CALLBACK MonitorRectEnum(HMONITOR hMonitor UNUSED, HDC hdcMonitor UNUSED, LPRECT lprcMonitor, LPARAM dwData)
 {
   if (enumCount == ((LPAPPLETMONITORINFO)dwData)->appletMonitorNum)
-    {
-      CopyRect(&((LPAPPLETMONITORINFO)dwData)->appletMonitorRect, lprcMonitor);
-      return FALSE;
-    }
+  {
+    CopyRect(&((LPAPPLETMONITORINFO)dwData)->appletMonitorRect, lprcMonitor);
+    return FALSE;
+  }
 
   enumCount++;
 
@@ -774,21 +838,27 @@ BOOL CALLBACK SnapMoveEnum(HWND hwnd, LPARAM lParam)
   RECT hwndRect;
 
   if (hwnd == ((LPSNAPMOVEINFO)lParam)->AppletWindow)
+  {
     return true;
+  }
 
   if (GetClassName(hwnd, hwndClass, MAX_LINE_LENGTH) == 0)
+  {
     return true;
+  }
 
   if (_wcsicmp(hwndClass, TEXT("EmergeDesktopApplet")) != 0)
+  {
     return true;
+  }
 
   hwndRect = ELGetWindowRect(hwnd);
 
   if (SnapMoveToEdge((LPSNAPMOVEINFO)lParam, hwndRect))
-    {
-      SetLastError(ERROR_SUCCESS);
-      return false;
-    }
+  {
+    SetLastError(ERROR_SUCCESS);
+    return false;
+  }
 
   return true;
 }
@@ -799,21 +869,27 @@ BOOL CALLBACK SnapSizeEnum(HWND hwnd, LPARAM lParam)
   RECT hwndRect;
 
   if (hwnd == ((LPSNAPSIZEINFO)lParam)->AppletWindow)
+  {
     return true;
+  }
 
   if (GetClassName(hwnd, hwndClass, MAX_LINE_LENGTH) == 0)
+  {
     return true;
+  }
 
   if (_wcsicmp(hwndClass, TEXT("EmergeDesktopApplet")) != 0)
+  {
     return true;
+  }
 
   hwndRect = ELGetWindowRect(hwnd);
 
   if (SnapSizeToEdge((LPSNAPSIZEINFO)lParam, hwndRect))
-    {
-      SetLastError(ERROR_SUCCESS);
-      return false;
-    }
+  {
+    SetLastError(ERROR_SUCCESS);
+    return false;
+  }
 
   return true;
 }

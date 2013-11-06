@@ -77,7 +77,7 @@ public:
   BOOL DoInitDialog(HWND hwndDlg, bool updatePos);
   BOOL DoCommand(HWND hwndDlg, WPARAM wParam, LPARAM lParam);
   BOOL DoNotify(HWND hwndDlg, LPARAM lParam);
-  BOOL DoColourChooser(COLORREF *colour, HWND hwndDlg);
+  BOOL DoColourChooser(COLORREF* colour, HWND hwndDlg);
   BOOL DoLoad(HWND hwndDlg);
   BOOL DoSwitch(HWND hwndDlg);
   void DoSaveAs(HWND hwndDlg);

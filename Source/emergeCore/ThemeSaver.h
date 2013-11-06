@@ -54,7 +54,7 @@ class ThemeSaver
 public:
   ThemeSaver(HINSTANCE hInstance, HWND mainWnd);
   ~ThemeSaver();
-  int Show(WCHAR *theme);
+  int Show(WCHAR* theme);
   BOOL DoInitDialog(HWND hwndDlg);
   BOOL DoThemeCommand(HWND hwndDlg, WPARAM wParam, LPARAM lParam);
 

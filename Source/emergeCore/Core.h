@@ -72,7 +72,7 @@ private:
   void ConvertTheme();
   bool CheckLaunchList();
   bool BuildLaunchList();
-  void CheckLaunchItem(LaunchMap *launchMap, std::wstring item);
+  void CheckLaunchItem(LaunchMap* launchMap, std::wstring item);
   void StartExplorer();
   void EnableExplorerDesktop();
   std::wstring xmlFile;
@@ -85,10 +85,10 @@ public:
   ~Core();
   void About();
   void ShowConfig(UINT startPage);
-  bool Initialize(WCHAR *commandLine);
+  bool Initialize(WCHAR* commandLine);
   LRESULT DoWTSSessionChange(UINT message);
   LRESULT DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
-  LRESULT DoCopyData(COPYDATASTRUCT *cds);
+  LRESULT DoCopyData(COPYDATASTRUCT* cds);
 };
 
 #endif

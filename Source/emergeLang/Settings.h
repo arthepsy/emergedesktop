@@ -29,26 +29,26 @@
 class Settings: public BaseSettings
 {
 public:
-	Settings();
-	void SetFont(LOGFONT *logFont);
-	LOGFONT *GetFont();
-	LCTYPE GetDisplayLCType();
-	int GetDisplayType();
-	void SetDisplayType(int value);
-	bool IsUpperCase();
-	void SetUpperCase(bool value);
+  Settings();
+  void SetFont(LOGFONT* logFont);
+  LOGFONT* GetFont();
+  LCTYPE GetDisplayLCType();
+  int GetDisplayType();
+  void SetDisplayType(int value);
+  bool IsUpperCase();
+  void SetUpperCase(bool value);
 
 protected:
-	virtual void DoReadSettings(IOHelper& helper);
-	virtual void DoWriteSettings(IOHelper& helper);
-	virtual void DoInitialize();
-	virtual void ResetDefaults();
+  virtual void DoReadSettings(IOHelper& helper);
+  virtual void DoWriteSettings(IOHelper& helper);
+  virtual void DoInitialize();
+  virtual void ResetDefaults();
 
 private:
-	std::wstring fontString;
-	LOGFONT logFont;
-	int displayType;
-	bool upperCase;
+  std::wstring fontString;
+  LOGFONT logFont;
+  int displayType;
+  bool upperCase;
 };
 
 #endif

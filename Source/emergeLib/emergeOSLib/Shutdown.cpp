@@ -21,26 +21,28 @@
 #include "Shutdown.h"
 #include <stdio.h>
 
-extern Shutdown *pShutdown;
+extern Shutdown* pShutdown;
 
 BOOL CALLBACK Shutdown::ShutdownDlgProc(HWND hwndDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
-  static Shutdown *pShutdown = NULL;
+  static Shutdown* pShutdown = NULL;
 
   switch (message)
+  {
+  case WM_INITDIALOG:
+    pShutdown = reinterpret_cast<Shutdown*>(lParam);
+    if (!pShutdown)
     {
-    case WM_INITDIALOG:
-      pShutdown = reinterpret_cast<Shutdown*>(lParam);
-      if (!pShutdown)
-        break;
-      return pShutdown->DoInitDialog(hwndDlg);
-
-    case WM_COMMAND:
-      return pShutdown->DoCommand(hwndDlg, wParam, lParam);
-
-    case WM_NOTIFY:
-      return pShutdown->DoNotify(hwndDlg, lParam);
+      break;
     }
+    return pShutdown->DoInitDialog(hwndDlg);
+
+  case WM_COMMAND:
+    return pShutdown->DoCommand(hwndDlg, wParam, lParam);
+
+  case WM_NOTIFY:
+    return pShutdown->DoNotify(hwndDlg, lParam);
+  }
 
   return FALSE;
 }
@@ -60,7 +62,9 @@ Shutdown::Shutdown(HINSTANCE hInstance, HWND mainWnd)
 Shutdown::~Shutdown()
 {
   if (logoBMP)
+  {
     DeleteObject(logoBMP);
+  }
 
   FreeLibrary(hIconsDLL);
 }
@@ -87,7 +91,9 @@ BOOL Shutdown::DoInitDialog(HWND hwndDlg)
   ELStealFocus(hwndDlg);
 
   if (logoBMP)
+  {
     SendDlgItemMessage(hwndDlg, IDC_LOGO, STM_SETIMAGE, IMAGE_BITMAP, (LPARAM)logoBMP);
+  }
 
   SendDlgItemMessage(hwndDlg, IDC_METHOD, CB_ADDSTRING, 0, (LPARAM)TEXT("Turn Off"));
   SendDlgItemMessage(hwndDlg, IDC_METHOD, CB_ADDSTRING, 0, (LPARAM)TEXT("Restart"));
@@ -97,13 +103,13 @@ BOOL Shutdown::DoInitDialog(HWND hwndDlg)
 #ifndef _W64
   if (WTSQuerySessionInformation(WTS_CURRENT_SERVER_HANDLE,
                                  WTS_CURRENT_SESSION, WTSConnectState, &pData, &cbReturned) && cbReturned == sizeof(int))
+  {
+    if (*((int*)pData) == WTSActive)
     {
-      if (*((int *)pData) == WTSActive)
-        {
-          enableDisconnect = true;
-          SendDlgItemMessage(hwndDlg, IDC_METHOD, CB_ADDSTRING, 0, (LPARAM)TEXT("Disconnect"));
-        }
+      enableDisconnect = true;
+      SendDlgItemMessage(hwndDlg, IDC_METHOD, CB_ADDSTRING, 0, (LPARAM)TEXT("Disconnect"));
     }
+  }
   WTSFreeMemory(pData);
 #endif
 
@@ -115,15 +121,17 @@ BOOL Shutdown::DoInitDialog(HWND hwndDlg)
 BOOL Shutdown::DoCommand(HWND hwndDlg, WPARAM wParam, LPARAM lParam UNUSED)
 {
   switch (LOWORD(wParam))
+  {
+  case IDOK:
+    if (DoShutdown(hwndDlg))
     {
-    case IDOK:
-      if (DoShutdown(hwndDlg))
-        EndDialog(hwndDlg, wParam);
-      return TRUE;
-    case IDCANCEL:
       EndDialog(hwndDlg, wParam);
-      return TRUE;
     }
+    return TRUE;
+  case IDCANCEL:
+    EndDialog(hwndDlg, wParam);
+    return TRUE;
+  }
 
   return FALSE;
 }
@@ -136,31 +144,31 @@ bool Shutdown::DoShutdown(HWND hwndDlg)
   choice = (int)SendDlgItemMessage(hwndDlg, IDC_METHOD, CB_GETCURSEL, 0, 0);
 
   switch (choice)
+  {
+  case 0:
+    method = EMERGE_HALT;
+    break;
+  case 1:
+    method = EMERGE_REBOOT;
+    break;
+  case 2:
+    method = EMERGE_SUSPEND;
+    break;
+  case 3:
+    method = EMERGE_HIBERNATE;
+    break;
+  case 4:
+    method = EMERGE_LOGOFF;
+    break;
+  case 5:
+    if (enableDisconnect)
     {
-    case 0:
-      method = EMERGE_HALT;
+      method = EMERGE_DISCONNECT;
       break;
-    case 1:
-      method = EMERGE_REBOOT;
-      break;
-    case 2:
-      method = EMERGE_SUSPEND;
-      break;
-    case 3:
-      method = EMERGE_HIBERNATE;
-      break;
-    case 4:
-      method = EMERGE_LOGOFF;
-      break;
-    case 5:
-      if (enableDisconnect)
-        {
-          method = EMERGE_DISCONNECT;
-          break;
-        }
-    default:
-      return false;
     }
+  default:
+    return false;
+  }
 
   ELExit(method, false);
 

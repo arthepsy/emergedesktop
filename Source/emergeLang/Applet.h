@@ -46,27 +46,27 @@
 class Applet: public BaseApplet
 {
 private:
-	HFONT mainFont;
-	static LRESULT CALLBACK WindowProcedure (HWND, UINT, WPARAM, LPARAM);
-	DWORD GetCurrentActiveThread();
-	LCID GetLocaleId(DWORD threadId);
-	std::tr1::shared_ptr<Settings> pSettings;
+  HFONT mainFont;
+  static LRESULT CALLBACK WindowProcedure (HWND, UINT, WPARAM, LPARAM);
+  DWORD GetCurrentActiveThread();
+  LCID GetLocaleId(DWORD threadId);
+  std::tr1::shared_ptr<Settings> pSettings;
 
-	void UpdateLanguage();
+  void UpdateLanguage();
 
-	LCID displayLang;
-	WCHAR displayLabel[MAX_LABEL];
-	void UpdateLabel(LCID lang);
-	void UpdateTooltip(LCID lang);
+  LCID displayLang;
+  WCHAR displayLabel[MAX_LABEL];
+  void UpdateLabel(LCID lang);
+  void UpdateTooltip(LCID lang);
 
 public:
-	Applet(HINSTANCE hInstance);
-	~Applet();
-	UINT Initialize();
-	LRESULT DoTimer(UINT_PTR timerID);
-	void AppletUpdate();
-	void ShowConfig();
-	LRESULT PaintContent(HDC hdc, RECT clientrt);
+  Applet(HINSTANCE hInstance);
+  ~Applet();
+  UINT Initialize();
+  LRESULT DoTimer(UINT_PTR timerID);
+  void AppletUpdate();
+  void ShowConfig();
+  LRESULT PaintContent(HDC hdc, RECT clientrt);
 };
 
 #endif

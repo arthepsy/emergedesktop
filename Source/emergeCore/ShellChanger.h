@@ -100,11 +100,11 @@ private:
   bool DoBrowseShell(HWND hwndDlg);
   bool WriteShells(HWND hwndDlg);
   bool DoDelShell(HWND hwndDlg);
-  bool DeleteShell(HWND hwndDlg, WCHAR *name);
+  bool DeleteShell(HWND hwndDlg, WCHAR* name);
   bool DoSetShell(HWND hwndDlg);
   bool DoEditShell(HWND hwndDlg);
   bool DoAbortShell(HWND hwndDlg);
-  int GetShellCommand(HWND hwndDlg, WCHAR *name, WCHAR *command);
+  int GetShellCommand(HWND hwndDlg, WCHAR* name, WCHAR* command);
   HINSTANCE hInstance;
   HWND mainWnd, toolWnd;
   bool edit;

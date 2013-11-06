@@ -24,26 +24,28 @@
 
 BOOL CALLBACK Actions::ActionsDlgProc(HWND hwndDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
-  static Actions *pActions = NULL;
+  static Actions* pActions = NULL;
 
   switch (message)
+  {
+  case WM_INITDIALOG:
+    pActions = reinterpret_cast<Actions*>(lParam);
+    if (!pActions)
     {
-    case WM_INITDIALOG:
-      pActions = reinterpret_cast<Actions*>(lParam);
-      if (!pActions)
-        break;
-      return pActions->DoInitDialog(hwndDlg);
+      break;
+    }
+    return pActions->DoInitDialog(hwndDlg);
 
-    case WM_COMMAND:
-      return pActions->DoCommand(hwndDlg, wParam, lParam);
+  case WM_COMMAND:
+    return pActions->DoCommand(hwndDlg, wParam, lParam);
 
-    case WM_NOTIFY:
+  case WM_NOTIFY:
     {
       long lResult = pActions->DoNotify(hwndDlg, lParam);
       SetWindowLongPtr(hwndDlg, DWLP_MSGRESULT, lResult);
       return TRUE;
     }
-    }
+  }
 
   return FALSE;
 }
@@ -68,7 +70,7 @@ Actions::Actions(HINSTANCE hInstance, HWND mainWnd, std::tr1::shared_ptr<Setting
               0,
               TOOLTIPS_CLASS,
               NULL,
-              TTS_ALWAYSTIP|WS_POPUP|TTS_NOPREFIX,
+              TTS_ALWAYSTIP | WS_POPUP | TTS_NOPREFIX,
               CW_USEDEFAULT, CW_USEDEFAULT,
               CW_USEDEFAULT, CW_USEDEFAULT,
               NULL,
@@ -77,11 +79,11 @@ Actions::Actions(HINSTANCE hInstance, HWND mainWnd, std::tr1::shared_ptr<Setting
               NULL);
 
   if (toolWnd)
-    {
-      SendMessage(toolWnd, TTM_SETMAXTIPWIDTH, 0, 300);
-      SetWindowPos(toolWnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE |
-                   SWP_NOACTIVATE);
-    }
+  {
+    SendMessage(toolWnd, TTM_SETMAXTIPWIDTH, 0, 300);
+    SetWindowPos(toolWnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE |
+                 SWP_NOACTIVATE);
+  }
 
   ExtractIconEx(TEXT("emergeIcons.dll"), 2, NULL, &addIcon, 1);
   ExtractIconEx(TEXT("emergeIcons.dll"), 5, NULL, &editIcon, 1);
@@ -100,15 +102,25 @@ Actions::~Actions()
   UnregisterHotkeyList();
 
   if (addIcon)
+  {
     DestroyIcon(addIcon);
+  }
   if (delIcon)
+  {
     DestroyIcon(delIcon);
+  }
   if (editIcon)
+  {
     DestroyIcon(editIcon);
+  }
   if (fileIcon)
+  {
     DestroyIcon(fileIcon);
+  }
   if (folderIcon)
+  {
     DestroyIcon(folderIcon);
+  }
 
   DestroyWindow(toolWnd);
 }
@@ -116,39 +128,45 @@ Actions::~Actions()
 void Actions::UnregisterHotkeyList()
 {
   for (UINT i = 0; i < pSettings->GetHotkeyListSize(); i++)
+  {
     UnregisterHotKey(mainWnd, pSettings->GetHotkeyListItem(i)->GetHotkeyID());
+  }
 }
 
 void Actions::RegisterHotkeyList(bool showError)
 {
   bool failedHotkeys = false;
-  HotkeyCombo *pHotkeyCombo;
+  HotkeyCombo* pHotkeyCombo;
 
   for (UINT i = 0; i < pSettings->GetHotkeyListSize(); i++)
+  {
+    pHotkeyCombo = pSettings->GetHotkeyListItem(i);
+    if (!RegisterHotKey(mainWnd, pHotkeyCombo->GetHotkeyID(),
+                        pHotkeyCombo->GetHotkeyModifiers(),
+                        pHotkeyCombo->GetHotkeyKey()))
     {
-      pHotkeyCombo = pSettings->GetHotkeyListItem(i);
-      if (!RegisterHotKey(mainWnd, pHotkeyCombo->GetHotkeyID(),
-                          pHotkeyCombo->GetHotkeyModifiers(),
-                          pHotkeyCombo->GetHotkeyKey()))
-        {
-          failedHotkeys = true;
-          pHotkeyCombo->SetValid(false);
-        }
+      failedHotkeys = true;
+      pHotkeyCombo->SetValid(false);
     }
+  }
 
   if (failedHotkeys && showError)
+  {
+    if (ELMessageBox(GetDesktopWindow(), TEXT("Some Hotkeys failed to register"),
+                     (WCHAR*)TEXT("emergeHotkeys"),
+                     ELMB_OK | ELMB_ICONERROR | ELMB_MODAL) == IDOK)
     {
-      if (ELMessageBox(GetDesktopWindow(), TEXT("Some Hotkeys failed to register"),
-                       (WCHAR*)TEXT("emergeHotkeys"),
-                       ELMB_OK|ELMB_ICONERROR|ELMB_MODAL) == IDOK)
-        Show();
+      Show();
     }
+  }
 }
 
 int Actions::Show()
 {
   if (!dialogVisible)
+  {
     return (int)DialogBoxParam(hInstance, MAKEINTRESOURCE(IDD_ACTIONS), mainWnd, (DLGPROC)ActionsDlgProc, (LPARAM)this);
+  }
 
   return 0;
 }
@@ -194,7 +212,7 @@ BOOL Actions::DoInitDialog(HWND hwndDlg)
   SetWindowPos(hwndDlg, HWND_TOPMOST, x, y, 0, 0, SWP_NOSIZE);
 
   ELStealFocus(hwndDlg);
-  SetWindowPos(hwndDlg, HWND_TOPMOST, 0, 0, 0, 0,  SWP_NOSIZE|SWP_NOMOVE);
+  SetWindowPos(hwndDlg, HWND_TOPMOST, 0, 0, 0, 0,  SWP_NOSIZE | SWP_NOMOVE);
 
   lvCol.mask = LVCF_TEXT | LVCF_WIDTH;
   lvCol.pszText = (WCHAR*)TEXT("Key Combination");
@@ -216,19 +234,33 @@ BOOL Actions::DoInitDialog(HWND hwndDlg)
   pSettings->BuildList(mainWnd, true);
 
   if (addIcon)
+  {
     SendMessage(addWnd, BM_SETIMAGE, IMAGE_ICON, (LPARAM)addIcon);
+  }
   if (delIcon)
+  {
     SendMessage(delWnd, BM_SETIMAGE, IMAGE_ICON, (LPARAM)delIcon);
+  }
   if (editIcon)
+  {
     SendMessage(editWnd, BM_SETIMAGE, IMAGE_ICON, (LPARAM)editIcon);
+  }
   if (fileIcon)
+  {
     SendMessage(fileWnd, BM_SETIMAGE, IMAGE_ICON, (LPARAM)fileIcon);
+  }
   if (folderIcon)
+  {
     SendMessage(folderWnd, BM_SETIMAGE, IMAGE_ICON, (LPARAM)folderIcon);
+  }
   if (saveIcon)
+  {
     SendMessage(saveWnd, BM_SETIMAGE, IMAGE_ICON, (LPARAM)saveIcon);
+  }
   if (abortIcon)
+  {
     SendMessage(abortWnd, BM_SETIMAGE, IMAGE_ICON, (LPARAM)abortIcon);
+  }
 
   EnableWindow(delWnd, false);
   EnableWindow(editWnd, false);
@@ -309,26 +341,34 @@ int CALLBACK Actions::ListViewCompareProc (LPARAM lParam1, LPARAM lParam2, LPARA
   ListView_GetItemText(si->listWnd, lParam2, si->sortInfo.subItem, szBuf2, MAX_LINE_LENGTH);
 
   if (si->sortInfo.ascending)
+  {
     return(wcscmp(szBuf1, szBuf2));
+  }
   else
+  {
     return(wcscmp(szBuf1, szBuf2) * -1);
+  }
 }
 
 
 bool Actions::CheckSaveCount(HWND hwndDlg)
 {
   if ((saveCount != 0) || (deleteCount != 0))
+  {
+    if (ELMessageBox(hwndDlg,
+                     (WCHAR*)TEXT("All changes you have made in this session will be lost. In order to keep them you\n")
+                     TEXT("need to press OK in the emergeHotkeys Configuration dialog.\n\n")
+                     TEXT("Are you sure you want to discard all the changes made in this session?"),
+                     (WCHAR*)TEXT("emergeHotkeys"),
+                     ELMB_YESNO | ELMB_ICONQUESTION | ELMB_MODAL) == IDYES)
     {
-      if (ELMessageBox(hwndDlg,
-                       (WCHAR*)TEXT("All changes you have made in this session will be lost. In order to keep them you\n")
-                       TEXT("need to press OK in the emergeHotkeys Configuration dialog.\n\n")
-                       TEXT("Are you sure you want to discard all the changes made in this session?"),
-                       (WCHAR*)TEXT("emergeHotkeys"),
-                       ELMB_YESNO|ELMB_ICONQUESTION|ELMB_MODAL) == IDYES)
-        return true;
-      else
-        return false;
+      return true;
     }
+    else
+    {
+      return false;
+    }
+  }
 
   return true;
 }
@@ -343,30 +383,40 @@ bool Actions::CheckFields(HWND hwndDlg)
   HWND internalWnd = GetDlgItem(hwndDlg, IDC_INTERNAL);
 
   if (!IsWindowEnabled(applicationWnd) && !IsWindowEnabled(commandWnd))
+  {
     return true;
+  }
 
   if ((SendMessage(externalWnd, BM_GETCHECK, 0, 0) == BST_CHECKED) &&
       IsWindowEnabled(externalWnd))
+  {
+    if (GetDlgItemText(hwndDlg, IDC_APPLICATION, tmp, MAX_LINE_LENGTH) != 0)
     {
-      if (GetDlgItemText(hwndDlg, IDC_APPLICATION, tmp, MAX_LINE_LENGTH) != 0)
-        displayCheck = true;
+      displayCheck = true;
     }
+  }
   else if (IsWindowEnabled(internalWnd))
+  {
+    if (GetDlgItemText(hwndDlg, IDC_COMMAND, tmp, MAX_LINE_LENGTH) != 0)
     {
-      if (GetDlgItemText(hwndDlg, IDC_COMMAND, tmp, MAX_LINE_LENGTH) != 0)
-        displayCheck = true;
+      displayCheck = true;
     }
+  }
 
   if (displayCheck)
+  {
+    if (ELMessageBox(hwndDlg,
+                     (WCHAR*)TEXT("The current hotkey definition will be lost.\n\nDo you wish to continue?"),
+                     (WCHAR*)TEXT("emergeHotkeys"),
+                     ELMB_YESNO | ELMB_ICONQUESTION | ELMB_MODAL) == IDYES)
     {
-      if (ELMessageBox(hwndDlg,
-                       (WCHAR*)TEXT("The current hotkey definition will be lost.\n\nDo you wish to continue?"),
-                       (WCHAR*)TEXT("emergeHotkeys"),
-                       ELMB_YESNO|ELMB_ICONQUESTION|ELMB_MODAL) == IDYES)
-        return true;
-      else
-        return false;
+      return true;
     }
+    else
+    {
+      return false;
+    }
+  }
 
   return true;
 }
@@ -374,58 +424,66 @@ bool Actions::CheckFields(HWND hwndDlg)
 BOOL Actions::DoCommand(HWND hwndDlg, WPARAM wParam, LPARAM lParam UNUSED)
 {
   switch (LOWORD(wParam))
+  {
+  case IDOK:
+    if (!CheckFields(hwndDlg))
     {
-    case IDOK:
-      if (!CheckFields(hwndDlg))
-        break;
-      dialogVisible = false;
-      return EndDialog(hwndDlg, wParam);
-
-    case IDCANCEL:
-      if (!CheckFields(hwndDlg))
-        break;
-      if (!CheckSaveCount(hwndDlg))
-        break;
-      return DoCancel(hwndDlg, wParam);
-
-    case IDC_DELAPP:
-      return DoDelete(hwndDlg);
-
-    case IDC_ADDAPP:
-      return DoAdd(hwndDlg);
-
-    case IDC_SAVEAPP:
-      return DoSave(hwndDlg);
-
-    case IDC_ABORTAPP:
-      return DoAbort(hwndDlg);
-
-    case IDC_MODAPP:
-      return DoModify(hwndDlg);
-
-    case IDC_EXIT:
-      if (CheckFields(hwndDlg))
-        PostQuitMessage (0);
-      return TRUE;
-
-    case IDC_INTERNAL:
-      return DoInternal(hwndDlg);
-
-    case IDC_EXTERNAL:
-      return DoExternal(hwndDlg);
-
-    case IDC_FOLDER:
-      return DoBrowse(hwndDlg, true);
-
-    case IDC_FILE:
-      return DoBrowse(hwndDlg, false);
-
-    case IDC_ABOUT:
-      return DoAbout();
-
-      //    case IDC_KEY:
-      //      return KeyCheck(hwndDlg, wParam, lParam);
+      break;
     }
+    dialogVisible = false;
+    return EndDialog(hwndDlg, wParam);
+
+  case IDCANCEL:
+    if (!CheckFields(hwndDlg))
+    {
+      break;
+    }
+    if (!CheckSaveCount(hwndDlg))
+    {
+      break;
+    }
+    return DoCancel(hwndDlg, wParam);
+
+  case IDC_DELAPP:
+    return DoDelete(hwndDlg);
+
+  case IDC_ADDAPP:
+    return DoAdd(hwndDlg);
+
+  case IDC_SAVEAPP:
+    return DoSave(hwndDlg);
+
+  case IDC_ABORTAPP:
+    return DoAbort(hwndDlg);
+
+  case IDC_MODAPP:
+    return DoModify(hwndDlg);
+
+  case IDC_EXIT:
+    if (CheckFields(hwndDlg))
+    {
+      PostQuitMessage (0);
+    }
+    return TRUE;
+
+  case IDC_INTERNAL:
+    return DoInternal(hwndDlg);
+
+  case IDC_EXTERNAL:
+    return DoExternal(hwndDlg);
+
+  case IDC_FOLDER:
+    return DoBrowse(hwndDlg, true);
+
+  case IDC_FILE:
+    return DoBrowse(hwndDlg, false);
+
+  case IDC_ABOUT:
+    return DoAbout();
+
+    //    case IDC_KEY:
+    //      return KeyCheck(hwndDlg, wParam, lParam);
+  }
 
   return FALSE;
 }
@@ -438,16 +496,16 @@ bool Actions::PopulateList(HWND listWnd)
   lvItem.mask = LVIF_TEXT;
 
   for (UINT i = 0; i < pSettings->GetHotkeyListSize(); i++)
-    {
-      ret = true;
+  {
+    ret = true;
 
-      lvItem.iItem = i;
-      lvItem.iSubItem = 0;
-      lvItem.pszText = pSettings->GetHotkeyListItem(i)->GetHotkeyString();
-      lvItem.cchTextMax = (int)wcslen(pSettings->GetHotkeyListItem(i)->GetHotkeyString());
-      (void)ListView_InsertItem(listWnd, &lvItem);
-      ListView_SetItemText(listWnd, i, 1, pSettings->GetHotkeyListItem(i)->GetHotkeyAction());
-    }
+    lvItem.iItem = i;
+    lvItem.iSubItem = 0;
+    lvItem.pszText = pSettings->GetHotkeyListItem(i)->GetHotkeyString();
+    lvItem.cchTextMax = (int)wcslen(pSettings->GetHotkeyListItem(i)->GetHotkeyString());
+    (void)ListView_InsertItem(listWnd, &lvItem);
+    ListView_SetItemText(listWnd, i, 1, pSettings->GetHotkeyListItem(i)->GetHotkeyAction());
+  }
 
   return ret;
 }
@@ -461,53 +519,57 @@ bool Actions::DoDelete(HWND hwndDlg)
   WCHAR tmpKey[MAX_LINE_LENGTH], tmpAction[MAX_LINE_LENGTH];
 
   if (ListView_GetSelectedCount(listWnd) > 1)
-    {
-      ELMessageBox(hwndDlg, (WCHAR*)TEXT("You can only delete one item at a time."),
-                   (WCHAR*)TEXT("emergeHotkeys"), ELMB_OK|ELMB_ICONERROR|ELMB_MODAL);
+  {
+    ELMessageBox(hwndDlg, (WCHAR*)TEXT("You can only delete one item at a time."),
+                 (WCHAR*)TEXT("emergeHotkeys"), ELMB_OK | ELMB_ICONERROR | ELMB_MODAL);
 
-      return ret;
-    }
+    return ret;
+  }
 
   while (i < ListView_GetItemCount(listWnd))
+  {
+    if (ListView_GetItemState(listWnd, i, LVIS_SELECTED))
     {
-      if (ListView_GetItemState(listWnd, i, LVIS_SELECTED))
+      ret = true;
+      prevItem = ListView_GetNextItem(listWnd, i, LVNI_ABOVE);
+      deleteCount++;
+      ListView_GetItemText(listWnd, i, 0, tmpKey, MAX_LINE_LENGTH);
+      ListView_GetItemText(listWnd, i, 1, tmpAction, MAX_LINE_LENGTH);
+      index = pSettings->FindHotkeyListItem(tmpKey, tmpAction);
+
+      if (index < pSettings->GetHotkeyListSize())
+      {
+        UnregisterHotKey(mainWnd,
+                         pSettings->GetHotkeyListItem(index)->GetHotkeyID());
+        pSettings->DeleteHotkeyListItem(index);
+      }
+
+      (void)ListView_DeleteItem(listWnd, i);
+
+      ListView_SetItemState(listWnd, i, LVIS_SELECTED,
+                            LVIS_SELECTED);
+      if (!ListView_EnsureVisible(listWnd, i, FALSE))
+      {
+        if (prevItem != -1)
         {
-          ret = true;
-          prevItem = ListView_GetNextItem(listWnd, i, LVNI_ABOVE);
-          deleteCount++;
-          ListView_GetItemText(listWnd, i, 0, tmpKey, MAX_LINE_LENGTH);
-          ListView_GetItemText(listWnd, i, 1, tmpAction, MAX_LINE_LENGTH);
-          index = pSettings->FindHotkeyListItem(tmpKey, tmpAction);
-
-          if (index < pSettings->GetHotkeyListSize())
-            {
-              UnregisterHotKey(mainWnd,
-                               pSettings->GetHotkeyListItem(index)->GetHotkeyID());
-              pSettings->DeleteHotkeyListItem(index);
-            }
-
-          (void)ListView_DeleteItem(listWnd, i);
-
-          ListView_SetItemState(listWnd, i, LVIS_SELECTED,
+          ListView_SetItemState(listWnd, prevItem, LVIS_SELECTED,
                                 LVIS_SELECTED);
-          if (!ListView_EnsureVisible(listWnd, i, FALSE))
-            {
-              if (prevItem != -1)
-                {
-                  ListView_SetItemState(listWnd, prevItem, LVIS_SELECTED,
-                                        LVIS_SELECTED);
-                  (void)ListView_EnsureVisible(listWnd, prevItem, FALSE);
-                }
-            }
-
-          break;
+          (void)ListView_EnsureVisible(listWnd, prevItem, FALSE);
         }
-      else
-        i++;
+      }
+
+      break;
     }
+    else
+    {
+      i++;
+    }
+  }
 
   if (ListView_GetItemCount(listWnd) == 0)
+  {
     EnableFields(hwndDlg, false);
+  }
 
   return ret;
 }
@@ -519,31 +581,33 @@ bool Actions::DoModify(HWND hwndDlg)
   WCHAR tmpKey[MAX_LINE_LENGTH], tmpAction[MAX_LINE_LENGTH];
 
   if (ListView_GetSelectedCount(listWnd) > 1)
-    {
-      ELMessageBox(hwndDlg, (WCHAR*)TEXT("You can only delete one item at a time."),
-                   (WCHAR*)TEXT("emergeHotkeys"), ELMB_OK|ELMB_ICONERROR|ELMB_MODAL);
+  {
+    ELMessageBox(hwndDlg, (WCHAR*)TEXT("You can only delete one item at a time."),
+                 (WCHAR*)TEXT("emergeHotkeys"), ELMB_OK | ELMB_ICONERROR | ELMB_MODAL);
 
-      return false;
-    }
+    return false;
+  }
 
   while (i < pSettings->GetHotkeyListSize())
+  {
+    if (ListView_GetItemState(listWnd, i, LVIS_SELECTED))
     {
-      if (ListView_GetItemState(listWnd, i, LVIS_SELECTED))
-        break;
-
-      i++;
+      break;
     }
+
+    i++;
+  }
 
   if (i < pSettings->GetHotkeyListSize())
-    {
-      ListView_GetItemText(listWnd, i, 0, tmpKey, MAX_LINE_LENGTH);
-      ListView_GetItemText(listWnd, i, 1, tmpAction, MAX_LINE_LENGTH);
+  {
+    ListView_GetItemText(listWnd, i, 0, tmpKey, MAX_LINE_LENGTH);
+    ListView_GetItemText(listWnd, i, 1, tmpAction, MAX_LINE_LENGTH);
 
-      editIndex = pSettings->FindHotkeyListItem(tmpKey, tmpAction);
-      edit = true;
+    editIndex = pSettings->FindHotkeyListItem(tmpKey, tmpAction);
+    edit = true;
 
-      EnableFields(hwndDlg, true);
-    }
+    EnableFields(hwndDlg, true);
+  }
 
   return true;
 }
@@ -569,48 +633,58 @@ bool Actions::PopulateFields(HWND hwndDlg, int modIndex)
   token = wcstok(tmp, TEXT("+"));
 
   while (token != NULL)
+  {
+    if (_wcsicmp(token, TEXT("win")) == 0)
     {
-      if (_wcsicmp(token, TEXT("win")) == 0)
-        SendDlgItemMessage(hwndDlg, IDC_WIN, BM_SETCHECK, BST_CHECKED, 0);
-      else if (_wcsicmp(token, TEXT("alt")) == 0)
-        SendDlgItemMessage(hwndDlg, IDC_ALT, BM_SETCHECK, BST_CHECKED, 0);
-      else if (_wcsicmp(token, TEXT("ctrl")) == 0)
-        SendDlgItemMessage(hwndDlg, IDC_CTRL, BM_SETCHECK, BST_CHECKED, 0);
-      else if (_wcsicmp(token, TEXT("shift")) == 0)
-        SendDlgItemMessage(hwndDlg, IDC_SHIFT, BM_SETCHECK, BST_CHECKED, 0);
-      else
-        {
-          keyIndex = (int)SendMessage(keyWnd, CB_FINDSTRINGEXACT, (WPARAM)-1, (LPARAM)token);
-          if (keyIndex != CB_ERR)
-            SendMessage(keyWnd, CB_SETCURSEL, keyIndex, 0);
-
-          break;
-        }
-
-      token = wcstok(NULL, TEXT("+"));
+      SendDlgItemMessage(hwndDlg, IDC_WIN, BM_SETCHECK, BST_CHECKED, 0);
     }
+    else if (_wcsicmp(token, TEXT("alt")) == 0)
+    {
+      SendDlgItemMessage(hwndDlg, IDC_ALT, BM_SETCHECK, BST_CHECKED, 0);
+    }
+    else if (_wcsicmp(token, TEXT("ctrl")) == 0)
+    {
+      SendDlgItemMessage(hwndDlg, IDC_CTRL, BM_SETCHECK, BST_CHECKED, 0);
+    }
+    else if (_wcsicmp(token, TEXT("shift")) == 0)
+    {
+      SendDlgItemMessage(hwndDlg, IDC_SHIFT, BM_SETCHECK, BST_CHECKED, 0);
+    }
+    else
+    {
+      keyIndex = (int)SendMessage(keyWnd, CB_FINDSTRINGEXACT, (WPARAM) - 1, (LPARAM)token);
+      if (keyIndex != CB_ERR)
+      {
+        SendMessage(keyWnd, CB_SETCURSEL, keyIndex, 0);
+      }
+
+      break;
+    }
+
+    token = wcstok(NULL, TEXT("+"));
+  }
 
   ListView_GetItemText(listWnd, modIndex, 1, tmpAction, MAX_LINE_LENGTH);
 
-  commandIndex = (int)SendMessage(commandWnd, CB_FINDSTRINGEXACT, (WPARAM)-1,
+  commandIndex = (int)SendMessage(commandWnd, CB_FINDSTRINGEXACT, (WPARAM) - 1,
                                   (LPARAM)ELStripFileArguments(tmpAction).c_str());
 
   EnableWindow(internalWnd, true);
   EnableWindow(externalWnd, true);
   if (commandIndex == CB_ERR)
-    {
-      SendMessage(externalWnd, BM_CLICK, 0, 0);
-      SetDlgItemText(hwndDlg, IDC_APPLICATION, tmpAction);
-      SendMessage(commandWnd, CB_SETCURSEL, (WPARAM)-1, 0);
-      SetDlgItemText(hwndDlg, IDC_COMMANDARG, TEXT(""));
-    }
+  {
+    SendMessage(externalWnd, BM_CLICK, 0, 0);
+    SetDlgItemText(hwndDlg, IDC_APPLICATION, tmpAction);
+    SendMessage(commandWnd, CB_SETCURSEL, (WPARAM) - 1, 0);
+    SetDlgItemText(hwndDlg, IDC_COMMANDARG, TEXT(""));
+  }
   else
-    {
-      SendMessage(internalWnd, BM_CLICK, 0, 0);
-      SendMessage(commandWnd, CB_SETCURSEL, commandIndex, 0);
-      SetDlgItemText(hwndDlg, IDC_APPLICATION, TEXT(""));
-      SetDlgItemText(hwndDlg, IDC_COMMANDARG, ELGetFileArguments(tmpAction).c_str());
-    }
+  {
+    SendMessage(internalWnd, BM_CLICK, 0, 0);
+    SendMessage(commandWnd, CB_SETCURSEL, commandIndex, 0);
+    SetDlgItemText(hwndDlg, IDC_APPLICATION, TEXT(""));
+    SetDlgItemText(hwndDlg, IDC_COMMANDARG, ELGetFileArguments(tmpAction).c_str());
+  }
   EnableWindow(internalWnd, false);
   EnableWindow(externalWnd, false);
 
@@ -625,7 +699,9 @@ bool Actions::DoAdd(HWND hwndDlg)
 
   /**< Clear any existing selected items */
   for (int i = 0; i < ListView_GetItemCount(listWnd); i++)
+  {
     ListView_SetItemState(listWnd, i, 0, LVIS_SELECTED);
+  }
 
   // Set Dialogue items after clearing the selected items, if not they won't
   // be set correctly
@@ -633,8 +709,8 @@ bool Actions::DoAdd(HWND hwndDlg)
   SendDlgItemMessage(hwndDlg, IDC_ALT, BM_SETCHECK, BST_UNCHECKED, 0);
   SendDlgItemMessage(hwndDlg, IDC_CTRL, BM_SETCHECK, BST_UNCHECKED, 0);
   SendDlgItemMessage(hwndDlg, IDC_SHIFT, BM_SETCHECK, BST_UNCHECKED, 0);
-  SendDlgItemMessage(hwndDlg, IDC_COMMAND, CB_SETCURSEL, (WPARAM)-1, 0);
-  SendDlgItemMessage(hwndDlg, IDC_KEY, CB_SETCURSEL, (WPARAM)-1, 0);
+  SendDlgItemMessage(hwndDlg, IDC_COMMAND, CB_SETCURSEL, (WPARAM) - 1, 0);
+  SendDlgItemMessage(hwndDlg, IDC_KEY, CB_SETCURSEL, (WPARAM) - 1, 0);
   SetDlgItemText(hwndDlg, IDC_APPLICATION, TEXT(""));
   SendDlgItemMessage(hwndDlg, IDC_EXTERNAL, BM_SETCHECK, BST_CHECKED, 0);
   SendDlgItemMessage(hwndDlg, IDC_INTERNAL, BM_SETCHECK, BST_UNCHECKED, 0);
@@ -648,8 +724,8 @@ bool Actions::DoAbort(HWND hwndDlg)
   HWND keyWnd = GetDlgItem(hwndDlg, IDC_KEY);
 
   SetDlgItemText(hwndDlg, IDC_APPLICATION, TEXT(""));
-  SendMessage(commandWnd, CB_SETCURSEL, (WPARAM)-1, 0);
-  SendMessage(keyWnd, CB_SETCURSEL, (WPARAM)-1, 0);
+  SendMessage(commandWnd, CB_SETCURSEL, (WPARAM) - 1, 0);
+  SendMessage(keyWnd, CB_SETCURSEL, (WPARAM) - 1, 0);
 
   SendDlgItemMessage(hwndDlg, IDC_WIN, BM_SETCHECK, BST_UNCHECKED, 0);
   SendDlgItemMessage(hwndDlg, IDC_ALT, BM_SETCHECK, BST_UNCHECKED, 0);
@@ -684,68 +760,68 @@ bool Actions::EnableFields(HWND hwndDlg, bool enable)
   HWND exWnd = GetDlgItem(hwndDlg, IDC_EXTERNAL);
 
   if (enable)
+  {
+    if (SendDlgItemMessage(hwndDlg, IDC_EXTERNAL, BM_GETCHECK, 0, 0) == BST_CHECKED)
     {
-      if (SendDlgItemMessage(hwndDlg, IDC_EXTERNAL, BM_GETCHECK, 0, 0) == BST_CHECKED)
-        {
-          EnableWindow(appWnd, true);
-          EnableWindow(commandWnd, false);
-          EnableWindow(commandArgWnd, false);
-          EnableWindow(fileWnd, true);
-          EnableWindow(folderWnd, true);
-        }
-      else
-        {
-          EnableWindow(appWnd, false);
-          EnableWindow(commandWnd, true);
-          EnableWindow(commandArgWnd, true);
-          EnableWindow(fileWnd, false);
-          EnableWindow(folderWnd, false);
-        }
-      EnableWindow(saveWnd, true);
-      EnableWindow(abortWnd, true);
-      EnableWindow(keyWnd, true);
-      EnableWindow(keyTextWnd, true);
-      EnableWindow(shiftWnd, true);
-      EnableWindow(ctrlWnd, true);
-      EnableWindow(winWnd, true);
-      EnableWindow(altWnd, true);
-      EnableWindow(inWnd, true);
-      EnableWindow(exWnd, true);
-      EnableWindow(editWnd, false);
-      EnableWindow(delWnd, false);
-      EnableWindow(addWnd, false);
-      EnableWindow(listWnd, false);
-    }
-  else
-    {
-      EnableWindow(fileWnd, false);
-      EnableWindow(folderWnd, false);
-      EnableWindow(appWnd, false);
+      EnableWindow(appWnd, true);
       EnableWindow(commandWnd, false);
       EnableWindow(commandArgWnd, false);
-      EnableWindow(saveWnd, false);
-      EnableWindow(abortWnd, false);
-      EnableWindow(keyWnd, false);
-      EnableWindow(keyTextWnd, false);
-      EnableWindow(shiftWnd, false);
-      EnableWindow(ctrlWnd, false);
-      EnableWindow(winWnd, false);
-      EnableWindow(altWnd, false);
-      EnableWindow(inWnd, false);
-      EnableWindow(exWnd, false);
-      if (ListView_GetSelectedCount(listWnd) > 0)
-        {
-          EnableWindow(editWnd, true);
-          EnableWindow(delWnd, true);
-        }
-      else
-        {
-          EnableWindow(editWnd, false);
-          EnableWindow(delWnd, false);
-        }
-      EnableWindow(addWnd, true);
-      EnableWindow(listWnd, true);
+      EnableWindow(fileWnd, true);
+      EnableWindow(folderWnd, true);
     }
+    else
+    {
+      EnableWindow(appWnd, false);
+      EnableWindow(commandWnd, true);
+      EnableWindow(commandArgWnd, true);
+      EnableWindow(fileWnd, false);
+      EnableWindow(folderWnd, false);
+    }
+    EnableWindow(saveWnd, true);
+    EnableWindow(abortWnd, true);
+    EnableWindow(keyWnd, true);
+    EnableWindow(keyTextWnd, true);
+    EnableWindow(shiftWnd, true);
+    EnableWindow(ctrlWnd, true);
+    EnableWindow(winWnd, true);
+    EnableWindow(altWnd, true);
+    EnableWindow(inWnd, true);
+    EnableWindow(exWnd, true);
+    EnableWindow(editWnd, false);
+    EnableWindow(delWnd, false);
+    EnableWindow(addWnd, false);
+    EnableWindow(listWnd, false);
+  }
+  else
+  {
+    EnableWindow(fileWnd, false);
+    EnableWindow(folderWnd, false);
+    EnableWindow(appWnd, false);
+    EnableWindow(commandWnd, false);
+    EnableWindow(commandArgWnd, false);
+    EnableWindow(saveWnd, false);
+    EnableWindow(abortWnd, false);
+    EnableWindow(keyWnd, false);
+    EnableWindow(keyTextWnd, false);
+    EnableWindow(shiftWnd, false);
+    EnableWindow(ctrlWnd, false);
+    EnableWindow(winWnd, false);
+    EnableWindow(altWnd, false);
+    EnableWindow(inWnd, false);
+    EnableWindow(exWnd, false);
+    if (ListView_GetSelectedCount(listWnd) > 0)
+    {
+      EnableWindow(editWnd, true);
+      EnableWindow(delWnd, true);
+    }
+    else
+    {
+      EnableWindow(editWnd, false);
+      EnableWindow(delWnd, false);
+    }
+    EnableWindow(addWnd, true);
+    EnableWindow(listWnd, true);
+  }
 
   return true;
 }
@@ -758,95 +834,111 @@ bool Actions::DoSave(HWND hwndDlg)
   WCHAR tmpKey[MAX_LINE_LENGTH], tmpAction[MAX_LINE_LENGTH], tmp[MAX_LINE_LENGTH],
         error[MAX_LINE_LENGTH];
   int index = ListView_GetItemCount(listWnd);
-  HotkeyCombo *hc;
+  HotkeyCombo* hc;
 
   ZeroMemory(tmpAction, MAX_LINE_LENGTH);
   ZeroMemory(tmpKey, MAX_LINE_LENGTH);
 
   if (SendDlgItemMessage(hwndDlg, IDC_EXTERNAL, BM_GETCHECK, 0, 0) == BST_CHECKED)
+  {
     GetDlgItemText(hwndDlg, IDC_APPLICATION, tmpAction, MAX_LINE_LENGTH);
+  }
   if (SendDlgItemMessage(hwndDlg, IDC_INTERNAL, BM_GETCHECK, 0, 0) == BST_CHECKED)
+  {
+    GetDlgItemText(hwndDlg, IDC_COMMAND, tmp, MAX_LINE_LENGTH);
+    wcscpy(tmpAction, tmp);
+    if (GetDlgItemText(hwndDlg, IDC_COMMANDARG, tmp, MAX_LINE_LENGTH) != 0)
     {
-      GetDlgItemText(hwndDlg, IDC_COMMAND, tmp, MAX_LINE_LENGTH);
-      wcscpy(tmpAction, tmp);
-      if (GetDlgItemText(hwndDlg, IDC_COMMANDARG, tmp, MAX_LINE_LENGTH) != 0)
-        {
-          wcscat(tmpAction, TEXT(" "));
-          wcscat(tmpAction, tmp);
-        }
+      wcscat(tmpAction, TEXT(" "));
+      wcscat(tmpAction, tmp);
     }
+  }
   if (SendDlgItemMessage(hwndDlg, IDC_SHIFT, BM_GETCHECK, 0, 0) == BST_CHECKED)
+  {
     wcscat(tmpKey, TEXT("Shift+"));
+  }
   if (SendDlgItemMessage(hwndDlg, IDC_CTRL, BM_GETCHECK, 0, 0) == BST_CHECKED)
+  {
     wcscat(tmpKey, TEXT("Ctrl+"));
+  }
   if (SendDlgItemMessage(hwndDlg, IDC_WIN, BM_GETCHECK, 0, 0) == BST_CHECKED)
+  {
     wcscat(tmpKey, TEXT("Win+"));
+  }
   if (SendDlgItemMessage(hwndDlg, IDC_ALT, BM_GETCHECK, 0, 0) == BST_CHECKED)
+  {
     wcscat(tmpKey, TEXT("Alt+"));
+  }
   GetDlgItemText(hwndDlg, IDC_KEY, tmp, MAX_LINE_LENGTH);
   wcscat(tmpKey, tmp);
 
   if (edit)
+  {
+    index = 0;
+    while (index < ListView_GetItemCount(listWnd))
     {
-      index = 0;
-      while (index < ListView_GetItemCount(listWnd))
-        {
-          if (ListView_GetItemState(listWnd, index, LVIS_SELECTED))
-            break;
+      if (ListView_GetItemState(listWnd, index, LVIS_SELECTED))
+      {
+        break;
+      }
 
-          index++;
-        }
-
-      // No selected item was found, abort the save
-      if (index == ListView_GetItemCount(listWnd))
-        return false;
-
-      UnregisterHotKey(mainWnd, pSettings->GetHotkeyListItem(editIndex)->GetHotkeyID());
-      pSettings->DeleteHotkeyListItem(editIndex);
-
-      // Deletion of the currently selected item failed, abort the save
-      if (!ListView_DeleteItem(listWnd, index))
-        return false;
+      index++;
     }
+
+    // No selected item was found, abort the save
+    if (index == ListView_GetItemCount(listWnd))
+    {
+      return false;
+    }
+
+    UnregisterHotKey(mainWnd, pSettings->GetHotkeyListItem(editIndex)->GetHotkeyID());
+    pSettings->DeleteHotkeyListItem(editIndex);
+
+    // Deletion of the currently selected item failed, abort the save
+    if (!ListView_DeleteItem(listWnd, index))
+    {
+      return false;
+    }
+  }
 
   if ((wcslen(tmpKey) > 0) && (wcslen(tmpAction) > 0))
+  {
+    hc = new HotkeyCombo(tmpKey, tmpAction, false);
+    if (RegisterHotKey(mainWnd, hc->GetHotkeyID(), hc->GetHotkeyModifiers(),
+                       hc->GetHotkeyKey()))
     {
-      hc = new HotkeyCombo(tmpKey, tmpAction, false);
-      if (RegisterHotKey(mainWnd, hc->GetHotkeyID(), hc->GetHotkeyModifiers(),
-                         hc->GetHotkeyKey()))
-        {
-          lvItem.mask = LVIF_TEXT|LVIF_STATE;
-          lvItem.iItem = index;
-          lvItem.iSubItem = 0;
-          lvItem.pszText = tmpKey;
-          lvItem.cchTextMax = (int)wcslen(tmpKey);
-          lvItem.state = LVIS_SELECTED;
-          lvItem.stateMask = LVIS_SELECTED;
+      lvItem.mask = LVIF_TEXT | LVIF_STATE;
+      lvItem.iItem = index;
+      lvItem.iSubItem = 0;
+      lvItem.pszText = tmpKey;
+      lvItem.cchTextMax = (int)wcslen(tmpKey);
+      lvItem.state = LVIS_SELECTED;
+      lvItem.stateMask = LVIS_SELECTED;
 
-          pSettings->AddHotkeyListItem(hc);
-          if (ListView_InsertItem(listWnd, &lvItem) != -1)
-            {
-              ListView_SetItemText(listWnd, index, 1, tmpAction);
+      pSettings->AddHotkeyListItem(hc);
+      if (ListView_InsertItem(listWnd, &lvItem) != -1)
+      {
+        ListView_SetItemText(listWnd, index, 1, tmpAction);
 
-              ClearFields(hwndDlg);
+        ClearFields(hwndDlg);
 
-              saveCount++;
-              deleteCount++;
+        saveCount++;
+        deleteCount++;
 
-              EnableFields(hwndDlg, false);
+        EnableFields(hwndDlg, false);
 
-              edit = false;
-              ret = true;
-            }
-        }
-      else
-        {
-          swprintf(error, TEXT("Failed to register Hotkey combination %ls."), tmpKey);
-          ELMessageBox(GetDesktopWindow(), error, (WCHAR*)TEXT("emergeHotkeys"),
-                       ELMB_OK|ELMB_ICONERROR|ELMB_MODAL);
-          return false;
-        }
+        edit = false;
+        ret = true;
+      }
     }
+    else
+    {
+      swprintf(error, TEXT("Failed to register Hotkey combination %ls."), tmpKey);
+      ELMessageBox(GetDesktopWindow(), error, (WCHAR*)TEXT("emergeHotkeys"),
+                   ELMB_OK | ELMB_ICONERROR | ELMB_MODAL);
+      return false;
+    }
+  }
 
   lvSortInfo.listWnd = listWnd;
   ret = ListView_SortItemsEx(listWnd, ListViewCompareProc, (LPARAM)&lvSortInfo);
@@ -989,7 +1081,9 @@ bool Actions::DoInternal(HWND hwndDlg)
   HWND keyWnd = GetDlgItem(hwndDlg, IDC_KEY);
 
   if (!IsWindowEnabled(keyWnd))
+  {
     return true;
+  }
 
   EnableWindow(applicationWnd, false);
   EnableWindow(folderWnd, false);
@@ -1010,7 +1104,9 @@ bool Actions::DoExternal(HWND hwndDlg)
   HWND keyWnd = GetDlgItem(hwndDlg, IDC_KEY);
 
   if (!IsWindowEnabled(keyWnd))
+  {
     return true;
+  }
 
   EnableWindow(applicationWnd, true);
   EnableWindow(folderWnd, true);
@@ -1031,55 +1127,55 @@ bool Actions::DoBrowse(HWND hwndDlg, bool folder)
   ZeroMemory(tmp, MAX_PATH);
 
   if (folder)
+  {
+    ZeroMemory(&bi, sizeof(BROWSEINFO));
+    bi.hwndOwner = hwndDlg;
+    bi.ulFlags = BIF_NEWDIALOGSTYLE;
+    bi.lpszTitle = TEXT("Select a folder:");
+
+    LPITEMIDLIST pItemIDList = SHBrowseForFolder(&bi);
+
+    if (pItemIDList != NULL)
     {
-      ZeroMemory(&bi, sizeof(BROWSEINFO));
-      bi.hwndOwner = hwndDlg;
-      bi.ulFlags = BIF_NEWDIALOGSTYLE;
-      bi.lpszTitle = TEXT("Select a folder:");
-
-      LPITEMIDLIST pItemIDList = SHBrowseForFolder(&bi);
-
-      if (pItemIDList != NULL)
+      if (SHGetPathFromIDList(pItemIDList, tmp))
+      {
+        IMalloc* pMalloc = NULL;
+        if (SUCCEEDED(SHGetMalloc(&pMalloc)))
         {
-          if (SHGetPathFromIDList(pItemIDList, tmp))
-            {
-              IMalloc* pMalloc = NULL;
-              if (SUCCEEDED(SHGetMalloc(&pMalloc)))
-                {
-                  pMalloc->Free(pItemIDList);
-                  pMalloc->Release();
-                }
-
-              ELUnExpandVars(tmp);
-              std::wstring workingTmp = ELGetRelativePath(tmp);
-              SetDlgItemText(hwndDlg, IDC_APPLICATION, workingTmp.c_str());
-
-              ret = true;
-            }
+          pMalloc->Free(pItemIDList);
+          pMalloc->Release();
         }
+
+        ELUnExpandVars(tmp);
+        std::wstring workingTmp = ELGetRelativePath(tmp);
+        SetDlgItemText(hwndDlg, IDC_APPLICATION, workingTmp.c_str());
+
+        ret = true;
+      }
     }
+  }
   else
+  {
+    ZeroMemory(&ofn, sizeof(ofn));
+
+    ofn.lStructSize = sizeof(ofn);
+    ofn.hwndOwner = hwndDlg;
+    ofn.lpstrFilter = TEXT("All Files (*.*)\0*.*\0");
+    ofn.lpstrFile = tmp;
+    ofn.nMaxFile = MAX_PATH;
+    ofn.lpstrTitle = TEXT("Browse For File");
+    ofn.lpstrDefExt = NULL;
+    ofn.Flags = OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST | OFN_EXPLORER | OFN_DONTADDTORECENT | OFN_NOCHANGEDIR | OFN_NODEREFERENCELINKS;
+
+    if (GetOpenFileName(&ofn))
     {
-      ZeroMemory(&ofn, sizeof(ofn));
+      ELUnExpandVars(tmp);
+      std::wstring workingTmp = ELGetRelativePath(tmp);
+      SetDlgItemText(hwndDlg, IDC_APPLICATION, workingTmp.c_str());
 
-      ofn.lStructSize = sizeof(ofn);
-      ofn.hwndOwner = hwndDlg;
-      ofn.lpstrFilter = TEXT("All Files (*.*)\0*.*\0");
-      ofn.lpstrFile = tmp;
-      ofn.nMaxFile = MAX_PATH;
-      ofn.lpstrTitle = TEXT("Browse For File");
-      ofn.lpstrDefExt = NULL;
-      ofn.Flags = OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST | OFN_EXPLORER | OFN_DONTADDTORECENT | OFN_NOCHANGEDIR | OFN_NODEREFERENCELINKS;
-
-      if (GetOpenFileName(&ofn))
-        {
-          ELUnExpandVars(tmp);
-          std::wstring workingTmp = ELGetRelativePath(tmp);
-          SetDlgItemText(hwndDlg, IDC_APPLICATION, workingTmp.c_str());
-
-          ret = true;
-        }
+      ret = true;
     }
+  }
 
   return ret;
 }
@@ -1091,8 +1187,8 @@ bool Actions::ClearFields(HWND hwndDlg)
   HWND modifyWnd = GetDlgItem(hwndDlg, IDC_MODAPP);
 
   SetDlgItemText(hwndDlg, IDC_APPLICATION, TEXT(""));
-  SendMessage(keyWnd, CB_SETCURSEL, (WPARAM)-1, 0);
-  SendMessage(commandWnd, CB_SETCURSEL, (WPARAM)-1, 0);
+  SendMessage(keyWnd, CB_SETCURSEL, (WPARAM) - 1, 0);
+  SendMessage(commandWnd, CB_SETCURSEL, (WPARAM) - 1, 0);
   SendDlgItemMessage(hwndDlg, IDC_WIN, BM_SETCHECK, BST_UNCHECKED, 0);
   SendDlgItemMessage(hwndDlg, IDC_ALT, BM_SETCHECK, BST_UNCHECKED, 0);
   SendDlgItemMessage(hwndDlg, IDC_CTRL, BM_SETCHECK, BST_UNCHECKED, 0);
@@ -1123,17 +1219,17 @@ bool Actions::DoAbout()
   bool ret = false;
 
   if (ELAppletVersionInfo(mainWnd, &versionInfo))
-    {
-      swprintf(tmp, TEXT("%ls\n\nVersion: %ls\n\nAuthor: %ls"),
-               versionInfo.Description,
-               versionInfo.Version,
-               versionInfo.Author);
+  {
+    swprintf(tmp, TEXT("%ls\n\nVersion: %ls\n\nAuthor: %ls"),
+             versionInfo.Description,
+             versionInfo.Version,
+             versionInfo.Author);
 
-      ELMessageBox(GetDesktopWindow(), tmp, (WCHAR*)TEXT("emergeHotkeys"),
-                   ELMB_OK|ELMB_ICONQUESTION|ELMB_MODAL);
+    ELMessageBox(GetDesktopWindow(), tmp, (WCHAR*)TEXT("emergeHotkeys"),
+                 ELMB_OK | ELMB_ICONQUESTION | ELMB_MODAL);
 
-      ret = true;
-    }
+    ret = true;
+  }
 
   return ret;
 }
@@ -1143,24 +1239,24 @@ bool Actions::KeyCheck(HWND hwndDlg, WPARAM wParam, LPARAM lParam)
   WCHAR tmp[MAX_LINE_LENGTH];
 
   if (HIWORD(wParam) == CBN_SELCHANGE)
+  {
+    GetWindowText((HWND)lParam, tmp, MAX_LINE_LENGTH);
+    if ((_wcsicmp(tmp, TEXT("LeftWinKey")) == 0) ||
+        (_wcsicmp(tmp, TEXT("RightWinKey")) == 0))
     {
-      GetWindowText((HWND)lParam, tmp, MAX_LINE_LENGTH);
-      if ((_wcsicmp(tmp, TEXT("LeftWinKey")) == 0) ||
-          (_wcsicmp(tmp, TEXT("RightWinKey")) == 0))
-        {
-          if ((SendDlgItemMessage(hwndDlg, IDC_SHIFT, BM_GETCHECK, 0, 0) == BST_UNCHECKED) &&
-              (SendDlgItemMessage(hwndDlg, IDC_CTRL, BM_GETCHECK, 0, 0) == BST_UNCHECKED) &&
-              (SendDlgItemMessage(hwndDlg, IDC_WIN, BM_GETCHECK, 0, 0) == BST_UNCHECKED) &&
-              (SendDlgItemMessage(hwndDlg, IDC_ALT, BM_GETCHECK, 0, 0) == BST_UNCHECKED))
-            {
-              swprintf(tmp,TEXT("Using the Win key with no modifier makes it\nhard to use the Win key for other hotkeys."));
-              ELMessageBox(hwndDlg, tmp, (WCHAR*)TEXT("emergeHotkeys"),
-                           ELMB_OK|ELMB_ICONWARNING|ELMB_MODAL);
+      if ((SendDlgItemMessage(hwndDlg, IDC_SHIFT, BM_GETCHECK, 0, 0) == BST_UNCHECKED) &&
+          (SendDlgItemMessage(hwndDlg, IDC_CTRL, BM_GETCHECK, 0, 0) == BST_UNCHECKED) &&
+          (SendDlgItemMessage(hwndDlg, IDC_WIN, BM_GETCHECK, 0, 0) == BST_UNCHECKED) &&
+          (SendDlgItemMessage(hwndDlg, IDC_ALT, BM_GETCHECK, 0, 0) == BST_UNCHECKED))
+      {
+        swprintf(tmp, TEXT("Using the Win key with no modifier makes it\nhard to use the Win key for other hotkeys."));
+        ELMessageBox(hwndDlg, tmp, (WCHAR*)TEXT("emergeHotkeys"),
+                     ELMB_OK | ELMB_ICONWARNING | ELMB_MODAL);
 
-              return true;
-            }
-        }
+        return true;
+      }
     }
+  }
 
   return false;
 }
@@ -1175,51 +1271,57 @@ BOOL Actions::DoNotify(HWND hwndDlg UNUSED, LPARAM lParam)
   WCHAR tmpKey[MAX_LINE_LENGTH], tmpAction[MAX_LINE_LENGTH];
 
   switch (((LPNMHDR)lParam)->code)
+  {
+  case LVN_ITEMCHANGED:
+    EnableWindow(delWnd, true);
+    EnableWindow(editWnd, true);
+    return PopulateFields(hwndDlg, ((LPNMLISTVIEW)lParam)->iItem);
+
+  case LVN_COLUMNCLICK:
+    subItem = ((LPNMLISTVIEW)lParam)->iSubItem;
+    if (toggleSort[subItem])
     {
-    case LVN_ITEMCHANGED:
-      EnableWindow(delWnd, true);
-      EnableWindow(editWnd, true);
-      return PopulateFields(hwndDlg, ((LPNMLISTVIEW)lParam)->iItem);
-
-    case LVN_COLUMNCLICK:
-      subItem = ((LPNMLISTVIEW)lParam)->iSubItem;
-      if (toggleSort[subItem])
-        toggleSort[subItem] = false;
-      else
-        toggleSort[subItem] = true;
-      lvSortInfo.sortInfo.ascending = toggleSort[subItem];
-      lvSortInfo.sortInfo.subItem = subItem;
-      pSettings->SetSortInfo(myName, &lvSortInfo.sortInfo);
-      ret = ListView_SortItemsEx(listWnd, ListViewCompareProc, (LPARAM)&lvSortInfo);
-      return ret;
-
-      // Handle the NM_CUSTOMDRAW to change the text colour of invalid hotkeys to
-      // red
-    case NM_CUSTOMDRAW:
-      LPNMLVCUSTOMDRAW lpLvCustomDraw = (LPNMLVCUSTOMDRAW)lParam;
-      switch (lpLvCustomDraw->nmcd.dwDrawStage)
-        {
-          // In the CDDS_PREPAINT stage tell the OS that we want to custom paint
-          // the entry
-        case CDDS_PREPAINT:
-          // Instruct the OS to send the CDDS_ITEMPREPAINT message
-          return CDRF_NOTIFYITEMDRAW;
-        case CDDS_ITEMPREPAINT:
-          // Instruct the OS that we want to handle subitems
-          return CDRF_NOTIFYSUBITEMDRAW;
-        case CDDS_ITEMPREPAINT|CDDS_SUBITEM:
-          ListView_GetItemText(listWnd, lpLvCustomDraw->nmcd.dwItemSpec, 0,
-                               tmpKey, MAX_LINE_LENGTH);
-          ListView_GetItemText(listWnd, lpLvCustomDraw->nmcd.dwItemSpec, 1,
-                               tmpAction, MAX_LINE_LENGTH);
-          if (!pSettings->IsValidHotkey(pSettings->FindHotkeyListItem(tmpKey,
-                                        tmpAction)))
-            lpLvCustomDraw->clrText = RGB(255,0,0);
-          return CDRF_NEWFONT;
-        default:
-          return CDRF_DODEFAULT;
-        }
+      toggleSort[subItem] = false;
     }
+    else
+    {
+      toggleSort[subItem] = true;
+    }
+    lvSortInfo.sortInfo.ascending = toggleSort[subItem];
+    lvSortInfo.sortInfo.subItem = subItem;
+    pSettings->SetSortInfo(myName, &lvSortInfo.sortInfo);
+    ret = ListView_SortItemsEx(listWnd, ListViewCompareProc, (LPARAM)&lvSortInfo);
+    return ret;
+
+    // Handle the NM_CUSTOMDRAW to change the text colour of invalid hotkeys to
+    // red
+  case NM_CUSTOMDRAW:
+    LPNMLVCUSTOMDRAW lpLvCustomDraw = (LPNMLVCUSTOMDRAW)lParam;
+    switch (lpLvCustomDraw->nmcd.dwDrawStage)
+    {
+      // In the CDDS_PREPAINT stage tell the OS that we want to custom paint
+      // the entry
+    case CDDS_PREPAINT:
+      // Instruct the OS to send the CDDS_ITEMPREPAINT message
+      return CDRF_NOTIFYITEMDRAW;
+    case CDDS_ITEMPREPAINT:
+      // Instruct the OS that we want to handle subitems
+      return CDRF_NOTIFYSUBITEMDRAW;
+    case CDDS_ITEMPREPAINT|CDDS_SUBITEM:
+      ListView_GetItemText(listWnd, lpLvCustomDraw->nmcd.dwItemSpec, 0,
+                           tmpKey, MAX_LINE_LENGTH);
+      ListView_GetItemText(listWnd, lpLvCustomDraw->nmcd.dwItemSpec, 1,
+                           tmpAction, MAX_LINE_LENGTH);
+      if (!pSettings->IsValidHotkey(pSettings->FindHotkeyListItem(tmpKey,
+                                    tmpAction)))
+      {
+        lpLvCustomDraw->clrText = RGB(255, 0, 0);
+      }
+      return CDRF_NEWFONT;
+    default:
+      return CDRF_DODEFAULT;
+    }
+  }
 
   return FALSE;
 }

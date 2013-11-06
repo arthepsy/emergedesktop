@@ -35,10 +35,10 @@ Settings::Settings(): BaseSettings(false)
   monitorCommitCharge = false;
   monitorCPU = false;
   updateInterval = 0;
-  CPUGradientFrom = RGB(0,0,0);
-  CPUGradientTo = RGB(0,0,0);
-  MemGradientFrom = RGB(0,0,0);
-  MemGradientTo = RGB(0,0,0);
+  CPUGradientFrom = RGB(0, 0, 0);
+  CPUGradientTo = RGB(0, 0, 0);
+  MemGradientFrom = RGB(0, 0, 0);
+  MemGradientTo = RGB(0, 0, 0);
 }
 
 void Settings::ResetDefaults()
@@ -63,19 +63,21 @@ void Settings::ResetDefaults()
   // If appletCount > 0 assume this is a new instance and place it at the centre
   // of the screen.
   if (appletCount > 0)
-    {
-      POINT origin;
-      SIZE appletSize;
+  {
+    POINT origin;
+    SIZE appletSize;
 
-      appletSize.cx = width;
-      appletSize.cy = height;
+    appletSize.cx = width;
+    appletSize.cy = height;
 
-      origin = InstancePosition(appletSize);
-      x = origin.x;
-      y = origin.y;
-    }
+    origin = InstancePosition(appletSize);
+    x = origin.x;
+    y = origin.y;
+  }
   else
+  {
     x = 108;
+  }
 }
 
 void Settings::DoReadSettings(IOHelper& helper)
@@ -86,7 +88,9 @@ void Settings::DoReadSettings(IOHelper& helper)
   BaseSettings::DoReadSettings(helper);
   updateInterval = helper.ReadInt(TEXT("UpdateInterval"), 2000);
   if (updateInterval < MINIMUM_UPDATE_INTERVAL)
+  {
     updateInterval = MINIMUM_UPDATE_INTERVAL;
+  }
   monitorCPU = helper.ReadBool(TEXT("MonitorCPU"), true);
   monitorCommitCharge = helper.ReadBool(TEXT("MonitorCommitCharge"), true);
   monitorPhysicalMem = helper.ReadBool(TEXT("MonitorPhysicalMem"), false);
@@ -135,148 +139,150 @@ void Settings::DoInitialize()
 void Settings::SetUpdateInterval(int interval)
 {
   if (interval < MINIMUM_UPDATE_INTERVAL)
+  {
     interval = MINIMUM_UPDATE_INTERVAL;
+  }
   if (interval != updateInterval)
-    {
-      updateInterval = interval;
-      SetModified();
-    }
+  {
+    updateInterval = interval;
+    SetModified();
+  }
 }
 
 void Settings::SetMonitorCPU(bool cpu)
 {
   if (monitorCPU != cpu)
-    {
-      monitorCPU = cpu;
-      SetModified();
-    }
+  {
+    monitorCPU = cpu;
+    SetModified();
+  }
 }
 
 void Settings::SetMonitorCommitCharge(bool mem)
 {
   if (monitorCommitCharge != mem)
-    {
-      monitorCommitCharge = mem;
-      SetModified();
-    }
+  {
+    monitorCommitCharge = mem;
+    SetModified();
+  }
 }
 
 void Settings::SetMonitorPhysicalMem(bool mem)
 {
   if (monitorPhysicalMem != mem)
-    {
-      monitorPhysicalMem = mem;
-      SetModified();
-    }
+  {
+    monitorPhysicalMem = mem;
+    SetModified();
+  }
 }
 
 void Settings::SetMonitorPagefile(bool mem)
 {
   if (monitorPagefile != mem)
-    {
-      monitorPagefile = mem;
-      SetModified();
-    }
+  {
+    monitorPagefile = mem;
+    SetModified();
+  }
 }
 
 void Settings::SetHistoryMode(bool b)
 {
   if (historyMode != b)
-    {
-      historyMode = b;
-      SetModified();
-    }
+  {
+    historyMode = b;
+    SetModified();
+  }
 }
 
 void Settings::SetShowNumbers(bool b)
 {
   if (showNumbers != b)
-    {
-      showNumbers = b;
-      SetModified();
-    }
+  {
+    showNumbers = b;
+    SetModified();
+  }
 }
 
 void Settings::SetBarDirection(std::wstring direction)
 {
   if (ELToLower(barDirection) != ELToLower(direction))
-    {
-      barDirection = direction;
-      SetModified();
-    }
+  {
+    barDirection = direction;
+    SetModified();
+  }
 }
 
 void Settings::SetNumberPosition(std::wstring position)
 {
   if (ELToLower(numberPosition) != ELToLower(position))
-    {
-      numberPosition = position;
-      SetModified();
-    }
+  {
+    numberPosition = position;
+    SetModified();
+  }
 }
 
 void Settings::SetFont(LOGFONT* font)
 {
   if (!EGEqualLogFont(this->logFont, *font))
-    {
-      fontString = EGFontToString(*font);
-      CopyMemory(&logFont, font, sizeof(LOGFONT));
-      SetModified();
-    }
+  {
+    fontString = EGFontToString(*font);
+    CopyMemory(&logFont, font, sizeof(LOGFONT));
+    SetModified();
+  }
 }
 
 void Settings::SetCPUGradientMethod(std::wstring method)
 {
   if (ELToLower(CPUGradientMethod) != ELToLower(method))
-    {
-      CPUGradientMethod = method;
-      SetModified();
-    }
+  {
+    CPUGradientMethod = method;
+    SetModified();
+  }
 }
 
 void Settings::SetCPUGradientFrom(COLORREF col)
 {
   if (CPUGradientFrom != col)
-    {
-      CPUGradientFrom = col;
-      SetModified();
-    }
+  {
+    CPUGradientFrom = col;
+    SetModified();
+  }
 }
 
 void Settings::SetCPUGradientTo(COLORREF col)
 {
   if (CPUGradientTo != col)
-    {
-      CPUGradientTo = col;
-      SetModified();
-    }
+  {
+    CPUGradientTo = col;
+    SetModified();
+  }
 }
 
 void Settings::SetMemGradientMethod(std::wstring method)
 {
   if (ELToLower(MemGradientMethod) != ELToLower(method))
-    {
-      MemGradientMethod = method;
-      SetModified();
-    }
+  {
+    MemGradientMethod = method;
+    SetModified();
+  }
 }
 
 void Settings::SetMemGradientFrom(COLORREF col)
 {
   if (MemGradientFrom != col)
-    {
-      MemGradientFrom = col;
-      SetModified();
-    }
+  {
+    MemGradientFrom = col;
+    SetModified();
+  }
 }
 
 void Settings::SetMemGradientTo(COLORREF col)
 {
   if (MemGradientTo != col)
-    {
-      MemGradientTo = col;
-      SetModified();
-    }
+  {
+    MemGradientTo = col;
+    SetModified();
+  }
 }
 
 int Settings::GetUpdateInterval()

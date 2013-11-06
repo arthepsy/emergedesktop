@@ -22,7 +22,7 @@
 #include <stdio.h>
 
 Settings::Settings()
-  :BaseSettings(false)
+  : BaseSettings(false)
 {
 }
 
@@ -56,17 +56,17 @@ void Settings::ResetDefaults()
   displayType = 0;
 }
 
-void Settings::SetFont(LOGFONT *logFont)
+void Settings::SetFont(LOGFONT* logFont)
 {
   if (!EGEqualLogFont(this->logFont, *logFont))
-    {
-      fontString = EGFontToString(*logFont);
-      CopyMemory(&this->logFont, logFont, sizeof(LOGFONT));
-      SetModified();
-    }
+  {
+    fontString = EGFontToString(*logFont);
+    CopyMemory(&this->logFont, logFont, sizeof(LOGFONT));
+    SetModified();
+  }
 }
 
-LOGFONT *Settings::GetFont()
+LOGFONT* Settings::GetFont()
 {
   return &logFont;
 }
@@ -74,16 +74,16 @@ LOGFONT *Settings::GetFont()
 LCTYPE Settings::GetDisplayLCType()
 {
   switch(displayType)
-    {
-    case 0:
-      return LOCALE_SISO639LANGNAME;
-    case 1:
-      return LOCALE_SABBREVLANGNAME;
-    case 2:
-      return LOCALE_SISO3166CTRYNAME;
-    default:
-      return LOCALE_SISO639LANGNAME;
-    }
+  {
+  case 0:
+    return LOCALE_SISO639LANGNAME;
+  case 1:
+    return LOCALE_SABBREVLANGNAME;
+  case 2:
+    return LOCALE_SISO3166CTRYNAME;
+  default:
+    return LOCALE_SISO639LANGNAME;
+  }
 }
 
 int Settings::GetDisplayType()
@@ -94,10 +94,10 @@ int Settings::GetDisplayType()
 void Settings::SetDisplayType(int value)
 {
   if (displayType != value)
-    {
-      displayType = value;
-      SetModified();
-    }
+  {
+    displayType = value;
+    SetModified();
+  }
 }
 
 bool Settings::IsUpperCase()
@@ -108,8 +108,8 @@ bool Settings::IsUpperCase()
 void Settings::SetUpperCase(bool value)
 {
   if (upperCase != value)
-    {
-      upperCase = value;
-      SetModified();
-    }
+  {
+    upperCase = value;
+    SetModified();
+  }
 }

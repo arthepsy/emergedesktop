@@ -53,11 +53,11 @@
 class DLL_EXPORT BaseAppletMenu
 {
 public:
-  BaseAppletMenu(HWND mainWnd, HINSTANCE hInstance, WCHAR *appletName, bool allowMultipleInstances);
+  BaseAppletMenu(HWND mainWnd, HINSTANCE hInstance, WCHAR* appletName, bool allowMultipleInstances);
   ~BaseAppletMenu();
   void Initialize();
   void BuildMenu();
-  DWORD ActivateMenu(int x, int y, WCHAR *styleFile);
+  DWORD ActivateMenu(int x, int y, WCHAR* styleFile);
   void UpdateHook(DWORD menuAlpha);
 
 private:

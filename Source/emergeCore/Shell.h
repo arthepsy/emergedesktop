@@ -45,15 +45,15 @@
 
 struct StartKey
 {
-    HKEY key;
-    std::wstring subkey;
-    bool clear;
-    StartKey(HKEY K, const WCHAR *S, bool C)
-      {
-        key = K;
-        subkey = S;
-        clear = C;
-      }
+  HKEY key;
+  std::wstring subkey;
+  bool clear;
+  StartKey(HKEY K, const WCHAR* S, bool C)
+  {
+    key = K;
+    subkey = S;
+    clear = C;
+  }
 };
 
 //====================
@@ -78,7 +78,7 @@ public:
   LRESULT HideExplorerBar();
 
 private:
-  IOleCommandTarget *traySSO;
+  IOleCommandTarget* traySSO;
   std::vector<HWND> taskList;
   UINT ShellMessage;
   bool UpdateSessionInformation(bool add, HWND task);

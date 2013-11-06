@@ -32,20 +32,20 @@
 class Settings: public BaseSettings
 {
 public:
-    Settings();
-    bool GetShowStartupErrors();
-    void SetShowStartupErrors(bool showStartupErrors);
-    bool GetShowWelcome();
-    void SetShowWelcome(bool showWelcome);
-    bool ReadUserSettings();
-    void ResetUserDefaults();
-    void DoReadUserSettings(IOHelper& helper);
-    bool WriteUserSettings();
-    void DoWriteUserSettings(IOHelper& helper);
-    bool GetShowExplorerDesktop();
-    void SetShowExplorerDesktop(bool showExplorerDesktop);
-    bool GetEnableExplorerDesktop();
-    void SetEnableExplorerDesktop(bool enableExplorerDesktop);
+  Settings();
+  bool GetShowStartupErrors();
+  void SetShowStartupErrors(bool showStartupErrors);
+  bool GetShowWelcome();
+  void SetShowWelcome(bool showWelcome);
+  bool ReadUserSettings();
+  void ResetUserDefaults();
+  void DoReadUserSettings(IOHelper& helper);
+  bool WriteUserSettings();
+  void DoWriteUserSettings(IOHelper& helper);
+  bool GetShowExplorerDesktop();
+  void SetShowExplorerDesktop(bool showExplorerDesktop);
+  bool GetEnableExplorerDesktop();
+  void SetEnableExplorerDesktop(bool enableExplorerDesktop);
 
 protected:
   virtual void DoReadSettings(IOHelper& helper);
@@ -53,11 +53,11 @@ protected:
   virtual void ResetDefaults();
 
 private:
-    bool showStartupErrors;
-    bool showExplorerDesktop;
-    bool enableExplorerDesktop;
-    bool userModified;
-    bool showWelcome;
+  bool showStartupErrors;
+  bool showExplorerDesktop;
+  bool enableExplorerDesktop;
+  bool userModified;
+  bool showWelcome;
 };
 
 #endif

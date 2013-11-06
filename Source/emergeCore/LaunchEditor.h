@@ -68,7 +68,7 @@ public:
   BOOL DoLaunchCommand(HWND hwndDlg, WPARAM wParam, LPARAM lParam);
   BOOL DoNotify(HWND hwndDlg, LPARAM lParam);
   bool UpdateLaunch(HWND hwndDlg);
-  bool GetLaunchAppletName(int index, WCHAR *applet);
+  bool GetLaunchAppletName(int index, WCHAR* applet);
   std::wstring GetSelectedApplet();
   static INT_PTR CALLBACK LaunchDlgProc(HWND hwndDlg, UINT message, WPARAM wParam, LPARAM lParam);
 
@@ -89,10 +89,10 @@ private:
   BOOL DoMultiInfo(HWND hwndDlg);
   bool DoLaunchMove(HWND listWnd, bool up);
   bool CheckSaveCount(HWND hwndDlg);
-  void InsertListViewItem(HWND listWnd, int index, const WCHAR *item);
+  void InsertListViewItem(HWND listWnd, int index, const WCHAR* item);
   BOOL DoRightClick(HWND hwndDlg, int index);
   BOOL PopulateFields(HWND hwndDlg, int index);
-  WCHAR *GetLaunchItemState(WCHAR *launchItem);
+  WCHAR* GetLaunchItemState(WCHAR* launchItem);
   UINT saveCount, deleteCount;
   HINSTANCE hInstance;
   HWND mainWnd, toolWnd, dlgWnd;
@@ -102,7 +102,7 @@ private:
   static BOOL CALLBACK GatherApplet(HWND hwnd, LPARAM lParam);
   std::wstring xmlFile;
   std::wstring selectedApplet;
-  bool FindListSubItem(HWND listWnd, int subItem, WCHAR *searchString);
+  bool FindListSubItem(HWND listWnd, int subItem, WCHAR* searchString);
   bool edit;
   int selectedItem;
 };

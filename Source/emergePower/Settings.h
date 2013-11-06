@@ -29,9 +29,9 @@ class Settings: public BaseSettings
 {
 public:
   Settings();
-  void SetFont(LOGFONT *logFont);
+  void SetFont(LOGFONT* logFont);
   void SetUpdateInterval(int ival);
-  LOGFONT *GetFont();
+  LOGFONT* GetFont();
   int GetUpdateInterval();
   std::wstring GetHorizontalAlign();
   bool SetHorizontalAlign(std::wstring horizontalAlign);

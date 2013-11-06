@@ -67,7 +67,7 @@
 class TrayIcon
 {
 public:
-  TrayIcon(HINSTANCE appInstance, HWND wnd, UINT id, HWND mainWnd, Settings *pSettings);
+  TrayIcon(HINSTANCE appInstance, HWND wnd, UINT id, HWND mainWnd, Settings* pSettings);
   ~TrayIcon();
 
   void DeleteBalloon();
@@ -75,16 +75,16 @@ public:
   HICON GetIcon();
   UINT GetID();
   UINT GetCallback();
-  WCHAR *GetTip();
+  WCHAR* GetTip();
   UINT GetFlags();
-  RECT *GetRect();
+  RECT* GetRect();
   bool GetHidden();
   bool GetShared();
   UINT GetIconVersion();
   void SetIconVersion(UINT iconVersion);
   bool SetIcon(HICON icon);
   bool SetCallback(UINT callbackMessage);
-  bool SetTip(WCHAR *tip);
+  bool SetTip(WCHAR* tip);
   void SetFlags(UINT flags);
   void SetRect(RECT rect);
   void SetHidden(bool hidden);
@@ -92,7 +92,7 @@ public:
   void CreateNewIcon(BYTE foregroundAlpha, BYTE backgroundAlpha);
   void UpdateIcon();
   BOOL SendMessage(UINT message);
-  void ShowBalloon(WCHAR *infoTitle, WCHAR *info, DWORD infoFlags, HICON icon);
+  void ShowBalloon(WCHAR* infoTitle, WCHAR* info, DWORD infoFlags, HICON icon);
   void HideBalloon();
 
 private:

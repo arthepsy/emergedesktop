@@ -65,23 +65,23 @@ void Settings::ResetDefaults()
   updateInterval = 60;
 }
 
-void Settings::SetFont(LOGFONT *logFont)
+void Settings::SetFont(LOGFONT* logFont)
 {
   if (!EGEqualLogFont(this->logFont, *logFont))
-    {
-      fontString = EGFontToString(*logFont);
-      CopyMemory(&this->logFont, logFont, sizeof(LOGFONT));
-      SetModified();
-    }
+  {
+    fontString = EGFontToString(*logFont);
+    CopyMemory(&this->logFont, logFont, sizeof(LOGFONT));
+    SetModified();
+  }
 }
 
 void Settings::SetUpdateInterval(int interval)
 {
   if (updateInterval != interval)
-    {
-      updateInterval = interval;
-      SetModified();
-    }
+  {
+    updateInterval = interval;
+    SetModified();
+  }
 }
 
 std::wstring Settings::GetHorizontalAlign()
@@ -92,10 +92,10 @@ std::wstring Settings::GetHorizontalAlign()
 bool Settings::SetHorizontalAlign(std::wstring horizontalAlign)
 {
   if (ELToLower(textHorizontalAlign) != ELToLower(horizontalAlign))
-    {
-      textHorizontalAlign = horizontalAlign;
-      SetModified();
-    }
+  {
+    textHorizontalAlign = horizontalAlign;
+    SetModified();
+  }
   return true;
 }
 
@@ -107,14 +107,14 @@ std::wstring Settings::GetVerticalAlign()
 bool Settings::SetVerticalAlign(std::wstring verticalAlign)
 {
   if (ELToLower(textVerticalAlign) == ELToLower(verticalAlign))
-    {
-      textVerticalAlign = verticalAlign;
-      SetModified();
-    }
+  {
+    textVerticalAlign = verticalAlign;
+    SetModified();
+  }
   return true;
 }
 
-LOGFONT *Settings::GetFont()
+LOGFONT* Settings::GetFont()
 {
   return &logFont;
 }

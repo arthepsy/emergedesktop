@@ -60,7 +60,7 @@ private:
   static BOOL CALLBACK EnumTasksList(HWND hwnd, LPARAM lParam);
   static BOOL CALLBACK BuildTasksList(HWND hwnd, LPARAM lParam);
   static BOOL CALLBACK EnumFullScreenWindows(HWND hwnd, LPARAM lParam);
-  bool PaintTask(Task *task);
+  bool PaintTask(Task* task);
   LRESULT PaintContent(HDC hdc, RECT clientrt);
   void ShowConfig();
   LRESULT MySize();
@@ -78,9 +78,9 @@ public:
   void AppletUpdate();
   bool IsWindowValidTask(HWND hwnd);
   void SwitchDesktop(int row, int column, bool gather);
-  LRESULT DoCopyData(COPYDATASTRUCT *cds);
+  LRESULT DoCopyData(COPYDATASTRUCT* cds);
   bool AddTasks(HWND hwnd);
-  bool GetTaskRowColumn(HWND hwnd, int *row, int *column);
+  bool GetTaskRowColumn(HWND hwnd, int* row, int* column);
   GUIINFO GetGUIInfo();
 };
 #endif

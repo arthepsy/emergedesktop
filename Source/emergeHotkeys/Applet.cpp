@@ -26,7 +26,7 @@ HANDLE executeThread = NULL, keyUpEvent = NULL;
 //UINT hotkeyCode = 0;
 
 Applet::Applet(HINSTANCE hInstance)
-  :BaseApplet(hInstance, TEXT("emergeHotkeys"), false, false)
+  : BaseApplet(hInstance, TEXT("emergeHotkeys"), false, false)
 {
   hotkeyCount = 0;
   executeThread = NULL;
@@ -43,7 +43,9 @@ UINT Applet::Initialize()
   pSettings = std::tr1::shared_ptr<Settings>(new Settings());
   ret = BaseApplet::Initialize(WindowProcedure, this, pSettings);
   if (ret == 0)
+  {
     return ret;
+  }
 
   SetWindowPos(mainWnd, NULL, 0, 0, 0, 0, SWP_NOACTIVATE);
   ShowWindow(mainWnd, SW_SHOW);
@@ -79,54 +81,56 @@ Applet::~Applet()
 //----  --------------------------------------------------------------------------------------------------------
 LRESULT CALLBACK Applet::WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-  static Applet *pApplet = NULL;
+  static Applet* pApplet = NULL;
 
   if (message == WM_CREATE)
-    {
-      // Register to recieve the specified Emerge Desktop messages
-      PostMessage(ELGetCoreWindow(), EMERGE_REGISTER, (WPARAM)hwnd, (LPARAM)EMERGE_CORE);
+  {
+    // Register to recieve the specified Emerge Desktop messages
+    PostMessage(ELGetCoreWindow(), EMERGE_REGISTER, (WPARAM)hwnd, (LPARAM)EMERGE_CORE);
 
-      pApplet = reinterpret_cast<Applet*>(((CREATESTRUCT*)lParam)->lpCreateParams);
-      return DefWindowProc(hwnd, message, wParam, lParam);
-    }
+    pApplet = reinterpret_cast<Applet*>(((CREATESTRUCT*)lParam)->lpCreateParams);
+    return DefWindowProc(hwnd, message, wParam, lParam);
+  }
 
   if (pApplet == NULL)
+  {
     return DefWindowProc(hwnd, message, wParam, lParam);
+  }
 
   switch (message)
+  {
+  case WM_COPYDATA:
+    return pApplet->DoCopyData((COPYDATASTRUCT*)lParam);
+
+    // Send a quit message when the window is destroyed
+  case WM_DESTROY:
+  case WM_NCDESTROY:
+    // Unregister the specified Emerge Desktop messages
+    PostMessage(ELGetCoreWindow(), EMERGE_UNREGISTER, (WPARAM)hwnd, (LPARAM)EMERGE_CORE);
+
+    PostQuitMessage (0);
+    break;
+
+  case WM_SYSCOMMAND:
+    switch (wParam)
     {
-    case WM_COPYDATA:
-      return pApplet->DoCopyData((COPYDATASTRUCT *)lParam);
-
-      // Send a quit message when the window is destroyed
-    case WM_DESTROY:
-    case WM_NCDESTROY:
-      // Unregister the specified Emerge Desktop messages
-      PostMessage(ELGetCoreWindow(), EMERGE_UNREGISTER, (WPARAM)hwnd, (LPARAM)EMERGE_CORE);
-
-      PostQuitMessage (0);
+    case SC_CLOSE:
+    case SC_MAXIMIZE:
+    case SC_MINIMIZE:
       break;
-
-    case WM_SYSCOMMAND:
-      switch (wParam)
-        {
-        case SC_CLOSE:
-        case SC_MAXIMIZE:
-        case SC_MINIMIZE:
-          break;
-        default:
-          return DefWindowProc(hwnd, message, wParam, lParam);
-        }
-      break;
-
-    case WM_HOTKEY:
-      pApplet->ExecuteAction((UINT)wParam);
-      break;
-
-      // If not handled just forward the message on to MessageControl
     default:
-      return pApplet->DoDefault(hwnd, message, wParam, lParam);
+      return DefWindowProc(hwnd, message, wParam, lParam);
     }
+    break;
+
+  case WM_HOTKEY:
+    pApplet->ExecuteAction((UINT)wParam);
+    break;
+
+    // If not handled just forward the message on to MessageControl
+  default:
+    return pApplet->DoDefault(hwnd, message, wParam, lParam);
+  }
 
   return 0;
 }
@@ -146,36 +150,42 @@ LRESULT CALLBACK Applet::LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM l
   DWORD threadState;
 
   if ( nCode == HC_ACTION )
-    {
-      PKBDLLHOOKSTRUCT pkbHookStruct = (PKBDLLHOOKSTRUCT)lParam;
+  {
+    PKBDLLHOOKSTRUCT pkbHookStruct = (PKBDLLHOOKSTRUCT)lParam;
 
-      switch (wParam)
+    switch (wParam)
+    {
+    case WM_KEYUP:
+    case WM_SYSKEYUP:
+      // if the WM_(SYS)KEYUP is VK_LWIN, trigger the event so the thread
+      // will end.  If not, terminate the thread.
+      if (pkbHookStruct->vkCode == VK_LWIN)
+      {
+        SetEvent(keyUpEvent);
+      }
+      else
+      {
+        GetExitCodeThread(executeThread, &threadState);
+        if (threadState == STILL_ACTIVE)
         {
-        case WM_KEYUP:
-        case WM_SYSKEYUP:
-          // if the WM_(SYS)KEYUP is VK_LWIN, trigger the event so the thread
-          // will end.  If not, terminate the thread.
-          if (pkbHookStruct->vkCode == VK_LWIN)
-            SetEvent(keyUpEvent);
-          else
-            {
-              GetExitCodeThread(executeThread, &threadState);
-              if (threadState == STILL_ACTIVE)
-                TerminateThread(executeThread, 0);
-            }
-          break;
-        case WM_KEYDOWN:
-        case WM_SYSKEYDOWN:
-          // if the WM_(SYS)KEYUP is not VK_LWIN terminate the thread.
-          if (pkbHookStruct->vkCode != VK_LWIN)
-            {
-              GetExitCodeThread(executeThread, &threadState);
-              if (threadState == STILL_ACTIVE)
-                TerminateThread(executeThread, 0);
-            }
-          break;
+          TerminateThread(executeThread, 0);
         }
+      }
+      break;
+    case WM_KEYDOWN:
+    case WM_SYSKEYDOWN:
+      // if the WM_(SYS)KEYUP is not VK_LWIN terminate the thread.
+      if (pkbHookStruct->vkCode != VK_LWIN)
+      {
+        GetExitCodeThread(executeThread, &threadState);
+        if (threadState == STILL_ACTIVE)
+        {
+          TerminateThread(executeThread, 0);
+        }
+      }
+      break;
     }
+  }
 
   return CallNextHookEx((HHOOK)WH_KEYBOARD_LL, nCode, wParam, lParam);
 }
@@ -183,7 +193,7 @@ LRESULT CALLBACK Applet::LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM l
 DWORD WINAPI Applet::ExecuteThreadProc(LPVOID lpParameter)
 {
   // reinterpret lpParameter as a HotKeyCombo*
-  HotkeyCombo *hc = reinterpret_cast< HotkeyCombo* >(lpParameter);
+  HotkeyCombo* hc = reinterpret_cast< HotkeyCombo* >(lpParameter);
 
   // Wait for the WM_KEYUP event from the low level keyboard hook
   WaitForSingleObject(keyUpEvent, INFINITE);
@@ -199,26 +209,32 @@ DWORD WINAPI Applet::ExecuteThreadProc(LPVOID lpParameter)
 void Applet::ExecuteAction(UINT index)
 {
   DWORD threadID, threadState;
-  HotkeyCombo *hc;
+  HotkeyCombo* hc;
 
   UINT item = pSettings->FindHotkeyListItem(index);
   if (item == pSettings->GetHotkeyListSize())
+  {
     return;
+  }
 
   hc = pSettings->GetHotkeyListItem(item);
 
   if (hc->GetHotkeyKey() == VK_WIN)
+  {
+    ResetEvent(keyUpEvent);
+
+    // If there is an existing thread still running, kill it.
+    GetExitCodeThread(executeThread, &threadState);
+    if (threadState == STILL_ACTIVE)
     {
-      ResetEvent(keyUpEvent);
-
-      // If there is an existing thread still running, kill it.
-      GetExitCodeThread(executeThread, &threadState);
-      if (threadState == STILL_ACTIVE)
-        TerminateThread(executeThread, 0);
-
-      // Create a thread to handle the VK_WIN special case.
-      executeThread = CreateThread(NULL, 0, ExecuteThreadProc, hc, 0, &threadID);
+      TerminateThread(executeThread, 0);
     }
+
+    // Create a thread to handle the VK_WIN special case.
+    executeThread = CreateThread(NULL, 0, ExecuteThreadProc, hc, 0, &threadID);
+  }
   else
+  {
     ELExecuteFileOrCommand(hc->GetHotkeyAction());
+  }
 }

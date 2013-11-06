@@ -28,26 +28,30 @@ static COLORREF custColours[16];
 
 INT_PTR CALLBACK DisplayPage::DisplayPageDlgProc(HWND hwndDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
-  static DisplayPage *pDisplayPage = NULL;
-  PROPSHEETPAGE *psp;
+  static DisplayPage* pDisplayPage = NULL;
+  PROPSHEETPAGE* psp;
 
   switch (message)
+  {
+  case WM_INITDIALOG:
+    psp = (PROPSHEETPAGE*)lParam;
+    pDisplayPage = reinterpret_cast<DisplayPage*>(psp->lParam);
+    if (!pDisplayPage)
     {
-    case WM_INITDIALOG:
-      psp = (PROPSHEETPAGE*)lParam;
-      pDisplayPage = reinterpret_cast<DisplayPage*>(psp->lParam);
-      if (!pDisplayPage)
-        break;
-      return pDisplayPage->DoInitDialog(hwndDlg);
-
-    case WM_COMMAND:
-      return pDisplayPage->DoCommand(hwndDlg, wParam, lParam);
-
-    case WM_NOTIFY:
-      if (!pDisplayPage)
-        break;
-      return pDisplayPage->DoNotify(hwndDlg, lParam);
+      break;
     }
+    return pDisplayPage->DoInitDialog(hwndDlg);
+
+  case WM_COMMAND:
+    return pDisplayPage->DoCommand(hwndDlg, wParam, lParam);
+
+  case WM_NOTIFY:
+    if (!pDisplayPage)
+    {
+      break;
+    }
+    return pDisplayPage->DoNotify(hwndDlg, lParam);
+  }
 
   return FALSE;
 }
@@ -62,43 +66,65 @@ DisplayPage::DisplayPage(std::tr1::shared_ptr<Settings> pSettings)
   hbmMemColourFrom = NULL;
   hbmMemColourTo = NULL;
   buttonFont = NULL;
-  CPUColourFrom = RGB(0,0,0);
-  CPUColourTo = RGB(0,0,0);
-  MemColourFrom = RGB(0,0,0);
-  MemColourTo = RGB(0,0,0);
+  CPUColourFrom = RGB(0, 0, 0);
+  CPUColourTo = RGB(0, 0, 0);
+  MemColourFrom = RGB(0, 0, 0);
+  MemColourTo = RGB(0, 0, 0);
 }
 
 DisplayPage::~DisplayPage()
 {
   if (buttonFont)
+  {
     DeleteObject(buttonFont);
+  }
   if (hbmCPUColourFrom)
+  {
     DeleteObject(hbmCPUColourFrom);
+  }
   if (hbmCPUColourTo)
+  {
     DeleteObject(hbmCPUColourTo);
+  }
   if (hbmMemColourFrom)
+  {
     DeleteObject(hbmMemColourFrom);
+  }
   if (hbmMemColourTo)
+  {
     DeleteObject(hbmMemColourTo);
+  }
 }
 
 BOOL DisplayPage::DoInitDialog(HWND hwndDlg)
 {
   if (pSettings->GetShowNumbers())
+  {
     SendDlgItemMessage(hwndDlg, IDC_SHOWNUMBERS, BM_SETCHECK, BST_CHECKED, 0);
+  }
 
   if (ELToLower(pSettings->GetNumberPosition()) == TEXT("left"))
+  {
     SendDlgItemMessage(hwndDlg, IDC_TEXTLEFT, BM_SETCHECK, BST_CHECKED, 0);
+  }
   if (ELToLower(pSettings->GetNumberPosition()) == TEXT("down"))
+  {
     SendDlgItemMessage(hwndDlg, IDC_TEXTDOWN, BM_SETCHECK, BST_CHECKED, 0);
+  }
   if (ELToLower(pSettings->GetNumberPosition()) == TEXT("right"))
+  {
     SendDlgItemMessage(hwndDlg, IDC_TEXTRIGHT, BM_SETCHECK, BST_CHECKED, 0);
+  }
   if (ELToLower(pSettings->GetNumberPosition()) == TEXT("up"))
+  {
     SendDlgItemMessage(hwndDlg, IDC_TEXTUP, BM_SETCHECK, BST_CHECKED, 0);
+  }
 
   CopyMemory(&newFont, pSettings->GetFont(), sizeof(LOGFONT));
   if (buttonFont)
+  {
     DeleteObject(buttonFont);
+  }
   buttonFont = CreateFontIndirect(&newFont);
   SendDlgItemMessage(hwndDlg, IDC_FONTBUTTON, WM_SETFONT, (WPARAM)buttonFont, (LPARAM)TRUE);
   SetDlgItemText(hwndDlg, IDC_FONTBUTTON, newFont.lfFaceName);
@@ -110,88 +136,132 @@ BOOL DisplayPage::DoInitDialog(HWND hwndDlg)
   MemColourTo = pSettings->GetMemGradientTo();
 
   if (SendDlgItemMessage(hwndDlg, IDC_METHODCPU, CB_GETCOUNT, 0, 0) == 0)
-    {
-      SendDlgItemMessage(hwndDlg, IDC_METHODCPU, CB_ADDSTRING, 0, (LPARAM)TEXT("Solid"));
-      SendDlgItemMessage(hwndDlg, IDC_METHODCPU, CB_ADDSTRING, 0, (LPARAM)TEXT("Vertical"));
-      SendDlgItemMessage(hwndDlg, IDC_METHODCPU, CB_ADDSTRING, 0, (LPARAM)TEXT("Horizontal"));
-      SendDlgItemMessage(hwndDlg, IDC_METHODCPU, CB_ADDSTRING, 0, (LPARAM)TEXT("CrossDiagonal"));
-      SendDlgItemMessage(hwndDlg, IDC_METHODCPU, CB_ADDSTRING, 0, (LPARAM)TEXT("Diagonal"));
-      SendDlgItemMessage(hwndDlg, IDC_METHODCPU, CB_ADDSTRING, 0, (LPARAM)TEXT("Pipecross"));
-      SendDlgItemMessage(hwndDlg, IDC_METHODCPU, CB_ADDSTRING, 0, (LPARAM)TEXT("Elliptic"));
-      SendDlgItemMessage(hwndDlg, IDC_METHODCPU, CB_ADDSTRING, 0, (LPARAM)TEXT("Rectangle"));
-      SendDlgItemMessage(hwndDlg, IDC_METHODCPU, CB_ADDSTRING, 0, (LPARAM)TEXT("Pyramid"));
-    }
+  {
+    SendDlgItemMessage(hwndDlg, IDC_METHODCPU, CB_ADDSTRING, 0, (LPARAM)TEXT("Solid"));
+    SendDlgItemMessage(hwndDlg, IDC_METHODCPU, CB_ADDSTRING, 0, (LPARAM)TEXT("Vertical"));
+    SendDlgItemMessage(hwndDlg, IDC_METHODCPU, CB_ADDSTRING, 0, (LPARAM)TEXT("Horizontal"));
+    SendDlgItemMessage(hwndDlg, IDC_METHODCPU, CB_ADDSTRING, 0, (LPARAM)TEXT("CrossDiagonal"));
+    SendDlgItemMessage(hwndDlg, IDC_METHODCPU, CB_ADDSTRING, 0, (LPARAM)TEXT("Diagonal"));
+    SendDlgItemMessage(hwndDlg, IDC_METHODCPU, CB_ADDSTRING, 0, (LPARAM)TEXT("Pipecross"));
+    SendDlgItemMessage(hwndDlg, IDC_METHODCPU, CB_ADDSTRING, 0, (LPARAM)TEXT("Elliptic"));
+    SendDlgItemMessage(hwndDlg, IDC_METHODCPU, CB_ADDSTRING, 0, (LPARAM)TEXT("Rectangle"));
+    SendDlgItemMessage(hwndDlg, IDC_METHODCPU, CB_ADDSTRING, 0, (LPARAM)TEXT("Pyramid"));
+  }
 
   std::wstring lower = pSettings->GetCPUGradientMethod();
   std::transform(lower.begin(), lower.end(), lower.begin(), (int(*)(int)) std::tolower);
   if (lower.find(TEXT("vertical")) != std::wstring::npos)
+  {
     SendDlgItemMessage(hwndDlg, IDC_METHODCPU, CB_SETCURSEL, (WPARAM)1, 0);
+  }
   else if (lower.find(TEXT("horizontal")) != std::wstring::npos)
+  {
     SendDlgItemMessage(hwndDlg, IDC_METHODCPU, CB_SETCURSEL, (WPARAM)2, 0);
+  }
   else if (lower.find(TEXT("crossdiagonal")) != std::wstring::npos)
+  {
     SendDlgItemMessage(hwndDlg, IDC_METHODCPU, CB_SETCURSEL, (WPARAM)3, 0);
+  }
   else if (lower.find(TEXT("diagonal")) != std::wstring::npos)
+  {
     SendDlgItemMessage(hwndDlg, IDC_METHODCPU, CB_SETCURSEL, (WPARAM)4, 0);
+  }
   else if (lower.find(TEXT("pipecross")) != std::wstring::npos)
+  {
     SendDlgItemMessage(hwndDlg, IDC_METHODCPU, CB_SETCURSEL, (WPARAM)5, 0);
+  }
   else if (lower.find(TEXT("elliptic")) != std::wstring::npos)
+  {
     SendDlgItemMessage(hwndDlg, IDC_METHODCPU, CB_SETCURSEL, (WPARAM)6, 0);
+  }
   else if (lower.find(TEXT("rectangle")) != std::wstring::npos)
+  {
     SendDlgItemMessage(hwndDlg, IDC_METHODCPU, CB_SETCURSEL, (WPARAM)7, 0);
+  }
   else if (lower.find(TEXT("pyramid")) != std::wstring::npos)
+  {
     SendDlgItemMessage(hwndDlg, IDC_METHODCPU, CB_SETCURSEL, (WPARAM)8, 0);
+  }
   else
+  {
     SendDlgItemMessage(hwndDlg, IDC_METHODCPU, CB_SETCURSEL, (WPARAM)0, 0);
+  }
 
   hbmCPUColourFrom = EGCreateBitmap(0xff, CPUColourFrom, colourRect);
   if (hbmCPUColourFrom)
+  {
     SendDlgItemMessage(hwndDlg, IDC_FROMCOLOURCPU, BM_SETIMAGE, IMAGE_BITMAP, (LPARAM)hbmCPUColourFrom);
+  }
 
   hbmCPUColourTo = EGCreateBitmap(0xff, CPUColourTo, colourRect);
   if (hbmCPUColourTo)
+  {
     SendDlgItemMessage(hwndDlg, IDC_TOCOLOURCPU, BM_SETIMAGE, IMAGE_BITMAP, (LPARAM)hbmCPUColourTo);
+  }
 
   if (SendDlgItemMessage(hwndDlg, IDC_METHODMEM, CB_GETCOUNT, 0, 0) == 0)
-    {
-      SendDlgItemMessage(hwndDlg, IDC_METHODMEM, CB_ADDSTRING, 0, (LPARAM)TEXT("Solid"));
-      SendDlgItemMessage(hwndDlg, IDC_METHODMEM, CB_ADDSTRING, 0, (LPARAM)TEXT("Vertical"));
-      SendDlgItemMessage(hwndDlg, IDC_METHODMEM, CB_ADDSTRING, 0, (LPARAM)TEXT("Horizontal"));
-      SendDlgItemMessage(hwndDlg, IDC_METHODMEM, CB_ADDSTRING, 0, (LPARAM)TEXT("CrossDiagonal"));
-      SendDlgItemMessage(hwndDlg, IDC_METHODMEM, CB_ADDSTRING, 0, (LPARAM)TEXT("Diagonal"));
-      SendDlgItemMessage(hwndDlg, IDC_METHODMEM, CB_ADDSTRING, 0, (LPARAM)TEXT("Pipecross"));
-      SendDlgItemMessage(hwndDlg, IDC_METHODMEM, CB_ADDSTRING, 0, (LPARAM)TEXT("Elliptic"));
-      SendDlgItemMessage(hwndDlg, IDC_METHODMEM, CB_ADDSTRING, 0, (LPARAM)TEXT("Rectangle"));
-      SendDlgItemMessage(hwndDlg, IDC_METHODMEM, CB_ADDSTRING, 0, (LPARAM)TEXT("Pyramid"));
-    }
+  {
+    SendDlgItemMessage(hwndDlg, IDC_METHODMEM, CB_ADDSTRING, 0, (LPARAM)TEXT("Solid"));
+    SendDlgItemMessage(hwndDlg, IDC_METHODMEM, CB_ADDSTRING, 0, (LPARAM)TEXT("Vertical"));
+    SendDlgItemMessage(hwndDlg, IDC_METHODMEM, CB_ADDSTRING, 0, (LPARAM)TEXT("Horizontal"));
+    SendDlgItemMessage(hwndDlg, IDC_METHODMEM, CB_ADDSTRING, 0, (LPARAM)TEXT("CrossDiagonal"));
+    SendDlgItemMessage(hwndDlg, IDC_METHODMEM, CB_ADDSTRING, 0, (LPARAM)TEXT("Diagonal"));
+    SendDlgItemMessage(hwndDlg, IDC_METHODMEM, CB_ADDSTRING, 0, (LPARAM)TEXT("Pipecross"));
+    SendDlgItemMessage(hwndDlg, IDC_METHODMEM, CB_ADDSTRING, 0, (LPARAM)TEXT("Elliptic"));
+    SendDlgItemMessage(hwndDlg, IDC_METHODMEM, CB_ADDSTRING, 0, (LPARAM)TEXT("Rectangle"));
+    SendDlgItemMessage(hwndDlg, IDC_METHODMEM, CB_ADDSTRING, 0, (LPARAM)TEXT("Pyramid"));
+  }
 
   lower = pSettings->GetMemGradientMethod();
   std::transform(lower.begin(), lower.end(), lower.begin(), (int(*)(int)) std::tolower);
   if (lower.find(TEXT("vertical")) != std::wstring::npos)
+  {
     SendDlgItemMessage(hwndDlg, IDC_METHODMEM, CB_SETCURSEL, (WPARAM)1, 0);
+  }
   else if (lower.find(TEXT("horizontal")) != std::wstring::npos)
+  {
     SendDlgItemMessage(hwndDlg, IDC_METHODMEM, CB_SETCURSEL, (WPARAM)2, 0);
+  }
   else if (lower.find(TEXT("crossdiagonal")) != std::wstring::npos)
+  {
     SendDlgItemMessage(hwndDlg, IDC_METHODMEM, CB_SETCURSEL, (WPARAM)3, 0);
+  }
   else if (lower.find(TEXT("diagonal")) != std::wstring::npos)
+  {
     SendDlgItemMessage(hwndDlg, IDC_METHODMEM, CB_SETCURSEL, (WPARAM)4, 0);
+  }
   else if (lower.find(TEXT("pipecross")) != std::wstring::npos)
+  {
     SendDlgItemMessage(hwndDlg, IDC_METHODMEM, CB_SETCURSEL, (WPARAM)5, 0);
+  }
   else if (lower.find(TEXT("elliptic")) != std::wstring::npos)
+  {
     SendDlgItemMessage(hwndDlg, IDC_METHODMEM, CB_SETCURSEL, (WPARAM)6, 0);
+  }
   else if (lower.find(TEXT("rectangle")) != std::wstring::npos)
+  {
     SendDlgItemMessage(hwndDlg, IDC_METHODMEM, CB_SETCURSEL, (WPARAM)7, 0);
+  }
   else if (lower.find(TEXT("pyramid")) != std::wstring::npos)
+  {
     SendDlgItemMessage(hwndDlg, IDC_METHODMEM, CB_SETCURSEL, (WPARAM)8, 0);
+  }
   else
+  {
     SendDlgItemMessage(hwndDlg, IDC_METHODMEM, CB_SETCURSEL, (WPARAM)0, 0);
+  }
 
   hbmMemColourFrom = EGCreateBitmap(0xff, MemColourFrom, colourRect);
   if (hbmMemColourFrom)
+  {
     SendDlgItemMessage(hwndDlg, IDC_FROMCOLOURMEM, BM_SETIMAGE, IMAGE_BITMAP, (LPARAM)hbmMemColourFrom);
+  }
 
   hbmMemColourTo = EGCreateBitmap(0xff, MemColourTo, colourRect);
   if (hbmMemColourTo)
+  {
     SendDlgItemMessage(hwndDlg, IDC_TOCOLOURMEM, BM_SETIMAGE, IMAGE_BITMAP, (LPARAM)hbmMemColourTo);
+  }
 
   UpdateEnabledStates(hwndDlg);
 
@@ -201,77 +271,83 @@ BOOL DisplayPage::DoInitDialog(HWND hwndDlg)
 BOOL DisplayPage::DoCommand(HWND hwndDlg, WPARAM wParam, LPARAM lParam UNUSED)
 {
   switch (LOWORD(wParam))
+  {
+  case IDC_FONTBUTTON:
+    if (DoFontChooser(hwndDlg))
     {
-    case IDC_FONTBUTTON:
-      if (DoFontChooser(hwndDlg))
-        {
-          if (buttonFont)
-            DeleteObject(buttonFont);
-          buttonFont = CreateFontIndirect(&newFont);
-          SendDlgItemMessage(hwndDlg, IDC_FONTBUTTON, WM_SETFONT, (WPARAM)buttonFont, (LPARAM)TRUE);
-          SetDlgItemText(hwndDlg, IDC_FONTBUTTON, newFont.lfFaceName);
+      if (buttonFont)
+      {
+        DeleteObject(buttonFont);
+      }
+      buttonFont = CreateFontIndirect(&newFont);
+      SendDlgItemMessage(hwndDlg, IDC_FONTBUTTON, WM_SETFONT, (WPARAM)buttonFont, (LPARAM)TRUE);
+      SetDlgItemText(hwndDlg, IDC_FONTBUTTON, newFont.lfFaceName);
 
-          return TRUE;
-        }
-
-      return FALSE;
-    case IDC_SHOWNUMBERS:
-      UpdateEnabledStates(hwndDlg);
       return TRUE;
-    case IDC_FROMCOLOURCPU:
-      if (DoColourChooser(&CPUColourFrom, hwndDlg))
-        {
-          UpdateColorButton(hwndDlg, hbmCPUColourFrom, CPUColourFrom, LOWORD(wParam));
-          return TRUE;
-        }
-      return FALSE;
-    case IDC_TOCOLOURCPU:
-      if (DoColourChooser(&CPUColourTo, hwndDlg))
-        {
-          UpdateColorButton(hwndDlg, hbmCPUColourTo, CPUColourTo, LOWORD(wParam));
-          return TRUE;
-        }
-      return FALSE;
-    case IDC_FROMCOLOURMEM:
-      if (DoColourChooser(&MemColourFrom, hwndDlg))
-        {
-          UpdateColorButton(hwndDlg, hbmMemColourFrom, MemColourFrom, LOWORD(wParam));
-          return TRUE;
-        }
-      return FALSE;
-    case IDC_TOCOLOURMEM:
-      if (DoColourChooser(&MemColourTo, hwndDlg))
-        {
-          UpdateColorButton(hwndDlg, hbmMemColourTo, MemColourTo, LOWORD(wParam));
-          return TRUE;
-        }
-      return FALSE;
     }
+
+    return FALSE;
+  case IDC_SHOWNUMBERS:
+    UpdateEnabledStates(hwndDlg);
+    return TRUE;
+  case IDC_FROMCOLOURCPU:
+    if (DoColourChooser(&CPUColourFrom, hwndDlg))
+    {
+      UpdateColorButton(hwndDlg, hbmCPUColourFrom, CPUColourFrom, LOWORD(wParam));
+      return TRUE;
+    }
+    return FALSE;
+  case IDC_TOCOLOURCPU:
+    if (DoColourChooser(&CPUColourTo, hwndDlg))
+    {
+      UpdateColorButton(hwndDlg, hbmCPUColourTo, CPUColourTo, LOWORD(wParam));
+      return TRUE;
+    }
+    return FALSE;
+  case IDC_FROMCOLOURMEM:
+    if (DoColourChooser(&MemColourFrom, hwndDlg))
+    {
+      UpdateColorButton(hwndDlg, hbmMemColourFrom, MemColourFrom, LOWORD(wParam));
+      return TRUE;
+    }
+    return FALSE;
+  case IDC_TOCOLOURMEM:
+    if (DoColourChooser(&MemColourTo, hwndDlg))
+    {
+      UpdateColorButton(hwndDlg, hbmMemColourTo, MemColourTo, LOWORD(wParam));
+      return TRUE;
+    }
+    return FALSE;
+  }
 
   return FALSE;
 }
 
 INT_PTR DisplayPage::DoNotify(HWND hwndDlg, LPARAM lParam)
 {
-  NMHDR *phdr = (NMHDR*)lParam;
+  NMHDR* phdr = (NMHDR*)lParam;
 
   switch (phdr->code)
+  {
+  case PSN_APPLY:
+    if (UpdateSettings(hwndDlg))
     {
-    case PSN_APPLY:
-      if (UpdateSettings(hwndDlg))
-        SetWindowLongPtr(hwndDlg, DWLP_MSGRESULT, PSNRET_NOERROR);
-      else
-        SetWindowLongPtr(hwndDlg, DWLP_MSGRESULT, PSNRET_INVALID);
-      return 1;
-
-    case PSN_SETACTIVE:
-      SetWindowLongPtr(hwndDlg, DWLP_MSGRESULT, 0);
-      return 1;
-
-    case PSN_KILLACTIVE:
-      SetWindowLongPtr(hwndDlg, DWLP_MSGRESULT, FALSE);
-      return 1;
+      SetWindowLongPtr(hwndDlg, DWLP_MSGRESULT, PSNRET_NOERROR);
     }
+    else
+    {
+      SetWindowLongPtr(hwndDlg, DWLP_MSGRESULT, PSNRET_INVALID);
+    }
+    return 1;
+
+  case PSN_SETACTIVE:
+    SetWindowLongPtr(hwndDlg, DWLP_MSGRESULT, 0);
+    return 1;
+
+  case PSN_KILLACTIVE:
+    SetWindowLongPtr(hwndDlg, DWLP_MSGRESULT, FALSE);
+    return 1;
+  }
 
   return 0;
 }
@@ -279,7 +355,9 @@ INT_PTR DisplayPage::DoNotify(HWND hwndDlg, LPARAM lParam)
 void DisplayPage::UpdateColorButton(HWND hwndDlg, HBITMAP bitmap, COLORREF colour, int controlId)
 {
   if (bitmap)
+  {
     DeleteObject(bitmap);
+  }
   bitmap = EGCreateBitmap(0xff, colour, colourRect);
   if (bitmap)
     DeleteObject((HBITMAP)SendDlgItemMessage(hwndDlg, controlId, BM_SETIMAGE,
@@ -299,7 +377,7 @@ bool DisplayPage::DoFontChooser(HWND hwndDlg)
   return (ChooseFont(&chooseFont) == TRUE);
 }
 
-BOOL DisplayPage::DoColourChooser(COLORREF *colour, HWND hwndDlg)
+BOOL DisplayPage::DoColourChooser(COLORREF* colour, HWND hwndDlg)
 {
   CHOOSECOLOR chooseColour;
   COLORREF tmpColour = *colour;
@@ -315,7 +393,9 @@ BOOL DisplayPage::DoColourChooser(COLORREF *colour, HWND hwndDlg)
   res = ChooseColor(&chooseColour);
 
   if (res)
+  {
     *colour = chooseColour.rgbResult;
+  }
 
   return res;
 }
@@ -323,22 +403,34 @@ BOOL DisplayPage::DoColourChooser(COLORREF *colour, HWND hwndDlg)
 bool DisplayPage::UpdateSettings(HWND hwndDlg)
 {
   BOOL success = true;
-  const WCHAR *tmpValue = NULL;
+  const WCHAR* tmpValue = NULL;
 
   if (SendDlgItemMessage(hwndDlg, IDC_SHOWNUMBERS, BM_GETCHECK, 0, 0) == BST_CHECKED)
+  {
     success = true;
+  }
   else if (SendDlgItemMessage(hwndDlg, IDC_SHOWNUMBERS, BM_GETCHECK, 0, 0) == BST_UNCHECKED)
+  {
     success = false;
+  }
   pSettings->SetShowNumbers(success);
 
   if (SendDlgItemMessage(hwndDlg, IDC_TEXTUP, BM_GETCHECK, 0, 0) == BST_CHECKED)
+  {
     tmpValue = TEXT("up");
+  }
   if (SendDlgItemMessage(hwndDlg, IDC_TEXTRIGHT, BM_GETCHECK, 0, 0) == BST_CHECKED)
+  {
     tmpValue = TEXT("right");
+  }
   if (SendDlgItemMessage(hwndDlg, IDC_TEXTDOWN, BM_GETCHECK, 0, 0) == BST_CHECKED)
+  {
     tmpValue = TEXT("down");
+  }
   if (SendDlgItemMessage(hwndDlg, IDC_TEXTLEFT, BM_GETCHECK, 0, 0) == BST_CHECKED)
+  {
     tmpValue = TEXT("left");
+  }
   pSettings->SetNumberPosition((WCHAR*)tmpValue);
 
   WCHAR methodString[MAX_LINE_LENGTH];

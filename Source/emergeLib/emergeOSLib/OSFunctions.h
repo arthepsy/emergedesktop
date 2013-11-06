@@ -40,17 +40,17 @@
 #include "Shutdown.h"
 
 // MS Run dialog
-typedef void (__stdcall *lpfnMSRun)(HWND, HICON, LPCSTR, LPCSTR, LPCSTR, int);
+typedef void (__stdcall* lpfnMSRun)(HWND, HICON, LPCSTR, LPCSTR, LPCSTR, int);
 static lpfnMSRun MSRun = NULL;
 
 // MS RegisterShellHookWindow
-typedef BOOL (WINAPI *lpfnMSRegisterShellHookWindow)(HWND hWnd, DWORD method);
+typedef BOOL (WINAPI* lpfnMSRegisterShellHookWindow)(HWND hWnd, DWORD method);
 static lpfnMSRegisterShellHookWindow MSRegisterShellHookWindow = NULL;
 
-typedef void* (WINAPI *fnSHLockShared)(HANDLE, DWORD);
+typedef void* (WINAPI* fnSHLockShared)(HANDLE, DWORD);
 static fnSHLockShared MSSHLockShared = NULL;
 
-typedef BOOL (WINAPI *fnSHUnlockShared)(void*);
+typedef BOOL (WINAPI* fnSHUnlockShared)(void*);
 static fnSHUnlockShared MSSHUnlockShared = NULL;
 
 //Helper functions

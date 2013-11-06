@@ -46,19 +46,19 @@ int WINAPI WinMain (HINSTANCE hInstance UNUSED,
   commandLine = ELstringTowstring(lpCmdLine, CP_ACP);
 
   if (commandLine.empty())
-    {
-      error = TEXT("Usage: emerge <Internal Command>");
-      ELMessageBox(GetDesktopWindow(), error, (WCHAR*)TEXT("emerge"), ELMB_ICONERROR|ELMB_OK|ELMB_MODAL);
-      return 1;
-    }
+  {
+    error = TEXT("Usage: emerge <Internal Command>");
+    ELMessageBox(GetDesktopWindow(), error, (WCHAR*)TEXT("emerge"), ELMB_ICONERROR | ELMB_OK | ELMB_MODAL);
+    return 1;
+  }
 
   if (!ELExecuteFileOrCommand(commandLine))
-    {
-      error = TEXT("Failed to execute ");
-      error = error + commandLine;
-      ELMessageBox(GetDesktopWindow(), error, (WCHAR*)TEXT("emerge"), ELMB_ICONWARNING|ELMB_OK|ELMB_MODAL);
-      return 2;
-    }
+  {
+    error = TEXT("Failed to execute ");
+    error = error + commandLine;
+    ELMessageBox(GetDesktopWindow(), error, (WCHAR*)TEXT("emerge"), ELMB_ICONWARNING | ELMB_OK | ELMB_MODAL);
+    return 2;
+  }
 
   // The program return-value is 0 - The value that PostQuitMessage() gave
   return 0;

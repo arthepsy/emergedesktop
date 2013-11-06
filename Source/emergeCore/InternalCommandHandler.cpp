@@ -89,17 +89,25 @@ bool ActivateCommandHandler(std::vector<std::wstring> args)
   std::wstring application;
 
   if (args.size() == 0)
+  {
     return false;
+  }
 
   if (args.at(0).empty())
+  {
     return false;
+  }
 
   application = args.at(0);
   if (ELToLower(ELGetFileExtension(application)) != TEXT(".exe"))
+  {
     application = application + TEXT(".exe");
+  }
 
   if (ELPathIsRelative(application))
+  {
     application = ELGetAbsolutePath(application);
+  }
 
   if ((!ELIsAppletRunning(application)) && (ELFileExists(application)))
   {
@@ -137,7 +145,9 @@ bool DisconnectCommandHandler(std::vector<std::wstring> args)
   for (counter = 0; counter < args.size(); counter++)
   {
     if (ELToLower(args.at(counter)) == TEXT("/silent"))
+    {
       confirm = false;
+    }
   }
 
   ELExit(EMERGE_DISCONNECT, confirm);
@@ -155,21 +165,29 @@ bool EmptyBinCommandHandler(std::vector<std::wstring> args)
   for (counter = 0; counter < args.size(); counter++)
   {
     if (ELToLower(args.at(counter)) == TEXT("/silent"))
+    {
       confirm = false;
+    }
   }
 
   DWORD emptyFlags = 0;
   if (!confirm)
+  {
     emptyFlags = SHERB_NOCONFIRMATION | SHERB_NOPROGRESSUI | SHERB_NOSOUND;
+  }
 
   if (SUCCEEDED(SHQueryRecycleBin(NULL, &binInfo)))
   {
     if (binInfo.i64NumItems > 0)
+    {
       return (SHEmptyRecycleBin(GetDesktopWindow(), NULL, emptyFlags) == S_OK);
+    }
     else
     {
       if (confirm)
-        ELMessageBox(GetDesktopWindow(), TEXT("Recycle Bin is empty."), TEXT("Emerge Desktop"), ELMB_OK|ELMB_ICONINFORMATION);
+      {
+        ELMessageBox(GetDesktopWindow(), TEXT("Recycle Bin is empty."), TEXT("Emerge Desktop"), ELMB_OK | ELMB_ICONINFORMATION);
+      }
 
       return true;
     }
@@ -186,7 +204,9 @@ bool HaltCommandHandler(std::vector<std::wstring> args)
   for (counter = 0; counter < args.size(); counter++)
   {
     if (ELToLower(args.at(counter)) == TEXT("/silent"))
+    {
       confirm = false;
+    }
   }
 
   ELExit(EMERGE_HALT, confirm);
@@ -207,7 +227,9 @@ bool HibernateCommandHandler(std::vector<std::wstring> args)
   for (counter = 0; counter < args.size(); counter++)
   {
     if (ELToLower(args.at(counter)) == TEXT("/silent"))
+    {
       confirm = false;
+    }
   }
 
   ELExit(EMERGE_HIBERNATE, confirm);
@@ -218,10 +240,14 @@ bool HibernateCommandHandler(std::vector<std::wstring> args)
 bool HideCommandHandler(std::vector<std::wstring> args)
 {
   if (args.size() == 0)
+  {
     return false;
+  }
 
   if (args.at(0).empty())
+  {
     return false;
+  }
 
   ELSwitchToThisWindow(ELGetCoreWindow());
   ELDispatchCoreMessage(EMERGE_CORE, CORE_HIDE, args.at(0).c_str());
@@ -257,7 +283,9 @@ bool LogoffCommandHandler(std::vector<std::wstring> args)
   for (counter = 0; counter < args.size(); counter++)
   {
     if (ELToLower(args.at(counter)) == TEXT("/silent"))
+    {
       confirm = false;
+    }
   }
 
   ELExit(EMERGE_LOGOFF, confirm);
@@ -281,7 +309,9 @@ bool QuitCommandHandler(std::vector<std::wstring> args)
   for (counter = 0; counter < args.size(); counter++)
   {
     if (ELToLower(args.at(counter)) == TEXT("/silent"))
+    {
       confirm = false;
+    }
   }
 
   ELQuit(confirm);
@@ -297,7 +327,9 @@ bool RebootCommandHandler(std::vector<std::wstring> args)
   for (counter = 0; counter < args.size(); counter++)
   {
     if (ELToLower(args.at(counter)) == TEXT("/silent"))
+    {
       confirm = false;
+    }
   }
 
   ELExit(EMERGE_REBOOT, confirm);
@@ -332,10 +364,14 @@ bool ShellChangerCommandHandler(std::vector<std::wstring> args UNUSED)
 bool ShowCommandHandler(std::vector<std::wstring> args)
 {
   if (args.size() == 0)
+  {
     return false;
+  }
 
   if (args.at(0).empty())
+  {
     return false;
+  }
 
   ELSwitchToThisWindow(ELGetCoreWindow());
   ELDispatchCoreMessage(EMERGE_CORE, CORE_SHOW, args.at(0).c_str());
@@ -354,10 +390,14 @@ bool ShowDesktopCommandHandler(std::vector<std::wstring> args UNUSED)
 bool ShowAppletCommandHandler(std::vector<std::wstring> args)
 {
   if (args.size() == 0)
+  {
     return false;
+  }
 
   if (args.at(0).empty())
+  {
     return false;
+  }
 
   ELSwitchToThisWindow(ELGetCoreWindow());
   ELDispatchCoreMessage(EMERGE_CORE, CORE_SHOWAPPLET, args.at(0).c_str());
@@ -380,7 +420,9 @@ bool SuspendCommandHandler(std::vector<std::wstring> args)
   for (counter = 0; counter < args.size(); counter++)
   {
     if (ELToLower(args.at(counter)) == TEXT("/silent"))
+    {
       confirm = false;
+    }
   }
 
   ELExit(EMERGE_SUSPEND, confirm);

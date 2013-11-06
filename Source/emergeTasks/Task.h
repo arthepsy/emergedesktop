@@ -47,12 +47,12 @@
 class Task: public Thumbnail
 {
 public:
-  Task(HWND task, HINSTANCE mainInstance, Settings *pSettings);
+  Task(HWND task, HINSTANCE mainInstance, Settings* pSettings);
   ~Task();
 
   HWND GetWnd();
   HICON GetIcon();
-  RECT *GetRect();
+  RECT* GetRect();
   bool GetFlash();
   bool GetVisible();
   void SetIcon(HICON icon, int iconSize);

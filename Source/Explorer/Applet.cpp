@@ -21,11 +21,11 @@
 #include "Applet.h"
 
 // Function pointers
-void (WINAPI *lpShellDDEInit)(bool) = NULL;
-int (WINAPI *lpWinList_Init)() = NULL;
-int (WINAPI *lpWinList_Terminate)() = NULL;
-void (WINAPI *lpRunInstallUninstallStubs)(int) = NULL;
-bool (WINAPI *lpFileIconInit)(BOOL) = NULL;
+void (WINAPI* lpShellDDEInit)(bool) = NULL;
+int (WINAPI* lpWinList_Init)() = NULL;
+int (WINAPI* lpWinList_Terminate)() = NULL;
+void (WINAPI* lpRunInstallUninstallStubs)(int) = NULL;
+bool (WINAPI* lpFileIconInit)(BOOL) = NULL;
 
 // Global Variables
 HMODULE shdocvmDLL = NULL;
@@ -52,11 +52,11 @@ UINT Applet::Initialize()
   ZeroMemory(&wincl, sizeof(WNDCLASSEX));
 
   if (FAILED(OleInitialize(NULL)))
-    {
-      ELMessageBox(GetDesktopWindow(), (WCHAR*)TEXT("COM initialization failed"), (WCHAR*)TEXT("Explorer"),
-                   ELMB_OK|ELMB_ICONERROR|ELMB_MODAL);
-      return 0;
-    }
+  {
+    ELMessageBox(GetDesktopWindow(), (WCHAR*)TEXT("COM initialization failed"), (WCHAR*)TEXT("Explorer"),
+                 ELMB_OK | ELMB_ICONERROR | ELMB_MODAL);
+    return 0;
+  }
 
   // Register the window class
   wincl.hInstance = mainInst;
@@ -70,15 +70,19 @@ UINT Applet::Initialize()
 
   // Register the window class, and if it fails quit the program
   if (!RegisterClassEx (&wincl))
+  {
     return 0;
+  }
 
   // The class is registered, let's create the window
-  mainWnd = CreateWindowEx(WS_EX_TOOLWINDOW|WS_EX_NOACTIVATE, explorerClass, NULL, WS_POPUP,
+  mainWnd = CreateWindowEx(WS_EX_TOOLWINDOW | WS_EX_NOACTIVATE, explorerClass, NULL, WS_POPUP,
                            0, 0, 0, 0, NULL, NULL, mainInst, reinterpret_cast<LPVOID>(this));
 
   // If the window failed to get created, unregister the class and quit the program
   if (!mainWnd)
+  {
     return 0;
+  }
 
   ShowWindow(mainWnd, SW_SHOW);
 
@@ -101,17 +105,21 @@ Applet::~Applet()
 
   // Send quit message to SHDesktopMessageLoop
   if(m_dwThreadID)
+  {
     PostThreadMessage(m_dwThreadID, WM_QUIT, 0, 0);
+  }
 
   // Terminate thread
   if (m_hThread)
+  {
+    if (WaitForSingleObject(m_hThread, 1000) != WAIT_OBJECT_0)
     {
-      if (WaitForSingleObject(m_hThread, 1000) != WAIT_OBJECT_0)
-        TerminateThread(m_hThread, 0);
-
-      CloseHandle(m_hThread);
-      m_hThread = 0;
+      TerminateThread(m_hThread, 0);
     }
+
+    CloseHandle(m_hThread);
+    m_hThread = 0;
+  }
 
   ShellServicesTerminate();
 
@@ -131,43 +139,45 @@ Applet::~Applet()
 //----  --------------------------------------------------------------------------------------------------------
 LRESULT CALLBACK Applet::WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-  CREATESTRUCT *cs;
-  static Applet *pApplet = NULL;
+  CREATESTRUCT* cs;
+  static Applet* pApplet = NULL;
 
   if (message == WM_CREATE)
-    {
-      cs = (CREATESTRUCT*)lParam;
-      pApplet = reinterpret_cast<Applet*>(cs->lpCreateParams);
-      return DefWindowProc(hwnd, message, wParam, lParam);
-    }
+  {
+    cs = (CREATESTRUCT*)lParam;
+    pApplet = reinterpret_cast<Applet*>(cs->lpCreateParams);
+    return DefWindowProc(hwnd, message, wParam, lParam);
+  }
 
   if (pApplet == NULL)
+  {
     return DefWindowProc(hwnd, message, wParam, lParam);
+  }
 
   switch (message)
+  {
+    // Send a quit message when the window is destroyed
+  case WM_DESTROY:
+  case WM_NCDESTROY:
+    PostQuitMessage (0);
+    break;
+
+  case WM_SYSCOMMAND:
+    switch (wParam)
     {
-      // Send a quit message when the window is destroyed
-    case WM_DESTROY:
-    case WM_NCDESTROY:
-      PostQuitMessage (0);
+    case SC_CLOSE:
+    case SC_MAXIMIZE:
+    case SC_MINIMIZE:
       break;
-
-    case WM_SYSCOMMAND:
-      switch (wParam)
-        {
-        case SC_CLOSE:
-        case SC_MAXIMIZE:
-        case SC_MINIMIZE:
-          break;
-        default:
-          return DefWindowProc(hwnd, message, wParam, lParam);
-        }
-      break;
-
-      // If not handled just forward the message on to MessageControl
     default:
-      return pApplet->DoDefault(hwnd, message, wParam, lParam);
+      return DefWindowProc(hwnd, message, wParam, lParam);
     }
+    break;
+
+    // If not handled just forward the message on to MessageControl
+  default:
+    return pApplet->DoDefault(hwnd, message, wParam, lParam);
+  }
 
   return 0;
 }
@@ -176,11 +186,13 @@ DWORD WINAPI Applet::ThreadFunc(LPVOID pvParam UNUSED)
 {
   LPVOID lpVoid;
   DWORD registerCookie;
-  TShellDesktopTrayFactory *explorerFactory = new TShellDesktopTrayFactory();
-  TShellDesktopTray *explorerTray = NULL;
+  TShellDesktopTrayFactory* explorerFactory = new TShellDesktopTrayFactory();
+  TShellDesktopTray* explorerTray = NULL;
   HMODULE shell32DLL = ELLoadSystemLibrary(TEXT("shell32.dll"));
   if (!shell32DLL)
+  {
     return 1;
+  }
 
   // Initialize COM for this thread
   CoInitializeEx(NULL, COINIT_APARTMENTTHREADED);
@@ -191,30 +203,34 @@ DWORD WINAPI Applet::ThreadFunc(LPVOID pvParam UNUSED)
                                    CLSCTX_LOCAL_SERVER,
                                    REGCLS_MULTIPLEUSE,
                                    &registerCookie)))
+  {
     return 1;
+  }
 
   // Create the ShellDesktopTray interface
   explorerTray = new TShellDesktopTray();
   explorerTray->QueryInterface(IID_IShellDesktopTray, &lpVoid);
-  IShellDesktopTray *iTray = reinterpret_cast <IShellDesktopTray*> (lpVoid);
+  IShellDesktopTray* iTray = reinterpret_cast <IShellDesktopTray*> (lpVoid);
 
   SHCREATEDESKTOP SHCreateDesktop = (SHCREATEDESKTOP)GetProcAddress(shell32DLL, (LPCSTR)200);
   SHDESKTOPMESSAGELOOP SHDesktopMessageLoop = (SHDESKTOPMESSAGELOOP)GetProcAddress(shell32DLL, (LPCSTR)201);
 
   if (SHCreateDesktop && SHDesktopMessageLoop)
+  {
+    // Create the desktop
+    HANDLE hDesktop = SHCreateDesktop(iTray);
+
+    SendMessage(GetDesktopWindow(), 0x400, 0, 0);
+
+    ShowWindow(FindWindow(TEXT("Progman"), NULL), SW_HIDE);
+    SetEvent(threadReadyEvent);
+
+    // Run the desktop message loop
+    if (hDesktop)
     {
-      // Create the desktop
-      HANDLE hDesktop = SHCreateDesktop(iTray);
-
-      SendMessage(GetDesktopWindow(), 0x400, 0, 0);
-
-      ShowWindow(FindWindow(TEXT("Progman"), NULL), SW_HIDE);
-      SetEvent(threadReadyEvent);
-
-      // Run the desktop message loop
-      if (hDesktop)
-        SHDesktopMessageLoop(hDesktop);
+      SHDesktopMessageLoop(hDesktop);
     }
+  }
 
   iTray->Release();
   explorerTray->Release();
@@ -235,24 +251,30 @@ LRESULT Applet::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
   DWORD threadState, threadID;
 
   if (message == EMERGE_MESSAGE)
+  {
+    switch (wParam)
     {
-      switch (wParam)
-        {
-        case EXPLORER_SHOW:
-          if (lParam)
-            showDesktop = SW_SHOW;
-          else
-            showDesktop = SW_HIDE;
-          GetExitCodeThread(showThread, &threadState);
-          if (threadState != STILL_ACTIVE)
-            showThread = CreateThread(NULL, 0, ShowDesktopThreadProc, NULL, 0, &threadID);
-          return 0;
+    case EXPLORER_SHOW:
+      if (lParam)
+      {
+        showDesktop = SW_SHOW;
+      }
+      else
+      {
+        showDesktop = SW_HIDE;
+      }
+      GetExitCodeThread(showThread, &threadState);
+      if (threadState != STILL_ACTIVE)
+      {
+        showThread = CreateThread(NULL, 0, ShowDesktopThreadProc, NULL, 0, &threadID);
+      }
+      return 0;
 
-        case EXPLORER_ENABLE:
-          ToggleThread(lParam);
-          return 0;
-        }
+    case EXPLORER_ENABLE:
+      ToggleThread(lParam);
+      return 0;
     }
+  }
 
   return DefWindowProc (hwnd, message, wParam, lParam);
 }
@@ -273,14 +295,16 @@ void Applet::ToggleThread(LPARAM lParam)
   GetExitCodeThread(m_hThread, &threadState);
 
   if (lParam && (threadState != STILL_ACTIVE))
+  {
     m_hThread = CreateThread(NULL, 0, ThreadFunc, NULL, 0, &m_dwThreadID);
+  }
 
   if (!lParam && (threadState == STILL_ACTIVE))
-    {
-      TerminateThread(m_hThread, 0);
-      m_hThread = NULL;
-      ResetEvent(threadReadyEvent);
-    }
+  {
+    TerminateThread(m_hThread, 0);
+    m_hThread = NULL;
+    ResetEvent(threadReadyEvent);
+  }
 }
 
 void Applet::ShellServicesInit()
@@ -290,26 +314,34 @@ void Applet::ShellServicesInit()
   shell32DLL = ELLoadSystemLibrary(TEXT("shell32.dll"));
 
   if (shell32DLL)
-    {
-      lpShellDDEInit = (void (__stdcall *) (bool))GetProcAddress(shell32DLL, (LPCSTR)188);
-      lpFileIconInit = (bool (__stdcall *) (BOOL))GetProcAddress(shell32DLL, (LPCSTR)660);
-      lpRunInstallUninstallStubs = (void (WINAPI *)(int))GetProcAddress(shell32DLL, (LPCSTR)885);
-    }
+  {
+    lpShellDDEInit = (void (__stdcall*) (bool))GetProcAddress(shell32DLL, (LPCSTR)188);
+    lpFileIconInit = (bool (__stdcall*) (BOOL))GetProcAddress(shell32DLL, (LPCSTR)660);
+    lpRunInstallUninstallStubs = (void (WINAPI*)(int))GetProcAddress(shell32DLL, (LPCSTR)885);
+  }
 
   if (explorerFrameDLL)
-    lpWinList_Init = (int (WINAPI *) (void))GetProcAddress(explorerFrameDLL, (LPCSTR)110);
+  {
+    lpWinList_Init = (int (WINAPI*) (void))GetProcAddress(explorerFrameDLL, (LPCSTR)110);
+  }
   else if (shdocvmDLL)
-    lpWinList_Init = (int (WINAPI *) (void))GetProcAddress(shdocvmDLL, (LPCSTR)110);
+  {
+    lpWinList_Init = (int (WINAPI*) (void))GetProcAddress(shdocvmDLL, (LPCSTR)110);
+  }
 
   if (shdocvmDLL && !lpRunInstallUninstallStubs)
-    lpRunInstallUninstallStubs = (void (WINAPI *)(int))GetProcAddress(shdocvmDLL, (LPCSTR)130);
+  {
+    lpRunInstallUninstallStubs = (void (WINAPI*)(int))GetProcAddress(shdocvmDLL, (LPCSTR)130);
+  }
 
   // Create a mutex telling that this is the Explorer shell
   HANDLE hIsShell = CreateMutex(NULL, false, TEXT("Local\\ExplorerIsShellMutex"));
   WaitForSingleObject(hIsShell, INFINITE);
 
   if (lpShellDDEInit)
+  {
     lpShellDDEInit(true);
+  }
 
   SetProcessShutdownParameters(3, 0);
 
@@ -319,27 +351,37 @@ void Applet::ShellServicesInit()
   // Wait for Scm to be created
   HANDLE hGScmEvent = OpenEvent(0x100002, false, TEXT("Global\\ScmCreatedEvent"));
   if (hGScmEvent == NULL)
+  {
     hGScmEvent = OpenEvent(0x100000, false, TEXT("Global\\ScmCreatedEvent"));
+  }
   if (hGScmEvent == NULL)
+  {
     hGScmEvent = CreateEvent(NULL, true, false, TEXT("Global\\ScmCreatedEvent"));
+  }
 
   if (hGScmEvent)
-    {
-      WaitForSingleObject(hGScmEvent, 6000);
-      CloseHandle(hGScmEvent);
-    }
+  {
+    WaitForSingleObject(hGScmEvent, 6000);
+    CloseHandle(hGScmEvent);
+  }
 
   if (lpFileIconInit)
+  {
     lpFileIconInit(TRUE);
+  }
 
   if (lpWinList_Init)
+  {
     lpWinList_Init();
+  }
 
   // Event
   HANDLE CanRegisterEvent = CreateEvent(NULL, true, true, TEXT("Local\\_fCanRegisterWithShellService"));
 
   if (lpRunInstallUninstallStubs)
+  {
     lpRunInstallUninstallStubs(0);
+  }
 
   CloseHandle(CanRegisterEvent);
 }
@@ -347,25 +389,41 @@ void Applet::ShellServicesInit()
 void Applet::ShellServicesTerminate()
 {
   if (lpShellDDEInit)
+  {
     lpShellDDEInit(false);
+  }
 
   if (lpFileIconInit)
+  {
     lpFileIconInit(FALSE);
+  }
 
   if (explorerFrameDLL)
-    lpWinList_Terminate = (int (WINAPI *) (void))GetProcAddress(explorerFrameDLL, (LPCSTR)111);
+  {
+    lpWinList_Terminate = (int (WINAPI*) (void))GetProcAddress(explorerFrameDLL, (LPCSTR)111);
+  }
   else if (shdocvmDLL)
-    lpWinList_Terminate = (int (WINAPI *) (void))GetProcAddress(shdocvmDLL, (LPCSTR)111);
+  {
+    lpWinList_Terminate = (int (WINAPI*) (void))GetProcAddress(shdocvmDLL, (LPCSTR)111);
+  }
 
   if (lpWinList_Terminate)
+  {
     lpWinList_Terminate();
+  }
 
   if (shdocvmDLL)
+  {
     FreeLibrary(shdocvmDLL);
+  }
 
   if (shell32DLL)
+  {
     FreeLibrary(shell32DLL);
+  }
 
   if (explorerFrameDLL)
+  {
     FreeLibrary(explorerFrameDLL);
+  }
 }

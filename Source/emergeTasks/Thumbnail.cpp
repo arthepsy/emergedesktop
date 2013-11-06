@@ -23,7 +23,7 @@
 
 WCHAR dwmWndClassName[] = TEXT("dwmThumbnailWnd");
 
-Thumbnail::Thumbnail(HWND taskWnd, HINSTANCE instance, Settings *pSettings)
+Thumbnail::Thumbnail(HWND taskWnd, HINSTANCE instance, Settings* pSettings)
 {
   WNDCLASSEX wincl;
   ZeroMemory(&wincl, sizeof(WNDCLASSEX));
@@ -43,13 +43,13 @@ Thumbnail::Thumbnail(HWND taskWnd, HINSTANCE instance, Settings *pSettings)
 
   dwmThumbnailWnd = CreateWindowEx(WS_EX_TOOLWINDOW, dwmWndClassName, NULL, WS_POPUP, 0, 0, 0, 0, NULL, NULL, NULL, NULL);
   if (dwmThumbnailWnd)
+  {
+    if (EGDwmRegisterThumbnail(dwmThumbnailWnd, taskWnd, &dwmThumbnailId) == E_FAIL)
     {
-      if (EGDwmRegisterThumbnail(dwmThumbnailWnd, taskWnd, &dwmThumbnailId) == E_FAIL)
-        {
-          DestroyWindow(dwmThumbnailWnd);
-          dwmThumbnailWnd = NULL;
-        }
+      DestroyWindow(dwmThumbnailWnd);
+      dwmThumbnailWnd = NULL;
     }
+  }
 
   this->pSettings = pSettings;
 }
@@ -65,17 +65,21 @@ LRESULT CALLBACK Thumbnail::ThumbnailProcedure (HWND hwnd, UINT message, WPARAM 
   return DefWindowProc(hwnd, message, wParam, lParam);
 }
 
-void Thumbnail::ShowThumbnail(HWND ownerWnd, RECT *taskRect)
+void Thumbnail::ShowThumbnail(HWND ownerWnd, RECT* taskRect)
 {
   HMONITOR thumbnailMonitor = MonitorFromWindow(ownerWnd, MONITOR_DEFAULTTONULL);
   MONITORINFO thumbnailMonitorInfo;
   thumbnailMonitorInfo.cbSize = sizeof(MONITORINFO);
   if (!GetMonitorInfo(thumbnailMonitor, &thumbnailMonitorInfo))
+  {
     return;
+  }
 
   RECT ownerRect;
   if (!GetWindowRect(ownerWnd, &ownerRect))
+  {
     return;
+  }
 
   int x, y;
   SIZE thumbnailDimensions;
@@ -88,20 +92,26 @@ void Thumbnail::ShowThumbnail(HWND ownerWnd, RECT *taskRect)
 
   y = (ownerRect.top + taskRect->top) - thumbnailDimensions.cy;
   if (y < thumbnailMonitorInfo.rcMonitor.top)
+  {
     y = ownerRect.top + taskRect->top + taskRect->bottom;
+  }
 
   x = (ownerRect.left + taskRect->left) - (thumbnailDimensions.cx / 2);
   int xoffset = thumbnailMonitorInfo.rcMonitor.right - (x + thumbnailDimensions.cx);
   if (xoffset < 0)
+  {
     x += xoffset;
+  }
   if (x < thumbnailMonitorInfo.rcMonitor.left)
+  {
     x = thumbnailMonitorInfo.rcMonitor.left;
+  }
 
   SetWindowPos(dwmThumbnailWnd, HWND_TOPMOST, x, y, thumbnailDimensions.cx,
                thumbnailDimensions.cy, SWP_SHOWWINDOW);
 
   //set the thumbnail's properties; ideally, most/all of these would be configurable by the user
-  thumbnailProperties.dwFlags = DWM_TNP_RECTDESTINATION|DWM_TNP_OPACITY|DWM_TNP_VISIBLE;
+  thumbnailProperties.dwFlags = DWM_TNP_RECTDESTINATION | DWM_TNP_OPACITY | DWM_TNP_VISIBLE;
   thumbnailProperties.rcDestination.left = 0;
   thumbnailProperties.rcDestination.top = 0;
   thumbnailProperties.rcDestination.right = thumbnailDimensions.cx;

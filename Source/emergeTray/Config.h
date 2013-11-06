@@ -42,7 +42,7 @@
 class Config
 {
 public:
-  Config(HINSTANCE hInstance, HWND mainWnd, WCHAR *instanceName, std::tr1::shared_ptr<Settings> pSettings);
+  Config(HINSTANCE hInstance, HWND mainWnd, WCHAR* instanceName, std::tr1::shared_ptr<Settings> pSettings);
   ~Config();
   int Show();
   INT_PTR DoInitDialog(HWND hwndDlg);

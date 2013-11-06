@@ -21,26 +21,28 @@
 #include "Welcome.h"
 #include <stdio.h>
 
-extern Welcome *pWelcome;
+extern Welcome* pWelcome;
 
 BOOL CALLBACK Welcome::WelcomeDlgProc(HWND hwndDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
-  static Welcome *pWelcome = NULL;
+  static Welcome* pWelcome = NULL;
 
   switch (message)
+  {
+  case WM_INITDIALOG:
+    pWelcome = reinterpret_cast<Welcome*>(lParam);
+    if (!pWelcome)
     {
-    case WM_INITDIALOG:
-      pWelcome = reinterpret_cast<Welcome*>(lParam);
-      if (!pWelcome)
-        break;
-      return pWelcome->DoInitDialog(hwndDlg);
-
-    case WM_COMMAND:
-      return pWelcome->DoCommand(hwndDlg, wParam, lParam);
-
-    case WM_NOTIFY:
-      return pWelcome->DoNotify(hwndDlg, lParam);
+      break;
     }
+    return pWelcome->DoInitDialog(hwndDlg);
+
+  case WM_COMMAND:
+    return pWelcome->DoCommand(hwndDlg, wParam, lParam);
+
+  case WM_NOTIFY:
+    return pWelcome->DoNotify(hwndDlg, lParam);
+  }
 
   return FALSE;
 }
@@ -64,7 +66,9 @@ Welcome::Welcome(HINSTANCE hInstance, HWND mainWnd, std::tr1::shared_ptr<Setting
 Welcome::~Welcome()
 {
   if (logoBMP)
+  {
     DeleteObject(logoBMP);
+  }
 
   FreeLibrary(hIconsDLL);
 }
@@ -86,10 +90,14 @@ BOOL Welcome::DoInitDialog(HWND hwndDlg)
   ELStealFocus(hwndDlg);
 
   if (logoBMP)
+  {
     SendDlgItemMessage(hwndDlg, IDC_LOGO, STM_SETIMAGE, IMAGE_BITMAP, (LPARAM)logoBMP);
+  }
 
   if (pSettings->GetShowWelcome())
+  {
     SendDlgItemMessage(hwndDlg, IDC_SHOWWELCOME, BM_SETCHECK, BST_CHECKED, 0);
+  }
 
   pForumLink->ConvertStaticToHyperlink(hwndDlg,
                                        IDC_FORUMLINK,
@@ -101,8 +109,8 @@ BOOL Welcome::DoInitDialog(HWND hwndDlg)
                                           IDC_TUTORIALLINK,
                                           (WCHAR*)TEXT("Tutorial"));
   pOfflineLink->ConvertStaticToHyperlink(hwndDlg,
-                                          IDC_HELPLINK,
-                                          (WCHAR*)TEXT("Help"));
+                                         IDC_HELPLINK,
+                                         (WCHAR*)TEXT("Help"));
 
   return TRUE;
 }
@@ -110,12 +118,14 @@ BOOL Welcome::DoInitDialog(HWND hwndDlg)
 BOOL Welcome::DoCommand(HWND hwndDlg, WPARAM wParam, LPARAM lParam UNUSED)
 {
   switch (LOWORD(wParam))
+  {
+  case IDOK:
+    if (UpdateSettings(hwndDlg))
     {
-    case IDOK:
-      if (UpdateSettings(hwndDlg))
-        EndDialog(hwndDlg, wParam);
-      return TRUE;
+      EndDialog(hwndDlg, wParam);
     }
+    return TRUE;
+  }
 
   return FALSE;
 }
@@ -128,7 +138,7 @@ BOOL Welcome::DoNotify(HWND hwndDlg UNUSED, LPARAM lParam UNUSED)
 bool Welcome::UpdateSettings(HWND hwndDlg)
 {
   pSettings->SetShowWelcome(SendDlgItemMessage(hwndDlg, IDC_SHOWWELCOME,
-                                               BM_GETCHECK, 0, 0) == BST_CHECKED);
+                            BM_GETCHECK, 0, 0) == BST_CHECKED);
   pSettings->WriteUserSettings();
   return true;
 }

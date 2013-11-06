@@ -40,19 +40,19 @@
 class Config
 {
 public:
-	Config(HINSTANCE hInstance, HWND mainWnd, WCHAR *instanceName, std::tr1::shared_ptr<Settings> pSettings);
-	~Config();
-	int Show();
-	INT_PTR DoInitDialog(HWND hwndDlg);
+  Config(HINSTANCE hInstance, HWND mainWnd, WCHAR* instanceName, std::tr1::shared_ptr<Settings> pSettings);
+  ~Config();
+  int Show();
+  INT_PTR DoInitDialog(HWND hwndDlg);
 
 private:
-	std::tr1::shared_ptr<BasePositionPage> pPositionPage;
-	std::tr1::shared_ptr<StyleEditor> pStyleEditor;
-	std::tr1::shared_ptr<ConfigPage> pConfigPage;
-	std::tr1::shared_ptr<Settings> pSettings;
-	HINSTANCE hInstance;
-	HWND mainWnd;
-	static INT_PTR CALLBACK ConfigDlgProc(HWND hwndDlg, UINT message, WPARAM wParam, LPARAM lParam);
+  std::tr1::shared_ptr<BasePositionPage> pPositionPage;
+  std::tr1::shared_ptr<StyleEditor> pStyleEditor;
+  std::tr1::shared_ptr<ConfigPage> pConfigPage;
+  std::tr1::shared_ptr<Settings> pSettings;
+  HINSTANCE hInstance;
+  HWND mainWnd;
+  static INT_PTR CALLBACK ConfigDlgProc(HWND hwndDlg, UINT message, WPARAM wParam, LPARAM lParam);
 };
 
 #endif

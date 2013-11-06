@@ -47,6 +47,6 @@ std::wstring style;
 HBRUSH bgBrush = NULL;
 
 // Globals
-StyleEditor *pStyleEditor;
+StyleEditor* pStyleEditor;
 
 #endif

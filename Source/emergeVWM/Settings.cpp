@@ -21,7 +21,7 @@
 #include "Settings.h"
 
 Settings::Settings()
-  :BaseSettings(false)
+  : BaseSettings(false)
 {
   xmlFile = TEXT("%EmergeDir%\\files\\emergeVWM.xml");
   rows = 2;
@@ -78,30 +78,30 @@ int Settings::GetDesktopColumns()
 bool Settings::SetHideSticky(bool hideSticky)
 {
   if (this->hideSticky != hideSticky)
-    {
-      this->hideSticky = hideSticky;
-      SetModified();
-    }
+  {
+    this->hideSticky = hideSticky;
+    SetModified();
+  }
   return true;
 }
 
 bool Settings::SetDesktopRows(int rows)
 {
   if (this->rows != rows)
-    {
-      this->rows = rows;
-      SetModified();
-    }
+  {
+    this->rows = rows;
+    SetModified();
+  }
   return true;
 }
 
 bool Settings::SetDesktopColumns(int columns)
 {
   if (this->columns != columns)
-    {
-      this->columns = columns;
-      SetModified();
-    }
+  {
+    this->columns = columns;
+    SetModified();
+  }
   return true;
 }
 
@@ -114,27 +114,29 @@ bool Settings::SetDesktopColumns(int columns)
 void Settings::BuildStickyList()
 {
   std::tr1::shared_ptr<TiXmlDocument> configXML = ELOpenXMLConfig(xmlFile, false);
-  TiXmlElement *section;
+  TiXmlElement* section;
   std::wstring data;
 
   if (configXML)
+  {
+    // Clear the stickyList vector
+    stickyList.clear();
+    section = ELGetXMLSection(configXML.get(), TEXT("Sticky"), false);
+
+    if (section)
     {
-      // Clear the stickyList vector
-      stickyList.clear();
-      section = ELGetXMLSection(configXML.get(), TEXT("Sticky"), false);
+      IOHelper userIO(section);
 
-      if (section)
+      while (userIO.GetElement())
+      {
+        data = userIO.ReadString(TEXT("Application"), TEXT(""));
+        if (!data.empty())
         {
-          IOHelper userIO(section);
-
-          while (userIO.GetElement())
-            {
-              data = userIO.ReadString(TEXT("Application"), TEXT(""));
-              if (!data.empty())
-                stickyList.push_back(data);
-            }
+          stickyList.push_back(data);
         }
+      }
     }
+  }
 }
 
 //-----
@@ -150,10 +152,12 @@ bool Settings::CheckSticky(std::wstring appName)
   std::wstring tmp = ELToLower(appName);
 
   for (i = 0; i < stickyList.size(); i++)
+  {
+    if (appName == ELToLower(stickyList[i]))
     {
-      if (appName == ELToLower(stickyList[i]))
-        titleMatch = true;
+      titleMatch = true;
     }
+  }
 
   return titleMatch;
 }
@@ -163,7 +167,7 @@ UINT Settings::GetStickyListSize()
   return (UINT)stickyList.size();
 }
 
-WCHAR *Settings::GetStickyListItem(UINT item)
+WCHAR* Settings::GetStickyListItem(UINT item)
 {
   return (WCHAR*)stickyList[item].c_str();
 }
@@ -173,7 +177,7 @@ void Settings::DeleteStickyListItem(UINT item)
   stickyList.erase(stickyList.begin() + item);
 }
 
-void Settings::AddStickyListItem(WCHAR *item)
+void Settings::AddStickyListItem(WCHAR* item)
 {
   stickyList.push_back(item);
 }
@@ -181,25 +185,27 @@ void Settings::AddStickyListItem(WCHAR *item)
 void Settings::WriteStickyList()
 {
   std::tr1::shared_ptr<TiXmlDocument> configXML = ELOpenXMLConfig(xmlFile, true);
-  TiXmlElement *section;
+  TiXmlElement* section;
 
   if (configXML)
+  {
+    section = ELGetXMLSection(configXML.get(), (WCHAR*)TEXT("Sticky"), true);
+
+    if (section)
     {
-      section = ELGetXMLSection(configXML.get(), (WCHAR*)TEXT("Sticky"), true);
+      IOHelper userIO(section);
 
-      if (section)
+      userIO.Clear();
+      for (UINT i = 0; i < stickyList.size(); i++)
+      {
+        if (userIO.SetElement(TEXT("item")))
         {
-          IOHelper userIO(section);
-
-          userIO.Clear();
-          for (UINT i = 0; i < stickyList.size(); i++)
-            {
-              if (userIO.SetElement(TEXT("item")))
-                userIO.WriteString(TEXT("Application"), (WCHAR*)stickyList[i].c_str());
-            }
-
+          userIO.WriteString(TEXT("Application"), (WCHAR*)stickyList[i].c_str());
         }
+      }
 
-      ELWriteXMLConfig(configXML.get());
     }
+
+    ELWriteXMLConfig(configXML.get());
+  }
 }

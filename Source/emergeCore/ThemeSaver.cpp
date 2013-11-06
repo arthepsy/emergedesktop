@@ -23,19 +23,21 @@
 
 BOOL CALLBACK ThemeSaver::ThemeSaverDlgProc(HWND hwndDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
-  static ThemeSaver *pThemeSaver = NULL;
+  static ThemeSaver* pThemeSaver = NULL;
 
   switch (message)
+  {
+  case WM_INITDIALOG:
+    pThemeSaver = reinterpret_cast<ThemeSaver*>(lParam);
+    if (!pThemeSaver)
     {
-    case WM_INITDIALOG:
-      pThemeSaver = reinterpret_cast<ThemeSaver*>(lParam);
-      if (!pThemeSaver)
-        break;
-      return pThemeSaver->DoInitDialog(hwndDlg);
-
-    case WM_COMMAND:
-      return pThemeSaver->DoThemeCommand(hwndDlg, wParam, lParam);
+      break;
     }
+    return pThemeSaver->DoInitDialog(hwndDlg);
+
+  case WM_COMMAND:
+    return pThemeSaver->DoThemeCommand(hwndDlg, wParam, lParam);
+  }
 
   return FALSE;
 }
@@ -58,7 +60,7 @@ ThemeSaver::~ThemeSaver()
   CoUninitialize();
 }
 
-int ThemeSaver::Show(WCHAR *theme)
+int ThemeSaver::Show(WCHAR* theme)
 {
   wcscpy((*this).theme, theme);
   swprintf(title, TEXT("Save '%ls' Theme as..."), theme);
@@ -87,15 +89,17 @@ BOOL ThemeSaver::DoInitDialog(HWND hwndDlg)
 BOOL ThemeSaver::DoThemeCommand(HWND hwndDlg, WPARAM wParam, LPARAM lParam UNUSED)
 {
   switch (LOWORD(wParam))
+  {
+  case IDOK:
+    if (SaveTheme(hwndDlg))
     {
-    case IDOK:
-      if (SaveTheme(hwndDlg))
-        EndDialog(hwndDlg, wParam);
-      return TRUE;
-    case IDCANCEL:
       EndDialog(hwndDlg, wParam);
-      return TRUE;
     }
+    return TRUE;
+  case IDCANCEL:
+    EndDialog(hwndDlg, wParam);
+    return TRUE;
+  }
 
   return FALSE;
 }
@@ -108,39 +112,45 @@ bool ThemeSaver::SaveTheme(HWND hwndDlg)
 
   GetDlgItemText(hwndDlg, IDC_THEMEITEM, themeName, MAX_PATH);
   if ((_wcsicmp(themeName, TEXT("Default")) == 0) || (_wcsicmp(themeName, TEXT("GBRY")) == 0))
-    {
-      swprintf(errorText, TEXT("'%ls' cannot be used as a theme name"), themeName);
-      ELMessageBox(hwndDlg, errorText, TEXT("Theme Manager"), ELMB_MODAL
-                   | ELMB_OK | ELMB_ICONERROR);
-      return false;
-    }
+  {
+    swprintf(errorText, TEXT("'%ls' cannot be used as a theme name"), themeName);
+    ELMessageBox(hwndDlg, errorText, TEXT("Theme Manager"), ELMB_MODAL
+                 | ELMB_OK | ELMB_ICONERROR);
+    return false;
+  }
   copyDest = themePath + themeName;
   copySource = themePath + theme;
   copySource += TEXT("\\*");
 
   if ((ELGetFileSpecialFlags(copyDest) & SF_DIRECTORY) == SF_DIRECTORY)
+  {
+    swprintf(errorText, TEXT("The theme '%ls' already exists, overwrite?"), themeName);
+    if (ELMessageBox(hwndDlg, errorText, TEXT("Theme Manager"),
+                     ELMB_MODAL | ELMB_YESNO | ELMB_ICONERROR) == IDNO)
     {
-      swprintf(errorText, TEXT("The theme '%ls' already exists, overwrite?"), themeName);
-      if (ELMessageBox(hwndDlg, errorText, TEXT("Theme Manager"),
-                       ELMB_MODAL | ELMB_YESNO | ELMB_ICONERROR) == IDNO)
-        return false;
+      return false;
     }
+  }
   else
+  {
+    if (!ELCreateDirectory(copyDest))
     {
-      if (!ELCreateDirectory(copyDest))
-        return false;
+      return false;
     }
+  }
 
   if (ELFileOp(hwndDlg, false, FO_COPY, copySource, copyDest))
+  {
+    if (ELIsModifiedTheme(ELGetThemeName().c_str()))
     {
-      if (ELIsModifiedTheme(ELGetThemeName().c_str()))
-        {
-          copySource = themePath + theme;
-          ELFileOp(hwndDlg, false, FO_DELETE, copySource);
-        }
+      copySource = themePath + theme;
+      ELFileOp(hwndDlg, false, FO_DELETE, copySource);
     }
+  }
   if ((ELGetFileSpecialFlags(copyDest) & SF_DIRECTORY) == SF_DIRECTORY)
+  {
     ELSetTheme(copyDest);
+  }
 
   return true;
 }

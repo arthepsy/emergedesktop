@@ -87,20 +87,20 @@ public:
   std::wstring GetZPosition();
   LRESULT DoSysCommand(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
   void Show();
-  void AddElement(WCHAR *element);
+  void AddElement(WCHAR* element);
   void SetHidden(bool appletHidden);
   void ShowAppletWindow();
 
 private:
   bool appletHidden;
   std::tr1::shared_ptr<Settings> pSettings;
-  IAutoComplete *pac;
-  IAutoComplete2 *pac2;
-  IObjMgr *pom;
-  IUnknown *fileSource;
-  IEnumString *historySource, *commandSource;
-  CustomSource *history;
-  CommandSource *command;
+  IAutoComplete* pac;
+  IAutoComplete2* pac2;
+  IObjMgr* pom;
+  IUnknown* fileSource;
+  IEnumString* historySource, *commandSource;
+  CustomSource* history;
+  CommandSource* command;
   WCHAR fontName[MAX_RUN_STRING];
   int  dragBorder;
   HWND hText, commandWnd, mainWnd;

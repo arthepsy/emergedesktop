@@ -22,7 +22,7 @@
 #include <stdio.h>
 
 Settings::Settings()
-:BaseSettings(true)
+  : BaseSettings(true)
 {
   hiliteActive = true;
   flashCount = 0;
@@ -98,10 +98,10 @@ bool Settings::GetHiliteActive()
 bool Settings::SetHiliteActive(bool hiliteActive)
 {
   if (this->hiliteActive != hiliteActive)
-    {
-      this->hiliteActive = hiliteActive;
-      SetModified();
-    }
+  {
+    this->hiliteActive = hiliteActive;
+    SetModified();
+  }
   return true;
 }
 
@@ -114,10 +114,10 @@ bool Settings::GetSameMonitorOnly()
 bool Settings::SetSameMonitorOnly(bool sameMonitorOnly)
 {
   if (this->sameMonitorOnly != sameMonitorOnly)
-    {
-      this->sameMonitorOnly = sameMonitorOnly;
-      SetModified();
-    }
+  {
+    this->sameMonitorOnly = sameMonitorOnly;
+    SetModified();
+  }
   return true;
 }
 
@@ -139,30 +139,30 @@ bool Settings::GetEnableFlash()
 bool Settings::SetFlashCount(int flashCount)
 {
   if (this->flashCount != flashCount)
-    {
-      this->flashCount = flashCount;
-      SetModified();
-    }
+  {
+    this->flashCount = flashCount;
+    SetModified();
+  }
   return true;
 }
 
 bool Settings::SetFlashInterval(int flashInterval)
 {
   if (this->flashInterval != flashInterval)
-    {
-      this->flashInterval = flashInterval;
-      SetModified();
-    }
+  {
+    this->flashInterval = flashInterval;
+    SetModified();
+  }
   return true;
 }
 
 bool Settings::SetEnableFlash(bool enableFlash)
 {
   if (this->enableFlash != enableFlash)
-    {
-      this->enableFlash = enableFlash;
-      SetModified();
-    }
+  {
+    this->enableFlash = enableFlash;
+    SetModified();
+  }
   return true;
 }
 
@@ -174,10 +174,10 @@ bool Settings::GetEnableThumbnails()
 bool Settings::SetEnableThumbnails(bool enableThumbnails)
 {
   if (this->enableThumbnails != enableThumbnails)
-    {
-      this->enableThumbnails = enableThumbnails;
-      SetModified();
-    }
+  {
+    this->enableThumbnails = enableThumbnails;
+    SetModified();
+  }
   return true;
 }
 
@@ -189,10 +189,10 @@ int Settings::GetThumbnailAlpha()
 bool Settings::SetThumbnailAlpha(int thumbnailAlpha)
 {
   if (this->thumbnailAlpha != thumbnailAlpha)
-    {
-      this->thumbnailAlpha = thumbnailAlpha;
-      SetModified();
-    }
+  {
+    this->thumbnailAlpha = thumbnailAlpha;
+    SetModified();
+  }
   return true;
 }
 
@@ -204,9 +204,9 @@ int Settings::GetThumbnailScale()
 bool Settings::SetThumbnailScale(int thumbnailScale)
 {
   if (this->thumbnailScale != thumbnailScale)
-    {
-      this->thumbnailScale = thumbnailScale;
-      SetModified();
-    }
+  {
+    this->thumbnailScale = thumbnailScale;
+    SetModified();
+  }
   return true;
 }

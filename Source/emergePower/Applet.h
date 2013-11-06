@@ -55,7 +55,7 @@ private:
   static LRESULT CALLBACK WindowProcedure (HWND, UINT, WPARAM, LPARAM);
   SYSTEM_POWER_STATUS status;
   void UpdateStatus();
-  void DrawStatusChar(HDC& hdc, WCHAR *text, RECT &clientrt);
+  void DrawStatusChar(HDC& hdc, WCHAR* text, RECT& clientrt);
   std::tr1::shared_ptr<Settings> pSettings;
 
 public:

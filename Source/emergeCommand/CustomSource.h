@@ -55,7 +55,7 @@ public:
   STDMETHODIMP Skip(ULONG jump);
   STDMETHODIMP Reset();
   STDMETHODIMP Clone(IEnumString**);
-  void AddElement(WCHAR *element);
+  void AddElement(WCHAR* element);
 };
 
 #endif

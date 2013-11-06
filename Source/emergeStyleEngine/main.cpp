@@ -40,73 +40,119 @@ void ESESetStyle(std::wstring styleFile)
 bool ESEEqualStyle(LPGUIINFO sourceInfo, LPGUIINFO targetInfo)
 {
   if (sourceInfo->alphaActive != targetInfo->alphaActive)
+  {
     return false;
+  }
 
   if (sourceInfo->alphaInactive != targetInfo->alphaInactive)
+  {
     return false;
+  }
 
   if (sourceInfo->alphaBackground != targetInfo->alphaBackground)
+  {
     return false;
+  }
 
   if (sourceInfo->alphaMenu != targetInfo->alphaMenu)
+  {
     return false;
+  }
 
   if (sourceInfo->alphaForeground != targetInfo->alphaForeground)
+  {
     return false;
+  }
 
   if (sourceInfo->alphaFrame != targetInfo->alphaFrame)
+  {
     return false;
+  }
 
   if (sourceInfo->alphaSelected != targetInfo->alphaSelected)
+  {
     return false;
+  }
 
   if (sourceInfo->alphaBorder != targetInfo->alphaBorder)
+  {
     return false;
+  }
 
   if (sourceInfo->alphaText != targetInfo->alphaText)
+  {
     return false;
+  }
 
   if (sourceInfo->colorBackground != targetInfo->colorBackground)
+  {
     return false;
+  }
 
   if (sourceInfo->colorSelected != targetInfo->colorSelected)
+  {
     return false;
+  }
 
   if (sourceInfo->colorForeground != targetInfo->colorForeground)
+  {
     return false;
+  }
 
   if (sourceInfo->colorFrame != targetInfo->colorFrame)
+  {
     return false;
+  }
 
   if (sourceInfo->colorFont != targetInfo->colorFont)
+  {
     return false;
+  }
 
   if (sourceInfo->colorBorder != targetInfo->colorBorder)
+  {
     return false;
+  }
 
   if (sourceInfo->windowShadow != targetInfo->windowShadow)
+  {
     return false;
+  }
 
   if (sourceInfo->dragBorder != targetInfo->dragBorder)
+  {
     return false;
+  }
 
   if (sourceInfo->bevelWidth != targetInfo->bevelWidth)
+  {
     return false;
+  }
 
   if (sourceInfo->padding != targetInfo->padding)
+  {
     return false;
+  }
 
   if (sourceInfo->gradientFrom != targetInfo->gradientFrom)
+  {
     return false;
+  }
 
   if (sourceInfo->gradientTo != targetInfo->gradientTo)
+  {
     return false;
+  }
 
   if (ELToLower(sourceInfo->gradientMethod) != ELToLower(targetInfo->gradientMethod))
+  {
     return false;
+  }
 
   if (sourceInfo->windowBlur != targetInfo->windowBlur)
+  {
     return false;
+  }
 
   return true;
 }
@@ -120,46 +166,50 @@ bool ESEWriteStyle(std::wstring styleFile, LPGUIINFO guiInfo, HWND hwnd)
 
   ESEReadStyle(styleFile, &origGuiInfo);
   if (ESEEqualStyle(&origGuiInfo, guiInfo))
+  {
     return true;
+  }
 
   if (workingStyle.empty())
-    {
-      ELMessageBox(hwnd, TEXT("Style name cannot be empty"), TEXT("Style Editor"), ELMB_MODAL|ELMB_ICONERROR|ELMB_OK);
-      return false;
-    }
+  {
+    ELMessageBox(hwnd, TEXT("Style name cannot be empty"), TEXT("Style Editor"), ELMB_MODAL | ELMB_ICONERROR | ELMB_OK);
+    return false;
+  }
 
   if (!ELIsModifiedTheme(theme))
+  {
+    std::wstring errorMessage;
+
+    if (ELSetModifiedTheme(theme))
     {
-      std::wstring errorMessage;
+      std::wstring oldThemePath = TEXT("%EmergeDir%\\themes\\") + theme;
+      oldThemePath += TEXT("\\*");
+      std::wstring newThemePath = TEXT("%ThemeDir%");
 
-      if (ELSetModifiedTheme(theme))
-        {
-          std::wstring oldThemePath = TEXT("%EmergeDir%\\themes\\") + theme;
-          oldThemePath += TEXT("\\*");
-          std::wstring newThemePath = TEXT("%ThemeDir%");
+      if ((ELGetFileSpecialFlags(newThemePath) & SF_DIRECTORY) != SF_DIRECTORY)
+      {
+        ELCreateDirectory(newThemePath);
+      }
 
-          if ((ELGetFileSpecialFlags(newThemePath) & SF_DIRECTORY) != SF_DIRECTORY)
-            ELCreateDirectory(newThemePath);
+      if (!ELFileOp(hwnd, false, FO_COPY, oldThemePath, newThemePath))
+      {
+        errorMessage = TEXT("Cannot create \'");
+        errorMessage += newThemePath;
+        errorMessage += TEXT("\'.");
+        ELMessageBox(hwnd, errorMessage, TEXT("Style Editor"), ELMB_MODAL | ELMB_ICONERROR | ELMB_OK);
+        return false;
+      }
 
-          if (!ELFileOp(hwnd, false, FO_COPY, oldThemePath, newThemePath))
-            {
-              errorMessage = TEXT("Cannot create \'");
-              errorMessage += newThemePath;
-              errorMessage += TEXT("\'.");
-              ELMessageBox(hwnd, errorMessage, TEXT("Style Editor"), ELMB_MODAL|ELMB_ICONERROR|ELMB_OK);
-              return false;
-            }
-
-          workingStyle = ESEGetStyle();
-          workingStyle = ELExpandVars(workingStyle);
-        }
-      else
-        {
-          errorMessage = TEXT("Failed to create modified theme.");
-          ELMessageBox(hwnd, errorMessage, TEXT("Style Editor"), ELMB_MODAL|ELMB_ICONERROR|ELMB_OK);
-          return false;
-        }
+      workingStyle = ESEGetStyle();
+      workingStyle = ELExpandVars(workingStyle);
     }
+    else
+    {
+      errorMessage = TEXT("Failed to create modified theme.");
+      ELMessageBox(hwnd, errorMessage, TEXT("Style Editor"), ELMB_MODAL | ELMB_ICONERROR | ELMB_OK);
+      return false;
+    }
+  }
 
   ELWriteFileInt(workingStyle, TEXT("alpha.active:"), (int)guiInfo->alphaActive);
   ELWriteFileInt(workingStyle, TEXT("alpha.inactive:"), (int)guiInfo->alphaInactive);
@@ -202,18 +252,18 @@ void ESEReadStyle(std::wstring styleFile, LPGUIINFO guiInfo)
   guiInfo->alphaSelected = ELReadFileByte(workingStyle, TEXT("alpha.selected:"), 100);
   guiInfo->alphaBorder = ELReadFileByte(workingStyle, TEXT("alpha.border:"), 100);
   guiInfo->alphaText = ELReadFileByte(workingStyle, TEXT("alpha.text:"), 100);
-  guiInfo->colorBackground = ELReadFileColor(workingStyle, TEXT("color.background:"), RGB(212,208,200));
-  guiInfo->colorSelected = ELReadFileColor(workingStyle, TEXT("color.selected:"), RGB(10,36,106));
-  guiInfo->colorForeground = ELReadFileColor(workingStyle, TEXT("color.foreground:"), RGB(255,255,255));
-  guiInfo->colorFrame = ELReadFileColor(workingStyle, TEXT("color.frame:"), RGB(10,36,106));
-  guiInfo->colorFont = ELReadFileColor(workingStyle, TEXT("color.font:"), RGB(255,255,255));
+  guiInfo->colorBackground = ELReadFileColor(workingStyle, TEXT("color.background:"), RGB(212, 208, 200));
+  guiInfo->colorSelected = ELReadFileColor(workingStyle, TEXT("color.selected:"), RGB(10, 36, 106));
+  guiInfo->colorForeground = ELReadFileColor(workingStyle, TEXT("color.foreground:"), RGB(255, 255, 255));
+  guiInfo->colorFrame = ELReadFileColor(workingStyle, TEXT("color.frame:"), RGB(10, 36, 106));
+  guiInfo->colorFont = ELReadFileColor(workingStyle, TEXT("color.font:"), RGB(255, 255, 255));
   guiInfo->colorBorder = ELReadFileColor(workingStyle, TEXT("color.border:"), RGB(0, 0, 0));
   guiInfo->windowShadow = ELReadFileBool(workingStyle, TEXT("window.shadow:"), false);
   guiInfo->dragBorder = ELReadFileInt(workingStyle, TEXT("window.dragborder:"), 0);
   guiInfo->bevelWidth = ELReadFileInt(workingStyle, TEXT("window.bevelWidth:"), 0);
   guiInfo->padding = ELReadFileInt(workingStyle, TEXT("window.padding:"), 4);
-  guiInfo->gradientFrom = ELReadFileColor(workingStyle, TEXT("gradient.colorFrom:"), RGB(255,255,255));
-  guiInfo->gradientTo = ELReadFileColor(workingStyle, TEXT("gradient.colorTo:"), RGB(0,0,0));
+  guiInfo->gradientFrom = ELReadFileColor(workingStyle, TEXT("gradient.colorFrom:"), RGB(255, 255, 255));
+  guiInfo->gradientTo = ELReadFileColor(workingStyle, TEXT("gradient.colorTo:"), RGB(0, 0, 0));
   guiInfo->gradientMethod = ELReadFileString(workingStyle, TEXT("gradient.method:"), TEXT("VerticalFlat"));
   guiInfo->windowBlur = ELReadFileBool(workingStyle, TEXT("window.blur:"), false);
 }
@@ -226,7 +276,9 @@ void ESELoadStyle(std::wstring styleFile, LPGUIINFO guiInfo)
   ESEReadStyle(style, guiInfo);
 
   if (guiInfo->alphaMenu < 20)
+  {
     guiInfo->alphaMenu = 20;
+  }
 
   tmpAlpha = guiInfo->alphaMenu;
   tmpAlpha *= 255;
@@ -234,7 +286,9 @@ void ESELoadStyle(std::wstring styleFile, LPGUIINFO guiInfo)
   guiInfo->alphaMenu = tmpAlpha;
 
   if (guiInfo->alphaActive < 20)
+  {
     guiInfo->alphaActive = 20;
+  }
 
   tmpAlpha = guiInfo->alphaActive;
   tmpAlpha *= 255;
@@ -242,7 +296,9 @@ void ESELoadStyle(std::wstring styleFile, LPGUIINFO guiInfo)
   guiInfo->alphaActive = tmpAlpha;
 
   if (guiInfo->alphaInactive <= 0)
+  {
     guiInfo->alphaInactive = 1;
+  }
 
   tmpAlpha = guiInfo->alphaInactive;
   tmpAlpha *= 255;
@@ -250,7 +306,9 @@ void ESELoadStyle(std::wstring styleFile, LPGUIINFO guiInfo)
   guiInfo->alphaInactive = tmpAlpha;
 
   if (guiInfo->alphaBackground <= 0)
+  {
     guiInfo->alphaBackground = 1;
+  }
 
   tmpAlpha = guiInfo->alphaBackground;
   tmpAlpha *= 255;
@@ -258,7 +316,9 @@ void ESELoadStyle(std::wstring styleFile, LPGUIINFO guiInfo)
   guiInfo->alphaBackground = tmpAlpha;
 
   if (guiInfo->alphaForeground <= 0)
+  {
     guiInfo->alphaForeground = 1;
+  }
 
   tmpAlpha = guiInfo->alphaForeground;
   tmpAlpha *= 255;
@@ -266,7 +326,9 @@ void ESELoadStyle(std::wstring styleFile, LPGUIINFO guiInfo)
   guiInfo->alphaForeground = tmpAlpha;
 
   if (guiInfo->alphaSelected <= 0)
+  {
     guiInfo->alphaSelected = 1;
+  }
 
   tmpAlpha = guiInfo->alphaSelected;
   tmpAlpha *= 255;
@@ -274,7 +336,9 @@ void ESELoadStyle(std::wstring styleFile, LPGUIINFO guiInfo)
   guiInfo->alphaSelected = tmpAlpha;
 
   if (guiInfo->alphaFrame <= 0)
+  {
     guiInfo->alphaFrame = 1;
+  }
 
   tmpAlpha = guiInfo->alphaFrame;
   tmpAlpha *= 255;
@@ -282,7 +346,9 @@ void ESELoadStyle(std::wstring styleFile, LPGUIINFO guiInfo)
   guiInfo->alphaFrame = tmpAlpha;
 
   if (guiInfo->alphaBorder <= 0)
+  {
     guiInfo->alphaBorder = 1;
+  }
 
   tmpAlpha = guiInfo->alphaBorder;
   tmpAlpha *= 255;
@@ -290,7 +356,9 @@ void ESELoadStyle(std::wstring styleFile, LPGUIINFO guiInfo)
   guiInfo->alphaBorder = tmpAlpha;
 
   if (guiInfo->alphaText < 20)
+  {
     guiInfo->alphaText = 20;
+  }
 
   tmpAlpha = guiInfo->alphaText;
   tmpAlpha *= 255;
@@ -305,22 +373,26 @@ void ESEPaintBackground(HDC hdc, RECT clientRect, LPGUIINFO guiInfo, bool active
   COLORREF colourFrom = guiInfo->gradientFrom, colourTo = guiInfo->gradientTo;
 
   if (guiInfo->dragBorder > 0)
-    {
-      EGFrameRect(hdc, &clientRect, guiInfo->alphaBorder, guiInfo->colorBorder, guiInfo->dragBorder);
-      InflateRect(&clientRect, 0 - guiInfo->dragBorder, 0 - guiInfo->dragBorder);
-    }
+  {
+    EGFrameRect(hdc, &clientRect, guiInfo->alphaBorder, guiInfo->colorBorder, guiInfo->dragBorder);
+    InflateRect(&clientRect, 0 - guiInfo->dragBorder, 0 - guiInfo->dragBorder);
+  }
 
   if (active)
+  {
     alpha = EGGetMinAlpha(guiInfo->alphaBackground, guiInfo->alphaActive);
+  }
   else
+  {
     alpha = EGGetMinAlpha(guiInfo->alphaBackground, guiInfo->alphaInactive);
+  }
 
   lower = ELToLower(guiInfo->gradientMethod);
   if (lower.find(TEXT("solid")) != std::wstring::npos)
-    {
-      colourFrom = guiInfo->colorBackground;
-      colourTo = guiInfo->colorBackground;
-    }
+  {
+    colourFrom = guiInfo->colorBackground;
+    colourTo = guiInfo->colorBackground;
+  }
 
   EGGradientFillRect(hdc, &clientRect, alpha, colourFrom, colourTo, guiInfo->bevelWidth,
                      guiInfo->gradientMethod);

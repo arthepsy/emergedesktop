@@ -55,9 +55,9 @@ class TrayIcon;
 class Thumbnail
 {
 public:
-  Thumbnail(HWND taskWnd, HINSTANCE instance, Settings *pSettings);
+  Thumbnail(HWND taskWnd, HINSTANCE instance, Settings* pSettings);
   ~Thumbnail();
-  void ShowThumbnail(HWND ownerWnd, RECT *taskRect);
+  void ShowThumbnail(HWND ownerWnd, RECT* taskRect);
   void HideThumbnail();
   HWND GetThumbnailWnd();
 
@@ -65,7 +65,7 @@ private:
   HTHUMBNAIL dwmThumbnailId;
   HWND dwmThumbnailWnd;
   static LRESULT CALLBACK ThumbnailProcedure (HWND, UINT, WPARAM, LPARAM);
-  Settings *pSettings;
+  Settings* pSettings;
 };
 
 #endif

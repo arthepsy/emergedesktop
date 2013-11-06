@@ -71,7 +71,7 @@ private:
   HWND mainWnd, toolWnd;
   HICON msgIcon;
   DWORD msgButtons; // make this global for now, for some reason it causes a crash when defined as a class variable
-  WCHAR *sound;
+  WCHAR* sound;
   bool modal;
   WCHAR msgText[MAX_LINE_LENGTH], msgTitle[MAX_LINE_LENGTH];
   static BOOL CALLBACK MsgBoxDlgProc(HWND hwndDlg, UINT message, WPARAM wParam, LPARAM lParam);

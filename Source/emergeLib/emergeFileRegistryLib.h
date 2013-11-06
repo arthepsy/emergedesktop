@@ -84,11 +84,11 @@ const int UNDEFINED_INTERNALCOMMAND_VALUE = -1;
 //FileRegistryIO.h
 DLL_EXPORT DWORD ELReadRegDWord(HKEY key, std::wstring value, DWORD defaultValue);
 DLL_EXPORT std::wstring ELReadRegString(HKEY key, std::wstring value, std::wstring defaultValue);
-DLL_EXPORT RECT ELReadRegRect(HKEY key, std::wstring value, RECT *defaultValue);
-DLL_EXPORT bool ELWriteRegDWord(HKEY key, std::wstring value, DWORD *source);
+DLL_EXPORT RECT ELReadRegRect(HKEY key, std::wstring value, RECT* defaultValue);
+DLL_EXPORT bool ELWriteRegDWord(HKEY key, std::wstring value, DWORD* source);
 DLL_EXPORT bool ELWriteRegString(HKEY key, std::wstring value, std::wstring source);
-DLL_EXPORT bool ELWriteRegRect(HKEY key, std::wstring value, RECT *source);
-DLL_EXPORT bool ELOpenRegKey(std::wstring subkey, HKEY *key, bool createKey);
+DLL_EXPORT bool ELWriteRegRect(HKEY key, std::wstring value, RECT* source);
+DLL_EXPORT bool ELOpenRegKey(std::wstring subkey, HKEY* key, bool createKey);
 DLL_EXPORT bool ELDeleteRegKey(std::wstring subkey);
 DLL_EXPORT bool ELCloseRegKey(HKEY key);
 
@@ -103,41 +103,41 @@ DLL_EXPORT bool ELWriteFileBool(std::wstring fileName, std::wstring keyword, boo
 DLL_EXPORT bool ELWriteFileColor(std::wstring fileName, std::wstring keyword, COLORREF value);
 
 DLL_EXPORT std::tr1::shared_ptr<TiXmlDocument> ELOpenXMLConfig(std::wstring filename, bool create);
-DLL_EXPORT TiXmlDocument *ELGetXMLConfig(TiXmlElement *element);
-DLL_EXPORT bool ELWriteXMLConfig(TiXmlDocument *configXML);
-DLL_EXPORT COLORREF ELReadXMLColorValue(TiXmlElement *section, std::wstring item, COLORREF defaultValue);
-DLL_EXPORT RECT ELReadXMLRectValue(TiXmlElement *section, std::wstring item, RECT defaultValue);
-DLL_EXPORT bool ELReadXMLBoolValue(TiXmlElement *section, std::wstring item, bool defaultValue);
-DLL_EXPORT int ELReadXMLIntValue(TiXmlElement *section, std::wstring item, int defaultValue);
-DLL_EXPORT float ELReadXMLFloatValue(TiXmlElement *section, std::wstring item, float defaultValue);
-DLL_EXPORT std::wstring ELReadXMLStringValue(TiXmlElement *section, std::wstring item, std::wstring defaultValue);
-DLL_EXPORT bool ELWriteXMLColorValue(TiXmlElement *section, std::wstring item, COLORREF value);
-DLL_EXPORT bool ELWriteXMLRectValue(TiXmlElement *section, std::wstring item, RECT value);
-DLL_EXPORT bool ELWriteXMLBoolValue(TiXmlElement *section, std::wstring item, bool value);
-DLL_EXPORT bool ELWriteXMLIntValue(TiXmlElement *section, std::wstring item, int value);
-DLL_EXPORT bool ELWriteXMLFloatValue(TiXmlElement *section, std::wstring item, float value);
-DLL_EXPORT bool ELWriteXMLStringValue(TiXmlElement *section, std::wstring item, std::wstring value);
-DLL_EXPORT TiXmlElement *ELGetXMLElementParent(TiXmlElement *xmlElement);
-DLL_EXPORT TiXmlElement *ELGetXMLSection(TiXmlDocument *configXML, std::wstring section, bool createSection);
-DLL_EXPORT TiXmlElement *ELGetFirstXMLElement(TiXmlElement *xmlSection);
-DLL_EXPORT TiXmlElement *ELGetFirstXMLElementByName(TiXmlElement *xmlSection, std::wstring elementName, bool createElement);
-DLL_EXPORT TiXmlElement *ELSetFirstXMLElementByName(TiXmlElement *xmlSection, std::wstring elementName);
-DLL_EXPORT void ELSetFirstXMLElement(TiXmlElement *xmlSection, TiXmlElement *element);
-DLL_EXPORT TiXmlElement *ELGetSiblingXMLElement(TiXmlElement *xmlElement);
-DLL_EXPORT TiXmlElement *ELSetSiblingXMLElement(TiXmlElement *targetElement, TiXmlElement *sourceElement, bool insertAfter);
-DLL_EXPORT TiXmlElement *ELSetSiblingXMLElementByName(TiXmlElement *xmlElement, const WCHAR *elementName, bool insertAfter = true);
-DLL_EXPORT TiXmlElement *ELCloneXMLElement(TiXmlElement *sourceElement);
-DLL_EXPORT TiXmlElement *ELCloneXMLElementAsSibling(TiXmlElement *sourceElement, TiXmlElement *targetElement);
-DLL_EXPORT TiXmlElement *ELCloneXMLElementAsChild(TiXmlElement *sourceElement, TiXmlElement *targetElement);
-DLL_EXPORT bool ELGetXMLElementText(TiXmlElement *xmlElement, std::wstring xmlString);
-DLL_EXPORT bool ELGetXMLElementLabel(TiXmlElement *xmlElement, std::wstring xmlString);
-DLL_EXPORT bool ELRemoveXMLElement(TiXmlElement *xmlElement);
+DLL_EXPORT TiXmlDocument* ELGetXMLConfig(TiXmlElement* element);
+DLL_EXPORT bool ELWriteXMLConfig(TiXmlDocument* configXML);
+DLL_EXPORT COLORREF ELReadXMLColorValue(TiXmlElement* section, std::wstring item, COLORREF defaultValue);
+DLL_EXPORT RECT ELReadXMLRectValue(TiXmlElement* section, std::wstring item, RECT defaultValue);
+DLL_EXPORT bool ELReadXMLBoolValue(TiXmlElement* section, std::wstring item, bool defaultValue);
+DLL_EXPORT int ELReadXMLIntValue(TiXmlElement* section, std::wstring item, int defaultValue);
+DLL_EXPORT float ELReadXMLFloatValue(TiXmlElement* section, std::wstring item, float defaultValue);
+DLL_EXPORT std::wstring ELReadXMLStringValue(TiXmlElement* section, std::wstring item, std::wstring defaultValue);
+DLL_EXPORT bool ELWriteXMLColorValue(TiXmlElement* section, std::wstring item, COLORREF value);
+DLL_EXPORT bool ELWriteXMLRectValue(TiXmlElement* section, std::wstring item, RECT value);
+DLL_EXPORT bool ELWriteXMLBoolValue(TiXmlElement* section, std::wstring item, bool value);
+DLL_EXPORT bool ELWriteXMLIntValue(TiXmlElement* section, std::wstring item, int value);
+DLL_EXPORT bool ELWriteXMLFloatValue(TiXmlElement* section, std::wstring item, float value);
+DLL_EXPORT bool ELWriteXMLStringValue(TiXmlElement* section, std::wstring item, std::wstring value);
+DLL_EXPORT TiXmlElement* ELGetXMLElementParent(TiXmlElement* xmlElement);
+DLL_EXPORT TiXmlElement* ELGetXMLSection(TiXmlDocument* configXML, std::wstring section, bool createSection);
+DLL_EXPORT TiXmlElement* ELGetFirstXMLElement(TiXmlElement* xmlSection);
+DLL_EXPORT TiXmlElement* ELGetFirstXMLElementByName(TiXmlElement* xmlSection, std::wstring elementName, bool createElement);
+DLL_EXPORT TiXmlElement* ELSetFirstXMLElementByName(TiXmlElement* xmlSection, std::wstring elementName);
+DLL_EXPORT void ELSetFirstXMLElement(TiXmlElement* xmlSection, TiXmlElement* element);
+DLL_EXPORT TiXmlElement* ELGetSiblingXMLElement(TiXmlElement* xmlElement);
+DLL_EXPORT TiXmlElement* ELSetSiblingXMLElement(TiXmlElement* targetElement, TiXmlElement* sourceElement, bool insertAfter);
+DLL_EXPORT TiXmlElement* ELSetSiblingXMLElementByName(TiXmlElement* xmlElement, const WCHAR* elementName, bool insertAfter = true);
+DLL_EXPORT TiXmlElement* ELCloneXMLElement(TiXmlElement* sourceElement);
+DLL_EXPORT TiXmlElement* ELCloneXMLElementAsSibling(TiXmlElement* sourceElement, TiXmlElement* targetElement);
+DLL_EXPORT TiXmlElement* ELCloneXMLElementAsChild(TiXmlElement* sourceElement, TiXmlElement* targetElement);
+DLL_EXPORT bool ELGetXMLElementText(TiXmlElement* xmlElement, std::wstring xmlString);
+DLL_EXPORT bool ELGetXMLElementLabel(TiXmlElement* xmlElement, std::wstring xmlString);
+DLL_EXPORT bool ELRemoveXMLElement(TiXmlElement* xmlElement);
 
 //FileSystemOps.h
 DLL_EXPORT bool ELCreateDirectory(std::wstring directory);
 DLL_EXPORT std::wstring ELGetTempFileName();
 
-DLL_EXPORT bool ELParseCommand(std::wstring appToParse, WCHAR *program, WCHAR *arguments);
+DLL_EXPORT bool ELParseCommand(std::wstring appToParse, WCHAR* program, WCHAR* arguments);
 DLL_EXPORT bool ELParseShortcut(std::wstring shortcut, LPSHORTCUTINFO shortcutInfo);
 
 DLL_EXPORT std::wstring ELGetFileName(std::wstring filePath);

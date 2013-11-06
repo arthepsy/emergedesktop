@@ -61,28 +61,28 @@
 #include "emergeGraphics.h"
 #include "resource.h"
 
-typedef UINT (WINAPI *fnPrivateExtractIcons)(LPCTSTR, int, int, int, HICON*, UINT*, UINT, UINT);
+typedef UINT (WINAPI* fnPrivateExtractIcons)(LPCTSTR, int, int, int, HICON*, UINT*, UINT, UINT);
 static fnPrivateExtractIcons MSPrivateExtractIcons = NULL;
 
-typedef UINT (WINAPI *fnPickIcon)(HWND, WCHAR*, UINT, int*);
+typedef UINT (WINAPI* fnPickIcon)(HWND, WCHAR*, UINT, int*);
 static fnPickIcon MSPickIcon = NULL;
 
-typedef HRESULT (WINAPI *fnDwmIsCompositionEnabled)(BOOL *);
+typedef HRESULT (WINAPI* fnDwmIsCompositionEnabled)(BOOL*);
 static fnDwmIsCompositionEnabled MSDwmIsCompositionEnabled = NULL;
 
-typedef HRESULT (WINAPI *fnDwmEnableBlurBehindWindow)(HWND, const DWM_BLURBEHIND *);
+typedef HRESULT (WINAPI* fnDwmEnableBlurBehindWindow)(HWND, const DWM_BLURBEHIND*);
 static fnDwmEnableBlurBehindWindow MSDwmEnableBlurBehindWindow = NULL;
 
-typedef HRESULT (WINAPI *fnDwmRegisterThumbnail)(HWND, HWND, PHTHUMBNAIL);
+typedef HRESULT (WINAPI* fnDwmRegisterThumbnail)(HWND, HWND, PHTHUMBNAIL);
 static fnDwmRegisterThumbnail MSDwmRegisterThumbnail = NULL;
 
-typedef HRESULT (WINAPI *fnDwmUpdateThumbnailProperties)(HTHUMBNAIL, const DWM_THUMBNAIL_PROPERTIES *);
+typedef HRESULT (WINAPI* fnDwmUpdateThumbnailProperties)(HTHUMBNAIL, const DWM_THUMBNAIL_PROPERTIES*);
 static fnDwmUpdateThumbnailProperties MSDwmUpdateThumbnailProperties = NULL;
 
-typedef HRESULT (WINAPI *fnDwmUnregisterThumbnail)(HTHUMBNAIL);
+typedef HRESULT (WINAPI* fnDwmUnregisterThumbnail)(HTHUMBNAIL);
 static fnDwmUnregisterThumbnail MSDwmUnregisterThumbnail = NULL;
 
-typedef HRESULT (WINAPI *fnDwmQueryThumbnailSourceSize)(HTHUMBNAIL, PSIZE);
+typedef HRESULT (WINAPI* fnDwmQueryThumbnailSourceSize)(HTHUMBNAIL, PSIZE);
 static fnDwmQueryThumbnailSourceSize MSDwmQueryThumbnailSourceSize = NULL;
 
 // Globals

@@ -69,13 +69,13 @@
 class DLL_EXPORT BaseApplet
 {
 public:
-  BaseApplet(HINSTANCE hInstance, const WCHAR *appletName, bool allowAutoSize, bool allowMultipleInstances);
+  BaseApplet(HINSTANCE hInstance, const WCHAR* appletName, bool allowAutoSize, bool allowMultipleInstances);
   virtual ~BaseApplet();
   UINT Initialize(WNDPROC WindowProcedure, LPVOID lpParam, std::tr1::shared_ptr<BaseSettings> pSettings);
-  LRESULT DoMoving(HWND hwnd, RECT *lpRect);
+  LRESULT DoMoving(HWND hwnd, RECT* lpRect);
   LRESULT DoEnterSizeMove(HWND hwnd);
   LRESULT DoExitSizeMove(HWND hwnd);
-  LRESULT DoWindowPosChanging(WINDOWPOS *windowPos);
+  LRESULT DoWindowPosChanging(WINDOWPOS* windowPos);
   LRESULT DoMove();
   LRESULT DoSize(DWORD width, DWORD height);
   LRESULT DoSizing(HWND hwnd, UINT edge, LPRECT rect);
@@ -88,9 +88,9 @@ public:
   LRESULT DoSysColorChange();
   LRESULT DoSysCommand(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
   LRESULT DoHitTest(LPARAM lParam);
-  LRESULT DoCopyData(COPYDATASTRUCT *cds);
+  LRESULT DoCopyData(COPYDATASTRUCT* cds);
   void UpdateGUI(std::wstring styleFile = TEXT(""));
-  void AdjustRect(RECT *wndRect);
+  void AdjustRect(RECT* wndRect);
   bool ClickThrough();
   std::tr1::shared_ptr<BaseSettings> pBaseSettings;
   HDC activeBackgroundDC, inactiveBackgroundDC;
@@ -100,8 +100,8 @@ public:
   void SetFullScreen(bool value);
   bool GetFullScreen();
   HWND GetMainWnd();
-  void HideApplet(bool hide, bool *variable, bool force);
-  WCHAR *GetInstanceName();
+  void HideApplet(bool hide, bool* variable, bool force);
+  WCHAR* GetInstanceName();
 
 private:
   int appletCount;

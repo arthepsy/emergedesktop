@@ -29,27 +29,31 @@ bool ELCreateDirectory(std::wstring directoryPath)
 
   i = directoryPath.find_first_of(TEXT("\\"), i);
   while (i != std::wstring::npos)
-    {
-      subdir = directoryPath.substr(0, i);
+  {
+    subdir = directoryPath.substr(0, i);
 
-      if (!subdir.empty())
+    if (!subdir.empty())
+    {
+      if ((ELGetFileSpecialFlags(subdir) & SF_DIRECTORY) != SF_DIRECTORY)
+      {
+        if (!CreateDirectory(subdir.c_str(), NULL))
         {
-          if ((ELGetFileSpecialFlags(subdir) & SF_DIRECTORY) != SF_DIRECTORY)
-            {
-              if (!CreateDirectory(subdir.c_str(), NULL))
-                return false;
-            }
-
+          return false;
         }
-      i++;
-      i = directoryPath.find_first_of(TEXT("\\"), i);
-    }
+      }
 
-    if ((ELGetFileSpecialFlags(directoryPath) & SF_DIRECTORY) != SF_DIRECTORY)
-    {
-      if (!CreateDirectory(directoryPath.c_str(), NULL))
-        return false;
     }
+    i++;
+    i = directoryPath.find_first_of(TEXT("\\"), i);
+  }
+
+  if ((ELGetFileSpecialFlags(directoryPath) & SF_DIRECTORY) != SF_DIRECTORY)
+  {
+    if (!CreateDirectory(directoryPath.c_str(), NULL))
+    {
+      return false;
+    }
+  }
 
   return true;
 }
@@ -59,17 +63,17 @@ std::wstring ELGetTempFileName()
   WCHAR tmpPath[MAX_PATH], tmpFile[MAX_PATH];
 
   if (GetTempPath(MAX_PATH, tmpPath) != 0)
+  {
+    if (GetTempFileName(tmpPath, TEXT("eds"), 0, tmpFile) != 0)
     {
-      if (GetTempFileName(tmpPath, TEXT("eds"), 0, tmpFile) != 0)
-        {
-          return tmpFile;
-        }
+      return tmpFile;
     }
+  }
 
   return TEXT("");
 }
 
-bool ELParseCommand(std::wstring appToParse, WCHAR *program, WCHAR *arguments)
+bool ELParseCommand(std::wstring appToParse, WCHAR* program, WCHAR* arguments)
 {
   WCHAR buildTmp[MAX_LINE_LENGTH], pathTmp[MAX_LINE_LENGTH];
   ZeroMemory(buildTmp, MAX_LINE_LENGTH);
@@ -82,31 +86,33 @@ bool ELParseCommand(std::wstring appToParse, WCHAR *program, WCHAR *arguments)
 
   workingApp = appToParse;
   if (!workingApp.empty())
+  {
+    if (workingApp.at(0) == '@')
     {
-      if (workingApp.at(0) == '@')
-        workingApp = workingApp.substr(1);
+      workingApp = workingApp.substr(1);
     }
+  }
   workingApp = ELExpandVars(workingApp);
   workingApp = ELGetAbsolutePath(workingApp);
 
   specialFlags = ELGetFileSpecialFlags(appToParse);
 
   if (((specialFlags & SF_CLSID) == SF_CLSID) || ((specialFlags & SF_INTERNALCOMMAND) == SF_INTERNALCOMMAND) || ((specialFlags & SF_URL) == SF_URL))
-    {
-      wcscpy(program, appToParse.c_str());
-      return true;
-    }
+  {
+    wcscpy(program, appToParse.c_str());
+    return true;
+  }
 
   workingArgs = ELGetFileArguments(workingApp);
   workingApp = ELStripFileArguments(workingApp);
 
   // Bail if workingApp is a directory, UNC Path or it exists
   if (((specialFlags & SF_DIRECTORY) == SF_DIRECTORY) || ((specialFlags & SF_URL) == SF_URL) || ELFileExists(workingApp))
-    {
-      wcscpy(program, workingApp.c_str());
-      wcscpy(arguments, workingArgs.c_str());
-      return true;
-    }
+  {
+    wcscpy(program, workingApp.c_str());
+    wcscpy(arguments, workingArgs.c_str());
+    return true;
+  }
 
   wcscpy(pathTmp, (ELExhaustivelyFindFilePath(workingApp)).c_str());
   if (wcsicmp(pathTmp, TEXT("")) != 0)
@@ -120,30 +126,32 @@ bool ELParseCommand(std::wstring appToParse, WCHAR *program, WCHAR *arguments)
   // Check workingApp for any separator
   size_t nextSeparator = workingApp.find_first_of(pathArgsSeparator), validSeparator = std::wstring::npos;
   while (nextSeparator != std::wstring::npos)
+  {
+    // If a separator is found, check with extension to see if its valid
+    wcscpy(pathTmp, workingApp.substr(0, nextSeparator).c_str());
+    if ((ELExhaustivelyFindFilePath(pathTmp) != TEXT("")) || (ELIsInternalCommand(pathTmp)))
     {
-      // If a separator is found, check with extension to see if its valid
-      wcscpy(pathTmp, workingApp.substr(0, nextSeparator).c_str());
-      if ((ELExhaustivelyFindFilePath(pathTmp) != TEXT("")) || (ELIsInternalCommand(pathTmp)))
-        {
-          // If it is, copy it to program and set validSeparator
-          wcscpy(program, pathTmp);
-          validSeparator = nextSeparator;
-        }
-      // Loop to the next separator
-      nextSeparator = workingApp.find_first_of(pathArgsSeparator, nextSeparator + 1);
+      // If it is, copy it to program and set validSeparator
+      wcscpy(program, pathTmp);
+      validSeparator = nextSeparator;
     }
+    // Loop to the next separator
+    nextSeparator = workingApp.find_first_of(pathArgsSeparator, nextSeparator + 1);
+  }
 
   // If the validSeparator is set, copy the arguments based on its position
   if (validSeparator != std::wstring::npos)
+  {
     wcscpy(arguments, workingApp.substr(validSeparator, workingApp.length() - validSeparator).c_str());
+  }
 
   return (wcslen(program) > 0);
 }
 
 bool ELParseShortcut(std::wstring shortcut, LPSHORTCUTINFO shortcutInfo)
 {
-  IShellLink *psl = NULL;
-  IShellLinkDataList *psdl = NULL;
+  IShellLink* psl = NULL;
+  IShellLinkDataList* psdl = NULL;
   IPersistFile* ppf = NULL;
   LPITEMIDLIST pidl = NULL;
   LPVOID lpVoid;
@@ -151,105 +159,117 @@ bool ELParseShortcut(std::wstring shortcut, LPSHORTCUTINFO shortcutInfo)
   bool ret = true;
 
   if (FAILED(CoInitialize(NULL)))
+  {
     return false;
+  }
 
   // Get a pointer to the IShellLink interface.
   if (FAILED(CoCreateInstance(CLSID_ShellLink, NULL,
                               CLSCTX_INPROC_SERVER, IID_IShellLink,
                               &lpVoid)))
-    {
-      CoUninitialize();
-      return false;
-    }
+  {
+    CoUninitialize();
+    return false;
+  }
   psl = reinterpret_cast <IShellLink*> (lpVoid);
 
   if (FAILED(psl->QueryInterface(IID_IShellLinkDataList, &lpVoid)))
-    {
-      psl->Release();
-      CoUninitialize();
-      return false;
-    }
+  {
+    psl->Release();
+    CoUninitialize();
+    return false;
+  }
   psdl = reinterpret_cast <IShellLinkDataList*> (lpVoid);
 
   // Get a pointer to the IPersistFile interface.
   if (FAILED(psl->QueryInterface(IID_IPersistFile,
                                  &lpVoid)))
-    {
-      psl->Release();
-      psdl->Release();
-      CoUninitialize();
-      return false;
-    }
+  {
+    psl->Release();
+    psdl->Release();
+    CoUninitialize();
+    return false;
+  }
   ppf = reinterpret_cast <IPersistFile*> (lpVoid);
 
   // Load the shortcut.
   if (FAILED(ppf->Load(shortcut.c_str(), STGM_READ)))
-    {
-      ppf->Release();
-      psl->Release();
-      psdl->Release();
-      CoUninitialize();
-      return false;
-    }
+  {
+    ppf->Release();
+    psl->Release();
+    psdl->Release();
+    CoUninitialize();
+    return false;
+  }
 
   if (FAILED(psl->Resolve(NULL, SLR_INVOKE_MSI | SLR_NOUPDATE | SLR_NO_UI)))
-    {
-      ppf->Release();
-      psl->Release();
-      psdl->Release();
-      CoUninitialize();
-      return false;
-    }
+  {
+    ppf->Release();
+    psl->Release();
+    psdl->Release();
+    CoUninitialize();
+    return false;
+  }
 
   // Get the path to the link target.
   if ((shortcutInfo->flags & SI_RUNAS) == SI_RUNAS)
-    {
-      shortcutInfo->runAs = false;
+  {
+    shortcutInfo->runAs = false;
 
-      if (SUCCEEDED(psdl->GetFlags(&dwFlags)))
-        {
-          if ((dwFlags & SLDF_RUNAS_USER) == SLDF_RUNAS_USER)
-            shortcutInfo->runAs = true;
-        }
+    if (SUCCEEDED(psdl->GetFlags(&dwFlags)))
+    {
+      if ((dwFlags & SLDF_RUNAS_USER) == SLDF_RUNAS_USER)
+      {
+        shortcutInfo->runAs = true;
+      }
     }
+  }
 
   // Get the path to the link target.
   if ((shortcutInfo->flags & SI_PATH) == SI_PATH)
+  {
+    if (SUCCEEDED(psl->GetIDList(&pidl)))
     {
-      if (SUCCEEDED(psl->GetIDList(&pidl)))
-        {
-          ret = (SHGetPathFromIDList(pidl, shortcutInfo->Path) == TRUE);
-          CoTaskMemFree(pidl);
-        }
+      ret = (SHGetPathFromIDList(pidl, shortcutInfo->Path) == TRUE);
+      CoTaskMemFree(pidl);
     }
+  }
 
   // Get the arguments for the link target.
   if ((shortcutInfo->flags & SI_ARGUMENTS) == SI_ARGUMENTS)
+  {
+    if (FAILED(psl->GetArguments(shortcutInfo->Arguments, MAX_PATH)))
     {
-      if (FAILED(psl->GetArguments(shortcutInfo->Arguments, MAX_PATH)))
-        ret = false;
+      ret = false;
     }
+  }
 
   // Get the working directory of the link target
   if ((shortcutInfo->flags & SI_WORKINGDIR) == SI_WORKINGDIR)
+  {
+    if (FAILED(psl->GetWorkingDirectory(shortcutInfo->WorkingDirectory, MAX_PATH)))
     {
-      if (FAILED(psl->GetWorkingDirectory(shortcutInfo->WorkingDirectory, MAX_PATH)))
-        ret = false;
+      ret = false;
     }
+  }
 
   // Get the icon info for the link target
   if ((shortcutInfo->flags & SI_ICONPATH) == SI_ICONPATH)
+  {
+    if (FAILED(psl->GetIconLocation(shortcutInfo->IconPath, MAX_PATH, &shortcutInfo->IconIndex)))
     {
-      if (FAILED(psl->GetIconLocation(shortcutInfo->IconPath, MAX_PATH, &shortcutInfo->IconIndex)))
-        ret = false;
+      ret = false;
     }
+  }
 
   // Get the show value of the link target
   if ((shortcutInfo->flags & SI_SHOW) == SI_SHOW)
+  {
+    if (FAILED(psl->GetShowCmd(&shortcutInfo->ShowCmd)))
     {
-      if (FAILED(psl->GetShowCmd(&shortcutInfo->ShowCmd)))
-        ret = false;
+      ret = false;
     }
+  }
 
   ppf->Release();
   psl->Release();
@@ -292,7 +312,9 @@ std::wstring ELGetFileArguments(std::wstring filePath)
   wcscpy(tempArgs, PathGetArgs(tempArgsPtr));
 
   if (wcsicmp(tempArgs, TEXT("")) == 0)
+  {
     ELParseCommand(filePath, tempPath, tempArgs);
+  }
 
   return tempArgs;
 }
@@ -308,7 +330,9 @@ std::wstring ELStripFileArguments(std::wstring filePath)
   wcscpy(tempPath, tempPathPtr);
 
   if (wcsicmp(tempPath, TEXT("")) == 0)
+  {
     ELParseCommand(filePath, tempPath, tempArgs);
+  }
 
   return tempPath;
 }
@@ -320,12 +344,16 @@ std::wstring ELGetAbsolutePath(std::wstring relativeFilePath, std::wstring baseD
   WCHAR tmpPath[MAX_PATH] = TEXT("\0");
 
   if (GetCurrentDirectory(MAX_PATH, originalWorkingDir))
+  {
     SetCurrentDirectory(fullyExpandedBasePath.c_str());
+  }
 
   GetFullPathName(relativeFilePath.c_str(), MAX_PATH, tmpPath, NULL);
 
   if (wcsicmp(originalWorkingDir, TEXT("\0")) != 0)
-    SetCurrentDirectory(originalWorkingDir); //restore the original working directory if it's been saved
+  {
+    SetCurrentDirectory(originalWorkingDir);  //restore the original working directory if it's been saved
+  }
 
   return tmpPath;
 }
@@ -340,53 +368,73 @@ std::wstring ELGetRelativePath(std::wstring filePath, std::wstring baseDirPath)
 
   // Convert %AppletDir% to relative path
   if (workingFilePath.find(TEXT("%AppletDir%")) != std::wstring::npos)
+  {
     workingFilePath = ELExpandVars(workingFilePath);
+  }
 
   // If dstPath is not equal to dstPath after var expansion, then destPath is
   // already defined as a variable, so don't convert it.
   if (workingFilePath != ELExpandVars(workingFilePath))
+  {
     return workingFilePath;
+  }
 
   //PathIsRelative treats "\" as a fully qualified path, which isn't true (except for UNC paths); check for a drive number first.
   if ((PathGetDriveNumber(workingFilePath.c_str()) == -1) && !PathIsUNC(workingFilePath.c_str()))
+  {
     return workingFilePath;
+  }
 
   // Separate the program and the arguments for conversion
   if (!ELParseCommand(workingFilePath, program, arguments))
+  {
     return workingFilePath;
+  }
 
   if ((ELGetFileSpecialFlags(program) & SF_DIRECTORY) == SF_DIRECTORY)
+  {
     flags = FILE_ATTRIBUTE_DIRECTORY;
+  }
   else
+  {
     flags = FILE_ATTRIBUTE_NORMAL;
+  }
 
   // Resolve path and srcPath to their UNC equivalents if appropriate
   unc = ELGetUNCFromMap(program);
   if (!unc.empty())
+  {
     wcscpy(program, unc.c_str());
+  }
   unc = ELGetUNCFromMap(fullyExpandedBasePath.c_str());
   if (!unc.empty())
+  {
     fullyExpandedBasePath = unc;
+  }
 
   if (PathRelativePathTo(tmpPath, fullyExpandedBasePath.c_str(), FILE_ATTRIBUTE_DIRECTORY,
                          program, flags))
+  {
+    // If the file is stored in the current directory, the PathRelativePathTo
+    // prepends the string with '\' making windows think the file is in the
+    // root directory, so I've implemented the change below to account for
+    // that.
+    workingFilePath = tmpPath;
+    if (workingFilePath.at(0) == '\\')
     {
-      // If the file is stored in the current directory, the PathRelativePathTo
-      // prepends the string with '\' making windows think the file is in the
-      // root directory, so I've implemented the change below to account for
-      // that.
-      workingFilePath = tmpPath;
-      if (workingFilePath.at(0) == '\\')
-        workingFilePath = workingFilePath.substr(1);
+      workingFilePath = workingFilePath.substr(1);
     }
+  }
   else
+  {
     workingFilePath = program;
+  }
 
   if (wcslen(arguments))
-    {
-      workingFilePath = workingFilePath + TEXT(" ");
-      workingFilePath = workingFilePath + arguments;
-    }
+  {
+    workingFilePath = workingFilePath + TEXT(" ");
+    workingFilePath = workingFilePath + arguments;
+  }
 
   return workingFilePath;
 }
@@ -407,24 +455,28 @@ std::wstring ELExhaustivelyFindFilePath(std::wstring filePath)
   tempPath = ELGetFileExtension(tempPath);
 
   if (!tempPath.empty())
+  {
     return FindFileOnPATH(filePath);
+  }
   else
+  {
+    GetEnvironmentVariable(TEXT("PATHEXT"), pathext, MAX_LINE_LENGTH);
+    wcscat(pathext, TEXT(";.LNK"));
+    token = wcstok(pathext, TEXT(";"));
+    while (token != NULL)
     {
-      GetEnvironmentVariable(TEXT("PATHEXT"), pathext, MAX_LINE_LENGTH);
-      wcscat(pathext, TEXT(";.LNK"));
-      token = wcstok(pathext, TEXT(";"));
-      while (token != NULL)
-        {
-          tempPath = filePath;
-          tempPath = tempPath + token;
+      tempPath = filePath;
+      tempPath = tempPath + token;
 
-          tempPath = FindFileOnPATH(tempPath);
-          if (!tempPath.empty())
-            return tempPath;
+      tempPath = FindFileOnPATH(tempPath);
+      if (!tempPath.empty())
+      {
+        return tempPath;
+      }
 
-          token = wcstok(NULL, TEXT(";"));
-        }
+      token = wcstok(NULL, TEXT(";"));
     }
+  }
 
   return TEXT("");
 }
@@ -436,7 +488,9 @@ bool ELFileExists(std::wstring filePath)
   tempFile = ELGetAbsolutePath(filePath);
 
   if ((tempFile.at(0) == '"') && (tempFile.at(tempFile.length() - 1) == '"'))
+  {
     tempFile = tempFile.substr(1, tempFile.length() - 2);
+  }
 
   return (PathFileExists(tempFile.c_str()) && !PathIsRelative(tempFile.c_str()));
 }
@@ -446,28 +500,44 @@ int ELGetFileSpecialFlags(std::wstring filePath)
   int flags;
 
   if (filePath.empty())
+  {
     return SF_NOTHING;
+  }
 
   if (IsCLSID(filePath))
+  {
     flags = (flags || SF_CLSID);
+  }
 
   if (IsDirectory(filePath))
+  {
     flags = (flags || SF_DIRECTORY);
+  }
 
   if (ELIsInternalCommand(filePath))
+  {
     flags = (flags || SF_INTERNALCOMMAND);
+  }
 
   if (IsShortcut(filePath))
+  {
     flags = (flags || SF_SHORTCUT);
+  }
 
   if (ELGetSpecialFolderIDFromPath(filePath) != 0)
+  {
     flags = (flags || SF_SPECIALFOLDER);
+  }
 
   if (IsURL(filePath))
+  {
     flags = (flags || SF_URL);
+  }
 
   if ((flags == SF_NOTHING) && (ELFileExists(filePath)))
+  {
     flags = (flags || SF_FILE);
+  }
 
   return flags;
 }
@@ -481,29 +551,41 @@ std::wstring ELGetFileTypeCommand(std::wstring document, std::wstring docArgs)
   bool isDirectory = ((ELGetFileSpecialFlags(document) & SF_DIRECTORY) == SF_DIRECTORY);
 
   if (isDirectory)
+  {
     extension = TEXT("Folder");
+  }
 
   // Don't attempt to determine URL handler
   if ((ELGetFileSpecialFlags(document) & SF_URL) == SF_URL)
+  {
     return TEXT("");
+  }
 
   GetShortPathName(document.c_str(), shortDoc, MAX_LINE_LENGTH);
   quotedDoc = TEXT("\"") + document + TEXT("\"");
 
   if (ELIsFileTypeExecutable(extension))
+  {
     return TEXT("");
+  }
 
   if (FAILED(AssocQueryString(ASSOCF_NOTRUNCATE, ASSOCSTR_COMMAND,
                               extension.c_str(), NULL, docExecutable, &bufferSize)))
+  {
     return TEXT("");
+  }
 
   commandLine = docExecutable;
   commandLine = ELwstringReplace(commandLine, TEXT("/idlist,%I,"), TEXT(""), true);
   commandLine = ELwstringReplace(commandLine, TEXT("%*"), docArgs, false);
   if (isDirectory)
+  {
     commandLine = ELwstringReplace(commandLine, TEXT("%L"), quotedDoc, true);
+  }
   else
+  {
     commandLine = ELwstringReplace(commandLine, TEXT("%L"), document, true);
+  }
 
   if (commandLine.compare(docExecutable) == 0)
   {
@@ -530,9 +612,9 @@ std::wstring ELGetSpecialFolderNameFromPath(std::wstring folderPath)
     {
       SHGetFileInfo((LPCTSTR)pidl, 0, &fileInfo, sizeof(fileInfo), SHGFI_PIDL | SHGFI_DISPLAYNAME);
       if (_wcsicmp(folderPath.c_str(), fileInfo.szDisplayName) == 0)
-        {
-          returnValue = specialFolderMapIter->second;
-        }
+      {
+        returnValue = specialFolderMapIter->second;
+      }
       CoTaskMemFree(pidl);
     }
   }
@@ -548,7 +630,9 @@ std::wstring ELGetSpecialFolderNameFromID(int specialFolderID)
   for (specialFolderMapIter = specialFolderMap.begin(); specialFolderMapIter != specialFolderMap.end(); ++specialFolderMapIter)
   {
     if (specialFolderID == specialFolderMapIter->first)
+    {
       return specialFolderMapIter->second;
+    }
   }
 
   return TEXT("");
@@ -563,7 +647,9 @@ int ELGetSpecialFolderIDFromName(std::wstring specialFolderName)
   for (specialFolderMapIter = specialFolderMap.begin(); specialFolderMapIter != specialFolderMap.end(); ++specialFolderMapIter)
   {
     if (ELToLower(specialFolderName) == ELToLower(specialFolderMapIter->second))
+    {
       csidl = specialFolderMapIter->first;
+    }
   }
 
   return csidl;
@@ -576,12 +662,12 @@ std::wstring ELGetSpecialFolderPathFromID(int specialFolderID)
   std::wstring folderPath;
 
   if (SUCCEEDED(SHGetSpecialFolderLocation(NULL, specialFolderID, &pidl)))
-    {
-      SHGetFileInfo((LPCTSTR)pidl, 0, &fileInfo, sizeof(fileInfo), SHGFI_PIDL | SHGFI_DISPLAYNAME);
-      folderPath = fileInfo.szDisplayName;
-      CoTaskMemFree(pidl);
-      return folderPath;
-    }
+  {
+    SHGetFileInfo((LPCTSTR)pidl, 0, &fileInfo, sizeof(fileInfo), SHGFI_PIDL | SHGFI_DISPLAYNAME);
+    folderPath = fileInfo.szDisplayName;
+    CoTaskMemFree(pidl);
+    return folderPath;
+  }
 
   return TEXT("");
 }
@@ -607,7 +693,9 @@ int ELGetSpecialFolderIDFromPath(std::wstring folderPath)
     {
       SHGetFileInfo((LPCTSTR)pidl, 0, &fileInfo, sizeof(fileInfo), SHGFI_PIDL | SHGFI_DISPLAYNAME);
       if (_wcsicmp(folderPath.c_str(), fileInfo.szDisplayName) == 0)
+      {
         csidl = specialFolderMapIter->first;
+      }
       CoTaskMemFree(pidl);
     }
   }
@@ -618,28 +706,30 @@ int ELGetSpecialFolderIDFromPath(std::wstring folderPath)
 std::wstring ELGetUNCFromMap(std::wstring uncMap)
 {
   if (emergeLibGlobals::getMprDLL())
+  {
+    if (MSWNetGetConnection == NULL)
     {
-      if (MSWNetGetConnection == NULL)
-        MSWNetGetConnection = (fnWNetGetConnection)GetProcAddress(emergeLibGlobals::getMprDLL(), (LPCSTR)"WNetGetConnectionW");
+      MSWNetGetConnection = (fnWNetGetConnection)GetProcAddress(emergeLibGlobals::getMprDLL(), (LPCSTR)"WNetGetConnectionW");
     }
+  }
 
   if (MSWNetGetConnection)
+  {
+    WCHAR tmp[MAX_PATH];
+    DWORD tmpLength = MAX_PATH;
+    std::wstring workingMap = uncMap, drive, unc;
+    size_t colon = workingMap.find(':');
+    if (colon != std::wstring::npos)
     {
-      WCHAR tmp[MAX_PATH];
-      DWORD tmpLength = MAX_PATH;
-      std::wstring workingMap = uncMap, drive, unc;
-      size_t colon = workingMap.find(':');
-      if (colon != std::wstring::npos)
-        {
-          drive = workingMap.substr(0, colon + 1);
-          if (MSWNetGetConnection(drive.c_str(), tmp, &tmpLength) == NO_ERROR)
-            {
-              unc = tmp;
-              unc = unc + workingMap.substr(colon + 1, workingMap.length() - colon);
-              return unc;
-            }
-        }
+      drive = workingMap.substr(0, colon + 1);
+      if (MSWNetGetConnection(drive.c_str(), tmp, &tmpLength) == NO_ERROR)
+      {
+        unc = tmp;
+        unc = unc + workingMap.substr(colon + 1, workingMap.length() - colon);
+        return unc;
+      }
     }
+  }
 
   return TEXT("");
 }
@@ -685,7 +775,7 @@ bool ELExecuteFileOrCommand(std::wstring application, std::wstring arguments, st
 bool ELFileOp(HWND appletWnd, bool feedback, UINT function, std::wstring source, std::wstring destination)
 {
   SHFILEOPSTRUCT fileOpStruct;
-  WCHAR *fromString = NULL, *toString = NULL;
+  WCHAR* fromString = NULL, *toString = NULL;
   bool ret = false;
 
   source = ELExpandVars(source);
@@ -695,24 +785,30 @@ bool ELFileOp(HWND appletWnd, bool feedback, UINT function, std::wstring source,
   fileOpStruct.hwnd = appletWnd;
   fileOpStruct.wFunc = function;
   if (!feedback)
-	fileOpStruct.fFlags = FOF_NOCONFIRMATION | FOF_SILENT | FOF_NOCONFIRMMKDIR | FOF_NOERRORUI;
+  {
+    fileOpStruct.fFlags = FOF_NOCONFIRMATION | FOF_SILENT | FOF_NOCONFIRMMKDIR | FOF_NOERRORUI;
+  }
 
   fromString = (WCHAR*)GlobalAlloc(GPTR, sizeof(WCHAR) * (source.length() + 2));
   wcscpy(fromString, source.c_str());
   fileOpStruct.pFrom = fromString;
 
   if (destination.length() != 0)
-    {
-      toString = (WCHAR*)GlobalAlloc(GPTR, sizeof(WCHAR) * (destination.length() + 2));
-      wcscpy(toString, destination.c_str());
-      fileOpStruct.pTo = toString;
-    }
+  {
+    toString = (WCHAR*)GlobalAlloc(GPTR, sizeof(WCHAR) * (destination.length() + 2));
+    wcscpy(toString, destination.c_str());
+    fileOpStruct.pTo = toString;
+  }
 
   if (SHFileOperation(&fileOpStruct) == 0)
+  {
     ret = true;
+  }
 
   if (destination.length() != 0)
+  {
     GlobalFree(toString);
+  }
   GlobalFree(fromString);
 
   return ret;
@@ -721,7 +817,9 @@ bool ELFileOp(HWND appletWnd, bool feedback, UINT function, std::wstring source,
 bool IsCLSID(std::wstring filePath)
 {
   if (filePath.length() < 3)
+  {
     return false;
+  }
 
   return ((filePath.at(0) == ':') && (filePath.at(1) == ':') && (filePath.at(2) == '{'));
 }
@@ -729,7 +827,9 @@ bool IsCLSID(std::wstring filePath)
 bool IsDirectory(std::wstring filePath)
 {
   if (filePath.empty())
+  {
     return false;
+  }
 
   return (PathIsDirectory(filePath.c_str()) || PathIsUNCServerShare(filePath.c_str()) || PathIsUNCServer(filePath.c_str()));
 }
@@ -744,7 +844,9 @@ bool IsShortcut(std::wstring filePath)
 bool IsURL(std::wstring filePath)
 {
   if (filePath.empty())
+  {
     return false;
+  }
 
   return (PathIsURL(filePath.c_str()) == TRUE);
 }
@@ -752,16 +854,20 @@ bool IsURL(std::wstring filePath)
 std::wstring FindFileOnPATH(std::wstring path)
 {
   WCHAR tempBuffer[MAX_LINE_LENGTH], sysWOW64[MAX_PATH], currentWorkingDir[MAX_PATH];
-  const WCHAR *corePathPtr[4];
+  const WCHAR* corePathPtr[4];
   std::wstring tempPath, corePath;
 
   tempPath = ELExpandVars(path);
 
   if (FindFilePathFromRegistry(tempPath) != TEXT(""))
+  {
     tempPath = FindFilePathFromRegistry(tempPath);
+  }
 
   if (ELFileExists(tempPath) && ((ELGetFileSpecialFlags(tempPath) & SF_DIRECTORY) != SF_DIRECTORY))
+  {
     return tempPath;
+  }
 
   corePath = ELGetCurrentPath();
 
@@ -780,7 +886,9 @@ std::wstring FindFileOnPATH(std::wstring path)
 
   wcscpy(tempBuffer, tempPath.c_str());
   if (PathFindOnPath(tempBuffer, corePathPtr) && ((ELGetFileSpecialFlags(tempBuffer) & SF_DIRECTORY) != SF_DIRECTORY))
+  {
     return tempBuffer;
+  }
 
   return TEXT("");
 }
@@ -797,64 +905,66 @@ std::wstring FindFilePathFromRegistry(std::wstring program)
   appString = appString + program;
 
   if ((ELGetFileExtension(program)).empty())
+  {
     appString = appString + TEXT(".exe");
+  }
 
   if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, appString.c_str(), 0, KEY_READ, &key) == ERROR_SUCCESS)
-    {
-      success = (RegQueryValueEx(key, NULL, NULL, NULL, (BYTE*)tempPath, &bufferSize) == ERROR_SUCCESS);
-      RegCloseKey(key);
-    }
+  {
+    success = (RegQueryValueEx(key, NULL, NULL, NULL, (BYTE*)tempPath, &bufferSize) == ERROR_SUCCESS);
+    RegCloseKey(key);
+  }
 
   return (success ? tempPath : TEXT(""));
 }
 
 std::wstring GetSpecialFolderGUID(int folderID)
 {
-  IShellFolder *pDesktop, *pFolder;
+  IShellFolder* pDesktop, *pFolder;
   LPITEMIDLIST pidl;
-  IPersistFolder *pPersist;
+  IPersistFolder* pPersist;
   CLSID clsID;
   LPVOID lpVoid;
-  WCHAR *GUIDString;
+  WCHAR* GUIDString;
   WCHAR returnValue[MAX_PATH] = TEXT("\0");
 
   if (SUCCEEDED(CoInitialize(NULL)))
+  {
+    if (SUCCEEDED(SHGetFolderLocation(NULL, folderID, NULL, 0, &pidl)))
     {
-      if (SUCCEEDED(SHGetFolderLocation(NULL, folderID, NULL, 0, &pidl)))
+      if (SUCCEEDED(SHGetDesktopFolder(&pDesktop)))
+      {
+        if (SUCCEEDED(pDesktop->BindToObject(pidl, NULL, IID_IShellFolder, &lpVoid)))
         {
-          if (SUCCEEDED(SHGetDesktopFolder(&pDesktop)))
+          pFolder = reinterpret_cast <IShellFolder*> (lpVoid);
+
+          if (SUCCEEDED(pFolder->QueryInterface(IID_IPersistFolder, &lpVoid)))
+          {
+            pPersist = reinterpret_cast <IPersistFolder*> (lpVoid);
+
+            if (SUCCEEDED(pPersist->GetClassID(&clsID)))
             {
-              if (SUCCEEDED(pDesktop->BindToObject(pidl, NULL, IID_IShellFolder, &lpVoid)))
-                {
-                  pFolder = reinterpret_cast <IShellFolder*> (lpVoid);
-
-                  if (SUCCEEDED(pFolder->QueryInterface(IID_IPersistFolder, &lpVoid)))
-                    {
-                      pPersist = reinterpret_cast <IPersistFolder*> (lpVoid);
-
-                      if (SUCCEEDED(pPersist->GetClassID(&clsID)))
-                        {
-                          if (SUCCEEDED(StringFromCLSID(clsID, &GUIDString)))
-                            {
-                              wcscpy(returnValue, GUIDString);
-                              CoTaskMemFree(GUIDString);
-                            }
-                        }
-
-                      pPersist->Release();
-                    }
-
-                  pFolder->Release();
-                }
-
-              pDesktop->Release();
+              if (SUCCEEDED(StringFromCLSID(clsID, &GUIDString)))
+              {
+                wcscpy(returnValue, GUIDString);
+                CoTaskMemFree(GUIDString);
+              }
             }
 
-          ILFree(pidl);
+            pPersist->Release();
+          }
+
+          pFolder->Release();
         }
 
-      CoUninitialize();
+        pDesktop->Release();
+      }
+
+      ILFree(pidl);
     }
+
+    CoUninitialize();
+  }
 
   return returnValue;
 }
@@ -892,52 +1002,60 @@ bool Execute(std::wstring application, std::wstring workingDir, int nShow)
   ZeroMemory(arguments, MAX_LINE_LENGTH);
 
   if (!workingString.empty())
+  {
+    if (workingString.at(0) == '@')
     {
-      if (workingString.at(0) == '@')
-        {
-          verb = TEXT("runas");
-          workingString = workingString.substr(1);
-        }
+      verb = TEXT("runas");
+      workingString = workingString.substr(1);
     }
+  }
   workingString = ELExpandVars(workingString);
 
   if (ELParseCommand(workingString.c_str(), program, arguments))
+  {
     workingString = program;
+  }
   else
+  {
     return false;
+  }
 
-  shortcutInfo.flags = SI_PATH|SI_ARGUMENTS|SI_WORKINGDIR|SI_SHOW|SI_RUNAS;
+  shortcutInfo.flags = SI_PATH | SI_ARGUMENTS | SI_WORKINGDIR | SI_SHOW | SI_RUNAS;
   if (ELParseShortcut(workingString.c_str(), &shortcutInfo))
+  {
+    if (shortcutInfo.runAs)
     {
-      if (shortcutInfo.runAs)
-        verb = TEXT("runas");
-
-      wcscpy(program, shortcutInfo.Path);
-      wcscpy(arguments, shortcutInfo.Arguments);
-      wcscpy(workingDirectory, shortcutInfo.WorkingDirectory);
-      nShow = shortcutInfo.ShowCmd;
-
-      // 0x800 is an undocumented flag that tells the new process that lpTitle
-      // is actually the path of a shortcut file. The new console process can
-      // then extract the icon and title from the shortcut it was launched from.
-      //
-      // For console shortcuts, the title is key because that's what used to
-      // determine window dimensions and buffers (similar to when you change the
-      // default options you are given the choice to 'Save properties for future
-      // windows with the same title'.
-      si.dwFlags = 0x800;
-      si.lpTitle = (WCHAR*)workingString.c_str();
+      verb = TEXT("runas");
     }
+
+    wcscpy(program, shortcutInfo.Path);
+    wcscpy(arguments, shortcutInfo.Arguments);
+    wcscpy(workingDirectory, shortcutInfo.WorkingDirectory);
+    nShow = shortcutInfo.ShowCmd;
+
+    // 0x800 is an undocumented flag that tells the new process that lpTitle
+    // is actually the path of a shortcut file. The new console process can
+    // then extract the icon and title from the shortcut it was launched from.
+    //
+    // For console shortcuts, the title is key because that's what used to
+    // determine window dimensions and buffers (similar to when you change the
+    // default options you are given the choice to 'Save properties for future
+    // windows with the same title'.
+    si.dwFlags = 0x800;
+    si.lpTitle = (WCHAR*)workingString.c_str();
+  }
   else
+  {
+    if (workingDir.empty())
     {
-      if (workingDir.empty())
-      {
-        wcscpy(workingDirectory, workingString.c_str());
-        PathRemoveFileSpec(workingDirectory);
-      }
-      else
-        wcscpy(workingDirectory, workingDir.c_str());
+      wcscpy(workingDirectory, workingString.c_str());
+      PathRemoveFileSpec(workingDirectory);
     }
+    else
+    {
+      wcscpy(workingDirectory, workingDir.c_str());
+    }
+  }
 
   si.cb = sizeof(si);
   // Be sure to use the nShow value irregardless of shortcut.
@@ -948,44 +1066,52 @@ bool Execute(std::wstring application, std::wstring workingDir, int nShow)
   wcscpy(program, ELExpandVars(program).c_str());
 
   if (wcslen(workingDirectory) > 0)
+  {
     wcscpy(workingDirectory, ELExpandVars(workingDirectory).c_str());
+  }
 
   // If the program doesn't exist or is not a URL return false so as to not
   // generate stray DDE calls
   specialFlags = ELGetFileSpecialFlags(program);
   if (!ELFileExists(program) && ((specialFlags & SF_URL) != SF_URL) && ((specialFlags & SF_CLSID) != SF_CLSID))
+  {
     return false;
+  }
 
-    wcscpy(commandLine, ELGetFileTypeCommand(program, arguments).c_str());
+  wcscpy(commandLine, ELGetFileTypeCommand(program, arguments).c_str());
   if (wcslen(commandLine) > 0)
+  {
     swprintf(commandLine, TEXT("\"%ls\" %ls"), program, arguments);
+  }
 
   if (wcslen(commandLine) <= 2) //At the very least, the swprintf statement should leave command with two chars - the double quote pair
+  {
     return false;
+  }
 
   if (verb.empty())
+  {
+    if (CreateProcess(NULL,
+                      commandLine,
+                      NULL,
+                      NULL,
+                      FALSE,
+                      NORMAL_PRIORITY_CLASS,
+                      NULL,
+                      workingDirectory,
+                      &si,
+                      &pi))
     {
-      if (CreateProcess(NULL,
-                        commandLine,
-                        NULL,
-                        NULL,
-                        FALSE,
-                        NORMAL_PRIORITY_CLASS,
-                        NULL,
-                        workingDirectory,
-                        &si,
-                        &pi))
-        {
-          CloseHandle(pi.hProcess);
-          CloseHandle(pi.hThread);
-          return true;
-        }
+      CloseHandle(pi.hProcess);
+      CloseHandle(pi.hThread);
+      return true;
     }
+  }
 
   // Call ShellExecuteEx as an 'all-else-fails' mechanism since things like UAC escalation don't play nice
   // with CreateProcess
   sei.cbSize = sizeof(sei);
-  sei.fMask = SEE_MASK_FLAG_NO_UI|SEE_MASK_NOASYNC|SEE_MASK_UNICODE;
+  sei.fMask = SEE_MASK_FLAG_NO_UI | SEE_MASK_NOASYNC | SEE_MASK_UNICODE;
   sei.lpFile = program;
   sei.lpParameters = arguments;
   sei.lpDirectory = workingDirectory;
@@ -1009,71 +1135,75 @@ bool ExecuteSpecialFolder(std::wstring folder)
   DWORD bufferSize = MAX_LINE_LENGTH;
 
   if (specialFolderID == 0)
+  {
     return false;
+  }
 
   if (SUCCEEDED(AssocQueryString(ASSOCF_NOTRUNCATE, ASSOCSTR_COMMAND,
                                  TEXT("Folder"), NULL, command, &bufferSize)) && (ELOSVersionInfo() < 6.0))
+  {
+    explorer = ELToLower(ELExpandVars(explorer));
+    _wcslwr(command);
+    classID = TEXT("::");
+    ZeroMemory(&si, sizeof(si));
+    ZeroMemory(&pi, sizeof(pi));
+
+    if (wcsstr(command, explorer.c_str()) != NULL)
     {
-      explorer = ELToLower(ELExpandVars(explorer));
-      _wcslwr(command);
-      classID = TEXT("::");
-      ZeroMemory(&si, sizeof(si));
-      ZeroMemory(&pi, sizeof(pi));
-
-      if (wcsstr(command, explorer.c_str()) != NULL)
+      if (specialFolderID == CSIDL_CONTROLS)
+      {
+        guid = GetSpecialFolderGUID(CSIDL_DRIVES);
+        if (!guid.empty())
         {
-          if (specialFolderID == CSIDL_CONTROLS)
-          {
-            guid = GetSpecialFolderGUID(CSIDL_DRIVES);
-            if (!guid.empty())
-            {
-              classID = classID + guid;
-              classID = classID + TEXT("\\::");
-            }
-          }
-          else
-          {
-            guid = GetSpecialFolderGUID(specialFolderID);
-            if (!guid.empty())
-              classID = classID + guid;
-          }
-
-          ELStringReplace(command, (WCHAR*)TEXT("/idlist,%I,"), (WCHAR*)TEXT(""), true);
-          ELStringReplace(command, (WCHAR*)TEXT("%L"), classID.c_str(), true);
-
-          si.cb = sizeof(si);
-          si.dwFlags |= STARTF_USESHOWWINDOW;
-          si.wShowWindow = SW_SHOW;
-
-          if (CreateProcess(NULL,
-                            command,
-                            NULL,
-                            NULL,
-                            FALSE,
-                            NORMAL_PRIORITY_CLASS,
-                            NULL,
-                            NULL,
-                            &si,
-                            &pi))
-            {
-              CloseHandle(pi.hProcess);
-              CloseHandle(pi.hThread);
-              return true;
-            }
+          classID = classID + guid;
+          classID = classID + TEXT("\\::");
         }
+      }
+      else
+      {
+        guid = GetSpecialFolderGUID(specialFolderID);
+        if (!guid.empty())
+        {
+          classID = classID + guid;
+        }
+      }
+
+      ELStringReplace(command, (WCHAR*)TEXT("/idlist,%I,"), (WCHAR*)TEXT(""), true);
+      ELStringReplace(command, (WCHAR*)TEXT("%L"), classID.c_str(), true);
+
+      si.cb = sizeof(si);
+      si.dwFlags |= STARTF_USESHOWWINDOW;
+      si.wShowWindow = SW_SHOW;
+
+      if (CreateProcess(NULL,
+                        command,
+                        NULL,
+                        NULL,
+                        FALSE,
+                        NORMAL_PRIORITY_CLASS,
+                        NULL,
+                        NULL,
+                        &si,
+                        &pi))
+      {
+        CloseHandle(pi.hProcess);
+        CloseHandle(pi.hThread);
+        return true;
+      }
     }
+  }
 
   if (SUCCEEDED(SHGetFolderLocation(NULL, specialFolderID, NULL, 0, &pidl)))
-    {
-      ZeroMemory(&sei, sizeof(sei));
-      sei.cbSize = sizeof(sei);
-      sei.fMask = SEE_MASK_IDLIST | SEE_MASK_FLAG_NO_UI | SEE_MASK_UNICODE;
-      sei.nShow = SW_SHOW;
-      sei.lpIDList = pidl;
-      returnValue = (ShellExecuteEx(&sei) == TRUE);
+  {
+    ZeroMemory(&sei, sizeof(sei));
+    sei.cbSize = sizeof(sei);
+    sei.fMask = SEE_MASK_IDLIST | SEE_MASK_FLAG_NO_UI | SEE_MASK_UNICODE;
+    sei.nShow = SW_SHOW;
+    sei.lpIDList = pidl;
+    returnValue = (ShellExecuteEx(&sei) == TRUE);
 
-      ILFree(pidl);
-    }
+    ILFree(pidl);
+  }
 
   return returnValue;
 }

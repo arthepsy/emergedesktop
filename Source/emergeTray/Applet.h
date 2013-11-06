@@ -485,22 +485,22 @@ private:
   static LRESULT CALLBACK WindowProcedure (HWND, UINT, WPARAM, LPARAM);
   static LRESULT CALLBACK TrayProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
   bool AcquireExplorerTrayIconList();
-  bool IsIconVisible(TrayIcon *pTrayIcon);
-  TrayIcon *activeIcon;
+  bool IsIconVisible(TrayIcon* pTrayIcon);
+  TrayIcon* activeIcon;
   bool SetAutoHideEdge(UINT edge);
   bool ClearAutoHideEdge(UINT edge);
   bool autoHideLeft, autoHideRight, autoHideTop, autoHideBottom;
-  APPBARDATA *LockAppBarMemory(HANDLE sharedMem, DWORD processID);
+  APPBARDATA* LockAppBarMemory(HANDLE sharedMem, DWORD processID);
   CRITICAL_SECTION trayVectorCS;
   TOOLINFO ti;
-  TrayIcon *oldTipIcon;
+  TrayIcon* oldTipIcon;
 
 public:
   Applet(HINSTANCE hInstance);
   ~Applet();
   UINT Initialize();
   UINT PortableInitialize();
-  TrayIcon *GetTrayIconListItem(UINT index);
+  TrayIcon* GetTrayIconListItem(UINT index);
   size_t GetTrayIconListSize();
   LRESULT DoTimer(UINT timerID);
   LRESULT DoSetCursor();
@@ -514,9 +514,9 @@ public:
   void CleanTray();
   void ShowConfig();
   TrayIcon* FindTrayIcon(HWND hwnd, UINT uID);
-  AppBar* FindAppBar(APPBARDATA *pAppBarData);
-  bool RemoveAppBar(AppBar *pAppBar);
-  bool RemoveTrayIconListItem(TrayIcon *pTrayIcon);
+  AppBar* FindAppBar(APPBARDATA* pAppBarData);
+  bool RemoveAppBar(AppBar* pAppBar);
+  bool RemoveTrayIconListItem(TrayIcon* pTrayIcon);
   LRESULT RemoveTrayIcon(HWND hwnd, UINT uID);
   LRESULT ModifyTrayIcon(HWND hwnd, UINT uID, UINT uFlags, UINT uCallbackMessage,
                          HICON icon, LPTSTR newTip, LPTSTR newInfo,
@@ -528,9 +528,9 @@ public:
                       LPTSTR szInfoTitle, DWORD dwInfoFlags, bool hidden,
                       bool shared);
   LRESULT TrayMouseEvent(UINT message, LPARAM lParam);
-  LRESULT TrayIconEvent(COPYDATASTRUCT *cpData);
-  LRESULT AppBarEvent(COPYDATASTRUCT *cpData);
-  LRESULT IconIdentifierEvent(COPYDATASTRUCT *cpData);
+  LRESULT TrayIconEvent(COPYDATASTRUCT* cpData);
+  LRESULT AppBarEvent(COPYDATASTRUCT* cpData);
+  LRESULT IconIdentifierEvent(COPYDATASTRUCT* cpData);
   void ShowHiddenIcons(bool cmd, bool force);
   void SortIcons();
   bool PaintItem(HDC hdc, size_t index, int x, int y, RECT rect);

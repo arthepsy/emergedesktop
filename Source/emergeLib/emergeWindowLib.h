@@ -45,7 +45,7 @@ typedef struct _SNAPMOVEINFO
 {
   HWND AppletWindow;
   POINT origin;
-  RECT *AppletRect;
+  RECT* AppletRect;
 }
 SNAPMOVEINFO, *LPSNAPMOVEINFO;
 
@@ -58,7 +58,7 @@ typedef struct _SNAPSIZEINFO
 {
   HWND AppletWindow;
   UINT AppletEdge;
-  RECT *AppletRect;
+  RECT* AppletRect;
 }
 SNAPSIZEINFO, *LPSNAPSIZEINFO;
 
@@ -66,7 +66,7 @@ DLL_EXPORT HWND ELGetCoreWindow();
 DLL_EXPORT HWND ELGetDesktopWindow();
 
 DLL_EXPORT RECT ELGetMonitorRect(int monitor);
-DLL_EXPORT HMONITOR ELGetDesktopRect(RECT *appletRect, RECT *rect);
+DLL_EXPORT HMONITOR ELGetDesktopRect(RECT* appletRect, RECT* rect);
 DLL_EXPORT RECT ELGetWindowRect(HWND hwnd);
 
 DLL_EXPORT bool ELStealFocus(HWND wnd);
@@ -83,7 +83,7 @@ DLL_EXPORT POINT ELGetAnchorPoint(HWND hwnd);
 DLL_EXPORT int ELGetAppletMonitor(HWND hwnd);
 
 DLL_EXPORT bool ELSnapMove(LPSNAPMOVEINFO snapMoveInfo);
-DLL_EXPORT bool ELSnapMoveToDesk(RECT *AppletRect);
+DLL_EXPORT bool ELSnapMoveToDesk(RECT* AppletRect);
 DLL_EXPORT bool ELSnapSize(LPSNAPSIZEINFO snapSizeInfo);
 
 #endif // __EMERGEWINDOWLIB_H

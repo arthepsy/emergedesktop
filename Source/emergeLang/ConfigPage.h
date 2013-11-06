@@ -34,19 +34,19 @@
 class ConfigPage
 {
 public:
-	ConfigPage(std::tr1::shared_ptr<Settings> pSettings);
-	~ConfigPage();
-	INT_PTR DoInitPage(HWND hwndDlg);
-	INT_PTR DoCommand(HWND hwndDlg, WPARAM wParam, LPARAM lParam);
-	INT_PTR DoNotify(HWND hwndDlg, LPARAM lParam);
-	bool DoFontChooser(HWND hwndDlg);
-	bool UpdateSettings(HWND hwndDlg);
-	static INT_PTR CALLBACK ConfigPageDlgProc(HWND hwndDlg, UINT message, WPARAM wParam, LPARAM lParam);
+  ConfigPage(std::tr1::shared_ptr<Settings> pSettings);
+  ~ConfigPage();
+  INT_PTR DoInitPage(HWND hwndDlg);
+  INT_PTR DoCommand(HWND hwndDlg, WPARAM wParam, LPARAM lParam);
+  INT_PTR DoNotify(HWND hwndDlg, LPARAM lParam);
+  bool DoFontChooser(HWND hwndDlg);
+  bool UpdateSettings(HWND hwndDlg);
+  static INT_PTR CALLBACK ConfigPageDlgProc(HWND hwndDlg, UINT message, WPARAM wParam, LPARAM lParam);
 
 private:
-	std::tr1::shared_ptr<Settings> pSettings;
-	LOGFONT newFont;
-	HFONT buttonFont;
+  std::tr1::shared_ptr<Settings> pSettings;
+  LOGFONT newFont;
+  HFONT buttonFont;
 };
 
 #endif

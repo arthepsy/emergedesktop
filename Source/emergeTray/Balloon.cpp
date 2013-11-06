@@ -26,32 +26,36 @@ WCHAR balloonName[] = TEXT("emergeTrayBalloon");
 
 LRESULT CALLBACK Balloon::BalloonProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-  Balloon *pBalloon = NULL;
+  Balloon* pBalloon = NULL;
 
   if (message == WM_CREATE)
-    {
-      pBalloon = reinterpret_cast<Balloon*>(((CREATESTRUCT*)lParam)->lpCreateParams);
-      SetWindowLongPtr(hwnd,GWLP_USERDATA,(LONG_PTR)pBalloon);
-      return DefWindowProc(hwnd, message, wParam, lParam);
-    }
+  {
+    pBalloon = reinterpret_cast<Balloon*>(((CREATESTRUCT*)lParam)->lpCreateParams);
+    SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)pBalloon);
+    return DefWindowProc(hwnd, message, wParam, lParam);
+  }
   else
+  {
     pBalloon = reinterpret_cast<Balloon*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
+  }
 
   if (pBalloon == NULL)
+  {
     return DefWindowProc(hwnd, message, wParam, lParam);
+  }
 
   switch (message)
-    {
-    case WM_LBUTTONDOWN:
-      return pBalloon->DoLButtonDown();
-    case WM_RBUTTONDOWN:
-      return pBalloon->Hide();
-    }
+  {
+  case WM_LBUTTONDOWN:
+    return pBalloon->DoLButtonDown();
+  case WM_RBUTTONDOWN:
+    return pBalloon->Hide();
+  }
 
   return DefWindowProc(hwnd, message, wParam, lParam);
 }
 
-Balloon::Balloon(HINSTANCE hInstance, TrayIcon *pTrayIcon, Settings *pSettings)
+Balloon::Balloon(HINSTANCE hInstance, TrayIcon* pTrayIcon, Settings* pSettings)
 {
   mainInst = hInstance;
   this->pSettings = pSettings;
@@ -112,23 +116,23 @@ void Balloon::SetIconRect(RECT rect)
 BOOL Balloon::SendMessage(LPARAM lParam)
 {
   if (trayIconVersion == NOTIFYICON_VERSION_4)
-    {
-      POINT messagePt;
+  {
+    POINT messagePt;
 
-      messagePt.x = trayIconRect.left;
-      messagePt.y = trayIconRect.top;
-      ClientToScreen(balloonWnd, &messagePt);
+    messagePt.x = trayIconRect.left;
+    messagePt.y = trayIconRect.top;
+    ClientToScreen(balloonWnd, &messagePt);
 
-      return SendNotifyMessage(trayIconWnd, trayIconCallbackMessage,
-                               MAKEWPARAM(messagePt.x, messagePt.y),
-                               MAKELPARAM(lParam, trayIconID));
-    }
+    return SendNotifyMessage(trayIconWnd, trayIconCallbackMessage,
+                             MAKEWPARAM(messagePt.x, messagePt.y),
+                             MAKELPARAM(lParam, trayIconID));
+  }
 
   return SendNotifyMessage(trayIconWnd, trayIconCallbackMessage,
                            WPARAM(trayIconID), lParam);
 }
 
-bool Balloon::SetInfo(WCHAR *info)
+bool Balloon::SetInfo(WCHAR* info)
 {
   bool ret = false;
   HFONT infoFont = CreateFontIndirect(pSettings->GetInfoFont());
@@ -136,19 +140,25 @@ bool Balloon::SetInfo(WCHAR *info)
   wcscpy(this->info, info);
 
   if (IsRectEmpty(&titleRect))
+  {
     infoRect.top = 0;
+  }
   else
+  {
+    infoRect.top = iconHeight;
+    if (titleRect.bottom > iconHeight)
     {
-      infoRect.top = iconHeight;
-      if (titleRect.bottom > iconHeight)
-        infoRect.top = titleRect.bottom;
+      infoRect.top = titleRect.bottom;
     }
+  }
   infoRect.top += 5;
   infoRect.left = 5;
   infoRect.bottom = infoRect.top;
   infoRect.right = infoRect.left + 220;
   if (titleRect.right > infoRect.right)
+  {
     infoRect.right = titleRect.right;
+  }
 
   ret = EGGetTextRect(info, infoFont, &infoRect, DT_WORDBREAK);
 
@@ -157,7 +167,7 @@ bool Balloon::SetInfo(WCHAR *info)
   return ret;
 }
 
-bool Balloon::SetInfoTitle(WCHAR *infoTitle)
+bool Balloon::SetInfoTitle(WCHAR* infoTitle)
 {
   bool ret = false;
   HFONT infoTitleFont = CreateFontIndirect(pSettings->GetInfoTitleFont());
@@ -165,16 +175,20 @@ bool Balloon::SetInfoTitle(WCHAR *infoTitle)
   wcscpy(this->infoTitle, infoTitle);
 
   if (!wcslen(infoTitle))
+  {
     SetRectEmpty(&titleRect);
+  }
   else
+  {
+    titleRect.top = 5;
+    titleRect.left = 5;
+    if (icon)
     {
-      titleRect.top = 5;
-      titleRect.left = 5;
-      if (icon)
-        titleRect.left += iconWidth + 5;
-      titleRect.bottom = titleRect.top;
-      titleRect.right = titleRect.left;
+      titleRect.left += iconWidth + 5;
     }
+    titleRect.bottom = titleRect.top;
+    titleRect.right = titleRect.left;
+  }
 
   ret = EGGetTextRect(infoTitle, infoTitleFont, &titleRect, DT_SINGLELINE);
 
@@ -188,45 +202,57 @@ bool Balloon::SetInfoFlags(DWORD infoFlags, HICON infoIcon)
   HICON tmpIcon = NULL;
 
   if (this->infoFlags == infoFlags)
+  {
     return false;
+  }
 
   this->infoFlags = infoFlags;
 
   if ((infoFlags & NIIF_LARGE_ICON) == NIIF_LARGE_ICON)
-    {
-      iconWidth = GetSystemMetrics(SM_CXICON);
-      iconHeight = GetSystemMetrics(SM_CYICON);
-    }
+  {
+    iconWidth = GetSystemMetrics(SM_CXICON);
+    iconHeight = GetSystemMetrics(SM_CYICON);
+  }
   else
-    {
-      iconWidth = GetSystemMetrics(SM_CXSMICON);
-      iconHeight = GetSystemMetrics(SM_CYSMICON);
-    }
+  {
+    iconWidth = GetSystemMetrics(SM_CXSMICON);
+    iconHeight = GetSystemMetrics(SM_CYSMICON);
+  }
 
   if ((infoFlags & NIIF_NONE) == NIIF_NONE)
+  {
+    if (icon)
     {
-      if (icon)
-        {
-          DestroyIcon(icon);
-          icon = NULL;
-        }
+      DestroyIcon(icon);
+      icon = NULL;
     }
+  }
   else if ((infoFlags & NIIF_INFO) == NIIF_INFO)
+  {
     tmpIcon = (HICON)LoadImage(NULL, MAKEINTRESOURCE(OIC_INFORMATION), IMAGE_ICON, iconWidth, iconHeight, LR_SHARED);
+  }
   else if ((infoFlags & NIIF_WARNING) == NIIF_WARNING)
+  {
     tmpIcon = (HICON)LoadImage(NULL, MAKEINTRESOURCE(OIC_WARNING), IMAGE_ICON, iconWidth, iconHeight, LR_SHARED);
+  }
   else if ((infoFlags & NIIF_ERROR) == NIIF_ERROR)
+  {
     tmpIcon = (HICON)LoadImage(NULL, MAKEINTRESOURCE(OIC_ERROR), IMAGE_ICON, iconWidth, iconHeight, LR_SHARED);
+  }
   else if ((infoFlags & NIIF_USER) == NIIF_USER)
+  {
     tmpIcon = CopyIcon(infoIcon);
+  }
 
   if (tmpIcon)
+  {
+    if (icon)
     {
-      if (icon)
-        DestroyIcon(icon);
-      icon = EGConvertIcon(tmpIcon, 255);
-      DestroyIcon(tmpIcon);
+      DestroyIcon(icon);
     }
+    icon = EGConvertIcon(tmpIcon, 255);
+    DestroyIcon(tmpIcon);
+  }
 
   // Disable this for now as it is not a correct implementation
   /*if ((infoFlags & NIIF_RESPECT_QUIET_TIME) == NIIF_RESPECT_QUIET_TIME)
@@ -243,26 +269,30 @@ bool Balloon::Initialize()
   WNDCLASSEX wincl;
 
   if (!GetClassInfoEx(mainInst, balloonName, &wincl))
+  {
+    ZeroMemory(&wincl, sizeof(WNDCLASSEX));
+
+    // Register the window class
+    wincl.hInstance = mainInst;
+    wincl.lpszClassName = balloonName;
+    wincl.lpfnWndProc = BalloonProcedure;
+    wincl.cbSize = sizeof (WNDCLASSEX);
+    wincl.hIcon = LoadIcon (NULL, IDI_APPLICATION);
+    wincl.hIconSm = LoadIcon (NULL, IDI_APPLICATION);
+    wincl.hCursor = LoadCursor (NULL, IDC_ARROW);
+
+    if (!RegisterClassEx (&wincl))
     {
-      ZeroMemory(&wincl, sizeof(WNDCLASSEX));
-
-      // Register the window class
-      wincl.hInstance = mainInst;
-      wincl.lpszClassName = balloonName;
-      wincl.lpfnWndProc = BalloonProcedure;
-      wincl.cbSize = sizeof (WNDCLASSEX);
-      wincl.hIcon = LoadIcon (NULL, IDI_APPLICATION);
-      wincl.hIconSm = LoadIcon (NULL, IDI_APPLICATION);
-      wincl.hCursor = LoadCursor (NULL, IDC_ARROW);
-
-      if (!RegisterClassEx (&wincl))
-        return false;
+      return false;
     }
+  }
 
-  balloonWnd = CreateWindowEx(WS_EX_TOOLWINDOW|WS_EX_LAYERED, balloonName, NULL, WS_POPUP,
+  balloonWnd = CreateWindowEx(WS_EX_TOOLWINDOW | WS_EX_LAYERED, balloonName, NULL, WS_POPUP,
                               0, 0, 0, 0, NULL, NULL, mainInst, reinterpret_cast<LPVOID>(this));
   if (!balloonWnd)
+  {
     return false;
+  }
 
   return true;
 }
@@ -276,14 +306,16 @@ bool Balloon::Show(POINT showPt)
   DWORD threadState;
   GetExitCodeThread(showThread, &threadState);
   if (threadState != STILL_ACTIVE)
+  {
     showThread = CreateThread(NULL, 0, ShowThreadProc, this, 0, &showID);
+  }
 
   return true;
 }
 
 DWORD WINAPI Balloon::ShowThreadProc(LPVOID lpParameter UNUSED)
 {
-  Balloon *pBalloon = reinterpret_cast< Balloon* >(lpParameter);
+  Balloon* pBalloon = reinterpret_cast< Balloon* >(lpParameter);
 
   // Wait for 100 ms before showing the window to handle flicking
   WaitForSingleObject(GetCurrentThread(), 100);
@@ -310,34 +342,48 @@ bool Balloon::ShowBalloon()
   balloonMonitorInfo.cbSize = sizeof(MONITORINFO);
 
   if (!GetMonitorInfo(balloonMonitor, &balloonMonitorInfo))
+  {
     return false;
+  }
 
   // If the string length of info.
   if (wcslen(info) == 0)
+  {
     return false;
+  }
 
   width = infoRect.right;
   if (wcslen(infoTitle) != 0)
+  {
+    if (titleRect.right > infoRect.right)
     {
-      if (titleRect.right > infoRect.right)
-        width = titleRect.right;
+      width = titleRect.right;
     }
+  }
   width += 5;
   height = infoRect.bottom + 5;
 
   y = showPt.y - height;
   if (y < balloonMonitorInfo.rcMonitor.top)
+  {
     y = showPt.y + ICON_SIZE;
+  }
 
   x = showPt.x - (width / 2);
   xoffset = balloonMonitorInfo.rcMonitor.right - (x + width);
   if (xoffset < 0)
+  {
     x += xoffset;
+  }
   if (x < balloonMonitorInfo.rcMonitor.left)
+  {
     x = balloonMonitorInfo.rcMonitor.left;
+  }
 
   if (SetWindowPos(balloonWnd, HWND_TOPMOST, x, y, width, height, SWP_SHOWWINDOW))
-      DrawAlphaBlend();
+  {
+    DrawAlphaBlend();
+  }
 
   return true;
 }
@@ -363,7 +409,9 @@ bool Balloon::DrawAlphaBlend()
   int alpha = (pSettings->GetAlpha() * 255) / 100;
 
   if (!GetClientRect(balloonWnd, &clientrt))
+  {
     return false;
+  }
 
   HDC hdc = CreateCompatibleDC(NULL);
   HBITMAP hbitmap = EGCreateBitmap(0x00, RGB(0, 0, 0), clientrt);
@@ -373,7 +421,9 @@ bool Balloon::DrawAlphaBlend()
   EGFrameRect(hdc, &contentrt, 255, pSettings->GetBorderColor(), 1);
   InflateRect(&contentrt, -1, -1);
   if (ELToLower(pSettings->GetGradientMethod()) == TEXT("solid"))
+  {
     EGFillRect(hdc, &clientrt, alpha, pSettings->GetGradientFrom());
+  }
   else
     EGGradientFillRect(hdc, &contentrt, alpha, pSettings->GetGradientFrom(),
                        pSettings->GetGradientTo(), 0, pSettings->GetGradientMethod());
@@ -396,7 +446,9 @@ bool Balloon::DrawAlphaBlend()
   DeleteObject(formatInfo.font);
 
   if (icon)
+  {
     DrawIconEx(hdc, 5, 5, icon, iconWidth, iconHeight, 0, NULL, DI_NORMAL);
+  }
 
   bf.BlendOp = AC_SRC_OVER;
   bf.BlendFlags = 0;

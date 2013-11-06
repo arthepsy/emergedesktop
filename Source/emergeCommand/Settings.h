@@ -40,9 +40,9 @@ public:
   std::wstring GetCommandTextAlign();
   std::wstring GetClockVerticalAlign();
   std::wstring GetCommandVerticalAlign();
-  LOGFONT *GetFont();
+  LOGFONT* GetFont();
   UINT GetDisplayLines();
-  bool SetFont(LOGFONT *logFont);
+  bool SetFont(LOGFONT* logFont);
   bool SetTimeFormat(std::wstring timeFormat);
   bool SetTipFormat(std::wstring timeFormat);
   bool SetClockTextAlign(std::wstring clockTextAlign);

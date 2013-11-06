@@ -45,14 +45,14 @@ typedef struct _APPLETMONITORINFO
   RECT appletMonitorRect;
 } APPLETMONITORINFO, *LPAPPLETMONITORINFO;
 
-typedef HRESULT (WINAPI *fnDwmIsCompositionEnabled)(BOOL *);
+typedef HRESULT (WINAPI* fnDwmIsCompositionEnabled)(BOOL*);
 static fnDwmIsCompositionEnabled MSDwmIsCompositionEnabled = NULL;
 
-typedef HRESULT (WINAPI *fnDwmGetWindowAttribute)(HWND, DWORD, PVOID, DWORD);
+typedef HRESULT (WINAPI* fnDwmGetWindowAttribute)(HWND, DWORD, PVOID, DWORD);
 static fnDwmGetWindowAttribute MSDwmGetWindowAttribute = NULL;
 
 // MS SwitchToThisWindow
-typedef void (__stdcall *lpfnMSSwitchToThisWindow)(HWND, BOOL);
+typedef void (__stdcall* lpfnMSSwitchToThisWindow)(HWND, BOOL);
 static lpfnMSSwitchToThisWindow MSSwitchToThisWindow = NULL;
 
 typedef enum _DWMWINDOWATTRIBUTE

@@ -12,7 +12,7 @@
 #include <windows.h>
 
 // {213E2DF9-9A14-4328-99B1-6961F9143CE9}
-const IID IID_IShellDesktopTray = {0x213E2DF9,0x9A14,0x4328,{0x99,0xB1,0x69,0x61,0xF9,0x14,0x3C,0xE9}};
+const IID IID_IShellDesktopTray = {0x213E2DF9, 0x9A14, 0x4328, {0x99, 0xB1, 0x69, 0x61, 0xF9, 0x14, 0x3C, 0xE9}};
 
 #ifdef __cplusplus
 extern "C"
@@ -21,19 +21,19 @@ extern "C"
 
 #undef INTERFACE
 #define INTERFACE IShellDesktopTray
-  DECLARE_INTERFACE_(IShellDesktopTray, IUnknown)
-  {
-    STDMETHOD(QueryInterface)(THIS_ REFIID, LPVOID*) PURE;
-    STDMETHOD_(ULONG,AddRef)(THIS) PURE;
-    STDMETHOD_(ULONG,Release)(THIS) PURE;
+DECLARE_INTERFACE_(IShellDesktopTray, IUnknown)
+{
+  STDMETHOD(QueryInterface)(THIS_ REFIID, LPVOID*) PURE;
+  STDMETHOD_(ULONG, AddRef)(THIS) PURE;
+  STDMETHOD_(ULONG, Release)(THIS) PURE;
 
-    STDMETHOD_(ULONG,GetState)(THIS) PURE;
-    STDMETHOD(GetTrayWindow)(THIS_ HWND*) PURE;
-    STDMETHOD(RegisterDesktopWindow)(THIS_ HWND) PURE;
-    STDMETHOD(SetVar)(THIS_ int,ULONG) PURE;
-  };
+  STDMETHOD_(ULONG, GetState)(THIS) PURE;
+  STDMETHOD(GetTrayWindow)(THIS_ HWND*) PURE;
+  STDMETHOD(RegisterDesktopWindow)(THIS_ HWND) PURE;
+  STDMETHOD(SetVar)(THIS_ int, ULONG) PURE;
+};
 #undef INTERFACE
-  typedef IShellDesktopTray *LPSHELLDESKTOPTRAY;
+typedef IShellDesktopTray* LPSHELLDESKTOPTRAY;
 
 #ifdef __cplusplus
 }
@@ -49,12 +49,12 @@ public:
   TShellDesktopTray();
   ~TShellDesktopTray();
 
-  STDMETHODIMP QueryInterface(REFIID riid, LPVOID * ppvObj);
+  STDMETHODIMP QueryInterface(REFIID riid, LPVOID* ppvObj);
   STDMETHODIMP_(ULONG) AddRef();
   STDMETHODIMP_(ULONG) Release();
 
   STDMETHODIMP_(ULONG) STDMETHODCALLTYPE GetState();
-  STDMETHODIMP GetTrayWindow(HWND *o);
+  STDMETHODIMP GetTrayWindow(HWND* o);
   STDMETHODIMP RegisterDesktopWindow(HWND d);
   STDMETHODIMP SetVar(int p1, ULONG p2);
 };

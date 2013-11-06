@@ -57,20 +57,20 @@ public:
   {
   private:
     std::wstring subkeyName;
-    TiXmlElement *section, *item, *target;
+    TiXmlElement* section, *item, *target;
     int itemIndex, readIndex;
   public:
-    IOHelper(TiXmlElement *sec);
+    IOHelper(TiXmlElement* sec);
     ~IOHelper();
 
     bool GetElement();
-    void *GetElement(std::wstring name);
+    void* GetElement(std::wstring name);
     bool SetElement(std::wstring name);
     bool GetElementText(std::wstring text);
     bool RemoveElement(std::wstring name);
-    void *GetTarget();
+    void* GetTarget();
     void Clear();
-    TiXmlElement *GetSection();
+    TiXmlElement* GetSection();
     COLORREF ReadColor(std::wstring name, COLORREF defaultValue);
     bool ReadBool(std::wstring name, bool defaultValue);
     int ReadInt(std::wstring name, int defaultValue);
@@ -107,7 +107,7 @@ public:
   bool GetDynamicPositioning();
   std::wstring GetStyleFile();
   int GetClickThrough();
-  LOGFONT *GetTitleBarFont();
+  LOGFONT* GetTitleBarFont();
   std::wstring GetTitleBarText();
   bool SetPosition();
   bool SetSize(int width, int height);
@@ -123,12 +123,12 @@ public:
   bool SetStyleFile(std::wstring styleFile);
   bool SetIconSize(int iconSize);
   bool SetIconSpacing(int iconSpacing);
-  RECT *GetResolution();
-  bool SetResolution(RECT *deskRect);
+  RECT* GetResolution();
+  bool SetResolution(RECT* deskRect);
   bool SetClickThrough(int clickThrough);
   bool WriteSettings();
   bool SetAppletMonitor(int monitor);
-  bool SetTitleBarFont(LOGFONT *titleBarFont);
+  bool SetTitleBarFont(LOGFONT* titleBarFont);
   void SetTitleBarText(std::wstring titleBarText);
   bool ModifiedCheck();
   void SetModified();

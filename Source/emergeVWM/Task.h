@@ -53,10 +53,10 @@ public:
        UINT maxRows, UINT maxColumns, GUIINFO guiInfo);
   ~Task();
 
-  RECT *GetRect();
+  RECT* GetRect();
   HWND GetTaskWnd();
   void DisplayMenu(HWND callingWnd);
-  RECT *GetReferenceRect();
+  RECT* GetReferenceRect();
   void SetReferenceRect(RECT referenceRect);
   void UpdateDimensions(UINT currentColumn, UINT currentRow, UINT maxColumns, UINT maxRows, GUIINFO guiInfo);
   std::wstring GetAppName();

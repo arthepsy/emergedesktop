@@ -50,7 +50,7 @@
 #include <memory>
 #endif
 
-typedef BOOL (WINAPI *lpfnIsWow64Process)(HANDLE, PBOOL);
+typedef BOOL (WINAPI* lpfnIsWow64Process)(HANDLE, PBOOL);
 static lpfnIsWow64Process MSIsWow64Process = NULL;
 
 //Helper functions

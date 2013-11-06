@@ -62,7 +62,7 @@ public:
   bool UpdateAliases(HWND hwndDlg);
   static INT_PTR CALLBACK AliasDlgProc(HWND hwndDlg, UINT message, WPARAM wParam, LPARAM lParam);
   static int CALLBACK ListViewCompareProc (LPARAM lParam1, LPARAM lParam2, LPARAM lParamSort);
-  bool AliasCheck(HWND hwndDlg, WCHAR *alias);
+  bool AliasCheck(HWND hwndDlg, WCHAR* alias);
 
 private:
   bool CheckFields(HWND hwndDlg);
@@ -73,14 +73,14 @@ private:
   bool DoAliasDelete(HWND hwndDlg);
   bool DoAliasBrowse(HWND listWnd);
   bool CheckSaveCount(HWND hwndDlg);
-  void InsertListViewItem(HWND listWnd, int index, const WCHAR *item);
+  void InsertListViewItem(HWND listWnd, int index, const WCHAR* item);
   BOOL PopulateFields(HWND hwndDlg, int index);
   UINT saveCount, deleteCount;
   HINSTANCE hInstance;
   HWND mainWnd, toolWnd, dlgWnd;
   HICON addIcon, delIcon, browseIcon, saveIcon, abortIcon, editIcon;
   bool edit, toggleSort[2];
-  bool FindListSubItem(HWND listWnd, int subItem, WCHAR *searchString);
+  bool FindListSubItem(HWND listWnd, int subItem, WCHAR* searchString);
   std::tr1::shared_ptr<Settings> pSettings;
   LISTVIEWSORTINFO lvSortInfo;
   WCHAR myName[MAX_LINE_LENGTH];

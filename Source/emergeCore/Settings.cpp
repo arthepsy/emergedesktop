@@ -61,47 +61,51 @@ bool Settings::GetEnableExplorerDesktop()
 void Settings::SetShowExplorerDesktop(bool showExplorerDesktop)
 {
   if (this->showExplorerDesktop != showExplorerDesktop)
-    {
-      this->showExplorerDesktop = showExplorerDesktop;
-      SetModified();
-    }
+  {
+    this->showExplorerDesktop = showExplorerDesktop;
+    SetModified();
+  }
 }
 
 void Settings::SetEnableExplorerDesktop(bool enableExplorerDesktop)
 {
   if (this->enableExplorerDesktop != enableExplorerDesktop)
-    {
-      this->enableExplorerDesktop = enableExplorerDesktop;
-      SetModified();
-    }
+  {
+    this->enableExplorerDesktop = enableExplorerDesktop;
+    SetModified();
+  }
 }
 
 bool Settings::ReadUserSettings()
 {
   std::wstring userFile = TEXT("%EmergeDir%\\files\\");
   std::tr1::shared_ptr<TiXmlDocument> xmlConfig;
-  TiXmlElement *section = NULL;
+  TiXmlElement* section = NULL;
   bool readSettings = false;
 
   if ((ELGetFileSpecialFlags(ELExpandVars(userFile)) & SF_DIRECTORY) != SF_DIRECTORY)
+  {
     ELCreateDirectory(userFile);
+  }
   userFile += TEXT("emergeCore.xml");
   xmlConfig = ELOpenXMLConfig(userFile, true);
 
   if (xmlConfig)
+  {
+    section = ELGetXMLSection(xmlConfig.get(), (WCHAR*)TEXT("Settings"), false);
+    if (section)
     {
-      section = ELGetXMLSection(xmlConfig.get(), (WCHAR*)TEXT("Settings"), false);
-      if (section)
-        {
-          readSettings = true;
-          IOHelper xmlHelper(section);
-          DoReadUserSettings(xmlHelper);
-        }
+      readSettings = true;
+      IOHelper xmlHelper(section);
+      DoReadUserSettings(xmlHelper);
     }
+  }
 
   // In the case where there is an issue accessing the XML file, use default values;
   if (!readSettings)
+  {
     ResetUserDefaults();
+  }
 
   return true;
 }
@@ -131,46 +135,46 @@ bool Settings::GetShowWelcome()
 void Settings::SetShowWelcome(bool showWelcome)
 {
   if (this->showWelcome != showWelcome)
-    {
-      this->showWelcome = showWelcome;
-      userModified = true;
-    }
+  {
+    this->showWelcome = showWelcome;
+    userModified = true;
+  }
 }
 
 void Settings::SetShowStartupErrors(bool showStartupErrors)
 {
   if (this->showStartupErrors != showStartupErrors)
-    {
-      this->showStartupErrors = showStartupErrors;
-      userModified = true;
-    }
+  {
+    this->showStartupErrors = showStartupErrors;
+    userModified = true;
+  }
 }
 
 bool Settings::WriteUserSettings()
 {
   std::tr1::shared_ptr<TiXmlDocument> configXML;
-  TiXmlElement *section;
+  TiXmlElement* section;
   std::wstring xmlFile = TEXT("%EmergeDir%\\files\\");
   xmlFile += TEXT("emergeCore.xml");
   bool ret = false;
 
   if (userModified)
+  {
+    configXML = ELOpenXMLConfig(xmlFile, true);
+    if (configXML)
     {
-      configXML = ELOpenXMLConfig(xmlFile, true);
-      if (configXML)
-        {
-          section = ELGetXMLSection(configXML.get(), (WCHAR*)TEXT("Settings"), true);
+      section = ELGetXMLSection(configXML.get(), (WCHAR*)TEXT("Settings"), true);
 
-          if (section)
-            {
-              IOHelper helper(section);
-              DoWriteUserSettings(helper);
+      if (section)
+      {
+        IOHelper helper(section);
+        DoWriteUserSettings(helper);
 
-              ret = ELWriteXMLConfig(configXML.get());
-              userModified = false;
-            }
-        }
+        ret = ELWriteXMLConfig(configXML.get());
+        userModified = false;
+      }
     }
+  }
 
   return ret;
 }

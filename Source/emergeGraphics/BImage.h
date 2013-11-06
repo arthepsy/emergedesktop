@@ -28,15 +28,15 @@
 
 #include <windows.h>
 
-bool vgradient(UINT width, UINT height, COLORREF gradientFrom, COLORREF gradientTo, BYTE *pixels, bool interlaced);
-bool hgradient(UINT width, UINT height, COLORREF gradientFrom, COLORREF gradientTo, BYTE *pixels, bool interlaced);
-bool dgradient(UINT width, UINT height, COLORREF gradientFrom, COLORREF gradientTo, BYTE *pixels, bool interlaced);
-bool cdgradient(UINT width, UINT height, COLORREF gradientFrom, COLORREF gradientTo, BYTE *pixels, bool interlaced);
-bool pcgradient(UINT width, UINT height, COLORREF gradientFrom, COLORREF gradientTo, BYTE *pixels, bool interlaced);
-bool egradient(UINT width, UINT height, COLORREF gradientFrom, COLORREF gradientTo, BYTE *pixels, bool interlaced);
-bool rgradient(UINT width, UINT height, COLORREF gradientFrom, COLORREF gradientTo, BYTE *pixels, bool interlaced);
-bool pgradient(UINT width, UINT height, COLORREF gradientFrom, COLORREF gradientTo, BYTE *pixels, bool interlaced);
-bool bevel(UINT width, UINT height, UINT bevelWidth, BYTE *pixels, bool sunken);
+bool vgradient(UINT width, UINT height, COLORREF gradientFrom, COLORREF gradientTo, BYTE* pixels, bool interlaced);
+bool hgradient(UINT width, UINT height, COLORREF gradientFrom, COLORREF gradientTo, BYTE* pixels, bool interlaced);
+bool dgradient(UINT width, UINT height, COLORREF gradientFrom, COLORREF gradientTo, BYTE* pixels, bool interlaced);
+bool cdgradient(UINT width, UINT height, COLORREF gradientFrom, COLORREF gradientTo, BYTE* pixels, bool interlaced);
+bool pcgradient(UINT width, UINT height, COLORREF gradientFrom, COLORREF gradientTo, BYTE* pixels, bool interlaced);
+bool egradient(UINT width, UINT height, COLORREF gradientFrom, COLORREF gradientTo, BYTE* pixels, bool interlaced);
+bool rgradient(UINT width, UINT height, COLORREF gradientFrom, COLORREF gradientTo, BYTE* pixels, bool interlaced);
+bool pgradient(UINT width, UINT height, COLORREF gradientFrom, COLORREF gradientTo, BYTE* pixels, bool interlaced);
+bool bevel(UINT width, UINT height, UINT bevelWidth, BYTE* pixels, bool sunken);
 
 BYTE convertcolour(BYTE colour, bool dark);
 unsigned long bsqrt(unsigned long x);

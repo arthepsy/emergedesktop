@@ -45,7 +45,8 @@
 #define GIL_DEFAULTICON 64
 #endif
 
-typedef enum _ITEMTYPE {
+typedef enum _ITEMTYPE
+{
   IT_SEPARATOR = 0,
   IT_EXECUTABLE,
   IT_INTERNAL_COMMAND,
@@ -76,7 +77,7 @@ public:
 
   HWND GetWnd();
   HICON GetIcon();
-  RECT *GetRect();
+  RECT* GetRect();
   void SetIcon(int iconSize, std::wstring orientation);
   void SetRect(RECT rect);
   void CreateNewIcon(BYTE foregroundAlpha, BYTE backgroundAlpha);

@@ -27,19 +27,21 @@
 
 BOOL CALLBACK ShellChanger::ShellDlgProc(HWND hwndDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
-  static ShellChanger *pShellChanger = NULL;
+  static ShellChanger* pShellChanger = NULL;
 
   switch (message)
+  {
+  case WM_INITDIALOG:
+    pShellChanger = reinterpret_cast<ShellChanger*>(lParam);
+    if (!pShellChanger)
     {
-    case WM_INITDIALOG:
-      pShellChanger = reinterpret_cast<ShellChanger*>(lParam);
-      if (!pShellChanger)
-        break;
-      return pShellChanger->DoInitDialog(hwndDlg);
-
-    case WM_COMMAND:
-      return pShellChanger->DoShellCommand(hwndDlg, wParam, lParam);
+      break;
     }
+    return pShellChanger->DoInitDialog(hwndDlg);
+
+  case WM_COMMAND:
+    return pShellChanger->DoShellCommand(hwndDlg, wParam, lParam);
+  }
 
   return FALSE;
 }
@@ -54,23 +56,23 @@ ShellChanger::ShellChanger(HINSTANCE hInstance, HWND mainWnd, std::tr1::shared_p
   InitCommonControls();
 
   toolWnd = CreateWindowEx(
-                           0,
-                           TOOLTIPS_CLASS,
-                           NULL,
-                           TTS_ALWAYSTIP|WS_POPUP|TTS_NOPREFIX,
-                           CW_USEDEFAULT, CW_USEDEFAULT,
-                           CW_USEDEFAULT, CW_USEDEFAULT,
-                           NULL,
-                           NULL,
-                           hInstance,
-                           NULL);
+              0,
+              TOOLTIPS_CLASS,
+              NULL,
+              TTS_ALWAYSTIP | WS_POPUP | TTS_NOPREFIX,
+              CW_USEDEFAULT, CW_USEDEFAULT,
+              CW_USEDEFAULT, CW_USEDEFAULT,
+              NULL,
+              NULL,
+              hInstance,
+              NULL);
 
   if (toolWnd)
-    {
-      SendMessage(toolWnd, TTM_SETMAXTIPWIDTH, 0, 300);
-      SetWindowPos(toolWnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE |
-                   SWP_NOACTIVATE);
-    }
+  {
+    SendMessage(toolWnd, TTM_SETMAXTIPWIDTH, 0, 300);
+    SetWindowPos(toolWnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE |
+                 SWP_NOACTIVATE);
+  }
 
   ExtractIconEx(TEXT("emergeIcons.dll"), 2, NULL, &addIcon, 1);
   ExtractIconEx(TEXT("emergeIcons.dll"), 5, NULL, &editIcon, 1);
@@ -85,17 +87,29 @@ ShellChanger::ShellChanger(HINSTANCE hInstance, HWND mainWnd, std::tr1::shared_p
 ShellChanger::~ShellChanger()
 {
   if (addIcon)
+  {
     DestroyIcon(addIcon);
+  }
   if (editIcon)
+  {
     DestroyIcon(editIcon);
+  }
   if (delIcon)
+  {
     DestroyIcon(delIcon);
+  }
   if (saveIcon)
+  {
     DestroyIcon(saveIcon);
+  }
   if (abortIcon)
+  {
     DestroyIcon(abortIcon);
+  }
   if (browseIcon)
+  {
     DestroyIcon(browseIcon);
+  }
 
   DestroyWindow(toolWnd);
 }
@@ -132,17 +146,29 @@ BOOL ShellChanger::DoInitDialog(HWND hwndDlg)
   ELStealFocus(hwndDlg);
 
   if (addIcon)
+  {
     SendMessage(addWnd, BM_SETIMAGE, IMAGE_ICON, (LPARAM)addIcon);
+  }
   if (editIcon)
+  {
     SendMessage(editWnd, BM_SETIMAGE, IMAGE_ICON, (LPARAM)editIcon);
+  }
   if (delIcon)
+  {
     SendMessage(delWnd, BM_SETIMAGE, IMAGE_ICON, (LPARAM)delIcon);
+  }
   if (saveIcon)
+  {
     SendMessage(saveWnd, BM_SETIMAGE, IMAGE_ICON, (LPARAM)saveIcon);
+  }
   if (abortIcon)
+  {
     SendMessage(abortWnd, BM_SETIMAGE, IMAGE_ICON, (LPARAM)abortIcon);
+  }
   if (browseIcon)
+  {
     SendMessage(browseWnd, BM_SETIMAGE, IMAGE_ICON, (LPARAM)browseIcon);
+  }
 
   ti.cbSize = TTTOOLINFOW_V2_SIZE;
   ti.uFlags = TTF_SUBCLASS;
@@ -193,7 +219,9 @@ BOOL ShellChanger::DoInitDialog(HWND hwndDlg)
   EnableWindow(commandTextWnd, false);
 
   if (pSettings->GetShowStartupErrors())
+  {
     SendDlgItemMessage(hwndDlg, IDC_STARTERROR, BM_SETCHECK, BST_CHECKED, 0);
+  }
 
   PopulateShells(shellWnd);
   UpdateFields(hwndDlg);
@@ -210,81 +238,91 @@ void ShellChanger::PopulateShells(HWND shellWnd)
   bool doCheck = false;
   int shellIndex = -1;
   std::tr1::shared_ptr<TiXmlDocument> configXML;
-  TiXmlElement *first, *sibling, *section = NULL, *settings = NULL;
+  TiXmlElement* first, *sibling, *section = NULL, *settings = NULL;
 
   size = MAX_LINE_LENGTH * sizeof(currentShell[0]);
   if (RegCreateKeyEx(HKEY_CURRENT_USER,
                      TEXT("Software\\Microsoft\\Windows NT\\CurrentVersion\\Winlogon"), 0, NULL,
                      REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &key, &result) == ERROR_SUCCESS)
+  {
+    if (RegQueryValueEx(key, TEXT("Shell"), NULL, NULL, (BYTE*)currentShell, &size) == ERROR_SUCCESS)
     {
-      if (RegQueryValueEx(key, TEXT("Shell"), NULL, NULL, (BYTE*)currentShell, &size) == ERROR_SUCCESS)
-        {
-          _wcslwr(currentShell);
-          doCheck = true;
-          RegCloseKey(key);
-        }
+      _wcslwr(currentShell);
+      doCheck = true;
+      RegCloseKey(key);
     }
+  }
 
   SendMessage(shellWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Emerge Desktop"));
   SendMessage(shellWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("Windows Explorer"));
 
   configXML = ELOpenXMLConfig(xmlFile, false);
   if (configXML)
+  {
+    settings = ELGetXMLSection(configXML.get(), TEXT("Settings"), false);
+    if (settings)
     {
-      settings = ELGetXMLSection(configXML.get(), TEXT("Settings"), false);
-      if (settings)
-        section = ELGetFirstXMLElementByName(settings, TEXT("Shells"), false);
-      if (section == NULL) /**< Handle the broken file format where Shells is a top level XML element */
-        section = ELGetXMLSection(configXML.get(), TEXT("Shells"), false);
-      if (section)
-        {
-          first = ELGetFirstXMLElement(section);
-
-          if (first)
-            {
-              name = ELReadXMLStringValue(first, TEXT("Name"), TEXT(""));
-              command = ELReadXMLStringValue(first, TEXT("Command"), TEXT(""));
-
-              SendMessage(shellWnd, CB_ADDSTRING, 0, (LPARAM)name.c_str());
-              shellMap.insert(EmergeShellItem(name, command));
-
-              sibling = ELGetSiblingXMLElement(first);
-              while (sibling)
-                {
-                  first = sibling;
-                  name = ELReadXMLStringValue(first, TEXT("Name"), TEXT(""));
-                  command = ELReadXMLStringValue(first, TEXT("Command"), TEXT(""));
-
-                  SendMessage(shellWnd, CB_ADDSTRING, 0, (LPARAM)name.c_str());
-                  shellMap.insert(EmergeShellItem(name, command));
-
-                  sibling = ELGetSiblingXMLElement(first);
-                }
-            }
-        }
+      section = ELGetFirstXMLElementByName(settings, TEXT("Shells"), false);
     }
+    if (section == NULL) /**< Handle the broken file format where Shells is a top level XML element */
+    {
+      section = ELGetXMLSection(configXML.get(), TEXT("Shells"), false);
+    }
+    if (section)
+    {
+      first = ELGetFirstXMLElement(section);
+
+      if (first)
+      {
+        name = ELReadXMLStringValue(first, TEXT("Name"), TEXT(""));
+        command = ELReadXMLStringValue(first, TEXT("Command"), TEXT(""));
+
+        SendMessage(shellWnd, CB_ADDSTRING, 0, (LPARAM)name.c_str());
+        shellMap.insert(EmergeShellItem(name, command));
+
+        sibling = ELGetSiblingXMLElement(first);
+        while (sibling)
+        {
+          first = sibling;
+          name = ELReadXMLStringValue(first, TEXT("Name"), TEXT(""));
+          command = ELReadXMLStringValue(first, TEXT("Command"), TEXT(""));
+
+          SendMessage(shellWnd, CB_ADDSTRING, 0, (LPARAM)name.c_str());
+          shellMap.insert(EmergeShellItem(name, command));
+
+          sibling = ELGetSiblingXMLElement(first);
+        }
+      }
+    }
+  }
 
   if (doCheck)
+  {
+    ELPath = ELGetCurrentPath();
+    ELPath = ELPath + TEXT("\\emergeCore.exe");
+    if (ELToLower(currentShell) == ELToLower(ELPath))
     {
-      ELPath = ELGetCurrentPath();
-      ELPath = ELPath + TEXT("\\emergeCore.exe");
-      if (ELToLower(currentShell) == ELToLower(ELPath))
-        shellIndex = (int)SendMessage(shellWnd, CB_FINDSTRINGEXACT, (WPARAM)-1, (LPARAM)TEXT("Emerge Desktop"));
-      else if (wcsstr(currentShell, TEXT("explorer.exe")))
-        shellIndex = (int)SendMessage(shellWnd, CB_FINDSTRINGEXACT, (WPARAM)-1, (LPARAM)TEXT("Windows Explorer"));
-      else
-        {
-          std::wstring lowerIter;
-          EmergeShellItemMap::iterator iter = shellMap.begin();
-          while (iter != shellMap.end())
-            {
-              lowerIter = ELToLower(iter->second);
-              if (lowerIter == currentShell)
-                shellIndex = (int)SendMessage(shellWnd, CB_FINDSTRINGEXACT, (WPARAM)-1, (LPARAM)iter->first.c_str());
-              iter++;
-            }
-        }
+      shellIndex = (int)SendMessage(shellWnd, CB_FINDSTRINGEXACT, (WPARAM) - 1, (LPARAM)TEXT("Emerge Desktop"));
     }
+    else if (wcsstr(currentShell, TEXT("explorer.exe")))
+    {
+      shellIndex = (int)SendMessage(shellWnd, CB_FINDSTRINGEXACT, (WPARAM) - 1, (LPARAM)TEXT("Windows Explorer"));
+    }
+    else
+    {
+      std::wstring lowerIter;
+      EmergeShellItemMap::iterator iter = shellMap.begin();
+      while (iter != shellMap.end())
+      {
+        lowerIter = ELToLower(iter->second);
+        if (lowerIter == currentShell)
+        {
+          shellIndex = (int)SendMessage(shellWnd, CB_FINDSTRINGEXACT, (WPARAM) - 1, (LPARAM)iter->first.c_str());
+        }
+        iter++;
+      }
+    }
+  }
 
   SendMessage(shellWnd, CB_SETCURSEL, (WPARAM)shellIndex, 0);
 }
@@ -299,52 +337,60 @@ bool ShellChanger::CheckFields(HWND hwndDlg)
        IsWindowEnabled(commandWnd)) ||
       ((GetDlgItemText(hwndDlg, IDC_SHELLNAME, tmp, MAX_LINE_LENGTH) != 0) &&
        IsWindowEnabled(nameWnd)))
+  {
+    if (ELMessageBox(hwndDlg,
+                     TEXT("The current shell command will be lost.\n\nDo you wish to continue?"),
+                     TEXT("emergeCore"),
+                     ELMB_YESNO | ELMB_ICONQUESTION | ELMB_MODAL) == IDYES)
     {
-      if (ELMessageBox(hwndDlg,
-                       TEXT("The current shell command will be lost.\n\nDo you wish to continue?"),
-                       TEXT("emergeCore"),
-                       ELMB_YESNO|ELMB_ICONQUESTION|ELMB_MODAL) == IDYES)
-        return true;
-      else
-        return false;
+      return true;
     }
+    else
+    {
+      return false;
+    }
+  }
   else
+  {
     return true;
+  }
 }
 
 BOOL ShellChanger::DoShellCommand(HWND hwndDlg, WPARAM wParam, LPARAM lParam UNUSED)
 {
   switch (LOWORD(wParam))
+  {
+  case IDOK:
+    DoSetShell(hwndDlg);
+  case IDCANCEL:
+    if (!CheckFields(hwndDlg))
     {
-    case IDOK:
-      DoSetShell(hwndDlg);
-    case IDCANCEL:
-      if (!CheckFields(hwndDlg))
-        break;
-      shellMap.clear();
-      EndDialog(hwndDlg, wParam);
-      return TRUE;
-    case IDC_DELSHELL:
-      DoDelShell(hwndDlg);
-      WriteShells(hwndDlg);
-    case IDC_EDITSHELL:
-      return DoEditShell(hwndDlg);
-    case IDC_ADDSHELL:
-      return DoAddShell(hwndDlg);
-    case IDC_SAVESHELL:
-      DoSaveShell(hwndDlg);
-      return WriteShells(hwndDlg);
-    case IDC_ABORTSHELL:
-      return DoAbortShell(hwndDlg);
-    case IDC_BROWSESHELL:
-      return DoBrowseShell(hwndDlg);
+      break;
     }
+    shellMap.clear();
+    EndDialog(hwndDlg, wParam);
+    return TRUE;
+  case IDC_DELSHELL:
+    DoDelShell(hwndDlg);
+    WriteShells(hwndDlg);
+  case IDC_EDITSHELL:
+    return DoEditShell(hwndDlg);
+  case IDC_ADDSHELL:
+    return DoAddShell(hwndDlg);
+  case IDC_SAVESHELL:
+    DoSaveShell(hwndDlg);
+    return WriteShells(hwndDlg);
+  case IDC_ABORTSHELL:
+    return DoAbortShell(hwndDlg);
+  case IDC_BROWSESHELL:
+    return DoBrowseShell(hwndDlg);
+  }
 
   if (HIWORD(wParam) == CBN_SELENDOK)
-    {
-      UpdateFields(hwndDlg);
-      return TRUE;
-    }
+  {
+    UpdateFields(hwndDlg);
+    return TRUE;
+  }
 
   return FALSE;
 }
@@ -362,77 +408,85 @@ bool ShellChanger::DoSetShell(HWND hwndDlg)
   GetShellCommand(hwndDlg, name, command);
 
   if (ELIsWow64())
+  {
     regMask = KEY_WOW64_64KEY;
+  }
 
   if (RegCreateKeyEx(HKEY_CURRENT_USER,
                      TEXT("Software\\Microsoft\\Windows NT\\CurrentVersion\\Winlogon"), 0, NULL,
                      REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS | regMask, NULL, &key, &result) == ERROR_SUCCESS)
-    {
-      RegSetValueEx(key, TEXT("Shell"), 0, REG_SZ, (BYTE*)command,
-                    (DWORD)wcslen(command) * sizeof(command[0]));
+  {
+    RegSetValueEx(key, TEXT("Shell"), 0, REG_SZ, (BYTE*)command,
+                  (DWORD)wcslen(command) * sizeof(command[0]));
 
-      RegCloseKey(key);
-    }
+    RegCloseKey(key);
+  }
 
   if (RegCreateKeyEx(HKEY_CURRENT_USER,
                      TEXT("Software\\Microsoft\\Windows\\CurrentVersion\\Explorer"), 0, NULL,
                      REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS | regMask, NULL, &key, &result) == ERROR_SUCCESS)
-    {
-      wcscpy(command, TEXT("yes"));
-      RegSetValueEx(key, TEXT("BrowseNewProcess"), 0, REG_SZ, (BYTE*)command,
-                    (DWORD)wcslen(command) * sizeof(command[0]));
+  {
+    wcscpy(command, TEXT("yes"));
+    RegSetValueEx(key, TEXT("BrowseNewProcess"), 0, REG_SZ, (BYTE*)command,
+                  (DWORD)wcslen(command) * sizeof(command[0]));
 
-      RegCloseKey(key);
-    }
+    RegCloseKey(key);
+  }
 
   if (RegCreateKeyEx(HKEY_LOCAL_MACHINE,
                      TEXT("Software\\Microsoft\\Windows NT\\CurrentVersion\\Winlogon"), 0, NULL,
                      REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS | regMask, NULL, &key, &result) == ERROR_SUCCESS)
-    {
-      wcscpy(command, TEXT("explorer.exe"));
-      RegSetValueEx(key, TEXT("Shell"), 0, REG_SZ, (BYTE*)command,
-                    (DWORD)wcslen(command) * sizeof(command[0]));
+  {
+    wcscpy(command, TEXT("explorer.exe"));
+    RegSetValueEx(key, TEXT("Shell"), 0, REG_SZ, (BYTE*)command,
+                  (DWORD)wcslen(command) * sizeof(command[0]));
 
-      RegCloseKey(key);
-    }
+    RegCloseKey(key);
+  }
 
   if (RegCreateKeyEx(HKEY_LOCAL_MACHINE,
                      TEXT("Software\\Microsoft\\Windows NT\\CurrentVersion\\IniFileMapping\\system.ini\\boot"),
                      0, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS | regMask, NULL, &key, &result) == ERROR_SUCCESS)
-    {
-      wcscpy(command, TEXT("USR:Software\\Microsoft\\Windows NT\\CurrentVersion\\Winlogon"));
-      RegSetValueEx(key, TEXT("Shell"), 0, REG_SZ, (BYTE*)command,
-                    (DWORD)wcslen(command) * sizeof(command[0]));
+  {
+    wcscpy(command, TEXT("USR:Software\\Microsoft\\Windows NT\\CurrentVersion\\Winlogon"));
+    RegSetValueEx(key, TEXT("Shell"), 0, REG_SZ, (BYTE*)command,
+                  (DWORD)wcslen(command) * sizeof(command[0]));
 
-      RegCloseKey(key);
-    }
+    RegCloseKey(key);
+  }
 
   // Create default directories and copy default files
   std::wstring appletCmd = TEXT("%AppletDir%\\files\\cmd.txt"), emergeCmd = TEXT("%EmergeDir%\\files\\");
   appletCmd = ELExpandVars(appletCmd);
   emergeCmd = ELExpandVars(emergeCmd);
   if ((ELGetFileSpecialFlags(emergeCmd) & SF_DIRECTORY) != SF_DIRECTORY)
+  {
     ELCreateDirectory(emergeCmd);
+  }
   emergeCmd = emergeCmd + TEXT("cmd.txt");
   CopyFile(appletCmd.c_str(), emergeCmd.c_str(), TRUE);
 
   if (IsWindowEnabled(startErrorWnd))
+  {
+    if (SendDlgItemMessage(hwndDlg, IDC_STARTERROR, BM_GETCHECK, 0, 0) == BST_CHECKED)
     {
-      if (SendDlgItemMessage(hwndDlg, IDC_STARTERROR, BM_GETCHECK, 0, 0) == BST_CHECKED)
-        success = true;
-      else if (SendDlgItemMessage(hwndDlg, IDC_STARTERROR, BM_GETCHECK, 0, 0) == BST_UNCHECKED)
-        success = false;
-      pSettings->SetShowStartupErrors(success);
+      success = true;
     }
+    else if (SendDlgItemMessage(hwndDlg, IDC_STARTERROR, BM_GETCHECK, 0, 0) == BST_UNCHECKED)
+    {
+      success = false;
+    }
+    pSettings->SetShowStartupErrors(success);
+  }
 
   pSettings->WriteUserSettings();
-  ELMessageBox(hwndDlg, (WCHAR*)TEXT("Changes will take affect after reboot."), (WCHAR*)TEXT("emergeCore"),
-               ELMB_OK|ELMB_ICONQUESTION|ELMB_MODAL);
+  ELMessageBox(hwndDlg, TEXT("Changes will take affect after reboot."), TEXT("emergeCore"),
+               ELMB_OK | ELMB_ICONQUESTION | ELMB_MODAL);
 
   return true;
 }
 
-int ShellChanger::GetShellCommand(HWND hwndDlg, WCHAR *name, WCHAR *command)
+int ShellChanger::GetShellCommand(HWND hwndDlg, WCHAR* name, WCHAR* command)
 {
   HWND shellWnd = GetDlgItem(hwndDlg, IDC_SHELLITEM);
   int index = (int)SendMessage(shellWnd, CB_GETCURSEL, 0, 0);
@@ -441,21 +495,27 @@ int ShellChanger::GetShellCommand(HWND hwndDlg, WCHAR *name, WCHAR *command)
   GetDlgItemText(hwndDlg, IDC_SHELLITEM, name, MAX_LINE_LENGTH);
 
   if (_wcsicmp(name, TEXT("Emerge Desktop")) == 0)
-    {
-      wcscpy(command, ELGetCurrentPath().c_str());
-      wcscat(command, TEXT("\\emergeCore.exe"));
-    }
+  {
+    wcscpy(command, ELGetCurrentPath().c_str());
+    wcscat(command, TEXT("\\emergeCore.exe"));
+  }
   else if (_wcsicmp(name, TEXT("Windows Explorer")) == 0)
+  {
     wcscpy(command, TEXT("explorer.exe"));
+  }
   else
-    {
-      iter = shellMap.find(name);
+  {
+    iter = shellMap.find(name);
 
-      if (iter == shellMap.end())
-        index = -1;
-      else
-        wcscpy(command, iter->second.c_str());
+    if (iter == shellMap.end())
+    {
+      index = -1;
     }
+    else
+    {
+      wcscpy(command, iter->second.c_str());
+    }
+  }
 
   return index;
 }
@@ -474,44 +534,48 @@ void ShellChanger::UpdateFields(HWND hwndDlg)
   index = GetShellCommand(hwndDlg, name, command);
 
   if (index > -1)
+  {
+    EnableWindow(changeWnd, true);
+
+    SetDlgItemText(hwndDlg, IDC_SHELLNAME, name);
+    SetDlgItemText(hwndDlg, IDC_SHELLCOMMAND, command);
+
+    if (_wcsicmp(name, TEXT("Emerge Desktop")) == 0)
     {
-      EnableWindow(changeWnd, true);
-
-      SetDlgItemText(hwndDlg, IDC_SHELLNAME, name);
-      SetDlgItemText(hwndDlg, IDC_SHELLCOMMAND, command);
-
-      if (_wcsicmp(name, TEXT("Emerge Desktop")) == 0)
-        {
-          if (pSettings->GetShowStartupErrors())
-            SendDlgItemMessage(hwndDlg, IDC_STARTERROR, BM_SETCHECK, BST_CHECKED, 0);
-          else
-            SendDlgItemMessage(hwndDlg, IDC_STARTERROR, BM_SETCHECK, BST_UNCHECKED, 0);
-          EnableWindow(startErrorWnd, true);
-        }
+      if (pSettings->GetShowStartupErrors())
+      {
+        SendDlgItemMessage(hwndDlg, IDC_STARTERROR, BM_SETCHECK, BST_CHECKED, 0);
+      }
       else
-        {
-          SendDlgItemMessage(hwndDlg, IDC_STARTERROR, BM_SETCHECK, BST_UNCHECKED, 0);
-          EnableWindow(startErrorWnd, false);
-        }
-
-      if ((_wcsicmp(name, TEXT("Emerge Desktop")) == 0) ||
-          (_wcsicmp(name, TEXT("Window Explorer")) == 0))
-        {
-          EnableWindow(editWnd, false);
-          EnableWindow(delWnd, false);
-        }
-      else
-        {
-          EnableWindow(editWnd, true);
-          EnableWindow(delWnd, true);
-        }
+      {
+        SendDlgItemMessage(hwndDlg, IDC_STARTERROR, BM_SETCHECK, BST_UNCHECKED, 0);
+      }
+      EnableWindow(startErrorWnd, true);
     }
-  else
+    else
+    {
+      SendDlgItemMessage(hwndDlg, IDC_STARTERROR, BM_SETCHECK, BST_UNCHECKED, 0);
+      EnableWindow(startErrorWnd, false);
+    }
+
+    if ((_wcsicmp(name, TEXT("Emerge Desktop")) == 0) ||
+        (_wcsicmp(name, TEXT("Window Explorer")) == 0))
     {
       EnableWindow(editWnd, false);
       EnableWindow(delWnd, false);
-      EnableWindow(changeWnd, false);
     }
+    else
+    {
+      EnableWindow(editWnd, true);
+      EnableWindow(delWnd, true);
+    }
+  }
+  else
+  {
+    EnableWindow(editWnd, false);
+    EnableWindow(delWnd, false);
+    EnableWindow(changeWnd, false);
+  }
 }
 
 bool ShellChanger::WriteShells(HWND hwndDlg)
@@ -519,48 +583,52 @@ bool ShellChanger::WriteShells(HWND hwndDlg)
   HWND shellWnd = GetDlgItem(hwndDlg, IDC_SHELLITEM);
   int count = (int)SendMessage(shellWnd, CB_GETCOUNT, 0, 0);
   std::tr1::shared_ptr<TiXmlDocument> configXML;
-  TiXmlElement *first, *section = NULL, *settings = NULL;
+  TiXmlElement* first, *section = NULL, *settings = NULL;
   WCHAR name[MAX_LINE_LENGTH];
   EmergeShellItemMap::iterator iter;
 
   configXML = ELOpenXMLConfig(xmlFile, true);
   if (configXML)
+  {
+    section = ELGetXMLSection(configXML.get(), (WCHAR*)TEXT("Shells"), false);
+    if (section) /**< Remove the 'Shells' top-level if it exists */
     {
-      section = ELGetXMLSection(configXML.get(), (WCHAR*)TEXT("Shells"), false);
-      if (section) /**< Remove the 'Shells' top-level if it exists */
-        ELRemoveXMLElement(section);
-      settings = ELGetXMLSection(configXML.get(), (WCHAR*)TEXT("Settings"), true);
-      if (settings)
-        section = ELGetFirstXMLElementByName(settings, (WCHAR*)TEXT("Shells"), true);
-      if (section)
-        {
-          int index = 0;
-          first = ELGetFirstXMLElement(section);
-          while (first)
-            {
-              ELRemoveXMLElement(first);
-              first = ELGetFirstXMLElement(section);
-            }
-
-          // Loop while there are entries in the key
-          while (index < count)
-            {
-              SendMessage(shellWnd, CB_GETLBTEXT, (WPARAM)index, (LPARAM)name);
-              if ((_wcsicmp(name, TEXT("Emerge Desktop")) != 0) &&
-                  (_wcsicmp(name, TEXT("Windows Explorer")) != 0))
-                {
-                  iter = shellMap.find(name);
-
-                  first = ELSetFirstXMLElementByName(section, TEXT("item"));
-                  ELWriteXMLStringValue(first, (WCHAR*)TEXT("Name"), name);
-                  ELWriteXMLStringValue(first, (WCHAR*)TEXT("Command"), (WCHAR*)iter->second.c_str());
-                }
-
-              index++;
-            }
-          ELWriteXMLConfig(configXML.get());
-        }
+      ELRemoveXMLElement(section);
     }
+    settings = ELGetXMLSection(configXML.get(), (WCHAR*)TEXT("Settings"), true);
+    if (settings)
+    {
+      section = ELGetFirstXMLElementByName(settings, (WCHAR*)TEXT("Shells"), true);
+    }
+    if (section)
+    {
+      int index = 0;
+      first = ELGetFirstXMLElement(section);
+      while (first)
+      {
+        ELRemoveXMLElement(first);
+        first = ELGetFirstXMLElement(section);
+      }
+
+      // Loop while there are entries in the key
+      while (index < count)
+      {
+        SendMessage(shellWnd, CB_GETLBTEXT, (WPARAM)index, (LPARAM)name);
+        if ((_wcsicmp(name, TEXT("Emerge Desktop")) != 0) &&
+            (_wcsicmp(name, TEXT("Windows Explorer")) != 0))
+        {
+          iter = shellMap.find(name);
+
+          first = ELSetFirstXMLElementByName(section, TEXT("item"));
+          ELWriteXMLStringValue(first, (WCHAR*)TEXT("Name"), name);
+          ELWriteXMLStringValue(first, (WCHAR*)TEXT("Command"), (WCHAR*)iter->second.c_str());
+        }
+
+        index++;
+      }
+      ELWriteXMLConfig(configXML.get());
+    }
+  }
 
   return true;
 }
@@ -577,7 +645,7 @@ bool ShellChanger::DoDelShell(HWND hwndDlg)
 
   SetDlgItemText(hwndDlg, IDC_SHELLNAME, TEXT("\0"));
   SetDlgItemText(hwndDlg, IDC_SHELLCOMMAND, TEXT("\0"));
-  SendMessage(shellWnd, CB_SETCURSEL, (WPARAM)-1, 0);
+  SendMessage(shellWnd, CB_SETCURSEL, (WPARAM) - 1, 0);
 
   EnableWindow(editWnd, false);
   EnableWindow(delWnd, false);
@@ -596,7 +664,9 @@ bool ShellChanger::DoEditShell(HWND hwndDlg)
   iter = shellMap.find(name);
 
   if (iter == shellMap.end())
+  {
     return false;
+  }
 
   SetDlgItemText(hwndDlg, IDC_SHELLNAME, name);
   SetDlgItemText(hwndDlg, IDC_SHELLCOMMAND, iter->second.c_str());
@@ -612,21 +682,23 @@ bool ShellChanger::DoAbortShell(HWND hwndDlg)
   WCHAR name[MAX_LINE_LENGTH];
 
   if (edit)
+  {
+    GetDlgItemText(hwndDlg, IDC_SHELLITEM, name, MAX_LINE_LENGTH);
+    iter = shellMap.find(name);
+
+    if (iter == shellMap.end())
     {
-      GetDlgItemText(hwndDlg, IDC_SHELLITEM, name, MAX_LINE_LENGTH);
-      iter = shellMap.find(name);
-
-      if (iter == shellMap.end())
-        return false;
-
-      SetDlgItemText(hwndDlg, IDC_SHELLNAME, name);
-      SetDlgItemText(hwndDlg, IDC_SHELLCOMMAND, iter->second.c_str());
+      return false;
     }
+
+    SetDlgItemText(hwndDlg, IDC_SHELLNAME, name);
+    SetDlgItemText(hwndDlg, IDC_SHELLCOMMAND, iter->second.c_str());
+  }
   else
-    {
-      SetDlgItemText(hwndDlg, IDC_SHELLNAME, TEXT("\0"));
-      SetDlgItemText(hwndDlg, IDC_SHELLCOMMAND, TEXT("\0"));
-    }
+  {
+    SetDlgItemText(hwndDlg, IDC_SHELLNAME, TEXT("\0"));
+    SetDlgItemText(hwndDlg, IDC_SHELLCOMMAND, TEXT("\0"));
+  }
 
   return EnableFields(hwndDlg, false);
 }
@@ -637,7 +709,7 @@ bool ShellChanger::DoAddShell(HWND hwndDlg)
 
   SetDlgItemText(hwndDlg, IDC_SHELLNAME, TEXT("\0"));
   SetDlgItemText(hwndDlg, IDC_SHELLCOMMAND, TEXT("\0"));
-  SendMessage(shellWnd, CB_SETCURSEL, (WPARAM)-1, 0);
+  SendMessage(shellWnd, CB_SETCURSEL, (WPARAM) - 1, 0);
 
   edit = false;
 
@@ -660,35 +732,35 @@ bool ShellChanger::EnableFields(HWND hwndDlg, bool enable)
   HWND changeWnd = GetDlgItem(hwndDlg, IDOK);
 
   if (enable)
-    {
-      EnableWindow(nameWnd, true);
-      EnableWindow(commandWnd, true);
-      EnableWindow(saveWnd, true);
-      EnableWindow(abortWnd, true);
-      EnableWindow(browseWnd, true);
-      EnableWindow(shellWnd, false);
-      EnableWindow(addWnd, false);
-      EnableWindow(editWnd, false);
-      EnableWindow(delWnd, false);
-      EnableWindow(changeWnd, false);
-      EnableWindow(nameTextWnd, true);
-      EnableWindow(commandTextWnd, true);
-    }
+  {
+    EnableWindow(nameWnd, true);
+    EnableWindow(commandWnd, true);
+    EnableWindow(saveWnd, true);
+    EnableWindow(abortWnd, true);
+    EnableWindow(browseWnd, true);
+    EnableWindow(shellWnd, false);
+    EnableWindow(addWnd, false);
+    EnableWindow(editWnd, false);
+    EnableWindow(delWnd, false);
+    EnableWindow(changeWnd, false);
+    EnableWindow(nameTextWnd, true);
+    EnableWindow(commandTextWnd, true);
+  }
   else
-    {
-      EnableWindow(nameWnd, false);
-      EnableWindow(commandWnd, false);
-      EnableWindow(saveWnd, false);
-      EnableWindow(abortWnd, false);
-      EnableWindow(browseWnd, false);
-      EnableWindow(shellWnd, true);
-      EnableWindow(addWnd, true);
-      EnableWindow(editWnd, false);
-      EnableWindow(delWnd, false);
-      EnableWindow(changeWnd, true);
-      EnableWindow(nameTextWnd, false);
-      EnableWindow(commandTextWnd, false);
-    }
+  {
+    EnableWindow(nameWnd, false);
+    EnableWindow(commandWnd, false);
+    EnableWindow(saveWnd, false);
+    EnableWindow(abortWnd, false);
+    EnableWindow(browseWnd, false);
+    EnableWindow(shellWnd, true);
+    EnableWindow(addWnd, true);
+    EnableWindow(editWnd, false);
+    EnableWindow(delWnd, false);
+    EnableWindow(changeWnd, true);
+    EnableWindow(nameTextWnd, false);
+    EnableWindow(commandTextWnd, false);
+  }
 
   return true;
 }
@@ -701,23 +773,23 @@ bool ShellChanger::DoSaveShell(HWND hwndDlg)
   int index;
 
   if (GetDlgItemText(hwndDlg, IDC_SHELLNAME, newName, MAX_LINE_LENGTH) == 0)
-    {
-      ELMessageBox(hwndDlg, (WCHAR*)TEXT("Shell name cannot be empty"), (WCHAR*)TEXT("emergeCore"),
-                   ELMB_OK|ELMB_ICONERROR|ELMB_MODAL);
-      return false;
-    }
+  {
+    ELMessageBox(hwndDlg, (WCHAR*)TEXT("Shell name cannot be empty"), (WCHAR*)TEXT("emergeCore"),
+                 ELMB_OK | ELMB_ICONERROR | ELMB_MODAL);
+    return false;
+  }
   if (GetDlgItemText(hwndDlg, IDC_SHELLCOMMAND, command, MAX_LINE_LENGTH) == 0)
-    {
-      ELMessageBox(hwndDlg, (WCHAR*)TEXT("Shell command cannot be empty"), (WCHAR*)TEXT("emergeCore"),
-                   ELMB_OK|ELMB_ICONERROR|ELMB_MODAL);
-      return false;
-    }
+  {
+    ELMessageBox(hwndDlg, (WCHAR*)TEXT("Shell command cannot be empty"), (WCHAR*)TEXT("emergeCore"),
+                 ELMB_OK | ELMB_ICONERROR | ELMB_MODAL);
+    return false;
+  }
 
   if (edit)
-    {
-      GetDlgItemText(hwndDlg, IDC_SHELLITEM, oldName, MAX_LINE_LENGTH);
-      DeleteShell(hwndDlg, oldName);
-    }
+  {
+    GetDlgItemText(hwndDlg, IDC_SHELLITEM, oldName, MAX_LINE_LENGTH);
+    DeleteShell(hwndDlg, oldName);
+  }
 
   EmergeShellItemMap::iterator iter;
   iter = shellMap.find(newName);
@@ -725,11 +797,11 @@ bool ShellChanger::DoSaveShell(HWND hwndDlg)
   if ((iter != shellMap.end()) ||
       (_wcsicmp(newName, TEXT("Windows Explorer")) == 0) ||
       (_wcsicmp(newName, TEXT("Emerge Desktop")) == 0))
-    {
-      ELMessageBox(hwndDlg, tmp, (WCHAR*)TEXT("emergeCore"),
-                   ELMB_OK|ELMB_ICONERROR|ELMB_MODAL);
-      return false;
-    }
+  {
+    ELMessageBox(hwndDlg, tmp, (WCHAR*)TEXT("emergeCore"),
+                 ELMB_OK | ELMB_ICONERROR | ELMB_MODAL);
+    return false;
+  }
 
 
   index = (int)SendMessage(shellWnd, CB_ADDSTRING, 0, (LPARAM)newName);
@@ -739,7 +811,7 @@ bool ShellChanger::DoSaveShell(HWND hwndDlg)
   return EnableFields(hwndDlg, false);
 }
 
-bool ShellChanger::DeleteShell(HWND hwndDlg, WCHAR *name)
+bool ShellChanger::DeleteShell(HWND hwndDlg, WCHAR* name)
 {
   HWND shellWnd = GetDlgItem(hwndDlg, IDC_SHELLITEM);
   EmergeShellItemMap::iterator iter;
@@ -747,23 +819,27 @@ bool ShellChanger::DeleteShell(HWND hwndDlg, WCHAR *name)
 
   if ((_wcsicmp(name, TEXT("Emerge Desktop")) == 0) ||
       (_wcsicmp(name, TEXT("Window Explorer")) == 0))
+  {
     return false;
+  }
 
   iter = shellMap.find(name);
 
   // Note: Order is important!
   if (iter == shellMap.end())
+  {
     return false;
+  }
 
   shellMap.erase(iter);
 
-  item = (int)SendMessage(shellWnd, CB_FINDSTRINGEXACT, (WPARAM)-1, (LPARAM)name);
+  item = (int)SendMessage(shellWnd, CB_FINDSTRINGEXACT, (WPARAM) - 1, (LPARAM)name);
 
   if (item != CB_ERR)
-    {
-      SendMessage(shellWnd, CB_DELETESTRING, (WPARAM)item, 0);
-      return true;
-    }
+  {
+    SendMessage(shellWnd, CB_DELETESTRING, (WPARAM)item, 0);
+    return true;
+  }
 
   return false;
 }
@@ -791,11 +867,11 @@ bool ShellChanger::DoBrowseShell(HWND hwndDlg)
   ofn.Flags = OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST | OFN_EXPLORER | OFN_DONTADDTORECENT | OFN_NOCHANGEDIR | OFN_NODEREFERENCELINKS;
 
   if (GetOpenFileName(&ofn))
-    {
-      PathQuoteSpaces(tmp);
-      SetDlgItemText(hwndDlg, IDC_SHELLCOMMAND, tmp);
-      return true;
-    }
+  {
+    PathQuoteSpaces(tmp);
+    SetDlgItemText(hwndDlg, IDC_SHELLCOMMAND, tmp);
+    return true;
+  }
 
   return false;
 }

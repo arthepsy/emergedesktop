@@ -20,7 +20,7 @@
 
 #include "AppBar.h"
 
-AppBar::AppBar(APPBARDATA *pAppBarData)
+AppBar::AppBar(APPBARDATA* pAppBarData)
 {
   CopyMemory(&localABD, &pAppBarData, sizeof(APPBARDATA));
   localAutoHide = false;
@@ -31,7 +31,7 @@ AppBar::~AppBar()
 {
 }
 
-bool AppBar::IsEqual(APPBARDATA *pAppBarData)
+bool AppBar::IsEqual(APPBARDATA* pAppBarData)
 {
   return ((pAppBarData->cbSize == localABD.cbSize) && (pAppBarData->hWnd == localABD.hWnd));
 }
@@ -46,7 +46,7 @@ RECT AppBar::GetRect()
   return localABD.rc;
 }
 
-bool AppBar::SetRect(RECT &rect)
+bool AppBar::SetRect(RECT& rect)
 {
   return (CopyRect(&localABD.rc, &rect) == TRUE);
 }

@@ -25,10 +25,14 @@ bool ELRegisterInternalCommand(std::wstring commandName, int commandValue, COMMA
   CommandHandler newCommand;
 
   if (commandName.empty())
+  {
     return false;
+  }
 
   if (commandValue == INVALID_COMMAND)
+  {
     return false;
+  }
 
   //commandHandlerMap.insert(commandValue, std::pair<std::wstring, COMMANDHANDLERPROC>(commandName, commandHandler));
   newCommand.commandValue = commandValue;
@@ -53,7 +57,9 @@ std::wstring ELGetInternalCommandName(int commandValue)
   {
     tempValue = *tempIter;
     if (tempValue->commandValue == commandValue)
+    {
       return tempValue->commandName;
+    }
   }
 
   return TEXT("");
@@ -68,7 +74,9 @@ int ELGetInternalCommandValue(std::wstring commandName)
   {
     tempValue = *tempIter;
     if (ELToLower(tempValue->commandName) == ELToLower(commandName))
+    {
       return tempValue->commandValue;
+    }
   }
 
   return INVALID_COMMAND;
@@ -82,11 +90,15 @@ bool ELExecuteInternalCommand(std::wstring commandName, std::wstring arguments)
   size_t firstArgSplitPos = 0, secondArgSplitPos;
 
   if (commandName.empty())
+  {
     return false;
+  }
 
   commandHandlerCallback = GetCommandHandlerCallback(commandName);
   if (commandHandlerCallback == NULL)
+  {
     return false;
+  }
 
   secondArgSplitPos = arguments.find_first_of(argSplitters);
   if ((secondArgSplitPos == std::wstring::npos) || (secondArgSplitPos == arguments.length()))
@@ -103,7 +115,9 @@ bool ELExecuteInternalCommand(std::wstring commandName, std::wstring arguments)
 
       secondArgSplitPos = arguments.find(argSplitters, secondArgSplitPos + 1);
       if (secondArgSplitPos == std::wstring::npos)
+      {
         secondArgSplitPos = arguments.length();
+      }
     }
   }
 
@@ -117,7 +131,9 @@ bool ELPopulateInternalCommandList(HWND hwnd)
   std::wstring tempCommandName;
 
   if (!IsWindow(hwnd))
+  {
     return false;
+  }
 
   for (tempIter = internalCommands.begin(); tempIter != internalCommands.end(); ++tempIter)
   {
@@ -134,12 +150,16 @@ COMMANDHANDLERPROC GetCommandHandlerCallback(std::wstring commandName)
   int commandValue;
 
   if (commandName.empty())
+  {
     return NULL;
+  }
 
   commandValue = ELGetInternalCommandValue(commandName);
 
   if (commandValue == INVALID_COMMAND)
+  {
     return NULL;
+  }
 
   return GetCommandHandlerCallback(commandValue);
 }
@@ -153,7 +173,9 @@ COMMANDHANDLERPROC GetCommandHandlerCallback(int commandValue)
   {
     tempValue = *tempIter;
     if (tempValue->commandValue == commandValue)
+    {
       return tempValue->commandHandler;
+    }
   }
 
   return NULL;

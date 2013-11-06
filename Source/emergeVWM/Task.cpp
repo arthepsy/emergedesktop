@@ -74,7 +74,7 @@ std::wstring Task::GetAppName()
 // Returns:	RECT*
 // Purpose:	Retrieves the task reference rectangle
 //----  --------------------------------------------------------------------------------------------------------
-RECT *Task::GetReferenceRect()
+RECT* Task::GetReferenceRect()
 {
   return &referenceRect;
 }
@@ -107,7 +107,7 @@ HWND Task::GetTaskWnd()
 // Returns:	RECT*
 // Purpose:	Retrieves the task rect
 //----  --------------------------------------------------------------------------------------------------------
-RECT *Task::GetRect()
+RECT* Task::GetRect()
 {
   return &taskRect;
 }
@@ -170,11 +170,13 @@ void Task::DisplayMenu(HWND callingWnd)
 
   res = EAEDisplayMenu(callingWnd, taskWnd);
   if (res)
+  {
+    if (res != SC_CLOSE)
     {
-      if (res != SC_CLOSE)
-        ELSwitchToThisWindow(taskWnd);
-      PostMessage(taskWnd, WM_SYSCOMMAND, (WPARAM)res, MAKELPARAM(pt.x, pt.y));
+      ELSwitchToThisWindow(taskWnd);
     }
+    PostMessage(taskWnd, WM_SYSCOMMAND, (WPARAM)res, MAKELPARAM(pt.x, pt.y));
+  }
 }
 
 void Task::SetMinimized(bool minimized)

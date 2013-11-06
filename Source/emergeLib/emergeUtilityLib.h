@@ -46,7 +46,8 @@
 #include <string>
 #include <sstream>
 
-typedef enum _ELMBFLAGS {
+typedef enum _ELMBFLAGS
+{
   ELMB_ICONINFORMATION = 0x00,
   ELMB_ICONWARNING,
   ELMB_ICONQUESTION,
@@ -82,13 +83,13 @@ inline T fromwstring(const std::wstring& s)
 //Utility.h
 DLL_EXPORT void ELWriteDebug(std::wstring debugText);
 DLL_EXPORT int ELMid(int left, int right);
-DLL_EXPORT std::wstring ELwcsftime(std::wstring format, const struct tm *timeptr);
+DLL_EXPORT std::wstring ELwcsftime(std::wstring format, const struct tm* timeptr);
 DLL_EXPORT int ELMessageBox(HWND hwnd, std::wstring messageText, std::wstring messageTitle, DWORD msgFlags);
 DLL_EXPORT int ELMakeZip(std::wstring zipFile, std::wstring zipRoot, std::wstring zipPath);
 DLL_EXPORT int ELExtractZip(std::wstring zipFile, std::wstring unzipPath);
 
 //StringOps.h
-DLL_EXPORT UINT ELStringReplace(WCHAR *original, const WCHAR *pattern, const WCHAR *replacement, bool ignoreCase);
+DLL_EXPORT UINT ELStringReplace(WCHAR* original, const WCHAR* pattern, const WCHAR* replacement, bool ignoreCase);
 DLL_EXPORT std::wstring ELwstringReplace(std::wstring original, std::wstring pattern, std::wstring replacement, bool ignoreCase);
 DLL_EXPORT std::wstring ELToLower(std::wstring workingString);
 DLL_EXPORT std::wstring ELStripLeadingSpaces(std::wstring input);

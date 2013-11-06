@@ -23,7 +23,7 @@
 #include "TrayIcon.h"
 
 Settings::Settings(LPARAM lParam)
-  :BaseSettings(true)
+  : BaseSettings(true)
 {
   unhideIcons = true;
   xmlFile = TEXT("%EmergeDir%\\files\\emergeTray.xml");
@@ -31,10 +31,10 @@ Settings::Settings(LPARAM lParam)
   infoFontString = TEXT("");
   infoTitleFontString = TEXT("");
   gradientMethod = TEXT("");
-  borderColour = RGB(0,0,0);
-  textColour = RGB(0,0,0);
-  gradientTo = RGB(0,0,0);
-  gradientFrom = RGB(0,0,0);
+  borderColour = RGB(0, 0, 0);
+  textColour = RGB(0, 0, 0);
+  gradientTo = RGB(0, 0, 0);
+  gradientFrom = RGB(0, 0, 0);
   alpha = 100;
 }
 
@@ -114,7 +114,7 @@ bool Settings::GetUnhideIcons()
   return unhideIcons;
 }
 
-LOGFONT *Settings::GetInfoFont()
+LOGFONT* Settings::GetInfoFont()
 {
   return &infoLogFont;
 }
@@ -152,14 +152,14 @@ std::wstring Settings::GetGradientMethod()
 bool Settings::SetGradientMethod(std::wstring gradientMethod)
 {
   if (ELToLower(this->gradientMethod) != ELToLower(gradientMethod))
-    {
-      this->gradientMethod = gradientMethod;
-      SetModified();
-    }
+  {
+    this->gradientMethod = gradientMethod;
+    SetModified();
+  }
   return true;
 }
 
-LOGFONT *Settings::GetInfoTitleFont()
+LOGFONT* Settings::GetInfoTitleFont()
 {
   return &infoTitleLogFont;
 }
@@ -167,82 +167,82 @@ LOGFONT *Settings::GetInfoTitleFont()
 bool Settings::SetGradientFrom(COLORREF gradientFrom)
 {
   if (this->gradientFrom != gradientFrom)
-    {
-      this->gradientFrom = gradientFrom;
-      SetModified();
-    }
+  {
+    this->gradientFrom = gradientFrom;
+    SetModified();
+  }
   return true;
 }
 
 bool Settings::SetGradientTo(COLORREF gradientTo)
 {
   if (this->gradientTo != gradientTo)
-    {
-      this->gradientTo = gradientTo;
-      SetModified();
-    }
+  {
+    this->gradientTo = gradientTo;
+    SetModified();
+  }
   return true;
 }
 
 bool Settings::SetTextColor(COLORREF textColour)
 {
   if (this->textColour != textColour)
-    {
-      this->textColour = textColour;
-      SetModified();
-    }
+  {
+    this->textColour = textColour;
+    SetModified();
+  }
   return true;
 }
 
 bool Settings::SetBorderColor(COLORREF borderColour)
 {
   if (this->borderColour != borderColour)
-    {
-      this->borderColour = borderColour;
-      SetModified();
-    }
+  {
+    this->borderColour = borderColour;
+    SetModified();
+  }
   return true;
 }
 
 bool Settings::SetUnhideIcons(bool unhideIcons)
 {
   if (this->unhideIcons != unhideIcons)
-    {
-      this->unhideIcons = unhideIcons;
-      SetModified();
-    }
+  {
+    this->unhideIcons = unhideIcons;
+    SetModified();
+  }
   return true;
 }
 
 bool Settings::SetAlpha(int alpha)
 {
   if (this->alpha != alpha)
-    {
-      this->alpha = alpha;
-      SetModified();
-    }
+  {
+    this->alpha = alpha;
+    SetModified();
+  }
   return true;
 }
 
-bool Settings::SetInfoFont(LOGFONT *infoLogFont)
+bool Settings::SetInfoFont(LOGFONT* infoLogFont)
 {
   if (!EGEqualLogFont(this->infoLogFont, *infoLogFont))
-    {
-      infoFontString = EGFontToString(*infoLogFont);
-      CopyMemory(&this->infoLogFont, infoLogFont, sizeof(LOGFONT));
-      SetModified();
-    }
+  {
+    infoFontString = EGFontToString(*infoLogFont);
+    CopyMemory(&this->infoLogFont, infoLogFont, sizeof(LOGFONT));
+    SetModified();
+  }
   return true;
 }
 
-bool Settings::SetInfoTitleFont(LOGFONT *infoTitleLogFont)
+bool Settings::SetInfoTitleFont(LOGFONT* infoTitleLogFont)
 {
   if (!EGEqualLogFont(this->infoTitleLogFont, *infoTitleLogFont))
-    {
-      infoTitleFontString = EGFontToString(*infoTitleLogFont);
-      CopyMemory(&this->infoTitleLogFont, infoTitleLogFont, sizeof(LOGFONT));
-      SetModified();
-    }
+  {
+    infoTitleFontString = EGFontToString(*infoTitleLogFont);
+    CopyMemory(&this->infoTitleLogFont, infoTitleLogFont, sizeof(LOGFONT));
+    SetModified();
+  }
   return true;
 }
 
@@ -255,27 +255,29 @@ bool Settings::SetInfoTitleFont(LOGFONT *infoTitleLogFont)
 void Settings::BuildHideList()
 {
   std::tr1::shared_ptr<TiXmlDocument> configXML = ELOpenXMLConfig(xmlFile, false);
-  TiXmlElement *section;
+  TiXmlElement* section;
   std::wstring data;
 
   if (configXML)
+  {
+    // Clear the stickyList vector
+    hideList.clear();
+    section = ELGetXMLSection(configXML.get(), TEXT("Hide"), false);
+
+    if (section)
     {
-      // Clear the stickyList vector
-      hideList.clear();
-      section = ELGetXMLSection(configXML.get(), TEXT("Hide"), false);
+      IOHelper userIO(section);
 
-      if (section)
+      while (userIO.GetElement())
+      {
+        data = userIO.ReadString(TEXT("Icon"), TEXT(""));
+        if (!data.empty())
         {
-          IOHelper userIO(section);
-
-          while (userIO.GetElement())
-            {
-              data = userIO.ReadString(TEXT("Icon"), TEXT(""));
-              if (!data.empty())
-                hideList.push_back(data);
-            }
+          hideList.push_back(data);
         }
+      }
     }
+  }
 }
 
 //-----
@@ -284,22 +286,24 @@ void Settings::BuildHideList()
 // Returns:	bool
 // Purpose:	Checks to see if the icon should be hidden
 //-----
-bool Settings::CheckHide(WCHAR *iconTip)
+bool Settings::CheckHide(WCHAR* iconTip)
 {
   UINT i;
   bool tipMatch = false;
   WCHAR tmpiconTip[TIP_SIZE], tmphideList[TIP_SIZE];
-  ZeroMemory(tmpiconTip,TIP_SIZE);
-  ZeroMemory(tmphideList,TIP_SIZE);
+  ZeroMemory(tmpiconTip, TIP_SIZE);
+  ZeroMemory(tmphideList, TIP_SIZE);
 
   wcscpy(tmpiconTip, iconTip);
 
   for (i = 0; i < hideList.size(); i++)
+  {
+    wcscpy(tmphideList, (WCHAR*)hideList[i].c_str());
+    if (wcsstr(_wcslwr(tmpiconTip), _wcslwr(tmphideList)) != NULL)
     {
-      wcscpy(tmphideList,(WCHAR *)hideList[i].c_str());
-      if (wcsstr(_wcslwr(tmpiconTip), _wcslwr(tmphideList)) != NULL)
-        tipMatch = true;
+      tipMatch = true;
     }
+  }
 
   return tipMatch;
 }
@@ -311,112 +315,122 @@ UINT Settings::GetHideListSize()
 }
 
 
-WCHAR *Settings::GetHideListItem(UINT item)
+WCHAR* Settings::GetHideListItem(UINT item)
 {
   return (WCHAR*)hideList[item].c_str();
 }
 
-void Settings::DeleteHideListItem(WCHAR *itemText)
+void Settings::DeleteHideListItem(WCHAR* itemText)
 {
   UINT i = 0;
-  Applet *pApplet = reinterpret_cast<Applet*>(lParam);
+  Applet* pApplet = reinterpret_cast<Applet*>(lParam);
   std::vector<std::wstring>::iterator iter = hideList.begin();
 
   while (i < pApplet->GetTrayIconListSize())
+  {
+    if (wcsstr(pApplet->GetTrayIconListItem(i)->GetTip(), itemText))
     {
-      if (wcsstr(pApplet->GetTrayIconListItem(i)->GetTip(), itemText))
-        pApplet->GetTrayIconListItem(i)->SetHidden(false);
-
-      i++;
+      pApplet->GetTrayIconListItem(i)->SetHidden(false);
     }
+
+    i++;
+  }
 
   /**< Using a '!=' caused a crash here, switching to '<' fixed the crash - odd */
   while (iter < hideList.end())
   {
     if ((*iter) == itemText)
+    {
       hideList.erase(iter);
+    }
     iter++;
   }
 }
 
-void Settings::ModifyHideListItem(WCHAR *oldText, WCHAR *newText)
+void Settings::ModifyHideListItem(WCHAR* oldText, WCHAR* newText)
 {
   UINT i = 0;
-  Applet *pApplet = reinterpret_cast<Applet*>(lParam);
+  Applet* pApplet = reinterpret_cast<Applet*>(lParam);
   std::vector<std::wstring>::iterator iter = hideList.begin();
 
   while (i < pApplet->GetTrayIconListSize())
+  {
+    if (wcsstr(pApplet->GetTrayIconListItem(i)->GetTip(), oldText))
     {
-      if (wcsstr(pApplet->GetTrayIconListItem(i)->GetTip(), oldText))
-        pApplet->GetTrayIconListItem(i)->SetHidden(false);
-
-      i++;
+      pApplet->GetTrayIconListItem(i)->SetHidden(false);
     }
+
+    i++;
+  }
 
   while (iter < hideList.end())
   {
     if ((*iter) == oldText)
+    {
       (*iter) = newText;
+    }
     iter++;
   }
 }
 
-void Settings::AddHideListItem(WCHAR *item)
+void Settings::AddHideListItem(WCHAR* item)
 {
   std::vector<TrayIcon*>::iterator iter;
-  Applet *pApplet = reinterpret_cast<Applet*>(lParam);
+  Applet* pApplet = reinterpret_cast<Applet*>(lParam);
   bool itemexists;
   UINT i = 0;
 
   itemexists = false;
 
   for (UINT i = 0; i < hideList.size(); i++)
+  {
+    if (_wcsicmp((WCHAR*)hideList[i].c_str(), item) == 0)
     {
-      if (_wcsicmp((WCHAR*)hideList[i].c_str(), item) == 0)
-        {
-          itemexists = true;
-        }
-
+      itemexists = true;
     }
+
+  }
 
   if (!itemexists)
+  {
+    while (i < pApplet->GetTrayIconListSize())
     {
-      while (i < pApplet->GetTrayIconListSize())
-        {
-          if (wcsstr(pApplet->GetTrayIconListItem(i)->GetTip(), item))
-            {
-              pApplet->GetTrayIconListItem(i)->SetHidden(true);
-              pApplet->ShowHiddenIcons(true, true);
-            }
+      if (wcsstr(pApplet->GetTrayIconListItem(i)->GetTip(), item))
+      {
+        pApplet->GetTrayIconListItem(i)->SetHidden(true);
+        pApplet->ShowHiddenIcons(true, true);
+      }
 
-          i++;
-        }
-
-      hideList.push_back(item);
+      i++;
     }
+
+    hideList.push_back(item);
+  }
 }
 
 void Settings::WriteHideList()
 {
   std::tr1::shared_ptr<TiXmlDocument> configXML = ELOpenXMLConfig(xmlFile, true);
-  TiXmlElement *section;
+  TiXmlElement* section;
 
   if (configXML)
+  {
+    section = ELGetXMLSection(configXML.get(), (WCHAR*)TEXT("Hide"), true);
+
+    if (section)
     {
-      section = ELGetXMLSection(configXML.get(), (WCHAR*)TEXT("Hide"), true);
+      IOHelper userIO(section);
 
-      if (section)
+      userIO.Clear();
+      for (UINT i = 0; i < hideList.size(); i++)
+      {
+        if (userIO.SetElement(TEXT("item")))
         {
-          IOHelper userIO(section);
-
-          userIO.Clear();
-          for (UINT i = 0; i < hideList.size(); i++)
-            {
-              if (userIO.SetElement(TEXT("item")))
-                userIO.WriteString(TEXT("Icon"), (WCHAR*)hideList[i].c_str());
-            }
+          userIO.WriteString(TEXT("Icon"), (WCHAR*)hideList[i].c_str());
         }
-
-      ELWriteXMLConfig(configXML.get());
+      }
     }
+
+    ELWriteXMLConfig(configXML.get());
+  }
 }

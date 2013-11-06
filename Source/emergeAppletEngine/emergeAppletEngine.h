@@ -60,7 +60,7 @@ COMMONSETTINGS, *LPCOMMONSETTINGS;
 typedef struct _AUTOSIZEINFO
 {
   HWND hwnd;
-  RECT *rect;
+  RECT* rect;
   RECT titleBarRect;
   int dragBorder;
   UINT visibleIconCount;
@@ -79,7 +79,7 @@ DLL_EXPORT HWND EAEUpdateGUI(HWND hwnd, bool shadow, std::wstring zposition);
 DLL_EXPORT HWND EAEInitializeAppletWindow(HINSTANCE inst, WNDPROC windowProc, LPVOID lpParam);
 DLL_EXPORT HWND EAEInitializeTooltipWindow(HINSTANCE appletInstance);
 DLL_EXPORT bool EAEAutoSize(AUTOSIZEINFO autoSizeInfo);
-DLL_EXPORT LRESULT EAEDisplayChange(HMONITOR appletMonitor, RECT *wndRect, RECT *oldDeskRect);
+DLL_EXPORT LRESULT EAEDisplayChange(HMONITOR appletMonitor, RECT* wndRect, RECT* oldDeskRect);
 DLL_EXPORT int EAEDisplayMenu(HWND callingWnd, HWND taskWnd);
 DLL_EXPORT int EAEDisplayFileMenu(std::wstring file, HWND callingWnd);
 

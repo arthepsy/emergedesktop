@@ -20,7 +20,7 @@
 
 #include "StringOps.h"
 
-UINT ELStringReplace(WCHAR *original, const WCHAR *pattern, const WCHAR *replacement, bool ignoreCase)
+UINT ELStringReplace(WCHAR* original, const WCHAR* pattern, const WCHAR* replacement, bool ignoreCase)
 {
   std::wstring workingOrig = original, workingRepl = replacement;
   std::wstring lowerOrig = original, lowerPat = pattern;
@@ -28,20 +28,20 @@ UINT ELStringReplace(WCHAR *original, const WCHAR *pattern, const WCHAR *replace
   UINT substitutions = 0;
 
   if (ignoreCase)
-    {
-      std::transform(lowerOrig.begin(), lowerOrig.end(), lowerOrig.begin(), (int(*)(int)) std::tolower);
-      std::transform(lowerPat.begin(), lowerPat.end(), lowerPat.begin(), (int(*)(int)) std::tolower);
-    }
+  {
+    std::transform(lowerOrig.begin(), lowerOrig.end(), lowerOrig.begin(), (int(*)(int)) std::tolower);
+    std::transform(lowerPat.begin(), lowerPat.end(), lowerPat.begin(), (int(*)(int)) std::tolower);
+  }
 
   i = lowerOrig.find(lowerPat, i);
   while (i != std::wstring::npos)
-    {
-      workingOrig.replace(i, lowerPat.length(), workingRepl);
-      lowerOrig.replace(i, lowerPat.length(), workingRepl);
-      i += workingRepl.length();
-      i = lowerOrig.find(lowerPat, i);
-      substitutions++;
-    }
+  {
+    workingOrig.replace(i, lowerPat.length(), workingRepl);
+    lowerOrig.replace(i, lowerPat.length(), workingRepl);
+    i += workingRepl.length();
+    i = lowerOrig.find(lowerPat, i);
+    substitutions++;
+  }
 
   wcscpy(original, workingOrig.c_str());
 
@@ -54,19 +54,19 @@ std::wstring ELwstringReplace(std::wstring original, std::wstring pattern, std::
   size_t i = 0;
 
   if (ignoreCase)
-    {
-      std::transform(lowerOrig.begin(), lowerOrig.end(), lowerOrig.begin(), (int(*)(int)) std::tolower);
-      std::transform(lowerPat.begin(), lowerPat.end(), lowerPat.begin(), (int(*)(int)) std::tolower);
-    }
+  {
+    std::transform(lowerOrig.begin(), lowerOrig.end(), lowerOrig.begin(), (int(*)(int)) std::tolower);
+    std::transform(lowerPat.begin(), lowerPat.end(), lowerPat.begin(), (int(*)(int)) std::tolower);
+  }
 
   i = lowerOrig.find(lowerPat, i);
   while (i != std::wstring::npos)
-    {
-      returnValue.replace(i, pattern.length(), replacement);
-      lowerOrig.replace(i, lowerPat.length(), replacement);
-      i += replacement.length();
-      i = lowerOrig.find(lowerPat, i);
-    }
+  {
+    returnValue.replace(i, pattern.length(), replacement);
+    lowerOrig.replace(i, lowerPat.length(), replacement);
+    i += replacement.length();
+    i = lowerOrig.find(lowerPat, i);
+  }
 
   return returnValue;
 }
@@ -85,18 +85,20 @@ std::string ELwstringTostring(std::wstring inString, UINT codePage)
   size_t tmpStringLength = WideCharToMultiByte(codePage, 0, wideString.c_str(), wideString.length(), NULL, 0,
                            NULL, NULL);
   if (tmpStringLength != 0)
+  {
+    char* tmpString = new char[tmpStringLength + 1];
+    size_t writtenBytes = WideCharToMultiByte(codePage, 0, wideString.c_str(), wideString.length(), tmpString,
+                          tmpStringLength, NULL, NULL);
+    if (writtenBytes != 0)
     {
-      char *tmpString = new char[tmpStringLength + 1];
-      size_t writtenBytes = WideCharToMultiByte(codePage, 0, wideString.c_str(), wideString.length(), tmpString,
-                            tmpStringLength, NULL, NULL);
-      if (writtenBytes != 0)
-        {
-          if (writtenBytes <= tmpStringLength)
-            tmpString[writtenBytes] = '\0';
-          returnString = tmpString;
-        }
-      delete [] tmpString;
+      if (writtenBytes <= tmpStringLength)
+      {
+        tmpString[writtenBytes] = '\0';
+      }
+      returnString = tmpString;
     }
+    delete [] tmpString;
+  }
   return returnString;
 }
 
@@ -107,18 +109,20 @@ std::wstring ELstringTowstring(std::string inString, UINT codePage)
 
   size_t tmpStringLength = MultiByteToWideChar(codePage, 0, narrowString.c_str(), narrowString.length(), NULL, 0);
   if (tmpStringLength != 0)
+  {
+    LPWSTR tmpString = new WCHAR[tmpStringLength + 1];
+    size_t writtenBytes = MultiByteToWideChar(codePage, 0, narrowString.c_str(), narrowString.length(), tmpString,
+                          tmpStringLength);
+    if (writtenBytes != 0)
     {
-      LPWSTR tmpString = new WCHAR[tmpStringLength + 1];
-      size_t writtenBytes = MultiByteToWideChar(codePage, 0, narrowString.c_str(), narrowString.length(), tmpString,
-                            tmpStringLength);
-      if (writtenBytes != 0)
-        {
-          if (writtenBytes <= tmpStringLength)
-            tmpString[writtenBytes] = '\0';
-          returnString = tmpString;
-        }
-      delete [] tmpString;
+      if (writtenBytes <= tmpStringLength)
+      {
+        tmpString[writtenBytes] = '\0';
+      }
+      returnString = tmpString;
     }
+    delete [] tmpString;
+  }
 
   return returnString;
 }
@@ -129,12 +133,14 @@ std::wstring ELStripLeadingSpaces(std::wstring input)
 
   //< Search input for the first non-space character
   while (i < input.length())
+  {
+    if (input.at(i) != ' ')
     {
-      if (input.at(i) != ' ')
-        break;
-
-      i++;
+      break;
     }
+
+    i++;
+  }
 
   return input.substr(i, std::wstring::npos);
 }

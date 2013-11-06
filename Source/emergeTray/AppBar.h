@@ -57,13 +57,13 @@ APPBARDATA_WOW32;
 class AppBar
 {
 public:
-  AppBar(APPBARDATA *pAppBarData);
+  AppBar(APPBARDATA* pAppBarData);
   ~AppBar();
-  bool IsEqual(APPBARDATA *pAppBarData);
+  bool IsEqual(APPBARDATA* pAppBarData);
   UINT GetEdge();
   RECT GetRect();
   bool SetEdge(UINT edge);
-  bool SetRect(RECT &rect);
+  bool SetRect(RECT& rect);
   bool IsAutoHide();
   HWND GetWnd();
 

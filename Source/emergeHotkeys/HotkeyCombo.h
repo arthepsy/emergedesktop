@@ -39,11 +39,11 @@ class HotkeyCombo
 public:
   HotkeyCombo(std::wstring keyCombo, std::wstring action, bool backup);
   ~HotkeyCombo();
-  WCHAR *GetHotkeyAction();
+  WCHAR* GetHotkeyAction();
   UINT GetHotkeyModifiers();
   UINT GetHotkeyID();
   WCHAR GetHotkeyKey();
-  WCHAR *GetHotkeyString();
+  WCHAR* GetHotkeyString();
   void SetValid(bool valid);
   bool GetValid();
 

@@ -88,7 +88,7 @@ private:
   static LONG_PTR WINAPI _HyperlinkParentProc(HWND hwnd, UINT message,
       WPARAM wParam, LPARAM lParam);
   static LONG_PTR WINAPI _HyperlinkProc(HWND hwnd, UINT message,
-                                         WPARAM wParam, LPARAM lParam);
+                                        WPARAM wParam, LPARAM lParam);
 };
 
 #endif /* _HYPERLINK_H_ */

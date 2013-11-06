@@ -50,17 +50,17 @@
 // Global definitions
 typedef struct tagCONTEXTINFO
 {
-  IContextMenu2 *ic2;
+  IContextMenu2* ic2;
   WCHAR value[MAX_PATH];
 } CONTEXTINFO;
 WCHAR appletClass[ ] = TEXT("EmergeDesktopApplet");
 WNDPROC oldWndProc = NULL;
 HMENU selectedMenu = NULL;
-typedef std::map<HMENU,CONTEXTINFO> ContextMap;
+typedef std::map<HMENU, CONTEXTINFO> ContextMap;
 ContextMap contextMap;
 
 // Helper functions
 LRESULT CALLBACK MenuProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
-HRESULT AddContextMenu(WCHAR *file);
+HRESULT AddContextMenu(WCHAR* file);
 
 #endif

@@ -20,42 +20,46 @@
 
 #include "FileRegistryIO.h"
 
-bool ELReadRegDWord(HKEY key, std::wstring value, DWORD *target, DWORD defaultValue)
+bool ELReadRegDWord(HKEY key, std::wstring value, DWORD* target, DWORD defaultValue)
 {
   DWORD dwSize = sizeof(DWORD);
 
   if (RegQueryValueEx(key, value.c_str(), NULL, NULL, (LPBYTE)target, &dwSize) == ERROR_SUCCESS)
+  {
     return true;
+  }
 
   *target = defaultValue;
   return false;
 }
 
-bool ELWriteRegDWord(HKEY key, std::wstring value, DWORD *source)
+bool ELWriteRegDWord(HKEY key, std::wstring value, DWORD* source)
 {
   if (RegSetValueEx(key, value.c_str(), 0, REG_DWORD, (BYTE*)source, sizeof(DWORD)) == ERROR_SUCCESS)
+  {
     return true;
+  }
 
   return false;
 }
 
-bool ELReadRegRect(HKEY key, std::wstring value, RECT *target, RECT *defaultValue)
+bool ELReadRegRect(HKEY key, std::wstring value, RECT* target, RECT* defaultValue)
 {
   DWORD dwSize = MAX_LINE_LENGTH;
   WCHAR tmp[MAX_LINE_LENGTH];
 
   if (RegQueryValueEx(key, value.c_str(), NULL, NULL, (LPBYTE)tmp, &dwSize) != ERROR_SUCCESS)
-    {
-      CopyRect(target, defaultValue);
-      return false;
-    }
+  {
+    CopyRect(target, defaultValue);
+    return false;
+  }
 
   if (swscanf(tmp, TEXT("%d,%d,%d,%d"), &target->top, &target->left,
               &target->bottom, &target->right) != 4)
-    {
-      CopyRect(target, defaultValue);
-      return false;
-    }
+  {
+    CopyRect(target, defaultValue);
+    return false;
+  }
 
   return true;
 }
@@ -66,12 +70,14 @@ std::wstring ELReadRegString(HKEY key, std::wstring value, std::wstring defaultV
   DWORD dwSize = MAX_LINE_LENGTH;
 
   if (RegQueryValueEx(key, value.c_str(), NULL, NULL, (LPBYTE)tempTarget, &dwSize) == ERROR_SUCCESS)
+  {
     return tempTarget;
+  }
 
   return defaultValue;
 }
 
-bool ELWriteRegRect(HKEY key, std::wstring value, RECT *source)
+bool ELWriteRegRect(HKEY key, std::wstring value, RECT* source)
 {
   WCHAR tmp[MAX_LINE_LENGTH];
 
@@ -84,12 +90,14 @@ bool ELWriteRegString(HKEY key, std::wstring value, std::wstring source)
 {
   if (RegSetValueEx(key, value.c_str(), 0, REG_SZ, (BYTE*)source.c_str(), (DWORD)wcslen(source.c_str()) * sizeof(source[0])) ==
       ERROR_SUCCESS)
+  {
     return true;
+  }
 
   return false;
 }
 
-bool ELOpenRegKey(std::wstring subkey, HKEY *key, bool createKey)
+bool ELOpenRegKey(std::wstring subkey, HKEY* key, bool createKey)
 {
   DWORD result;
   std::wstring inputKey;
@@ -97,16 +105,20 @@ bool ELOpenRegKey(std::wstring subkey, HKEY *key, bool createKey)
   inputKey = TEXT("Software\\Emerge Desktop\\") + subkey;
 
   if (createKey)
+  {
+    if (RegCreateKeyEx(HKEY_CURRENT_USER, inputKey.c_str(), 0, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS,
+                       NULL, key, &result) == ERROR_SUCCESS)
     {
-      if (RegCreateKeyEx(HKEY_CURRENT_USER, inputKey.c_str(), 0, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS,
-                         NULL, key, &result) == ERROR_SUCCESS)
-        return true;
+      return true;
     }
+  }
   else
+  {
+    if (RegOpenKeyEx(HKEY_CURRENT_USER, inputKey.c_str(), 0, KEY_ALL_ACCESS, key) == ERROR_SUCCESS)
     {
-      if (RegOpenKeyEx(HKEY_CURRENT_USER, inputKey.c_str(), 0, KEY_ALL_ACCESS, key) == ERROR_SUCCESS)
-        return true;
+      return true;
     }
+  }
 
   return false;
 }
@@ -118,7 +130,9 @@ bool ELDeleteRegKey(std::wstring subkey)
   inputKey = TEXT("Software\\Emerge Desktop\\") + subkey;
 
   if (SHDeleteKey(HKEY_CURRENT_USER, inputKey.c_str()) == ERROR_SUCCESS)
+  {
     return true;
+  }
 
   return false;
 }
@@ -126,7 +140,9 @@ bool ELDeleteRegKey(std::wstring subkey)
 bool ELCloseRegKey(HKEY key)
 {
   if (RegCloseKey(key) == ERROR_SUCCESS)
+  {
     return true;
+  }
 
   return false;
 }
@@ -149,9 +165,13 @@ bool ELWriteFileBool(std::wstring fileName, std::wstring keyword, bool value)
   WCHAR tmp[MAX_LINE_LENGTH];
 
   if (value)
+  {
     wcscpy(tmp, TEXT("true"));
+  }
   else
+  {
     wcscpy(tmp, TEXT("false"));
+  }
 
   return WriteValue(fileName, keyword, tmp);
 }
@@ -173,21 +193,25 @@ int ELReadFileInt(std::wstring fileName, std::wstring item, int defaultValue)
 
   tempValue = ReadValue(fileName, item);
   if (!tempValue.empty())
-    {
-      found = true;
+  {
+    found = true;
 
-      for (UINT i = 0; i < tempValue.size(); i++)
-        if (isalpha(tempValue.at(i)) != 0)
-          {
-            found = false;
-            break;
-          }
-    }
+    for (UINT i = 0; i < tempValue.size(); i++)
+      if (isalpha(tempValue.at(i)) != 0)
+      {
+        found = false;
+        break;
+      }
+  }
 
   if (found)
+  {
     returnValue = _wtoi(tempValue.c_str());
+  }
   else
+  {
     returnValue = defaultValue;
+  }
 
   return returnValue;
 }
@@ -200,21 +224,25 @@ BYTE ELReadFileByte(std::wstring fileName, std::wstring item, BYTE defaultValue)
 
   tempValue = ReadValue(fileName, item);
   if (!tempValue.empty())
-    {
-      found = true;
+  {
+    found = true;
 
-      for (UINT i = 0; i < tempValue.size(); i++)
-        if (isalpha(tempValue.at(i)) != 0)
-          {
-            found = false;
-            break;
-          }
-    }
+    for (UINT i = 0; i < tempValue.size(); i++)
+      if (isalpha(tempValue.at(i)) != 0)
+      {
+        found = false;
+        break;
+      }
+  }
 
   if (found)
+  {
     returnValue = _wtoi(tempValue.c_str());
+  }
   else
+  {
     returnValue = defaultValue;
+  }
 
   return returnValue;
 }
@@ -226,7 +254,9 @@ std::wstring ELReadFileString(std::wstring fileName, std::wstring item, std::wst
   tempValue = ReadValue(fileName, item);
 
   if (tempValue.empty())
+  {
     tempValue = defaultValue;
+  }
 
   return tempValue;
 }
@@ -238,11 +268,17 @@ bool ELReadFileBool(std::wstring fileName, std::wstring item, bool defaultValue)
   tempValue = ReadValue(fileName, item);
 
   if (ELToLower(tempValue) == TEXT("true"))
+  {
     return true;
+  }
   else if (ELToLower(tempValue) == TEXT("false"))
+  {
     return false;
+  }
   else
+  {
     return defaultValue;
+  }
 }
 
 COLORREF ELReadFileColor(std::wstring fileName, std::wstring item, COLORREF defaultValue)
@@ -253,17 +289,17 @@ COLORREF ELReadFileColor(std::wstring fileName, std::wstring item, COLORREF defa
   tempValue = ReadValue(fileName, item);
 
   if (!tempValue.empty())
+  {
+    if (swscanf(tempValue.c_str(), TEXT("%d,%d,%d"), &red, &green, &blue) == 3)
     {
-      if (swscanf(tempValue.c_str(), TEXT("%d,%d,%d"), &red, &green, &blue) == 3)
-        {
-          if ((red >= 0 && red <= 255) &&
-              (green >= 0 && green <= 255) &&
-              (blue >= 0 && blue <= 255))
-            {
-              return RGB(red, green, blue);
-            }
-        }
+      if ((red >= 0 && red <= 255) &&
+          (green >= 0 && green <= 255) &&
+          (blue >= 0 && blue <= 255))
+      {
+        return RGB(red, green, blue);
+      }
     }
+  }
 
   return defaultValue;
 }
@@ -279,7 +315,7 @@ std::tr1::shared_ptr<TiXmlDocument> ELOpenXMLConfig(std::wstring file, bool crea
   return configXML;
 }
 
-COLORREF ELReadXMLColorValue(TiXmlElement *section, std::wstring item, COLORREF defaultValue)
+COLORREF ELReadXMLColorValue(TiXmlElement* section, std::wstring item, COLORREF defaultValue)
 {
   WCHAR stringDefault[MAX_LINE_LENGTH];
   std::wstring stringValue;
@@ -291,17 +327,19 @@ COLORREF ELReadXMLColorValue(TiXmlElement *section, std::wstring item, COLORREF 
   stringValue = ELReadXMLStringValue(section, item, stringDefault);
 
   if (swscanf(stringValue.c_str(), TEXT("%d,%d,%d"), &red, &green, &blue) == 3)
+  {
+    if ((red >= 0 && red <= 255) &&
+        (green >= 0 && green <= 255) &&
+        (blue >= 0 && blue <= 255))
     {
-      if ((red >= 0 && red <= 255) &&
-          (green >= 0 && green <= 255) &&
-          (blue >= 0 && blue <= 255))
-        return RGB(red, green, blue);
+      return RGB(red, green, blue);
     }
+  }
 
   return defaultValue;
 }
 
-RECT ELReadXMLRectValue(TiXmlElement *section, std::wstring item, RECT defaultValue)
+RECT ELReadXMLRectValue(TiXmlElement* section, std::wstring item, RECT defaultValue)
 {
   WCHAR stringDefault[MAX_LINE_LENGTH];
   std::wstring stringValue;
@@ -314,26 +352,32 @@ RECT ELReadXMLRectValue(TiXmlElement *section, std::wstring item, RECT defaultVa
 
   if (swscanf(stringValue.c_str(), TEXT("%d,%d,%d,%d"), returnValue.top, returnValue.left,
               returnValue.bottom, returnValue.right) == 4)
+  {
     return returnValue;
+  }
 
   return defaultValue;
 }
 
-bool ELReadXMLBoolValue(TiXmlElement *section, std::wstring item, bool defaultValue)
+bool ELReadXMLBoolValue(TiXmlElement* section, std::wstring item, bool defaultValue)
 {
   std::wstring stringDefault, stringValue;
 
   if (defaultValue)
+  {
     stringDefault = TEXT("true");
+  }
   else
+  {
     stringDefault = TEXT("false");
+  }
 
   stringValue = ELReadXMLStringValue(section, item, stringDefault);
 
   return (ELToLower(stringValue) == TEXT("true"));
 }
 
-int ELReadXMLIntValue(TiXmlElement *section, std::wstring item, int defaultValue)
+int ELReadXMLIntValue(TiXmlElement* section, std::wstring item, int defaultValue)
 {
   WCHAR stringDefault[MAX_LINE_LENGTH];
   std::wstring stringValue;
@@ -348,7 +392,7 @@ int ELReadXMLIntValue(TiXmlElement *section, std::wstring item, int defaultValue
   return returnValue;
 }
 
-float ELReadXMLFloatValue(TiXmlElement *section, std::wstring item, float defaultValue)
+float ELReadXMLFloatValue(TiXmlElement* section, std::wstring item, float defaultValue)
 {
   WCHAR stringDefault[MAX_LINE_LENGTH];
   std::wstring stringValue;
@@ -363,26 +407,32 @@ float ELReadXMLFloatValue(TiXmlElement *section, std::wstring item, float defaul
   return returnValue;
 }
 
-std::wstring ELReadXMLStringValue(TiXmlElement *section, std::wstring item, std::wstring defaultValue)
+std::wstring ELReadXMLStringValue(TiXmlElement* section, std::wstring item, std::wstring defaultValue)
 {
   std::string narrowItem = ELwstringTostring(item);
   std::wstring wideString;
   std::wstring returnValue;
 
   if (!section)
+  {
     return defaultValue;
+  }
 
-  TiXmlElement *xmlItem = section->FirstChildElement(narrowItem.c_str());
+  TiXmlElement* xmlItem = section->FirstChildElement(narrowItem.c_str());
   if (!xmlItem)
+  {
     return defaultValue;
+  }
 
   if (xmlItem->GetText() != NULL)
+  {
     return ELstringTowstring(xmlItem->GetText());
+  }
 
   return defaultValue;
 }
 
-bool ELWriteXMLColorValue(TiXmlElement *section, std::wstring item, COLORREF value)
+bool ELWriteXMLColorValue(TiXmlElement* section, std::wstring item, COLORREF value)
 {
   WCHAR stringValue[MAX_LINE_LENGTH];
 
@@ -392,7 +442,7 @@ bool ELWriteXMLColorValue(TiXmlElement *section, std::wstring item, COLORREF val
   return ELWriteXMLStringValue(section, item, stringValue);
 }
 
-bool ELWriteXMLRectValue(TiXmlElement *section, std::wstring item, RECT value)
+bool ELWriteXMLRectValue(TiXmlElement* section, std::wstring item, RECT value)
 {
   WCHAR stringValue[MAX_LINE_LENGTH];
 
@@ -402,18 +452,20 @@ bool ELWriteXMLRectValue(TiXmlElement *section, std::wstring item, RECT value)
   return ELWriteXMLStringValue(section, item, stringValue);
 }
 
-bool ELWriteXMLBoolValue(TiXmlElement *section, std::wstring item, bool value)
+bool ELWriteXMLBoolValue(TiXmlElement* section, std::wstring item, bool value)
 {
   WCHAR stringValue[MAX_LINE_LENGTH];
 
   swprintf(stringValue, TEXT("false"));
   if (value)
+  {
     swprintf(stringValue, TEXT("true"));
+  }
 
   return ELWriteXMLStringValue(section, item, stringValue);
 }
 
-bool ELWriteXMLIntValue(TiXmlElement *section, std::wstring item, int value)
+bool ELWriteXMLIntValue(TiXmlElement* section, std::wstring item, int value)
 {
   WCHAR stringValue[MAX_LINE_LENGTH];
 
@@ -422,7 +474,7 @@ bool ELWriteXMLIntValue(TiXmlElement *section, std::wstring item, int value)
   return ELWriteXMLStringValue(section, item, stringValue);
 }
 
-bool ELWriteXMLFloatValue(TiXmlElement *section, std::wstring item, float value)
+bool ELWriteXMLFloatValue(TiXmlElement* section, std::wstring item, float value)
 {
   WCHAR stringValue[MAX_LINE_LENGTH];
 
@@ -431,69 +483,73 @@ bool ELWriteXMLFloatValue(TiXmlElement *section, std::wstring item, float value)
   return ELWriteXMLStringValue(section, item, stringValue);
 }
 
-bool ELWriteXMLStringValue(TiXmlElement *section, std::wstring item, std::wstring value)
+bool ELWriteXMLStringValue(TiXmlElement* section, std::wstring item, std::wstring value)
 {
   std::string narrowItem = ELwstringTostring(item), narrowValue = ELwstringTostring(value);
 
   if (!section)
+  {
     return false;
+  }
 
-  TiXmlElement *xmlItem = section->FirstChildElement(narrowItem.c_str());
+  TiXmlElement* xmlItem = section->FirstChildElement(narrowItem.c_str());
   if (!xmlItem)
-    {
-      xmlItem = new TiXmlElement(narrowItem.c_str());
-      xmlItem->LinkEndChild(new TiXmlText(narrowValue.c_str()));
-      return (section->LinkEndChild(xmlItem) != NULL);
-    }
+  {
+    xmlItem = new TiXmlElement(narrowItem.c_str());
+    xmlItem->LinkEndChild(new TiXmlText(narrowValue.c_str()));
+    return (section->LinkEndChild(xmlItem) != NULL);
+  }
   else
-    {
-      TiXmlElement newItem(narrowItem.c_str());
-      newItem.LinkEndChild(new TiXmlText(narrowValue.c_str()));
-      return (section->ReplaceChild(xmlItem, newItem) != NULL);
-    }
+  {
+    TiXmlElement newItem(narrowItem.c_str());
+    newItem.LinkEndChild(new TiXmlText(narrowValue.c_str()));
+    return (section->ReplaceChild(xmlItem, newItem) != NULL);
+  }
 }
 
-TiXmlElement *ELGetXMLElementParent(TiXmlElement *xmlElement)
+TiXmlElement* ELGetXMLElementParent(TiXmlElement* xmlElement)
 {
   return xmlElement->Parent()->ToElement();
 }
 
-TiXmlElement *ELGetXMLSection(TiXmlDocument *configXML, std::wstring section, bool createSection)
+TiXmlElement* ELGetXMLSection(TiXmlDocument* configXML, std::wstring section, bool createSection)
 {
   std::string narrowSection = ELwstringTostring(section);
 
-  TiXmlElement *xmlSection = configXML->FirstChildElement(narrowSection.c_str());
+  TiXmlElement* xmlSection = configXML->FirstChildElement(narrowSection.c_str());
   if (!xmlSection && createSection)
-    {
-      xmlSection = new TiXmlElement(narrowSection.c_str());
-      configXML->LinkEndChild(xmlSection);
-      configXML->SaveFile();
-    }
+  {
+    xmlSection = new TiXmlElement(narrowSection.c_str());
+    configXML->LinkEndChild(xmlSection);
+    configXML->SaveFile();
+  }
 
   return xmlSection;
 }
 
-TiXmlElement *ELGetFirstXMLElement(TiXmlElement *xmlSection)
+TiXmlElement* ELGetFirstXMLElement(TiXmlElement* xmlSection)
 {
   return xmlSection->FirstChildElement();
 }
 
-TiXmlElement *ELGetFirstXMLElementByName(TiXmlElement *xmlSection, std::wstring elementName, bool createElement)
+TiXmlElement* ELGetFirstXMLElementByName(TiXmlElement* xmlSection, std::wstring elementName, bool createElement)
 {
   std::string narrowElement = ELwstringTostring(elementName);
-  TiXmlElement *child;
+  TiXmlElement* child;
 
   child = xmlSection->FirstChildElement(narrowElement.c_str());
   if (!child && createElement)
+  {
     child = ELSetFirstXMLElementByName(xmlSection, elementName);
+  }
 
   return child;
 }
 
-TiXmlElement *ELSetFirstXMLElementByName(TiXmlElement *xmlSection, std::wstring elementName)
+TiXmlElement* ELSetFirstXMLElementByName(TiXmlElement* xmlSection, std::wstring elementName)
 {
   std::string narrowElement = ELwstringTostring(elementName);
-  TiXmlElement *child;
+  TiXmlElement* child;
 
   child = new TiXmlElement(narrowElement.c_str());
   xmlSection->LinkEndChild(child);
@@ -501,108 +557,126 @@ TiXmlElement *ELSetFirstXMLElementByName(TiXmlElement *xmlSection, std::wstring 
   return child;
 }
 
-void ELSetFirstXMLElement(TiXmlElement *xmlSection, TiXmlElement *element)
+void ELSetFirstXMLElement(TiXmlElement* xmlSection, TiXmlElement* element)
 {
   xmlSection->LinkEndChild(element);
 }
 
-TiXmlElement *ELGetSiblingXMLElement(TiXmlElement *xmlElement)
+TiXmlElement* ELGetSiblingXMLElement(TiXmlElement* xmlElement)
 {
   return xmlElement->NextSiblingElement();
 }
 
-TiXmlElement *ELSetSiblingXMLElement(TiXmlElement *targetElement, TiXmlElement *sourceElement, bool insertAfter)
+TiXmlElement* ELSetSiblingXMLElement(TiXmlElement* targetElement, TiXmlElement* sourceElement, bool insertAfter)
 {
-  TiXmlElement *sibling;
+  TiXmlElement* sibling;
 
   if (insertAfter)
+  {
     sibling = targetElement->Parent()->InsertAfterChild(targetElement, *sourceElement)->ToElement();
+  }
   else
+  {
     sibling = targetElement->Parent()->InsertBeforeChild(targetElement, *sourceElement)->ToElement();
+  }
 
   return sibling;
 }
 
-TiXmlElement *ELSetSiblingXMLElementByName(TiXmlElement *xmlElement, const WCHAR *elementName, bool insertAfter)
+TiXmlElement* ELSetSiblingXMLElementByName(TiXmlElement* xmlElement, const WCHAR* elementName, bool insertAfter)
 {
   std::string narrowElement = ELwstringTostring(elementName);
-  TiXmlElement *sibling, newSibling(narrowElement.c_str());
+  TiXmlElement* sibling, newSibling(narrowElement.c_str());
 
   if (insertAfter)
+  {
     sibling = xmlElement->Parent()->InsertAfterChild(xmlElement, newSibling)->ToElement();
+  }
   else
+  {
     sibling = xmlElement->Parent()->InsertBeforeChild(xmlElement, newSibling)->ToElement();
+  }
 
   return sibling;
 }
 
-TiXmlElement *ELCloneXMLElement(TiXmlElement *sourceElement)
+TiXmlElement* ELCloneXMLElement(TiXmlElement* sourceElement)
 {
   return sourceElement->Clone()->ToElement();
 }
 
-TiXmlElement *ELCloneXMLElementAsSibling(TiXmlElement *sourceElement, TiXmlElement *targetElement)
+TiXmlElement* ELCloneXMLElementAsSibling(TiXmlElement* sourceElement, TiXmlElement* targetElement)
 {
-  TiXmlElement *sibling = NULL, *newElement = NULL;
+  TiXmlElement* sibling = NULL, *newElement = NULL;
   if (sourceElement)
+  {
     newElement = sourceElement->Clone()->ToElement();
+  }
 
   if (targetElement && newElement)
+  {
     sibling = targetElement->Parent()->InsertBeforeChild(targetElement, *newElement)->ToElement();
+  }
 
   return sibling;
 }
 
-TiXmlElement *ELCloneXMLElementAsChild(TiXmlElement *sourceElement, TiXmlElement *targetElement)
+TiXmlElement* ELCloneXMLElementAsChild(TiXmlElement* sourceElement, TiXmlElement* targetElement)
 {
-  TiXmlElement *newElement = NULL;
+  TiXmlElement* newElement = NULL;
   if (sourceElement)
+  {
     newElement = sourceElement->Clone()->ToElement();
+  }
 
   if (targetElement && newElement)
+  {
     targetElement->LinkEndChild(newElement);
+  }
 
   return newElement;
 }
 
-bool ELGetXMLElementText(TiXmlElement *xmlElement, std::wstring xmlString)
+bool ELGetXMLElementText(TiXmlElement* xmlElement, std::wstring xmlString)
 {
   if (!xmlElement)
+  {
     return false;
+  }
 
   if (xmlElement->GetText() != NULL)
-    {
-      xmlString = ELstringTowstring(xmlElement->GetText());
-      return true;
-    }
+  {
+    xmlString = ELstringTowstring(xmlElement->GetText());
+    return true;
+  }
 
   return false;
 }
 
-bool ELGetXMLElementLabel(TiXmlElement *xmlElement, std::wstring xmlString)
+bool ELGetXMLElementLabel(TiXmlElement* xmlElement, std::wstring xmlString)
 {
   if (xmlElement->Value() != NULL)
-    {
-      xmlString = ELstringTowstring(xmlElement->Value());
-      return true;
-    }
+  {
+    xmlString = ELstringTowstring(xmlElement->Value());
+    return true;
+  }
 
   return false;
 }
 
-bool ELRemoveXMLElement(TiXmlElement *xmlElement)
+bool ELRemoveXMLElement(TiXmlElement* xmlElement)
 {
-  TiXmlNode *xmlSection = xmlElement->Parent();
+  TiXmlNode* xmlSection = xmlElement->Parent();
 
   return xmlSection->RemoveChild(xmlElement);
 }
 
-TiXmlDocument *ELGetXMLConfig(TiXmlElement *element)
+TiXmlDocument* ELGetXMLConfig(TiXmlElement* element)
 {
   return element->GetDocument();
 }
 
-bool ELWriteXMLConfig(TiXmlDocument *configXML)
+bool ELWriteXMLConfig(TiXmlDocument* configXML)
 {
   return configXML->SaveFile();
 }
@@ -615,43 +689,49 @@ bool WriteValue(std::wstring fileName, std::wstring keyword, std::wstring value)
 
   wcscpy(tmpFile, ELGetTempFileName().c_str());
   if (wcslen(tmpFile) == 0)
+  {
     return false;
+  }
 
-  FILE *tmpFP = _wfopen(tmpFile, TEXT("w"));
-  FILE *existingFP = _wfopen(fileName.c_str(), TEXT("r"));
+  FILE* tmpFP = _wfopen(tmpFile, TEXT("w"));
+  FILE* existingFP = _wfopen(fileName.c_str(), TEXT("r"));
 
   if (!tmpFP)
+  {
     return written;
+  }
 
   if (existingFP != NULL)
+  {
+    while (fgetws(fileLine, MAX_LINE_LENGTH, existingFP))
     {
-      while (fgetws(fileLine, MAX_LINE_LENGTH, existingFP))
-        {
-          tokenLine = _wcsdup(fileLine);
-          token = wcstok(tokenLine, TEXT("\t ="));
+      tokenLine = _wcsdup(fileLine);
+      token = wcstok(tokenLine, TEXT("\t ="));
 
-          if (_wcsicmp(token, keyword.c_str()) == 0)
-            {
-              swprintf(fileLine, TEXT("%ls\t%ls\n"), keyword.c_str(), value.c_str());
-              written = true;
-            }
+      if (_wcsicmp(token, keyword.c_str()) == 0)
+      {
+        swprintf(fileLine, TEXT("%ls\t%ls\n"), keyword.c_str(), value.c_str());
+        written = true;
+      }
 
-          free(tokenLine);
-          fputws(fileLine, tmpFP);
-        }
+      free(tokenLine);
+      fputws(fileLine, tmpFP);
     }
+  }
 
   if (!written)
-    {
-      swprintf(fileLine, TEXT("%ls\t%ls\n"), keyword.c_str(), value.c_str());
-      fputws(fileLine, tmpFP);
-      written = true;
-    }
+  {
+    swprintf(fileLine, TEXT("%ls\t%ls\n"), keyword.c_str(), value.c_str());
+    fputws(fileLine, tmpFP);
+    written = true;
+  }
 
 
   fclose(tmpFP);
   if (existingFP != NULL)
+  {
     fclose(existingFP);
+  }
 
   CopyFile(tmpFile, fileName.c_str(), FALSE);
   DeleteFile(tmpFile);
@@ -662,46 +742,48 @@ bool WriteValue(std::wstring fileName, std::wstring keyword, std::wstring value)
 std::wstring ReadValue(std::wstring fileName, std::wstring keyword)
 {
   WCHAR fileLine[MAX_LINE_LENGTH], *token, tmp[MAX_LINE_LENGTH], tempValue[MAX_LINE_LENGTH];
-  FILE *file = _wfopen(fileName.c_str(), TEXT("r"));
+  FILE* file = _wfopen(fileName.c_str(), TEXT("r"));
   bool found = false;
   UINT i = 0, j = 0;
 
   ZeroMemory(tempValue, MAX_LINE_LENGTH);
 
   if (!file)
+  {
     return TEXT("");
+  }
 
   while (fgetws(fileLine, MAX_LINE_LENGTH, file))
+  {
+    token = wcstok(fileLine, TEXT("\t ="));
+
+    if (_wcsicmp(token, keyword.c_str()) == 0)
     {
-      token = wcstok(fileLine, TEXT("\t ="));
+      token = wcstok(NULL, TEXT("\n\0"));
 
-      if (_wcsicmp(token, keyword.c_str()) == 0)
+      wcscpy(tmp, token);
+
+      while (i < wcslen(tmp))
+      {
+        if (found)
         {
-          token = wcstok(NULL, TEXT("\n\0"));
-
-          wcscpy(tmp, token);
-
-          while (i < wcslen(tmp))
-            {
-              if (found)
-                {
-                  tempValue[j] = tmp[i];
-                  j++;
-                }
-
-              if (!found && isalnum((int)tmp[i]))
-                {
-                  found = true;
-                  tempValue[j] = tmp[i];
-                  j++;
-                }
-
-              i++;
-            }
-
-          break;
+          tempValue[j] = tmp[i];
+          j++;
         }
+
+        if (!found && isalnum((int)tmp[i]))
+        {
+          found = true;
+          tempValue[j] = tmp[i];
+          j++;
+        }
+
+        i++;
+      }
+
+      break;
     }
+  }
 
   fclose(file);
 
@@ -713,17 +795,21 @@ std::tr1::shared_ptr<TiXmlDocument> OpenXMLConfig(std::string filename, bool cre
   std::tr1::shared_ptr<TiXmlDocument> configXML(new TiXmlDocument(filename.c_str()));
 
   if (!configXML->LoadFile())
+  {
+    if (create)
     {
-      if (create)
-        {
-          TiXmlDeclaration *decl = new TiXmlDeclaration("1.0", "UTF-8", "yes");
-          configXML->LinkEndChild(decl);
-          if (!configXML->SaveFile())
-            configXML.reset();
-        }
-      else
+      TiXmlDeclaration* decl = new TiXmlDeclaration("1.0", "UTF-8", "yes");
+      configXML->LinkEndChild(decl);
+      if (!configXML->SaveFile())
+      {
         configXML.reset();
+      }
     }
+    else
+    {
+      configXML.reset();
+    }
+  }
 
   return configXML;
 }

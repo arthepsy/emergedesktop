@@ -43,17 +43,17 @@ public:
   Settings();
   ~Settings();
   UINT GetItemListSize();
-  Item *GetItem(size_t index);
+  Item* GetItem(size_t index);
   void PopulateItems();
   void DeleteItems(bool clearXML);
-  void WriteItem(int type, WCHAR *command, WCHAR *iconPath, WCHAR *tip, WCHAR *workingDir);
+  void WriteItem(int type, WCHAR* command, WCHAR* iconPath, WCHAR* tip, WCHAR* workingDir);
 
 protected:
   void ResetDefaults();
 
 private:
-  void writeEntireFolder(WCHAR *folderName);
-  void loadLiveFolder(WCHAR *folderName);
+  void writeEntireFolder(WCHAR* folderName);
+  void loadLiveFolder(WCHAR* folderName);
   std::vector< std::tr1::shared_ptr<Item> > itemList;
   CRITICAL_SECTION itemListCS;
 };

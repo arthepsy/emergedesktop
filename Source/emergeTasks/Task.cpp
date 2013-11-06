@@ -33,8 +33,8 @@
 // Returns:	Nothing
 // Purpose:	Creates TrayIcon Class Object
 //----  --------------------------------------------------------------------------------------------------------
-Task::Task(HWND task, HINSTANCE mainInstance, Settings *pSettings)
-  :Thumbnail(task, mainInstance, pSettings)
+Task::Task(HWND task, HINSTANCE mainInstance, Settings* pSettings)
+  : Thumbnail(task, mainInstance, pSettings)
 {
   (*this).mainInstance = mainInstance;
   newIcon = NULL;
@@ -66,26 +66,32 @@ void Task::CreateNewIcon(BYTE foregroundAlpha, BYTE backgroundAlpha)
 {
   /**< Don't bother converting NULL icons, just set newIcon and return */
   if (origIcon == NULL)
-    {
-      newIcon = NULL;
-      return;
-    }
+  {
+    newIcon = NULL;
+    return;
+  }
 
   if (convertIcon)
+  {
+    convertIcon = false;
+
+    // Destroy any existing newIcon
+    if (newIcon != NULL)
     {
-      convertIcon = false;
-
-      // Destroy any existing newIcon
-      if (newIcon != NULL)
-        DestroyIcon(newIcon);
-
-      // If the background if fully opaque, don't bother converting the icon, simply copy it
-      if (backgroundAlpha == 0xff)
-        newIcon = CopyIcon(origIcon);
-      else
-        /**< Don't bail if EGConvertIcon returns a NULL icon, since in this case it may be valid (icon flashing) */
-        newIcon = EGConvertIcon(origIcon, foregroundAlpha);
+      DestroyIcon(newIcon);
     }
+
+    // If the background if fully opaque, don't bother converting the icon, simply copy it
+    if (backgroundAlpha == 0xff)
+    {
+      newIcon = CopyIcon(origIcon);
+    }
+    else
+      /**< Don't bail if EGConvertIcon returns a NULL icon, since in this case it may be valid (icon flashing) */
+    {
+      newIcon = EGConvertIcon(origIcon, foregroundAlpha);
+    }
+  }
 }
 
 //----  --------------------------------------------------------------------------------------------------------
@@ -150,7 +156,7 @@ HICON Task::GetIcon()
 // Returns:	RECT*
 // Purpose:	Retrieves the bounding rectangle of the task
 //----  --------------------------------------------------------------------------------------------------------
-RECT *Task::GetRect()
+RECT* Task::GetRect()
 {
   return &rect;
 }
@@ -166,25 +172,27 @@ void Task::SetIcon(HICON icon, int iconSize)
   std::wstring applicationName;
 
   if (icon)
+  {
+    if (origIcon)
     {
-      if (origIcon)
-        DestroyIcon(origIcon);
-
-      origIcon = CopyIcon(icon);
-
-      convertIcon = true;
+      DestroyIcon(origIcon);
     }
+
+    origIcon = CopyIcon(icon);
+
+    convertIcon = true;
+  }
   /* if the passed icon is NULL and origIcon is also NULL, generate a default
    * icon using the application's icon.
    */
   else
+  {
+    if (origIcon == NULL)
     {
-      if (origIcon == NULL)
-        {
-          applicationName = ELGetWindowApp(wnd, true);
-          origIcon = EGGetFileIcon(applicationName.c_str(), iconSize);
-        }
+      applicationName = ELGetWindowApp(wnd, true);
+      origIcon = EGGetFileIcon(applicationName.c_str(), iconSize);
     }
+  }
 }
 
 //----  --------------------------------------------------------------------------------------------------------
@@ -196,11 +204,11 @@ void Task::SetIcon(HICON icon, int iconSize)
 void Task::SetRect(RECT rect)
 {
   if (!EqualRect(&(*this).rect, &rect))
-    {
-      (*this).rect = rect;
+  {
+    (*this).rect = rect;
 
-      convertIcon = true;
-    }
+    convertIcon = true;
+  }
 }
 
 //----  --------------------------------------------------------------------------------------------------------
@@ -245,9 +253,13 @@ void Task::SetFlashCount(UINT flashCount)
 void Task::ToggleVisible()
 {
   if (visible)
+  {
     visible = false;
+  }
   else
+  {
     visible = true;
+  }
 }
 
 void Task::UpdateIcon()
@@ -272,20 +284,22 @@ void Task::DisplayMenu(HWND callingWnd)
   DWORD threadID2 = GetWindowThreadProcessId(wnd, NULL);
 
   AttachThreadInput(threadID1, threadID2, TRUE);
-  SetWindowPos(wnd, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE|SWP_NOMOVE|SWP_NOACTIVATE);
+  SetWindowPos(wnd, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOACTIVATE);
   AttachThreadInput(threadID1, threadID2, FALSE);
 
   res = EAEDisplayMenu(callingWnd, wnd);
   switch (res)
-    {
-    case SC_SIZE:
-    case SC_MOVE:
-    case SC_MAXIMIZE:
-    case SC_RESTORE:
-      ELSwitchToThisWindow(wnd);
-      break;
-    }
+  {
+  case SC_SIZE:
+  case SC_MOVE:
+  case SC_MAXIMIZE:
+  case SC_RESTORE:
+    ELSwitchToThisWindow(wnd);
+    break;
+  }
   if (res)
+  {
     PostMessage(wnd, WM_SYSCOMMAND, (WPARAM)res, MAKELPARAM(pt.x, pt.y));
+  }
 }
 

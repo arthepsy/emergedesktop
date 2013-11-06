@@ -76,16 +76,16 @@ typedef struct _ENUM_PAGE_FILE_INFORMATION
 } ENUM_PAGE_FILE_INFORMATION, *PENUM_PAGE_FILE_INFORMATION;
 #endif
 
-typedef BOOL (WINAPI *GetPerformanceInfoFunc)(
-                                              PPERFORMANCE_INFORMATION pPerformanceInformation,
-                                              DWORD cb
-                                             );
+typedef BOOL (WINAPI* GetPerformanceInfoFunc)(
+  PPERFORMANCE_INFORMATION pPerformanceInformation,
+  DWORD cb
+);
 
-typedef BOOL(CALLBACK *PENUM_PAGE_CALLBACK)(LPVOID,PENUM_PAGE_FILE_INFORMATION,LPCTSTR);
-typedef BOOL (WINAPI *EnumPageFilesFunc)(
-                                         PENUM_PAGE_CALLBACK pCallbackRoutine,
-                                         LPVOID lpContext
-                                        );
+typedef BOOL(CALLBACK* PENUM_PAGE_CALLBACK)(LPVOID, PENUM_PAGE_FILE_INFORMATION, LPCTSTR);
+typedef BOOL (WINAPI* EnumPageFilesFunc)(
+  PENUM_PAGE_CALLBACK pCallbackRoutine,
+  LPVOID lpContext
+);
 
 typedef struct _PAGEFILEINFO
 {
@@ -105,7 +105,7 @@ typedef struct _SYSTEM_PROCESSOR_PERFORMANCE_INFORMATION
   ULARGE_INTEGER InterruptCount;
 } SYSTEM_PROCESSOR_PERFORMANCE_INFORMATION;
 
-typedef LONG (WINAPI *NtQuerySystemInformationFunc)(UINT, PVOID, ULONG, PULONG);
+typedef LONG (WINAPI* NtQuerySystemInformationFunc)(UINT, PVOID, ULONG, PULONG);
 
 class Settings;
 
@@ -142,7 +142,7 @@ public:
   UINT Initialize();
   LRESULT DoTimer(UINT_PTR timerID);
   LRESULT DoNCRButtonUp();
-  LRESULT DoMoving(HWND hwnd, RECT *lpRect);
+  LRESULT DoMoving(HWND hwnd, RECT* lpRect);
   LRESULT DoSizing(HWND hwnd, UINT edge, LPRECT rect);
   void ShowConfig();
   LRESULT PaintContent(HDC hdc, RECT clientrt);

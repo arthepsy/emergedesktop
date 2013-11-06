@@ -37,10 +37,10 @@ public:
   bool SetDesktopRows(int rows);
   bool SetDesktopColumns(int columns);
   UINT GetStickyListSize();
-  WCHAR *GetStickyListItem(UINT item);
+  WCHAR* GetStickyListItem(UINT item);
   void DeleteStickyListItem(UINT item);
   bool CheckSticky(std::wstring appName);
-  void AddStickyListItem(WCHAR *item);
+  void AddStickyListItem(WCHAR* item);
   void WriteStickyList();
   bool GetHideSticky();
   bool SetHideSticky(bool hideSticky);

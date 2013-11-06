@@ -90,7 +90,8 @@ typedef enum _MESSAGETYPE
 } MESSAGETYPE;
 
 // EMERGE_CORE Messages
-typedef enum _COREMESSAGES {
+typedef enum _COREMESSAGES
+{
   CORE_QUIT = 100,
   CORE_SHOW,
   CORE_HIDE,

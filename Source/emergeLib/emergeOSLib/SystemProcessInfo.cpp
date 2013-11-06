@@ -67,20 +67,24 @@ std::wstring ELGetProcessIDApp(DWORD processID, bool fullName)
 
   // Get the process name.
   if (NULL != hProcess )
+  {
+    if (EnumProcessModules(hProcess, &hMod, sizeof(hMod), &needed))
     {
-      if (EnumProcessModules(hProcess, &hMod, sizeof(hMod), &needed))
-        {
-          if (fullName)
-            GetModuleFileNameEx(hProcess, hMod, tmp, sizeof(tmp));
-          else
-            GetModuleBaseName(hProcess, hMod, tmp, sizeof(tmp));
-        }
-
-      // Print the process name and identifier.
-      applet = tmp;
-
-      CloseHandle(hProcess);
+      if (fullName)
+      {
+        GetModuleFileNameEx(hProcess, hMod, tmp, sizeof(tmp));
+      }
+      else
+      {
+        GetModuleBaseName(hProcess, hMod, tmp, sizeof(tmp));
+      }
     }
+
+    // Print the process name and identifier.
+    applet = tmp;
+
+    CloseHandle(hProcess);
+  }
 
   return applet;
 }

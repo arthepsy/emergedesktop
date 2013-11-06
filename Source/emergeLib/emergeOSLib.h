@@ -64,8 +64,8 @@ DLL_EXPORT HMODULE ELGetEmergeLibrary(std::wstring library);
 DLL_EXPORT HMODULE ELLoadSystemLibrary(std::wstring library);
 DLL_EXPORT HMODULE ELLoadEmergeLibrary(std::wstring library);
 
-DLL_EXPORT void *ELLockShared(HANDLE sharedMem, DWORD processID);
-DLL_EXPORT bool ELUnlockShared(void *sharedPtr);
+DLL_EXPORT void* ELLockShared(HANDLE sharedMem, DWORD processID);
+DLL_EXPORT bool ELUnlockShared(void* sharedPtr);
 
 DLL_EXPORT bool ELDisplayRunDialog();
 DLL_EXPORT bool ELQuit(bool prompt);
@@ -76,7 +76,7 @@ DLL_EXPORT HANDLE ELActivateActCtxForDll(LPCTSTR pszDll, PULONG_PTR pulCookie);
 DLL_EXPORT HANDLE ELActivateActCtxForClsid(REFCLSID rclsid, PULONG_PTR pulCookie);
 DLL_EXPORT void ELDeactivateActCtx(HANDLE hActCtx, ULONG_PTR* pulCookie);
 
-DLL_EXPORT IOleCommandTarget *ELStartSSO(CLSID clsid);
+DLL_EXPORT IOleCommandTarget* ELStartSSO(CLSID clsid);
 
 DLL_EXPORT bool ELRegisterShellHook(HWND hwnd, RSHFLAGS method);
 

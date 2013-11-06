@@ -23,22 +23,28 @@
 std::wstring ELExpandVars(std::wstring value)
 {
   std::wstring expandedValue;
-  WCHAR *tmpValue = NULL;
+  WCHAR* tmpValue = NULL;
   size_t bufferSize;
 
   if (value.empty())
+  {
     return value;
+  }
 
   bufferSize = ExpandEnvironmentStrings(value.c_str(), tmpValue, 0);
   if (bufferSize == 0)
+  {
     return value;
+  }
 
   // Account for terminating NULL
   bufferSize++;
 
   tmpValue = (WCHAR*)GlobalAlloc(GPTR, bufferSize * sizeof(WCHAR));
   if (ExpandEnvironmentStrings(value.c_str(), tmpValue, bufferSize) != 0)
+  {
     expandedValue = tmpValue;
+  }
   GlobalFree(tmpValue);
 
   return expandedValue;
@@ -66,22 +72,24 @@ std::wstring ELUnExpandVars(std::wstring value)
   envVars[8] = TEXT("EmergeDir");
 
   for (counter = 0; counter < envVars.size(); counter++)
-  if (GetEnvironmentVariable(envVars[counter].c_str(), tmp, MAX_LINE_LENGTH) != 0)
+    if (GetEnvironmentVariable(envVars[counter].c_str(), tmp, MAX_LINE_LENGTH) != 0)
     {
       collapsedEnvVar = TEXT("%");
       collapsedEnvVar.append(envVars[counter]);
       collapsedEnvVar.append(TEXT("%"));
       if (output != ELwstringReplace(output, tmp, collapsedEnvVar, true))
+      {
         success = true;
+      }
     }
 
   if (!success)
+  {
+    if (PathUnExpandEnvStrings(output.c_str(), tmp, MAX_LINE_LENGTH))
     {
-      if (PathUnExpandEnvStrings(output.c_str(), tmp, MAX_LINE_LENGTH))
-        {
-          output = tmp;
-        }
+      output = tmp;
     }
+  }
 
   return output;
 }
@@ -90,7 +98,9 @@ std::wstring ELGetCurrentPath()
 {
   WCHAR tempPath[MAX_PATH];
   if (GetModuleFileName(NULL, tempPath, MAX_PATH) == 0)
+  {
     return TEXT("");
+  }
 
   PathRemoveFileSpec(tempPath);
   return tempPath;
@@ -106,7 +116,7 @@ std::wstring ELGetUserDataPath()
 PORTABLEMODE ELGetPortableMode()
 {
   std::tr1::shared_ptr<TiXmlDocument> configXML;
-  TiXmlElement *section;
+  TiXmlElement* section;
   std::wstring portablePath, customDataPath;
   PORTABLEMODE portableMode;
 
@@ -114,21 +124,25 @@ PORTABLEMODE ELGetPortableMode()
   portablePath = portablePath + TEXT("\\portable.xml");
 
   if (!ELFileExists(portablePath))
+  {
     return PM_INSTALLED;
+  }
 
   portableMode = PM_PORTABLE;
 
   configXML = ELOpenXMLConfig(portablePath, false);
   if (configXML)
+  {
+    section = ELGetXMLSection(configXML.get(), TEXT("Portable"), false);
+    if (section)
     {
-      section = ELGetXMLSection(configXML.get(), TEXT("Portable"), false);
-      if (section)
-        {
-          customDataPath = ELReadXMLStringValue(section, TEXT("CustomDataPath"), TEXT(""));
-          if (!customDataPath.empty())
-            portableMode = PM_CUSTOM;
-        }
+      customDataPath = ELReadXMLStringValue(section, TEXT("CustomDataPath"), TEXT(""));
+      if (!customDataPath.empty())
+      {
+        portableMode = PM_CUSTOM;
+      }
     }
+  }
 
   return portableMode;
 }
@@ -138,9 +152,13 @@ bool ELIsWow64()
   BOOL bIsWow64 = FALSE;
 
   if (MSIsWow64Process == NULL)
+  {
     MSIsWow64Process = (lpfnIsWow64Process)GetProcAddress(emergeLibGlobals::getKernel32DLL(), "IsWow64Process");
+  }
   if (MSIsWow64Process)
+  {
     MSIsWow64Process(GetCurrentProcess(), &bIsWow64);
+  }
 
   return (bIsWow64 == TRUE);
 }
@@ -151,7 +169,7 @@ void ELGetThemeInfo(LPTHEMEINFO themeInfo)
   std::wstring userPath, workingPath;;
   std::wstring tempCustomDataPath;
   std::tr1::shared_ptr<TiXmlDocument> configXML;
-  TiXmlElement *section;
+  TiXmlElement* section;
   const std::wstring currentThemeValue = TEXT("Current"), defaultThemeValue = TEXT("Default");
 
   workingPath = ELGetCurrentPath();
@@ -159,50 +177,50 @@ void ELGetThemeInfo(LPTHEMEINFO themeInfo)
 
   tempCustomDataPath = GetCustomDataPath();
   if ((ELGetPortableMode() == PM_CUSTOM) && (!tempCustomDataPath.empty()))
-    {
-      workingPath = tempCustomDataPath;
-      userPath = workingPath + TEXT("\\theme.xml");
-    }
+  {
+    workingPath = tempCustomDataPath;
+    userPath = workingPath + TEXT("\\theme.xml");
+  }
 
   if ((ELGetPortableMode() == PM_INSTALLED) && !ELFileExists(userPath))
-    {
-      workingPath = TEXT("%AppData%\\Emerge Desktop");
-      workingPath = ELExpandVars(workingPath);
-      userPath = workingPath + TEXT("\\theme.xml");
-    }
+  {
+    workingPath = TEXT("%AppData%\\Emerge Desktop");
+    workingPath = ELExpandVars(workingPath);
+    userPath = workingPath + TEXT("\\theme.xml");
+  }
   themeInfo->path = workingPath;
 
   configXML = ELOpenXMLConfig(userPath, true);
   if (configXML)
+  {
+    section = ELGetXMLSection(configXML.get(), TEXT("Theme"), true);
+    if (section)
     {
-      section = ELGetXMLSection(configXML.get(), TEXT("Theme"), true);
-      if (section)
+      themeInfo->theme = ELReadXMLStringValue(section, currentThemeValue, defaultThemeValue);
+      if (ELToLower(themeInfo->theme) != ELToLower(defaultThemeValue))
+      {
+        ELWriteXMLStringValue(section, currentThemeValue, themeInfo->theme);
+        ELWriteXMLConfig(configXML.get());
+      }
+      else
+      {
+        themeInfo->themePath = themeInfo->path + TEXT("\\themes\\") + themeInfo->theme;
+        if (((ELGetFileSpecialFlags(themeInfo->themePath)) & SF_DIRECTORY) != SF_DIRECTORY)
         {
-          themeInfo->theme = ELReadXMLStringValue(section, currentThemeValue, defaultThemeValue);
-          if (ELToLower(themeInfo->theme) != ELToLower(defaultThemeValue))
-            {
-              ELWriteXMLStringValue(section, currentThemeValue, themeInfo->theme);
-              ELWriteXMLConfig(configXML.get());
-            }
-          else
-            {
-              themeInfo->themePath = themeInfo->path + TEXT("\\themes\\") + themeInfo->theme;
-              if (((ELGetFileSpecialFlags(themeInfo->themePath)) & SF_DIRECTORY) != SF_DIRECTORY)
-                {
-                  themeInfo->theme = defaultThemeValue;
-                  ELWriteXMLStringValue(section, currentThemeValue, themeInfo->theme);
-                  ELWriteXMLConfig(configXML.get());
-                }
-            }
+          themeInfo->theme = defaultThemeValue;
+          ELWriteXMLStringValue(section, currentThemeValue, themeInfo->theme);
+          ELWriteXMLConfig(configXML.get());
         }
+      }
     }
+  }
 
   if (ELToLower(themeInfo->theme) == defaultThemeValue)
-    {
-      themeInfo->themePath = themeInfo->path + TEXT("\\themes\\") + themeInfo->theme;
-      workingPath = themeInfo->themePath;
-      ELCreateDirectory(workingPath);
-    }
+  {
+    themeInfo->themePath = themeInfo->path + TEXT("\\themes\\") + themeInfo->theme;
+    workingPath = themeInfo->themePath;
+    ELCreateDirectory(workingPath);
+  }
   themeInfo->userPath = themeInfo->path + TEXT("\\files");
   workingPath = themeInfo->userPath;
   ELCreateDirectory(workingPath);
@@ -232,16 +250,24 @@ bool ELSetEmergeVars()
   portableMode = ELGetPortableMode();
 
   if (!SetEnvironmentVariable(TEXT("ThemeDir"), themeInfo.themePath.c_str()))
+  {
     return false;
+  }
 
   if (!SetEnvironmentVariable(TEXT("EmergeDir"), themeInfo.path.c_str()))
+  {
     return false;
+  }
 
   if (!SetEnvironmentVariable(TEXT("AppletDir"), appletPath.c_str()))
+  {
     return false;
+  }
 
   if (!SetEnvironmentVariable(TEXT("PortableMode"), portableMode.c_str()))
+  {
     return false;
+  }
 
   // Clear the __COMPAT_LAYER variable as it seems to cause some applications
   // to misbehave when inherited as part of the Environment block.
@@ -256,76 +282,100 @@ void ELSetEnvironmentVars(bool showErrors)
 
   bool localCheck = true;
   if (SHGetSpecialFolderPath(GetDesktopWindow(), tmp, CSIDL_STARTMENU, FALSE))
+  {
+    if (!SetEnvironmentVariable(TEXT("StartMenu"), tmp))
     {
-      if (!SetEnvironmentVariable(TEXT("StartMenu"), tmp))
-        localCheck = false;
+      localCheck = false;
     }
+  }
   else
+  {
     localCheck = false;
+  }
   if (showErrors && !localCheck)
     ELMessageBox(GetDesktopWindow(), TEXT("Failed to set %%StartMenu%%"),
-                 TEXT("Emerge Desktop"), ELMB_OK|ELMB_ICONERROR);
+                 TEXT("Emerge Desktop"), ELMB_OK | ELMB_ICONERROR);
 
 
   localCheck = true;
   if (SHGetSpecialFolderPath(GetDesktopWindow(), tmp, CSIDL_COMMON_STARTMENU, FALSE))
+  {
+    if (!SetEnvironmentVariable(TEXT("CommonStartMenu"), tmp))
     {
-      if (!SetEnvironmentVariable(TEXT("CommonStartMenu"), tmp))
-        localCheck = false;
+      localCheck = false;
     }
+  }
   else
+  {
     localCheck = false;
+  }
   if (showErrors && !localCheck)
     ELMessageBox(GetDesktopWindow(), TEXT("Failed to set %%CommonStartMenu%%"),
-                 TEXT("Emerge Desktop"), ELMB_OK|ELMB_ICONERROR);
+                 TEXT("Emerge Desktop"), ELMB_OK | ELMB_ICONERROR);
 
   localCheck = true;
   if (SHGetSpecialFolderPath(GetDesktopWindow(), tmp, CSIDL_DESKTOPDIRECTORY, FALSE))
+  {
+    if (!SetEnvironmentVariable(TEXT("Desktop"), tmp))
     {
-      if (!SetEnvironmentVariable(TEXT("Desktop"), tmp))
-        localCheck = false;
+      localCheck = false;
     }
+  }
   else
+  {
     localCheck = false;
+  }
   if (showErrors && !localCheck)
     ELMessageBox(GetDesktopWindow(), TEXT("Failed to set %%Desktop%%"),
-                 TEXT("Emerge Desktop"), ELMB_OK|ELMB_ICONERROR);
+                 TEXT("Emerge Desktop"), ELMB_OK | ELMB_ICONERROR);
 
   localCheck = true;
   if (SHGetSpecialFolderPath(GetDesktopWindow(), tmp, CSIDL_COMMON_DESKTOPDIRECTORY, FALSE))
+  {
+    if (!SetEnvironmentVariable(TEXT("CommonDesktop"), tmp))
     {
-      if (!SetEnvironmentVariable(TEXT("CommonDesktop"), tmp))
-        localCheck = false;
+      localCheck = false;
     }
+  }
   else
+  {
     localCheck = false;
+  }
   if (showErrors && !localCheck)
     ELMessageBox(GetDesktopWindow(), TEXT("Failed to set %%CommonDesktop%%"),
-                 TEXT("Emerge Desktop"), ELMB_OK|ELMB_ICONERROR);
+                 TEXT("Emerge Desktop"), ELMB_OK | ELMB_ICONERROR);
 
   localCheck = true;
   if (SHGetSpecialFolderPath(GetDesktopWindow(), tmp, CSIDL_PERSONAL, FALSE))
+  {
+    if (!SetEnvironmentVariable(TEXT("Documents"), tmp))
     {
-      if (!SetEnvironmentVariable(TEXT("Documents"), tmp))
-        localCheck = false;
+      localCheck = false;
     }
+  }
   else
+  {
     localCheck = false;
+  }
   if (showErrors && !localCheck)
     ELMessageBox(GetDesktopWindow(), TEXT("Failed to set %%Documents%%"),
-                 TEXT("Emerge Desktop"), ELMB_OK|ELMB_ICONERROR);
+                 TEXT("Emerge Desktop"), ELMB_OK | ELMB_ICONERROR);
 
   localCheck = true;
   if (SHGetSpecialFolderPath(GetDesktopWindow(), tmp, CSIDL_COMMON_DOCUMENTS, FALSE))
+  {
+    if (!SetEnvironmentVariable(TEXT("CommonDocuments"), tmp))
     {
-      if (!SetEnvironmentVariable(TEXT("CommonDocuments"), tmp))
-        localCheck = false;
+      localCheck = false;
     }
+  }
   else
+  {
     localCheck = false;
+  }
   if (showErrors && !localCheck)
     ELMessageBox(GetDesktopWindow(), TEXT("Failed to set %%CommonDocuments%%"),
-                 TEXT("Emerge Desktop"), ELMB_OK|ELMB_ICONERROR);
+                 TEXT("Emerge Desktop"), ELMB_OK | ELMB_ICONERROR);
 }
 
 bool ELIsExplorerShell()
@@ -333,18 +383,22 @@ bool ELIsExplorerShell()
   WCHAR explorerPath[MAX_PATH];
 
   if (GetWindowsDirectory(explorerPath, MAX_PATH) == 0)
+  {
     return false;
+  }
 
   wcscat(explorerPath, TEXT("\\explorer.exe"));
   _wcslwr(explorerPath);
 
   HWND progmanWnd = FindWindow(TEXT("progman"), NULL);
   if (progmanWnd)
+  {
+    std::wstring progmanExec = ELGetWindowApp(progmanWnd, true);
+    if (ELToLower(progmanExec) == explorerPath)
     {
-      std::wstring progmanExec = ELGetWindowApp(progmanWnd, true);
-      if (ELToLower(progmanExec) == explorerPath)
-        return true;
+      return true;
     }
+  }
 
   return false;
 }
@@ -353,11 +407,13 @@ bool ELIsEmergeShell()
 {
   HWND trayWnd = FindWindow(TEXT("Shell_TrayWnd"), NULL);
   if (trayWnd)
+  {
+    std::wstring trayExec = ELGetWindowApp(trayWnd, false);
+    if (ELToLower(trayExec) == TEXT("emergetray.exe"))
     {
-      std::wstring trayExec = ELGetWindowApp(trayWnd, false);
-      if (ELToLower(trayExec) == TEXT("emergetray.exe"))
-        return true;
+      return true;
     }
+  }
 
   return false;
 }
@@ -365,26 +421,30 @@ bool ELIsEmergeShell()
 std::wstring GetCustomDataPath()
 {
   std::tr1::shared_ptr<TiXmlDocument> configXML;
-  TiXmlElement *section;
+  TiXmlElement* section;
   std::wstring portablePath, customDataPath;
 
   portablePath = ELGetCurrentPath();
   portablePath = portablePath + TEXT("\\portable.xml");
 
   if (!ELFileExists(portablePath))
+  {
     return TEXT("");
+  }
 
   configXML = ELOpenXMLConfig(portablePath, false);
   if (configXML)
+  {
+    section = ELGetXMLSection(configXML.get(), TEXT("Portable"), false);
+    if (section)
     {
-      section = ELGetXMLSection(configXML.get(), TEXT("Portable"), false);
-      if (section)
-        {
-          customDataPath = ELReadXMLStringValue(section, TEXT("CustomDataPath"), TEXT(""));
-          if (!customDataPath.empty())
-            return ELGetAbsolutePath(customDataPath);
-        }
+      customDataPath = ELReadXMLStringValue(section, TEXT("CustomDataPath"), TEXT(""));
+      if (!customDataPath.empty())
+      {
+        return ELGetAbsolutePath(customDataPath);
+      }
     }
+  }
 
   return TEXT("");
 }

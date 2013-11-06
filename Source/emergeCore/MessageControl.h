@@ -55,7 +55,7 @@ public:
   ~MessageControl();
   void AddType(HWND window, UINT message);
   void RemoveType(HWND window, UINT message);
-  void Dispatch_Message(UINT type, UINT message, WCHAR *instanceName);
+  void Dispatch_Message(UINT type, UINT message, WCHAR* instanceName);
 };
 
 #endif

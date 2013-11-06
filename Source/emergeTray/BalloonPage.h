@@ -32,8 +32,8 @@ public:
   BOOL DoInitDialog(HWND hwndDlg);
   BOOL DoCommand(HWND hwndDlg, WPARAM wParam, LPARAM lParam);
   bool UpdateSettings(HWND hwndDlg);
-  bool DoFontChooser(HWND hwndDlg, LOGFONT *font);
-  BOOL DoColourChooser(COLORREF *colour, HWND hwndDlg);
+  bool DoFontChooser(HWND hwndDlg, LOGFONT* font);
+  BOOL DoColourChooser(COLORREF* colour, HWND hwndDlg);
   INT_PTR DoNotify(HWND hwndDlg, LPARAM lParam);
   static INT_PTR CALLBACK BalloonPageDlgProc(HWND hwndDlg, UINT message, WPARAM wParam, LPARAM lParam);
 

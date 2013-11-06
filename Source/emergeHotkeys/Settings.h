@@ -33,11 +33,11 @@ public:
   bool BuildList(HWND mainWnd, bool backup);
   UINT GetHotkeyListSize();
   UINT GetBackupListSize();
-  HotkeyCombo *GetHotkeyListItem(UINT item);
-  HotkeyCombo *GetBackupListItem(UINT item);
+  HotkeyCombo* GetHotkeyListItem(UINT item);
+  HotkeyCombo* GetBackupListItem(UINT item);
   void DeleteHotkeyListItem(UINT item);
-  void AddHotkeyListItem(HotkeyCombo *item);
-  UINT FindHotkeyListItem(WCHAR *tmpKey, WCHAR *tmpAction);
+  void AddHotkeyListItem(HotkeyCombo* item);
+  UINT FindHotkeyListItem(WCHAR* tmpKey, WCHAR* tmpAction);
   UINT FindHotkeyListItem(UINT index);
   void WriteList(bool backup);
   bool IsValidHotkey(UINT index);

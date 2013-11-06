@@ -22,7 +22,7 @@
 #include <wchar.h>
 
 Settings::Settings()
-:BaseSettings(false)
+  : BaseSettings(false)
 {
   xmlFile = TEXT("%EmergeDir%\\files\\emergeCommand.xml");
   autoComplete = true;
@@ -114,23 +114,23 @@ void Settings::ResetDefaults()
   // If appletCount > 0 assume this is a new instance and place it at the centre
   // of the screen.
   if (appletCount > 0)
-    {
-      POINT origin;
-      SIZE appletSize;
+  {
+    POINT origin;
+    SIZE appletSize;
 
-      appletSize.cx = width;
-      appletSize.cy = height;
+    appletSize.cx = width;
+    appletSize.cy = height;
 
-      origin = InstancePosition(appletSize);
-      x = origin.x;
-      y = origin.y;
-    }
+    origin = InstancePosition(appletSize);
+    x = origin.x;
+    y = origin.y;
+  }
   else
-    {
-      x = -72;
-      y = -40;
-      anchorPoint = TEXT("BottomRight");
-    }
+  {
+    x = -72;
+    y = -40;
+    anchorPoint = TEXT("BottomRight");
+  }
 }
 
 
@@ -139,18 +139,18 @@ UINT Settings::GetDisplayLines()
   return displayLines;
 }
 
-bool Settings::SetFont(LOGFONT *logFont)
+bool Settings::SetFont(LOGFONT* logFont)
 {
   if (!EGEqualLogFont(this->logFont, *logFont))
-    {
-      fontString = EGFontToString(*logFont);
-      CopyMemory(&this->logFont, logFont, sizeof(LOGFONT));
-      SetModified();
-    }
+  {
+    fontString = EGFontToString(*logFont);
+    CopyMemory(&this->logFont, logFont, sizeof(LOGFONT));
+    SetModified();
+  }
   return true;
 }
 
-LOGFONT *Settings::GetFont()
+LOGFONT* Settings::GetFont()
 {
   return &logFont;
 }
@@ -203,139 +203,145 @@ std::wstring Settings::GetTipFormat()
 bool Settings::SetClockTextAlign(std::wstring clockTextAlign)
 {
   if (ELToLower(this->clockTextAlign) != ELToLower(clockTextAlign))
-    {
-      this->clockTextAlign = clockTextAlign;
-      SetModified();
-    }
+  {
+    this->clockTextAlign = clockTextAlign;
+    SetModified();
+  }
   return true;
 }
 
 bool Settings::SetAutoComplete(bool autoComplete)
 {
   if (this->autoComplete != autoComplete)
-    {
-      this->autoComplete = autoComplete;
-      SetModified();
-    }
+  {
+    this->autoComplete = autoComplete;
+    SetModified();
+  }
   return true;
 }
 
 bool Settings::SetClockVerticalAlign(std::wstring clockVerticalAlign)
 {
   if (ELToLower(this->clockVerticalAlign) != ELToLower(clockVerticalAlign))
-    {
-      this->clockVerticalAlign = clockVerticalAlign;
-      SetModified();
-    }
+  {
+    this->clockVerticalAlign = clockVerticalAlign;
+    SetModified();
+  }
   return true;
 }
 
 bool Settings::SetCommandTextAlign(std::wstring commandTextAlign)
 {
   if (ELToLower(this->commandTextAlign) != ELToLower(commandTextAlign))
-    {
-      this->commandTextAlign = commandTextAlign;
-      SetModified();
-    }
+  {
+    this->commandTextAlign = commandTextAlign;
+    SetModified();
+  }
   return true;
 }
 
 bool Settings::SetCommandVerticalAlign(std::wstring commandVerticalAlign)
 {
   if (ELToLower(this->commandVerticalAlign) != ELToLower(commandVerticalAlign))
-    {
-      this->commandVerticalAlign = commandVerticalAlign;
-      SetModified();
-    }
+  {
+    this->commandVerticalAlign = commandVerticalAlign;
+    SetModified();
+  }
   return true;
 }
 
 bool Settings::SetTimeFormat(std::wstring timeFormat)
 {
   if (ELToLower(this->timeFormat) != ELToLower(timeFormat))
-    {
-      this->timeFormat = timeFormat;
-      SetModified();
-    }
+  {
+    this->timeFormat = timeFormat;
+    SetModified();
+  }
   return true;
 }
 
 bool Settings::SetTipFormat(std::wstring tipFormat)
 {
   if (ELToLower(this->tipFormat) == ELToLower(tipFormat))
-    {
-      this->tipFormat = tipFormat;
-      SetModified();
-    }
+  {
+    this->tipFormat = tipFormat;
+    SetModified();
+  }
   return true;
 }
 
 void Settings::BuildHistoryList()
 {
   std::tr1::shared_ptr<TiXmlDocument> configXML = ELOpenXMLConfig(xmlFile, false);
-  TiXmlElement *section;
+  TiXmlElement* section;
   std::wstring data;
 
   if (configXML)
+  {
+    // Clear the stickyList vector
+    historyList.clear();
+    section = ELGetXMLSection(configXML.get(), (WCHAR*)TEXT("History"), false);
+
+    if (section)
     {
-      // Clear the stickyList vector
-      historyList.clear();
-      section = ELGetXMLSection(configXML.get(), (WCHAR*)TEXT("History"), false);
+      IOHelper userIO(section);
 
-      if (section)
+      while (userIO.GetElement())
+      {
+        data = userIO.ReadString(TEXT("Command"), TEXT(""));
+        if (!data.empty())
         {
-          IOHelper userIO(section);
-
-          while (userIO.GetElement())
-            {
-              data = userIO.ReadString(TEXT("Command"), TEXT(""));
-              if (!data.empty())
-                historyList.push_back(data);
-            }
+          historyList.push_back(data);
         }
+      }
     }
+  }
 }
 
 void Settings::WriteHistoryList()
 {
   std::tr1::shared_ptr<TiXmlDocument> configXML = ELOpenXMLConfig(xmlFile, true);
-  TiXmlElement *section;
+  TiXmlElement* section;
   WCHAR command[MAX_LINE_LENGTH];
 
   if (configXML)
+  {
+    section = ELGetXMLSection(configXML.get(), (WCHAR*)TEXT("History"), true);
+
+    if (section)
     {
-      section = ELGetXMLSection(configXML.get(), (WCHAR*)TEXT("History"), true);
+      IOHelper userIO(section);
 
-      if (section)
+      userIO.Clear();
+      for (UINT i = 0; i < historyList.size(); i++)
+      {
+        if (userIO.SetElement(TEXT("item")))
         {
-          IOHelper userIO(section);
-
-          userIO.Clear();
-          for (UINT i = 0; i < historyList.size(); i++)
-            {
-              if (userIO.SetElement(TEXT("item")))
-                {
-                  wcscpy(command, historyList[i].c_str());
-                  userIO.WriteString(TEXT("Command"), command);
-                }
-            }
+          wcscpy(command, historyList[i].c_str());
+          userIO.WriteString(TEXT("Command"), command);
         }
-
-      ELWriteXMLConfig(configXML.get());
+      }
     }
+
+    ELWriteXMLConfig(configXML.get());
+  }
 }
 
 void Settings::AddHistoryItem(std::wstring item)
 {
   for (UINT i = 0; i < historyList.size(); i++)
+  {
+    if (ELToLower(item) == ELToLower(historyList[i]))
     {
-      if (ELToLower(item) == ELToLower(historyList[i]))
-        return;
+      return;
     }
+  }
 
   historyList.push_back(item);
   if (historyList.size() > MAX_HISTORY)
+  {
     historyList.erase(historyList.begin());
+  }
 
   WriteHistoryList();
 }

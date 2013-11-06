@@ -71,7 +71,7 @@ private:
   std::map<HWND, UINT> flashMap;
   std::map<HWND, DWORD> modifyMap;
   std::map<HWND, HANDLE> thumbnailMap;
-  HWND activeWnd,oldTipWnd,movingWnd;
+  HWND activeWnd, oldTipWnd, movingWnd;
   void ResetTaskIcons();
   void UpdateIcons();
   static LRESULT CALLBACK WindowProcedure (HWND, UINT, WPARAM, LPARAM);
@@ -107,7 +107,7 @@ public:
   LRESULT ModifyTask(HWND task);
   LRESULT RemoveTask(HWND task);
   LRESULT SetFlash(HWND task, bool flash);
-  LRESULT DoCopyData(COPYDATASTRUCT *cds);
+  LRESULT DoCopyData(COPYDATASTRUCT* cds);
   void CreateBrushes();
   void DestroyBrushes();
   bool CleanTasks();

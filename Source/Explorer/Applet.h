@@ -31,16 +31,16 @@
 #include "../emergeAppletEngine/emergeAppletEngine.h"
 #include "ShellDesktopTray.h"
 
-typedef void *(WINAPI *SHCREATEDESKTOP)(void *);
-typedef bool (WINAPI *SHDESKTOPMESSAGELOOP)(void *);
+typedef void* (WINAPI* SHCREATEDESKTOP)(void*);
+typedef bool (WINAPI* SHDESKTOPMESSAGELOOP)(void*);
 
 class Applet
 {
 private:
   HWND mainWnd;
   HINSTANCE mainInst;
-	HANDLE m_hThread, showThread;
-	DWORD m_dwThreadID;
+  HANDLE m_hThread, showThread;
+  DWORD m_dwThreadID;
   void ShellServicesInit();
   void ShellServicesTerminate();
   void ToggleThread(LPARAM lParam);
@@ -51,8 +51,8 @@ public:
   ~Applet();
   UINT Initialize();
   static LRESULT CALLBACK WindowProcedure (HWND, UINT, WPARAM, LPARAM);
-	static DWORD WINAPI ThreadFunc(LPVOID pvParam);
-	LRESULT DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
+  static DWORD WINAPI ThreadFunc(LPVOID pvParam);
+  LRESULT DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
 };
 
 #endif

@@ -40,24 +40,28 @@ int WINAPI WinMain (HINSTANCE hInstance,
   Applet applet(hInstance);
 
   if (!ELIsExplorerShell())
+  {
+    if (!applet.Initialize())
     {
-      if (!applet.Initialize())
-        return 1;
+      return 1;
     }
+  }
   else
+  {
+    if (!applet.PortableInitialize())
     {
-      if (!applet.PortableInitialize())
-        return 2;
+      return 2;
     }
+  }
 
   // Run the message loop. It will run until GetMessage() returns 0
   while (GetMessage (&messages, NULL, 0, 0))
-    {
-      // Translate virtual-key messages into character messages
-      TranslateMessage(&messages);
-      // Send message to WindowProcedure
-      DispatchMessage(&messages);
-    }
+  {
+    // Translate virtual-key messages into character messages
+    TranslateMessage(&messages);
+    // Send message to WindowProcedure
+    DispatchMessage(&messages);
+  }
 
   // The program return-value is 0 - The value that PostQuitMessage() gave
   return (int)messages.wParam;

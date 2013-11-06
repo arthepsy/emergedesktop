@@ -23,51 +23,59 @@
 
 INT_PTR CALLBACK LaunchEditor::LaunchDlgProc(HWND hwndDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
-  static LaunchEditor *pLaunchEditor = NULL;
-  PROPSHEETPAGE *psp;
+  static LaunchEditor* pLaunchEditor = NULL;
+  PROPSHEETPAGE* psp;
 
   switch (message)
+  {
+  case WM_INITDIALOG:
+    psp = (PROPSHEETPAGE*)lParam;
+    pLaunchEditor = reinterpret_cast<LaunchEditor*>(psp->lParam);
+    if (!pLaunchEditor)
     {
-    case WM_INITDIALOG:
-      psp = (PROPSHEETPAGE*)lParam;
-      pLaunchEditor = reinterpret_cast<LaunchEditor*>(psp->lParam);
-      if (!pLaunchEditor)
-        break;
-      return pLaunchEditor->DoInitDialog(hwndDlg);
-
-    case WM_COMMAND:
-      return pLaunchEditor->DoLaunchCommand(hwndDlg, wParam, lParam);
-
-    case WM_NOTIFY:
-      return pLaunchEditor->DoNotify(hwndDlg, lParam);
+      break;
     }
+    return pLaunchEditor->DoInitDialog(hwndDlg);
+
+  case WM_COMMAND:
+    return pLaunchEditor->DoLaunchCommand(hwndDlg, wParam, lParam);
+
+  case WM_NOTIFY:
+    return pLaunchEditor->DoNotify(hwndDlg, lParam);
+  }
 
   return FALSE;
 }
 
 BOOL CALLBACK LaunchEditor::AppletCheck(HWND hwnd, LPARAM lParam)
 {
-  LaunchEditor *pLaunchEditor = reinterpret_cast<LaunchEditor*>(lParam);
+  LaunchEditor* pLaunchEditor = reinterpret_cast<LaunchEditor*>(lParam);
   std::wstring fileName = ELGetWindowApp(hwnd, true);
 
   if (fileName.empty())
+  {
     return true;
+  }
 
   if (ELToLower(fileName) == ELToLower(pLaunchEditor->GetSelectedApplet()))
+  {
     SendMessage(hwnd, WM_NCDESTROY, 0, 0);
+  }
 
   return true;
 }
 
 BOOL CALLBACK LaunchEditor::GatherApplet(HWND hwnd, LPARAM lParam)
 {
-  LaunchEditor *pLaunchEditor = reinterpret_cast<LaunchEditor*>(lParam);
+  LaunchEditor* pLaunchEditor = reinterpret_cast<LaunchEditor*>(lParam);
   std::wstring fileName = ELGetWindowApp(hwnd, true);
   POINT cursorPt;
   RECT appletRect;
 
   if (fileName.empty())
+  {
     return true;
+  }
 
   GetCursorPos(&cursorPt);
   GetClientRect(hwnd, &appletRect);
@@ -75,7 +83,7 @@ BOOL CALLBACK LaunchEditor::GatherApplet(HWND hwnd, LPARAM lParam)
   if (ELToLower(fileName) == ELToLower(pLaunchEditor->GetSelectedApplet()))
     SetWindowPos(hwnd, HWND_TOPMOST, cursorPt.x - (appletRect.right / 2),
                  cursorPt.y - (appletRect.bottom / 2), 0, 0,
-                 SWP_NOSIZE|SWP_NOSENDCHANGING);
+                 SWP_NOSIZE | SWP_NOSENDCHANGING);
 
   return true;
 }
@@ -99,7 +107,7 @@ LaunchEditor::LaunchEditor(HINSTANCE hInstance, HWND mainWnd)
               0,
               TOOLTIPS_CLASS,
               NULL,
-              TTS_ALWAYSTIP|WS_POPUP|TTS_NOPREFIX,
+              TTS_ALWAYSTIP | WS_POPUP | TTS_NOPREFIX,
               CW_USEDEFAULT, CW_USEDEFAULT,
               CW_USEDEFAULT, CW_USEDEFAULT,
               NULL,
@@ -108,11 +116,11 @@ LaunchEditor::LaunchEditor(HINSTANCE hInstance, HWND mainWnd)
               NULL);
 
   if (toolWnd)
-    {
-      SendMessage(toolWnd, TTM_SETMAXTIPWIDTH, 0, 300);
-      SetWindowPos(toolWnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE |
-                   SWP_NOACTIVATE);
-    }
+  {
+    SendMessage(toolWnd, TTM_SETMAXTIPWIDTH, 0, 300);
+    SetWindowPos(toolWnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE |
+                 SWP_NOACTIVATE);
+  }
 
   ExtractIconEx(TEXT("emergeIcons.dll"), 2, NULL, &addIcon, 1);
   ExtractIconEx(TEXT("emergeIcons.dll"), 5, NULL, &editIcon, 1);
@@ -135,25 +143,45 @@ LaunchEditor::LaunchEditor(HINSTANCE hInstance, HWND mainWnd)
 LaunchEditor::~LaunchEditor()
 {
   if (addIcon)
+  {
     DestroyIcon(addIcon);
+  }
   if (editIcon)
+  {
     DestroyIcon(editIcon);
+  }
   if (delIcon)
+  {
     DestroyIcon(delIcon);
+  }
   if (upIcon)
+  {
     DestroyIcon(upIcon);
+  }
   if (downIcon)
+  {
     DestroyIcon(downIcon);
+  }
   if (browseIcon)
+  {
     DestroyIcon(browseIcon);
+  }
   if (saveIcon)
+  {
     DestroyIcon(saveIcon);
+  }
   if (abortIcon)
+  {
     DestroyIcon(abortIcon);
+  }
   if (startIcon)
+  {
     DestroyIcon(startIcon);
+  }
   if (stopIcon)
+  {
     DestroyIcon(stopIcon);
+  }
 
   DestroyWindow(toolWnd);
 }
@@ -198,47 +226,81 @@ BOOL LaunchEditor::DoInitDialog(HWND hwndDlg)
   lvCol.pszText = (WCHAR*)TEXT("State");
   lvCol.cx = 70;
   if (ListView_InsertColumn(listWnd, 0, &lvCol) == -1)
+  {
     return FALSE;
+  }
 
   lvCol.pszText = (WCHAR*)TEXT("Applet");
   lvCol.cx = MAX_PATH;
   if (ListView_InsertColumn(listWnd, 1, &lvCol) == -1)
+  {
     return FALSE;
+  }
 
   lvCol.pszText = (WCHAR*)TEXT("Version");
   lvCol.cx = 100;
   if (ListView_InsertColumn(listWnd, 2, &lvCol) == -1)
+  {
     return FALSE;
+  }
 
   if (ListView_SetExtendedListViewStyle(listWnd,  LVS_EX_FULLROWSELECT) != 0)
+  {
     return FALSE;
+  }
 
   if (addIcon)
+  {
     SendMessage(addWnd, BM_SETIMAGE, IMAGE_ICON, (LPARAM)addIcon);
+  }
   if (editIcon)
+  {
     SendMessage(editWnd, BM_SETIMAGE, IMAGE_ICON, (LPARAM)editIcon);
+  }
   if (delIcon)
+  {
     SendMessage(delWnd, BM_SETIMAGE, IMAGE_ICON, (LPARAM)delIcon);
+  }
   if (browseIcon)
+  {
     SendMessage(browseWnd, BM_SETIMAGE, IMAGE_ICON, (LPARAM)browseIcon);
+  }
   if (upIcon)
+  {
     SendMessage(upWnd, BM_SETIMAGE, IMAGE_ICON, (LPARAM)upIcon);
+  }
   if (downIcon)
+  {
     SendMessage(downWnd, BM_SETIMAGE, IMAGE_ICON, (LPARAM)downIcon);
+  }
   if (saveIcon)
+  {
     SendMessage(saveWnd, BM_SETIMAGE, IMAGE_ICON, (LPARAM)saveIcon);
+  }
   if (abortIcon)
+  {
     SendMessage(abortWnd, BM_SETIMAGE, IMAGE_ICON, (LPARAM)abortIcon);
+  }
   if (startIcon)
+  {
     SendMessage(startWnd, BM_SETIMAGE, IMAGE_ICON, (LPARAM)startIcon);
+  }
   if (stopIcon)
+  {
     SendMessage(stopWnd, BM_SETIMAGE, IMAGE_ICON, (LPARAM)stopIcon);
+  }
   if (infoIcon)
+  {
     SendMessage(infoWnd, BM_SETIMAGE, IMAGE_ICON, (LPARAM)infoIcon);
+  }
   if (gatherIcon)
+  {
     SendMessage(gatherWnd, BM_SETIMAGE, IMAGE_ICON, (LPARAM)gatherIcon);
+  }
   if (configIcon)
+  {
     SendMessage(configWnd, BM_SETIMAGE, IMAGE_ICON, (LPARAM)configIcon);
+  }
 
   ti.cbSize = TTTOOLINFOW_V2_SIZE;
   ti.uFlags = TTF_SUBCLASS;
@@ -343,15 +405,19 @@ BOOL LaunchEditor::DoInitDialog(HWND hwndDlg)
 bool LaunchEditor::CheckSaveCount(HWND hwndDlg)
 {
   if ((saveCount != 0) || (deleteCount != 0))
+  {
+    if (ELMessageBox(hwndDlg,
+                     (WCHAR*)TEXT("All current modifications will be lost.\n\nDo you wish to continue?"),
+                     (WCHAR*)TEXT("emergeCore"),
+                     ELMB_YESNO | ELMB_ICONQUESTION | ELMB_MODAL) == IDYES)
     {
-      if (ELMessageBox(hwndDlg,
-                       (WCHAR*)TEXT("All current modifications will be lost.\n\nDo you wish to continue?"),
-                       (WCHAR*)TEXT("emergeCore"),
-                       ELMB_YESNO|ELMB_ICONQUESTION|ELMB_MODAL) == IDYES)
-        return true;
-      else
-        return false;
+      return true;
     }
+    else
+    {
+      return false;
+    }
+  }
 
   return true;
 }
@@ -362,18 +428,24 @@ bool LaunchEditor::CheckFields(HWND hwndDlg)
   HWND appletWnd = GetDlgItem(hwndDlg, IDC_APPLET);
 
   if (!IsWindowEnabled(appletWnd))
+  {
     return true;
+  }
 
   if (GetDlgItemText(hwndDlg, IDC_APPLET, tmp, MAX_LINE_LENGTH) != 0)
+  {
+    if (ELMessageBox(hwndDlg,
+                     (WCHAR*)TEXT("The current applet will be lost.\n\nDo you wish to continue?"),
+                     (WCHAR*)TEXT("emergeCore"),
+                     ELMB_YESNO | ELMB_ICONQUESTION | ELMB_MODAL) == IDYES)
     {
-      if (ELMessageBox(hwndDlg,
-                       (WCHAR*)TEXT("The current applet will be lost.\n\nDo you wish to continue?"),
-                       (WCHAR*)TEXT("emergeCore"),
-                       ELMB_YESNO|ELMB_ICONQUESTION|ELMB_MODAL) == IDYES)
-        return true;
-      else
-        return false;
+      return true;
     }
+    else
+    {
+      return false;
+    }
+  }
 
   return true;
 }
@@ -381,35 +453,35 @@ bool LaunchEditor::CheckFields(HWND hwndDlg)
 BOOL LaunchEditor::DoLaunchCommand(HWND hwndDlg, WPARAM wParam, LPARAM lParam UNUSED)
 {
   switch (LOWORD(wParam))
-    {
-    case IDC_DELAPP:
-      return DoLaunchDelete(hwndDlg);
-    case IDC_ADDAPP:
-      return DoLaunchAddEdit(hwndDlg);
-    case IDC_EDITAPP:
-      edit = true;
-      return DoLaunchAddEdit(hwndDlg);
-    case IDC_SAVEAPP:
-      return DoLaunchSave(hwndDlg);
-    case IDC_ABORTAPP:
-      return DoLaunchAbort(hwndDlg);
-    case IDC_BROWSE:
-      return DoLaunchBrowse(hwndDlg);
-    case IDC_UPAPP:
-      return DoLaunchMove(hwndDlg, true);
-    case IDC_DOWNAPP:
-      return DoLaunchMove(hwndDlg, false);
-    case IDC_STARTAPP:
-      return DoMultiStart(hwndDlg);
-    case IDC_STOPAPP:
-      return DoMultiStop(hwndDlg);
-    case IDC_GATHERAPP:
-      return DoMultiGather(hwndDlg);
-    case IDC_CONFIGAPP:
-      return DoMultiConfig(hwndDlg);
-    case IDC_INFOAPP:
-      return DoMultiInfo(hwndDlg);
-    }
+  {
+  case IDC_DELAPP:
+    return DoLaunchDelete(hwndDlg);
+  case IDC_ADDAPP:
+    return DoLaunchAddEdit(hwndDlg);
+  case IDC_EDITAPP:
+    edit = true;
+    return DoLaunchAddEdit(hwndDlg);
+  case IDC_SAVEAPP:
+    return DoLaunchSave(hwndDlg);
+  case IDC_ABORTAPP:
+    return DoLaunchAbort(hwndDlg);
+  case IDC_BROWSE:
+    return DoLaunchBrowse(hwndDlg);
+  case IDC_UPAPP:
+    return DoLaunchMove(hwndDlg, true);
+  case IDC_DOWNAPP:
+    return DoLaunchMove(hwndDlg, false);
+  case IDC_STARTAPP:
+    return DoMultiStart(hwndDlg);
+  case IDC_STOPAPP:
+    return DoMultiStop(hwndDlg);
+  case IDC_GATHERAPP:
+    return DoMultiGather(hwndDlg);
+  case IDC_CONFIGAPP:
+    return DoMultiConfig(hwndDlg);
+  case IDC_INFOAPP:
+    return DoMultiInfo(hwndDlg);
+  }
 
   return FALSE;
 }
@@ -423,16 +495,16 @@ BOOL LaunchEditor::DoMultiConfig(HWND hwndDlg)
   std::wstring selectedName;
 
   for (int i = 0; i < listCount; i++)
+  {
+    if (ListView_GetItemState(listWnd, i, LVIS_SELECTED))
     {
-      if (ListView_GetItemState(listWnd, i, LVIS_SELECTED))
-        {
-          ListView_GetItemText(listWnd, i, 1, name, MAX_PATH);
-          selectedName = name;
-          selectedName = selectedName.substr(selectedName.rfind('\\') + 1, selectedName.rfind('.') - (selectedName.rfind('\\') + 1));
-          ELDispatchCoreMessage(EMERGE_CORE, CORE_SHOWCONFIG, selectedName.c_str());
-          ret = TRUE;
-        }
+      ListView_GetItemText(listWnd, i, 1, name, MAX_PATH);
+      selectedName = name;
+      selectedName = selectedName.substr(selectedName.rfind('\\') + 1, selectedName.rfind('.') - (selectedName.rfind('\\') + 1));
+      ELDispatchCoreMessage(EMERGE_CORE, CORE_SHOWCONFIG, selectedName.c_str());
+      ret = TRUE;
     }
+  }
 
   return ret;
 }
@@ -446,24 +518,24 @@ BOOL LaunchEditor::DoMultiInfo(HWND hwndDlg)
   BOOL ret = FALSE;
 
   for (int i = 0; i < listCount; i++)
+  {
+    if (ListView_GetItemState(listWnd, i, LVIS_SELECTED))
     {
-      if (ListView_GetItemState(listWnd, i, LVIS_SELECTED))
-        {
-          ListView_GetItemText(listWnd, i, 1, name, MAX_PATH);
-          wcscpy(appletName, PathFindFileName(name));
-          PathRemoveExtension(appletName);
-          if (ELAppletFileVersion(name, &versionInfo))
-            {
-              swprintf(tmp, TEXT("%ls\n\nVersion: %ls\n\nAuthor: %ls"),
-                       versionInfo.Description,
-                       versionInfo.Version,
-                       versionInfo.Author);
-              ELMessageBox(hwndDlg, tmp, appletName,
-                           ELMB_ICONQUESTION|ELMB_OK|ELMB_MODAL);
-              ret = TRUE;
-            }
-        }
+      ListView_GetItemText(listWnd, i, 1, name, MAX_PATH);
+      wcscpy(appletName, PathFindFileName(name));
+      PathRemoveExtension(appletName);
+      if (ELAppletFileVersion(name, &versionInfo))
+      {
+        swprintf(tmp, TEXT("%ls\n\nVersion: %ls\n\nAuthor: %ls"),
+                 versionInfo.Description,
+                 versionInfo.Version,
+                 versionInfo.Author);
+        ELMessageBox(hwndDlg, tmp, appletName,
+                     ELMB_ICONQUESTION | ELMB_OK | ELMB_MODAL);
+        ret = TRUE;
+      }
     }
+  }
 
   return ret;
 }
@@ -476,17 +548,17 @@ BOOL LaunchEditor::DoMultiGather(HWND hwndDlg)
   BOOL ret = FALSE;
 
   for (int i = 0; i < listCount; i++)
+  {
+    if (ListView_GetItemState(listWnd, i, LVIS_SELECTED))
     {
-      if (ListView_GetItemState(listWnd, i, LVIS_SELECTED))
-        {
-          ListView_GetItemText(listWnd, i, 1, name, MAX_PATH);
-          selectedApplet = name;
-          selectedApplet = ELExpandVars(selectedApplet);
-          selectedApplet = ELGetAbsolutePath(selectedApplet);
-          EnumWindows(GatherApplet, reinterpret_cast<LPARAM>(this));
-          ret = TRUE;
-        }
+      ListView_GetItemText(listWnd, i, 1, name, MAX_PATH);
+      selectedApplet = name;
+      selectedApplet = ELExpandVars(selectedApplet);
+      selectedApplet = ELGetAbsolutePath(selectedApplet);
+      EnumWindows(GatherApplet, reinterpret_cast<LPARAM>(this));
+      ret = TRUE;
     }
+  }
 
   return ret;
 }
@@ -499,18 +571,18 @@ BOOL LaunchEditor::DoMultiStop(HWND hwndDlg)
   BOOL ret = FALSE;
 
   for (int i = 0; i < listCount; i++)
+  {
+    if (ListView_GetItemState(listWnd, i, LVIS_SELECTED))
     {
-      if (ListView_GetItemState(listWnd, i, LVIS_SELECTED))
-        {
-          ListView_GetItemText(listWnd, i, 1, name, MAX_PATH);
-          selectedApplet = name;
-          selectedApplet = ELExpandVars(selectedApplet);
-          selectedApplet = ELGetAbsolutePath(selectedApplet);
-          EnumWindows(AppletCheck, reinterpret_cast<LPARAM>(this));
-          ListView_SetItemText(listWnd, i, 0, (WCHAR*)TEXT("Not Loaded"));
-          ret = TRUE;
-        }
+      ListView_GetItemText(listWnd, i, 1, name, MAX_PATH);
+      selectedApplet = name;
+      selectedApplet = ELExpandVars(selectedApplet);
+      selectedApplet = ELGetAbsolutePath(selectedApplet);
+      EnumWindows(AppletCheck, reinterpret_cast<LPARAM>(this));
+      ListView_SetItemText(listWnd, i, 0, (WCHAR*)TEXT("Not Loaded"));
+      ret = TRUE;
     }
+  }
 
   return ret;
 }
@@ -523,17 +595,17 @@ BOOL LaunchEditor::DoMultiStart(HWND hwndDlg)
   BOOL ret = FALSE;
 
   for (int i = 0; i < listCount; i++)
+  {
+    if (ListView_GetItemState(listWnd, i, LVIS_SELECTED))
     {
-      if (ListView_GetItemState(listWnd, i, LVIS_SELECTED))
-        {
-          ListView_GetItemText(listWnd, i, 1, name, MAX_PATH);
-          if (ELExecuteFileOrCommand(name))
-            {
-              ret = TRUE;
-              ListView_SetItemText(listWnd, i, 0, (WCHAR*)TEXT("Loaded"));
-            }
-        }
+      ListView_GetItemText(listWnd, i, 1, name, MAX_PATH);
+      if (ELExecuteFileOrCommand(name))
+      {
+        ret = TRUE;
+        ListView_SetItemText(listWnd, i, 0, (WCHAR*)TEXT("Loaded"));
+      }
     }
+  }
 
   return ret;
 }
@@ -547,55 +619,63 @@ bool LaunchEditor::DoLaunchMove(HWND hwndDlg, bool up)
   WCHAR applet[MAX_PATH], version[MAX_PATH], state[MAX_PATH];
 
   if (ListView_GetSelectedCount(listWnd) > 1)
-    {
-      ELMessageBox(hwndDlg, (WCHAR*)TEXT("You can only move one item at a time."),
-                   (WCHAR*)TEXT("emergeCore"), ELMB_OK|MB_ICONERROR|ELMB_MODAL);
+  {
+    ELMessageBox(hwndDlg, (WCHAR*)TEXT("You can only move one item at a time."),
+                 (WCHAR*)TEXT("emergeCore"), ELMB_OK | MB_ICONERROR | ELMB_MODAL);
 
-      return ret;
-    }
+    return ret;
+  }
 
   saveCount++;
 
   lvItem.mask = LVIF_TEXT;
 
   while (i < ListView_GetItemCount(listWnd))
+  {
+    if (ListView_GetItemState(listWnd, i, LVIS_SELECTED))
     {
-      if (ListView_GetItemState(listWnd, i, LVIS_SELECTED))
-        {
-          ListView_GetItemText(listWnd, i, 0, state, MAX_PATH);
-          ListView_GetItemText(listWnd, i, 1, applet, MAX_PATH);
-          ListView_GetItemText(listWnd, i, 2, version, MAX_PATH);
+      ListView_GetItemText(listWnd, i, 0, state, MAX_PATH);
+      ListView_GetItemText(listWnd, i, 1, applet, MAX_PATH);
+      ListView_GetItemText(listWnd, i, 2, version, MAX_PATH);
 
-          if (up)
-            lvItem.iItem = ListView_GetNextItem(listWnd, i, LVNI_ABOVE);
-          else
-            lvItem.iItem = ListView_GetNextItem(listWnd, i, LVNI_BELOW);
-
-          if (lvItem.iItem == -1)
-            break;
-
-          lvItem.iSubItem = 0;
-          lvItem.pszText = state;
-          lvItem.cchTextMax = MAX_PATH;
-
-          if (ListView_DeleteItem(listWnd, i))
-            {
-
-              if (ListView_InsertItem(listWnd, &lvItem) != -1)
-                {
-                  ListView_SetItemText(listWnd, lvItem.iItem, 1, applet);
-                  ListView_SetItemText(listWnd, lvItem.iItem, 2, version);
-                }
-
-              ListView_SetItemState(listWnd, lvItem.iItem, LVIS_SELECTED, LVIS_SELECTED);
-              ret = (ListView_EnsureVisible(listWnd, lvItem.iItem, FALSE) == TRUE);
-            }
-
-          break;
-        }
+      if (up)
+      {
+        lvItem.iItem = ListView_GetNextItem(listWnd, i, LVNI_ABOVE);
+      }
       else
-        i++;
+      {
+        lvItem.iItem = ListView_GetNextItem(listWnd, i, LVNI_BELOW);
+      }
+
+      if (lvItem.iItem == -1)
+      {
+        break;
+      }
+
+      lvItem.iSubItem = 0;
+      lvItem.pszText = state;
+      lvItem.cchTextMax = MAX_PATH;
+
+      if (ListView_DeleteItem(listWnd, i))
+      {
+
+        if (ListView_InsertItem(listWnd, &lvItem) != -1)
+        {
+          ListView_SetItemText(listWnd, lvItem.iItem, 1, applet);
+          ListView_SetItemText(listWnd, lvItem.iItem, 2, version);
+        }
+
+        ListView_SetItemState(listWnd, lvItem.iItem, LVIS_SELECTED, LVIS_SELECTED);
+        ret = (ListView_EnsureVisible(listWnd, lvItem.iItem, FALSE) == TRUE);
+      }
+
+      break;
     }
+    else
+    {
+      i++;
+    }
+  }
 
   return ret;
 }
@@ -605,10 +685,10 @@ bool LaunchEditor::DoLaunchStart(HWND listWnd, int index)
   bool ret = false;
 
   if (ELExecuteFileOrCommand(selectedApplet))
-    {
-      ListView_SetItemText(listWnd, index, 0, (WCHAR*)TEXT("Loaded"));
-      ret = true;
-    }
+  {
+    ListView_SetItemText(listWnd, index, 0, (WCHAR*)TEXT("Loaded"));
+    ret = true;
+  }
 
   return ret;
 }
@@ -621,7 +701,7 @@ bool LaunchEditor::DoLaunchStop(HWND listWnd, int index)
   return true;
 }
 
-bool LaunchEditor::GetLaunchAppletName(int index, WCHAR *applet)
+bool LaunchEditor::GetLaunchAppletName(int index, WCHAR* applet)
 {
   HWND listWnd = GetDlgItem(dlgWnd, IDC_APPLETLIST);
   std::wstring workingApplet;
@@ -639,62 +719,74 @@ bool LaunchEditor::UpdateLaunch(HWND hwndDlg)
   HWND listWnd = GetDlgItem(hwndDlg, IDC_APPLETLIST);
   WCHAR applet[MAX_PATH];
   std::tr1::shared_ptr<TiXmlDocument> configXML;
-  TiXmlElement *first, *section = NULL, *settings;
+  TiXmlElement* first, *section = NULL, *settings;
   std::wstring theme = ELGetThemeName(), oldTheme, newThemePath, oldThemePath;
 
   if ((saveCount == 0) && (deleteCount == 0))
+  {
     return true;
+  }
 
   if (!ELIsModifiedTheme(theme))
+  {
     oldTheme = theme;
+  }
 
   if (ELSetModifiedTheme(theme))
-    {
-      oldThemePath = TEXT("%EmergeDir%\\themes\\") + oldTheme;
-      oldThemePath += TEXT("\\*");
-      newThemePath = TEXT("%ThemeDir%");
+  {
+    oldThemePath = TEXT("%EmergeDir%\\themes\\") + oldTheme;
+    oldThemePath += TEXT("\\*");
+    newThemePath = TEXT("%ThemeDir%");
 
-      if ((ELGetFileSpecialFlags(newThemePath) & SF_DIRECTORY) != SF_DIRECTORY)
-        {
-          if (ELCreateDirectory(newThemePath))
-            ELFileOp(mainWnd, false, FO_COPY, oldThemePath, newThemePath);
-        }
+    if ((ELGetFileSpecialFlags(newThemePath) & SF_DIRECTORY) != SF_DIRECTORY)
+    {
+      if (ELCreateDirectory(newThemePath))
+      {
+        ELFileOp(mainWnd, false, FO_COPY, oldThemePath, newThemePath);
+      }
     }
+  }
 
   configXML = ELOpenXMLConfig(xmlFile, true);
   if (configXML)
+  {
+    /**< Remove the old 'Launch' top level section */
+    section = ELGetXMLSection(configXML.get(), (WCHAR*)TEXT("Launch"), false);
+    if (section)
     {
-      /**< Remove the old 'Launch' top level section */
-      section = ELGetXMLSection(configXML.get(), (WCHAR*)TEXT("Launch"), false);
-      if (section)
-        ELRemoveXMLElement(section);
-
-      settings = ELGetXMLSection(configXML.get(), (WCHAR*)TEXT("Settings"), true);
-      if (settings)
-        {
-          /**< Remove existing Launch list */
-          section = ELGetFirstXMLElementByName(settings, (WCHAR*)TEXT("Launch"), false);
-          if (section)
-            ELRemoveXMLElement(section);
-          section = ELSetFirstXMLElementByName(settings, (WCHAR*)TEXT("Launch"));
-        }
-
-      if (section)
-        {
-          // Loop while there are entries in the key
-          int i = 0;
-          while (i < ListView_GetItemCount(listWnd))
-            {
-              ListView_GetItemText(listWnd, i, 1, applet, MAX_PATH);
-              first = ELSetFirstXMLElementByName(section, TEXT("item"));
-              if (first)
-                ELWriteXMLStringValue(first, TEXT("Command"), applet);
-
-              i++;
-            }
-          ELWriteXMLConfig(configXML.get());
-        }
+      ELRemoveXMLElement(section);
     }
+
+    settings = ELGetXMLSection(configXML.get(), (WCHAR*)TEXT("Settings"), true);
+    if (settings)
+    {
+      /**< Remove existing Launch list */
+      section = ELGetFirstXMLElementByName(settings, (WCHAR*)TEXT("Launch"), false);
+      if (section)
+      {
+        ELRemoveXMLElement(section);
+      }
+      section = ELSetFirstXMLElementByName(settings, (WCHAR*)TEXT("Launch"));
+    }
+
+    if (section)
+    {
+      // Loop while there are entries in the key
+      int i = 0;
+      while (i < ListView_GetItemCount(listWnd))
+      {
+        ListView_GetItemText(listWnd, i, 1, applet, MAX_PATH);
+        first = ELSetFirstXMLElementByName(section, TEXT("item"));
+        if (first)
+        {
+          ELWriteXMLStringValue(first, TEXT("Command"), applet);
+        }
+
+        i++;
+      }
+      ELWriteXMLConfig(configXML.get());
+    }
+  }
 
   return true;
 }
@@ -704,59 +796,63 @@ bool LaunchEditor::PopulateList(HWND listWnd)
   bool found = false;
   std::wstring data;
   std::tr1::shared_ptr<TiXmlDocument> configXML;
-  TiXmlElement *first, *sibling, *section = NULL, *settings;
+  TiXmlElement* first, *sibling, *section = NULL, *settings;
 
   configXML = ELOpenXMLConfig(xmlFile, false);
   if (configXML)
+  {
+    settings = ELGetXMLSection(configXML.get(), (WCHAR*)TEXT("Settings"), false);
+    if (settings)
     {
-      settings = ELGetXMLSection(configXML.get(), (WCHAR*)TEXT("Settings"), false);
-      if (settings)
-        section = ELGetFirstXMLElementByName(settings, (WCHAR*)TEXT("Launch"), false);
-      if (section)
-        {
-          first = ELGetFirstXMLElement(section);
-
-          if (first)
-            {
-              DWORD index = 0;
-
-              data = ELReadXMLStringValue(first, TEXT("Command"), TEXT(""));
-              if (!data.empty())
-                {
-                  found = true;
-                  InsertListViewItem(listWnd, index, data.c_str());
-                }
-
-              sibling = ELGetSiblingXMLElement(first);
-              while (sibling)
-                {
-                  index++;
-                  first = sibling;
-
-                  data = ELReadXMLStringValue(first, TEXT("Command"), TEXT(""));
-                  if (!data.empty())
-                    InsertListViewItem(listWnd, index, data.c_str());
-
-                  sibling = ELGetSiblingXMLElement(first);
-                }
-            }
-        }
+      section = ELGetFirstXMLElementByName(settings, (WCHAR*)TEXT("Launch"), false);
     }
+    if (section)
+    {
+      first = ELGetFirstXMLElement(section);
+
+      if (first)
+      {
+        DWORD index = 0;
+
+        data = ELReadXMLStringValue(first, TEXT("Command"), TEXT(""));
+        if (!data.empty())
+        {
+          found = true;
+          InsertListViewItem(listWnd, index, data.c_str());
+        }
+
+        sibling = ELGetSiblingXMLElement(first);
+        while (sibling)
+        {
+          index++;
+          first = sibling;
+
+          data = ELReadXMLStringValue(first, TEXT("Command"), TEXT(""));
+          if (!data.empty())
+          {
+            InsertListViewItem(listWnd, index, data.c_str());
+          }
+
+          sibling = ELGetSiblingXMLElement(first);
+        }
+      }
+    }
+  }
 
   if (!found)
-    {
-      InsertListViewItem(listWnd, 0, TEXT("emergeTasks.exe"));
-      InsertListViewItem(listWnd, 1, TEXT("emergeTray.exe"));
-      InsertListViewItem(listWnd, 2, TEXT("emergeWorkspace.exe"));
-      InsertListViewItem(listWnd, 3, TEXT("emergeCommand.exe"));
-      InsertListViewItem(listWnd, 4, TEXT("emergeLauncher.exe"));
-      InsertListViewItem(listWnd, 5, TEXT("emergeHotkeys.exe"));
-    }
+  {
+    InsertListViewItem(listWnd, 0, TEXT("emergeTasks.exe"));
+    InsertListViewItem(listWnd, 1, TEXT("emergeTray.exe"));
+    InsertListViewItem(listWnd, 2, TEXT("emergeWorkspace.exe"));
+    InsertListViewItem(listWnd, 3, TEXT("emergeCommand.exe"));
+    InsertListViewItem(listWnd, 4, TEXT("emergeLauncher.exe"));
+    InsertListViewItem(listWnd, 5, TEXT("emergeHotkeys.exe"));
+  }
 
   return found;
 }
 
-void LaunchEditor::InsertListViewItem(HWND listWnd, int index, const WCHAR *item)
+void LaunchEditor::InsertListViewItem(HWND listWnd, int index, const WCHAR* item)
 {
   VERSIONINFO versionInfo;
   LVITEM lvItem;
@@ -771,16 +867,22 @@ void LaunchEditor::InsertListViewItem(HWND listWnd, int index, const WCHAR *item
   lvItem.pszText = GetLaunchItemState(tmp);
   lvItem.cchTextMax = (int)wcslen(lvItem.pszText);
   if (ListView_InsertItem(listWnd, &lvItem) != -1)
+  {
     ListView_SetItemText(listWnd, lvItem.iItem, 1, tmp);
+  }
 
   if (ELAppletFileVersion(tmp, &versionInfo))
+  {
     ListView_SetItemText(listWnd, lvItem.iItem, 2, versionInfo.Version);
+  }
 }
 
-WCHAR *LaunchEditor::GetLaunchItemState(WCHAR *launchItem)
+WCHAR* LaunchEditor::GetLaunchItemState(WCHAR* launchItem)
 {
   if (ELIsAppletRunning(launchItem))
+  {
     return (WCHAR*)TEXT("Loaded");
+  }
 
   return (WCHAR*)TEXT("Not Loaded");
 }
@@ -801,52 +903,56 @@ bool LaunchEditor::DoLaunchDelete(HWND hwndDlg)
   int i = 0, prevItem = 0;
 
   if (ListView_GetSelectedCount(listWnd) > 1)
-    {
-      ELMessageBox(hwndDlg, (WCHAR*)TEXT("You can only delete one item at a time."),
-                   (WCHAR*)TEXT("emergeCore"), ELMB_OK|ELMB_ICONERROR|ELMB_MODAL);
+  {
+    ELMessageBox(hwndDlg, (WCHAR*)TEXT("You can only delete one item at a time."),
+                 (WCHAR*)TEXT("emergeCore"), ELMB_OK | ELMB_ICONERROR | ELMB_MODAL);
 
-      return ret;
-    }
+    return ret;
+  }
 
   while (i < ListView_GetItemCount(listWnd))
+  {
+    if (ListView_GetItemState(listWnd, i, LVIS_SELECTED))
     {
-      if (ListView_GetItemState(listWnd, i, LVIS_SELECTED))
+      prevItem = ListView_GetNextItem(listWnd, i, LVNI_ABOVE);
+      if (!ListView_DeleteItem(listWnd, i))
+      {
+        return ret;
+      }
+      deleteCount++;
+
+      ListView_SetItemState(listWnd, i, LVIS_SELECTED,
+                            LVIS_SELECTED);
+      if (!ListView_EnsureVisible(listWnd, i, FALSE))
+      {
+        if (prevItem != -1)
         {
-          prevItem = ListView_GetNextItem(listWnd, i, LVNI_ABOVE);
-          if (!ListView_DeleteItem(listWnd, i))
-            return ret;
-          deleteCount++;
-
-          ListView_SetItemState(listWnd, i, LVIS_SELECTED,
+          ListView_SetItemState(listWnd, prevItem, LVIS_SELECTED,
                                 LVIS_SELECTED);
-          if (!ListView_EnsureVisible(listWnd, i, FALSE))
-            {
-              if (prevItem != -1)
-                {
-                  ListView_SetItemState(listWnd, prevItem, LVIS_SELECTED,
-                                        LVIS_SELECTED);
-                  ret = (ListView_EnsureVisible(listWnd, prevItem, FALSE) == TRUE);
-                }
-            }
-
-          break;
+          ret = (ListView_EnsureVisible(listWnd, prevItem, FALSE) == TRUE);
         }
-      else
-        i++;
+      }
+
+      break;
     }
+    else
+    {
+      i++;
+    }
+  }
 
   if (ListView_GetItemCount(listWnd) == 0)
-    {
-      EnableWindow(editWnd, false);
-      EnableWindow(delWnd, false);
-      EnableWindow(upWnd, false);
-      EnableWindow(downWnd, false);
-      EnableWindow(startWnd, false);
-      EnableWindow(stopWnd, false);
-      EnableWindow(infoWnd, false);
-      EnableWindow(gatherWnd, false);
-      EnableWindow(configWnd, false);
-    }
+  {
+    EnableWindow(editWnd, false);
+    EnableWindow(delWnd, false);
+    EnableWindow(upWnd, false);
+    EnableWindow(downWnd, false);
+    EnableWindow(startWnd, false);
+    EnableWindow(stopWnd, false);
+    EnableWindow(infoWnd, false);
+    EnableWindow(gatherWnd, false);
+    EnableWindow(configWnd, false);
+  }
 
   return ret;
 }
@@ -866,7 +972,9 @@ bool LaunchEditor::DoLaunchAddEdit(HWND hwndDlg)
   EnableWindow(listWnd, false);
 
   if (!edit)
+  {
     SetDlgItemText(hwndDlg, IDC_APPLET, TEXT(""));
+  }
 
   return true;
 }
@@ -891,21 +999,21 @@ bool LaunchEditor::DoLaunchAbort(HWND hwndDlg)
   return true;
 }
 
-bool LaunchEditor::FindListSubItem(HWND listWnd, int subItem, WCHAR *searchString)
+bool LaunchEditor::FindListSubItem(HWND listWnd, int subItem, WCHAR* searchString)
 {
   int listSize = ListView_GetItemCount(listWnd), i = 0;
   WCHAR item[MAX_LINE_LENGTH];
   bool ret = false;
 
   for (i = 0; i < listSize; i++)
+  {
+    ListView_GetItemText(listWnd, i, subItem, item, MAX_LINE_LENGTH);
+    if (_wcsicmp(item, searchString) == 0)
     {
-      ListView_GetItemText(listWnd, i, subItem, item, MAX_LINE_LENGTH);
-      if (_wcsicmp(item, searchString) == 0)
-        {
-          ret = true;
-          break;
-        }
+      ret = true;
+      break;
     }
+  }
 
   return ret;
 }
@@ -927,60 +1035,64 @@ bool LaunchEditor::DoLaunchSave(HWND hwndDlg)
 
   GetDlgItemText(hwndDlg, IDC_APPLET, tmp, MAX_LINE_LENGTH);
   if (wcslen(tmp) > 0)
+  {
+    if (edit)
     {
-      if (edit)
+      lvItem.iItem = selectedItem;
+      lvItem.iSubItem = 0;
+      lvItem.pszText = GetLaunchItemState(tmp);
+      lvItem.cchTextMax = (int)wcslen(lvItem.pszText);
+      if (ListView_DeleteItem(listWnd, selectedItem))
+      {
+        if (ListView_InsertItem(listWnd, &lvItem) != -1)
         {
-          lvItem.iItem = selectedItem;
-          lvItem.iSubItem = 0;
-          lvItem.pszText = GetLaunchItemState(tmp);
-          lvItem.cchTextMax = (int)wcslen(lvItem.pszText);
-          if (ListView_DeleteItem(listWnd, selectedItem))
-            {
-              if (ListView_InsertItem(listWnd, &lvItem) != -1)
-                {
-                  ListView_SetItemText(listWnd, lvItem.iItem, 1, tmp);
+          ListView_SetItemText(listWnd, lvItem.iItem, 1, tmp);
 
-                  if (ELAppletFileVersion(tmp, &versionInfo))
-                    ListView_SetItemText(listWnd, lvItem.iItem, 2, versionInfo.Version);
+          if (ELAppletFileVersion(tmp, &versionInfo))
+          {
+            ListView_SetItemText(listWnd, lvItem.iItem, 2, versionInfo.Version);
+          }
 
-                  saveCount++;
-                  deleteCount++;
+          saveCount++;
+          deleteCount++;
 
-                  ret = true;
-                }
-            }
+          ret = true;
         }
-      else
-        {
-          if (!FindListSubItem(listWnd, 1, tmp))
-            {
-              lvItem.iItem = ListView_GetItemCount(listWnd);
-              lvItem.iSubItem = 0;
-              lvItem.pszText = GetLaunchItemState(tmp);
-              lvItem.cchTextMax = (int)wcslen(lvItem.pszText);
-              if (ListView_InsertItem(listWnd, &lvItem) != -1)
-                {
-                  ListView_SetItemText(listWnd, lvItem.iItem, 1, tmp);
-
-                  if (ELAppletFileVersion(tmp, &versionInfo))
-                    ListView_SetItemText(listWnd, lvItem.iItem, 2, versionInfo.Version);
-
-                  saveCount++;
-                  deleteCount++;
-
-                  ret = true;
-                }
-            }
-          else
-            {
-              swprintf(error, TEXT("%ls is already in the applet launch list"), tmp);
-              ELMessageBox(hwndDlg, error, (WCHAR*)TEXT("emergeCore"),
-                           ELMB_OK|ELMB_ICONERROR|ELMB_MODAL);
-            }
-
-          SetDlgItemText(hwndDlg, IDC_APPLET, TEXT(""));
-        }
+      }
     }
+    else
+    {
+      if (!FindListSubItem(listWnd, 1, tmp))
+      {
+        lvItem.iItem = ListView_GetItemCount(listWnd);
+        lvItem.iSubItem = 0;
+        lvItem.pszText = GetLaunchItemState(tmp);
+        lvItem.cchTextMax = (int)wcslen(lvItem.pszText);
+        if (ListView_InsertItem(listWnd, &lvItem) != -1)
+        {
+          ListView_SetItemText(listWnd, lvItem.iItem, 1, tmp);
+
+          if (ELAppletFileVersion(tmp, &versionInfo))
+          {
+            ListView_SetItemText(listWnd, lvItem.iItem, 2, versionInfo.Version);
+          }
+
+          saveCount++;
+          deleteCount++;
+
+          ret = true;
+        }
+      }
+      else
+      {
+        swprintf(error, TEXT("%ls is already in the applet launch list"), tmp);
+        ELMessageBox(hwndDlg, error, (WCHAR*)TEXT("emergeCore"),
+                     ELMB_OK | ELMB_ICONERROR | ELMB_MODAL);
+      }
+
+      SetDlgItemText(hwndDlg, IDC_APPLET, TEXT(""));
+    }
+  }
 
   EnableWindow(saveWnd, false);
   EnableWindow(abortWnd, false);
@@ -1013,7 +1125,9 @@ bool LaunchEditor::DoLaunchBrowse(HWND hwndDlg)
   workingPath = tmp;
   workingPath = ELExpandVars(workingPath);
   if (ELParseCommand(workingPath.c_str(), program, arguments))
+  {
     wcscpy(tmp, program);
+  }
   ofn.lpstrFile = tmp;
   ofn.nMaxFile = MAX_PATH;
   ofn.lpstrTitle = TEXT("Browse For Launch Applet");
@@ -1022,13 +1136,13 @@ bool LaunchEditor::DoLaunchBrowse(HWND hwndDlg)
   ofn.Flags = OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST | OFN_EXPLORER | OFN_DONTADDTORECENT | OFN_NOCHANGEDIR | OFN_NODEREFERENCELINKS;
 
   if (GetOpenFileName(&ofn))
-    {
-      ELUnExpandVars(tmp);
-      std::wstring workingTmp = ELGetRelativePath(tmp);
-      SetDlgItemText(hwndDlg, IDC_APPLET, workingTmp.c_str());
+  {
+    ELUnExpandVars(tmp);
+    std::wstring workingTmp = ELGetRelativePath(tmp);
+    SetDlgItemText(hwndDlg, IDC_APPLET, workingTmp.c_str());
 
-      ret = true;
-    }
+    ret = true;
+  }
 
   return ret;
 }
@@ -1057,52 +1171,60 @@ BOOL LaunchEditor::DoNotify(HWND hwndDlg, LPARAM lParam)
   HWND configWnd = GetDlgItem(hwndDlg, IDC_CONFIGAPP);
 
   switch (((LPNMITEMACTIVATE)lParam)->hdr.code)
+  {
+  case LVN_ITEMCHANGED:
+    selectedItem = ((LPNMLISTVIEW)lParam)->iItem;
+    EnableWindow(editWnd, true);
+    EnableWindow(delWnd, true);
+    EnableWindow(upWnd, true);
+    EnableWindow(downWnd, true);
+    EnableWindow(startWnd, true);
+    EnableWindow(stopWnd, true);
+    EnableWindow(infoWnd, true);
+    EnableWindow(gatherWnd, true);
+    EnableWindow(configWnd, true);
+    return PopulateFields(hwndDlg, selectedItem);
+
+    // Disable Right click menu for now
+    //case NM_RCLICK:
+    //return DoRightClick(hwndDlg, ((LPNMITEMACTIVATE)lParam)->iItem);
+
+  case PSN_APPLY:
+    if (!CheckFields(hwndDlg))
     {
-    case LVN_ITEMCHANGED:
-      selectedItem = ((LPNMLISTVIEW)lParam)->iItem;
-      EnableWindow(editWnd, true);
-      EnableWindow(delWnd, true);
-      EnableWindow(upWnd, true);
-      EnableWindow(downWnd, true);
-      EnableWindow(startWnd, true);
-      EnableWindow(stopWnd, true);
-      EnableWindow(infoWnd, true);
-      EnableWindow(gatherWnd, true);
-      EnableWindow(configWnd, true);
-      return PopulateFields(hwndDlg, selectedItem);
-
-      // Disable Right click menu for now
-      //case NM_RCLICK:
-      //return DoRightClick(hwndDlg, ((LPNMITEMACTIVATE)lParam)->iItem);
-
-    case PSN_APPLY:
-      if (!CheckFields(hwndDlg))
-        {
-          SetWindowLongPtr(hwndDlg, DWLP_MSGRESULT, PSNRET_INVALID);
-          return 1;
-        }
-
-      if (UpdateLaunch(hwndDlg))
-        SetWindowLongPtr(hwndDlg, DWLP_MSGRESULT, PSNRET_NOERROR);
-      else
-        SetWindowLongPtr(hwndDlg, DWLP_MSGRESULT, PSNRET_INVALID);
+      SetWindowLongPtr(hwndDlg, DWLP_MSGRESULT, PSNRET_INVALID);
       return 1;
-
-    case PSN_SETACTIVE:
-      SetWindowLongPtr(hwndDlg, DWLP_MSGRESULT, 0);
-      return 1;
-
-    case PSN_KILLACTIVE:
-      SetWindowLongPtr(hwndDlg, DWLP_MSGRESULT, FALSE);
-      return 1;
-
-    case PSN_QUERYCANCEL:
-      if (CheckFields(hwndDlg) && CheckSaveCount(hwndDlg))
-        SetWindowLong(hwndDlg,DWLP_MSGRESULT,FALSE);
-      else
-        SetWindowLong(hwndDlg,DWLP_MSGRESULT,TRUE);
-      return TRUE;
     }
+
+    if (UpdateLaunch(hwndDlg))
+    {
+      SetWindowLongPtr(hwndDlg, DWLP_MSGRESULT, PSNRET_NOERROR);
+    }
+    else
+    {
+      SetWindowLongPtr(hwndDlg, DWLP_MSGRESULT, PSNRET_INVALID);
+    }
+    return 1;
+
+  case PSN_SETACTIVE:
+    SetWindowLongPtr(hwndDlg, DWLP_MSGRESULT, 0);
+    return 1;
+
+  case PSN_KILLACTIVE:
+    SetWindowLongPtr(hwndDlg, DWLP_MSGRESULT, FALSE);
+    return 1;
+
+  case PSN_QUERYCANCEL:
+    if (CheckFields(hwndDlg) && CheckSaveCount(hwndDlg))
+    {
+      SetWindowLong(hwndDlg, DWLP_MSGRESULT, FALSE);
+    }
+    else
+    {
+      SetWindowLong(hwndDlg, DWLP_MSGRESULT, TRUE);
+    }
+    return TRUE;
+  }
 
   return FALSE;
 }
@@ -1122,48 +1244,54 @@ BOOL LaunchEditor::DoRightClick(HWND hwndDlg, int index)
   ListView_GetItemText(listWnd, index, 1, applet, MAX_PATH);
   ListView_GetItemText(listWnd, index, 0, tmp, MAX_LINE_LENGTH);
   if (_wcsicmp(tmp, TEXT("stopped")) == 0)
-    {
-      AppendMenu(appletMenu, MF_STRING, 3, TEXT("Start"));
-      start = true;
-    }
+  {
+    AppendMenu(appletMenu, MF_STRING, 3, TEXT("Start"));
+    start = true;
+  }
   else
+  {
     AppendMenu(appletMenu, MF_STRING, 3, TEXT("Stop"));
+  }
 
   wcscpy(appletName, PathFindFileName(applet));
   PathRemoveExtension(appletName);
   GetCursorPos(&mousePt);
 
   if (ELAppletFileVersion(applet, &versionInfo))
-    {
-      swprintf(tmp, TEXT("%ls\n\nVersion: %ls\n\nAuthor: %ls"),
-               versionInfo.Description,
-               versionInfo.Version,
-               versionInfo.Author);
-    }
+  {
+    swprintf(tmp, TEXT("%ls\n\nVersion: %ls\n\nAuthor: %ls"),
+             versionInfo.Description,
+             versionInfo.Version,
+             versionInfo.Author);
+  }
 
   switch (TrackPopupMenuEx(appletMenu, TPM_RETURNCMD, mousePt.x, mousePt.y,
                            hwndDlg, NULL))
+  {
+  case 1:
+    ELMessageBox(hwndDlg, tmp, appletName,
+                 ELMB_ICONQUESTION | ELMB_OK | ELMB_MODAL);
+    break;
+  case 2:
+    selectedApplet = applet;
+    selectedApplet = ELExpandVars(selectedApplet);
+    selectedApplet = ELGetAbsolutePath(selectedApplet);
+    EnumWindows(GatherApplet, reinterpret_cast<LPARAM>(this));
+    break;
+  case 3:
+    selectedApplet = applet;
+    selectedApplet = ELExpandVars(selectedApplet);
+    selectedApplet = ELGetAbsolutePath(selectedApplet);
+    if (start)
     {
-    case 1:
-      ELMessageBox(hwndDlg, tmp, appletName,
-                   ELMB_ICONQUESTION|ELMB_OK|ELMB_MODAL);
-      break;
-    case 2:
-      selectedApplet = applet;
-      selectedApplet = ELExpandVars(selectedApplet);
-      selectedApplet = ELGetAbsolutePath(selectedApplet);
-      EnumWindows(GatherApplet, reinterpret_cast<LPARAM>(this));
-      break;
-    case 3:
-      selectedApplet = applet;
-      selectedApplet = ELExpandVars(selectedApplet);
-      selectedApplet = ELGetAbsolutePath(selectedApplet);
-      if (start)
-        DoLaunchStart(listWnd, index);
-      else
-        DoLaunchStop(listWnd, index);
-      break;
+      DoLaunchStart(listWnd, index);
     }
+    else
+    {
+      DoLaunchStop(listWnd, index);
+    }
+    break;
+  }
 
   DestroyMenu(appletMenu);
 

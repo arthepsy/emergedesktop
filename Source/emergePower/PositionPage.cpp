@@ -23,26 +23,30 @@
 
 INT_PTR CALLBACK PositionPage::PositionPageDlgProc(HWND hwndDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
-  static PositionPage *pPositionPage = NULL;
-  PROPSHEETPAGE *psp;
+  static PositionPage* pPositionPage = NULL;
+  PROPSHEETPAGE* psp;
 
   switch (message)
+  {
+  case WM_INITDIALOG:
+    psp = (PROPSHEETPAGE*)lParam;
+    pPositionPage = reinterpret_cast<PositionPage*>(psp->lParam);
+    if (!pPositionPage)
     {
-    case WM_INITDIALOG:
-      psp = (PROPSHEETPAGE*)lParam;
-      pPositionPage = reinterpret_cast<PositionPage*>(psp->lParam);
-      if (!pPositionPage)
-        break;
-      return pPositionPage->DoInitDialog(hwndDlg);
-
-    case WM_COMMAND:
-      return pPositionPage->DoCommand(hwndDlg, wParam, lParam);
-
-    case WM_NOTIFY:
-      if (!pPositionPage)
-        break;
-      return pPositionPage->DoNotify(hwndDlg, lParam);
+      break;
     }
+    return pPositionPage->DoInitDialog(hwndDlg);
+
+  case WM_COMMAND:
+    return pPositionPage->DoCommand(hwndDlg, wParam, lParam);
+
+  case WM_NOTIFY:
+    if (!pPositionPage)
+    {
+      break;
+    }
+    return pPositionPage->DoNotify(hwndDlg, lParam);
+  }
 
   return FALSE;
 }
@@ -61,7 +65,9 @@ BOOL PositionPage::DoInitDialog(HWND hwndDlg)
   int anchorIndex;
 
   if (pSettings->GetDynamicPositioning())
+  {
     SendDlgItemMessage(hwndDlg, IDC_DYNAMICPOSITIONING, BM_SETCHECK, BST_CHECKED, 0);
+  }
 
   SendDlgItemMessage(hwndDlg, IDC_ANCHOR, CB_ADDSTRING, 0, (LPARAM)TEXT("TopLeft"));
   SendDlgItemMessage(hwndDlg, IDC_ANCHOR, CB_ADDSTRING, 0, (LPARAM)TEXT("TopMiddle"));
@@ -73,35 +79,57 @@ BOOL PositionPage::DoInitDialog(HWND hwndDlg)
   SendDlgItemMessage(hwndDlg, IDC_ANCHOR, CB_ADDSTRING, 0, (LPARAM)TEXT("BottomMiddle"));
   SendDlgItemMessage(hwndDlg, IDC_ANCHOR, CB_ADDSTRING, 0, (LPARAM)TEXT("BottomRight"));
 
-  anchorIndex = (int)SendDlgItemMessage(hwndDlg, IDC_ANCHOR, CB_FINDSTRINGEXACT, (WPARAM)-1,
+  anchorIndex = (int)SendDlgItemMessage(hwndDlg, IDC_ANCHOR, CB_FINDSTRINGEXACT, (WPARAM) - 1,
                                         (LPARAM)pSettings->GetAnchorPoint().c_str());
   SendDlgItemMessage(hwndDlg, IDC_ANCHOR, CB_SETCURSEL, anchorIndex, 0);
 
   if (ELToLower(pSettings->GetDirectionOrientation()) == TEXT("vertical"))
+  {
     SendDlgItemMessage(hwndDlg, IDC_VERTICAL, BM_SETCHECK, BST_CHECKED, 0);
+  }
   else
+  {
     SendDlgItemMessage(hwndDlg, IDC_HORIZONTAL, BM_SETCHECK, BST_CHECKED, 0);
+  }
 
   if (ELToLower(pSettings->GetHorizontalAlign()) == TEXT("right"))
+  {
     SendDlgItemMessage(hwndDlg, IDC_RIGHT, BM_SETCHECK, BST_CHECKED, 0);
+  }
   else if (ELToLower(pSettings->GetHorizontalAlign()) == TEXT("center"))
+  {
     SendDlgItemMessage(hwndDlg, IDC_HCENTER, BM_SETCHECK, BST_CHECKED, 0);
+  }
   else
+  {
     SendDlgItemMessage(hwndDlg, IDC_LEFT, BM_SETCHECK, BST_CHECKED, 0);
+  }
 
   if (ELToLower(pSettings->GetVerticalAlign()) == TEXT("bottom"))
+  {
     SendDlgItemMessage(hwndDlg, IDC_UP, BM_SETCHECK, BST_CHECKED, 0);
+  }
   else if (ELToLower(pSettings->GetVerticalAlign()) == TEXT("center"))
+  {
     SendDlgItemMessage(hwndDlg, IDC_VCENTER, BM_SETCHECK, BST_CHECKED, 0);
+  }
   else
+  {
     SendDlgItemMessage(hwndDlg, IDC_DOWN, BM_SETCHECK, BST_CHECKED, 0);
+  }
 
   if (ELToLower(pSettings->GetZPosition()) == TEXT("top"))
+  {
     SendDlgItemMessage(hwndDlg, IDC_TOP, BM_SETCHECK, BST_CHECKED, 0);
+  }
   else if (ELToLower(pSettings->GetZPosition()) == TEXT("bottom"))
+  {
     SendDlgItemMessage(hwndDlg, IDC_BOTTOM, BM_SETCHECK, BST_CHECKED, 0);
+  }
   else
+  {
     SendDlgItemMessage(hwndDlg, IDC_NORMAL, BM_SETCHECK, BST_CHECKED, 0);
+  }
 
   return TRUE;
 }
@@ -111,39 +139,47 @@ BOOL PositionPage::DoCommand(HWND hwndDlg, WPARAM wParam, LPARAM lParam UNUSED)
   HWND anchorWnd = GetDlgItem(hwndDlg, IDC_ANCHOR);
 
   switch (LOWORD(wParam))
+  {
+  case IDC_DYNAMICPOSITIONING:
+    if (SendDlgItemMessage(hwndDlg, IDC_DYNAMICPOSITIONING, BM_GETCHECK, 0, 0) == BST_CHECKED)
     {
-    case IDC_DYNAMICPOSITIONING:
-      if (SendDlgItemMessage(hwndDlg, IDC_DYNAMICPOSITIONING, BM_GETCHECK, 0, 0) == BST_CHECKED)
-        EnableWindow(anchorWnd, true);
-      else if (SendDlgItemMessage(hwndDlg, IDC_DYNAMICPOSITIONING, BM_GETCHECK, 0, 0) == BST_UNCHECKED)
-        EnableWindow(anchorWnd, false);
-      return TRUE;
+      EnableWindow(anchorWnd, true);
     }
+    else if (SendDlgItemMessage(hwndDlg, IDC_DYNAMICPOSITIONING, BM_GETCHECK, 0, 0) == BST_UNCHECKED)
+    {
+      EnableWindow(anchorWnd, false);
+    }
+    return TRUE;
+  }
 
   return FALSE;
 }
 
 INT_PTR PositionPage::DoNotify(HWND hwndDlg, LPARAM lParam)
 {
-  NMHDR *phdr = (NMHDR*)lParam;
+  NMHDR* phdr = (NMHDR*)lParam;
 
   switch (phdr->code)
+  {
+  case PSN_APPLY:
+    if (UpdateSettings(hwndDlg))
     {
-    case PSN_APPLY:
-      if (UpdateSettings(hwndDlg))
-        SetWindowLongPtr(hwndDlg, DWLP_MSGRESULT, PSNRET_NOERROR);
-      else
-        SetWindowLongPtr(hwndDlg, DWLP_MSGRESULT, PSNRET_INVALID);
-      return 1;
-
-    case PSN_SETACTIVE:
-      SetWindowLongPtr(hwndDlg, DWLP_MSGRESULT, 0);
-      return 1;
-
-    case PSN_KILLACTIVE:
-      SetWindowLongPtr(hwndDlg, DWLP_MSGRESULT, FALSE);
-      return 1;
+      SetWindowLongPtr(hwndDlg, DWLP_MSGRESULT, PSNRET_NOERROR);
     }
+    else
+    {
+      SetWindowLongPtr(hwndDlg, DWLP_MSGRESULT, PSNRET_INVALID);
+    }
+    return 1;
+
+  case PSN_SETACTIVE:
+    SetWindowLongPtr(hwndDlg, DWLP_MSGRESULT, 0);
+    return 1;
+
+  case PSN_KILLACTIVE:
+    SetWindowLongPtr(hwndDlg, DWLP_MSGRESULT, FALSE);
+    return 1;
+  }
 
   return 0;
 }
@@ -155,45 +191,73 @@ bool PositionPage::UpdateSettings(HWND hwndDlg)
   WCHAR tmp[MAX_LINE_LENGTH];
 
   if (SendDlgItemMessage(hwndDlg, IDC_DYNAMICPOSITIONING, BM_GETCHECK, 0, 0) == BST_CHECKED)
+  {
     success = true;
+  }
   else if (SendDlgItemMessage(hwndDlg, IDC_DYNAMICPOSITIONING, BM_GETCHECK, 0, 0) == BST_UNCHECKED)
+  {
     success = false;
+  }
   pSettings->SetDynamicPositioning(success);
 
   if (GetDlgItemText(hwndDlg, IDC_ANCHOR, tmp, MAX_LINE_LENGTH) != 0)
+  {
+    if (wcscmp(tmp, pSettings->GetAnchorPoint().c_str()) != 0)
     {
-      if (wcscmp(tmp, pSettings->GetAnchorPoint().c_str()) != 0)
-        pSettings->SetAnchorPoint(tmp);
+      pSettings->SetAnchorPoint(tmp);
     }
+  }
 
   if (SendDlgItemMessage(hwndDlg, IDC_UP, BM_GETCHECK, 0, 0) == BST_CHECKED)
+  {
     tmpValue = TEXT("Up");
+  }
   if (SendDlgItemMessage(hwndDlg, IDC_VCENTER, BM_GETCHECK, 0, 0) == BST_CHECKED)
+  {
     tmpValue = TEXT("Center");
+  }
   if (SendDlgItemMessage(hwndDlg, IDC_DOWN, BM_GETCHECK, 0, 0) == BST_CHECKED)
+  {
     tmpValue = TEXT("Down");
+  }
   pSettings->SetVerticalAlign(tmpValue);
 
   if (SendDlgItemMessage(hwndDlg, IDC_VERTICAL, BM_GETCHECK, 0, 0) == BST_CHECKED)
+  {
     tmpValue = TEXT("Vertical");
+  }
   if (SendDlgItemMessage(hwndDlg, IDC_HORIZONTAL, BM_GETCHECK, 0, 0) == BST_CHECKED)
+  {
     tmpValue = TEXT("Horizontal");
+  }
   pSettings->SetDirectionOrientation(tmpValue);
 
   if (SendDlgItemMessage(hwndDlg, IDC_RIGHT, BM_GETCHECK, 0, 0) == BST_CHECKED)
+  {
     tmpValue = TEXT("Right");
+  }
   if (SendDlgItemMessage(hwndDlg, IDC_HCENTER, BM_GETCHECK, 0, 0) == BST_CHECKED)
+  {
     tmpValue = TEXT("Center");
+  }
   if (SendDlgItemMessage(hwndDlg, IDC_LEFT, BM_GETCHECK, 0, 0) == BST_CHECKED)
+  {
     tmpValue = TEXT("Left");
+  }
   pSettings->SetHorizontalAlign(tmpValue);
 
   if (SendDlgItemMessage(hwndDlg, IDC_TOP, BM_GETCHECK, 0, 0) == BST_CHECKED)
+  {
     tmpValue = TEXT("Top");
+  }
   if (SendDlgItemMessage(hwndDlg, IDC_BOTTOM, BM_GETCHECK, 0, 0) == BST_CHECKED)
+  {
     tmpValue = TEXT("Bottom");
+  }
   if (SendDlgItemMessage(hwndDlg, IDC_NORMAL, BM_GETCHECK, 0, 0) == BST_CHECKED)
+  {
     tmpValue = TEXT("Normal");
+  }
   pSettings->SetZPosition(tmpValue);
 
   // commit changes

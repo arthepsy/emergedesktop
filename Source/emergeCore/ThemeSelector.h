@@ -50,7 +50,7 @@ private:
   HINSTANCE hInstance;
   HWND mainWnd, toolWnd;
   HICON saveasIcon, saveIcon, delIcon, exportIcon, importIcon;
-  void PopulateThemes(HWND themeWnd, WCHAR *currentTheme);
+  void PopulateThemes(HWND themeWnd, WCHAR* currentTheme);
   bool SaveTheme(HWND hwndDlg);
   void DoSaveAs(HWND hwndDlg);
   void DoDelTheme(HWND hwndDlg);
