@@ -1,6 +1,6 @@
 /*!
   @file emergeUtilityLib.h
-  @brief export header for emergeUtilityLib
+  @brief export header for emergeLib
   @author The Emerge Desktop Development Team
 
   @attention This file is part of Emerge Desktop.
@@ -20,8 +20,8 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
   */
 
-#ifndef __EMERGEUTILITYLIB_H
-#define __EMERGEUTILITYLIB_H
+#ifndef __GUARD_f689f691_555c_4e90_924d_372089b43057
+#define __GUARD_f689f691_555c_4e90_924d_372089b43057
 
 #define UNICODE 1
 
@@ -43,8 +43,8 @@
 
 #include <windows.h>
 #include <iomanip>
-#include <string>
 #include <sstream>
+#include <string>
 
 typedef enum _ELMBFLAGS
 {
@@ -96,4 +96,4 @@ DLL_EXPORT std::wstring ELStripLeadingSpaces(std::wstring input);
 DLL_EXPORT std::string ELwstringTostring(std::wstring wideString, UINT codePage = CP_UTF8);
 DLL_EXPORT std::wstring ELstringTowstring(std::string narrowString, UINT codePage = CP_UTF8);
 
-#endif // __EMERGEUTILITYLIB_H
+#endif

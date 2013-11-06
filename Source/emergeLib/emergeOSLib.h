@@ -1,6 +1,6 @@
 /*!
   @file emergeOSLib.h
-  @brief export header for emergeOSLib
+  @brief export header for emergeLib
   @author The Emerge Desktop Development Team
 
   @attention This file is part of Emerge Desktop.
@@ -20,8 +20,8 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
   */
 
-#ifndef __EMERGEOSLIB_H
-#define __EMERGEOSLIB_H
+#ifndef __GUARD_84c16e25_7807_4f74_9b70_91a4f4db7d91
+#define __GUARD_84c16e25_7807_4f74_9b70_91a4f4db7d91
 
 #define UNICODE 1
 
@@ -88,4 +88,4 @@ DLL_EXPORT double ELOSVersionInfo();
 DLL_EXPORT std::wstring ELGetProcessIDApp(DWORD processID, bool fullName);
 DLL_EXPORT std::wstring ELGetWindowApp(HWND hWnd, bool fullName);
 
-#endif // __EMERGEOSLIB_H
+#endif

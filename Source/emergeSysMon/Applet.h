@@ -1,25 +1,29 @@
-//---
-//
-//  This file is part of Emerge Desktop.
-//  Copyright (C) 2004-2012  The Emerge Desktop Development Team
-//
-//  Emerge Desktop is free software; you can redistribute it and/or modify
-//  it under the terms of the GNU General Public License as published by
-//  the Free Software Foundation; either version 3 of the License, or
-//  (at your option) any later version.
-//
-//  Emerge Desktop is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//  GNU General Public License for more details.
-//
-//  You should have received a copy of the GNU General Public License
-//  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-//
-//---
+/*!
+  @file Applet.h
+  @brief header for emergeSysMon
+  @author The Emerge Desktop Development Team
 
-#ifndef __ESM_APPLET_H
-#define __ESM_APPLET_H
+  @attention This file is part of Emerge Desktop.
+  @attention Copyright (C) 2004-2013  The Emerge Desktop Development Team
+
+  @attention Emerge Desktop is free software; you can redistribute it and/or
+  modify  it under the terms of the GNU General Public License as published
+  by the Free Software Foundation; either version 3 of the License, or
+  (at your option) any later version.
+
+  @attention Emerge Desktop is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  @attention You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  */
+
+#ifndef __GUARD_04e8a2b5_17e6_4bc4_8783_18193768c27c
+#define __GUARD_04e8a2b5_17e6_4bc4_8783_18193768c27c
+
+#define UNICODE 1
 
 // Define required for the Window Transparency
 #undef _WIN32_WINNT
@@ -33,17 +37,18 @@
 #undef _WIN32_IE
 #define _WIN32_IE 0x0600
 
-#include "../emergeStyleEngine/emergeStyleEngine.h"
-#include "../emergeAppletEngine/emergeAppletEngine.h"
-#include "../emergeBaseClasses/BaseApplet.h"
-#include <vector>
-#include <process.h>
-#include <psapi.h>
-#include <commctrl.h>
-
 #define TIP_SIZE 256
 
 #define MODIFY_POLL_TIME  100
+
+#include <windows.h>
+#include <commctrl.h>
+#include <process.h>
+#include <psapi.h>
+#include <vector>
+#include "../emergeAppletEngine/emergeAppletEngine.h"
+#include "../emergeBaseClasses/BaseApplet.h"
+#include "../emergeStyleEngine/emergeStyleEngine.h"
 
 #ifndef _W64
 #if (__W32API_MAJOR_VERSION == 3 && __W32API_MINOR_VERSION < 15)

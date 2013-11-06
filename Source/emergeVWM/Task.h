@@ -1,48 +1,44 @@
-//---
-//
-//  This file is part of Emerge Desktop.
-//  Copyright (C) 2004-2012  The Emerge Desktop Development Team
-//
-//  Emerge Desktop is free software; you can redistribute it and/or modify
-//  it under the terms of the GNU General Public License as published by
-//  the Free Software Foundation; either version 3 of the License, or
-//  (at your option) any later version.
-//
-//  Emerge Desktop is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//  GNU General Public License for more details.
-//
-//  You should have received a copy of the GNU General Public License
-//  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-//
-//---
-//
-// Note: The task menu code was derived from BBSystemBar which is part of the
-// BB4Win source code, copyright 2001-2004 The Blackbox for Windows Development
-// Team.
-//
-//-----
+/*!
+  @file Task.h
+  @brief header for emergeVWM
+  @author The Emerge Desktop Development Team
 
-#ifndef __EV_TASK_H
-#define __EV_TASK_H
+  @attention This file is part of Emerge Desktop.
+  @attention Copyright (C) 2004-2013  The Emerge Desktop Development Team
 
-//-----
-//
-// Note: for MSVC users, put the AggressiveOptimize.h header file (available from
-// http://www.nopcode.com) in your \include directory.  It cuts down on executable
-// filesize.
-//
-//-----
-#include "Settings.h"
-#include <commctrl.h>
-#include <stdio.h>
+  @attention Emerge Desktop is free software; you can redistribute it and/or
+  modify  it under the terms of the GNU General Public License as published
+  by the Free Software Foundation; either version 3 of the License, or
+  (at your option) any later version.
+
+  @attention Emerge Desktop is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  @attention You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+  @note The task menu code was derived from BBSystemBar which is part of the
+  BB4Win source code, copyright 2001-2004 The Blackbox for Windows Development
+  Team.
+  */
+
+#ifndef __GUARD_7723ae32_0d0f_42e9_9388_674712f7b3fe
+#define __GUARD_7723ae32_0d0f_42e9_9388_674712f7b3fe
+
+#define UNICODE 1
 
 // Define icon and tip settings
 #define TIP_SIZE 256
 
 #define REFRESH_TIMER 1
 #define REFRESH_POLL_TIME 100
+
+#include <windows.h>
+#include <commctrl.h>
+#include <stdio.h>
+#include "Settings.h"
 
 //====================
 // The Task Class
@@ -74,4 +70,3 @@ private:
 //====================
 
 #endif
-

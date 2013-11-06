@@ -1,6 +1,6 @@
 /*!
   @file FileRegistryIO.h
-  @brief export header for emergeLib
+  @brief internal header for emergeLib
   @author The Emerge Desktop Development Team
 
   @attention This file is part of Emerge Desktop.
@@ -20,8 +20,8 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
   */
 
-#ifndef __FILEREGISTRYIO_H
-#define __FILEREGISTRYIO_H
+#ifndef __GUARD_bc6f7e37_1334_44a2_ac2b_7f2d310312eb
+#define __GUARD_bc6f7e37_1334_44a2_ac2b_7f2d310312eb
 
 #define UNICODE 1
 

@@ -20,8 +20,8 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
   */
 
-#ifndef __MISCOPS_H
-#define __MISCOPS_H
+#ifndef __GUARD_d800fce9_edaf_4519_a4a6_ccb867530405
+#define __GUARD_d800fce9_edaf_4519_a4a6_ccb867530405
 
 #define UNICODE 1
 

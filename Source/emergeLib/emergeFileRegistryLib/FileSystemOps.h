@@ -1,6 +1,6 @@
 /*!
   @file FileSystemOps.h
-  @brief export header for emergeLib
+  @brief internal header for emergeLib
   @author The Emerge Desktop Development Team
 
   @attention This file is part of Emerge Desktop.
@@ -20,24 +20,12 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
   */
 
-#ifndef __FILESYSTEMOPS_H
-#define __FILESYSTEMOPS_H
+#ifndef __GUARD_8f6e4c1f_de2d_4ffe_9213_207e5915699a
+#define __GUARD_8f6e4c1f_de2d_4ffe_9213_207e5915699a
 
 #define UNICODE 1
 
 #define MAX_LINE_LENGTH 4096
-
-#include <windows.h>
-#include <shlwapi.h>
-#include <shlobj.h>
-#include <map>
-#include <string>
-#include <vector>
-#include "../emergeCoreLib.h"
-#include "../emergeFileRegistryLib.h"
-#include "../emergeOSLib.h"
-#include "../emergeUtilityLib.h"
-#include "../emergeLibGlobals.h"
 
 #define SI_PATH       0x01
 #define SI_WORKINGDIR 0x02
@@ -47,6 +35,18 @@
 #define SI_ICONINDEX  0x20
 #define SI_RUNAS      0x40
 #define SI_ALL        SI_PATH|SI_WORKINGDIR|SI_ARGUMENTS|SI_SHOW|SI_ICONPATH|SI_ICONINDEX|SI_RUNAS
+
+#include <windows.h>
+#include <shlobj.h>
+#include <shlwapi.h>
+#include <map>
+#include <string>
+#include <vector>
+#include "../emergeCoreLib.h"
+#include "../emergeFileRegistryLib.h"
+#include "../emergeOSLib.h"
+#include "../emergeUtilityLib.h"
+#include "../emergeLibGlobals.h"
 
 #ifndef SEE_MASK_NOASYNC
 #define SEE_MASK_NOASYNC 0x00000100

@@ -1,6 +1,6 @@
 /*!
   @file Utility.h
-  @brief internal DLL header for emergeUtilityLib
+  @brief internal header for emergeLib
   @author The Emerge Desktop Development Team
 
   @attention This file is part of Emerge Desktop.
@@ -20,16 +20,16 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
   */
 
-#ifndef __UTILITY_H
-#define __UTILITY_H
+#ifndef __GUARD_91aa91ce_7711_488d_b55f_31dd6ebab3fb
+#define __GUARD_91aa91ce_7711_488d_b55f_31dd6ebab3fb
 
 #define UNICODE 1
 
 #define MAX_LINE_LENGTH 4096
 
 #include <windows.h>
-#include <fstream>
 #include <time.h>
+#include <fstream>
 #include "../emergeCoreLib.h"
 #include "../emergeFileRegistryLib.h"
 #include "../emergeOSLib.h"
@@ -41,4 +41,4 @@
 //Helper functions
 void ZipAddDir(HZIP hz, std::wstring relativePath, std::wstring zipPath);
 
-#endif // __UTILITY_H
+#endif

@@ -1,26 +1,27 @@
-// vim:tags+=../emergeLib/tags
-//----  --------------------------------------------------------------------------------------------------------
-//
-//  This file is part of Emerge Desktop.
-//  Copyright (C) 2004-2012  The Emerge Desktop Development Team
-//
-//  Emerge Desktop is free software; you can redistribute it and/or modify
-//  it under the terms of the GNU General Public License as published by
-//  the Free Software Foundation; either version 3 of the License, or
-//  (at your option) any later version.
-//
-//  Emerge Desktop is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//  GNU General Public License for more details.
-//
-//  You should have received a copy of the GNU General Public License
-//  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-//
-//----  --------------------------------------------------------------------------------------------------------
+/*!
+  @file Core.h
+  @brief header for emergeCore
+  @author The Emerge Desktop Development Team
 
-#ifndef __EC_CORE_H
-#define __EC_CORE_H
+  @attention This file is part of Emerge Desktop.
+  @attention Copyright (C) 2004-2012  The Emerge Desktop Development Team
+
+  @attention Emerge Desktop is free software; you can redistribute it and/or
+  modify  it under the terms of the GNU General Public License as published
+  by the Free Software Foundation; either version 3 of the License, or
+  (at your option) any later version.
+
+  @attention Emerge Desktop is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  @attention You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  */
+
+#ifndef __GUARD_6752f525_8457_4568_b404_94beb7b28fd7
+#define __GUARD_6752f525_8457_4568_b404_94beb7b28fd7
 
 #define UNICODE 1
 
@@ -31,22 +32,22 @@
 #include <memory>
 #endif
 
-#include <string>
+#include <process.h>
 #include <map>
 #include <set>
-#include <process.h>
+#include <string>
 #include "../emergeLib/emergeCoreLib.h"
 #include "../emergeLib/emergeOSLib.h"
-#include "Shell.h"
-#include "MessageControl.h"
-#include "ShellChanger.h"
-#include "Settings.h"
-#include "LaunchEditor.h"
-#include "Desktop.h"
-#include "ThemeSelector.h"
 #include "Config.h"
-#include "Welcome.h"
+#include "Desktop.h"
 #include "InternalCommandHandler.h"
+#include "LaunchEditor.h"
+#include "MessageControl.h"
+#include "Settings.h"
+#include "Shell.h"
+#include "ShellChanger.h"
+#include "ThemeSelector.h"
+#include "Welcome.h"
 
 typedef std::set<HWND> WindowSet;
 typedef std::map< std::wstring, WindowSet > LaunchMap;
@@ -92,4 +93,3 @@ public:
 };
 
 #endif
-

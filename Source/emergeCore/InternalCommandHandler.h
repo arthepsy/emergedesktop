@@ -20,8 +20,8 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
   */
 
-#ifndef __INTERNALCOMMANDHANDLER_H
-#define __INTERNALCOMMANDHANDLER_H
+#ifndef __GUARD_9b6dd9a0_4c48_41eb_a484_80060b11fe0d
+#define __GUARD_9b6dd9a0_4c48_41eb_a484_80060b11fe0d
 
 #define UNICODE 1
 
@@ -86,4 +86,4 @@ bool VolumeUpCommandHandler(std::vector<std::wstring> args);
 bool WelcomeCommandHandler(std::vector<std::wstring> args);
 bool WorkspaceSettingsCommandHandler(std::vector<std::wstring> args);
 
-#endif //__INTERNALCOMMANDHANDLER_H
+#endif

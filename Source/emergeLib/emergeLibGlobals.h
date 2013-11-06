@@ -20,8 +20,8 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
   */
 
-#ifndef __EMERGELIBGLOBALS_H
-#define __EMERGELIBGLOBALS_H
+#ifndef __GUARD_394aa20d_7aa1_4ac5_bf9e_664e76dac21d
+#define __GUARD_394aa20d_7aa1_4ac5_bf9e_664e76dac21d
 
 #define UNICODE 1
 
@@ -53,13 +53,4 @@ private:
   ~emergeLibGlobals();
 };
 
-/*//we must instantiate the static variables or we'll error out
-HINSTANCE emergeLibGlobals::emergeLibInstance = NULL;
-HMODULE emergeLibGlobals::mprDLL = NULL;
-HMODULE emergeLibGlobals::shell32DLL = NULL;
-HMODULE emergeLibGlobals::user32DLL = NULL;
-HMODULE emergeLibGlobals::kernel32DLL = NULL;
-HMODULE emergeLibGlobals::dwmapiDLL = NULL;
-HMODULE emergeLibGlobals::shlwapiDLL = NULL;*/
-
-#endif //__EMERGELIBGLOBALS_H
+#endif

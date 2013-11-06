@@ -1,6 +1,6 @@
 /*!
   @file emergeWindowLib.h
-  @brief export header for emergeWindowLib
+  @brief export header for emergeLib
   @author The Emerge Desktop Development Team
 
   @attention This file is part of Emerge Desktop.
@@ -20,8 +20,8 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
   */
 
-#ifndef __EMERGEWINDOWLIB_H
-#define __EMERGEWINDOWLIB_H
+#ifndef __GUARD_07cf1b46_e749_40a1_a42e_088521916e1d
+#define __GUARD_07cf1b46_e749_40a1_a42e_088521916e1d
 
 #define UNICODE 1
 
@@ -86,4 +86,4 @@ DLL_EXPORT bool ELSnapMove(LPSNAPMOVEINFO snapMoveInfo);
 DLL_EXPORT bool ELSnapMoveToDesk(RECT* AppletRect);
 DLL_EXPORT bool ELSnapSize(LPSNAPSIZEINFO snapSizeInfo);
 
-#endif // __EMERGEWINDOWLIB_H
+#endif

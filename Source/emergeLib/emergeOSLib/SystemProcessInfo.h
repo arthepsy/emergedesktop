@@ -20,8 +20,8 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
   */
 
-#ifndef __SYSTEMPROCESSINFO_H
-#define __SYSTEMPROCESSINFO_H
+#ifndef __GUARD_cb3e9d70_25b0_44ac_9494_317b79fda720
+#define __GUARD_cb3e9d70_25b0_44ac_9494_317b79fda720
 
 #define UNICODE 1
 

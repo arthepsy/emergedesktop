@@ -1,31 +1,33 @@
-//----  --------------------------------------------------------------------------------------------------------
-//
-//  This file is part of Emerge Desktop.
-//  Copyright (C) 2004-2012  The Emerge Desktop Development Team
-//
-//  Emerge Desktop is free software; you can redistribute it and/or modify
-//  it under the terms of the GNU General Public License as published by
-//  the Free Software Foundation; either version 3 of the License, or
-//  (at your option) any later version.
-//
-//  Emerge Desktop is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//  GNU General Public License for more details.
-//
-//  You should have received a copy of the GNU General Public License
-//  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-//
-//----  --------------------------------------------------------------------------------------------------------
+/*!
+  @file BaseApplet.h
+  @brief header for emergeBaseClasses
+  @author The Emerge Desktop Development Team
 
-#ifndef __EB_BASEAPPLET_H
-#define __EB_BASEAPPLET_H
+  @attention This file is part of Emerge Desktop.
+  @attention Copyright (C) 2004-2012  The Emerge Desktop Development Team
+
+  @attention Emerge Desktop is free software; you can redistribute it and/or
+  modify  it under the terms of the GNU General Public License as published
+  by the Free Software Foundation; either version 3 of the License, or
+  (at your option) any later version.
+
+  @attention Emerge Desktop is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  @attention You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  */
+
+#ifndef __GUARD_d12f0cd8_ef59_49fd_8c72_a77cdf71cc5b
+#define __GUARD_d12f0cd8_ef59_49fd_8c72_a77cdf71cc5b
+
+#define UNICODE 1
 
 // Define required for the Window Transparency
 #undef _WIN32_WINNT
 #define _WIN32_WINNT 0x0501
-
-#define UNICODE 1
 
 #ifdef EMERGEBASECLASSES_EXPORTS
 #undef DLL_EXPORT
@@ -48,23 +50,23 @@
 #define FULLSCREEN_WAIT_TIME    100
 #define DISPLAYCHANGE_WAIT_TIME 500
 
-#include <vector>
-#include "../emergeGraphics/emergeGraphics.h"
-#include "../emergeStyleEngine/emergeStyleEngine.h"
-#include "../emergeLib/emergeCoreLib.h"
-#include "../emergeLib/emergeFileRegistryLib.h"
-#include "../emergeLib/emergeOSLib.h"
-#include "../emergeLib/emergeUtilityLib.h"
-#include "../emergeLib/emergeWindowLib.h"
-#include "BaseSettings.h"
-#include "BaseAppletMenu.h"
-
 #ifdef __GNUC__
 #include <tr1/memory>
 #include <tr1/shared_ptr.h>
 #else
 #include <memory>
 #endif
+
+#include <vector>
+#include "../emergeGraphics/emergeGraphics.h"
+#include "../emergeLib/emergeCoreLib.h"
+#include "../emergeLib/emergeFileRegistryLib.h"
+#include "../emergeLib/emergeOSLib.h"
+#include "../emergeLib/emergeUtilityLib.h"
+#include "../emergeLib/emergeWindowLib.h"
+#include "../emergeStyleEngine/emergeStyleEngine.h"
+#include "BaseAppletMenu.h"
+#include "BaseSettings.h"
 
 class DLL_EXPORT BaseApplet
 {

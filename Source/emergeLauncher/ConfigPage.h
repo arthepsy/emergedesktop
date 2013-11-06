@@ -1,25 +1,27 @@
-//---
-//
-//  This file is part of Emerge Desktop.
-//  Copyright (C) 2004-2012  The Emerge Desktop Development Team
-//
-//  Emerge Desktop is free software; you can redistribute it and/or modify
-//  it under the terms of the GNU General Public License as published by
-//  the Free Software Foundation; either version 3 of the License, or
-//  (at your option) any later version.
-//
-//  Emerge Desktop is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//  GNU General Public License for more details.
-//
-//  You should have received a copy of the GNU General Public License
-//  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-//
-//---
+/*!
+  @file ConfigPage.h
+  @brief header for emergeLauncher
+  @author The Emerge Desktop Development Team
 
-#ifndef __EL_CONFIGPAGE_H
-#define __EL_CONFIGPAGE_H
+  @attention This file is part of Emerge Desktop.
+  @attention Copyright (C) 2004-2012  The Emerge Desktop Development Team
+
+  @attention Emerge Desktop is free software; you can redistribute it and/or
+  modify  it under the terms of the GNU General Public License as published
+  by the Free Software Foundation; either version 3 of the License, or
+  (at your option) any later version.
+
+  @attention Emerge Desktop is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  @attention You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  */
+
+#ifndef __GUARD_6c9ae101_f3c1_4f3e_b631_dbaeb1c93eba
+#define __GUARD_6c9ae101_f3c1_4f3e_b631_dbaeb1c93eba
 
 #define UNICODE 1
 
@@ -32,16 +34,16 @@
 #define BROWSE_COMMAND      1
 #define BROWSE_WORKINGDIR   2
 
-#include "../emergeLib/emergeOSLib.h"
-#include "Settings.h"
-#include "resource.h"
-
 #ifdef __GNUC__
 #include <tr1/memory>
 #include <tr1/shared_ptr.h>
 #else
 #include <memory>
 #endif
+
+#include "../emergeLib/emergeOSLib.h"
+#include "resource.h"
+#include "Settings.h"
 
 class ConfigPage
 {
@@ -62,4 +64,3 @@ private:
 };
 
 #endif
-

@@ -20,8 +20,8 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
   */
 
-#ifndef __EMERGEMAIN_H
-#define __EMERGEMAIN_H
+#ifndef __GUARD_16f01173_c01d_4a55_a747_562fba026aab
+#define __GUARD_16f01173_c01d_4a55_a747_562fba026aab
 
 #define UNICODE 1
 
@@ -33,9 +33,9 @@
 
 #include "emergeCoreLib.h"
 #include "emergeFileRegistryLib.h"
+#include "emergeLibGlobals.h"
 #include "emergeOSLib.h"
 #include "emergeUtilityLib.h"
 #include "emergeWindowLib.h"
-#include "emergeLibGlobals.h"
 
 #endif

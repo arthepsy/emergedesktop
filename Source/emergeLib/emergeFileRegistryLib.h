@@ -1,6 +1,6 @@
 /*!
   @file emergeFileRegistryLib.h
-  @brief export header for emergeFileRegistryLib
+  @brief export header for emergeLib
   @author The Emerge Desktop Development Team
 
   @attention This file is part of Emerge Desktop.
@@ -20,8 +20,8 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
   */
 
-#ifndef __EMERGEFILEREGISTRYLIB_H
-#define __EMERGEFILEREGISTRYLIB_H
+#ifndef __GUARD_2108849e_eff4_422c_b473_7f960e2e56a5
+#define __GUARD_2108849e_eff4_422c_b473_7f960e2e56a5
 
 #define UNICODE 1
 
@@ -42,8 +42,8 @@
 #endif
 
 #include <windows.h>
-#include <vector>
 #include <string>
+#include <vector>
 #include "../tinyxml/tinyxml.h"
 
 /*!
@@ -176,4 +176,4 @@ DLL_EXPORT int ELGetInternalCommandValue(std::wstring commandName);
 DLL_EXPORT bool ELExecuteInternalCommand(std::wstring commandName, std::wstring arguments);
 DLL_EXPORT bool ELPopulateInternalCommandList(HWND hwnd);
 
-#endif // __EMERGEFILEREGISTRYLIB_H
+#endif

@@ -20,8 +20,8 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
   */
 
-#ifndef __EMERGEMAIN_H
-#define __EMERGEMAIN_H
+#ifndef __GUARD_412f5e09_af1f_4ab0_9fc9_3d8d31022bae
+#define __GUARD_412f5e09_af1f_4ab0_9fc9_3d8d31022bae
 
 #define UNICODE 1
 
@@ -33,8 +33,8 @@
 #define UNUSED
 #endif
 
+#include <stdio.h>
 #include "../emergeLib/emergeFileRegistryLib.h"
 #include "../emergeLib/emergeUtilityLib.h"
-#include <stdio.h>
 
 #endif

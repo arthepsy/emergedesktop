@@ -20,8 +20,8 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
   */
 
-#ifndef __EMERGEGRAPHICSMAIN_H
-#define __EMERGEGRAPHICSMAIN_H
+#ifndef __GUARD_aeffdc86_e182_446c_be2d_5a6ac51f2205
+#define __GUARD_aeffdc86_e182_446c_be2d_5a6ac51f2205
 
 #define UNICODE 1
 
@@ -48,16 +48,16 @@
 #define UNUSED
 #endif
 
-#include "BImage.h"
 #include <objbase.h>
-#include <stdio.h>
-#include <shlwapi.h>
-#include <shlobj.h>
 #include <shobjidl.h>
+#include <shlobj.h>
+#include <shlwapi.h>
+#include <stdio.h>
 #include "../emergeLib/emergeCoreLib.h"
 #include "../emergeLib/emergeFileRegistryLib.h"
 #include "../emergeLib/emergeOSLib.h"
 #include "../emergeLib/emergeUtilityLib.h"
+#include "BImage.h"
 #include "emergeGraphics.h"
 #include "resource.h"
 

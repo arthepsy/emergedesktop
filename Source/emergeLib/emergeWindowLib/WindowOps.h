@@ -1,6 +1,6 @@
 /*!
   @file WindowOps.h
-  @brief export header for emergeLib
+  @brief internal header for emergeLib
   @author The Emerge Desktop Development Team
 
   @attention This file is part of Emerge Desktop.
@@ -20,8 +20,8 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
   */
 
-#ifndef __WINDOWOPS_H
-#define __WINDOWOPS_H
+#ifndef __GUARD_d276c2ac_2003_436b_8893_d2f356478aa7
+#define __GUARD_d276c2ac_2003_436b_8893_d2f356478aa7
 
 #define UNICODE 1
 
@@ -34,8 +34,8 @@
 #endif
 
 #include <windows.h>
-#include "../emergeWindowLib.h"
 #include "../emergeLibGlobals.h"
+#include "../emergeWindowLib.h"
 
 typedef struct _APPLETMONITORINFO
 {

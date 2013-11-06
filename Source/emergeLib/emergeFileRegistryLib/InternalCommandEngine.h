@@ -1,6 +1,6 @@
 /*!
   @file InternalCommandEngine.h
-  @brief header for emergeFileRegistryLib
+  @brief internal header for emergeLib
   @author The Emerge Desktop Development Team
 
   @attention This file is part of Emerge Desktop.
@@ -20,24 +20,24 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
   */
 
-#ifndef __INTERNALCOMMANDENGINE_H
-#define __INTERNALCOMMANDENGINE_H
+#ifndef __GUARD_0c1a6dfe_ccd0_4681_80e5_c71012946e10
+#define __GUARD_0c1a6dfe_ccd0_4681_80e5_c71012946e10
 
 #define UNICODE 1
 
 #define INVALID_COMMAND 0
-
-#include <string>
-#include <vector>
-#include <windows.h>
-#include "../emergeFileRegistryLib.h"
-#include "../emergeUtilityLib.h"
 
 #ifdef __GNUC__
 #define UNUSED __attribute__((unused))
 #else
 #define UNUSED
 #endif
+
+#include <windows.h>
+#include <string>
+#include <vector>
+#include "../emergeFileRegistryLib.h"
+#include "../emergeUtilityLib.h"
 
 struct CommandHandler
 {

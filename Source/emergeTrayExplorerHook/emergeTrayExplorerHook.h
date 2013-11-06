@@ -20,8 +20,14 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
   */
 
-#ifndef _EMERGETRAYEXPLORERHOOK_H
-#define _EMERGETRAYEXPLORERHOOK_H
+#ifndef __GUARD_9af480de_1b6e_455b_8b99_2691f8d399a3
+#define __GUARD_9af480de_1b6e_455b_8b99_2691f8d399a3
+
+/*!
+  @def UNICODE
+  @brief Define to use UNICODE versions of functions
+  */
+#define UNICODE 1
 
 #ifdef EMERGETRAYEXPLORERHOOK_EXPORTS
 #undef DLL_EXPORT
@@ -37,12 +43,6 @@
 #else
 #define UNUSED
 #endif
-
-/*!
-  @def UNICODE
-  @brief Define to use UNICODE versions of functions
-  */
-#define UNICODE 1
 
 #include <windows.h>
 

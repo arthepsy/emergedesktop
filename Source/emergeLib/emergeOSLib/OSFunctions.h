@@ -1,6 +1,6 @@
 /*!
   @file OSFunctions.h
-  @brief export header for emergeLib
+  @brief internal header for emergeLib
   @author The Emerge Desktop Development Team
 
   @attention This file is part of Emerge Desktop.
@@ -20,8 +20,8 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
   */
 
-#ifndef __OSFUNCTIONS_H
-#define __OSFUNCTIONS_H
+#ifndef __GUARD_62839a19_87ed_44aa_bf9b_512822d9fe99
+#define __GUARD_62839a19_87ed_44aa_bf9b_512822d9fe99
 
 #define UNICODE 1
 

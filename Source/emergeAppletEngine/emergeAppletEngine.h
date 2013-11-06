@@ -18,8 +18,8 @@
 //
 //----  --------------------------------------------------------------------------------------------------------
 
-#ifndef __EMERGEAPPLETENGINE_H
-#define __EMERGEAPPLETENGINE_H
+#ifndef __GUARD_103666e8_fc94_48ec_ae0d_e0348628b3ed
+#define __GUARD_103666e8_fc94_48ec_ae0d_e0348628b3ed
 
 #define UNICODE 1
 
@@ -36,9 +36,6 @@
 #define TIP_SIZE 256
 #endif
 
-#include <windows.h>
-#include <string>
-
 #define ASI_VERTICAL    1
 #define ASI_HORIZONTAL  2
 #define ASI_LEFT        10
@@ -47,6 +44,9 @@
 #define ASI_DOWN        13
 #define ASI_MIDDLE      14
 #define ASI_CENTER      15
+
+#include <windows.h>
+#include <string>
 
 typedef struct _COMMONSETTINGS
 {

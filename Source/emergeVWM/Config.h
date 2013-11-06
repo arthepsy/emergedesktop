@@ -1,35 +1,32 @@
-//---
-//
-//  This file is part of Emerge Desktop.
-//  Copyright (C) 2004-2012  The Emerge Desktop Development Team
-//
-//  Emerge Desktop is free software; you can redistribute it and/or modify
-//  it under the terms of the GNU General Public License as published by
-//  the Free Software Foundation; either version 3 of the License, or
-//  (at your option) any later version.
-//
-//  Emerge Desktop is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//  GNU General Public License for more details.
-//
-//  You should have received a copy of the GNU General Public License
-//  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-//
-//---
+/*!
+  @file Config.h
+  @brief header for emergeVWM
+  @author The Emerge Desktop Development Team
 
-#ifndef __EV_CONFIG_H
-#define __EV_CONFIG_H
+  @attention This file is part of Emerge Desktop.
+  @attention Copyright (C) 2004-2013  The Emerge Desktop Development Team
+
+  @attention Emerge Desktop is free software; you can redistribute it and/or
+  modify  it under the terms of the GNU General Public License as published
+  by the Free Software Foundation; either version 3 of the License, or
+  (at your option) any later version.
+
+  @attention Emerge Desktop is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  @attention You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  */
+
+#ifndef __GUARD_5a9f4c86_5f4f_4721_a06b_adf51fedf496
+#define __GUARD_5a9f4c86_5f4f_4721_a06b_adf51fedf496
+
+#define UNICODE 1
 
 #undef _WIN32_IE
 #define _WIN32_IE 0x0600
-
-#include "Settings.h"
-#include "resource.h"
-#include "../emergeBaseClasses/BasePositionPage.h"
-#include "../emergeStyleEngine/StyleEditor.h"
-#include "ConfigPage.h"
-#include "StickyPage.h"
 
 #ifdef __GNUC__
 #include <tr1/memory>
@@ -37,6 +34,13 @@
 #else
 #include <memory>
 #endif
+
+#include "../emergeBaseClasses/BasePositionPage.h"
+#include "../emergeStyleEngine/StyleEditor.h"
+#include "ConfigPage.h"
+#include "resource.h"
+#include "Settings.h"
+#include "StickyPage.h"
 
 class Config
 {
@@ -58,4 +62,3 @@ private:
 };
 
 #endif
-

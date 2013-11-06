@@ -20,8 +20,8 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
   */
 
-#ifndef __EMERGEAPPLETENGINEMAIN_H
-#define __EMERGEAPPLETENGINEMAIN_H
+#ifndef __GUARD_11df1d02_602c_475d_b36e_e57e0f717f59
+#define __GUARD_11df1d02_602c_475d_b36e_e57e0f717f59
 
 #define UNICODE 1
 
@@ -34,18 +34,18 @@
 #undef WINVER
 #define WINVER 0x0501
 
-#include <stdio.h>
-#include <shlwapi.h>
+#define SYSMENUMIN 1
+#define SYSMENUMAX 0x7ff
+
 #include <shlobj.h>
+#include <shlwapi.h>
+#include <stdio.h>
 #include <map>
-#include "emergeAppletEngine.h"
 #include "../emergeLib/emergeFileRegistryLib.h"
 #include "../emergeLib/emergeOSLib.h"
 #include "../emergeLib/emergeUtilityLib.h"
 #include "../emergeLib/emergeWindowLib.h"
-
-#define SYSMENUMIN 1
-#define SYSMENUMAX 0x7ff
+#include "emergeAppletEngine.h"
 
 // Global definitions
 typedef struct tagCONTEXTINFO

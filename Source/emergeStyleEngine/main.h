@@ -20,8 +20,8 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
   */
 
-#ifndef __EMERGESTYLEENGINEMAIN_H
-#define __EMERGESTYLEENGINEMAIN_H
+#ifndef __GUARD_fd0b17e7_701b_4ef9_8c06_2aa12e4a563f
+#define __GUARD_fd0b17e7_701b_4ef9_8c06_2aa12e4a563f
 
 #define UNICODE 1
 
@@ -38,8 +38,8 @@
 #include "../emergeLib/emergeCoreLib.h"
 #include "../emergeLib/emergeFileRegistryLib.h"
 #include "../emergeLib/emergeUtilityLib.h"
-#include "emergeStyleEngine.h"
 //#include "BImage.h"
+#include "emergeStyleEngine.h"
 #include "StyleEditor.h"
 
 // Globals

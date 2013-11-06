@@ -1,6 +1,6 @@
 /*!
   @file Environment.h
-  @brief export header for emergeLib
+  @brief internal header for emergeLib
   @author The Emerge Desktop Development Team
 
   @attention This file is part of Emerge Desktop.
@@ -20,8 +20,8 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
   */
 
-#ifndef __ENVIRONMENT_H
-#define __ENVIRONMENT_H
+#ifndef __GUARD_33f25978_f6e8_468d_a643_b07a89b87b61
+#define __GUARD_33f25978_f6e8_468d_a643_b07a89b87b61
 
 #define UNICODE 1
 
@@ -30,25 +30,25 @@
 
 #define MAX_LINE_LENGTH 4096
 
-#include <array>
-#include <string>
-#include <windows.h>
-#include <shlobj.h>
-#include <shlwapi.h>
-#include "../emergeCoreLib.h"
-#include "../emergeFileRegistryLib.h"
-#include "../emergeOSLib.h"
-#include "../emergeUtilityLib.h"
-#include "../emergeWindowLib.h"
-#include "../../tinyxml/tinyxml.h"
-#include "../emergeLibGlobals.h"
-
 #ifdef __GNUC__
 #include <tr1/memory>
 #include <tr1/shared_ptr.h>
 #else
 #include <memory>
 #endif
+
+#include <windows.h>
+#include <shlobj.h>
+#include <shlwapi.h>
+#include <array>
+#include <string>
+#include "../emergeCoreLib.h"
+#include "../emergeFileRegistryLib.h"
+#include "../emergeLibGlobals.h"
+#include "../emergeOSLib.h"
+#include "../emergeUtilityLib.h"
+#include "../emergeWindowLib.h"
+#include "../../tinyxml/tinyxml.h"
 
 typedef BOOL (WINAPI* lpfnIsWow64Process)(HANDLE, PBOOL);
 static lpfnIsWow64Process MSIsWow64Process = NULL;

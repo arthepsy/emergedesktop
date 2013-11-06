@@ -1,6 +1,6 @@
 /*!
   @file StringOps.h
-  @brief export header for emergeLib
+  @brief internal header for emergeLib
   @author The Emerge Desktop Development Team
 
   @attention This file is part of Emerge Desktop.
@@ -20,8 +20,8 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
   */
 
-#ifndef __STRINGOPS_H
-#define __STRINGOPS_H
+#ifndef __GUARD_507da3ad_5295_45e0_a67c_4e4f14395b06
+#define __GUARD_507da3ad_5295_45e0_a67c_4e4f14395b06
 
 #define UNICODE 1
 

@@ -1,5 +1,5 @@
 /*!
-  @file emergeLib.h
+  @file emergeCoreLib.h
   @brief export header for emergeLib
   @author The Emerge Desktop Development Team
 
@@ -20,8 +20,8 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
   */
 
-#ifndef __EMERGECORELIB_H
-#define __EMERGECORELIB_H
+#ifndef __GUARD_fcdf49ee_eb88_4199_a167_77447560d0e6
+#define __GUARD_fcdf49ee_eb88_4199_a167_77447560d0e6
 
 #define UNICODE 1
 
@@ -208,4 +208,4 @@ DLL_EXPORT std::wstring ELStripModifiedTheme(std::wstring theme);
 DLL_EXPORT bool ELAdjustVolume(VOLUMEFLAGS command);
 DLL_EXPORT bool ELPlaySound(std::wstring sound);
 
-#endif //__EMERGECORELIB_H
+#endif
