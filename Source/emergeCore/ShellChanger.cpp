@@ -2,7 +2,7 @@
 //----  --------------------------------------------------------------------------------------------------------
 //
 //  This file is part of Emerge Desktop.
-//  Copyright (C) 2004-2012  The Emerge Desktop Development Team
+//  Copyright (C) 2004-2013  The Emerge Desktop Development Team
 //
 //  Emerge Desktop is free software; you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -590,15 +590,15 @@ bool ShellChanger::WriteShells(HWND hwndDlg)
   configXML = ELOpenXMLConfig(xmlFile, true);
   if (configXML)
   {
-    section = ELGetXMLSection(configXML.get(), (WCHAR*)TEXT("Shells"), false);
+    section = ELGetXMLSection(configXML.get(), TEXT("Shells"), false);
     if (section) /**< Remove the 'Shells' top-level if it exists */
     {
       ELRemoveXMLElement(section);
     }
-    settings = ELGetXMLSection(configXML.get(), (WCHAR*)TEXT("Settings"), true);
+    settings = ELGetXMLSection(configXML.get(), TEXT("Settings"), true);
     if (settings)
     {
-      section = ELGetFirstXMLElementByName(settings, (WCHAR*)TEXT("Shells"), true);
+      section = ELGetFirstXMLElementByName(settings, TEXT("Shells"), true);
     }
     if (section)
     {
@@ -620,8 +620,8 @@ bool ShellChanger::WriteShells(HWND hwndDlg)
           iter = shellMap.find(name);
 
           first = ELSetFirstXMLElementByName(section, TEXT("item"));
-          ELWriteXMLStringValue(first, (WCHAR*)TEXT("Name"), name);
-          ELWriteXMLStringValue(first, (WCHAR*)TEXT("Command"), (WCHAR*)iter->second.c_str());
+          ELWriteXMLStringValue(first, TEXT("Name"), name);
+          ELWriteXMLStringValue(first, TEXT("Command"), iter->second);
         }
 
         index++;
@@ -875,4 +875,3 @@ bool ShellChanger::DoBrowseShell(HWND hwndDlg)
 
   return false;
 }
-

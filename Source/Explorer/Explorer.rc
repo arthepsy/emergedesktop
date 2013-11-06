@@ -45,7 +45,7 @@ BEGIN
             VALUE "FileDescription", "Explorer - desktop component for the Emerge Desktop"
             VALUE "FileVersion", POINT_VERSION
             VALUE "InternalName", "Explorer"
-            VALUE "LegalCopyright", "Copyright (C) 2011-2012"
+            VALUE "LegalCopyright", "Copyright (C) 2011-2013"
             VALUE "OriginalFilename", "Explorer.exe"
             VALUE "ProductName", "Explorer"
             VALUE "ProductVersion", PRODUCT_VERSION

@@ -4,7 +4,7 @@
   @author The Emerge Desktop Development Team
 
   @attention This file is part of Emerge Desktop.
-  @attention Copyright (C) 2004-2012  The Emerge Desktop Development Team
+  @attention Copyright (C) 2004-2013  The Emerge Desktop Development Team
 
   @attention Emerge Desktop is free software; you can redistribute it and/or
   modify  it under the terms of the GNU General Public License as published

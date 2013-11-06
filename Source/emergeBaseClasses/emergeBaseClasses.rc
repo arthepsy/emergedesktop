@@ -46,7 +46,7 @@ BEGIN
             VALUE "FileDescription", "emergeBaseClasses - Emerge Desktop utility library"
             VALUE "FileVersion", POINT_VERSION
             VALUE "InternalName", "emergeBaseClasses"
-            VALUE "LegalCopyright", "Copyright (C) 2004-2012"
+            VALUE "LegalCopyright", "Copyright (C) 2004-2013"
             VALUE "OriginalFilename", "emergeBaseClasses.dll"
             VALUE "ProductName", "emergeBaseClasses"
             VALUE "ProductVersion", PRODUCT_VERSION

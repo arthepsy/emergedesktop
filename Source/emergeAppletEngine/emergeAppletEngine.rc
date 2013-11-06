@@ -42,7 +42,7 @@ BEGIN
             VALUE "FileDescription", "emergeAppletEngine - Emerge Desktop application library"
             VALUE "FileVersion", POINT_VERSION
             VALUE "InternalName", "emergeAppletEngine"
-            VALUE "LegalCopyright", "Copyright (C) 2006-2012"
+            VALUE "LegalCopyright", "Copyright (C) 2006-2013"
             VALUE "OriginalFilename", "emergeAppletEngine.dll"
             VALUE "ProductName", "emergeAppletEngine"
             VALUE "ProductVersion", PRODUCT_VERSION

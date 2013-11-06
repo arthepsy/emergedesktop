@@ -48,7 +48,7 @@ VALUE "CompanyName", "The Emerge Desktop Development Team"
 VALUE "FileDescription", "emergeLang - applet for the Emerge Desktop"
 VALUE "FileVersion", POINT_VERSION
 VALUE "InternalName", "emergeLang"
-VALUE "LegalCopyright", "Copyright (C) 2010-2012"
+VALUE "LegalCopyright", "Copyright (C) 2010-2013"
 VALUE "OriginalFilename", "emergeLang.exe"
 VALUE "ProductName", "emergeLang"
 VALUE "ProductVersion", POINT_VERSION

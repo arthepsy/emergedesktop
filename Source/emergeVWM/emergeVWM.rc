@@ -47,7 +47,7 @@ VALUE "CompanyName", "The Emerge Desktop Development Team"
 VALUE "FileDescription", "emergeVWM - applet for the Emerge Desktop"
 VALUE "FileVersion", POINT_VERSION
 VALUE "InternalName", "emergeVWM"
-VALUE "LegalCopyright", "Copyright (C) 2004-2012"
+VALUE "LegalCopyright", "Copyright (C) 2004-2013"
 VALUE "OriginalFilename", "emergeVWM.exe"
 VALUE "ProductName", "emergeVWM"
 VALUE "ProductVersion", PRODUCT_VERSION

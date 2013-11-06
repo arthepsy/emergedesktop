@@ -2,7 +2,7 @@
 //----  --------------------------------------------------------------------------------------------------------
 //
 //  This file is part of Emerge Desktop.
-//  Copyright (C) 2004-2012  The Emerge Desktop Development Team
+//  Copyright (C) 2004-2013  The Emerge Desktop Development Team
 //
 //  Emerge Desktop is free software; you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -751,22 +751,22 @@ bool LaunchEditor::UpdateLaunch(HWND hwndDlg)
   if (configXML)
   {
     /**< Remove the old 'Launch' top level section */
-    section = ELGetXMLSection(configXML.get(), (WCHAR*)TEXT("Launch"), false);
+    section = ELGetXMLSection(configXML.get(), TEXT("Launch"), false);
     if (section)
     {
       ELRemoveXMLElement(section);
     }
 
-    settings = ELGetXMLSection(configXML.get(), (WCHAR*)TEXT("Settings"), true);
+    settings = ELGetXMLSection(configXML.get(), TEXT("Settings"), true);
     if (settings)
     {
       /**< Remove existing Launch list */
-      section = ELGetFirstXMLElementByName(settings, (WCHAR*)TEXT("Launch"), false);
+      section = ELGetFirstXMLElementByName(settings, TEXT("Launch"), false);
       if (section)
       {
         ELRemoveXMLElement(section);
       }
-      section = ELSetFirstXMLElementByName(settings, (WCHAR*)TEXT("Launch"));
+      section = ELSetFirstXMLElementByName(settings, TEXT("Launch"));
     }
 
     if (section)
@@ -801,10 +801,10 @@ bool LaunchEditor::PopulateList(HWND listWnd)
   configXML = ELOpenXMLConfig(xmlFile, false);
   if (configXML)
   {
-    settings = ELGetXMLSection(configXML.get(), (WCHAR*)TEXT("Settings"), false);
+    settings = ELGetXMLSection(configXML.get(), TEXT("Settings"), false);
     if (settings)
     {
-      section = ELGetFirstXMLElementByName(settings, (WCHAR*)TEXT("Launch"), false);
+      section = ELGetFirstXMLElementByName(settings, TEXT("Launch"), false);
     }
     if (section)
     {
@@ -904,8 +904,8 @@ bool LaunchEditor::DoLaunchDelete(HWND hwndDlg)
 
   if (ListView_GetSelectedCount(listWnd) > 1)
   {
-    ELMessageBox(hwndDlg, (WCHAR*)TEXT("You can only delete one item at a time."),
-                 (WCHAR*)TEXT("emergeCore"), ELMB_OK | ELMB_ICONERROR | ELMB_MODAL);
+    ELMessageBox(hwndDlg, TEXT("You can only delete one item at a time."),
+                 TEXT("emergeCore"), ELMB_OK | ELMB_ICONERROR | ELMB_MODAL);
 
     return ret;
   }

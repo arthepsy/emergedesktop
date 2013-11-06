@@ -2,7 +2,7 @@
 //----  --------------------------------------------------------------------------------------------------------
 //
 //  This file is part of Emerge Desktop.
-//  Copyright (C) 2004-2012  The Emerge Desktop Development Team
+//  Copyright (C) 2004-2013  The Emerge Desktop Development Team
 //
 //  Emerge Desktop is free software; you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -133,8 +133,8 @@ bool LaunchPage::CheckSaveCount(HWND hwndDlg)
   if ((saveCount != 0) || (deleteCount != 0))
   {
     if (ELMessageBox(hwndDlg,
-                     (WCHAR*)TEXT("All currently modifications will be lost.  To save and exit press OK.\n\nDo you wish to continue?"),
-                     (WCHAR*)TEXT("emergeLauncher"),
+                     TEXT("All currently modifications will be lost.  To save and exit press OK.\n\nDo you wish to continue?"),
+                     TEXT("emergeLauncher"),
                      ELMB_YESNO | ELMB_ICONQUESTION | ELMB_MODAL) == IDYES)
     {
       return true;
@@ -168,8 +168,8 @@ bool LaunchPage::CheckFields(HWND hwndDlg)
       (GetDlgItemText(hwndDlg, IDC_SPECIALFOLDER, tmp, MAX_LINE_LENGTH) != 0))
   {
     if (ELMessageBox(hwndDlg,
-                     (WCHAR*)TEXT("The current command will be lost.\n\nDo you wish to continue?"),
-                     (WCHAR*)TEXT("emergeLauncher"),
+                     TEXT("The current command will be lost.\n\nDo you wish to continue?"),
+                     TEXT("emergeLauncher"),
                      ELMB_YESNO | ELMB_ICONQUESTION | ELMB_MODAL) == IDYES)
     {
       return true;
@@ -931,8 +931,8 @@ bool LaunchPage::DelItem(HWND hwndDlg)
 
   if (ListView_GetSelectedCount(listWnd) > 1)
   {
-    ELMessageBox(hwndDlg, (WCHAR*)TEXT("You can only delete one item at a time."),
-                 (WCHAR*)TEXT("emergeLauncher"), ELMB_OK | ELMB_ICONERROR | ELMB_MODAL);
+    ELMessageBox(hwndDlg, TEXT("You can only delete one item at a time."),
+                 TEXT("emergeLauncher"), ELMB_OK | ELMB_ICONERROR | ELMB_MODAL);
 
     return ret;
   }
@@ -984,7 +984,7 @@ bool LaunchPage::MoveItem(HWND hwndDlg, bool up)
 
   if (ListView_GetSelectedCount(listWnd) > 1)
   {
-    ELMessageBox(hwndDlg, (WCHAR*)TEXT("You can only move one item at a time."), (WCHAR*)TEXT("emergeLauncher"),
+    ELMessageBox(hwndDlg, TEXT("You can only move one item at a time."), TEXT("emergeLauncher"),
                  ELMB_OK | ELMB_ICONERROR | ELMB_MODAL);
 
     return ret;
@@ -1077,8 +1077,8 @@ bool LaunchPage::DoEdit(HWND hwndDlg)
 
   if (ListView_GetSelectedCount(listWnd) > 1)
   {
-    ELMessageBox(hwndDlg, (WCHAR*)TEXT("You can only edit one item at a time."),
-                 (WCHAR*)TEXT("emergeLauncher"), ELMB_OK | ELMB_ICONERROR | ELMB_MODAL);
+    ELMessageBox(hwndDlg, TEXT("You can only edit one item at a time."),
+                 TEXT("emergeLauncher"), ELMB_OK | ELMB_ICONERROR | ELMB_MODAL);
 
     return false;
   }

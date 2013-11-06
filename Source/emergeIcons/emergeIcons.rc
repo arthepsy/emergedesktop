@@ -42,7 +42,7 @@ BEGIN
             VALUE "FileDescription", "emergeIcons - Emerge Desktop icons library"
             VALUE "FileVersion", POINT_VERSION
             VALUE "InternalName", "emergeIcons"
-            VALUE "LegalCopyright", "Copyright (C) 2010-2012"
+            VALUE "LegalCopyright", "Copyright (C) 2010-2013"
             VALUE "OriginalFilename", "emergeIcons.dll"
             VALUE "ProductName", "emergeIcons"
             VALUE "ProductVersion", PRODUCT_VERSION

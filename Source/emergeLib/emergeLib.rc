@@ -45,7 +45,7 @@ BEGIN
             VALUE "FileDescription", "emergeLib - Emerge Desktop utility library"
             VALUE "FileVersion", POINT_VERSION
             VALUE "InternalName", "emergeLib"
-            VALUE "LegalCopyright", "Copyright (C) 2004-2012"
+            VALUE "LegalCopyright", "Copyright (C) 2004-2013"
             VALUE "OriginalFilename", "emergeLib.dll"
             VALUE "ProductName", "emergeLib"
             VALUE "ProductVersion", PRODUCT_VERSION

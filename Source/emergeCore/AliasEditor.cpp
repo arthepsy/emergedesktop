@@ -2,7 +2,7 @@
 //----  --------------------------------------------------------------------------------------------------------
 //
 //  This file is part of Emerge Desktop.
-//  Copyright (C) 2004-2012  The Emerge Desktop Development Team
+//  Copyright (C) 2004-2013  The Emerge Desktop Development Team
 //
 //  Emerge Desktop is free software; you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -267,8 +267,8 @@ BOOL AliasEditor::DoInitDialog(HWND hwndDlg)
   if (!RegisterHotKey(hwndDlg, HOTKEY_N, MOD_CONTROL, 'N'))
   {
     ELMessageBox(hwndDlg,
-                 (WCHAR*)TEXT("Failed to register Hotkey combination Ctrl+N"),
-                 (WCHAR*)TEXT("emergeCore"),
+                 TEXT("Failed to register Hotkey combination Ctrl+N"),
+                 TEXT("emergeCore"),
                  ELMB_OK | ELMB_ICONERROR | ELMB_MODAL);
     return FALSE;
   }
@@ -276,8 +276,8 @@ BOOL AliasEditor::DoInitDialog(HWND hwndDlg)
   if (!RegisterHotKey(hwndDlg, HOTKEY_E, MOD_CONTROL, 'E'))
   {
     ELMessageBox(hwndDlg,
-                 (WCHAR*)TEXT("Failed to register Hotkey combination Ctrl+E"),
-                 (WCHAR*)TEXT("emergeCore"),
+                 TEXT("Failed to register Hotkey combination Ctrl+E"),
+                 TEXT("emergeCore"),
                  ELMB_OK | ELMB_ICONERROR | ELMB_MODAL);
     return FALSE;
   }
@@ -422,8 +422,8 @@ bool AliasEditor::CheckSaveCount(HWND hwndDlg)
   if ((saveCount != 0) || (deleteCount != 0))
   {
     if (ELMessageBox(hwndDlg,
-                     (WCHAR*)TEXT("All current modifications will be lost.  To save and exit press OK.\n\nDo you wish to continue?"),
-                     (WCHAR*)TEXT("emergeCore"),
+                     TEXT("All current modifications will be lost.  To save and exit press OK.\n\nDo you wish to continue?"),
+                     TEXT("emergeCore"),
                      ELMB_YESNO | ELMB_ICONQUESTION | ELMB_MODAL) == IDYES)
     {
       return true;
@@ -450,8 +450,8 @@ bool AliasEditor::CheckFields(HWND hwndDlg)
   if (GetDlgItemText(hwndDlg, IDC_APPLET, tmp, MAX_LINE_LENGTH) != 0)
   {
     if (ELMessageBox(hwndDlg,
-                     (WCHAR*)TEXT("The current applet will be lost.\n\nDo you wish to continue?"),
-                     (WCHAR*)TEXT("emergeCore"),
+                     TEXT("The current applet will be lost.\n\nDo you wish to continue?"),
+                     TEXT("emergeCore"),
                      ELMB_YESNO | ELMB_ICONQUESTION | ELMB_MODAL) == IDYES)
     {
       return true;

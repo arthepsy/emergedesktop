@@ -47,7 +47,7 @@ VALUE "CompanyName", "The Emerge Desktop Development Team"
 VALUE "FileDescription", "emergeLauncher - applet for the Emerge Desktop"
 VALUE "FileVersion", POINT_VERSION
 VALUE "InternalName", "emergeLauncher"
-VALUE "LegalCopyright", "Copyright (C) 2004-2012"
+VALUE "LegalCopyright", "Copyright (C) 2004-2013"
 VALUE "OriginalFilename", "emergeLauncher.exe"
 VALUE "ProductName", "emergeLauncher"
 VALUE "ProductVersion", PRODUCT_VERSION

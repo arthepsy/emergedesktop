@@ -48,7 +48,7 @@ VALUE "CompanyName", "The Emerge Desktop Development Team"
 VALUE "FileDescription", "emergeTray - applet for the Emerge Desktop"
 VALUE "FileVersion", POINT_VERSION
 VALUE "InternalName", "emergeTray"
-VALUE "LegalCopyright", "Copyright (C) 2004-2012"
+VALUE "LegalCopyright", "Copyright (C) 2004-2013"
 VALUE "OriginalFilename", "emergeTray.exe"
 VALUE "ProductName", "emergeTray"
 VALUE "ProductVersion", PRODUCT_VERSION
