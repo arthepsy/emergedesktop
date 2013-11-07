@@ -72,6 +72,7 @@
 			<Add library="shlwapi" />
 			<Add library="comctl32" />
 			<Add library="comdlg32" />
+			<Add directory="../bin/Lib" />
 		</Linker>
 		<ExtraCommands>
 			<Add before='[[ IO.Execute(_T(&quot;cmd /c \&quot;cd.. &amp; hgversion.bat\&quot;&quot;)) ]]' />
