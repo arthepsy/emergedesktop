@@ -7,7 +7,7 @@
 		<Option compiler="gcc" />
 		<Build>
 			<Target title="Debug">
-				<Option output="../bin/Lib/emergeAppletEngine" prefix_auto="1" extension_auto="1" />
+				<Option output="../bin/emergeAppletEngine" prefix_auto="1" extension_auto="1" />
 				<Option object_output="obj/Debug/" />
 				<Option type="3" />
 				<Option compiler="gcc" />
@@ -21,7 +21,7 @@
 				</Linker>
 			</Target>
 			<Target title="Release">
-				<Option output="../bin/Lib/emergeAppletEngine" prefix_auto="1" extension_auto="1" />
+				<Option output="../bin/emergeAppletEngine" prefix_auto="1" extension_auto="1" />
 				<Option object_output="obj/Release/" />
 				<Option type="3" />
 				<Option compiler="gcc" />
@@ -36,7 +36,7 @@
 				</Linker>
 			</Target>
 			<Target title="Debug64">
-				<Option output="../bin64/Lib/emergeAppletEngine" prefix_auto="1" extension_auto="1" />
+				<Option output="../bin64/emergeAppletEngine" prefix_auto="1" extension_auto="1" />
 				<Option object_output="obj64/Debug/" />
 				<Option type="3" />
 				<Option compiler="gnu_gcc_compiler_for_mingw64" />
@@ -50,7 +50,7 @@
 				</Linker>
 			</Target>
 			<Target title="Release64">
-				<Option output="../bin64/Lib/emergeAppletEngine" prefix_auto="1" extension_auto="1" />
+				<Option output="../bin64/emergeAppletEngine" prefix_auto="1" extension_auto="1" />
 				<Option object_output="obj64/Release/" />
 				<Option type="3" />
 				<Option compiler="gnu_gcc_compiler_for_mingw64" />
@@ -77,7 +77,6 @@
 			<Add library="comctl32" />
 			<Add library="shlwapi" />
 			<Add library="uuid" />
-			<Add directory="../bin/Lib" />
 		</Linker>
 		<ExtraCommands>
 			<Add before='[[ IO.Execute(_T(&quot;cmd /c \&quot;cd.. &amp; hgversion.bat\&quot;&quot;)) ]]' />

@@ -62,7 +62,6 @@
 		</Compiler>
 		<Linker>
 			<Add library="emergeLib" />
-			<Add directory="../bin/Lib" />
 		</Linker>
 		<ExtraCommands>
 			<Add before='[[ IO.Execute(_T(&quot;cmd /c \&quot;cd.. &amp; hgversion.bat\&quot;&quot;)) ]]' />

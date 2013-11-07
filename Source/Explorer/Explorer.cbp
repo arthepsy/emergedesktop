@@ -67,7 +67,6 @@
 			<Add library="emergeLib" />
 			<Add library="ole32" />
 			<Add library="uuid" />
-			<Add directory="../bin/Lib" />
 		</Linker>
 		<ExtraCommands>
 			<Add before='[[ IO.Execute(_T(&quot;cmd /c \&quot;cd.. &amp; hgversion.bat\&quot;&quot;)) ]]' />
