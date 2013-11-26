@@ -44,12 +44,14 @@
     <OutDir>$(SolutionDir)bin\</OutDir>
     <CustomBuildBeforeTargets>
     </CustomBuildBeforeTargets>
+    <IntDir>objs\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <CustomBuildBeforeTargets>
     </CustomBuildBeforeTargets>
     <OutDir>$(SolutionDir)bin\</OutDir>
+    <IntDir>objs\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

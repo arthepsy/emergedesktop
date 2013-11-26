@@ -15,9 +15,11 @@
 				<Option createStaticLib="1" />
 				<Compiler>
 					<Add option="-g" />
+					<Add option="-m32" />
 				</Compiler>
 				<Linker>
 					<Add option="-L..\bin" />
+					<Add option="-m32" />
 				</Linker>
 			</Target>
 			<Target title="Release">
@@ -29,10 +31,12 @@
 				<Option createStaticLib="1" />
 				<Compiler>
 					<Add option="-O2" />
+					<Add option="-m32" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
 					<Add option="-L..\bin" />
+					<Add option="-m32" />
 				</Linker>
 			</Target>
 			<Target title="Debug64">

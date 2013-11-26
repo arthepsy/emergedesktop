@@ -2,6 +2,7 @@
 #define __MINGWINTERFACES_H
 
 #include <initguid.h>
+#include <propsys.h>
 
 #define _MMDeviceEnumerator    1
 #define _IMMDeviceEnumerator   2

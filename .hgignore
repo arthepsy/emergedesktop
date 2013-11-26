@@ -12,6 +12,7 @@ tags
 bin
 msbin
 bin64
+objs
 hgversion.h
 *.bmarks
 *.layout
