@@ -745,7 +745,7 @@ void Applet::GetCPUUsages(std::vector<BYTE>& usages)
       if (sys_idle_old[i].QuadPart != 0)
       {
         BYTE usage;
-        int kernelUserTime = ((sys_kernel.QuadPart +  sys_user.QuadPart) -
+        ULONGLONG kernelUserTime = ((sys_kernel.QuadPart + sys_user.QuadPart) -
                               (sys_kernel_old[i].QuadPart + sys_user_old[i].QuadPart));
         if (kernelUserTime > 0)
         {

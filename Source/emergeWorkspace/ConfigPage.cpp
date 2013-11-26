@@ -85,7 +85,7 @@ BOOL ConfigPage::DoInitDialog(HWND hwndDlg)
   HWND sliderWnd = GetDlgItem(hwndDlg, IDC_SLIDER);
   HWND aeroMenuWnd = GetDlgItem(hwndDlg, IDC_AEROMENUS);
 
-  ELGetWindowRect(hwndDlg, &rect);
+  rect = ELGetWindowRect(hwndDlg);
 
   x = (GetSystemMetrics(SM_CXSCREEN) / 2) - ((rect.right - rect.left) / 2);
   y = (GetSystemMetrics(SM_CYSCREEN) / 2) - ((rect.bottom - rect.top) / 2);
@@ -107,7 +107,7 @@ BOOL ConfigPage::DoInitDialog(HWND hwndDlg)
   if (pSettings->GetMenuIcons())
     SendDlgItemMessage(hwndDlg, IDC_MENUICONS, BM_SETCHECK, BST_CHECKED, 0);
 
-  if (ELVersionInfo() < 6.0)
+  if (!IsWindowsVistaOrGreater()) //Aero is only available in Windows Vista on
     {
       EnableWindow(aeroMenuWnd, FALSE);
       SendMessage(aeroMenuWnd, BM_SETCHECK, BST_UNCHECKED, 0);

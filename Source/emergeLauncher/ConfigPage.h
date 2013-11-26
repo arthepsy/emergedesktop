@@ -45,6 +45,25 @@
 #include "resource.h"
 #include "Settings.h"
 
+//GetVersionEx is deprecated in Visual Studio, to be replaced by IsWindows* functions. It's supposed to be deprecated
+//in other compilers too, but so far only VS has the replacements implemented. So we'll have to roll our own for other
+//compilers until GCC gets around to adding proper support.
+#ifdef _MSC_VER
+#include <versionhelpers.h>
+#else
+inline bool IsWindowsVistaOrGreater()
+{
+  OSVERSIONINFO osv;
+
+  ZeroMemory(&osv, sizeof(osv));
+
+  osv.dwOSVersionInfoSize = sizeof(osv);
+  GetVersionEx(&osv);
+
+  return ((osv.dwMajorVersion + (osv.dwMinorVersion / 10.0)) >= 6.0);
+}
+#endif
+
 class ConfigPage
 {
 public:

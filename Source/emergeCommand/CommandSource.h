@@ -25,6 +25,10 @@
 
 #define UNICODE 1
 
+#ifdef _MSC_VER
+#define _CRT_SECURE_NO_WARNINGS 1 //suppress warnings about old versions of wcscpy, wcscat, etc.
+#endif
+
 #include <objidl.h>
 #include <stdio.h>
 #include "../emergeLib/emergeFileRegistryLib.h"

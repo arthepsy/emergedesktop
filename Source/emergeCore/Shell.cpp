@@ -159,7 +159,7 @@ bool Shell::UpdateTaskCount(UINT message, UINT shellMessage, HWND task)
       return UpdateSessionInformation(true, task);
     case HSHELL_WINDOWACTIVATED:
     case HSHELL_RUDEAPPACTIVATED:
-      return HideExplorerBar();
+      return (HideExplorerBar() != 0);
     }
   }
 

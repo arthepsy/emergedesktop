@@ -161,7 +161,7 @@ BOOL PositionPage::DoCommand(HWND hwndDlg, WPARAM wParam, LPARAM lParam UNUSED)
 
 bool PositionPage::UpdateSettings(HWND hwndDlg)
 {
-  BOOL success = true;
+  bool success = true;
   std::wstring tmpValue;
   WCHAR tmp[MAX_LINE_LENGTH];
 

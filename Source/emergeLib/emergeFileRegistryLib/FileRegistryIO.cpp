@@ -307,8 +307,8 @@ COLORREF ELReadFileColor(std::wstring fileName, std::wstring item, COLORREF defa
 std::tr1::shared_ptr<TiXmlDocument> ELOpenXMLConfig(std::wstring file, bool create)
 {
   std::tr1::shared_ptr<TiXmlDocument> configXML;
-  file = ELExpandVars(file);
-  std::string ansiFile = ELwstringTostring(file, CP_ACP);
+  std::wstring workingFile = ELExpandVars(file);
+  std::string ansiFile = ELwstringTostring(workingFile, CP_ACP);
 
   configXML = OpenXMLConfig(ansiFile, create);
 
@@ -343,15 +343,15 @@ RECT ELReadXMLRectValue(TiXmlElement* section, std::wstring item, RECT defaultVa
 {
   WCHAR stringDefault[MAX_LINE_LENGTH];
   std::wstring stringValue;
-  RECT returnValue;
+  RECT returnValue = { 0, 0, 0, 0 };
 
   swprintf(stringDefault, TEXT("%d,%d,%d,%d"), defaultValue.top, defaultValue.left,
            defaultValue.bottom, defaultValue.right);
 
   stringValue = ELReadXMLStringValue(section, item, stringDefault);
 
-  if (swscanf(stringValue.c_str(), TEXT("%d,%d,%d,%d"), returnValue.top, returnValue.left,
-              returnValue.bottom, returnValue.right) == 4)
+  if (swscanf(stringValue.c_str(), TEXT("%d,%d,%d,%d"), &returnValue.top, &returnValue.left,
+              &returnValue.bottom, &returnValue.right) == 4)
   {
     return returnValue;
   }
@@ -387,7 +387,7 @@ int ELReadXMLIntValue(TiXmlElement* section, std::wstring item, int defaultValue
 
   stringValue = ELReadXMLStringValue(section, item, stringDefault);
 
-  swscanf(stringValue.c_str(), TEXT("%d"), returnValue);
+  swscanf(stringValue.c_str(), TEXT("%d"), &returnValue);
 
   return returnValue;
 }
@@ -402,7 +402,7 @@ float ELReadXMLFloatValue(TiXmlElement* section, std::wstring item, float defaul
 
   stringValue = ELReadXMLStringValue(section, item, stringDefault);
 
-  swscanf(stringValue.c_str(), TEXT("%f"), returnValue);
+  swscanf(stringValue.c_str(), TEXT("%f"), &returnValue);
 
   return returnValue;
 }

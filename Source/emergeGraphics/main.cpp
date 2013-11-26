@@ -76,7 +76,7 @@ BYTE EGGetMinAlpha(BYTE alphaBase, BYTE alphaDelta)
   /*int devCaps = GetDeviceCaps(hdc, BITSPIXEL);
   std::wstring debug = TEXT("DeviceCaps: ");
   debug += towstring(devCaps);
-  ELWriteDebug(debug);*/
+  //ELWriteDebug(debug);*/
   if (GetDeviceCaps(hdc, BITSPIXEL) == 32)
   {
     checkValue = 0.5;
@@ -911,7 +911,8 @@ HICON EGGetSystemIcon(UINT iconIndex, UINT iconSize)
   WCHAR source[MAX_PATH];
   int iconLocation = 0;
 
-  if (ELOSVersionInfo() >= 6.1)
+  //if (ELOSVersionInfo() >= 6.1)
+  if (IsWindows7OrGreater()) //system icons are stored in imageres.dll in Windows 7 on up
   {
     wcscpy(source, TEXT("%SystemRoot%\\system32\\imageres.dll"));
     switch (iconIndex)

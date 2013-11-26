@@ -117,7 +117,8 @@ bool ConfigPage::DoInitDialog(HWND hwndDlg)
   SendMessage(iconSizeWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("16x16"));
   SendMessage(iconSizeWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("32x32"));
   SendMessage(iconSizeWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("48x48"));
-  if (ELOSVersionInfo() >= 6.0)
+  //if (ELOSVersionInfo() >= 6.0)
+  if (IsWindowsVistaOrGreater())
   {
     SendMessage(iconSizeWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("128x128"));
     SendMessage(iconSizeWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("256x256"));
@@ -139,7 +140,8 @@ bool ConfigPage::DoInitDialog(HWND hwndDlg)
     wParam = 1;
     break;
   }
-  if ((ELOSVersionInfo() < 6.0) && (wParam > 2))
+  //if ((ELOSVersionInfo() < 6.0) && (wParam > 2))
+  if ((!IsWindowsVistaOrGreater()) && (wParam > 2))
   {
     wParam = 2;
   }
@@ -217,16 +219,16 @@ bool ConfigPage::UpdateSettings(HWND hwndDlg)
   WCHAR tmp[MAX_LINE_LENGTH];
 
   success = (SendDlgItemMessage(hwndDlg, IDC_STARTHIDDEN, BM_GETCHECK, 0, 0) == BST_CHECKED);
-  pSettings->SetStartHidden(success);
+  pSettings->SetStartHidden((success == TRUE)); //explicitly convert from BOOL to bool, since an implicit conversion triggers a compiler warning in Visual Studio
 
   success = (SendDlgItemMessage(hwndDlg, IDC_SNAPMOVE, BM_GETCHECK, 0, 0) == BST_CHECKED);
-  pSettings->SetSnapMove(success);
+  pSettings->SetSnapMove((success == TRUE)); //explicitly convert from BOOL to bool, since an implicit conversion triggers a compiler warning in Visual Studio
 
   success = (SendDlgItemMessage(hwndDlg, IDC_SNAPSIZE, BM_GETCHECK, 0, 0) == BST_CHECKED);
-  pSettings->SetSnapSize(success);
+  pSettings->SetSnapSize((success == TRUE)); //explicitly convert from BOOL to bool, since an implicit conversion triggers a compiler warning in Visual Studio
 
   success = (SendDlgItemMessage(hwndDlg, IDC_AUTOSIZE, BM_GETCHECK, 0, 0) == BST_CHECKED);
-  pSettings->SetAutoSize(success);
+  pSettings->SetAutoSize((success == TRUE)); //explicitly convert from BOOL to bool, since an implicit conversion triggers a compiler warning in Visual Studio
 
   GetDlgItemText(hwndDlg, IDC_TITLEBARTEXT, tmp, MAX_LINE_LENGTH);
   pSettings->SetTitleBarText(tmp);
@@ -247,10 +249,10 @@ bool ConfigPage::UpdateSettings(HWND hwndDlg)
   {
     pSettings->SetIconSpacing(result);
   }
-  else if (!success)
+  else
   {
-    ELMessageBox(GetDesktopWindow(), (WCHAR*)TEXT("Invalid value for icon spacing"),
-                 (WCHAR*)TEXT("emergeLauncher"), ELMB_OK | ELMB_ICONERROR | ELMB_MODAL);
+    ELMessageBox(GetDesktopWindow(), TEXT("Invalid value for icon spacing"),
+                 TEXT("emergeLauncher"), ELMB_OK | ELMB_ICONERROR | ELMB_MODAL);
     SetDlgItemInt(hwndDlg, IDC_ICONSPACING, pSettings->GetIconSpacing(), false);
     return false;
   }
@@ -262,8 +264,8 @@ bool ConfigPage::UpdateSettings(HWND hwndDlg)
   }
   else if (!success)
   {
-    ELMessageBox(GetDesktopWindow(), (WCHAR*)TEXT("Invalid value for AutoSize wrap"),
-                 (WCHAR*)TEXT("emergeLauncher"), ELMB_OK | ELMB_ICONERROR | ELMB_MODAL);
+    ELMessageBox(GetDesktopWindow(), TEXT("Invalid value for AutoSize wrap"),
+                 TEXT("emergeLauncher"), ELMB_OK | ELMB_ICONERROR | ELMB_MODAL);
     SetDlgItemInt(hwndDlg, IDC_ICONSPACING, pSettings->GetIconSpacing(), false);
     return false;
   }

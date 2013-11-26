@@ -22,8 +22,15 @@
 
 void ELDispatchCoreMessage(DWORD type, DWORD message, std::wstring instanceName)
 {
+  HWND coreWindowHwnd;
   NOTIFYINFO notifyInfo;
   COPYDATASTRUCT cds;
+
+  coreWindowHwnd = ELGetCoreWindow();
+  if (coreWindowHwnd == NULL)
+  {
+    return;
+  }
 
   ZeroMemory(&notifyInfo, sizeof(notifyInfo));
   notifyInfo.Type = type;
@@ -37,7 +44,7 @@ void ELDispatchCoreMessage(DWORD type, DWORD message, std::wstring instanceName)
   cds.cbData = sizeof(notifyInfo);
   cds.lpData = &notifyInfo;
 
-  SendMessageTimeout(ELGetCoreWindow(), WM_COPYDATA, 0, (LPARAM)&cds,
+  SendMessageTimeout(coreWindowHwnd, WM_COPYDATA, 0, (LPARAM)&cds,
                      SMTO_ABORTIFHUNG, 500, NULL);
 }
 
@@ -257,7 +264,8 @@ std::wstring ELStripModifiedTheme(std::wstring theme)
 bool ELAdjustVolume(VOLUMEFLAGS command)
 {
   bool ret = false;
-  if (ELOSVersionInfo() >= 6.0)
+  //if (ELOSVersionInfo() >= 6.0)
+  if (IsWindowsVistaOrGreater())
   {
     ret = VistaVolumeControl(command);
   }
@@ -273,7 +281,8 @@ bool ELPlaySound(std::wstring sound)
 {
   UINT soundFlags = SND_ALIAS | SND_ASYNC | SND_NODEFAULT;
 
-  if (ELOSVersionInfo() >= 6.0)
+  //if (ELOSVersionInfo() >= 6.0)
+  if (IsWindowsVistaOrGreater()) //SND_SYSTEM is only available on Vista or later
   {
     soundFlags |= SND_SYSTEM;
   }

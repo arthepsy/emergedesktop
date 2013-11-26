@@ -166,7 +166,7 @@ bool ELIsWow64()
 // Don't use any EmergeVars in ELGetThemeInfo because it is used to derive the EmergeVars
 void ELGetThemeInfo(LPTHEMEINFO themeInfo)
 {
-  std::wstring userPath, workingPath;;
+  std::wstring userPath, workingPath;
   std::wstring tempCustomDataPath;
   std::tr1::shared_ptr<TiXmlDocument> configXML;
   TiXmlElement* section;
@@ -215,7 +215,7 @@ void ELGetThemeInfo(LPTHEMEINFO themeInfo)
     }
   }
 
-  if (ELToLower(themeInfo->theme) == defaultThemeValue)
+  if (ELToLower(themeInfo->theme) != ELToLower(defaultThemeValue))
   {
     themeInfo->themePath = themeInfo->path + TEXT("\\themes\\") + themeInfo->theme;
     workingPath = themeInfo->themePath;

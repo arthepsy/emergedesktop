@@ -873,7 +873,7 @@ bool AliasEditor::DoAliasSave(HWND hwndDlg)
           deleteCount++;
 
           lvSortInfo.listWnd = listWnd;
-          ret = ListView_SortItemsEx(listWnd, ListViewCompareProc, (LPARAM)&lvSortInfo);
+          ret = (ListView_SortItemsEx(listWnd, ListViewCompareProc, (LPARAM)&lvSortInfo) == TRUE); //perform the BOOL-to-bool cast explicitly, since an implicit cast triggers a warning in Visual Studio
           SetDlgItemText(hwndDlg, IDC_APPLET, TEXT(""));
           SetDlgItemText(hwndDlg, IDC_ALIAS, TEXT(""));
         }

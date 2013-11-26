@@ -1067,7 +1067,7 @@ LRESULT BaseApplet::DoCopyData(COPYDATASTRUCT* cds)
 
       case CORE_SHOWAPPLET:
         {
-          bool toggle = IsWindowVisible(mainWnd);
+          bool toggle = (IsWindowVisible(mainWnd) == TRUE); //don't cast directly from BOOL to bool - triggers a compiler warning in Visual Studio
           if ((notifyInfo->InstanceName != NULL) && wcslen(notifyInfo->InstanceName))
           {
             if (_wcsicmp(notifyInfo->InstanceName, appletName) == 0)

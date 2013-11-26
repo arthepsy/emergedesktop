@@ -1622,7 +1622,8 @@ LRESULT Applet::AppBarEvent(COPYDATASTRUCT* cpData)
         result = ABS_AUTOHIDE;
       }
 
-      if (ELOSVersionInfo() > 6.0)
+      //if (ELOSVersionInfo() > 6.0)
+      if (IsWindows7OrGreater()) //according to MSDN, as of Windows 7 the taskbar is always in a ABS_ALWAYSONTOP state
       {
         result |= ABS_ALWAYSONTOP;
       }

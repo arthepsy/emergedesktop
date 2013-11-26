@@ -25,6 +25,11 @@
 
 #define UNICODE 1
 
+#ifdef _MSC_VER
+#define _CRT_SECURE_NO_WARNINGS 1 //suppress warnings about old versions of wcscpy, wcscat, etc.
+#define _CRT_NON_CONFORMING_SWPRINTFS 1 //suppress warnings about old swprintf format
+#endif
+
 // Define required for the Window Transparency
 #undef _WIN32_WINNT
 #define _WIN32_WINNT 0x0501
@@ -53,6 +58,25 @@
 #include "Config.h"
 #include "Settings.h"
 #include "TrayIcon.h"
+
+//GetVersionEx is deprecated in Visual Studio, to be replaced by IsWindows* functions. It's supposed to be deprecated
+//in other compilers too, but so far only VS has the replacements implemented. So we'll have to roll our own for other
+//compilers until GCC gets around to adding proper support.
+#ifdef _MSC_VER
+#include <versionhelpers.h>
+#else
+inline bool IsWindows7OrGreater()
+{
+  OSVERSIONINFO osv;
+
+  ZeroMemory(&osv, sizeof(osv));
+
+  osv.dwOSVersionInfoSize = sizeof(osv);
+  GetVersionEx(&osv);
+
+  return ((osv.dwMajorVersion + (osv.dwMinorVersion / 10.0)) >= 6.1);
+}
+#endif
 
 #ifndef NIN_POPUPOPEN
 #define NIN_POPUPOPEN WM_USER+6

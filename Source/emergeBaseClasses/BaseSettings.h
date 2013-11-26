@@ -27,6 +27,11 @@
 
 #define MAX_LINE_LENGTH 4096
 
+#ifdef _MSC_VER
+#pragma warning(push) //store the existing compiler warning level
+#pragma warning(disable: 4251) //'identifier' : class 'type' needs to have dll-interface to be used by clients of class 'type2'
+#endif
+
 #ifdef EMERGEBASECLASSES_EXPORTS
 #undef DLL_EXPORT
 #define DLL_EXPORT  __declspec(dllexport)
@@ -174,5 +179,8 @@ private:
   std::wstring titleBarFontString;
 };
 
+#ifdef _MSC_VER
+#pragma warning(pop) //restore the old compiler warning level
 #endif
 
+#endif

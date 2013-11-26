@@ -25,8 +25,9 @@
 
 #define UNICODE 1
 
-#ifndef SND_SYSTEM
-#define SND_SYSTEM      0x200000
+#ifdef _MSC_VER
+#define _CRT_SECURE_NO_WARNINGS 1 //suppress warnings about old versions of wcscpy, wcscat, etc.
+#define _CRT_NON_CONFORMING_SWPRINTFS 1 //suppress warnings about old swprintf format
 #endif
 
 #include <windows.h>
@@ -45,6 +46,29 @@
 #define _MMDeviceEnumerator MMDeviceEnumerator
 #define _IMMDeviceEnumerator IMMDeviceEnumerator
 #define _IAudioEndpointVolume IAudioEndpointVolume
+#endif
+
+//GetVersionEx is deprecated in Visual Studio, to be replaced by IsWindows* functions. It's supposed to be deprecated
+//in other compilers too, but so far only VS has the replacements implemented. So we'll have to roll our own for other
+//compilers until GCC gets around to adding proper support.
+#ifdef _MSC_VER
+#include <versionhelpers.h>
+#else
+inline bool IsWindowsVistaOrGreater()
+{
+  OSVERSIONINFO osv;
+
+  ZeroMemory(&osv, sizeof(osv));
+
+  osv.dwOSVersionInfoSize = sizeof(osv);
+  GetVersionEx(&osv);
+
+  return ((osv.dwMajorVersion + (osv.dwMinorVersion / 10.0)) >= 6.0);
+}
+#endif
+
+#ifndef SND_SYSTEM
+#define SND_SYSTEM      0x200000
 #endif
 
 //Helper functions

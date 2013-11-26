@@ -63,21 +63,31 @@ typedef struct _SHORTCUTINFO
 }
 SHORTCUTINFO, *LPSHORTCUTINFO;
 
+typedef enum _SHORTCUTFLAGS
+{
+  SI_PATH = 1,
+  SI_WORKINGDIR = 2,
+  SI_ARGUMENTS = 4,
+  SI_SHOW = 8,
+  SI_ICONPATH = 16,
+  SI_ICONINDEX = 32,
+  SI_RUNAS = 64,
+  SI_ALL = SI_PATH | SI_WORKINGDIR | SI_ARGUMENTS | SI_SHOW | SI_ICONPATH | SI_ICONINDEX | SI_RUNAS
+} SHORTCUTFLAGS;
+
 typedef enum _SPECIALFILEFLAGS
 {
   SF_NOTHING = 0,
-  SF_FILE,
-  SF_SHORTCUT,
-  SF_DIRECTORY,
-  SF_SPECIALFOLDER,
-  SF_URL,
-  SF_CLSID,
-  SF_INTERNALCOMMAND,
-  SF_UNC
+  SF_FILE = 1,
+  SF_SHORTCUT = 2,
+  SF_DIRECTORY = 4,
+  SF_SPECIALFOLDER = 8,
+  SF_URL = 16,
+  SF_CLSID = 32,
+  SF_INTERNALCOMMAND = 64,
+  SF_UNC = 128
 }
 SPECIALFILEFLAGS;
-
-typedef bool (*COMMANDHANDLERPROC)(std::vector<std::wstring>); //args
 
 const int UNDEFINED_INTERNALCOMMAND_VALUE = -1;
 
@@ -150,6 +160,8 @@ DLL_EXPORT std::wstring ELGetRelativePath(std::wstring filePath, std::wstring ba
 DLL_EXPORT bool ELPathIsRelative(std::wstring filePath);
 DLL_EXPORT std::wstring ELExhaustivelyFindFilePath(std::wstring filePath);
 
+DLL_EXPORT std::vector<std::wstring> ELGetFilesInFolder(std::wstring folder, std::wstring fileMask = TEXT(""), bool fullPath = false);
+
 DLL_EXPORT bool ELFileExists(std::wstring filePath);
 
 DLL_EXPORT int ELGetFileSpecialFlags(std::wstring filePath);
@@ -165,11 +177,10 @@ DLL_EXPORT int ELGetSpecialFolderIDFromName(std::wstring specialFolderName);
 DLL_EXPORT std::wstring ELGetUNCFromMap(std::wstring uncMap);
 
 DLL_EXPORT bool ELIsFileTypeExecutable(std::wstring extension);
-DLL_EXPORT bool ELExecuteFileOrCommand(std::wstring application, std::wstring arguments = TEXT(""), std::wstring workingDir = TEXT(""), int nShow = SW_SHOW);
+DLL_EXPORT bool ELExecuteFileOrCommand(std::wstring application, std::wstring arguments = TEXT(""), std::wstring workingDir = TEXT(""), int nShow = SW_SHOW, std::wstring verb = TEXT(""));
 DLL_EXPORT bool ELFileOp(HWND appletWnd, bool feedback, UINT function, std::wstring source, std::wstring destination = TEXT(""));
 
 //InternalCommandEngine.h
-DLL_EXPORT bool ELRegisterInternalCommand(std::wstring commandName, int commandValue, COMMANDHANDLERPROC commandHandler);
 DLL_EXPORT bool ELIsInternalCommand(std::wstring commandName);
 DLL_EXPORT std::wstring ELGetInternalCommandName(int commandValue);
 DLL_EXPORT int ELGetInternalCommandValue(std::wstring commandName);

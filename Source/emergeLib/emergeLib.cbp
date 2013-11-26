@@ -91,6 +91,16 @@
 		<ExtraCommands>
 			<Add before='[[ IO.Execute(_T(&quot;cmd /c \&quot;cd.. &amp; hgversion.bat\&quot;&quot;)) ]]' />
 		</ExtraCommands>
+		<Unit filename="../cppcomponents/cppcomponents/cppcomponents.hpp" />
+		<Unit filename="../cppcomponents/cppcomponents/implementation/spinlock.hpp" />
+		<Unit filename="../cppcomponents/cross_compiler_interface/cross_compiler_interface.hpp" />
+		<Unit filename="../cppcomponents/cross_compiler_interface/cross_compiler_introspection.hpp" />
+		<Unit filename="../cppcomponents/cross_compiler_interface/implementation/any.hpp" />
+		<Unit filename="../cppcomponents/cross_compiler_interface/implementation/cross_compiler_error_handling.hpp" />
+		<Unit filename="../cppcomponents/cross_compiler_interface/implementation/safe_static_initialization.hpp" />
+		<Unit filename="../cppcomponents/cross_compiler_interface/interface_unknown.hpp" />
+		<Unit filename="../cppcomponents/cross_compiler_interface/platform/Windows/platform_specific.hpp" />
+		<Unit filename="../cppcomponents/cross_compiler_interface/uuid.hpp" />
 		<Unit filename="../tinyxml/tinystr.cpp" />
 		<Unit filename="../tinyxml/tinystr.h" />
 		<Unit filename="../tinyxml/tinyxml.cpp" />
@@ -104,6 +114,7 @@
 		<Unit filename="emergeCoreLib/MiscOps.cpp" />
 		<Unit filename="emergeCoreLib/MiscOps.h" />
 		<Unit filename="emergeFileRegistryLib.h" />
+		<Unit filename="emergeFileRegistryLib/EmergeInternalCommandInterface.h" />
 		<Unit filename="emergeFileRegistryLib/FileRegistryIO.cpp" />
 		<Unit filename="emergeFileRegistryLib/FileRegistryIO.h" />
 		<Unit filename="emergeFileRegistryLib/FileSystemOps.cpp" />

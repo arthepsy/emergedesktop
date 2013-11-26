@@ -941,7 +941,7 @@ bool Actions::DoSave(HWND hwndDlg)
   }
 
   lvSortInfo.listWnd = listWnd;
-  ret = ListView_SortItemsEx(listWnd, ListViewCompareProc, (LPARAM)&lvSortInfo);
+  ret = (ListView_SortItemsEx(listWnd, ListViewCompareProc, (LPARAM)&lvSortInfo) == TRUE); //explicitly cast from BOOL to bool, since an implicit cast causes a compiler warning in Visual Studio
 
   return ret;
 }

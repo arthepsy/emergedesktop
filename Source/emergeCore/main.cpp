@@ -42,7 +42,7 @@ int WINAPI WinMain (HINSTANCE hInstance,
 
   if (!ELParseCommand(GetCommandLine(), app, argsTmp))
   {
-    ELMessageBox(GetDesktopWindow(), (WCHAR*)TEXT("Failed to parse command line"), (WCHAR*)TEXT("emergeCore"),
+    ELMessageBox(GetDesktopWindow(), TEXT("Failed to parse command line"), TEXT("emergeCore"),
                  ELMB_OK | ELMB_ICONERROR | ELMB_MODAL);
     return 1;
   }
@@ -79,7 +79,7 @@ int WINAPI WinMain (HINSTANCE hInstance,
 
   if (abort)
   {
-    ELMessageBox(GetDesktopWindow(), (WCHAR*)TEXT("Invalid command line switch"), (WCHAR*)TEXT("emergeCore"),
+    ELMessageBox(GetDesktopWindow(), TEXT("Invalid command line switch"), TEXT("emergeCore"),
                  ELMB_OK | ELMB_ICONERROR | ELMB_MODAL);
     return 1;
   }
@@ -140,4 +140,3 @@ int WINAPI WinMain (HINSTANCE hInstance,
   // The program return-value is 0 - The value that PostQuitMessage() gave
   return (int)messages.wParam;
 }
-

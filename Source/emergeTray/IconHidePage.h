@@ -25,6 +25,11 @@
 
 #define UNICODE 1
 
+#ifdef _MSC_VER
+#define _CRT_SECURE_NO_WARNINGS 1 //suppress warnings about old versions of wcscpy, wcscat, etc.
+#define _CRT_NON_CONFORMING_SWPRINTFS 1 //suppress warnings about old swprintf format
+#endif
+
 #undef _WIN32_IE
 #define _WIN32_IE	0x600
 

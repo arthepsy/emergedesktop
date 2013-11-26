@@ -192,7 +192,7 @@ DLL_EXPORT bool ELIsExplorerShell();
 DLL_EXPORT bool ELIsEmergeShell();
 
 //MiscOps.h
-DLL_EXPORT void ELDispatchCoreMessage(DWORD type, DWORD message, std::wstring instanceName = NULL);
+DLL_EXPORT void ELDispatchCoreMessage(DWORD type, DWORD message, std::wstring instanceName = TEXT(""));
 
 DLL_EXPORT bool ELAppletVersionInfo(HWND appWnd, LPVERSIONINFO versionInfo);
 DLL_EXPORT bool ELAppletFileVersion(std::wstring applet, LPVERSIONINFO versionInfo);

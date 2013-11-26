@@ -26,8 +26,6 @@ WCHAR desktopClass[] = TEXT("EmergeDesktopProgman");
 
 BOOL CALLBACK Desktop::MinimizeWindowsEnum(HWND hwnd, LPARAM lParam)
 {
-  std::wstring debug;
-
   if (ELIsValidTaskWindow(hwnd))
   {
     if (!IsIconic(hwnd))
@@ -324,7 +322,7 @@ bool Desktop::SetBackgroundImage()
   // Retrieve the new wallpaper
   SystemParametersInfo(SPI_GETDESKWALLPAPER, MAX_PATH, newBG, 0);
   // Compare the background to the current background
-  if (wcsicmp(newBG, currentBG) != 0)
+  if (_wcsicmp(newBG, currentBG) != 0)
   {
     // if different, store
     wcscpy(currentBG, newBG);

@@ -54,11 +54,8 @@ double ELOSVersionInfo()
 
 std::wstring ELGetProcessIDApp(DWORD processID, bool fullName)
 {
-  DWORD needed;
   HANDLE hProcess;
-  HMODULE hMod;
   WCHAR tmp[MAX_PATH];
-  std::wstring applet = TEXT("");
 
   ZeroMemory(&tmp, MAX_PATH);
 
@@ -66,27 +63,34 @@ std::wstring ELGetProcessIDApp(DWORD processID, bool fullName)
   hProcess = OpenProcess(PROCESS_QUERY_INFORMATION |  PROCESS_VM_READ,  FALSE, processID);
 
   // Get the process name.
-  if (NULL != hProcess )
+  if (hProcess != NULL)
   {
-    if (EnumProcessModules(hProcess, &hMod, sizeof(hMod), &needed))
+    SetLastError(ERROR_SUCCESS); //clear the last error flag, since GetModuleFileNameEx might trigger an error under certain
+    //circumstances (being run on a 64-bit process from a 32-bit app) and we need to reliably see whether that happens
+    //http://winprogger.com/getmodulefilenameex-enumprocessmodulesex-failures-in-wow64/ explains why this happens
+    GetModuleFileNameEx(hProcess, NULL, tmp, sizeof(tmp)); //get the file path for the given process handle
+    if (GetLastError() == ERROR_PARTIAL_COPY)
     {
-      if (fullName)
-      {
-        GetModuleFileNameEx(hProcess, hMod, tmp, sizeof(tmp));
-      }
-      else
-      {
-        GetModuleBaseName(hProcess, hMod, tmp, sizeof(tmp));
-      }
+      GetProcessImageFileName(hProcess, tmp, sizeof(tmp));
+      MapDevicePathToDrivePath(tmp);
     }
 
-    // Print the process name and identifier.
-    applet = tmp;
+    if (wcslen(tmp) > 0)
+    {
+      GetLongPathName(tmp, tmp, sizeof(tmp)); //according to MSDN community content, under very specific circumstances
+      //(a process is launched by short name on a x64 system), GetModuleFileNameEx will return a short name. Expand it
+      //just in case.
+    }
+
+    if (!fullName)
+    {
+      wcscpy(tmp, PathFindFileName(tmp)); //pull the filename out of the path
+    }
 
     CloseHandle(hProcess);
   }
 
-  return applet;
+  return tmp;
 }
 
 /*!
@@ -104,4 +108,46 @@ std::wstring ELGetWindowApp(HWND hWnd, bool fullName)
 
   GetWindowThreadProcessId(hWnd, &processID);
   return ELGetProcessIDApp(processID, fullName);
+}
+
+bool MapDevicePathToDrivePath(LPWSTR path)
+{
+  WCHAR logicalDriveStrings[MAX_PATH];
+  WCHAR driveName[3] = TEXT(" :");
+  WCHAR dosDeviceName[MAX_PATH];
+  size_t dosDeviceNameLength;
+  WCHAR workingPath[MAX_PATH];
+  bool success = false;
+
+  ZeroMemory(logicalDriveStrings, MAX_PATH);
+  ZeroMemory(dosDeviceName, MAX_PATH);
+  ZeroMemory(workingPath, MAX_PATH);
+
+  if (GetLogicalDriveStrings(MAX_PATH, logicalDriveStrings)) //get a list of the drive letters available
+  {
+    WCHAR* logicalDrivePtr = logicalDriveStrings;
+
+    while ((*logicalDrivePtr) && (success == false)) //keep iterating until we successfully complete or run out of characters in the drives buffer
+    {
+      *driveName = *logicalDrivePtr; //get the current drive letter; note that the colon from the driveName initialization will stay, so we'll end up
+      //with "(DriveLetter):". Example: "C:"
+
+      if (QueryDosDevice(driveName, dosDeviceName, MAX_PATH)) //see if the drive letter has a matching DOS device name
+      {
+        dosDeviceNameLength = wcslen(dosDeviceName);
+        if (_wcsnicmp(dosDeviceName, path, dosDeviceNameLength) == 0) //see if the DOS device name matches the one in the path we were given
+        {
+          swprintf(workingPath, TEXT("%s%s"), driveName, path+dosDeviceNameLength); //copy the drive letter and the remainder of the path
+          //we were given into a working buffer. Note that the DOS device name will not come along, since path is technically a pointer to the start
+          //of the path string; path + dosDeviceNameLength is a pointer to the part of the path directly following the DOS device name
+          wcscpy(path, workingPath); //copy our working buffer back into the path buffer we were given
+          success = true; //and set the success flag so we can break the loop
+        }
+      }
+
+      *logicalDrivePtr++; //move to the next character in the drive letter buffer
+    }
+  }
+
+  return success;
 }

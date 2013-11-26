@@ -91,10 +91,10 @@ void Settings::PopulateItems()
   configXML = ELOpenXMLConfig(xmlFile, false);
   if (configXML)
   {
-    settingsSection = ELGetXMLSection(configXML.get(), (WCHAR*)TEXT("Settings"), false);
+    settingsSection = ELGetXMLSection(configXML.get(), TEXT("Settings"), false);
     if (settingsSection)
     {
-      launchSection = ELGetFirstXMLElementByName(settingsSection, (WCHAR*)TEXT("Launch"), false);
+      launchSection = ELGetFirstXMLElementByName(settingsSection, TEXT("Launch"), false);
 
       if (launchSection)
       {

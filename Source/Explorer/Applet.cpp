@@ -53,7 +53,7 @@ UINT Applet::Initialize()
 
   if (FAILED(OleInitialize(NULL)))
   {
-    ELMessageBox(GetDesktopWindow(), (WCHAR*)TEXT("COM initialization failed"), (WCHAR*)TEXT("Explorer"),
+    ELMessageBox(GetDesktopWindow(), TEXT("COM initialization failed"), TEXT("Explorer"),
                  ELMB_OK | ELMB_ICONERROR | ELMB_MODAL);
     return 0;
   }

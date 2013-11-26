@@ -25,6 +25,11 @@
 
 #define UNICODE 1
 
+#ifdef _MSC_VER
+#define _CRT_SECURE_NO_WARNINGS 1 //suppress warnings about old versions of wcscpy, wcscat, etc.
+#define _CRT_NON_CONFORMING_SWPRINTFS 1 //suppress warnings about old swprintf format
+#endif
+
 #undef _WIN32_IE
 #define _WIN32_IE 0x0600 // Enables all the needed define's in ShellAPI.h
 
@@ -37,10 +42,6 @@
 
 #define MAX_RUN_STRING 1024
 #define FOCUS_TIMER 1
-
-#ifndef SHACF_DEFAULT
-#define SHACF_DEFAULT 0x00
-#endif
 
 #ifdef __GNUC__
 #include <tr1/memory>
@@ -61,6 +62,10 @@
 #include "CommandSource.h"
 #include "CustomSource.h"
 #include "Settings.h"
+
+#ifndef SHACF_DEFAULT
+#define SHACF_DEFAULT 0x00
+#endif
 
 //#define whatever wasn't included in shldisp.h
 #ifndef ACO_UPDOWNKEYDROPSLIST

@@ -20,29 +20,6 @@
 
 #include "InternalCommandEngine.h"
 
-bool ELRegisterInternalCommand(std::wstring commandName, int commandValue, COMMANDHANDLERPROC commandHandler)
-{
-  CommandHandler newCommand;
-
-  if (commandName.empty())
-  {
-    return false;
-  }
-
-  if (commandValue == INVALID_COMMAND)
-  {
-    return false;
-  }
-
-  //commandHandlerMap.insert(commandValue, std::pair<std::wstring, COMMANDHANDLERPROC>(commandName, commandHandler));
-  newCommand.commandValue = commandValue;
-  newCommand.commandName = commandName;
-  newCommand.commandHandler = commandHandler;
-  internalCommands.insert(internalCommands.end(), &newCommand);
-
-  return true;
-}
-
 bool ELIsInternalCommand(std::wstring commandName)
 {
   return (ELGetInternalCommandValue(commandName) != INVALID_COMMAND);
@@ -50,15 +27,16 @@ bool ELIsInternalCommand(std::wstring commandName)
 
 std::wstring ELGetInternalCommandName(int commandValue)
 {
-  std::vector<CommandHandler*>::iterator tempIter;
-  CommandHandler* tempValue;
+  std::vector<CommandInfoStruct> internalCommands = LoadEmergeInternalCommands();
+  std::vector<CommandInfoStruct>::const_iterator tempIter;
+  CommandInfoStruct tempValue;
 
   for (tempIter = internalCommands.begin(); tempIter != internalCommands.end(); ++tempIter)
   {
     tempValue = *tempIter;
-    if (tempValue->commandValue == commandValue)
+    if (tempValue.commandValue == commandValue)
     {
-      return tempValue->commandName;
+      return tempValue.commandName;
     }
   }
 
@@ -67,15 +45,16 @@ std::wstring ELGetInternalCommandName(int commandValue)
 
 int ELGetInternalCommandValue(std::wstring commandName)
 {
-  std::vector<CommandHandler*>::iterator tempIter;
-  CommandHandler* tempValue;
+  std::vector<CommandInfoStruct> internalCommands = LoadEmergeInternalCommands();
+  std::vector<CommandInfoStruct>::const_iterator tempIter;
+  CommandInfoStruct tempValue;
 
   for (tempIter = internalCommands.begin(); tempIter != internalCommands.end(); ++tempIter)
   {
     tempValue = *tempIter;
-    if (ELToLower(tempValue->commandName) == ELToLower(commandName))
+    if (ELToLower(tempValue.commandName) == ELToLower(commandName))
     {
-      return tempValue->commandValue;
+      return tempValue.commandValue;
     }
   }
 
@@ -84,18 +63,22 @@ int ELGetInternalCommandValue(std::wstring commandName)
 
 bool ELExecuteInternalCommand(std::wstring commandName, std::wstring arguments)
 {
-  COMMANDHANDLERPROC commandHandlerCallback;
+  CommandInfoStruct command;
+  HMODULE commandProviderDLL;
+  std::string commandHandlerName;
+  IEMERGEINTERNALCOMMANDHANDLERPROC commandHandlerCallback;
   std::vector<std::wstring> args;
   std::wstring argSplitters = TEXT(" ,\t"); //space, comma, tab
   size_t firstArgSplitPos = 0, secondArgSplitPos;
+  bool returnValue = false;
 
   if (commandName.empty())
   {
     return false;
   }
 
-  commandHandlerCallback = GetCommandHandlerCallback(commandName);
-  if (commandHandlerCallback == NULL)
+  command = FindCommandHandler(commandName);
+  if (command.commandHandlerFunctionName == TEXT(""))
   {
     return false;
   }
@@ -103,13 +86,13 @@ bool ELExecuteInternalCommand(std::wstring commandName, std::wstring arguments)
   secondArgSplitPos = arguments.find_first_of(argSplitters);
   if ((secondArgSplitPos == std::wstring::npos) || (secondArgSplitPos == arguments.length()))
   {
-    args.insert(args.end(), arguments);
+    args.push_back(arguments);
   }
   else
   {
     while ((firstArgSplitPos != std::wstring::npos) && (firstArgSplitPos != arguments.length()))
     {
-      args.insert(args.end(), arguments.substr(firstArgSplitPos, secondArgSplitPos));
+      args.push_back(arguments.substr(firstArgSplitPos, secondArgSplitPos));
 
       firstArgSplitPos = secondArgSplitPos;
 
@@ -121,13 +104,28 @@ bool ELExecuteInternalCommand(std::wstring commandName, std::wstring arguments)
     }
   }
 
-  return commandHandlerCallback(args);
+  commandProviderDLL = ELLoadEmergeLibrary(command.commandProviderDLLName);
+  if (commandProviderDLL)
+  {
+    commandHandlerName = ELwstringTostring(command.commandHandlerFunctionName);
+    commandHandlerCallback = (IEMERGEINTERNALCOMMANDHANDLERPROC)GetProcAddress(commandProviderDLL, commandHandlerName.c_str());
+
+    if (commandHandlerCallback)
+    {
+      returnValue = commandHandlerCallback(args);
+    }
+
+    FreeLibrary(commandProviderDLL);
+  }
+
+  return returnValue;
 }
 
 bool ELPopulateInternalCommandList(HWND hwnd)
 {
-  std::vector<CommandHandler*>::iterator tempIter;
-  CommandHandler* tempValue;
+  std::vector<CommandInfoStruct> internalCommands = LoadEmergeInternalCommands();
+  std::vector<CommandInfoStruct>::const_iterator tempIter;
+  CommandInfoStruct tempValue;
   std::wstring tempCommandName;
 
   if (!IsWindow(hwnd))
@@ -138,45 +136,76 @@ bool ELPopulateInternalCommandList(HWND hwnd)
   for (tempIter = internalCommands.begin(); tempIter != internalCommands.end(); ++tempIter)
   {
     tempValue = *tempIter;
-    tempCommandName = tempValue->commandName;
+    tempCommandName = tempValue.commandName;
     SendMessage(hwnd, CB_ADDSTRING, 0, (LPARAM)tempCommandName.c_str());
   }
 
   return true;
 }
 
-COMMANDHANDLERPROC GetCommandHandlerCallback(std::wstring commandName)
+std::vector<CommandInfoStruct> LoadEmergeInternalCommands()
 {
-  int commandValue;
+  static std::vector<CommandInfoStruct> internalCommands;
+  static time_t lastLoadTime;
+  time_t currentTime = time(NULL);
+  CommandInfoStruct internalCommand;
+  std::wstring dllSearchLocation;
+  std::vector<std::wstring> dllFiles;
+  std::vector<std::wstring>::const_iterator dllFileIter;
+  std::string dllName;
 
-  if (commandName.empty())
+  if (abs(difftime(lastLoadTime, currentTime)) < 1800) //difftime returns a seconds value. 30m * 60s/m = 1800s
   {
-    return NULL;
+    return internalCommands;
   }
 
-  commandValue = ELGetInternalCommandValue(commandName);
+  lastLoadTime = time(NULL); //get a current timestamp for the newly loaded commands
 
-  if (commandValue == INVALID_COMMAND)
+  dllSearchLocation = ELGetCurrentPath();
+  dllSearchLocation = dllSearchLocation + TEXT("\\Plugins\\");
+  dllFiles = ELGetFilesInFolder(dllSearchLocation, TEXT("*.dll"), true);
+
+  if (!dllFiles.empty())
   {
-    return NULL;
+    internalCommands.clear();
   }
 
-  return GetCommandHandlerCallback(commandValue);
+  for (dllFileIter = dllFiles.begin(); dllFileIter != dllFiles.end(); ++dllFileIter)
+  {
+    dllName = ELwstringTostring(*dllFileIter);
+
+    auto provider = CommandProvider::dynamic_creator(dllName, "CommandProvider")();
+
+    for (auto& commandIterator : provider.GetEmergeInternalCommands())
+    {
+      internalCommand.commandName = std::get<0>(commandIterator);
+      internalCommand.commandValue = std::get<1>(commandIterator);
+      internalCommand.commandProviderDLLName = *dllFileIter;
+      internalCommand.commandHandlerFunctionName = std::get<2>(commandIterator);
+      internalCommands.push_back(internalCommand);
+    }
+  }
+
+  return internalCommands;
 }
 
-COMMANDHANDLERPROC GetCommandHandlerCallback(int commandValue)
+CommandInfoStruct FindCommandHandler(std::wstring commandName)
 {
-  std::vector<CommandHandler*>::iterator tempIter;
-  CommandHandler* tempValue;
+  std::vector<CommandInfoStruct> internalCommands = LoadEmergeInternalCommands();
+  std::vector<CommandInfoStruct>::const_iterator tempIter;
+  CommandInfoStruct tempValue;
 
   for (tempIter = internalCommands.begin(); tempIter != internalCommands.end(); ++tempIter)
   {
     tempValue = *tempIter;
-    if (tempValue->commandValue == commandValue)
+    if (ELToLower(tempValue.commandName) == ELToLower(commandName))
     {
-      return tempValue->commandHandler;
+      return tempValue;
     }
   }
 
-  return NULL;
+  //If we didn't return the command handler already, there isn't one. Return an error value instead.
+  tempValue.commandName = TEXT("");
+  tempValue.commandValue = INVALID_COMMAND;
+  return tempValue;
 }

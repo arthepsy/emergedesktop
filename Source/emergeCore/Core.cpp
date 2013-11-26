@@ -20,13 +20,6 @@
 //----  --------------------------------------------------------------------------------------------------------
 
 #include "Core.h"
-#include <wtsapi32.h>
-
-typedef void (__stdcall* lpfnMSSwitchToThisWindow)(HWND, BOOL);
-typedef BOOL (__stdcall* lpfnWTSRegisterSessionNotification)(HWND, DWORD);
-typedef BOOL (__stdcall* lpfnWTSUnRegisterSessionNotification)(HWND);
-
-WCHAR emergeCoreClass[ ] = TEXT("EmergeDesktopCore");
 
 Core::Core(HINSTANCE hInstance)
 {
@@ -71,9 +64,6 @@ bool Core::Initialize(WCHAR* commandLine)
   // Set the non-critical environment variables
   ELSetEnvironmentVars(pSettings->GetShowStartupErrors());
 
-  //set up the default emerge internal commands and their callbacks
-  SetupDefaultEmergeInternalCommands();
-
   // Start the shell functions
   pShell = std::tr1::shared_ptr<Shell>(new Shell());
 
@@ -115,8 +105,8 @@ bool Core::Initialize(WCHAR* commandLine)
   if (!mainWnd)
   {
     ELMessageBox(GetDesktopWindow(),
-                 (WCHAR*)TEXT("Failed to create core window"),
-                 (WCHAR*)TEXT("emergeCore"),
+                 TEXT("Failed to create core window"),
+                 TEXT("emergeCore"),
                  ELMB_OK | ELMB_ICONERROR | ELMB_MODAL);
     return false;
   }
@@ -202,7 +192,17 @@ Core::~Core()
       FreeLibrary(wtslib);
     }
 
-    if (!ELIsEmergeShell()) // Running on top of Explorer; show the Taskbar before exiting
+    /**< Only unload SSO objects if not running on top of Explorer */
+    if (!ELIsExplorerShell() && (ELOSVersionInfo() > 6.0))
+    {
+      pShell->UnloadSSO();
+    }
+
+    pShell->RegisterShell(mainWnd, false);
+    pShell->ClearSessionInformation();
+
+    if (!ELIsEmergeShell()) // Running on top of Explorer; show the Taskbar before exiting.
+      //Do this after pShell unloads so any HSHELL_RUDEAPPACTIVATED messages won't re-hide the Taskbar.
     {
       //get the Taskbar window
       HWND taskBarWnd = FindWindow(TEXT("Shell_TrayWnd"), NULL);
@@ -219,15 +219,6 @@ Core::~Core()
         ShowWindow(startWnd, SW_SHOW);
       }
     }
-
-    /**< Only unload SSO objects if not running on top of Explorer */
-    if (!ELIsExplorerShell() && (ELOSVersionInfo() > 6.0))
-    {
-      pShell->UnloadSSO();
-    }
-
-    pShell->RegisterShell(mainWnd, false);
-    pShell->ClearSessionInformation();
 
     OleUninitialize();
 

@@ -83,7 +83,9 @@ bool Settings::ReadUserSettings()
   TiXmlElement* section = NULL;
   bool readSettings = false;
 
-  if ((ELGetFileSpecialFlags(ELExpandVars(userFile)) & SF_DIRECTORY) != SF_DIRECTORY)
+  userFile = ELExpandVars(userFile);
+
+  if ((ELGetFileSpecialFlags(userFile) & SF_DIRECTORY) != SF_DIRECTORY)
   {
     ELCreateDirectory(userFile);
   }

@@ -402,7 +402,7 @@ BOOL DisplayPage::DoColourChooser(COLORREF* colour, HWND hwndDlg)
 
 bool DisplayPage::UpdateSettings(HWND hwndDlg)
 {
-  BOOL success = true;
+  bool success = true;
   const WCHAR* tmpValue = NULL;
 
   if (SendDlgItemMessage(hwndDlg, IDC_SHOWNUMBERS, BM_GETCHECK, 0, 0) == BST_CHECKED)

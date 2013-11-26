@@ -36,19 +36,22 @@
 #include <windows.h>
 #include <string>
 #include <vector>
+#include "../emergeCoreLib.h"
 #include "../emergeFileRegistryLib.h"
+#include "../emergeOSLib.h"
 #include "../emergeUtilityLib.h"
+#include "EmergeInternalCommandInterface.h"
 
-struct CommandHandler
+struct CommandInfoStruct //the Command tuple maps to this struct
 {
   int commandValue;
   std::wstring commandName;
-  COMMANDHANDLERPROC commandHandler;
+  std::wstring commandProviderDLLName; //this is the filename of the DLL with the handler function(s). It's a std::string because that's what GetProcAddress expects.
+  std::wstring commandHandlerFunctionName; //this is the name of the function we call GetProcAddress on
 };
 
 //Helper functions
-COMMANDHANDLERPROC GetCommandHandlerCallback(std::wstring commandName);
-COMMANDHANDLERPROC GetCommandHandlerCallback(int commandValue);
-std::vector<CommandHandler*> internalCommands;
+std::vector<CommandInfoStruct> LoadEmergeInternalCommands();
+CommandInfoStruct FindCommandHandler(std::wstring commandName);
 
 #endif

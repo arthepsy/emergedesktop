@@ -33,6 +33,7 @@
 
 #include "emergeCoreLib.h"
 #include "emergeFileRegistryLib.h"
+#include "emergeItemDefinitions.h"
 #include "emergeLibGlobals.h"
 #include "emergeOSLib.h"
 #include "emergeUtilityLib.h"

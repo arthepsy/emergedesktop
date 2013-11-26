@@ -81,6 +81,6 @@ DLL_EXPORT HWND EAEInitializeTooltipWindow(HINSTANCE appletInstance);
 DLL_EXPORT bool EAEAutoSize(AUTOSIZEINFO autoSizeInfo);
 DLL_EXPORT LRESULT EAEDisplayChange(HMONITOR appletMonitor, RECT* wndRect, RECT* oldDeskRect);
 DLL_EXPORT int EAEDisplayMenu(HWND callingWnd, HWND taskWnd);
-DLL_EXPORT int EAEDisplayFileMenu(std::wstring file, HWND callingWnd);
+DLL_EXPORT int EAEDisplayFileMenu(WCHAR* file, HWND callingWnd);
 
 #endif

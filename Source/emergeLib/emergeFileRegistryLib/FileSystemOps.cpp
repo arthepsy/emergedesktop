@@ -85,29 +85,61 @@ bool ELParseCommand(std::wstring appToParse, WCHAR* program, WCHAR* arguments)
   wcscpy(arguments, TEXT("\0"));
 
   workingApp = appToParse;
-  if (!workingApp.empty())
+  if (workingApp.empty())
   {
-    if (workingApp.at(0) == '@')
+    return false;
+  }
+
+  if (workingApp.at(0) == '@')
+  {
+    workingApp = workingApp.substr(1);
+  }
+
+  //strip out any args so ELGetFileSpecialFlags won't be confused by them
+  // Parse application string of form: "Command" arguments
+  if (workingApp.length() > 1)
+  {
+    // Check to see if the string starts with " and contains a second "
+    size_t nextQuote = workingApp.find_first_of('"', 2);
+    if ((*workingApp.begin() == '"') && (nextQuote != std::wstring::npos))
     {
-      workingApp = workingApp.substr(1);
+      // If so, first define the arguments
+      if (nextQuote < (workingApp.length() - 1))
+      {
+        workingArgs = workingApp.substr(nextQuote + 1, workingApp.length() - nextQuote);
+        // Strip any leading spaces from the arguments
+        size_t firstNonSpace = workingArgs.find_first_not_of(L" \t");
+        if (firstNonSpace != std::wstring::npos)
+          workingArgs = workingArgs.substr(firstNonSpace, workingArgs.length() - firstNonSpace);
+      }
+      // Finally define the application
+      workingApp = workingApp.substr(1, nextQuote - 1);
     }
   }
-  workingApp = ELExpandVars(workingApp);
-  workingApp = ELGetAbsolutePath(workingApp);
 
-  specialFlags = ELGetFileSpecialFlags(appToParse);
+  specialFlags = ELGetFileSpecialFlags(workingApp); //get the flags before a full path is resolved; this way internal commands, CLSIDs, etc.
+  //won't be contaminated by ELGetAbsolutePath
 
+  //handle any special command formats: CLSID, internal command, or URL
   if (((specialFlags & SF_CLSID) == SF_CLSID) || ((specialFlags & SF_INTERNALCOMMAND) == SF_INTERNALCOMMAND) || ((specialFlags & SF_URL) == SF_URL))
   {
-    wcscpy(program, appToParse.c_str());
+    wcscpy(program, workingApp.c_str());
+    wcscpy(arguments, workingArgs.c_str());
     return true;
   }
 
-  workingArgs = ELGetFileArguments(workingApp);
-  workingApp = ELStripFileArguments(workingApp);
+  //If there's no special type match for the command being parsed, it must be a file/folder. Expand it to a full, absolute path so any file functions won't error out
+  workingApp = ELExpandVars(workingApp);
+  workingApp = ELGetAbsolutePath(workingApp);
+
+  if (specialFlags == SF_NOTHING) //if we got no results from the last flags check, it's probably because we passed in a file/folder path that
+    //wasn't fully expanded or had arguments; now that the path is fully cleaned up, we should get a result
+  {
+    specialFlags = ELGetFileSpecialFlags(workingApp);
+  }
 
   // Bail if workingApp is a directory, UNC Path or it exists
-  if (((specialFlags & SF_DIRECTORY) == SF_DIRECTORY) || ((specialFlags & SF_URL) == SF_URL) || ELFileExists(workingApp))
+  if (((specialFlags & SF_DIRECTORY) == SF_DIRECTORY) || ((specialFlags & SF_UNC) == SF_UNC) || ELFileExists(workingApp))
   {
     wcscpy(program, workingApp.c_str());
     wcscpy(arguments, workingArgs.c_str());
@@ -115,7 +147,7 @@ bool ELParseCommand(std::wstring appToParse, WCHAR* program, WCHAR* arguments)
   }
 
   wcscpy(pathTmp, (ELExhaustivelyFindFilePath(workingApp)).c_str());
-  if (wcsicmp(pathTmp, TEXT("")) != 0)
+  if (_wcsicmp(pathTmp, TEXT("")) != 0)
   {
     wcscpy(program, pathTmp);
     wcscpy(program, workingArgs.c_str());
@@ -129,7 +161,7 @@ bool ELParseCommand(std::wstring appToParse, WCHAR* program, WCHAR* arguments)
   {
     // If a separator is found, check with extension to see if its valid
     wcscpy(pathTmp, workingApp.substr(0, nextSeparator).c_str());
-    if ((ELExhaustivelyFindFilePath(pathTmp) != TEXT("")) || (ELIsInternalCommand(pathTmp)))
+    if (ELExhaustivelyFindFilePath(pathTmp) != TEXT(""))
     {
       // If it is, copy it to program and set validSeparator
       wcscpy(program, pathTmp);
@@ -304,53 +336,77 @@ std::wstring ELGetFileExtension(std::wstring filePath)
 
 std::wstring ELGetFileArguments(std::wstring filePath)
 {
-  WCHAR tempArgs[MAX_PATH], tempPath[MAX_PATH];
-  WCHAR* tempArgsPtr;
+  /*WCHAR tempArgs[MAX_PATH];
 
   wcscpy(tempArgs, filePath.c_str());
-  tempArgsPtr = tempArgs;
-  wcscpy(tempArgs, PathGetArgs(tempArgsPtr));
+  wcscpy(tempArgs, PathGetArgs(tempArgs));
 
-  if (wcsicmp(tempArgs, TEXT("")) == 0)
+  return tempArgs;*/
+
+  std::wstring workingPath = filePath;
+  LPWSTR* argList;
+  int argCount;
+  std::wstring tempArgs;
+
+  if (workingPath.empty()) //CommandLineToArgvW breaks if the lpCmdLine parameter is empty
+    workingPath = ELGetCurrentPath();
+
+  argList = CommandLineToArgvW(workingPath.c_str(), &argCount);
+
+  for (int counter = 1; counter < argCount; counter++) //ignore the first element (counter = 0) because that's the base app, not args
   {
-    ELParseCommand(filePath, tempPath, tempArgs);
+    tempArgs = tempArgs + TEXT(" ") + argList[counter];
   }
+
+  LocalFree(argList);
 
   return tempArgs;
 }
 
 std::wstring ELStripFileArguments(std::wstring filePath)
 {
-  WCHAR tempPath[MAX_PATH], tempArgs[MAX_PATH];
-  WCHAR* tempPathPtr;
+  /*WCHAR tempPath[MAX_PATH];
 
   wcscpy(tempPath, filePath.c_str());
-  tempPathPtr = tempPath;
-  PathRemoveArgs(tempPathPtr);
-  wcscpy(tempPath, tempPathPtr);
+  PathRemoveArgs(tempPath);
 
-  if (wcsicmp(tempPath, TEXT("")) == 0)
+  return tempPath;*/
+
+  std::wstring workingPath = filePath;
+  LPWSTR* argList;
+  int argCount;
+  std::wstring tempPath = TEXT("");
+
+  if (workingPath.empty()) //CommandLineToArgvW breaks if the lpCmdLine parameter is empty
+    workingPath = ELGetCurrentPath();
+
+  argList = CommandLineToArgvW(workingPath.c_str(), &argCount);
+
+  if (argCount > 0)
   {
-    ELParseCommand(filePath, tempPath, tempArgs);
+    tempPath = argList[0]; //ignore any elements after the first because those are args, not the base app
   }
+
+  LocalFree(argList);
 
   return tempPath;
 }
 
 std::wstring ELGetAbsolutePath(std::wstring relativeFilePath, std::wstring baseDirPath)
 {
-  std::wstring fullyExpandedBasePath = ELExpandVars(baseDirPath);
-  WCHAR originalWorkingDir[MAX_PATH] = TEXT("\0");
-  WCHAR tmpPath[MAX_PATH] = TEXT("\0");
+  std::wstring fullyExpandedRelativePath = ELExpandVars(stripSpecialChars(relativeFilePath));
+  std::wstring fullyExpandedBasePath = ELExpandVars(stripSpecialChars(baseDirPath));
+  WCHAR originalWorkingDir[MAX_PATH] = TEXT("");
+  WCHAR tmpPath[MAX_PATH];
 
-  if (GetCurrentDirectory(MAX_PATH, originalWorkingDir))
+  if ((!fullyExpandedBasePath.empty()) && (GetCurrentDirectory(MAX_PATH, originalWorkingDir)))
   {
     SetCurrentDirectory(fullyExpandedBasePath.c_str());
   }
 
-  GetFullPathName(relativeFilePath.c_str(), MAX_PATH, tmpPath, NULL);
+  GetFullPathName(fullyExpandedRelativePath.c_str(), MAX_PATH, tmpPath, NULL);
 
-  if (wcsicmp(originalWorkingDir, TEXT("\0")) != 0)
+  if (_wcsicmp(originalWorkingDir, TEXT("")) != 0)
   {
     SetCurrentDirectory(originalWorkingDir);  //restore the original working directory if it's been saved
   }
@@ -481,6 +537,48 @@ std::wstring ELExhaustivelyFindFilePath(std::wstring filePath)
   return TEXT("");
 }
 
+std::vector<std::wstring> ELGetFilesInFolder(std::wstring folder, std::wstring fileMask, bool fullPath)
+{
+  std::vector<std::wstring> fileList;
+  std::wstring fileName;
+  WIN32_FIND_DATA fileSearchData;
+  HANDLE searchHandle;
+  std::wstring fullSearchQuery = folder + fileMask;
+
+  searchHandle = FindFirstFile(fullSearchQuery.c_str(), &fileSearchData);
+  if (searchHandle != INVALID_HANDLE_VALUE)
+  {
+    if (fullPath)
+    {
+      fileName = folder;
+      fileName = fileName + fileSearchData.cFileName;
+    }
+    else
+    {
+      fileName = fileSearchData.cFileName;
+    }
+    fileList.push_back(fileName);
+
+    while (FindNextFile(searchHandle, &fileSearchData) != 0)
+    {
+      if (fullPath)
+      {
+        fileName = folder;
+        fileName = fileName + fileSearchData.cFileName;
+      }
+      else
+      {
+        fileName = fileSearchData.cFileName;
+      }
+      fileList.push_back(fileName);
+    }
+  }
+
+  FindClose(searchHandle);
+
+  return fileList;
+}
+
 bool ELFileExists(std::wstring filePath)
 {
   std::wstring tempFile;
@@ -497,46 +595,49 @@ bool ELFileExists(std::wstring filePath)
 
 int ELGetFileSpecialFlags(std::wstring filePath)
 {
-  int flags;
+  std::wstring workingPath = filePath;
+  int flags = SF_NOTHING;
 
-  if (filePath.empty())
+  workingPath = ELExpandVars(workingPath);
+
+  if (workingPath.empty())
   {
     return SF_NOTHING;
   }
 
-  if (IsCLSID(filePath))
+  if (IsCLSID(workingPath))
   {
-    flags = (flags || SF_CLSID);
+    flags = (flags | SF_CLSID);
   }
 
-  if (IsDirectory(filePath))
+  if (IsDirectory(workingPath))
   {
-    flags = (flags || SF_DIRECTORY);
+    flags = (flags | SF_DIRECTORY);
   }
 
-  if (ELIsInternalCommand(filePath))
+  if (ELIsInternalCommand(workingPath))
   {
-    flags = (flags || SF_INTERNALCOMMAND);
+    flags = (flags | SF_INTERNALCOMMAND);
   }
 
-  if (IsShortcut(filePath))
+  if (IsShortcut(workingPath))
   {
-    flags = (flags || SF_SHORTCUT);
+    flags = (flags | SF_SHORTCUT);
   }
 
-  if (ELGetSpecialFolderIDFromPath(filePath) != 0)
+  if ((ELGetSpecialFolderIDFromPath(workingPath) != 0) || (ELGetSpecialFolderIDFromName(workingPath) != 0))
   {
-    flags = (flags || SF_SPECIALFOLDER);
+    flags = (flags | SF_SPECIALFOLDER);
   }
 
-  if (IsURL(filePath))
+  if (IsURL(workingPath))
   {
-    flags = (flags || SF_URL);
+    flags = (flags | SF_URL);
   }
 
-  if ((flags == SF_NOTHING) && (ELFileExists(filePath)))
+  if ((flags == SF_NOTHING) && (ELFileExists(workingPath)))
   {
-    flags = (flags || SF_FILE);
+    flags = SF_FILE;
   }
 
   return flags;
@@ -548,15 +649,15 @@ std::wstring ELGetFileTypeCommand(std::wstring document, std::wstring docArgs)
   std::wstring quotedDoc, commandLine;
   WCHAR docExecutable[MAX_LINE_LENGTH], shortDoc[MAX_LINE_LENGTH];
   DWORD bufferSize = MAX_LINE_LENGTH;
-  bool isDirectory = ((ELGetFileSpecialFlags(document) & SF_DIRECTORY) == SF_DIRECTORY);
+  int specialFlags = ELGetFileSpecialFlags(document);
 
-  if (isDirectory)
+  if ((specialFlags & SF_DIRECTORY) == SF_DIRECTORY)
   {
     extension = TEXT("Folder");
   }
 
   // Don't attempt to determine URL handler
-  if ((ELGetFileSpecialFlags(document) & SF_URL) == SF_URL)
+  if ((specialFlags & SF_URL) == SF_URL)
   {
     return TEXT("");
   }
@@ -578,7 +679,7 @@ std::wstring ELGetFileTypeCommand(std::wstring document, std::wstring docArgs)
   commandLine = docExecutable;
   commandLine = ELwstringReplace(commandLine, TEXT("/idlist,%I,"), TEXT(""), true);
   commandLine = ELwstringReplace(commandLine, TEXT("%*"), docArgs, false);
-  if (isDirectory)
+  if ((specialFlags & SF_DIRECTORY) == SF_DIRECTORY)
   {
     commandLine = ELwstringReplace(commandLine, TEXT("%L"), quotedDoc, true);
   }
@@ -749,7 +850,7 @@ bool ELIsFileTypeExecutable(std::wstring fileExtension)
   return (executableExtensions.find(extension) != std::wstring::npos);
 }
 
-bool ELExecuteFileOrCommand(std::wstring application, std::wstring arguments, std::wstring workingDir, int nShow)
+bool ELExecuteFileOrCommand(std::wstring application, std::wstring arguments, std::wstring workingDir, int nShow, std::wstring verb)
 {
   bool result = false;
   int specialFlags = ELGetFileSpecialFlags(application);
@@ -766,7 +867,7 @@ bool ELExecuteFileOrCommand(std::wstring application, std::wstring arguments, st
   else
   {
     fullApplicationPath = application + TEXT(" ") + arguments;
-    result = Execute(fullApplicationPath, workingDir, nShow);
+    result = Execute(fullApplicationPath, workingDir, nShow, verb);
   }
 
   return result;
@@ -982,12 +1083,12 @@ std::map<int, std::wstring> GetSpecialFolderMap()
   return specialFolderMap;
 }
 
-bool Execute(std::wstring application, std::wstring workingDir, int nShow)
+bool Execute(std::wstring application, std::wstring workingDir, int nShow, std::wstring verb)
 {
   WCHAR program[MAX_PATH], workingDirectory[MAX_PATH], arguments[MAX_LINE_LENGTH];
   WCHAR commandLine[MAX_LINE_LENGTH];
   std::wstring workingString = application;
-  std::wstring verb;
+  std::wstring workingVerb = verb;
   int specialFlags;
   SHORTCUTINFO shortcutInfo;
   SHELLEXECUTEINFO sei;
@@ -1005,7 +1106,7 @@ bool Execute(std::wstring application, std::wstring workingDir, int nShow)
   {
     if (workingString.at(0) == '@')
     {
-      verb = TEXT("runas");
+      workingVerb = TEXT("runas");
       workingString = workingString.substr(1);
     }
   }
@@ -1025,7 +1126,7 @@ bool Execute(std::wstring application, std::wstring workingDir, int nShow)
   {
     if (shortcutInfo.runAs)
     {
-      verb = TEXT("runas");
+      workingVerb = TEXT("runas");
     }
 
     wcscpy(program, shortcutInfo.Path);
@@ -1073,13 +1174,13 @@ bool Execute(std::wstring application, std::wstring workingDir, int nShow)
   // If the program doesn't exist or is not a URL return false so as to not
   // generate stray DDE calls
   specialFlags = ELGetFileSpecialFlags(program);
-  if (!ELFileExists(program) && ((specialFlags & SF_URL) != SF_URL) && ((specialFlags & SF_CLSID) != SF_CLSID))
+  if ((!ELFileExists(program)) && ((specialFlags & SF_URL) != SF_URL) && ((specialFlags & SF_CLSID) != SF_CLSID))
   {
     return false;
   }
 
   wcscpy(commandLine, ELGetFileTypeCommand(program, arguments).c_str());
-  if (wcslen(commandLine) > 0)
+  if (wcslen(commandLine) == 0)
   {
     swprintf(commandLine, TEXT("\"%ls\" %ls"), program, arguments);
   }
@@ -1089,7 +1190,7 @@ bool Execute(std::wstring application, std::wstring workingDir, int nShow)
     return false;
   }
 
-  if (verb.empty())
+  if (workingVerb.empty())
   {
     if (CreateProcess(NULL,
                       commandLine,
@@ -1115,7 +1216,7 @@ bool Execute(std::wstring application, std::wstring workingDir, int nShow)
   sei.lpFile = program;
   sei.lpParameters = arguments;
   sei.lpDirectory = workingDirectory;
-  sei.lpVerb = verb.c_str();
+  sei.lpVerb = workingVerb.c_str();
   sei.nShow = nShow;
 
   return (ShellExecuteEx(&sei) == TRUE);
@@ -1133,6 +1234,11 @@ bool ExecuteSpecialFolder(std::wstring folder)
   WCHAR command[MAX_LINE_LENGTH];
   std::wstring guid, classID;
   DWORD bufferSize = MAX_LINE_LENGTH;
+
+  if (specialFolderID == 0)
+  {
+    specialFolderID = ELGetSpecialFolderIDFromPath(folder);
+  }
 
   if (specialFolderID == 0)
   {
@@ -1206,4 +1312,35 @@ bool ExecuteSpecialFolder(std::wstring folder)
   }
 
   return returnValue;
+}
+
+std::wstring stripSpecialChars(std::wstring filePath)
+{
+  std::wstring workingPath = filePath;
+  bool successfulMatch = true;
+
+  while (successfulMatch)
+  {
+    successfulMatch = false;
+
+    if ((workingPath.size() >= 1) && (workingPath.at(0) == ' '))
+    {
+      workingPath = workingPath.substr(1);
+      successfulMatch = true;
+    }
+
+    if ((workingPath.size() >= 1) && (workingPath.at(workingPath.size() - 1) == ' '))
+    {
+      workingPath = workingPath.substr(0, workingPath.size() - 1);
+      successfulMatch = true;
+    }
+
+    if ((workingPath.size() >= 2) && (workingPath.at(0) == '\"') && (workingPath.at(workingPath.size() - 1) == '\"'))
+    {
+      workingPath = workingPath.substr(1, workingPath.size() - 2);
+      successfulMatch = true;
+    }
+  }
+
+  return workingPath;
 }

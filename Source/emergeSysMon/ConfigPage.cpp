@@ -188,7 +188,7 @@ bool ConfigPage::UpdateSettings(HWND hwndDlg)
   {
     success = false;
   }
-  pSettings->SetSnapMove(success);
+  pSettings->SetSnapMove((success == TRUE)); //explicitly convert from BOOL to bool, since an implicit conversion triggers a compiler warning in Visual Studio
 
   if (SendDlgItemMessage(hwndDlg, IDC_SNAPSIZE, BM_GETCHECK, 0, 0) == BST_CHECKED)
   {
@@ -198,7 +198,7 @@ bool ConfigPage::UpdateSettings(HWND hwndDlg)
   {
     success = false;
   }
-  pSettings->SetSnapSize(success);
+  pSettings->SetSnapSize((success == TRUE)); //explicitly convert from BOOL to bool, since an implicit conversion triggers a compiler warning in Visual Studio
 
   if (SendDlgItemMessage(hwndDlg, IDC_CLICKTHROUGH, BM_GETCHECK, 0, 0) == BST_CHECKED)
   {
@@ -220,7 +220,7 @@ bool ConfigPage::UpdateSettings(HWND hwndDlg)
   {
     success = false;
   }
-  pSettings->SetMonitorCPU(success);
+  pSettings->SetMonitorCPU((success == TRUE)); //explicitly convert from BOOL to bool, since an implicit conversion triggers a compiler warning in Visual Studio
 
   pSettings->SetMonitorCommitCharge(
     SendDlgItemMessage(hwndDlg, IDC_MONITORCOMMIT, BM_GETCHECK, 0, 0) == BST_CHECKED);

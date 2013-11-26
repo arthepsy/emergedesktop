@@ -72,12 +72,18 @@ HINSTANCE emergeLibGlobals::getEmergeLibInstance()
 {
   static emergeLibGlobals* globals;
 
+  if (globals == NULL)
+    globals = new emergeLibGlobals;
+
   return globals->emergeLibInstance;
 }
 
 HMODULE emergeLibGlobals::getMprDLL()
 {
   static emergeLibGlobals* globals;
+
+  if (globals == NULL)
+    globals = new emergeLibGlobals;
 
   return globals->mprDLL;
 }
@@ -86,12 +92,18 @@ HMODULE emergeLibGlobals::getShell32DLL()
 {
   static emergeLibGlobals* globals;
 
+  if (globals == NULL)
+    globals = new emergeLibGlobals;
+
   return globals->shell32DLL;
 }
 
 HMODULE emergeLibGlobals::getUser32DLL()
 {
   static emergeLibGlobals* globals;
+
+  if (globals == NULL)
+    globals = new emergeLibGlobals;
 
   return globals->user32DLL;
 }
@@ -100,6 +112,9 @@ HMODULE emergeLibGlobals::getKernel32DLL()
 {
   static emergeLibGlobals* globals;
 
+  if (globals == NULL)
+    globals = new emergeLibGlobals;
+
   return globals->kernel32DLL;
 }
 
@@ -107,12 +122,18 @@ HMODULE emergeLibGlobals::getDwmapiDLL()
 {
   static emergeLibGlobals* globals;
 
+  if (globals == NULL)
+    globals = new emergeLibGlobals;
+
   return globals->dwmapiDLL;
 }
 
 HMODULE emergeLibGlobals::getShlwapiDLL()
 {
   static emergeLibGlobals* globals;
+
+  if (globals == NULL)
+    globals = new emergeLibGlobals;
 
   return globals->shlwapiDLL;
 }

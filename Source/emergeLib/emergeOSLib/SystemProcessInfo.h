@@ -25,10 +25,19 @@
 
 #define UNICODE 1
 
+#ifdef _MSC_VER
+#define _CRT_SECURE_NO_WARNINGS 1 //suppress warnings about old versions of wcscpy, wcscat, etc.
+#define _CRT_NON_CONFORMING_SWPRINTFS 1 //suppress warnings about old swprintf format
+#endif
+
 #include <windows.h>
 #include <psapi.h>
+#include <shlwapi.h>
 #include <string>
 #include "../emergeOSLib.h"
+
+//Helper functions
+bool MapDevicePathToDrivePath(LPWSTR path);
 
 //TODO: expand this into a full-fledged system/process monitoring API.
 //Add functions for monitoring everything from general memory usage to per-process memory usage to (if possible) HDD activity.

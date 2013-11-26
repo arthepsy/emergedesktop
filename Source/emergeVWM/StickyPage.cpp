@@ -576,7 +576,7 @@ bool StickyPage::DoSave(HWND hwndDlg)
   EnableWindow(fileWnd, false);
   edit = false;
   lvSortInfo.listWnd = listWnd;
-  ret = ListView_SortItemsEx(listWnd, ListViewCompareProc, (LPARAM)&lvSortInfo);
+  ret = (ListView_SortItemsEx(listWnd, ListViewCompareProc, (LPARAM)&lvSortInfo) == TRUE); //explicitly convert from BOOL to bool, since an implicit conversion triggers a compiler warning in Visual Studio
 
   return ret;
 }

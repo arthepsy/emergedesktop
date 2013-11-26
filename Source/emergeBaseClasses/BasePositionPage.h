@@ -23,6 +23,13 @@
 #ifndef __GUARD_fddfdd4d_2f6d_4a5f_8783_5c7c35ba6411
 #define __GUARD_fddfdd4d_2f6d_4a5f_8783_5c7c35ba6411
 
+#define UNICODE 1
+
+#ifdef _MSC_VER
+#pragma warning(push) //store the existing compiler warning level
+#pragma warning(disable: 4251) //'identifier' : class 'type' needs to have dll-interface to be used by clients of class 'type2'
+#endif
+
 #ifdef EMERGEBASECLASSES_EXPORTS
 #undef DLL_EXPORT
 #define DLL_EXPORT  __declspec(dllexport)
@@ -69,5 +76,8 @@ private:
   std::tr1::shared_ptr<BaseSettings> pSettings;
 };
 
+#ifdef _MSC_VER
+#pragma warning(pop) //restore the old compiler warning level
 #endif
 
+#endif

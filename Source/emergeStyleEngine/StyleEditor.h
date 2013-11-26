@@ -27,6 +27,14 @@
 
 #define MAX_LINE_LENGTH 4096
 
+#ifdef _MSC_VER
+#pragma warning(push) //store the existing compiler warning level
+#pragma warning(disable: 4251) //'identifier' : class 'type' needs to have dll-interface to be used by clients of class 'type2'
+
+#define _CRT_SECURE_NO_WARNINGS 1 //suppress warnings about old versions of wcscpy, wcscat, etc.
+#define _CRT_NON_CONFORMING_SWPRINTFS 1 //suppress warnings about old swprintf format
+#endif
+
 #undef _WIN32_IE
 #define _WIN32_IE	0x501
 
@@ -104,5 +112,9 @@ private:
   void ShowPanel(HTREEITEM panel);
   HTREEITEM hitemOpacity, hitemColor, hitemGradient, hitemMisc;
 };
+
+#ifdef _MSC_VER
+#pragma warning(pop) //restore the old compiler warning level
+#endif
 
 #endif

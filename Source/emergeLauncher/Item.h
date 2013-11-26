@@ -34,6 +34,7 @@
 #include "../emergeGraphics/emergeGraphics.h"
 #include "../emergeLib/emergeCoreLib.h"
 #include "../emergeLib/emergeFileRegistryLib.h"
+#include "../emergeLib/emergeItemDefinitions.h"
 #include "../emergeLib/emergeUtilityLib.h"
 
 // Define icon and tip settings
@@ -46,28 +47,6 @@
 #ifndef GIL_DEFAULTICON
 #define GIL_DEFAULTICON 64
 #endif
-
-typedef enum _ITEMTYPE
-{
-  IT_SEPARATOR = 0,
-  IT_EXECUTABLE,
-  IT_INTERNAL_COMMAND,
-  IT_DATE_TIME,
-  IT_SPECIAL_FOLDER,
-  IT_ENTIRE_FOLDER,
-  IT_LIVE_FOLDER,
-  IT_LIVE_FOLDER_ITEM,
-  IT_FILE,
-  IT_TASK,
-  IT_SETTING_ITEM,
-  IT_HELP_ITEM,
-  IT_XML_MENU = 100,
-  IT_FILE_MENU,
-  IT_TASKS_MENU,
-  IT_SETTINGS_MENU,
-  IT_HELP_MENU,
-  IT_FILE_SUBMENU
-} ITEMTYPE;
 
 //====================
 // The Item Class

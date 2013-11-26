@@ -514,7 +514,7 @@ bool IconHidePage::DoSave(HWND hwndDlg)
   EnableWindow(appWnd, false);
   EnableWindow(listWnd, true);
   lvSortInfo.listWnd = listWnd;
-  ret = ListView_SortItemsEx(listWnd, ListViewCompareProc, (LPARAM)&lvSortInfo);
+  ret = (ListView_SortItemsEx(listWnd, ListViewCompareProc, (LPARAM)&lvSortInfo) == TRUE); //explicitly convert from BOOL to bool, since an implicit conversion triggers a compiler warning in Visual Studio
 
   return ret;
 }

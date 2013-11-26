@@ -186,7 +186,7 @@ INT_PTR PositionPage::DoNotify(HWND hwndDlg, LPARAM lParam)
 
 bool PositionPage::UpdateSettings(HWND hwndDlg)
 {
-  BOOL success = false;
+  bool success = false;
   std::wstring tmpValue;
   WCHAR tmp[MAX_LINE_LENGTH];
 

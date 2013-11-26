@@ -20,7 +20,7 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
   */
 
-#define UNICODE
+#define UNICODE 1
 #define _WINGDI_
 
 #include "../hgversion.h"

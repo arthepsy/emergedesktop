@@ -27,6 +27,11 @@
 
 #define MAX_LINE_LENGTH 4096
 
+#ifdef _MSC_VER
+#define _CRT_SECURE_NO_WARNINGS 1 //suppress warnings about old versions of wcscpy, wcscat, etc.
+#define _CRT_NON_CONFORMING_SWPRINTFS 1 //suppress warnings about old swprintf format
+#endif
+
 #undef _WIN32_IE
 #define _WIN32_IE 0x0501
 
@@ -35,10 +40,6 @@
 
 #undef WINVER
 #define WINVER 0x0501
-
-#ifndef GIL_DEFAULTICON
-#define GIL_DEFAULTICON 64
-#endif
 
 #define ICON_LOOKUP_TIMEOUT 1000
 
@@ -60,6 +61,29 @@
 #include "BImage.h"
 #include "emergeGraphics.h"
 #include "resource.h"
+
+//GetVersionEx is deprecated in Visual Studio, to be replaced by IsWindows* functions. It's supposed to be deprecated
+//in other compilers too, but so far only VS has the replacements implemented. So we'll have to roll our own for other
+//compilers until GCC gets around to adding proper support.
+#ifdef _MSC_VER
+#include <versionhelpers.h>
+#else
+inline bool IsWindows7OrGreater()
+{
+  OSVERSIONINFO osv;
+
+  ZeroMemory(&osv, sizeof(osv));
+
+  osv.dwOSVersionInfoSize = sizeof(osv);
+  GetVersionEx(&osv);
+
+  return ((osv.dwMajorVersion + (osv.dwMinorVersion / 10.0)) >= 6.1);
+}
+#endif
+
+#ifndef GIL_DEFAULTICON
+#define GIL_DEFAULTICON 64
+#endif
 
 typedef UINT (WINAPI* fnPrivateExtractIcons)(LPCTSTR, int, int, int, HICON*, UINT*, UINT, UINT);
 static fnPrivateExtractIcons MSPrivateExtractIcons = NULL;

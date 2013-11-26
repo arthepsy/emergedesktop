@@ -27,6 +27,10 @@
 
 #define MAX_LINE_LENGTH 4096
 
+#ifdef _MSC_VER
+#define _CRT_SECURE_NO_WARNINGS 1 //suppress warnings about old versions of wcscpy, wcscat, etc.
+#endif
+
 #undef _WIN32_IE
 #define _WIN32_IE	0x501
 

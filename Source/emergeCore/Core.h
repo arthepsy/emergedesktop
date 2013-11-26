@@ -25,6 +25,11 @@
 
 #define UNICODE 1
 
+#ifdef _MSC_VER
+#define _CRT_SECURE_NO_WARNINGS 1 //suppress warnings about old versions of wcscpy, wcscat, etc.
+#define _CRT_NON_CONFORMING_SWPRINTFS 1 //suppress warnings about old swprintf format
+#endif
+
 #ifdef __GNUC__
 #include <tr1/memory>
 #include <tr1/shared_ptr.h>
@@ -32,7 +37,9 @@
 #include <memory>
 #endif
 
+#include <windows.h>
 #include <process.h>
+#include <wtsapi32.h>
 #include <map>
 #include <set>
 #include <string>
@@ -40,7 +47,6 @@
 #include "../emergeLib/emergeOSLib.h"
 #include "Config.h"
 #include "Desktop.h"
-#include "InternalCommandHandler.h"
 #include "LaunchEditor.h"
 #include "MessageControl.h"
 #include "Settings.h"
@@ -51,6 +57,12 @@
 
 typedef std::set<HWND> WindowSet;
 typedef std::map< std::wstring, WindowSet > LaunchMap;
+
+typedef void(__stdcall* lpfnMSSwitchToThisWindow)(HWND, BOOL);
+typedef BOOL(__stdcall* lpfnWTSRegisterSessionNotification)(HWND, DWORD);
+typedef BOOL(__stdcall* lpfnWTSUnRegisterSessionNotification)(HWND);
+
+static const WCHAR emergeCoreClass[] = TEXT("EmergeDesktopCore");
 
 static const UINT TASKBAR_CREATED = RegisterWindowMessage(TEXT("TaskbarCreated"));
 

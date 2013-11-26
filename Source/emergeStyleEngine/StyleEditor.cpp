@@ -488,19 +488,28 @@ BOOL StyleEditor::DoInitDialog(HWND hwndDlg, bool updatePos)
     tvInsert.item.mask = TVIF_TEXT;
     tvInsert.item.pszText = (WCHAR*)TEXT("Opacity");
     hitemOpacity = TreeView_InsertItem(treeWnd, &tvInsert);
-    panelMap.insert(std::pair<HTREEITEM, PanelSet*>(hitemOpacity, new PanelSet));
+    std::pair < HTREEITEM, std::tr1::shared_ptr<PanelSet> > tmp;
+    tmp.first = hitemOpacity;
+    tmp.second = static_cast<std::tr1::shared_ptr<PanelSet> >(new PanelSet);
+    panelMap.insert(tmp);
 
     tvInsert.item.pszText = (WCHAR*)TEXT("Color");
     hitemColor = TreeView_InsertItem(treeWnd, &tvInsert);
-    panelMap.insert(std::pair<HTREEITEM, PanelSet*>(hitemColor, new PanelSet));
+    tmp.first = hitemColor;
+    tmp.second = static_cast<std::tr1::shared_ptr<PanelSet> >(new PanelSet);
+    panelMap.insert(tmp);
 
     tvInsert.item.pszText = (WCHAR*)TEXT("Gradient");
     hitemGradient = TreeView_InsertItem(treeWnd, &tvInsert);
-    panelMap.insert(std::pair<HTREEITEM, PanelSet*>(hitemGradient, new PanelSet));
+    tmp.first = hitemGradient;
+    tmp.second = static_cast<std::tr1::shared_ptr<PanelSet> >(new PanelSet);
+    panelMap.insert(tmp);
 
     tvInsert.item.pszText = (WCHAR*)TEXT("Miscellaneous");
     hitemMisc = TreeView_InsertItem(treeWnd, &tvInsert);
-    panelMap.insert(std::pair<HTREEITEM, PanelSet*>(hitemMisc, new PanelSet));
+    tmp.first = hitemMisc;
+    tmp.second = static_cast<std::tr1::shared_ptr<PanelSet> >(new PanelSet);
+    panelMap.insert(tmp);
 
     BuildPanelMap(hwndDlg);
     (void)TreeView_SelectItem(treeWnd, hitemOpacity);

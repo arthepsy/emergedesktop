@@ -27,14 +27,10 @@
 
 #define MAX_LINE_LENGTH 4096
 
-#define SI_PATH       0x01
-#define SI_WORKINGDIR 0x02
-#define SI_ARGUMENTS  0x04
-#define SI_SHOW       0x08
-#define SI_ICONPATH   0x10
-#define SI_ICONINDEX  0x20
-#define SI_RUNAS      0x40
-#define SI_ALL        SI_PATH|SI_WORKINGDIR|SI_ARGUMENTS|SI_SHOW|SI_ICONPATH|SI_ICONINDEX|SI_RUNAS
+#ifdef _MSC_VER
+#define _CRT_SECURE_NO_WARNINGS 1 //suppress warnings about old versions of wcscpy, wcscat, etc.
+#define _CRT_NON_CONFORMING_SWPRINTFS 1 //suppress warnings about old swprintf format
+#endif
 
 #include <windows.h>
 #include <shlobj.h>
@@ -65,7 +61,8 @@ std::wstring FindFilePathFromRegistry(std::wstring filePath);
 std::wstring CleanPath(std::wstring filePath);
 std::wstring GetSpecialFolderGUID(int folderID);
 std::map<int, std::wstring> GetSpecialFolderMap();
-bool Execute(std::wstring application, std::wstring workingDir = TEXT(""), int nShow = SW_SHOW);
+bool Execute(std::wstring application, std::wstring workingDir = TEXT(""), int nShow = SW_SHOW, std::wstring verb = TEXT(""));
 bool ExecuteSpecialFolder(std::wstring folder);
+std::wstring stripSpecialChars(std::wstring filePath);
 
 #endif

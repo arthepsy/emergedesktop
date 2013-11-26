@@ -27,6 +27,11 @@
 
 #define MAX_LINE_LENGTH 4096
 
+#ifdef _MSC_VER
+#define _CRT_SECURE_NO_WARNINGS 1 //suppress warnings about old versions of wcscpy, wcscat, etc.
+#define _CRT_NON_CONFORMING_SWPRINTFS 1 //suppress warnings about old swprintf format
+#endif
+
 #undef _WIN32_WINNT
 #define _WIN32_WINNT 0x501
 

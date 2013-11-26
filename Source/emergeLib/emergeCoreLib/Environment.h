@@ -30,6 +30,10 @@
 
 #define MAX_LINE_LENGTH 4096
 
+#ifdef _MSC_VER
+#define _CRT_SECURE_NO_WARNINGS 1 //suppress warnings about old versions of wcscpy, wcscat, etc.
+#endif
+
 #ifdef __GNUC__
 #include <tr1/memory>
 #include <tr1/shared_ptr.h>

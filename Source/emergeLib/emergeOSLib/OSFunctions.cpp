@@ -29,8 +29,16 @@ HMODULE ELGetSystemLibrary(std::wstring library)
     return NULL;
   }
 
-  wcscat(libraryPath, TEXT("\\"));
-  wcscat(libraryPath, library.c_str());
+  if (_wcsnicmp(libraryPath, library.c_str(), wcslen(libraryPath)) != 0)
+  {
+    wcscat(libraryPath, TEXT("\\"));
+    wcscat(libraryPath, library.c_str());
+  }
+  else
+  {
+    ZeroMemory(libraryPath, MAX_PATH);
+    wcscpy(libraryPath, library.c_str());
+  }
 
   return GetModuleHandle(libraryPath);
 }
@@ -46,8 +54,15 @@ HMODULE ELGetEmergeLibrary(std::wstring library)
     return NULL;
   }
 
-  libraryPath = libraryPath + TEXT("\\");
-  libraryPath = libraryPath + library;
+  if (ELToLower(libraryPath) != ELToLower(library.substr(0, libraryPath.length())))
+  {
+    libraryPath = libraryPath + TEXT("\\");
+    libraryPath = libraryPath + library;
+  }
+  else
+  {
+    libraryPath = library;
+  }
 
   return GetModuleHandle(libraryPath.c_str());
 }
@@ -61,8 +76,16 @@ HMODULE ELLoadSystemLibrary(std::wstring library)
     return NULL;
   }
 
-  wcscat(libraryPath, TEXT("\\"));
-  wcscat(libraryPath, library.c_str());
+  if (_wcsnicmp(libraryPath, library.c_str(), wcslen(libraryPath)) != 0)
+  {
+    wcscat(libraryPath, TEXT("\\"));
+    wcscat(libraryPath, library.c_str());
+  }
+  else
+  {
+    ZeroMemory(libraryPath, MAX_PATH);
+    wcscpy(libraryPath, library.c_str());
+  }
 
   return LoadLibrary(libraryPath);
 }
@@ -77,8 +100,15 @@ HMODULE ELLoadEmergeLibrary(std::wstring library)
     return NULL;
   }
 
-  libraryPath = libraryPath + TEXT("\\");
-  libraryPath = libraryPath + library;
+  if (ELToLower(libraryPath) != ELToLower(library.substr(0, libraryPath.length())))
+  {
+    libraryPath = libraryPath + TEXT("\\");
+    libraryPath = libraryPath + library;
+  }
+  else
+  {
+    libraryPath = library;
+  }
 
   return LoadLibrary(libraryPath.c_str());
 }
