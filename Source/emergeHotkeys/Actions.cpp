@@ -356,10 +356,10 @@ bool Actions::CheckSaveCount(HWND hwndDlg)
   if ((saveCount != 0) || (deleteCount != 0))
   {
     if (ELMessageBox(hwndDlg,
-                     (WCHAR*)TEXT("All changes you have made in this session will be lost. In order to keep them you\n")
+                     TEXT("All changes you have made in this session will be lost. In order to keep them you\n")
                      TEXT("need to press OK in the emergeHotkeys Configuration dialog.\n\n")
                      TEXT("Are you sure you want to discard all the changes made in this session?"),
-                     (WCHAR*)TEXT("emergeHotkeys"),
+                     TEXT("emergeHotkeys"),
                      ELMB_YESNO | ELMB_ICONQUESTION | ELMB_MODAL) == IDYES)
     {
       return true;
@@ -406,8 +406,8 @@ bool Actions::CheckFields(HWND hwndDlg)
   if (displayCheck)
   {
     if (ELMessageBox(hwndDlg,
-                     (WCHAR*)TEXT("The current hotkey definition will be lost.\n\nDo you wish to continue?"),
-                     (WCHAR*)TEXT("emergeHotkeys"),
+                     TEXT("The current hotkey definition will be lost.\n\nDo you wish to continue?"),
+                     TEXT("emergeHotkeys"),
                      ELMB_YESNO | ELMB_ICONQUESTION | ELMB_MODAL) == IDYES)
     {
       return true;
@@ -520,8 +520,8 @@ bool Actions::DoDelete(HWND hwndDlg)
 
   if (ListView_GetSelectedCount(listWnd) > 1)
   {
-    ELMessageBox(hwndDlg, (WCHAR*)TEXT("You can only delete one item at a time."),
-                 (WCHAR*)TEXT("emergeHotkeys"), ELMB_OK | ELMB_ICONERROR | ELMB_MODAL);
+    ELMessageBox(hwndDlg, TEXT("You can only delete one item at a time."),
+                 TEXT("emergeHotkeys"), ELMB_OK | ELMB_ICONERROR | ELMB_MODAL);
 
     return ret;
   }
@@ -582,8 +582,8 @@ bool Actions::DoModify(HWND hwndDlg)
 
   if (ListView_GetSelectedCount(listWnd) > 1)
   {
-    ELMessageBox(hwndDlg, (WCHAR*)TEXT("You can only delete one item at a time."),
-                 (WCHAR*)TEXT("emergeHotkeys"), ELMB_OK | ELMB_ICONERROR | ELMB_MODAL);
+    ELMessageBox(hwndDlg, TEXT("You can only delete one item at a time."),
+                 TEXT("emergeHotkeys"), ELMB_OK | ELMB_ICONERROR | ELMB_MODAL);
 
     return false;
   }
@@ -934,7 +934,7 @@ bool Actions::DoSave(HWND hwndDlg)
     else
     {
       swprintf(error, TEXT("Failed to register Hotkey combination %ls."), tmpKey);
-      ELMessageBox(GetDesktopWindow(), error, (WCHAR*)TEXT("emergeHotkeys"),
+      ELMessageBox(GetDesktopWindow(), error, TEXT("emergeHotkeys"),
                    ELMB_OK | ELMB_ICONERROR | ELMB_MODAL);
       return false;
     }
@@ -1225,7 +1225,7 @@ bool Actions::DoAbout()
              versionInfo.Version,
              versionInfo.Author);
 
-    ELMessageBox(GetDesktopWindow(), tmp, (WCHAR*)TEXT("emergeHotkeys"),
+    ELMessageBox(GetDesktopWindow(), tmp, TEXT("emergeHotkeys"),
                  ELMB_OK | ELMB_ICONQUESTION | ELMB_MODAL);
 
     ret = true;
@@ -1250,7 +1250,7 @@ bool Actions::KeyCheck(HWND hwndDlg, WPARAM wParam, LPARAM lParam)
           (SendDlgItemMessage(hwndDlg, IDC_ALT, BM_GETCHECK, 0, 0) == BST_UNCHECKED))
       {
         swprintf(tmp, TEXT("Using the Win key with no modifier makes it\nhard to use the Win key for other hotkeys."));
-        ELMessageBox(hwndDlg, tmp, (WCHAR*)TEXT("emergeHotkeys"),
+        ELMessageBox(hwndDlg, tmp, TEXT("emergeHotkeys"),
                      ELMB_OK | ELMB_ICONWARNING | ELMB_MODAL);
 
         return true;

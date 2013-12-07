@@ -195,11 +195,11 @@ bool ELSetTheme(std::wstring theme)
   EnumWindows(ThemeEnum, (LPARAM)theme.c_str());
   if (configXML)
   {
-    section = ELGetXMLSection(configXML.get(), (WCHAR*)TEXT("Theme"), true);
+    section = ELGetXMLSection(configXML.get(), TEXT("Theme"), true);
 
     if (section)
     {
-      ELWriteXMLStringValue(section, (WCHAR*)TEXT("Current"), ELGetThemeName().c_str());
+      ELWriteXMLStringValue(section, TEXT("Current"), ELGetThemeName());
       ELWriteXMLConfig(configXML.get());
 
       ret = true;

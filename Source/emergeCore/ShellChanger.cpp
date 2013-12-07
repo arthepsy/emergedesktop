@@ -774,13 +774,13 @@ bool ShellChanger::DoSaveShell(HWND hwndDlg)
 
   if (GetDlgItemText(hwndDlg, IDC_SHELLNAME, newName, MAX_LINE_LENGTH) == 0)
   {
-    ELMessageBox(hwndDlg, (WCHAR*)TEXT("Shell name cannot be empty"), (WCHAR*)TEXT("emergeCore"),
+    ELMessageBox(hwndDlg, TEXT("Shell name cannot be empty"), TEXT("emergeCore"),
                  ELMB_OK | ELMB_ICONERROR | ELMB_MODAL);
     return false;
   }
   if (GetDlgItemText(hwndDlg, IDC_SHELLCOMMAND, command, MAX_LINE_LENGTH) == 0)
   {
-    ELMessageBox(hwndDlg, (WCHAR*)TEXT("Shell command cannot be empty"), (WCHAR*)TEXT("emergeCore"),
+    ELMessageBox(hwndDlg, TEXT("Shell command cannot be empty"), TEXT("emergeCore"),
                  ELMB_OK | ELMB_ICONERROR | ELMB_MODAL);
     return false;
   }
@@ -798,7 +798,7 @@ bool ShellChanger::DoSaveShell(HWND hwndDlg)
       (_wcsicmp(newName, TEXT("Windows Explorer")) == 0) ||
       (_wcsicmp(newName, TEXT("Emerge Desktop")) == 0))
   {
-    ELMessageBox(hwndDlg, tmp, (WCHAR*)TEXT("emergeCore"),
+    ELMessageBox(hwndDlg, tmp, TEXT("emergeCore"),
                  ELMB_OK | ELMB_ICONERROR | ELMB_MODAL);
     return false;
   }

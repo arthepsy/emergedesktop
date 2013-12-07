@@ -280,7 +280,7 @@ void Settings::BuildHistoryList()
   {
     // Clear the stickyList vector
     historyList.clear();
-    section = ELGetXMLSection(configXML.get(), (WCHAR*)TEXT("History"), false);
+    section = ELGetXMLSection(configXML.get(), TEXT("History"), false);
 
     if (section)
     {
@@ -306,7 +306,7 @@ void Settings::WriteHistoryList()
 
   if (configXML)
   {
-    section = ELGetXMLSection(configXML.get(), (WCHAR*)TEXT("History"), true);
+    section = ELGetXMLSection(configXML.get(), TEXT("History"), true);
 
     if (section)
     {

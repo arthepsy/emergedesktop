@@ -119,7 +119,7 @@ UINT BaseApplet::Initialize(WNDPROC WindowProcedure, LPVOID lpParam, std::tr1::s
 
   if (FAILED(OleInitialize(NULL)))
   {
-    ELMessageBox(GetDesktopWindow(), (WCHAR*)TEXT("COM initialization failed"), baseAppletName,
+    ELMessageBox(GetDesktopWindow(), TEXT("COM initialization failed"), baseAppletName,
                  ELMB_ICONERROR | ELMB_OK | ELMB_MODAL);
     return 0;
   }
@@ -143,7 +143,7 @@ UINT BaseApplet::Initialize(WNDPROC WindowProcedure, LPVOID lpParam, std::tr1::s
   }
   else
   {
-    ELMessageBox(GetDesktopWindow(), (WCHAR*)TEXT("Failed to register as a shell window"), baseAppletName,
+    ELMessageBox(GetDesktopWindow(), TEXT("Failed to register as a shell window"), baseAppletName,
                  ELMB_ICONERROR | ELMB_OK | ELMB_MODAL);
     return 0;
   }

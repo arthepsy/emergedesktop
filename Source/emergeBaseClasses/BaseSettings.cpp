@@ -93,7 +93,7 @@ void BaseSettings::ReadSettings()
     configXML = ELOpenXMLConfig(xmlFile, false);
     if (configXML)
     {
-      section = ELGetXMLSection(configXML.get(), (WCHAR*)TEXT("Settings"), false);
+      section = ELGetXMLSection(configXML.get(), TEXT("Settings"), false);
 
       if (section)
       {
@@ -177,7 +177,7 @@ bool BaseSettings::WriteSettings()
       configXML = ELOpenXMLConfig(xmlFile, true);
       if (configXML)
       {
-        section = ELGetXMLSection(configXML.get(), (WCHAR*)TEXT("Settings"), true);
+        section = ELGetXMLSection(configXML.get(), TEXT("Settings"), true);
 
         if (section)
         {
@@ -207,7 +207,7 @@ void BaseSettings::DoReadSettings(IOHelper& helper)
   zPosition = helper.ReadString(TEXT("ZPosition"), TEXT("normal"));
   horizontalDirection = helper.ReadString(TEXT("HorizontalDirection"), TEXT("right"));
   verticalDirection = helper.ReadString(TEXT("VerticalDirection"), TEXT("down"));
-  directionOrientation = helper.ReadString(TEXT("DirectionOrientation"), (WCHAR*)TEXT("down"));
+  directionOrientation = helper.ReadString(TEXT("DirectionOrientation"), TEXT("down"));
   autoSize = helper.ReadBool(TEXT("AutoSize"), false);
   autoSizeLimit = helper.ReadInt(TEXT("AutoSizeLimit"), 0);
   iconSize = helper.ReadInt(TEXT("IconSize"), 16);
@@ -216,7 +216,7 @@ void BaseSettings::DoReadSettings(IOHelper& helper)
   snapSize = helper.ReadBool(TEXT("SnapSize"), true);
   dynamicPositioning = helper.ReadBool(TEXT("DynamicPositioning"), true);
   clickThrough = helper.ReadInt(TEXT("ClickThrough"), 0);
-  anchorPoint = helper.ReadString(TEXT("AnchorPoint"), (WCHAR*)TEXT("TopLeft"));
+  anchorPoint = helper.ReadString(TEXT("AnchorPoint"), TEXT("TopLeft"));
   startHidden = helper.ReadBool(TEXT("StartHidden"), false);
   titleBarFontString = helper.ReadString(TEXT("TitleBarFont"), TEXT("Arial-16"));
   titleBarText = helper.ReadString(TEXT("TitleBarText"), TEXT(""));

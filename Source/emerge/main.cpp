@@ -37,10 +37,6 @@ int WINAPI WinMain (HINSTANCE hInstance UNUSED,
                     int nCmdShow UNUSED)
 
 {
-  //WCHAR commandLine[MAX_LINE_LENGTH], error[MAX_LINE_LENGTH];
-
-  /*MultiByteToWideChar(CP_ACP, 0, _strlwr(lpCmdLine), (int)strlen(lpCmdLine) + 1, commandLine,
-                      (int)sizeof(commandLine)/(int)sizeof(commandLine[0]));*/
   std::wstring commandLine, error;
 
   commandLine = ELstringTowstring(lpCmdLine, CP_ACP);
@@ -48,7 +44,7 @@ int WINAPI WinMain (HINSTANCE hInstance UNUSED,
   if (commandLine.empty())
   {
     error = TEXT("Usage: emerge <Internal Command>");
-    ELMessageBox(GetDesktopWindow(), error, (WCHAR*)TEXT("emerge"), ELMB_ICONERROR | ELMB_OK | ELMB_MODAL);
+    ELMessageBox(GetDesktopWindow(), error, TEXT("emerge"), ELMB_ICONERROR | ELMB_OK | ELMB_MODAL);
     return 1;
   }
 
@@ -56,7 +52,7 @@ int WINAPI WinMain (HINSTANCE hInstance UNUSED,
   {
     error = TEXT("Failed to execute ");
     error = error + commandLine;
-    ELMessageBox(GetDesktopWindow(), error, (WCHAR*)TEXT("emerge"), ELMB_ICONWARNING | ELMB_OK | ELMB_MODAL);
+    ELMessageBox(GetDesktopWindow(), error, TEXT("emerge"), ELMB_ICONWARNING | ELMB_OK | ELMB_MODAL);
     return 2;
   }
 

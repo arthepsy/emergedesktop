@@ -200,8 +200,8 @@ bool ConfigPage::UpdateSettings(HWND hwndDlg)
   }
   else if (!success)
   {
-    ELMessageBox(GetDesktopWindow(), (WCHAR*)TEXT("Invalid value for AutoSize wrap"),
-                 (WCHAR*)TEXT("emergeTray"), ELMB_OK | ELMB_ICONERROR | ELMB_MODAL);
+    ELMessageBox(GetDesktopWindow(), TEXT("Invalid value for AutoSize wrap"),
+                 TEXT("emergeTray"), ELMB_OK | ELMB_ICONERROR | ELMB_MODAL);
     SetDlgItemInt(hwndDlg, IDC_ICONSPACING, pSettings->GetIconSpacing(), false);
     return false;
   }
@@ -213,8 +213,8 @@ bool ConfigPage::UpdateSettings(HWND hwndDlg)
   }
   else if (!success)
   {
-    ELMessageBox(GetDesktopWindow(), (WCHAR*)TEXT("Invalid value for icon spacing"),
-                 (WCHAR*)TEXT("emergeTray"), ELMB_OK | ELMB_ICONERROR | ELMB_MODAL);
+    ELMessageBox(GetDesktopWindow(), TEXT("Invalid value for icon spacing"),
+                 TEXT("emergeTray"), ELMB_OK | ELMB_ICONERROR | ELMB_MODAL);
     SetDlgItemInt(hwndDlg, IDC_ICONSPACING, pSettings->GetIconSpacing(), false);
     return false;
   }

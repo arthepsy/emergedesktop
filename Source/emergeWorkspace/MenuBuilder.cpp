@@ -91,7 +91,7 @@ bool MenuBuilder::Initialize()
 
   pSettings = std::tr1::shared_ptr<Settings>(new Settings());
   RenameConfigFile();
-  pSettings->Init(menuWnd, (WCHAR*)TEXT("emergeWorkspace"), 0);
+  pSettings->Init(menuWnd, TEXT("emergeWorkspace"), 0);
   pSettings->ReadSettings();
   pItemEditor = std::tr1::shared_ptr<ItemEditor>(new ItemEditor(mainInst, menuWnd));
 
@@ -377,7 +377,7 @@ LRESULT MenuBuilder::DoMenuDrag(HWND hwnd UNUSED, UINT pos, HMENU menu)
 
   UINT CF_EMERGE_MENUITEM = RegisterClipboardFormat(TEXT("CF_EMERGE_MENUITEM"));
   if (CF_EMERGE_MENUITEM == 0)
-    ELMessageBox(GetDesktopWindow(), (WCHAR*)TEXT("Failed to register Emerge Desktop Menu Item clipboard format."), (WCHAR*)TEXT("emergeWorkspace"),
+    ELMessageBox(GetDesktopWindow(), TEXT("Failed to register Emerge Desktop Menu Item clipboard format."), TEXT("emergeWorkspace"),
                  ELMB_OK|ELMB_ICONERROR|ELMB_MODAL);
 
   ZeroMemory(&fmtetc, sizeof(FORMATETC));
@@ -581,7 +581,7 @@ LRESULT MenuBuilder::DoContextMenu()
 
 void MenuBuilder::ElevatedExecute(std::tr1::shared_ptr<MenuItem> menuItem)
 {
-  ELExecuteFileOrCommand(menuItem->GetValue(), TEXT(""), menuItem->GetWorkingDir(), SW_SHOW, TEXT("runas"));
+  ELExecuteFileOrCommand(menuItem->GetValue(), menuItem->GetWorkingDir(), SW_SHOW, TEXT("runas"));
 }
 
 bool MenuBuilder::DropMenuItem(MENUITEMDATA *menuItemData, MENUITEMDATA *dropItemData, HMENU menu, POINT pt)
@@ -642,7 +642,7 @@ bool MenuBuilder::DropMenuItem(MENUITEMDATA *menuItemData, MENUITEMDATA *dropIte
         {
         case IT_XML_MENU:
         {
-          TiXmlElement *subSection = ELGetFirstXMLElementByName(menuItemData->element, (WCHAR*)TEXT("Submenu"), false);
+          TiXmlElement *subSection = ELGetFirstXMLElementByName(menuItemData->element, TEXT("Submenu"), false);
           std::tr1::shared_ptr<MenuListItem> mli(new MenuListItem(menuItemData->type,
                                                  NULL,
                                                  subSection));
@@ -699,7 +699,7 @@ bool MenuBuilder::AddMenuItem(std::tr1::shared_ptr<MenuItem> menuItem)
 
   InsertMenuItem(menuItem->GetMenu(), menuItem->GetID(), FALSE, &menuItemInfo);
 
-  newElement = ELSetSiblingXMLElementByName(menuItem->GetElement(), (WCHAR*)TEXT("item"));
+  newElement = ELSetSiblingXMLElementByName(menuItem->GetElement(), TEXT("item"));
   if (!newElement)
     return false;
 
@@ -1949,7 +1949,7 @@ LRESULT MenuBuilder::ExecuteMenuItem(UINT_PTR itemID)
       if (!ELExecuteFileOrCommand(menuItem->GetValue()))
         {
           swprintf(error, TEXT("Failed to execute \"%ls\""), menuItem->GetValue());
-          ELMessageBox(GetDesktopWindow(), error, (WCHAR*)TEXT("emergeWorkspace"), ELMB_ICONWARNING|ELMB_OK);
+          ELMessageBox(GetDesktopWindow(), error, TEXT("emergeWorkspace"), ELMB_ICONWARNING|ELMB_OK);
         }
       break;
     case IT_TASK:
@@ -2142,7 +2142,7 @@ void MenuBuilder::ExecuteXMLMenuItem(UINT type, WCHAR *value, WCHAR *workingDir)
     }
 
   if (!ret)
-    ELMessageBox(GetDesktopWindow(), error, (WCHAR*)TEXT("emergeWorkspace"), ELMB_ICONWARNING|ELMB_OK);
+    ELMessageBox(GetDesktopWindow(), error, TEXT("emergeWorkspace"), ELMB_ICONWARNING|ELMB_OK);
 }
 
 void MenuBuilder::ExecuteSettingsMenuItem(UINT index)

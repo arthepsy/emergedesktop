@@ -183,7 +183,7 @@ bool ConfigPage::UpdateSettings(HWND hwndDlg)
     pSettings->SetTopBorder(result);
   else
     {
-      ELMessageBox(hwndDlg, (WCHAR*)TEXT("Invalid value for top border"), (WCHAR*)TEXT("emergeCore"),
+      ELMessageBox(hwndDlg, TEXT("Invalid value for top border"), TEXT("emergeCore"),
                    ELMB_OK|ELMB_ICONERROR|ELMB_MODAL);
       SetDlgItemInt(hwndDlg, IDC_TOPBORDER, pSettings->GetTopBorder(), false);
       return false;
@@ -194,7 +194,7 @@ bool ConfigPage::UpdateSettings(HWND hwndDlg)
     pSettings->SetLeftBorder(result);
   else
     {
-      ELMessageBox(hwndDlg, (WCHAR*)TEXT("Invalid value for left border"), (WCHAR*)TEXT("emergeCore"),
+      ELMessageBox(hwndDlg, TEXT("Invalid value for left border"), TEXT("emergeCore"),
                    ELMB_OK|ELMB_ICONERROR|ELMB_MODAL);
       SetDlgItemInt(hwndDlg, IDC_LEFTBORDER, pSettings->GetLeftBorder(), false);
       return false;
@@ -205,7 +205,7 @@ bool ConfigPage::UpdateSettings(HWND hwndDlg)
     pSettings->SetRightBorder(result);
   else
     {
-      ELMessageBox(hwndDlg, (WCHAR*)TEXT("Invalid value for right border"), (WCHAR*)TEXT("emergeCore"),
+      ELMessageBox(hwndDlg, TEXT("Invalid value for right border"), TEXT("emergeCore"),
                    ELMB_OK|ELMB_ICONERROR|ELMB_MODAL);
       SetDlgItemInt(hwndDlg, IDC_RIGHTBORDER, pSettings->GetRightBorder(), false);
       return false;
@@ -216,7 +216,7 @@ bool ConfigPage::UpdateSettings(HWND hwndDlg)
     pSettings->SetBottomBorder(result);
   else
     {
-      ELMessageBox(hwndDlg, (WCHAR*)TEXT("Invalid value for bottom border"), (WCHAR*)TEXT("emergeCore"),
+      ELMessageBox(hwndDlg, TEXT("Invalid value for bottom border"), TEXT("emergeCore"),
                    ELMB_OK|ELMB_ICONERROR|ELMB_MODAL);
       SetDlgItemInt(hwndDlg, IDC_BOTTOMBORDER, pSettings->GetBottomBorder(), false);
       return false;
@@ -227,7 +227,7 @@ bool ConfigPage::UpdateSettings(HWND hwndDlg)
     pSettings->SetMenuAlpha(result);
   else
     {
-      ELMessageBox(hwndDlg, (WCHAR*)TEXT("Invalid value for menu alpha"), (WCHAR*)TEXT("emergeCore"),
+      ELMessageBox(hwndDlg, TEXT("Invalid value for menu alpha"), TEXT("emergeCore"),
                    ELMB_OK|ELMB_ICONERROR|ELMB_MODAL);
       SetDlgItemInt(hwndDlg, IDC_MENUALPHA, pSettings->GetMenuAlpha(), false);
       return false;

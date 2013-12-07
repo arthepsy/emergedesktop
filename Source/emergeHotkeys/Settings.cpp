@@ -93,7 +93,7 @@ void Settings::WriteList(bool backup)
   configXML = ELOpenXMLConfig(xmlFile, true);
   if (configXML)
   {
-    section = ELGetXMLSection(configXML.get(), (WCHAR*)TEXT("Actions"), true);
+    section = ELGetXMLSection(configXML.get(), TEXT("Actions"), true);
 
     if (section)
     {

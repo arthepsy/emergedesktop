@@ -259,8 +259,8 @@ bool StickyPage::CheckSaveCount(HWND hwndDlg)
   if ((saveCount != 0) || (deleteCount != 0))
   {
     if (ELMessageBox(hwndDlg,
-                     (WCHAR*)TEXT("All current modifications will be lost.  To save and exit press OK.\n\nDo you wish to continue?"),
-                     (WCHAR*)TEXT("emergeVWM"),
+                     TEXT("All current modifications will be lost.  To save and exit press OK.\n\nDo you wish to continue?"),
+                     TEXT("emergeVWM"),
                      ELMB_YESNO | ELMB_ICONQUESTION | ELMB_MODAL) == IDYES)
     {
       return true;
@@ -331,8 +331,8 @@ bool StickyPage::DoEdit(HWND hwndDlg)
 
   if (ListView_GetSelectedCount(listWnd) > 1)
   {
-    ELMessageBox(hwndDlg, (WCHAR*)TEXT("You can only edit one item at a time."),
-                 (WCHAR*)TEXT("emergeLauncher"), ELMB_OK | ELMB_ICONERROR | ELMB_MODAL);
+    ELMessageBox(hwndDlg, TEXT("You can only edit one item at a time."),
+                 TEXT("emergeLauncher"), ELMB_OK | ELMB_ICONERROR | ELMB_MODAL);
 
     return false;
   }
@@ -416,8 +416,8 @@ bool StickyPage::DoDelete(HWND hwndDlg)
 
   if (ListView_GetSelectedCount(listWnd) > 1)
   {
-    ELMessageBox(hwndDlg, (WCHAR*)TEXT("You can only delete one item at a time."),
-                 (WCHAR*)TEXT("emergeVWM"), ELMB_OK | ELMB_ICONERROR | ELMB_MODAL);
+    ELMessageBox(hwndDlg, TEXT("You can only delete one item at a time."),
+                 TEXT("emergeVWM"), ELMB_OK | ELMB_ICONERROR | ELMB_MODAL);
 
     return ret;
   }
@@ -563,7 +563,7 @@ bool StickyPage::DoSave(HWND hwndDlg)
     else
     {
       swprintf(error, TEXT("%ls is already in the sticky application list"), tmp);
-      ELMessageBox(GetDesktopWindow(), error, (WCHAR*)TEXT("emergeVWM"),
+      ELMessageBox(GetDesktopWindow(), error, TEXT("emergeVWM"),
                    ELMB_OK | ELMB_ICONERROR | ELMB_MODAL);
     }
 

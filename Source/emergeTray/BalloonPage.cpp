@@ -373,7 +373,7 @@ bool BalloonPage::UpdateSettings(HWND hwndDlg UNUSED)
   }
   else
   {
-    ELMessageBox(hwndDlg, (WCHAR*)TEXT("Invalid value for alpha"), (WCHAR*)TEXT("emergeCore"),
+    ELMessageBox(hwndDlg, TEXT("Invalid value for alpha"), TEXT("emergeCore"),
                  ELMB_OK | ELMB_ICONERROR | ELMB_MODAL);
     SetDlgItemInt(hwndDlg, IDC_MENUALPHA, pSettings->GetAlpha(), false);
     return false;

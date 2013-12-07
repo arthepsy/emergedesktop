@@ -407,8 +407,8 @@ bool LaunchEditor::CheckSaveCount(HWND hwndDlg)
   if ((saveCount != 0) || (deleteCount != 0))
   {
     if (ELMessageBox(hwndDlg,
-                     (WCHAR*)TEXT("All current modifications will be lost.\n\nDo you wish to continue?"),
-                     (WCHAR*)TEXT("emergeCore"),
+                     TEXT("All current modifications will be lost.\n\nDo you wish to continue?"),
+                     TEXT("emergeCore"),
                      ELMB_YESNO | ELMB_ICONQUESTION | ELMB_MODAL) == IDYES)
     {
       return true;
@@ -435,8 +435,8 @@ bool LaunchEditor::CheckFields(HWND hwndDlg)
   if (GetDlgItemText(hwndDlg, IDC_APPLET, tmp, MAX_LINE_LENGTH) != 0)
   {
     if (ELMessageBox(hwndDlg,
-                     (WCHAR*)TEXT("The current applet will be lost.\n\nDo you wish to continue?"),
-                     (WCHAR*)TEXT("emergeCore"),
+                     TEXT("The current applet will be lost.\n\nDo you wish to continue?"),
+                     TEXT("emergeCore"),
                      ELMB_YESNO | ELMB_ICONQUESTION | ELMB_MODAL) == IDYES)
     {
       return true;
@@ -620,8 +620,8 @@ bool LaunchEditor::DoLaunchMove(HWND hwndDlg, bool up)
 
   if (ListView_GetSelectedCount(listWnd) > 1)
   {
-    ELMessageBox(hwndDlg, (WCHAR*)TEXT("You can only move one item at a time."),
-                 (WCHAR*)TEXT("emergeCore"), ELMB_OK | MB_ICONERROR | ELMB_MODAL);
+    ELMessageBox(hwndDlg, TEXT("You can only move one item at a time."),
+                 TEXT("emergeCore"), ELMB_OK | MB_ICONERROR | ELMB_MODAL);
 
     return ret;
   }
@@ -1086,7 +1086,7 @@ bool LaunchEditor::DoLaunchSave(HWND hwndDlg)
       else
       {
         swprintf(error, TEXT("%ls is already in the applet launch list"), tmp);
-        ELMessageBox(hwndDlg, error, (WCHAR*)TEXT("emergeCore"),
+        ELMessageBox(hwndDlg, error, TEXT("emergeCore"),
                      ELMB_OK | ELMB_ICONERROR | ELMB_MODAL);
       }
 

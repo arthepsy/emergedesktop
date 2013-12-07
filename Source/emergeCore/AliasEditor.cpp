@@ -390,7 +390,7 @@ LRESULT CALLBACK AliasEditor::AppletProc(HWND hwnd, UINT message, WPARAM wParam,
       if (wcslen(action) == 0)
       {
         swprintf(error, TEXT("Action is empty."));
-        ELMessageBox(hwndDlg, error, (WCHAR*)TEXT("emergeCore"),
+        ELMessageBox(hwndDlg, error, TEXT("emergeCore"),
                      ELMB_OK | ELMB_ICONERROR | ELMB_MODAL);
       }
       else
@@ -613,8 +613,8 @@ bool AliasEditor::DoAliasDelete(HWND hwndDlg)
 
   if (ListView_GetSelectedCount(listWnd) > 1)
   {
-    ELMessageBox(hwndDlg, (WCHAR*)TEXT("You can only delete one item at a time."),
-                 (WCHAR*)TEXT("emergeCore"), ELMB_OK | ELMB_ICONERROR | ELMB_MODAL);
+    ELMessageBox(hwndDlg, TEXT("You can only delete one item at a time."),
+                 TEXT("emergeCore"), ELMB_OK | ELMB_ICONERROR | ELMB_MODAL);
 
     return ret;
   }
@@ -681,8 +681,8 @@ bool AliasEditor::DoAliasAdd(HWND hwndDlg)
 
     if (selectedCount > 1)
     {
-      ELMessageBox(hwndDlg, (WCHAR*)TEXT("You can only edit one item at a time."),
-                   (WCHAR*)TEXT("emergeCore"), ELMB_OK | ELMB_ICONERROR | ELMB_MODAL);
+      ELMessageBox(hwndDlg, TEXT("You can only edit one item at a time."),
+                   TEXT("emergeCore"), ELMB_OK | ELMB_ICONERROR | ELMB_MODAL);
       edit = false;
       return false;
     }
@@ -788,7 +788,7 @@ bool AliasEditor::AliasCheck(HWND hwndDlg, WCHAR* alias)
   if (alias[0] != '.')
   {
     swprintf(error, TEXT("Alias must start with a period (.)"));
-    ELMessageBox(hwndDlg, error, (WCHAR*)TEXT("emergeCore"),
+    ELMessageBox(hwndDlg, error, TEXT("emergeCore"),
                  ELMB_OK | ELMB_ICONERROR | ELMB_MODAL);
     return false;
   }
@@ -798,7 +798,7 @@ bool AliasEditor::AliasCheck(HWND hwndDlg, WCHAR* alias)
     if (alias[i] == ' ')
     {
       swprintf(error, TEXT("Alias cannot contain spaces"));
-      ELMessageBox(hwndDlg, error, (WCHAR*)TEXT("emergeCore"),
+      ELMessageBox(hwndDlg, error, TEXT("emergeCore"),
                    ELMB_OK | ELMB_ICONERROR | ELMB_MODAL);
       return false;
     }
@@ -881,7 +881,7 @@ bool AliasEditor::DoAliasSave(HWND hwndDlg)
       else
       {
         swprintf(error, TEXT("%ls is already in the applet launch list"), alias);
-        ELMessageBox(hwndDlg, error, (WCHAR*)TEXT("emergeCore"),
+        ELMessageBox(hwndDlg, error, TEXT("emergeCore"),
                      ELMB_OK | ELMB_ICONERROR | ELMB_MODAL);
       }
     }

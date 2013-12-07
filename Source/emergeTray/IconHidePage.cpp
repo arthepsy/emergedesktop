@@ -235,8 +235,8 @@ bool IconHidePage::CheckSaveCount(HWND hwndDlg)
   if ((saveCount != 0) || (deleteCount != 0))
   {
     if (ELMessageBox(hwndDlg,
-                     (WCHAR*)TEXT("All currently modifications will be lost.  To save and exit press OK.\n\nDo you wish to continue?"),
-                     (WCHAR*)TEXT("emergeLauncher"),
+                     TEXT("All currently modifications will be lost.  To save and exit press OK.\n\nDo you wish to continue?"),
+                     TEXT("emergeLauncher"),
                      ELMB_YESNO | ELMB_ICONQUESTION | ELMB_MODAL) == IDYES)
     {
       return true;
@@ -456,7 +456,7 @@ bool IconHidePage::DoSave(HWND hwndDlg)
     if (ListView_FindItem(listWnd, 0, &lvFI) != -1)
     {
       swprintf(error, TEXT("%ls is already in the hidden icon list"), tmp);
-      ELMessageBox(GetDesktopWindow(), error, (WCHAR*)TEXT("emergeTray"),
+      ELMessageBox(GetDesktopWindow(), error, TEXT("emergeTray"),
                    ELMB_OK | ELMB_ICONERROR | ELMB_MODAL);
     }
     else
@@ -531,8 +531,8 @@ bool IconHidePage::DoDelete(HWND hwndDlg)
 
   if (ListView_GetSelectedCount(listWnd) > 1)
   {
-    ELMessageBox(hwndDlg, (WCHAR*)TEXT("You can only delete one item at a time."),
-                 (WCHAR*)TEXT("emergeTray"), ELMB_OK | ELMB_ICONERROR | ELMB_MODAL);
+    ELMessageBox(hwndDlg, TEXT("You can only delete one item at a time."),
+                 TEXT("emergeTray"), ELMB_OK | ELMB_ICONERROR | ELMB_MODAL);
 
     return ret;
   }
@@ -607,8 +607,8 @@ bool IconHidePage::CheckFields(HWND hwndDlg)
   if (GetWindowText(textWnd, tmp, MAX_LINE_LENGTH) != 0)
   {
     if (ELMessageBox(hwndDlg,
-                     (WCHAR*)TEXT("The current icon will be lost.\n\nDo you wish to continue?"),
-                     (WCHAR*)TEXT("emergeTray"),
+                     TEXT("The current icon will be lost.\n\nDo you wish to continue?"),
+                     TEXT("emergeTray"),
                      ELMB_YESNO | ELMB_ICONQUESTION | ELMB_MODAL) == IDYES)
     {
       return true;

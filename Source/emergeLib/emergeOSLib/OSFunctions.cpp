@@ -182,8 +182,8 @@ bool ELQuit(bool prompt)
 
   if (prompt)
     response = ELMessageBox(GetDesktopWindow(),
-                            (WCHAR*)TEXT("Do you want to quit Emerge Desktop?"),
-                            (WCHAR*)TEXT("Emerge Desktop"),
+                            TEXT("Do you want to quit Emerge Desktop?"),
+                            TEXT("Emerge Desktop"),
                             ELMB_YESNO | ELMB_ICONQUESTION | ELMB_MODAL);
 
   if (response == IDYES)
@@ -286,7 +286,7 @@ bool ELExit(EXITFLAGS uFlag, bool prompt)
       swprintf(messageText,
                TEXT("You do not have persission to perform a %ls\n on this system."),
                method);
-      ELMessageBox(GetDesktopWindow(), messageText, (WCHAR*)TEXT("Emerge Desktop"),
+      ELMessageBox(GetDesktopWindow(), messageText, TEXT("Emerge Desktop"),
                    ELMB_OK | ELMB_ICONERROR | ELMB_MODAL);
       return false;
     }
@@ -297,7 +297,7 @@ bool ELExit(EXITFLAGS uFlag, bool prompt)
     swprintf(messageText, TEXT("Are you sure you want to %ls?"), method);
     response = ELMessageBox(GetDesktopWindow(),
                             messageText,
-                            (WCHAR*)TEXT("Emerge Desktop"),
+                            TEXT("Emerge Desktop"),
                             ELMB_ICONQUESTION | ELMB_YESNO | ELMB_MODAL);
   }
 
@@ -354,7 +354,7 @@ bool ELExit(EXITFLAGS uFlag, bool prompt)
   if (!exitStatus)
   {
     swprintf(messageText, TEXT("Failed to %ls."), method);
-    ELMessageBox(GetDesktopWindow(), messageText, (WCHAR*)TEXT("Emerge Desktop"),
+    ELMessageBox(GetDesktopWindow(), messageText, TEXT("Emerge Desktop"),
                  ELMB_ICONERROR | ELMB_OK | ELMB_MODAL);
     return false;
   }

@@ -633,13 +633,13 @@ HICON EGGetFileIcon(std::wstring file, UINT iconSize)
   LPITEMIDLIST pidlLocal = NULL;
   LPITEMIDLIST pidlRelative = NULL;
   IExtractIcon* extractIcon = NULL;
-  WCHAR iconLocation[MAX_PATH], canonicalizedFile[MAX_PATH];
+  WCHAR iconLocation[MAX_PATH];
   int iconIndex = 0;
   UINT iconFlags = 0;
   HRESULT hr;
   LPVOID lpVoid;
   bool hasIndex = false;
-  std::wstring suppliedFile;
+  std::wstring suppliedFile, canonicalizedFile;
 
   if (file.empty())
   {
@@ -655,6 +655,7 @@ HICON EGGetFileIcon(std::wstring file, UINT iconSize)
     }
   }
   suppliedFile = ELExpandVars(suppliedFile);
+
   size_t comma = suppliedFile.find_last_of(',');
   if (comma != std::wstring::npos)
   {
@@ -666,11 +667,17 @@ HICON EGGetFileIcon(std::wstring file, UINT iconSize)
     }
   }
 
-  // Normalize the file path
-  if (PathCanonicalize(canonicalizedFile, suppliedFile.c_str()))
+  canonicalizedFile = ELExhaustivelyFindFilePath(suppliedFile);
+  if (!canonicalizedFile.empty())
   {
     suppliedFile = canonicalizedFile;
   }
+
+  // Normalize the file path
+  /*if (PathCanonicalize(canonicalizedFile, suppliedFile.c_str()))
+  {
+    suppliedFile = canonicalizedFile;
+  }*/
 
   if (hasIndex)
   {

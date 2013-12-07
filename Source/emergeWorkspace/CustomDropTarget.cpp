@@ -42,7 +42,7 @@ CustomDropTarget::CustomDropTarget(MENUITEMDATA dropItemData, UINT_PTR dropID, H
 
   CF_EMERGE_MENUITEM = RegisterClipboardFormat(TEXT("CF_EMERGE_MENUITEM"));
   if (CF_EMERGE_MENUITEM == 0)
-    ELMessageBox(GetDesktopWindow(), (WCHAR*)TEXT("Failed to register Emerge Desktop Menu Item clipboard format."), (WCHAR*)TEXT("emergeWorkspace"),
+    ELMessageBox(GetDesktopWindow(), TEXT("Failed to register Emerge Desktop Menu Item clipboard format."), TEXT("emergeWorkspace"),
                  ELMB_OK|ELMB_ICONERROR|ELMB_MODAL);
 }
 

@@ -189,7 +189,7 @@ void Settings::WriteStickyList()
 
   if (configXML)
   {
-    section = ELGetXMLSection(configXML.get(), (WCHAR*)TEXT("Sticky"), true);
+    section = ELGetXMLSection(configXML.get(), TEXT("Sticky"), true);
 
     if (section)
     {
@@ -200,7 +200,7 @@ void Settings::WriteStickyList()
       {
         if (userIO.SetElement(TEXT("item")))
         {
-          userIO.WriteString(TEXT("Application"), (WCHAR*)stickyList[i].c_str());
+          userIO.WriteString(TEXT("Application"), stickyList[i]);
         }
       }
 

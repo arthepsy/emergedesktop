@@ -94,7 +94,7 @@ bool Settings::ReadUserSettings()
 
   if (xmlConfig)
   {
-    section = ELGetXMLSection(xmlConfig.get(), (WCHAR*)TEXT("Settings"), false);
+    section = ELGetXMLSection(xmlConfig.get(), TEXT("Settings"), false);
     if (section)
     {
       readSettings = true;
@@ -165,7 +165,7 @@ bool Settings::WriteUserSettings()
     configXML = ELOpenXMLConfig(xmlFile, true);
     if (configXML)
     {
-      section = ELGetXMLSection(configXML.get(), (WCHAR*)TEXT("Settings"), true);
+      section = ELGetXMLSection(configXML.get(), TEXT("Settings"), true);
 
       if (section)
       {

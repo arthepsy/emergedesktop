@@ -242,7 +242,7 @@ LRESULT Applet::ItemMouseEvent(UINT message, LPARAM lParam)
         {
         case IT_EXECUTABLE:
         case IT_LIVE_FOLDER_ITEM:
-          ELExecuteFileOrCommand(pSettings->GetItem(i)->GetApp(), TEXT(""), pSettings->GetItem(i)->GetWorkingDir());
+          ELExecuteFileOrCommand(pSettings->GetItem(i)->GetApp(), pSettings->GetItem(i)->GetWorkingDir());
           break;
         case IT_INTERNAL_COMMAND:
         case IT_SPECIAL_FOLDER:

@@ -169,7 +169,7 @@ bool ConfigPage::UpdateSettings(HWND hwndDlg)
   }
   else if (!success)
   {
-    ELMessageBox(GetDesktopWindow(), (WCHAR*)TEXT("Invalid value for desktop rows"), (WCHAR*)TEXT("emergeVWM"),
+    ELMessageBox(GetDesktopWindow(), TEXT("Invalid value for desktop rows"), TEXT("emergeVWM"),
                  ELMB_OK | ELMB_ICONERROR | ELMB_MODAL);
     SetDlgItemInt(hwndDlg, IDC_DESKTOPROWS, pSettings->GetDesktopRows(), false);
     return false;
@@ -182,7 +182,7 @@ bool ConfigPage::UpdateSettings(HWND hwndDlg)
   }
   else if (!success)
   {
-    ELMessageBox(GetDesktopWindow(), (WCHAR*)TEXT("Invalid value for desktop columns"), (WCHAR*)TEXT("emergeVWM"),
+    ELMessageBox(GetDesktopWindow(), TEXT("Invalid value for desktop columns"), TEXT("emergeVWM"),
                  ELMB_OK | ELMB_ICONERROR | ELMB_MODAL);
     SetDlgItemInt(hwndDlg, IDC_DESKTOPCOLUMNS, pSettings->GetDesktopColumns(), false);
     return false;

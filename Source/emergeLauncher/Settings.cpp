@@ -111,7 +111,7 @@ void Settings::PopulateItems()
           workingDir = userIO.ReadString(TEXT("WorkingDir"), TEXT(""));
 
           // Convert the iconValue to a full path if relative
-          if (ELPathIsRelative(icon))
+          if ((!icon.empty()) && (ELPathIsRelative(icon)))
           {
             icon = ELGetAbsolutePath(icon, TEXT("%ThemeDir%\\"));
           }
@@ -211,10 +211,10 @@ void Settings::WriteItem(int type, WCHAR* command, WCHAR* iconPath, WCHAR* tip, 
 
   if (configXML)
   {
-    settingsSection = ELGetXMLSection(configXML.get(), (WCHAR*)TEXT("Settings"), true);
+    settingsSection = ELGetXMLSection(configXML.get(), TEXT("Settings"), true);
     if (settingsSection)
     {
-      launchSection = ELGetFirstXMLElementByName(settingsSection, (WCHAR*)TEXT("Launch"), true);
+      launchSection = ELGetFirstXMLElementByName(settingsSection, TEXT("Launch"), true);
 
       if (launchSection)
       {
@@ -286,10 +286,10 @@ void Settings::loadLiveFolder(WCHAR* folderName)
   {
     // Add an empty icon for each non-existent live folder path
     itemList.push_back(std::tr1::shared_ptr<Item>(new Item(IT_LIVE_FOLDER_ITEM,
-                       (WCHAR*)workingFolder.c_str(),
-                       (WCHAR*)TEXT(""),
-                       (WCHAR*)TEXT(""),
-                       (WCHAR*)TEXT(""))));
+                       workingFolder,
+                       TEXT(""),
+                       TEXT(""),
+                       TEXT(""))));
     itemList.back()->SetIcon(GetIconSize(), GetDirectionOrientation());
     return;
   }

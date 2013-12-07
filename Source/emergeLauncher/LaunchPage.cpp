@@ -1228,7 +1228,7 @@ bool LaunchPage::SaveItem(HWND hwndDlg)
 
   if (GetDlgItemText(hwndDlg, IDC_TYPE, typeName, MAX_LINE_LENGTH) == 0)
   {
-    ELMessageBox(hwndDlg, (WCHAR*)TEXT("Type cannot be empty"), (WCHAR*)TEXT("emergeLauncher"),
+    ELMessageBox(hwndDlg, TEXT("Type cannot be empty"), TEXT("emergeLauncher"),
                  ELMB_OK | ELMB_ICONERROR | ELMB_MODAL);
     return false;
   }
@@ -1237,7 +1237,7 @@ bool LaunchPage::SaveItem(HWND hwndDlg)
   {
     if (GetDlgItemText(hwndDlg, IDC_COMMAND, command, MAX_LINE_LENGTH) == 0)
     {
-      ELMessageBox(hwndDlg, (WCHAR*)TEXT("Command cannot be empty"), (WCHAR*)TEXT("emergeLauncher"),
+      ELMessageBox(hwndDlg, TEXT("Command cannot be empty"), TEXT("emergeLauncher"),
                    ELMB_OK | ELMB_ICONERROR | ELMB_MODAL);
       return false;
     }
@@ -1246,7 +1246,7 @@ bool LaunchPage::SaveItem(HWND hwndDlg)
   {
     if (GetDlgItemText(hwndDlg, IDC_SEPARATOR, command, MAX_LINE_LENGTH) == 0)
     {
-      ELMessageBox(hwndDlg, (WCHAR*)TEXT("Style cannot be empty"), (WCHAR*)TEXT("emergeLauncher"),
+      ELMessageBox(hwndDlg, TEXT("Style cannot be empty"), TEXT("emergeLauncher"),
                    ELMB_OK | ELMB_ICONERROR | ELMB_MODAL);
       return false;
     }

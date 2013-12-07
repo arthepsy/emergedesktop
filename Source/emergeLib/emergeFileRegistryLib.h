@@ -135,7 +135,7 @@ DLL_EXPORT TiXmlElement* ELSetFirstXMLElementByName(TiXmlElement* xmlSection, st
 DLL_EXPORT void ELSetFirstXMLElement(TiXmlElement* xmlSection, TiXmlElement* element);
 DLL_EXPORT TiXmlElement* ELGetSiblingXMLElement(TiXmlElement* xmlElement);
 DLL_EXPORT TiXmlElement* ELSetSiblingXMLElement(TiXmlElement* targetElement, TiXmlElement* sourceElement, bool insertAfter);
-DLL_EXPORT TiXmlElement* ELSetSiblingXMLElementByName(TiXmlElement* xmlElement, const WCHAR* elementName, bool insertAfter = true);
+DLL_EXPORT TiXmlElement* ELSetSiblingXMLElementByName(TiXmlElement* xmlElement, std::wstring elementName, bool insertAfter = true);
 DLL_EXPORT TiXmlElement* ELCloneXMLElement(TiXmlElement* sourceElement);
 DLL_EXPORT TiXmlElement* ELCloneXMLElementAsSibling(TiXmlElement* sourceElement, TiXmlElement* targetElement);
 DLL_EXPORT TiXmlElement* ELCloneXMLElementAsChild(TiXmlElement* sourceElement, TiXmlElement* targetElement);
@@ -177,7 +177,7 @@ DLL_EXPORT int ELGetSpecialFolderIDFromName(std::wstring specialFolderName);
 DLL_EXPORT std::wstring ELGetUNCFromMap(std::wstring uncMap);
 
 DLL_EXPORT bool ELIsFileTypeExecutable(std::wstring extension);
-DLL_EXPORT bool ELExecuteFileOrCommand(std::wstring application, std::wstring arguments = TEXT(""), std::wstring workingDir = TEXT(""), int nShow = SW_SHOW, std::wstring verb = TEXT(""));
+DLL_EXPORT bool ELExecuteFileOrCommand(std::wstring application, std::wstring workingDir = TEXT(""), int nShow = SW_SHOW, std::wstring verb = TEXT(""));
 DLL_EXPORT bool ELFileOp(HWND appletWnd, bool feedback, UINT function, std::wstring source, std::wstring destination = TEXT(""));
 
 //InternalCommandEngine.h

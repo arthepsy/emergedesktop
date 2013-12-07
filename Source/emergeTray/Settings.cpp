@@ -415,7 +415,7 @@ void Settings::WriteHideList()
 
   if (configXML)
   {
-    section = ELGetXMLSection(configXML.get(), (WCHAR*)TEXT("Hide"), true);
+    section = ELGetXMLSection(configXML.get(), TEXT("Hide"), true);
 
     if (section)
     {
@@ -426,7 +426,7 @@ void Settings::WriteHideList()
       {
         if (userIO.SetElement(TEXT("item")))
         {
-          userIO.WriteString(TEXT("Icon"), (WCHAR*)hideList[i].c_str());
+          userIO.WriteString(TEXT("Icon"), hideList[i]);
         }
       }
     }

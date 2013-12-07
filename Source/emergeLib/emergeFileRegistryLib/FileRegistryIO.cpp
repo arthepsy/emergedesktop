@@ -583,7 +583,7 @@ TiXmlElement* ELSetSiblingXMLElement(TiXmlElement* targetElement, TiXmlElement* 
   return sibling;
 }
 
-TiXmlElement* ELSetSiblingXMLElementByName(TiXmlElement* xmlElement, const WCHAR* elementName, bool insertAfter)
+TiXmlElement* ELSetSiblingXMLElementByName(TiXmlElement* xmlElement, std::wstring elementName, bool insertAfter)
 {
   std::string narrowElement = ELwstringTostring(elementName);
   TiXmlElement* sibling, newSibling(narrowElement.c_str());

@@ -1385,7 +1385,7 @@ LRESULT Applet::TrayMouseEvent(UINT message, LPARAM lParam)
         if (wcscmp((*iter)->GetTip(), TEXT("\0")) == 0) //((*iter)->GetTip())
         {
           swprintf(error, TEXT("This icon cannot be hidden because it has no text (tooltip)."), tmp);
-          ELMessageBox(GetDesktopWindow(), error, (WCHAR*)TEXT("emergeTray"),
+          ELMessageBox(GetDesktopWindow(), error, TEXT("emergeTray"),
                        ELMB_OK | ELMB_ICONERROR | ELMB_MODAL);
           return 0;
         }

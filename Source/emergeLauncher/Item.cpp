@@ -210,7 +210,7 @@ void Item::SetIcon(int iconSize, std::wstring orientation)
     }
     else
     {
-      int specialFolder = ELGetSpecialFolderIDFromPath(app);
+      int specialFolder = ELGetSpecialFolderIDFromName(app);
       if (specialFolder == 0)
       {
         workingApp = workingApp.substr(0, workingApp.find_first_of(TEXT(" \t")));

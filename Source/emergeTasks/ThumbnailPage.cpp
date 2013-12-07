@@ -161,7 +161,7 @@ bool ThumbnailPage::UpdateSettings(HWND hwndDlg)
   }
   else
   {
-    ELMessageBox(hwndDlg, (WCHAR*)TEXT("Invalid value for alpha"), (WCHAR*)TEXT("emergeTasks"),
+    ELMessageBox(hwndDlg, TEXT("Invalid value for alpha"), TEXT("emergeTasks"),
                  ELMB_OK | ELMB_ICONERROR | ELMB_MODAL);
     SetDlgItemInt(hwndDlg, IDC_ALPHAVALUE, pSettings->GetThumbnailAlpha(), false);
     return false;
@@ -174,7 +174,7 @@ bool ThumbnailPage::UpdateSettings(HWND hwndDlg)
   }
   else
   {
-    ELMessageBox(hwndDlg, (WCHAR*)TEXT("Invalid value for scale"), (WCHAR*)TEXT("emergeTasks"),
+    ELMessageBox(hwndDlg, TEXT("Invalid value for scale"), TEXT("emergeTasks"),
                  ELMB_OK | ELMB_ICONERROR | ELMB_MODAL);
     SetDlgItemInt(hwndDlg, IDC_SCALEVALUE, pSettings->GetThumbnailScale(), false);
     return false;

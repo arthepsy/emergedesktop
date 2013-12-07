@@ -47,7 +47,7 @@ bool Core::Initialize(WCHAR* commandLine)
 
   // Initialize Settings
   pSettings = std::tr1::shared_ptr<Settings>(new Settings());
-  pSettings->Init(mainWnd, (WCHAR*)TEXT("emergeCore"), 0);
+  pSettings->Init(mainWnd, TEXT("emergeCore"), 0);
   pSettings->ReadSettings();
   pSettings->ReadUserSettings();
 
@@ -619,10 +619,10 @@ bool Core::BuildLaunchList()
   configXML = ELOpenXMLConfig(xmlFile, true);
   if (configXML)
   {
-    settings = ELGetXMLSection(configXML.get(), (WCHAR*)TEXT("Settings"), true);
+    settings = ELGetXMLSection(configXML.get(), TEXT("Settings"), true);
     if (settings)
     {
-      section = ELSetFirstXMLElementByName(settings, (WCHAR*)TEXT("Launch"));
+      section = ELSetFirstXMLElementByName(settings, TEXT("Launch"));
     }
     if (section)
     {
@@ -630,7 +630,7 @@ bool Core::BuildLaunchList()
       {
         found = true;
         iter = launchMap.begin();
-        ELParseCommand((WCHAR*)iter->first.c_str(), program, arguments);
+        ELParseCommand(iter->first, program, arguments);
         swprintf(command, TEXT("%ls %ls"), PathFindFileName(program), arguments);
         item = ELSetFirstXMLElementByName(section, TEXT("item"));
         if (item)

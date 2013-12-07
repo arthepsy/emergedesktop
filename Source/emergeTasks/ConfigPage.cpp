@@ -284,8 +284,8 @@ bool ConfigPage::UpdateSettings(HWND hwndDlg)
   }
   else if (!success)
   {
-    ELMessageBox(GetDesktopWindow(), (WCHAR*)TEXT("Invalid value for AutoSize wrap"),
-                 (WCHAR*)TEXT("emergeTasks"), ELMB_OK | ELMB_ICONERROR | ELMB_MODAL);
+    ELMessageBox(GetDesktopWindow(), TEXT("Invalid value for AutoSize wrap"),
+                 TEXT("emergeTasks"), ELMB_OK | ELMB_ICONERROR | ELMB_MODAL);
     SetDlgItemInt(hwndDlg, IDC_ICONSPACING, pSettings->GetIconSpacing(), false);
     return false;
   }
@@ -308,8 +308,8 @@ bool ConfigPage::UpdateSettings(HWND hwndDlg)
   }
   else if (!success)
   {
-    ELMessageBox(GetDesktopWindow(), (WCHAR*)TEXT("Invalid value for flash interval"),
-                 (WCHAR*)TEXT("emergeTasks"), ELMB_OK | ELMB_ICONERROR | ELMB_MODAL);
+    ELMessageBox(GetDesktopWindow(), TEXT("Invalid value for flash interval"),
+                 TEXT("emergeTasks"), ELMB_OK | ELMB_ICONERROR | ELMB_MODAL);
     SetDlgItemInt(hwndDlg, IDC_FLASHINTERVAL, pSettings->GetFlashInterval(), false);
     return false;
   }
@@ -321,8 +321,8 @@ bool ConfigPage::UpdateSettings(HWND hwndDlg)
   }
   else if (!success)
   {
-    ELMessageBox(GetDesktopWindow(), (WCHAR*)TEXT("Invalid value for flash count"),
-                 (WCHAR*)TEXT("emergeTasks"), ELMB_OK | ELMB_ICONERROR | ELMB_MODAL);
+    ELMessageBox(GetDesktopWindow(), TEXT("Invalid value for flash count"),
+                 TEXT("emergeTasks"), ELMB_OK | ELMB_ICONERROR | ELMB_MODAL);
     SetDlgItemInt(hwndDlg, IDC_FLASHCOUNT, pSettings->GetFlashCount(), false);
     return false;
   }
@@ -345,8 +345,8 @@ bool ConfigPage::UpdateSettings(HWND hwndDlg)
   }
   else if (!success)
   {
-    ELMessageBox(GetDesktopWindow(), (WCHAR*)TEXT("Invalid value for icon spacing"),
-                 (WCHAR*)TEXT("emergeTasks"), ELMB_OK | ELMB_ICONERROR | ELMB_MODAL);
+    ELMessageBox(GetDesktopWindow(), TEXT("Invalid value for icon spacing"),
+                 TEXT("emergeTasks"), ELMB_OK | ELMB_ICONERROR | ELMB_MODAL);
     SetDlgItemInt(hwndDlg, IDC_ICONSPACING, pSettings->GetIconSpacing(), false);
     return false;
   }

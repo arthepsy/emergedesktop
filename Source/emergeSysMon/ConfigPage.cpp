@@ -238,8 +238,8 @@ bool ConfigPage::UpdateSettings(HWND hwndDlg)
   }
   else if (!success)
   {
-    ELMessageBox(GetDesktopWindow(), (WCHAR*)TEXT("Invalid value for update interval"),
-                 (WCHAR*)TEXT("emergeSysMon"), ELMB_OK | ELMB_ICONERROR | ELMB_MODAL);
+    ELMessageBox(GetDesktopWindow(), TEXT("Invalid value for update interval"),
+                 TEXT("emergeSysMon"), ELMB_OK | ELMB_ICONERROR | ELMB_MODAL);
     SetDlgItemInt(hwndDlg, IDC_UPDATEINTERVAL, pSettings->GetUpdateInterval(), false);
     return false;
   }

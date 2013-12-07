@@ -83,7 +83,7 @@ bool AboutCommandHandler(std::vector<std::wstring> args UNUSED)
 
 bool ActivateCommandHandler(std::vector<std::wstring> args)
 {
-  std::wstring application;
+  std::wstring applicationPath, appletName;
 
   if (args.size() == 0)
   {
@@ -95,25 +95,27 @@ bool ActivateCommandHandler(std::vector<std::wstring> args)
     return false;
   }
 
-  application = args.at(0);
-  if (ELToLower(ELGetFileExtension(application)) != TEXT(".exe"))
+  appletName = args.at(0);
+
+  applicationPath = args.at(0);
+  if (ELToLower(ELGetFileExtension(applicationPath)) != TEXT(".exe"))
   {
-    application = application + TEXT(".exe");
+    applicationPath = applicationPath + TEXT(".exe");
   }
 
-  if (ELPathIsRelative(application))
+  if (ELPathIsRelative(applicationPath))
   {
-    application = ELGetAbsolutePath(application);
+    applicationPath = ELGetAbsolutePath(applicationPath);
   }
 
-  if ((!ELIsAppletRunning(application)) && (ELFileExists(application)))
+  if ((!ELIsAppletRunning(applicationPath)) && (ELFileExists(applicationPath)))
   {
-    ELExecuteFileOrCommand(application);
+    ELExecuteFileOrCommand(applicationPath);
     Sleep(500); //wait half a second for the applet to start
   }
 
   ELSwitchToThisWindow(ELGetCoreWindow());
-  ELDispatchCoreMessage(EMERGE_CORE, CORE_ACTIVATE, application.c_str());
+  ELDispatchCoreMessage(EMERGE_CORE, CORE_ACTIVATE, appletName);
 
   return true;
 }
