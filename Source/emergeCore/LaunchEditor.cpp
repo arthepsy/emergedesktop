@@ -738,7 +738,7 @@ bool LaunchEditor::UpdateLaunch(HWND hwndDlg)
     oldThemePath += TEXT("\\*");
     newThemePath = TEXT("%ThemeDir%");
 
-    if ((ELGetFileSpecialFlags(newThemePath) & SF_DIRECTORY) != SF_DIRECTORY)
+    if (!ELIsDirectory(newThemePath))
     {
       if (ELCreateDirectory(newThemePath))
       {
@@ -1121,10 +1121,10 @@ bool LaunchEditor::DoLaunchBrowse(HWND hwndDlg)
   ofn.lStructSize = sizeof(ofn);
   ofn.hwndOwner = hwndDlg;
   ofn.lpstrFilter = TEXT("All Files (*.*)\0*.*\0");
-  GetDlgItemText(hwndDlg, IDC_APPLET, tmp, MAX_PATH);
-  workingPath = tmp;
+  workingPath.reserve(MAX_PATH);
+  GetDlgItemText(hwndDlg, IDC_APPLET, &workingPath[0], MAX_PATH);
   workingPath = ELExpandVars(workingPath);
-  if (ELParseCommand(workingPath.c_str(), program, arguments))
+  if (ELParseCommand(workingPath, program, arguments))
   {
     wcscpy(tmp, program);
   }
@@ -1137,9 +1137,12 @@ bool LaunchEditor::DoLaunchBrowse(HWND hwndDlg)
 
   if (GetOpenFileName(&ofn))
   {
-    ELUnExpandVars(tmp);
-    std::wstring workingTmp = ELGetRelativePath(tmp);
-    SetDlgItemText(hwndDlg, IDC_APPLET, workingTmp.c_str());
+    workingPath = ELUnExpandVars(tmp);
+    if (workingPath.compare(tmp) == 0)
+    {
+      workingPath = ELGetRelativePath(workingPath);
+    }
+    SetDlgItemText(hwndDlg, IDC_APPLET, workingPath.c_str());
 
     ret = true;
   }

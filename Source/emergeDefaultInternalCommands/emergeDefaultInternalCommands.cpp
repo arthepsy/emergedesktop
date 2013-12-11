@@ -15,8 +15,6 @@ std::vector<Command>GetEmergeInternalCommands()
   commandList.push_back(std::make_tuple(TEXT("CoreSettings"), CORE_CONFIGURE, TEXT("CoreSettingsCommandHandler")));
   commandList.push_back(std::make_tuple(TEXT("Disconnect"), CORE_DISCONNECT, TEXT("DisconnectCommandHandler")));
   commandList.push_back(std::make_tuple(TEXT("EmptyBin"), CORE_EMPTYBIN, TEXT("EmptyBinCommandHandler")));
-  commandList.push_back(std::make_tuple(TEXT("Halt"), CORE_HALT, TEXT("AboutCommandHandler")));
-  commandList.push_back(std::make_tuple(TEXT("EmptyBin"), CORE_EMPTYBIN, TEXT("EmptyBinCommandHandler")));
   commandList.push_back(std::make_tuple(TEXT("Halt"), CORE_HALT, TEXT("HaltCommandHandler")));
   commandList.push_back(std::make_tuple(TEXT("Help"), UNDEFINED_INTERNALCOMMAND_VALUE, TEXT("HelpCommandHandler")));
   commandList.push_back(std::make_tuple(TEXT("Hibernate"), CORE_HIBERNATE, TEXT("HibernateCommandHandler")));
@@ -388,18 +386,16 @@ bool ShowDesktopCommandHandler(std::vector<std::wstring> args UNUSED)
 
 bool ShowAppletCommandHandler(std::vector<std::wstring> args)
 {
-  if (args.size() == 0)
-  {
-    return false;
-  }
-
-  if (args.at(0).empty())
-  {
-    return false;
-  }
+  std::wstring instanceName = TEXT("");
 
   ELSwitchToThisWindow(ELGetCoreWindow());
-  ELDispatchCoreMessage(EMERGE_CORE, CORE_SHOWAPPLET, args.at(0).c_str());
+
+  if ((args.size() > 0) && (!args.at(0).empty()))
+  {
+    instanceName = args.at(0);
+  }
+
+  ELDispatchCoreMessage(EMERGE_CORE, CORE_SHOWAPPLET, instanceName);
 
   return true;
 }

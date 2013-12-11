@@ -258,7 +258,7 @@ BOOL ThemeSelector::DoThemeCommand(HWND hwndDlg, WPARAM wParam, LPARAM lParam UN
   case IDOK:
     SaveTheme(hwndDlg);
   case IDCANCEL:
-    if ((ELGetFileSpecialFlags(themePath) & SF_DIRECTORY) != SF_DIRECTORY)
+    if (!ELIsDirectory(themePath))
     {
       wParam = IDOK;
     }
@@ -414,7 +414,7 @@ void ThemeSelector::DoSave(HWND hwndDlg)
 
   // If the destTheme directory exists, remove it and re-create it (to make
   // sure its empty.
-  if ((ELGetFileSpecialFlags(ELExpandVars(destTheme)) & SF_DIRECTORY) == SF_DIRECTORY)
+  if (ELIsDirectory(ELExpandVars(destTheme)))
   {
     ELFileOp(hwndDlg, false, FO_DELETE, destTheme);
   }
@@ -493,7 +493,7 @@ BOOL ThemeSelector::DoThemeCheck(HWND hwndDlg)
   EnableWindow(saveWnd, (ELIsModifiedTheme(theme) && (_wcsicmp(theme, TEXT("Default (Modified)")) != 0)));
   EnableWindow(exportWnd, (_wcsicmp(theme, TEXT("Default")) != 0));
 
-  if (ELIsModifiedTheme(ELGetThemeName()) && ((ELGetFileSpecialFlags(themePath) & SF_DIRECTORY) == SF_DIRECTORY))
+  if (ELIsModifiedTheme(ELGetThemeName()) && (ELIsDirectory(themePath)))
   {
     swprintf (errorText, TEXT("The existing '%ls' theme will be lost, save it?"), ELGetThemeName().c_str());
     if (ELMessageBox(hwndDlg, errorText, TEXT("Theme Selector"),

@@ -798,7 +798,7 @@ BOOL StyleEditor::DoLoad(HWND hwndDlg)
 
   if (GetOpenFileName(&ofn))
   {
-    ELUnExpandVars(file);
+    wcscpy(file, ELUnExpandVars(file).c_str());
     style = file;
 
     ESEReadStyle(style, &guiInfo);
@@ -863,7 +863,7 @@ void StyleEditor::DoSaveAs(HWND hwndDlg)
     oldThemePath = TEXT("%EmergeDir%\\themes\\") + oldTheme;
     oldThemePath += TEXT("\\*");
 
-    if ((ELGetFileSpecialFlags(newThemePath) & SF_DIRECTORY) != SF_DIRECTORY)
+    if (!ELIsDirectory(newThemePath))
     {
       ELCreateDirectory(newThemePath);
     }
@@ -880,7 +880,7 @@ void StyleEditor::DoSaveAs(HWND hwndDlg)
   ofn.lpstrTitle = TEXT("Save Style As");
   ofn.lpstrDefExt = extension;
   newThemePath += TEXT("\\Styles");
-  if ((ELGetFileSpecialFlags(newThemePath) & SF_DIRECTORY) != SF_DIRECTORY)
+  if (!ELIsDirectory(newThemePath))
   {
     ELCreateDirectory(newThemePath);
   }
@@ -891,7 +891,7 @@ void StyleEditor::DoSaveAs(HWND hwndDlg)
   if (GetSaveFileName(&ofn))
   {
     EnableWindow(okWnd, (wcslen(file) != 0));
-    ELUnExpandVars(file);
+    wcscpy(file, ELUnExpandVars(file).c_str());
     style = file;
     ESESetStyle(style);
   }

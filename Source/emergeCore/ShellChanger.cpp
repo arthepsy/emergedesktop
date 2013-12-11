@@ -456,14 +456,14 @@ bool ShellChanger::DoSetShell(HWND hwndDlg)
   }
 
   // Create default directories and copy default files
-  std::wstring appletCmd = TEXT("%AppletDir%\\files\\cmd.txt"), emergeCmd = TEXT("%EmergeDir%\\files\\");
+  std::wstring appletCmd = TEXT("%AppletDir%\\files\\alias.txt"), emergeCmd = TEXT("%EmergeDir%\\files\\");
   appletCmd = ELExpandVars(appletCmd);
   emergeCmd = ELExpandVars(emergeCmd);
-  if ((ELGetFileSpecialFlags(emergeCmd) & SF_DIRECTORY) != SF_DIRECTORY)
+  if (!ELIsDirectory(emergeCmd))
   {
     ELCreateDirectory(emergeCmd);
   }
-  emergeCmd = emergeCmd + TEXT("cmd.txt");
+  emergeCmd = emergeCmd + TEXT("alias.txt");
   CopyFile(appletCmd.c_str(), emergeCmd.c_str(), TRUE);
 
   if (IsWindowEnabled(startErrorWnd))
@@ -855,7 +855,7 @@ bool ShellChanger::DoBrowseShell(HWND hwndDlg)
 
   initialPath = ELGetCurrentPath();
 
-  ofn.lpstrFilter = TEXT("All Files (*.*)\0*.*\0");
+  //ofn.lpstrFilter = TEXT("All Files (*.*)\0*.*\0");
   ofn.lpstrInitialDir = initialPath.c_str();
   ofn.lStructSize = sizeof(ofn);
   ofn.hwndOwner = hwndDlg;

@@ -191,7 +191,7 @@ LRESULT Applet::PaintContent(HDC hdc, RECT clientrt)
 
   CopyRect(&r, &clientrt);
   // status
-  WCHAR text[9];
+  WCHAR text[10];
   if (status.BatteryFlag & BATTERY_FLAG_CHARGING)
   {
     wcscpy(text, TEXT("+"));
@@ -214,7 +214,7 @@ LRESULT Applet::PaintContent(HDC hdc, RECT clientrt)
     wcscat(text, TEXT(" "));
   }
   //
-  WCHAR pct[4];
+  WCHAR pct[5];
   if (status.BatteryLifePercent <= 100)
   {
     _itow(status.BatteryLifePercent, pct, 10);

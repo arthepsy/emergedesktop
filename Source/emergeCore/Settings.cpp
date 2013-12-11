@@ -85,7 +85,7 @@ bool Settings::ReadUserSettings()
 
   userFile = ELExpandVars(userFile);
 
-  if ((ELGetFileSpecialFlags(userFile) & SF_DIRECTORY) != SF_DIRECTORY)
+  if (!ELIsDirectory(userFile))
   {
     ELCreateDirectory(userFile);
   }

@@ -52,8 +52,8 @@ typedef DWORD (WINAPI* fnWNetGetConnection)(LPCTSTR, LPTSTR, LPDWORD);
 static fnWNetGetConnection MSWNetGetConnection = NULL;
 
 //Helper functions
+bool IsAlias(std::wstring filePath);
 bool IsCLSID(std::wstring filePath);
-bool IsDirectory(std::wstring filePath);
 bool IsShortcut(std::wstring filePath);
 bool IsURL(std::wstring filePath);
 std::wstring FindFileOnPATH(std::wstring path);
@@ -62,6 +62,7 @@ std::wstring CleanPath(std::wstring filePath);
 std::wstring GetSpecialFolderGUID(int folderID);
 std::map<int, std::wstring> GetSpecialFolderMap();
 bool Execute(std::wstring application, std::wstring workingDir = TEXT(""), int nShow = SW_SHOW, std::wstring verb = TEXT(""));
+bool ExecuteAlias(std::wstring alias);
 bool ExecuteSpecialFolder(std::wstring folder);
 std::wstring stripSpecialChars(std::wstring filePath);
 

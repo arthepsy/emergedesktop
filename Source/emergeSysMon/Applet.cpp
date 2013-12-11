@@ -234,7 +234,7 @@ LRESULT Applet::PaintContent(HDC hdc, RECT clientrt)
     r.right = r.left + roomForBar;
   }
 
-  bool gradient = (ELToLower(pSettings->GetCPUGradientMethod()) == TEXT("solid"));
+  bool gradient = (ELToLower(pSettings->GetCPUGradientMethod()) != TEXT("solid"));
 
   // draw bars
   if (pSettings->GetMonitorCPU())
@@ -251,7 +251,7 @@ LRESULT Applet::PaintContent(HDC hdc, RECT clientrt)
     }
   }
 
-  gradient = (ELToLower(pSettings->GetMemGradientMethod()) == TEXT("solid"));
+  gradient = (ELToLower(pSettings->GetMemGradientMethod()) != TEXT("solid"));
   if (pSettings->GetMonitorCommitCharge())
   {
     RECT tmpRect = r;

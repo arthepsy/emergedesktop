@@ -307,7 +307,7 @@ bool ItemEditor::DoBrowseItem(HWND hwndDlg, bool workingDir)
                   pMalloc->Release();
                 }
 
-              ELUnExpandVars(tmp);
+              wcscpy(tmp, ELUnExpandVars(tmp).c_str());
               std::wstring workingTmp = ELGetRelativePath(tmp);
               if (workingDir)
                 SetDlgItemText(hwndDlg, IDC_WORKINGDIR, workingTmp.c_str());
@@ -328,11 +328,14 @@ bool ItemEditor::DoBrowseItem(HWND hwndDlg, bool workingDir)
       ofn.lStructSize = sizeof(ofn);
       ofn.hwndOwner = hwndDlg;
       ofn.lpstrFilter = TEXT("All Files (*.*)\0*.*\0");
-      GetDlgItemText(hwndDlg, IDC_ITEMVALUE, tmp, MAX_PATH);
-      workingPath = tmp;
+      workingPath.reserve(MAX_PATH);
+      GetDlgItemText(hwndDlg, IDC_ITEMVALUE, &workingPath[0], MAX_PATH);
       workingPath = ELExpandVars(workingPath);
       if (ELParseCommand(workingPath.c_str(), program, arguments))
+      {
         wcscpy(tmp, program);
+      }
+
       ofn.lpstrFile = tmp;
       ofn.nMaxFile = MAX_PATH;
       ofn.lpstrTitle = TEXT("Browse For File");
@@ -340,19 +343,22 @@ bool ItemEditor::DoBrowseItem(HWND hwndDlg, bool workingDir)
       ofn.Flags = OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST | OFN_EXPLORER | OFN_DONTADDTORECENT | OFN_NOCHANGEDIR | OFN_NODEREFERENCELINKS;
 
       if (GetOpenFileName(&ofn))
+      {
+        workingPath = ELUnExpandVars(tmp);
+        if (workingPath.compare(tmp) == 0)
         {
-          ELUnExpandVars(tmp);
-          std::wstring workingTmp = ELGetRelativePath(tmp);
+          workingPath = ELGetRelativePath(workingPath);
+        }
           if (type == IT_SPECIAL_FOLDER)
             {
-              swprintf(tmp, TEXT("*%ls"), PathFindFileName(workingTmp.c_str()));
-              workingTmp = tmp;
+              swprintf(tmp, TEXT("*%ls"), PathFindFileName(workingPath.c_str()));
+              workingPath = tmp;
             }
 
-          SetDlgItemText(hwndDlg, IDC_ITEMVALUE, workingTmp.c_str());
+          SetDlgItemText(hwndDlg, IDC_ITEMVALUE, workingPath.c_str());
 
           return true;
-        }
+      }
     }
 
   return false;

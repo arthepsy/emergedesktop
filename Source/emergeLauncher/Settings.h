@@ -56,6 +56,7 @@ protected:
 private:
   void writeEntireFolder(WCHAR* folderName);
   void loadLiveFolder(WCHAR* folderName);
+  bool checkFileFilters(WCHAR* fileName);
   std::vector< std::tr1::shared_ptr<Item> > itemList;
   CRITICAL_SECTION itemListCS;
 };

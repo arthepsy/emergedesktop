@@ -145,7 +145,7 @@ void MenuItem::SetIcon()
       break;
     case IT_SPECIAL_FOLDER:
         {
-          UINT specialFolder = ELGetSpecialFolderIDFromPath(menuItemData.value);
+          UINT specialFolder = ELGetSpecialFolderIDFromName(menuItemData.value);
           icon = EGGetSpecialFolderIcon(specialFolder, 16);
         }
       break;

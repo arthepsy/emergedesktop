@@ -514,7 +514,7 @@ bool AliasEditor::UpdateAliases(HWND hwndDlg)
   HWND listWnd = GetDlgItem(hwndDlg, IDC_APPLETLIST);
   WCHAR alias[MAX_LINE_LENGTH], action[MAX_LINE_LENGTH];
   int i = 0;
-  std::wstring aliasFile = TEXT("%EmergeDir%\\files\\cmd.txt");
+  std::wstring aliasFile = TEXT("%EmergeDir%\\files\\alias.txt");
   aliasFile = ELExpandVars(aliasFile);
 
   if ((saveCount == 0) && (deleteCount == 0))
@@ -548,9 +548,14 @@ bool AliasEditor::UpdateAliases(HWND hwndDlg)
 bool AliasEditor::PopulateList(HWND listWnd)
 {
   bool ret = false;
-  std::wstring aliasFile = TEXT("%EmergeDir%\\files\\cmd.txt");
+  std::wstring aliasFile = TEXT("%EmergeDir%\\files\\alias.txt");
   aliasFile = ELExpandVars(aliasFile);
   int index = 0;
+
+  if (!ELFileExists(aliasFile))
+  {
+    ELFileOp(NULL, false, FO_COPY, TEXT("%EmergeDir%\\files\\cmd.txt"), aliasFile);
+  }
 
   WCHAR line[MAX_LINE_LENGTH];
 
@@ -920,8 +925,8 @@ bool AliasEditor::DoAliasBrowse(HWND hwndDlg)
   ofn.lStructSize = sizeof(ofn);
   ofn.hwndOwner = hwndDlg;
   ofn.lpstrFilter = TEXT("All Files (*.*)\0*.*\0");
-  GetDlgItemText(hwndDlg, IDC_APPLET, tmp, MAX_PATH);
-  workingPath = tmp;
+  workingPath.reserve(MAX_PATH);
+  GetDlgItemText(hwndDlg, IDC_APPLET, &workingPath[0], MAX_PATH);
   workingPath = ELExpandVars(workingPath);
   if (ELParseCommand(workingPath.c_str(), program, arguments))
   {
@@ -936,9 +941,12 @@ bool AliasEditor::DoAliasBrowse(HWND hwndDlg)
 
   if (GetOpenFileName(&ofn))
   {
-    wcscpy(tmp, ELUnExpandVars(tmp).c_str());
-    std::wstring workingTmp = ELGetRelativePath(tmp);
-    SetDlgItemText(hwndDlg, IDC_APPLET, workingTmp.c_str());
+    workingPath = ELUnExpandVars(tmp);
+    if (workingPath.compare(tmp) == 0)
+    {
+      workingPath = ELGetRelativePath(workingPath);
+    }
+    SetDlgItemText(hwndDlg, IDC_APPLET, workingPath.c_str());
 
     ret = true;
   }

@@ -232,13 +232,13 @@ bool ELSetModifiedTheme(std::wstring theme)
     themePath = ELExpandVars(themePath);
 
     // Create the theme directory if it doesn't exist
-    if ((ELGetFileSpecialFlags(themePath) & SF_DIRECTORY) != SF_DIRECTORY)
+    if (!ELIsDirectory(themePath))
     {
       ELCreateDirectory(themePath);
     }
 
     // If the theme path is created, set it as the theme
-    if ((ELGetFileSpecialFlags(themePath) & SF_DIRECTORY) == SF_DIRECTORY)
+    if (ELIsDirectory(themePath))
     {
       ELSetTheme(themePath);
       ret = true;

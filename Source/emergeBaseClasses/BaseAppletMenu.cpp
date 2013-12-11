@@ -164,7 +164,7 @@ DWORD BaseAppletMenu::ActivateMenu(int x, int y, WCHAR* styleFile)
     ofn.lpstrFile = file;
     ofn.nMaxFile = MAX_PATH;
     stylePath = themePath + TEXT("\\Styles");
-    if ((ELGetFileSpecialFlags(stylePath) & SF_DIRECTORY) == SF_DIRECTORY)
+    if (ELIsDirectory(stylePath))
     {
       themePath = stylePath;
     }

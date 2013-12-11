@@ -1123,6 +1123,7 @@ bool Actions::DoBrowse(HWND hwndDlg, bool folder)
   BROWSEINFO bi;
   OPENFILENAME ofn;
   WCHAR tmp[MAX_PATH];
+  std::wstring workingPath;
 
   ZeroMemory(tmp, MAX_PATH);
 
@@ -1146,9 +1147,12 @@ bool Actions::DoBrowse(HWND hwndDlg, bool folder)
           pMalloc->Release();
         }
 
-        ELUnExpandVars(tmp);
-        std::wstring workingTmp = ELGetRelativePath(tmp);
-        SetDlgItemText(hwndDlg, IDC_APPLICATION, workingTmp.c_str());
+        workingPath = ELUnExpandVars(tmp);
+        if (workingPath.compare(tmp) == 0)
+        {
+          workingPath = ELGetRelativePath(workingPath);
+        }
+        SetDlgItemText(hwndDlg, IDC_APPLICATION, workingPath.c_str());
 
         ret = true;
       }
@@ -1169,9 +1173,12 @@ bool Actions::DoBrowse(HWND hwndDlg, bool folder)
 
     if (GetOpenFileName(&ofn))
     {
-      ELUnExpandVars(tmp);
-      std::wstring workingTmp = ELGetRelativePath(tmp);
-      SetDlgItemText(hwndDlg, IDC_APPLICATION, workingTmp.c_str());
+      workingPath = ELUnExpandVars(tmp);
+      if (workingPath.compare(tmp) == 0)
+      {
+        workingPath = ELGetRelativePath(workingPath);
+      }
+      SetDlgItemText(hwndDlg, IDC_APPLICATION, workingPath.c_str());
 
       ret = true;
     }

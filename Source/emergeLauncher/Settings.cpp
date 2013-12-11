@@ -262,9 +262,8 @@ void Settings::writeEntireFolder(WCHAR* folderName)
     tmpPath = workingFolder + TEXT("\\");
     tmpPath += FindFileData.cFileName;
 
-    if ((_wcsicmp(TEXT("."), FindFileData.cFileName) != 0) && (_wcsicmp(TEXT(".."), FindFileData.cFileName) != 0))
+    if (checkFileFilters(FindFileData.cFileName))
     {
-      ELStripFileArguments(FindFileData.cFileName);
       WriteItem(IT_EXECUTABLE, (WCHAR*)tmpPath.c_str(), (WCHAR*)TEXT(""), FindFileData.cFileName, (WCHAR*)TEXT(""));
     }
   }
@@ -299,11 +298,8 @@ void Settings::loadLiveFolder(WCHAR* folderName)
     tmpPath = workingFolder + TEXT("\\");
     tmpPath += FindFileData.cFileName;
 
-    if ((_wcsicmp(TEXT("."), FindFileData.cFileName) != 0) &&
-        (_wcsicmp(TEXT(".."), FindFileData.cFileName) != 0) &&
-        ((FindFileData.dwFileAttributes & FILE_ATTRIBUTE_HIDDEN) != FILE_ATTRIBUTE_HIDDEN))
+    if ((checkFileFilters(FindFileData.cFileName)) && ((FindFileData.dwFileAttributes & FILE_ATTRIBUTE_HIDDEN) != FILE_ATTRIBUTE_HIDDEN))
     {
-      ELStripFileArguments(FindFileData.cFileName);
       itemList.push_back(std::tr1::shared_ptr<Item>(new Item(IT_LIVE_FOLDER_ITEM,
                          (WCHAR*)tmpPath.c_str(),
                          (WCHAR*)TEXT(""),
@@ -315,4 +311,34 @@ void Settings::loadLiveFolder(WCHAR* folderName)
   while (FindNextFile(hFind, &FindFileData) != 0);
 
   FindClose(hFind);
+}
+
+bool Settings::checkFileFilters(WCHAR* fileName)
+{
+  bool passedCheck = true;
+  std::wstring fileExtension;
+
+  if (_wcsicmp(fileName, TEXT(".")) == 0)
+  {
+    passedCheck = false;
+  }
+
+  if (_wcsicmp(fileName, TEXT("..")) == 0)
+  {
+    passedCheck = false;
+  }
+
+  fileExtension = ELGetFileExtension(fileName);
+  fileExtension = ELToLower(fileExtension);
+  if (fileExtension == TEXT(".lnk") ||
+    (fileExtension == TEXT(".lnk2")) ||
+    (fileExtension == TEXT(".pif")) ||
+    (fileExtension == TEXT(".scf")) ||
+    (fileExtension == TEXT(".pnagent")) ||
+    (fileExtension == TEXT(".url")))
+  {
+    wcscpy(fileName, ELStripFileExtension(fileName).c_str());
+  }
+
+  return passedCheck;
 }

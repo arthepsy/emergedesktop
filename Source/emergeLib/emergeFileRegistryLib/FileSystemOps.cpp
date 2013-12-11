@@ -34,7 +34,7 @@ bool ELCreateDirectory(std::wstring directoryPath)
 
     if (!subdir.empty())
     {
-      if ((ELGetFileSpecialFlags(subdir) & SF_DIRECTORY) != SF_DIRECTORY)
+      if (!ELIsDirectory(subdir))
       {
         if (!CreateDirectory(subdir.c_str(), NULL))
         {
@@ -47,7 +47,7 @@ bool ELCreateDirectory(std::wstring directoryPath)
     i = directoryPath.find_first_of(TEXT("\\"), i);
   }
 
-  if ((ELGetFileSpecialFlags(directoryPath) & SF_DIRECTORY) != SF_DIRECTORY)
+  if (!ELIsDirectory(directoryPath))
   {
     if (!CreateDirectory(directoryPath.c_str(), NULL))
     {
@@ -75,7 +75,7 @@ std::wstring ELGetTempFileName()
 
 bool ELParseCommand(std::wstring appToParse, WCHAR* program, WCHAR* arguments)
 {
-  std::wstring workingApp, workingArgs, buildPath, tempPath;
+  std::wstring workingApp, workingArgs, tempPath, searchPath;
   int specialFlags;
   std::wstring pathArgsSeparator = TEXT(" ,\t"); //space, comma, tab
   size_t nextQuote, firstNonSpace, nextSeparator, validSeparator;
@@ -118,24 +118,25 @@ bool ELParseCommand(std::wstring appToParse, WCHAR* program, WCHAR* arguments)
   {
     //Calculate the path/args manually:
     //Check workingApp for any separator
-    nextSeparator = workingApp.find_first_of(pathArgsSeparator);
+    //nextSeparator = workingApp.find_first_of(pathArgsSeparator);
+    nextSeparator = 0;
     validSeparator = std::wstring::npos;
     do
     {
+      nextSeparator = workingApp.find_first_of(pathArgsSeparator, nextSeparator + 1);
+
       // If a separator is found, check with extension to see if it's valid
       if (nextSeparator == std::wstring::npos)
       {
-        buildPath = workingApp;
+        tempPath = workingApp;
       }
       else
       {
-        buildPath = workingApp.substr(0, nextSeparator);
+        tempPath = workingApp.substr(0, nextSeparator);
       }
 
-      tempPath = buildPath;
-
       specialFlags = ELGetFileSpecialFlags(tempPath);
-      if (((specialFlags & SF_CLSID) == SF_CLSID) || ((specialFlags & SF_INTERNALCOMMAND) == SF_INTERNALCOMMAND) || ((specialFlags & SF_URL) == SF_URL))
+      if (((specialFlags & SF_CLSID) == SF_CLSID) || ((specialFlags & SF_ALIAS) == SF_ALIAS) || ((specialFlags & SF_INTERNALCOMMAND) == SF_INTERNALCOMMAND) || ((specialFlags & SF_URL) == SF_URL))
       {
         wcscpy(program, tempPath.c_str());
         validSeparator = nextSeparator;
@@ -143,31 +144,34 @@ bool ELParseCommand(std::wstring appToParse, WCHAR* program, WCHAR* arguments)
 
       if (specialFlags == SF_NOTHING)
       {
-        tempPath = ELExhaustivelyFindFilePath(tempPath);
-        if (!tempPath.empty())
+        searchPath = ELExhaustivelyFindFilePath(tempPath);
+        if (!searchPath.empty())
         {
-          // If the file is found on the path, copy it to program and set validSeparator
-          wcscpy(program, tempPath.c_str());
-          validSeparator = nextSeparator;
+          tempPath = searchPath;
+
+          specialFlags = ELGetFileSpecialFlags(tempPath);
         }
         else
         {
-          tempPath = ELExpandVars(workingApp);
-          tempPath = ELGetAbsolutePath(tempPath);
+          if (tempPath == workingApp)
+          {
+            tempPath = ELExpandVars(tempPath);
+            tempPath = ELGetAbsolutePath(tempPath);
+
+            specialFlags = ELGetFileSpecialFlags(tempPath);
+          }
         }
-        
-        specialFlags = ELGetFileSpecialFlags(tempPath);
       }
 
       // Bail if workingApp is a directory, UNC Path or it exists
-      if (((specialFlags & SF_DIRECTORY) == SF_DIRECTORY) || ((specialFlags & SF_SPECIALFOLDER) == SF_SPECIALFOLDER) || ((specialFlags & SF_UNC) == SF_UNC) || ELFileExists(workingApp))
+      if (((specialFlags & SF_DIRECTORY) == SF_DIRECTORY) || ((specialFlags & SF_SPECIALFOLDER) == SF_SPECIALFOLDER) || ((specialFlags & SF_UNC) == SF_UNC) || ELFileExists(tempPath))
       {
         wcscpy(program, tempPath.c_str());
         validSeparator = nextSeparator;
       }
 
       // Loop to the next separator
-      nextSeparator = workingApp.find_first_of(pathArgsSeparator, nextSeparator + 1);
+      //nextSeparator = workingApp.find_first_of(pathArgsSeparator, nextSeparator + 1);
     } while (nextSeparator != std::wstring::npos);
 
     // If the validSeparator is set, copy the arguments based on its position
@@ -340,6 +344,21 @@ std::wstring ELGetFileExtension(std::wstring filePath)
   return tempFile;
 }
 
+std::wstring ELStripFileExtension(std::wstring fileName)
+{
+  WCHAR tempBuffer[MAX_PATH];
+
+  if (fileName.empty())
+  {
+    return TEXT("");
+  }
+
+  wcscpy(tempBuffer, fileName.c_str());
+  PathRemoveExtension(tempBuffer);
+
+  return tempBuffer;
+}
+
 std::wstring ELGetFileArguments(std::wstring filePath)
 {
   std::wstring workingPath = filePath;
@@ -439,7 +458,7 @@ std::wstring ELGetRelativePath(std::wstring filePath, std::wstring baseDirPath)
     return workingFilePath;
   }
 
-  if ((ELGetFileSpecialFlags(program) & SF_DIRECTORY) == SF_DIRECTORY)
+  if (ELIsDirectory(program))
   {
     flags = FILE_ATTRIBUTE_DIRECTORY;
   }
@@ -489,7 +508,7 @@ std::wstring ELGetRelativePath(std::wstring filePath, std::wstring baseDirPath)
 
 bool ELPathIsRelative(std::wstring filePath)
 {
-  std::wstring relativePath;
+  /*std::wstring relativePath;
 
   if (filePath.empty())
   {
@@ -497,7 +516,14 @@ bool ELPathIsRelative(std::wstring filePath)
   }
 
   relativePath = ELGetRelativePath(filePath);
-  return (ELToLower(relativePath) == ELToLower(filePath));
+  return (ELToLower(relativePath) == ELToLower(filePath));*/
+  std::wstring tmpPath = filePath;
+  tmpPath = ELExpandVars(tmpPath);
+
+  // PathIsRelative treats "\" as a fully qualified path, which isn't true
+  // (except for UNC); therefore, check for a drive number first.
+  return ((PathGetDriveNumber(tmpPath.c_str()) == -1) &&
+    !PathIsUNC(tmpPath.c_str()));
 }
 
 std::wstring ELExhaustivelyFindFilePath(std::wstring filePath)
@@ -505,8 +531,9 @@ std::wstring ELExhaustivelyFindFilePath(std::wstring filePath)
   std::wstring tempPath = filePath;
   WCHAR pathext[MAX_LINE_LENGTH], *token;
 
+  tempPath = ELExpandVars(tempPath);
   tempPath = ELGetAbsolutePath(tempPath);
-  if (ELFileExists(tempPath) && ((ELGetFileSpecialFlags(tempPath) & SF_DIRECTORY) != SF_DIRECTORY))
+  if ((ELFileExists(tempPath)) && (!ELIsDirectory(tempPath)))
   {
     return tempPath;
   }
@@ -587,7 +614,12 @@ bool ELFileExists(std::wstring filePath)
 {
   std::wstring tempFile;
 
-  tempFile = ELGetAbsolutePath(filePath);
+  if (filePath.empty())
+  {
+    return false;
+  }
+
+  tempFile = filePath;
 
   if ((tempFile.at(0) == '"') && (tempFile.at(tempFile.length() - 1) == '"'))
   {
@@ -602,8 +634,6 @@ int ELGetFileSpecialFlags(std::wstring filePath)
   std::wstring workingPath = filePath;
   int flags = SF_NOTHING;
 
-  workingPath = ELExpandVars(workingPath);
-
   if (workingPath.empty())
   {
     return SF_NOTHING;
@@ -614,9 +644,14 @@ int ELGetFileSpecialFlags(std::wstring filePath)
     flags = (flags | SF_CLSID);
   }
 
-  if (IsDirectory(workingPath))
+  if (ELIsDirectory(workingPath))
   {
     flags = (flags | SF_DIRECTORY);
+  }
+
+  if (IsAlias(workingPath))
+  {
+    flags = (flags | SF_ALIAS);
   }
 
   if (ELIsInternalCommand(workingPath))
@@ -645,6 +680,16 @@ int ELGetFileSpecialFlags(std::wstring filePath)
   }
 
   return flags;
+}
+
+DLL_EXPORT bool ELIsDirectory(std::wstring filePath)
+{
+  if (filePath.empty())
+  {
+    return false;
+  }
+
+  return (PathIsDirectory(filePath.c_str()) || PathIsUNCServerShare(filePath.c_str()) || PathIsUNCServer(filePath.c_str()));
 }
 
 std::wstring ELGetFileTypeCommand(std::wstring document, std::wstring docArgs)
@@ -873,6 +918,10 @@ bool ELExecuteFileOrCommand(std::wstring application, std::wstring workingDir, i
   {
     result = ELExecuteInternalCommand(workingApp, workingArgs);
   }
+  else if ((specialFlags & SF_ALIAS) == SF_ALIAS)
+  {
+    result = ExecuteAlias(workingApp);
+  }
   else if ((specialFlags & SF_SPECIALFOLDER) == SF_SPECIALFOLDER)
   {
     result = ExecuteSpecialFolder(workingApp);
@@ -928,6 +977,16 @@ bool ELFileOp(HWND appletWnd, bool feedback, UINT function, std::wstring source,
   return ret;
 }
 
+bool IsAlias(std::wstring filePath)
+{
+  if (filePath.length() < 2)
+  {
+    return false;
+  }
+
+  return (filePath.at(0) == '.');
+}
+
 bool IsCLSID(std::wstring filePath)
 {
   if (filePath.length() < 3)
@@ -936,16 +995,6 @@ bool IsCLSID(std::wstring filePath)
   }
 
   return ((filePath.at(0) == ':') && (filePath.at(1) == ':') && (filePath.at(2) == '{'));
-}
-
-bool IsDirectory(std::wstring filePath)
-{
-  if (filePath.empty())
-  {
-    return false;
-  }
-
-  return (PathIsDirectory(filePath.c_str()) || PathIsUNCServerShare(filePath.c_str()) || PathIsUNCServer(filePath.c_str()));
 }
 
 bool IsShortcut(std::wstring filePath)
@@ -978,7 +1027,7 @@ std::wstring FindFileOnPATH(std::wstring path)
     tempPath = FindFilePathFromRegistry(tempPath);
   }
 
-  if (ELFileExists(tempPath) && ((ELGetFileSpecialFlags(tempPath) & SF_DIRECTORY) != SF_DIRECTORY))
+  if ((ELFileExists(tempPath)) && (!ELIsDirectory(tempPath)))
   {
     return tempPath;
   }
@@ -999,7 +1048,7 @@ std::wstring FindFileOnPATH(std::wstring path)
   corePathPtr[3] = NULL;
 
   wcscpy(tempBuffer, tempPath.c_str());
-  if (PathFindOnPath(tempBuffer, corePathPtr) && ((ELGetFileSpecialFlags(tempBuffer) & SF_DIRECTORY) != SF_DIRECTORY))
+  if ((PathFindOnPath(tempBuffer, corePathPtr)) && (!ELIsDirectory(tempBuffer)))
   {
     return tempBuffer;
   }
@@ -1125,7 +1174,7 @@ bool Execute(std::wstring application, std::wstring workingDir, int nShow, std::
   }
   workingString = ELExpandVars(workingString);
 
-  if (ELParseCommand(workingString.c_str(), program, arguments))
+  if (ELParseCommand(workingString, program, arguments))
   {
     workingString = program;
   }
@@ -1235,6 +1284,54 @@ bool Execute(std::wstring application, std::wstring workingDir, int nShow, std::
   return (ShellExecuteEx(&sei) == TRUE);
 }
 
+bool ExecuteAlias(std::wstring alias)
+{
+  bool ret = false;
+  std::wstring aliasFile = TEXT("%EmergeDir%\\files\\alias.txt");
+  aliasFile = ELExpandVars(aliasFile);
+
+  if (!ELFileExists(aliasFile))
+  {
+    ELFileOp(NULL, false, FO_COPY, TEXT("%EmergeDir%\\files\\cmd.txt"), aliasFile);
+  }
+
+  if (alias.length() < 2)
+    return false;
+
+  if (alias.at(0) == '.')
+    {
+      WCHAR line[MAX_LINE_LENGTH], *command=NULL, *value=NULL;
+
+      FILE *fp = _wfopen(aliasFile.c_str(), TEXT("r"));
+
+      if (!fp)
+        return false;
+
+      while (fgetws(line, MAX_LINE_LENGTH, fp))
+        {
+          value = wcstok(line, TEXT(" \t"));
+          if (value != NULL)
+            command = wcstok(NULL, TEXT("\n"));
+
+          if (command != NULL)
+            {
+              ELStripLeadingSpaces(command);
+
+              // execute the command
+              if (ELToLower(value) == ELToLower(alias))
+                {
+                  ret = ELExecuteFileOrCommand(command);
+                  break;
+                }
+            }
+        }
+
+      fclose(fp);
+    }
+
+  return ret;
+}
+
 bool ExecuteSpecialFolder(std::wstring folder)
 {
   int specialFolderID = ELGetSpecialFolderIDFromName(folder);
@@ -1278,14 +1375,12 @@ bool ExecuteSpecialFolder(std::wstring folder)
           classID = classID + TEXT("\\::");
         }
       }
-      else
-      {
-        guid = GetSpecialFolderGUID(specialFolderID);
+
+      guid = GetSpecialFolderGUID(specialFolderID);
         if (!guid.empty())
         {
           classID = classID + guid;
         }
-      }
 
       ELStringReplace(command, (WCHAR*)TEXT("/idlist,%I,"), (WCHAR*)TEXT(""), true);
       ELStringReplace(command, (WCHAR*)TEXT("%L"), classID.c_str(), true);

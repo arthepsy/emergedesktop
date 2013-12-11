@@ -55,7 +55,7 @@ std::wstring ELUnExpandVars(std::wstring value)
   std::wstring output = value;
   bool success = false;
   WCHAR tmp[MAX_LINE_LENGTH];
-  std::wstring collapsedEnvVar;
+  std::wstring collapsedEnvVar, collapsedOutput;
 
   std::array<std::wstring, 9> envVars;
   size_t counter;
@@ -77,8 +77,10 @@ std::wstring ELUnExpandVars(std::wstring value)
       collapsedEnvVar = TEXT("%");
       collapsedEnvVar.append(envVars[counter]);
       collapsedEnvVar.append(TEXT("%"));
-      if (output != ELwstringReplace(output, tmp, collapsedEnvVar, true))
+      collapsedOutput = ELwstringReplace(output, tmp, collapsedEnvVar, true);
+      if (output != collapsedOutput)
       {
+        output = collapsedOutput;
         success = true;
       }
     }
@@ -205,7 +207,7 @@ void ELGetThemeInfo(LPTHEMEINFO themeInfo)
       else
       {
         themeInfo->themePath = themeInfo->path + TEXT("\\themes\\") + themeInfo->theme;
-        if (((ELGetFileSpecialFlags(themeInfo->themePath)) & SF_DIRECTORY) != SF_DIRECTORY)
+        if (!ELIsDirectory(themeInfo->themePath))
         {
           themeInfo->theme = defaultThemeValue;
           ELWriteXMLStringValue(section, currentThemeValue, themeInfo->theme);

@@ -186,7 +186,7 @@ bool ESEWriteStyle(std::wstring styleFile, LPGUIINFO guiInfo, HWND hwnd)
       oldThemePath += TEXT("\\*");
       std::wstring newThemePath = TEXT("%ThemeDir%");
 
-      if ((ELGetFileSpecialFlags(newThemePath) & SF_DIRECTORY) != SF_DIRECTORY)
+      if (!ELIsDirectory(newThemePath))
       {
         ELCreateDirectory(newThemePath);
       }

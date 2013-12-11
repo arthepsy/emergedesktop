@@ -1510,7 +1510,7 @@ void MenuBuilder::BuildFileMenuFromString(MenuMap::iterator iter, WCHAR *parsedV
 
           if (ELParseShortcut(tmp, &shortcutInfo))
             {
-              if ((ELGetFileSpecialFlags(shortcutInfo.Path) & SF_DIRECTORY) == SF_DIRECTORY)
+                if (ELIsDirectory(shortcutInfo.Path))
                 {
                   iter->second->SetValue(shortcutInfo.Path);
                   BuildFileMenu(iter);
@@ -1822,7 +1822,7 @@ LRESULT MenuBuilder::DoButtonDown(UINT button)
   TiXmlElement *section = NULL, *menu = NULL;
   std::wstring xmlPath = TEXT("%EmergeDir%\\files\\");
   xmlPath = ELExpandVars(xmlPath);
-  if ((ELGetFileSpecialFlags(xmlPath) & SF_DIRECTORY) != SF_DIRECTORY)
+  if (!ELIsDirectory(xmlPath))
   {
     ELCreateDirectory(xmlPath);
   }

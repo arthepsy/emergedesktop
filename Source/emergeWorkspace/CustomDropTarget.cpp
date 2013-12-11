@@ -197,14 +197,16 @@ bool CustomDropTarget::FileDrop(HDROP hdrop, DWORD dropEffect)
       if (dropEffect & DROPEFFECT_MOVE)
         fileOp = FO_MOVE;
 
-      if ((ELGetFileSpecialFlags(dropItemData.value) & SF_DIRECTORY) != SF_DIRECTORY)
+      if (!ELIsDirectory(dropItemData.value))
         {
           size_t backslash = workingValue.rfind('\\');
           if (backslash != std::wstring::npos)
             workingValue = workingValue.substr(0, backslash);
 
-          if ((ELGetFileSpecialFlags(workingValue.c_str()) & SF_DIRECTORY) != SF_DIRECTORY)
+          if (!ELIsDirectory(workingValue))
+          {
             return false;
+          }
         }
 
       for (UINT i = 0; i < count; i++)

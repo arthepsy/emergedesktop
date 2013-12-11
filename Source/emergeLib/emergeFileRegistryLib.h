@@ -85,7 +85,8 @@ typedef enum _SPECIALFILEFLAGS
   SF_URL = 16,
   SF_CLSID = 32,
   SF_INTERNALCOMMAND = 64,
-  SF_UNC = 128
+  SF_ALIAS = 128,
+  SF_UNC = 256
 }
 SPECIALFILEFLAGS;
 
@@ -152,6 +153,7 @@ DLL_EXPORT bool ELParseShortcut(std::wstring shortcut, LPSHORTCUTINFO shortcutIn
 
 DLL_EXPORT std::wstring ELGetFileName(std::wstring filePath);
 DLL_EXPORT std::wstring ELGetFileExtension(std::wstring filePath);
+DLL_EXPORT std::wstring ELStripFileExtension(std::wstring fileName);
 DLL_EXPORT std::wstring ELGetFileArguments(std::wstring filePath);
 DLL_EXPORT std::wstring ELStripFileArguments(std::wstring filePath);
 
@@ -165,6 +167,7 @@ DLL_EXPORT std::vector<std::wstring> ELGetFilesInFolder(std::wstring folder, std
 DLL_EXPORT bool ELFileExists(std::wstring filePath);
 
 DLL_EXPORT int ELGetFileSpecialFlags(std::wstring filePath);
+DLL_EXPORT bool ELIsDirectory(std::wstring filePath);
 DLL_EXPORT std::wstring ELGetFileTypeCommand(std::wstring document, std::wstring docArgs);
 
 DLL_EXPORT std::wstring ELGetSpecialFolderNameFromPath(std::wstring folderPath);

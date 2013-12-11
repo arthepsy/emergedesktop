@@ -140,7 +140,7 @@ bool BaseSettings::CopyTheme()
   oldThemePath += TEXT("\\*");
   newThemePath = TEXT("%ThemeDir%");
 
-  if ((ELGetFileSpecialFlags(newThemePath) & SF_DIRECTORY) != SF_DIRECTORY)
+  if (!ELIsDirectory(newThemePath))
   {
     if (ELCreateDirectory(newThemePath))
     {
@@ -844,7 +844,7 @@ bool BaseSettings::CopyStyle()
   if (workingStyle.find(TEXT("\\Styles\\")) == std::wstring::npos)
   {
     destStyle = TEXT("%ThemeDir%\\Styles");
-    if ((ELGetFileSpecialFlags(destStyle) & SF_DIRECTORY) != SF_DIRECTORY)
+    if (!ELIsDirectory(destStyle))
       if (!ELCreateDirectory(destStyle))
       {
         return false;

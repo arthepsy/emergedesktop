@@ -247,7 +247,7 @@ int ELExtractZip(std::wstring zipFile, std::wstring unzipPath)
 
         if (ze.attr == FILE_ATTRIBUTE_DIRECTORY)
         {
-          if ((ELGetFileSpecialFlags(tmpPath) & SF_DIRECTORY) == SF_DIRECTORY)
+          if (ELIsDirectory(tmpPath))
           {
             themeName = ze.name;
             themeName = themeName.substr(0, themeName.rfind('/'));

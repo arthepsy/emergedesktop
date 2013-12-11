@@ -719,7 +719,7 @@ BOOL LaunchPage::GetIcon(HWND hwndDlg)
 
   if (EGGetIconDialogue(hwndDlg, iconPath, iconIndex))
   {
-    ELUnExpandVars(iconPath);
+    wcscpy(iconPath, ELUnExpandVars(iconPath).c_str());
     SetDlgItemText(hwndDlg, IDC_ICONPATH, iconPath);
   }
   return TRUE;
@@ -1284,7 +1284,7 @@ bool LaunchPage::SaveItem(HWND hwndDlg)
 
   if (command != NULL)
   {
-    ELUnExpandVars(command);
+    wcscpy(command, ELUnExpandVars(command).c_str());
   }
 
   GetDlgItemText(hwndDlg, IDC_ICONPATH, iconPath, MAX_LINE_LENGTH);
@@ -1363,7 +1363,7 @@ bool LaunchPage::Browse(HWND hwndDlg, UINT type)
           pMalloc->Release();
         }
 
-        ELUnExpandVars(tmp);
+        wcscpy(tmp, ELUnExpandVars(tmp).c_str());
         std::wstring workingTmp = ELGetRelativePath(tmp);
         SetDlgItemText(hwndDlg, IDC_WORKINGDIR, workingTmp.c_str());
 
@@ -1392,7 +1392,7 @@ bool LaunchPage::Browse(HWND hwndDlg, UINT type)
           pMalloc->Release();
         }
 
-        ELUnExpandVars(tmp);
+        wcscpy(tmp, ELUnExpandVars(tmp).c_str());
         std::wstring workingTmp = ELGetRelativePath(tmp);
         SetDlgItemText(hwndDlg, IDC_COMMAND, workingTmp.c_str());
 
@@ -1406,8 +1406,8 @@ bool LaunchPage::Browse(HWND hwndDlg, UINT type)
 
     ofn.lStructSize = sizeof(ofn);
     ofn.hwndOwner = hwndDlg;
-    GetDlgItemText(hwndDlg, IDC_COMMAND, tmp, MAX_PATH);
-    workingPath = tmp;
+    workingPath.reserve(MAX_PATH);
+    GetDlgItemText(hwndDlg, IDC_COMMAND, &workingPath[0], MAX_PATH);
     workingPath = ELExpandVars(workingPath);
     if (ELParseCommand(workingPath.c_str(), program, arguments))
     {
@@ -1423,9 +1423,12 @@ bool LaunchPage::Browse(HWND hwndDlg, UINT type)
 
     if (GetOpenFileName(&ofn))
     {
-      ELUnExpandVars(tmp);
-      std::wstring workingTmp = ELGetRelativePath(tmp);
-      SetDlgItemText(hwndDlg, IDC_COMMAND, workingTmp.c_str());
+      workingPath = ELUnExpandVars(tmp);
+      if (workingPath.compare(tmp) == 0)
+      {
+        workingPath = ELGetRelativePath(workingPath);
+      }
+      SetDlgItemText(hwndDlg, IDC_COMMAND, workingPath.c_str());
       ret = true;
     }
   }
