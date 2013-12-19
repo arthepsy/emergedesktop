@@ -75,7 +75,7 @@ bool Shell::RunRegEntries(HKEY key, bool clearEntry, bool showStartupErrors)
   DWORD type, index = 0, valueSize = MAX_LINE_LENGTH, dataSize = MAX_LINE_LENGTH;
   BYTE data[MAX_LINE_LENGTH];
   WCHAR value[MAX_LINE_LENGTH];
-  WCHAR error[MAX_LINE_LENGTH];
+  //WCHAR error[MAX_LINE_LENGTH];
   bool found = false;
 
   // Loop while there are entries in the key
@@ -84,11 +84,12 @@ bool Shell::RunRegEntries(HKEY key, bool clearEntry, bool showStartupErrors)
     // If it's a string, execute it
     if ((type == REG_SZ) || (type == REG_EXPAND_SZ))
     {
-      swprintf(error, TEXT("Failed to execute \"%ls\""), (WCHAR*)data);
+      /*swprintf(error, TEXT("Failed to execute \"%ls\""), (WCHAR*)data);
       if (!ELExecuteFileOrCommand((WCHAR*)data) && showStartupErrors)
       {
         ELMessageBox(GetDesktopWindow(), error, TEXT("emergeCore"), ELMB_ICONWARNING | ELMB_OK);
-      }
+      }*/
+      ELExecuteFileOrCommand((WCHAR*)data);
 
       if (clearEntry)
       {
@@ -417,7 +418,7 @@ void Shell::RunFolderEntries(LPTSTR path, bool showStartupErrors)
   WIN32_FIND_DATA findData;
   HANDLE find;
   bool found = false;
-  WCHAR error[MAX_LINE_LENGTH];
+  //WCHAR error[MAX_LINE_LENGTH];
 
   // Check the format of the specified path
   if (path[wcslen(path) - 1] != '\\')
@@ -445,11 +446,12 @@ void Shell::RunFolderEntries(LPTSTR path, bool showStartupErrors)
     {
       wcscpy(app, appPath);
       wcscat(app, findData.cFileName);
-      swprintf(error, TEXT("Failed to execute \"%ls\""), app);
+      /*swprintf(error, TEXT("Failed to execute \"%ls\""), app);
       if (!ELExecuteFileOrCommand(app) && showStartupErrors)
       {
         ELMessageBox(GetDesktopWindow(), error, TEXT("emergeCore"), ELMB_ICONWARNING | ELMB_OK);
-      }
+      }*/
+      ELExecuteFileOrCommand(app);
     }
 
     // Get the next file

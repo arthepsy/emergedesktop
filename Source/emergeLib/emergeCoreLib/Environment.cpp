@@ -239,17 +239,15 @@ void ELClearEmergeVars()
   SetEnvironmentVariable(TEXT("ThemeDir"), NULL);
   SetEnvironmentVariable(TEXT("EmergeDir"), NULL);
   SetEnvironmentVariable(TEXT("AppletDir"), NULL);
-  SetEnvironmentVariable(TEXT("PortableMode"), NULL);
 }
 
 bool ELSetEmergeVars()
 {
-  std::wstring appletPath, portableMode;
+  std::wstring appletPath;
 
   THEMEINFO themeInfo;
   ELGetThemeInfo(&themeInfo);
   appletPath = ELGetCurrentPath();
-  portableMode = ELGetPortableMode();
 
   if (!SetEnvironmentVariable(TEXT("ThemeDir"), themeInfo.themePath.c_str()))
   {
@@ -262,11 +260,6 @@ bool ELSetEmergeVars()
   }
 
   if (!SetEnvironmentVariable(TEXT("AppletDir"), appletPath.c_str()))
-  {
-    return false;
-  }
-
-  if (!SetEnvironmentVariable(TEXT("PortableMode"), portableMode.c_str()))
   {
     return false;
   }

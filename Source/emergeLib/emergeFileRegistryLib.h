@@ -162,7 +162,7 @@ DLL_EXPORT std::wstring ELGetRelativePath(std::wstring filePath, std::wstring ba
 DLL_EXPORT bool ELPathIsRelative(std::wstring filePath);
 DLL_EXPORT std::wstring ELExhaustivelyFindFilePath(std::wstring filePath);
 
-DLL_EXPORT std::vector<std::wstring> ELGetFilesInFolder(std::wstring folder, std::wstring fileMask = TEXT(""), bool fullPath = false);
+DLL_EXPORT std::vector<std::wstring> ELFindFilesInFolder(std::wstring folder, std::wstring fileMask = TEXT(""), bool fullPath = false);
 
 DLL_EXPORT bool ELFileExists(std::wstring filePath);
 

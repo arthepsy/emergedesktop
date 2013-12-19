@@ -163,7 +163,7 @@ std::vector<CommandInfoStruct> LoadEmergeInternalCommands()
 
   dllSearchLocation = ELGetCurrentPath();
   dllSearchLocation = dllSearchLocation + TEXT("\\Plugins\\");
-  dllFiles = ELGetFilesInFolder(dllSearchLocation, TEXT("*.dll"), true);
+  dllFiles = ELFindFilesInFolder(dllSearchLocation, TEXT("*.dll"), true);
 
   if (!dllFiles.empty())
   {

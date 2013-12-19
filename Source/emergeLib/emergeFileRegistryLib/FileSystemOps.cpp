@@ -568,7 +568,7 @@ std::wstring ELExhaustivelyFindFilePath(std::wstring filePath)
   return TEXT("");
 }
 
-std::vector<std::wstring> ELGetFilesInFolder(std::wstring folder, std::wstring fileMask, bool fullPath)
+std::vector<std::wstring> ELFindFilesInFolder(std::wstring folder, std::wstring fileMask, bool fullPath)
 {
   std::vector<std::wstring> fileList;
   std::wstring fileName;
@@ -905,10 +905,13 @@ bool ELExecuteFileOrCommand(std::wstring application, std::wstring workingDir, i
   bool result = false;
   WCHAR workingApp[MAX_PATH], workingArgs[MAX_PATH];
   int specialFlags;
-  std::wstring fullApplicationPath;
+  std::wstring fullApplicationPath, error;
+
+  error = TEXT("Failed to execute ") + application;
 
   if (!ELParseCommand(application, workingApp, workingArgs))
   {
+    ELMessageBox(GetDesktopWindow(), error, ELGetProcessIDApp(GetCurrentProcessId(), false), ELMB_ICONWARNING | ELMB_OK | ELMB_MODAL);
     return false;
   }
 
@@ -930,6 +933,11 @@ bool ELExecuteFileOrCommand(std::wstring application, std::wstring workingDir, i
   {
     fullApplicationPath = application;
     result = Execute(fullApplicationPath, workingDir, nShow, verb);
+  }
+
+  if (!result)
+  {
+    ELMessageBox(GetDesktopWindow(), error, ELGetProcessIDApp(GetCurrentProcessId(), false), ELMB_ICONWARNING | ELMB_OK | ELMB_MODAL);
   }
 
   return result;
@@ -984,7 +992,7 @@ bool IsAlias(std::wstring filePath)
     return false;
   }
 
-  return (filePath.at(0) == '.');
+  return ((filePath.at(0) == '.') && (!ELFileExists(ELGetAbsolutePath(filePath))));
 }
 
 bool IsCLSID(std::wstring filePath)

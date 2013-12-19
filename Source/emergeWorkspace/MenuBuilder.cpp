@@ -1931,7 +1931,7 @@ LRESULT MenuBuilder::ExecuteMenuItem(UINT_PTR itemID)
 {
   MenuMap::iterator iter;
   std::tr1::shared_ptr<MenuItem> menuItem = menuItemMap.find(itemID)->second;
-  WCHAR error[MAX_LINE_LENGTH];
+  //WCHAR error[MAX_LINE_LENGTH];
 
   if (!menuItem)
     return 1;
@@ -1946,11 +1946,12 @@ LRESULT MenuBuilder::ExecuteMenuItem(UINT_PTR itemID)
                          menuItem->GetWorkingDir());
       break;
     case IT_FILE:
-      if (!ELExecuteFileOrCommand(menuItem->GetValue()))
+      /*if (!ELExecuteFileOrCommand(menuItem->GetValue()))
         {
           swprintf(error, TEXT("Failed to execute \"%ls\""), menuItem->GetValue());
           ELMessageBox(GetDesktopWindow(), error, TEXT("emergeWorkspace"), ELMB_ICONWARNING|ELMB_OK);
-        }
+        }*/
+      ELExecuteFileOrCommand(menuItem->GetValue());
       break;
     case IT_TASK:
 #ifdef _W64
@@ -2122,8 +2123,8 @@ void MenuBuilder::AddSpecialItem(MenuMap::iterator iter, UINT type, WCHAR* text,
 void MenuBuilder::ExecuteXMLMenuItem(UINT type, WCHAR *value, WCHAR *workingDir)
 {
   bool ret = false;
-  WCHAR error[MAX_LINE_LENGTH];
-  swprintf(error, TEXT("Failed to execute \"%ls\""), value);
+  /*WCHAR error[MAX_LINE_LENGTH];
+  swprintf(error, TEXT("Failed to execute \"%ls\""), value);*/
 
   switch (type)
     {
@@ -2141,8 +2142,8 @@ void MenuBuilder::ExecuteXMLMenuItem(UINT type, WCHAR *value, WCHAR *workingDir)
       break;
     }
 
-  if (!ret)
-    ELMessageBox(GetDesktopWindow(), error, TEXT("emergeWorkspace"), ELMB_ICONWARNING|ELMB_OK);
+  /*if (!ret)
+    ELMessageBox(GetDesktopWindow(), error, TEXT("emergeWorkspace"), ELMB_ICONWARNING|ELMB_OK);*/
 }
 
 void MenuBuilder::ExecuteSettingsMenuItem(UINT index)

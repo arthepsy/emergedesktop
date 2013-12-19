@@ -143,7 +143,8 @@ bool Command::Init()
 //----  --------------------------------------------------------------------------------------------------------
 LRESULT CALLBACK Command::EditProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-  WCHAR error[MAX_LINE_LENGTH], buf[MAX_LINE_LENGTH];
+  //WCHAR error[MAX_LINE_LENGTH];
+  WCHAR buf[MAX_LINE_LENGTH];
   static Command* pCommand = reinterpret_cast<Command*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
 
   if (message == WM_KEYDOWN)
@@ -153,7 +154,7 @@ LRESULT CALLBACK Command::EditProc(HWND hwnd, UINT message, WPARAM wParam, LPARA
     {
       int length = GetWindowText(hwnd, buf, MAX_LINE_LENGTH);
       SetWindowText(hwnd, TEXT(""));
-      swprintf(error, TEXT("Failed to execute \"%ls\""), buf);
+      //swprintf(error, TEXT("Failed to execute \"%ls\""), buf);
       if (length > 0)
       {
         buf[length] = '\0';
@@ -162,10 +163,10 @@ LRESULT CALLBACK Command::EditProc(HWND hwnd, UINT message, WPARAM wParam, LPARA
           pCommand->AddElement(buf);
           pCommand->ShowAppletWindow();
         }
-        else
+        /*else
         {
           ELMessageBox(GetDesktopWindow(), error, TEXT("emergeCommand"), ELMB_ICONWARNING | ELMB_OK);
-        }
+        }*/
       }
 
       return 0;

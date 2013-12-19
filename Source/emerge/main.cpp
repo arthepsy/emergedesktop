@@ -50,9 +50,9 @@ int WINAPI WinMain (HINSTANCE hInstance UNUSED,
 
   if (!ELExecuteFileOrCommand(commandLine))
   {
-    error = TEXT("Failed to execute ");
+    /*error = TEXT("Failed to execute ");
     error = error + commandLine;
-    ELMessageBox(GetDesktopWindow(), error, TEXT("emerge"), ELMB_ICONWARNING | ELMB_OK | ELMB_MODAL);
+    ELMessageBox(GetDesktopWindow(), error, TEXT("emerge"), ELMB_ICONWARNING | ELMB_OK | ELMB_MODAL);*/
     return 2;
   }
 
