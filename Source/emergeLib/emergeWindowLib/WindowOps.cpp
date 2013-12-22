@@ -166,10 +166,11 @@ bool ELStealFocus(HWND hwnd)
 //----  --------------------------------------------------------------------------------------------------------
 bool ELSwitchToThisWindow(HWND wnd)
 {
-  if ((emergeLibGlobals::getUser32DLL()) && (MSSwitchToThisWindow == NULL))
+  if ((MSSwitchToThisWindow == NULL) && (emergeLibGlobals::getUser32DLL()))
   {
     MSSwitchToThisWindow = (lpfnMSSwitchToThisWindow)GetProcAddress(emergeLibGlobals::getUser32DLL(), "SwitchToThisWindow");
   }
+
   if (MSSwitchToThisWindow)
   {
     MSSwitchToThisWindow(wnd, TRUE);

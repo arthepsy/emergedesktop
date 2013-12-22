@@ -856,12 +856,9 @@ int ELGetSpecialFolderIDFromPath(std::wstring folderPath)
 
 std::wstring ELGetUNCFromMap(std::wstring uncMap)
 {
-  if (emergeLibGlobals::getMprDLL())
+  if ((MSWNetGetConnection == NULL) && (emergeLibGlobals::getMprDLL()))
   {
-    if (MSWNetGetConnection == NULL)
-    {
-      MSWNetGetConnection = (fnWNetGetConnection)GetProcAddress(emergeLibGlobals::getMprDLL(), (LPCSTR)"WNetGetConnectionW");
-    }
+    MSWNetGetConnection = (fnWNetGetConnection)GetProcAddress(emergeLibGlobals::getMprDLL(), (LPCSTR)"WNetGetConnectionW");
   }
 
   if (MSWNetGetConnection)

@@ -115,12 +115,9 @@ HMODULE ELLoadEmergeLibrary(std::wstring library)
 
 void* ELLockShared(HANDLE sharedMem, DWORD processID)
 {
-  if (emergeLibGlobals::getShlwapiDLL())
+  if ((MSSHLockShared == NULL) && (emergeLibGlobals::getShlwapiDLL()))
   {
-    if (MSSHLockShared == NULL)
-    {
-      MSSHLockShared = (fnSHLockShared)GetProcAddress(emergeLibGlobals::getShlwapiDLL(), (LPCSTR)8);
-    }
+    MSSHLockShared = (fnSHLockShared)GetProcAddress(emergeLibGlobals::getShlwapiDLL(), (LPCSTR)8);
   }
 
   if (MSSHLockShared && sharedMem)
@@ -133,12 +130,9 @@ void* ELLockShared(HANDLE sharedMem, DWORD processID)
 
 bool ELUnlockShared(void* sharedPtr)
 {
-  if (emergeLibGlobals::getShlwapiDLL())
+  if ((MSSHUnlockShared == NULL) && (emergeLibGlobals::getShlwapiDLL()))
   {
-    if (MSSHUnlockShared == NULL)
-    {
-      MSSHUnlockShared = (fnSHUnlockShared)GetProcAddress(emergeLibGlobals::getShlwapiDLL(), (LPCSTR)9);
-    }
+    MSSHUnlockShared = (fnSHUnlockShared)GetProcAddress(emergeLibGlobals::getShlwapiDLL(), (LPCSTR)9);
   }
 
   if (MSSHUnlockShared && sharedPtr)
@@ -157,10 +151,11 @@ bool ELUnlockShared(void* sharedPtr)
 //----  --------------------------------------------------------------------------------------------------------
 bool ELDisplayRunDialog()
 {
-  if ((emergeLibGlobals::getShell32DLL()) && (MSRun == NULL))
+  if ((MSRun == NULL) && (emergeLibGlobals::getShell32DLL()))
   {
     MSRun = (lpfnMSRun)GetProcAddress(emergeLibGlobals::getShell32DLL(), (LPCSTR) 61);
   }
+
   if (MSRun)
   {
     MSRun(NULL, NULL, NULL, NULL, NULL, 0);
@@ -492,10 +487,11 @@ bool ELRegisterShellHook(HWND hwnd, RSHFLAGS method)
   MINIMIZEDMETRICS minMetrics;
   bool result = false;
 
-  if ((emergeLibGlobals::getShell32DLL()) && (MSRegisterShellHookWindow == NULL))
+  if ((MSRegisterShellHookWindow == NULL) && (emergeLibGlobals::getShell32DLL()))
   {
     MSRegisterShellHookWindow = (lpfnMSRegisterShellHookWindow)GetProcAddress(emergeLibGlobals::getShell32DLL(), (LPSTR)((long)0xB5));
   }
+
   if (MSRegisterShellHookWindow)
   {
     if (method == RSH_TASKMGR)

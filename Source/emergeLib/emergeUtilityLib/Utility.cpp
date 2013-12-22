@@ -189,10 +189,10 @@ int ELMessageBox(HWND hwnd, std::wstring messageText, std::wstring messageTitle,
 {
   int ret;
 
-  MsgBox* msgBox = new MsgBox(ELGetEmergeLibrary(TEXT("emergeLib.dll")), hwnd, messageText, messageTitle,
-                              (msgFlags & 0x0000ff), (msgFlags & 0x00ff00));
-  /*MsgBox* msgBox = new MsgBox(emergeLibGlobals::getEmergeLibInstance(), hwnd, messageText, messageTitle,
+  /*MsgBox* msgBox = new MsgBox(ELGetEmergeLibrary(TEXT("emergeLib.dll")), hwnd, messageText, messageTitle,
                               (msgFlags & 0x0000ff), (msgFlags & 0x00ff00));*/
+  MsgBox* msgBox = new MsgBox(emergeLibGlobals::getEmergeLibInstance(), hwnd, messageText, messageTitle,
+                              (msgFlags & 0x0000ff), (msgFlags & 0x00ff00));
   ret = msgBox->Show((msgFlags & ELMB_MODAL) == ELMB_MODAL);
 
   return ret;

@@ -65,7 +65,7 @@ LRESULT Shell::HideExplorerBar()
 
 //----  --------------------------------------------------------------------------------------------------------
 // Function:	RunRegEntries
-// Required:	HKEY key - registry whith entries to be executed
+// Required:	HKEY key - registry key with entries to be executed
 // 		bool clearEntry - delete the entry after execution
 // Returns:	bool - true if entries exist, false otherwise
 // Purpose:	Enumerates and executes the registry key contents
