@@ -248,6 +248,8 @@ LRESULT Applet::ItemMouseEvent(UINT message, LPARAM lParam)
         case IT_SPECIAL_FOLDER:
           ELExecuteFileOrCommand(pSettings->GetItem(i)->GetApp());
           break;
+        default:
+          break;
         }
       }
 
