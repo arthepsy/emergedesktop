@@ -1,7 +1,7 @@
 //----  --------------------------------------------------------------------------------------------------------
 //
 //  This file is part of Emerge Desktop.
-//  Copyright (C) 2004-2012  The Emerge Desktop Development Team
+//  Copyright (C) 2004-2013  The Emerge Desktop Development Team
 //
 //  Emerge Desktop is free software; you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,8 +18,10 @@
 //
 //----  --------------------------------------------------------------------------------------------------------
 
-#ifndef __EMERGEAPPLETENGINE_H
-#define __EMERGEAPPLETENGINE_H
+#ifndef __GUARD_103666e8_fc94_48ec_ae0d_e0348628b3ed
+#define __GUARD_103666e8_fc94_48ec_ae0d_e0348628b3ed
+
+#define UNICODE 1
 
 #ifdef EMERGEAPPLETENGINE_EXPORTS
 #undef DLL_EXPORT
@@ -34,9 +36,6 @@
 #define TIP_SIZE 256
 #endif
 
-#define UNICODE 1
-#include <windows.h>
-
 #define ASI_VERTICAL    1
 #define ASI_HORIZONTAL  2
 #define ASI_LEFT        10
@@ -45,6 +44,9 @@
 #define ASI_DOWN        13
 #define ASI_MIDDLE      14
 #define ASI_CENTER      15
+
+#include <windows.h>
+#include <string>
 
 typedef struct _COMMONSETTINGS
 {
@@ -58,7 +60,7 @@ COMMONSETTINGS, *LPCOMMONSETTINGS;
 typedef struct _AUTOSIZEINFO
 {
   HWND hwnd;
-  RECT *rect;
+  RECT* rect;
   RECT titleBarRect;
   int dragBorder;
   UINT visibleIconCount;
@@ -73,12 +75,12 @@ AUTOSIZEINFO, *LPAUTOSIZEINFO;
 
 // Declaration of functions to import
 DLL_EXPORT LRESULT EAEHitTest(HWND hwnd, int guiBorder, bool autoSize, int x, int y);
-DLL_EXPORT HWND EAEUpdateGUI(HWND hwnd, bool shadow, WCHAR *zposition);
+DLL_EXPORT HWND EAEUpdateGUI(HWND hwnd, bool shadow, std::wstring zposition);
 DLL_EXPORT HWND EAEInitializeAppletWindow(HINSTANCE inst, WNDPROC windowProc, LPVOID lpParam);
 DLL_EXPORT HWND EAEInitializeTooltipWindow(HINSTANCE appletInstance);
 DLL_EXPORT bool EAEAutoSize(AUTOSIZEINFO autoSizeInfo);
-DLL_EXPORT LRESULT EAEDisplayChange(HMONITOR appletMonitor, RECT *wndRect, RECT *oldDeskRect);
+DLL_EXPORT LRESULT EAEDisplayChange(HMONITOR appletMonitor, RECT* wndRect, RECT* oldDeskRect);
 DLL_EXPORT int EAEDisplayMenu(HWND callingWnd, HWND taskWnd);
-DLL_EXPORT int EAEDisplayFileMenu(WCHAR *file, HWND callingWnd);
+DLL_EXPORT int EAEDisplayFileMenu(WCHAR* file, HWND callingWnd);
 
 #endif

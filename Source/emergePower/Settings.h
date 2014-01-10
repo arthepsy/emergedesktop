@@ -1,41 +1,44 @@
-//---
-//
-//  This file is part of Emerge Desktop.
-//  Copyright (C) 2004-2012  The Emerge Desktop Development Team
-//
-//  Emerge Desktop is free software; you can redistribute it and/or modify
-//  it under the terms of the GNU General Public License as published by
-//  the Free Software Foundation; either version 3 of the License, or
-//  (at your option) any later version.
-//
-//  Emerge Desktop is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//  GNU General Public License for more details.
-//
-//  You should have received a copy of the GNU General Public License
-//  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-//
-//---
+/*!
+  @file Settings.h
+  @brief header for emergePower
+  @author The Emerge Desktop Development Team
 
-#ifndef __EP_SETTINGS_H
-#define __EP_SETTINGS_H
+  @attention This file is part of Emerge Desktop.
+  @attention Copyright (C) 2004-2013  The Emerge Desktop Development Team
 
-#include "../emergeLib/emergeLib.h"
+  @attention Emerge Desktop is free software; you can redistribute it and/or
+  modify  it under the terms of the GNU General Public License as published
+  by the Free Software Foundation; either version 3 of the License, or
+  (at your option) any later version.
+
+  @attention Emerge Desktop is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  @attention You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  */
+
+#ifndef __GUARD_08f7bcb4_a329_4104_ae52_20d7bcb224c2
+#define __GUARD_08f7bcb4_a329_4104_ae52_20d7bcb224c2
+
+#define UNICODE 1
+
 #include "../emergeBaseClasses/BaseSettings.h"
 
 class Settings: public BaseSettings
 {
 public:
   Settings();
-  void SetFont(LOGFONT *logFont);
+  void SetFont(LOGFONT* logFont);
   void SetUpdateInterval(int ival);
-  LOGFONT *GetFont();
+  LOGFONT* GetFont();
   int GetUpdateInterval();
-  WCHAR *GetHorizontalAlign();
-  bool SetHorizontalAlign(WCHAR *horizontalAlign);
-  WCHAR *GetVerticalAlign();
-  bool SetVerticalAlign(WCHAR *horizontalAlign);
+  std::wstring GetHorizontalAlign();
+  bool SetHorizontalAlign(std::wstring horizontalAlign);
+  std::wstring GetVerticalAlign();
+  bool SetVerticalAlign(std::wstring horizontalAlign);
 
 protected:
   virtual void DoReadSettings(IOHelper& helper);
@@ -45,7 +48,7 @@ protected:
 
 private:
   int updateInterval;
-  WCHAR fontString[MAX_LINE_LENGTH], textHorizontalAlign[MAX_LINE_LENGTH], textVerticalAlign[MAX_LINE_LENGTH];
+  std::wstring fontString, textHorizontalAlign, textVerticalAlign;
   LOGFONT logFont;
 };
 

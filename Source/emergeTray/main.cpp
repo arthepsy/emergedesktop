@@ -1,7 +1,7 @@
 //---
 //
 //  This file is part of Emerge Desktop.
-//  Copyright (C) 2004-2012  The Emerge Desktop Development Team
+//  Copyright (C) 2004-2013  The Emerge Desktop Development Team
 //
 //  Emerge Desktop is free software; you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -40,24 +40,28 @@ int WINAPI WinMain (HINSTANCE hInstance,
   Applet applet(hInstance);
 
   if (!ELIsExplorerShell())
+  {
+    if (!applet.Initialize())
     {
-      if (!applet.Initialize())
-        return 1;
+      return 1;
     }
+  }
   else
+  {
+    if (!applet.PortableInitialize())
     {
-      if (!applet.PortableInitialize())
-        return 2;
+      return 2;
     }
+  }
 
   // Run the message loop. It will run until GetMessage() returns 0
   while (GetMessage (&messages, NULL, 0, 0))
-    {
-      // Translate virtual-key messages into character messages
-      TranslateMessage(&messages);
-      // Send message to WindowProcedure
-      DispatchMessage(&messages);
-    }
+  {
+    // Translate virtual-key messages into character messages
+    TranslateMessage(&messages);
+    // Send message to WindowProcedure
+    DispatchMessage(&messages);
+  }
 
   // The program return-value is 0 - The value that PostQuitMessage() gave
   return (int)messages.wParam;

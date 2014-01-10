@@ -11,18 +11,22 @@ TShellDesktopTray::~TShellDesktopTray()
 
 }
 
-HRESULT TShellDesktopTray::QueryInterface(REFIID riid, LPVOID * ppvObj)
+HRESULT TShellDesktopTray::QueryInterface(REFIID riid, LPVOID* ppvObj)
 {
   if(!ppvObj)
+  {
     return E_POINTER;
+  }
 
   if(riid == IID_IUnknown || riid == IID_IShellDesktopTray)
+  {
     *ppvObj = this;
+  }
   else
-    {
-      *ppvObj = 0;
-      return E_NOINTERFACE;
-    }
+  {
+    *ppvObj = 0;
+    return E_NOINTERFACE;
+  }
 
   AddRef();
   return S_OK;
@@ -38,7 +42,9 @@ ULONG TShellDesktopTray::AddRef()
 ULONG TShellDesktopTray::Release()
 {
   if (refCount > 0)
+  {
     --refCount;
+  }
 
   return refCount;
 }
@@ -48,7 +54,7 @@ ULONG TShellDesktopTray::GetState()
   return 2;
 }
 
-HRESULT TShellDesktopTray::GetTrayWindow(HWND *o)
+HRESULT TShellDesktopTray::GetTrayWindow(HWND* o)
 {
   // Prevent Explorer from closing the tray window when shutting down
   *o = NULL;
@@ -89,7 +95,9 @@ ULONG TShellDesktopTrayFactory::AddRef()
 ULONG TShellDesktopTrayFactory::Release()
 {
   if (refCount > 0)
+  {
     --refCount;
+  }
 
   return refCount;
 }
@@ -97,15 +105,19 @@ ULONG TShellDesktopTrayFactory::Release()
 HRESULT TShellDesktopTrayFactory::QueryInterface(REFIID riid, void** ppv)
 {
   if(!ppv)
+  {
     return E_POINTER;
+  }
 
   if(riid == IID_IUnknown || riid == IID_IClassFactory)
+  {
     *ppv = this;
+  }
   else
-    {
-      *ppv = 0;
-      return E_NOINTERFACE;
-    }
+  {
+    *ppv = 0;
+    return E_NOINTERFACE;
+  }
 
   AddRef();
   return S_OK;
@@ -114,10 +126,14 @@ HRESULT TShellDesktopTrayFactory::QueryInterface(REFIID riid, void** ppv)
 HRESULT TShellDesktopTrayFactory::CreateInstance(IUnknown* pOuter, REFIID riid, void** ppv)
 {
   if(!ppv)
+  {
     return E_POINTER;
+  }
 
   if(pOuter)
+  {
     return CLASS_E_NOAGGREGATION;
+  }
 
   TShellDesktopTray* pShellDesktopTray = new TShellDesktopTray;
 

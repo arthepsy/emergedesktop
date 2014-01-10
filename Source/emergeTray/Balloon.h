@@ -1,25 +1,33 @@
-//---
-//
-//  This file is part of Emerge Desktop.
-//  Copyright (C) 2004-2012  The Emerge Desktop Development Team
-//
-//  Emerge Desktop is free software; you can redistribute it and/or modify
-//  it under the terms of the GNU General Public License as published by
-//  the Free Software Foundation; either version 3 of the License, or
-//  (at your option) any later version.
-//
-//  Emerge Desktop is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//  GNU General Public License for more details.
-//
-//  You should have received a copy of the GNU General Public License
-//  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-//
-//---
+/*!
+  @file Balloon.h
+  @brief header for emergeTray
+  @author The Emerge Desktop Development Team
 
-#ifndef __ETR_BALLOON_H
-#define __ETR_BALLOON_H
+  @attention This file is part of Emerge Desktop.
+  @attention Copyright (C) 2004-2013  The Emerge Desktop Development Team
+
+  @attention Emerge Desktop is free software; you can redistribute it and/or
+  modify  it under the terms of the GNU General Public License as published
+  by the Free Software Foundation; either version 3 of the License, or
+  (at your option) any later version.
+
+  @attention Emerge Desktop is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  @attention You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  */
+
+#ifndef __GUARD_e19a7b6f_522d_479e_acf5_24a2ea558786
+#define __GUARD_e19a7b6f_522d_479e_acf5_24a2ea558786
+
+#define UNICODE 1
+
+#ifdef _MSC_VER
+#define _CRT_SECURE_NO_WARNINGS 1 //suppress warnings about old versions of wcscpy, wcscat, etc.
+#endif
 
 // Define required for the Window Transparency
 #undef _WIN32_WINNT
@@ -34,9 +42,8 @@
 
 #define OEMRESOURCE 1
 
-#include "../emergeLib/emergeLib.h"
-#include "../emergeGraphics/emergeGraphics.h"
 #include "../emergeAppletEngine/emergeAppletEngine.h"
+#include "../emergeGraphics/emergeGraphics.h"
 #include "Settings.h"
 
 #define BALLOON_TIMER_ID        1
@@ -59,14 +66,14 @@ class TrayIcon;
 class Balloon
 {
 public:
-  Balloon(HINSTANCE hInstance, TrayIcon *pTrayIcon, Settings *pSettings);
+  Balloon(HINSTANCE hInstance, TrayIcon* pTrayIcon, Settings* pSettings);
   ~Balloon();
   bool Initialize();
   bool Show(POINT showPt);
   LRESULT Hide();
   LRESULT DoLButtonDown();
-  bool SetInfo(WCHAR *info);
-  bool SetInfoTitle(WCHAR *info);
+  bool SetInfo(WCHAR* info);
+  bool SetInfoTitle(WCHAR* info);
   bool SetInfoFlags(DWORD infoFlags, HICON infoIcon);
   bool DrawAlphaBlend();
   BOOL SendMessage(LPARAM lParam);
@@ -85,7 +92,7 @@ private:
   WCHAR infoTitle[TIP_SIZE];
   RECT titleRect, infoRect;
   HICON icon;
-  Settings *pSettings;
+  Settings* pSettings;
   int iconHeight;
   int iconWidth;
   UINT trayIconID;

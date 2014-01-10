@@ -1,7 +1,7 @@
 //----  --------------------------------------------------------------------------------------------------------
 //
 // This file is part of the Emerge Desktop source code
-// Copyright (C) 2004-2012 The Emerge Desktop Development Team
+// Copyright (C) 2004-2013 The Emerge Desktop Development Team
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -19,10 +19,7 @@
 //
 //----  --------------------------------------------------------------------------------------------------------
 
-#define _NO_W32_PSEUDO_MODIFIERS
-
-#include "../emergeLib/emergeLib.h"
-#include <stdio.h>
+#include "main.h"
 
 //----  --------------------------------------------------------------------------------------------------------
 // Function:	WinMain
@@ -40,24 +37,24 @@ int WINAPI WinMain (HINSTANCE hInstance UNUSED,
                     int nCmdShow UNUSED)
 
 {
-  WCHAR commandLine[MAX_LINE_LENGTH], error[MAX_LINE_LENGTH];
+  std::wstring commandLine, error;
 
-  MultiByteToWideChar(CP_ACP, 0, _strlwr(lpCmdLine), (int)strlen(lpCmdLine) + 1, commandLine,
-                      (int)sizeof(commandLine)/(int)sizeof(commandLine[0]));
+  commandLine = ELstringTowstring(lpCmdLine, CP_ACP);
 
-  if (wcslen(commandLine) == 0)
-    {
-      swprintf(error, TEXT("Usage: emerge <Internal Command>"));
-      ELMessageBox(GetDesktopWindow(), error, (WCHAR*)TEXT("emerge"), ELMB_ICONERROR|ELMB_OK|ELMB_MODAL);
-      return 1;
-    }
+  if (commandLine.empty())
+  {
+    error = TEXT("Usage: emerge <Internal Command>");
+    ELMessageBox(GetDesktopWindow(), error, TEXT("emerge"), ELMB_ICONERROR | ELMB_OK | ELMB_MODAL);
+    return 1;
+  }
 
-  if (!ELExecuteInternal(commandLine))
-    {
-      swprintf(error, TEXT("Failed to execute \"%ls\""), commandLine);
-      ELMessageBox(GetDesktopWindow(), error, (WCHAR*)TEXT("emerge"), ELMB_ICONWARNING|ELMB_OK|ELMB_MODAL);
-      return 2;
-    }
+  if (!ELExecuteFileOrCommand(commandLine))
+  {
+    /*error = TEXT("Failed to execute ");
+    error = error + commandLine;
+    ELMessageBox(GetDesktopWindow(), error, TEXT("emerge"), ELMB_ICONWARNING | ELMB_OK | ELMB_MODAL);*/
+    return 2;
+  }
 
   // The program return-value is 0 - The value that PostQuitMessage() gave
   return 0;

@@ -2,7 +2,7 @@
 //----  --------------------------------------------------------------------------------------------------------
 //
 //  This file is part of Emerge Desktop.
-//  Copyright (C) 2004-2012  The Emerge Desktop Development Team
+//  Copyright (C) 2004-2013  The Emerge Desktop Development Team
 //
 //  Emerge Desktop is free software; you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -39,31 +39,31 @@ LRESULT CALLBACK BaseAppletMenu::HookCallWndProc(int nCode, WPARAM wParam, LPARA
   CWPSTRUCT cwps;
 
   if ( nCode == HC_ACTION )
-    {
-      CopyMemory(&cwps, (LPVOID)lParam, sizeof(CWPSTRUCT));
+  {
+    CopyMemory(&cwps, (LPVOID)lParam, sizeof(CWPSTRUCT));
 
-      switch (cwps.message)
+    switch (cwps.message)
+    {
+    case WM_CREATE:
+      {
+        WCHAR szClass[128];
+        GetClassName(cwps.hwnd, szClass, 127);
+        if (_wcsicmp(szClass, TEXT("#32768")) == 0)
         {
-        case WM_CREATE:
-        {
-          WCHAR szClass[128];
-          GetClassName(cwps.hwnd, szClass, 127);
-          if (_wcsicmp(szClass, TEXT("#32768"))==0)
-            {
-              SetWindowLongPtr(cwps.hwnd,
-                               GWL_EXSTYLE,
-                               GetWindowLongPtr(cwps.hwnd, GWL_EXSTYLE) | WS_EX_LAYERED);
-              SetLayeredWindowAttributes(cwps.hwnd, 0, globalMenuAlpha, LWA_ALPHA);
-            }
+          SetWindowLongPtr(cwps.hwnd,
+                           GWL_EXSTYLE,
+                           GetWindowLongPtr(cwps.hwnd, GWL_EXSTYLE) | WS_EX_LAYERED);
+          SetLayeredWindowAttributes(cwps.hwnd, 0, globalMenuAlpha, LWA_ALPHA);
         }
-        break;
-        }
+      }
+      break;
     }
+  }
 
   return CallNextHookEx((HHOOK)WH_CALLWNDPROC, nCode, wParam, lParam);
 }
 
-BaseAppletMenu::BaseAppletMenu(HWND mainWnd, HINSTANCE hInstance, WCHAR *appletName, bool allowMultipleInstances)
+BaseAppletMenu::BaseAppletMenu(HWND mainWnd, HINSTANCE hInstance, WCHAR* appletName, bool allowMultipleInstances)
 {
   (*this).hInstance = hInstance;
 
@@ -82,7 +82,9 @@ BaseAppletMenu::~BaseAppletMenu()
 
   // Clear the menu hook
   if (menuHook)
+  {
     UnhookWindowsHookEx(menuHook);
+  }
 }
 
 void BaseAppletMenu::Initialize()
@@ -117,7 +119,7 @@ void BaseAppletMenu::BuildMenu()
   AppendMenu(appletMenu, MF_STRING, EBC_EXIT, TEXT("Exit"));
 }
 
-DWORD BaseAppletMenu::ActivateMenu(int x, int y, WCHAR *styleFile)
+DWORD BaseAppletMenu::ActivateMenu(int x, int y, WCHAR* styleFile)
 {
   UINT ret = TrackPopupMenuEx(appletMenu, TPM_RETURNCMD, x, y, mainWnd, NULL);
   WCHAR file[MAX_PATH];
@@ -127,57 +129,63 @@ DWORD BaseAppletMenu::ActivateMenu(int x, int y, WCHAR *styleFile)
   stylePath = ELExpandVars(stylePath);
 
   switch (ret)
+  {
+  case EBC_ABOUT:
+    WCHAR tmp[MAX_LINE_LENGTH];
+    VERSIONINFO versionInfo;
+
+    if (ELAppletVersionInfo(mainWnd, &versionInfo))
     {
-    case EBC_ABOUT:
-      WCHAR tmp[MAX_LINE_LENGTH];
-      VERSIONINFO versionInfo;
+      swprintf(tmp, TEXT("%ls\n\nVersion: %ls\n\nCurrent Style: %ls\n\nAuthor: %ls"),
+               versionInfo.Description,
+               versionInfo.Version,
+               stylePath.c_str(),
+               versionInfo.Author);
 
-      if (ELAppletVersionInfo(mainWnd, &versionInfo))
-        {
-          swprintf(tmp, TEXT("%ls\n\nVersion: %ls\n\nCurrent Style: %ls\n\nAuthor: %ls"),
-                   versionInfo.Description,
-                   versionInfo.Version,
-                   stylePath.c_str(),
-                   versionInfo.Author);
+      ELMessageBox(GetDesktopWindow(), tmp, appletName, ELMB_ICONQUESTION | ELMB_OK | ELMB_MODAL);
+    }
+    else
+    {
+      ret = 0;
+    }
+    break;
 
-          ELMessageBox(GetDesktopWindow(), tmp, appletName, ELMB_ICONQUESTION|ELMB_OK|ELMB_MODAL);
-        }
-      else
-        ret = 0;
-      break;
+  case EBC_EXIT:
+    PostQuitMessage(0);
+    break;
 
-    case EBC_EXIT:
-      PostQuitMessage(0);
-      break;
+  case EBC_LOADSTYLE:
+    ZeroMemory(file, MAX_PATH);
+    ZeroMemory(&ofn, sizeof(ofn));
 
-    case EBC_LOADSTYLE:
-      ZeroMemory(file, MAX_PATH);
-      ZeroMemory(&ofn, sizeof(ofn));
+    ofn.lStructSize = sizeof(ofn);
+    ofn.hwndOwner = mainWnd;
+    ofn.lpstrFilter = TEXT("Style (*.eds)\0*.eds\0");
+    ofn.lpstrFile = file;
+    ofn.nMaxFile = MAX_PATH;
+    stylePath = themePath + TEXT("\\Styles");
+    if (ELIsDirectory(stylePath))
+    {
+      themePath = stylePath;
+    }
+    ofn.lpstrInitialDir = themePath.c_str();
+    ofn.lpstrTitle = TEXT("Load Style");
+    ofn.lpstrDefExt = NULL;
+    ofn.Flags = OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST | OFN_EXPLORER | OFN_DONTADDTORECENT | OFN_NOCHANGEDIR | OFN_NODEREFERENCELINKS;
 
-      ofn.lStructSize = sizeof(ofn);
-      ofn.hwndOwner = mainWnd;
-      ofn.lpstrFilter = TEXT("Style (*.eds)\0*.eds\0");
-      ofn.lpstrFile = file;
-      ofn.nMaxFile = MAX_PATH;
-      stylePath = themePath + TEXT("\\Styles");
-      if (ELPathIsDirectory(stylePath.c_str()))
-        themePath = stylePath;
-      ofn.lpstrInitialDir = themePath.c_str();
-      ofn.lpstrTitle = TEXT("Load Style");
-      ofn.lpstrDefExt = NULL;
-      ofn.Flags = OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST | OFN_EXPLORER | OFN_DONTADDTORECENT | OFN_NOCHANGEDIR | OFN_NODEREFERENCELINKS;
-
-      if (GetOpenFileName(&ofn))
-        {
-          ELUnExpandVars(file);
-          std::wstring workingFile = ELRelativePathFromAbsPath(file);
-          wcscpy(styleFile, workingFile.c_str());
-          break;
-        }
-      else
-        ret = 0;
+    if (GetOpenFileName(&ofn))
+    {
+      wcscpy(file, ELUnExpandVars(file).c_str());
+      std::wstring workingFile = ELGetRelativePath(file);
+      wcscpy(styleFile, workingFile.c_str());
       break;
     }
+    else
+    {
+      ret = 0;
+    }
+    break;
+  }
 
   return ret;
 }

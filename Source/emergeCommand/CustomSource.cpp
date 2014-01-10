@@ -1,7 +1,7 @@
 //---
 //
 //  This file is part of Emerge Desktop.
-//  Copyright (C) 2004-2012  The Emerge Desktop Development Team
+//  Copyright (C) 2004-2013  The Emerge Desktop Development Team
 //
 //  Emerge Desktop is free software; you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,7 +18,6 @@
 //
 //---
 
-#include "../emergeLib/emergeLib.h"
 #include "CustomSource.h"
 
 CustomSource::CustomSource(std::tr1::shared_ptr<Settings> pSettings)
@@ -45,11 +44,11 @@ STDMETHODIMP_(ULONG) CustomSource::Release()
   return tmp;
 }
 
-STDMETHODIMP CustomSource::Clone(IEnumString **target)
+STDMETHODIMP CustomSource::Clone(IEnumString** target)
 {
   *target = NULL;
 
-  CustomSource *copy = new CustomSource(pSettings);
+  CustomSource* copy = new CustomSource(pSettings);
 
   *target = copy;
 
@@ -61,37 +60,43 @@ STDMETHODIMP CustomSource::Skip(ULONG jump)
   currentElement += jump;
 
   if (currentElement > MAX_HISTORY)
+  {
     currentElement = 0;
+  }
 
   return NOERROR;
 }
 
-STDMETHODIMP CustomSource::Next(ULONG current, LPOLESTR *nextString, ULONG *next)
+STDMETHODIMP CustomSource::Next(ULONG current, LPOLESTR* nextString, ULONG* next)
 {
   UINT i, size = pSettings->GetHistoryListSize();
   int wideSize;
-  WCHAR *tmp;
+  WCHAR tmp[MAX_LINE_LENGTH];
 
   *next = 0;
 
   for (i = 0; i < current; i++)
+  {
+    if (currentElement == size)
     {
-      if (currentElement == size)
-        break;
-
-      tmp = pSettings->GetHistoryListItem(currentElement);
-
-      wideSize = sizeof(WCHAR) * (int)(wcslen(tmp) + 1);
-      nextString[i] = (LPWSTR)CoTaskMemAlloc((ULONG)wideSize);
-      wcscpy(nextString[i], tmp);
-
-      *next = i;
-
-      currentElement++;
+      break;
     }
 
+    wcscpy(tmp, pSettings->GetHistoryListItem(currentElement).c_str());
+
+    wideSize = sizeof(WCHAR) * (int)(wcslen(tmp) + 1);
+    nextString[i] = (LPWSTR)CoTaskMemAlloc((ULONG)wideSize);
+    wcscpy(nextString[i], tmp);
+
+    *next = i;
+
+    currentElement++;
+  }
+
   if (i == current)
+  {
     return NOERROR;
+  }
 
   return S_FALSE;
 }
@@ -102,23 +107,25 @@ STDMETHODIMP CustomSource::Reset()
   return NOERROR;
 }
 
-STDMETHODIMP CustomSource::QueryInterface(REFIID riid, void **ppv)
+STDMETHODIMP CustomSource::QueryInterface(REFIID riid, void** ppv)
 {
-  *ppv=NULL;
+  *ppv = NULL;
 
   if (IsEqualIID(riid, IID_IUnknown) || IsEqualIID(riid, IID_IEnumString))
-    *ppv=(LPVOID)this;
+  {
+    *ppv = (LPVOID)this;
+  }
 
-  if (NULL!=*ppv)
-    {
-      ((LPUNKNOWN)*ppv)->AddRef();
-      return NOERROR;
-    }
+  if (NULL != *ppv)
+  {
+    ((LPUNKNOWN)*ppv)->AddRef();
+    return NOERROR;
+  }
 
   return E_NOINTERFACE;
 }
 
-void CustomSource::AddElement(WCHAR *element)
+void CustomSource::AddElement(WCHAR* element)
 {
   pSettings->AddHistoryItem(element);
 }

@@ -1,172 +1,167 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
       <Platform>Win32</Platform>
     </ProjectConfiguration>
-    <ProjectConfiguration Include="Debug|x64">
-      <Configuration>Debug</Configuration>
-      <Platform>x64</Platform>
-    </ProjectConfiguration>
     <ProjectConfiguration Include="Release|Win32">
       <Configuration>Release</Configuration>
       <Platform>Win32</Platform>
     </ProjectConfiguration>
-    <ProjectConfiguration Include="Release|x64">
-      <Configuration>Release</Configuration>
-      <Platform>x64</Platform>
-    </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{7A35311A-8373-4BC8-84A4-2CB88D50AA84}</ProjectGuid>
-    <RootNamespace>emergeLib</RootNamespace>
+    <ProjectGuid>{EBAE60FC-A870-4B5A-9F14-8602416705BD}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
+    <RootNamespace>emergeLib</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
-  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
   </ImportGroup>
-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-  </ImportGroup>
-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-  </ImportGroup>
-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup>
-    <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\bin\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.objs\</IntDir>
-    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</LinkIncremental>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\bin64\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.objs64\</IntDir>
-    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</LinkIncremental>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\bin\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.objs\</IntDir>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\bin64\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.objs64\</IntDir>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+    <OutDir>$(SolutionDir)bin\</OutDir>
+    <IntDir>objs\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(SolutionDir)bin\</OutDir>
+    <IntDir>objs\$(Configuration)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;EMERGELIB_EXPORTS;_CRT_SECURE_NO_WARNINGS;_CRT_NON_CONFORMING_SWPRINTFS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <MinimalRebuild>true</MinimalRebuild>
-      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
-      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
-      <PrecompiledHeader>
-      </PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
-      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;EMERGELIB_EXPORTS;TIXML_USE_STL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalOptions>
+      </AdditionalOptions>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>shlwapi.lib;winmm.lib;psapi.lib;version.lib;wtsapi32.lib;powrprof.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
-      <TargetMachine>MachineX86</TargetMachine>
-    </Link>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <Midl>
-      <TargetEnvironment>X64</TargetEnvironment>
-    </Midl>
-    <ClCompile>
-      <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;EMERGELIB_EXPORTS;_CRT_SECURE_NO_WARNINGS;_CRT_NON_CONFORMING_SWPRINTFS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <MinimalRebuild>true</MinimalRebuild>
-      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
-      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
-      <PrecompiledHeader>
-      </PrecompiledHeader>
-      <WarningLevel>Level3</WarningLevel>
-      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-    </ClCompile>
-    <Link>
-      <AdditionalDependencies>shlwapi.lib;winmm.lib;psapi.lib;version.lib;wtsapi32.lib;powrprof.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <SubSystem>Windows</SubSystem>
-      <TargetMachine>MachineX64</TargetMachine>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;shlwapi.lib;powrprof.lib;psapi.lib;version.lib;winmm.lib;wtsapi32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PreBuildEvent>
+      <Command>cmd /c "cd.. &amp; hgversion.bat"</Command>
+    </PreBuildEvent>
+    <PreBuildEvent>
+      <Message>Generating Version Header</Message>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;EMERGELIB_EXPORTS;_CRT_SECURE_NO_WARNINGS;_CRT_NON_CONFORMING_SWPRINTFS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <WarningLevel>Level3</WarningLevel>
       <PrecompiledHeader>
       </PrecompiledHeader>
-      <WarningLevel>Level3</WarningLevel>
-      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;EMERGELIB_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>shlwapi.lib;winmm.lib;psapi.lib;version.lib;wtsapi32.lib;powrprof.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
-      <OptimizeReferences>true</OptimizeReferences>
-      <EnableCOMDATFolding>true</EnableCOMDATFolding>
-      <TargetMachine>MachineX86</TargetMachine>
-    </Link>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <Midl>
-      <TargetEnvironment>X64</TargetEnvironment>
-    </Midl>
-    <ClCompile>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;EMERGELIB_EXPORTS;_CRT_SECURE_NO_WARNINGS;_CRT_NON_CONFORMING_SWPRINTFS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
-      <PrecompiledHeader>
-      </PrecompiledHeader>
-      <WarningLevel>Level3</WarningLevel>
-      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-    </ClCompile>
-    <Link>
-      <AdditionalDependencies>shlwapi.lib;winmm.lib;psapi.lib;version.lib;wtsapi32.lib;powrprof.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <SubSystem>Windows</SubSystem>
-      <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
-      <TargetMachine>MachineX64</TargetMachine>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;shlwapi.lib;powrprof.lib;psapi.lib;version.lib;winmm.lib;wtsapi32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PreBuildEvent>
+      <Command>cmd /c "cd.. &amp; hgversion.bat"</Command>
+    </PreBuildEvent>
+    <PreBuildEvent>
+      <Message>Generating Version Header</Message>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="emergeLib.h" />
-    <ClInclude Include="MsgBox.h" />
-    <ClInclude Include="resource.h" />
-    <ClInclude Include="Shutdown.h" />
+    <ClCompile Include="..\tinyxml\tinystr.cpp" />
+    <ClCompile Include="..\tinyxml\tinyxml.cpp" />
+    <ClCompile Include="..\tinyxml\tinyxmlerror.cpp" />
+    <ClCompile Include="..\tinyxml\tinyxmlparser.cpp" />
+    <ClCompile Include="emergeCoreLib\Environment.cpp" />
+    <ClCompile Include="emergeCoreLib\MiscOps.cpp" />
+    <ClCompile Include="emergeFileRegistryLib\FileRegistryIO.cpp" />
+    <ClCompile Include="emergeFileRegistryLib\FileSystemOps.cpp" />
+    <ClCompile Include="emergeFileRegistryLib\InternalCommandEngine.cpp" />
+    <ClCompile Include="emergeLibGlobals.cpp" />
+    <ClCompile Include="emergeOSLib\OSFunctions.cpp" />
+    <ClCompile Include="emergeOSLib\Shutdown.cpp" />
+    <ClCompile Include="emergeOSLib\SystemProcessInfo.cpp" />
+    <ClCompile Include="emergeUtilityLib\MsgBox.cpp" />
+    <ClCompile Include="emergeUtilityLib\StringOps.cpp" />
+    <ClCompile Include="emergeUtilityLib\unzip.cpp" />
+    <ClCompile Include="emergeUtilityLib\Utility.cpp" />
+    <ClCompile Include="emergeUtilityLib\zip.cpp" />
+    <ClCompile Include="emergeWindowLib\WindowOps.cpp" />
+    <ClCompile Include="main.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\cppcomponents\cppcomponents\cppcomponents.hpp" />
+    <ClInclude Include="..\cppcomponents\cppcomponents\implementation\spinlock.hpp" />
+    <ClInclude Include="..\cppcomponents\cross_compiler_interface\cross_compiler_interface.hpp" />
+    <ClInclude Include="..\cppcomponents\cross_compiler_interface\cross_compiler_introspection.hpp" />
+    <ClInclude Include="..\cppcomponents\cross_compiler_interface\implementation\cross_compiler_conversions.hpp" />
+    <ClInclude Include="..\cppcomponents\cross_compiler_interface\implementation\cross_compiler_error_handling.hpp" />
+    <ClInclude Include="..\cppcomponents\cross_compiler_interface\implementation\cross_compiler_interface_pp.hpp" />
+    <ClInclude Include="..\cppcomponents\cross_compiler_interface\implementation\custom_cross_function.hpp" />
+    <ClInclude Include="..\cppcomponents\cross_compiler_interface\implementation\safe_static_initialization.hpp" />
+    <ClInclude Include="..\cppcomponents\cross_compiler_interface\interface_unknown.hpp" />
+    <ClInclude Include="..\cppcomponents\cross_compiler_interface\platform\Windows\platform_specific.hpp" />
+    <ClInclude Include="..\cppcomponents\cross_compiler_interface\uuid.hpp" />
     <ClInclude Include="..\tinyxml\tinystr.h" />
     <ClInclude Include="..\tinyxml\tinyxml.h" />
+    <ClInclude Include="..\version.h" />
+    <ClInclude Include="emergeCoreLib.h" />
+    <ClInclude Include="emergeCoreLib\Environment.h" />
+    <ClInclude Include="emergeCoreLib\MiscOps.h" />
+    <ClInclude Include="emergeFileRegistryLib.h" />
+    <ClInclude Include="emergeFileRegistryLib\EmergeInternalCommandInterface.h" />
+    <ClInclude Include="emergeFileRegistryLib\FileRegistryIO.h" />
+    <ClInclude Include="emergeFileRegistryLib\FileSystemOps.h" />
+    <ClInclude Include="emergeFileRegistryLib\InternalCommandEngine.h" />
+    <ClInclude Include="emergeItemDefinitions.h" />
+    <ClInclude Include="emergeLibGlobals.h" />
+    <ClInclude Include="emergeOSLib.h" />
+    <ClInclude Include="emergeOSLib\OSFunctions.h" />
+    <ClInclude Include="emergeOSLib\Shutdown.h" />
+    <ClInclude Include="emergeOSLib\SystemProcessInfo.h" />
+    <ClInclude Include="emergeUtilityLib.h" />
+    <ClInclude Include="emergeUtilityLib\MsgBox.h" />
+    <ClInclude Include="emergeUtilityLib\StringOps.h" />
+    <ClInclude Include="emergeUtilityLib\unzip.h" />
+    <ClInclude Include="emergeUtilityLib\Utility.h" />
+    <ClInclude Include="emergeUtilityLib\zip.h" />
+    <ClInclude Include="emergeWindowLib.h" />
+    <ClInclude Include="emergeWindowLib\WindowOps.h" />
+    <ClInclude Include="main.h" />
+    <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
     <Manifest Include="emergeLib.dll.manifest" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="emergeLib.rc" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="MsgBox.cpp" />
-    <ClCompile Include="Shutdown.cpp" />
-    <ClCompile Include="..\tinyxml\tinystr.cpp" />
-    <ClCompile Include="..\tinyxml\tinyxml.cpp" />
-    <ClCompile Include="..\tinyxml\tinyxmlerror.cpp" />
-    <ClCompile Include="..\tinyxml\tinyxmlparser.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -1,25 +1,29 @@
-//---
-//
-//  This file is part of Emerge Desktop.
-//  Copyright (C) 2004-2012  The Emerge Desktop Development Team
-//
-//  Emerge Desktop is free software; you can redistribute it and/or modify
-//  it under the terms of the GNU General Public License as published by
-//  the Free Software Foundation; either version 3 of the License, or
-//  (at your option) any later version.
-//
-//  Emerge Desktop is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//  GNU General Public License for more details.
-//
-//  You should have received a copy of the GNU General Public License
-//  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-//
-//---
+/*!
+  @file emergeGraphics.h
+  @brief header for emergeGraphics
+  @author The Emerge Desktop Development Team
 
-#ifndef __EMERGEGRAPHICS_H
-#define __EMERGEGRAPHICS_H
+  @attention This file is part of Emerge Desktop.
+  @attention Copyright (C) 2004-2013  The Emerge Desktop Development Team
+
+  @attention Emerge Desktop is free software; you can redistribute it and/or
+  modify  it under the terms of the GNU General Public License as published
+  by the Free Software Foundation; either version 3 of the License, or
+  (at your option) any later version.
+
+  @attention Emerge Desktop is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  @attention You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  */
+
+#ifndef __GUARD_e27d7647_c883_4404_bfd4_1c70205e2c04
+#define __GUARD_e27d7647_c883_4404_bfd4_1c70205e2c04
+
+#define UNICODE 1
 
 #ifdef EMERGEGRAPHICS_EXPORTS
 #undef DLL_EXPORT
@@ -30,8 +34,8 @@
 #endif
 #endif
 
-#define UNICODE 1
 #include <windows.h>
+#include <string>
 
 // Defines required for SetWindowLayeredAttributes
 #ifndef WS_EX_LAYERED
@@ -182,7 +186,7 @@ typedef struct _GUIINFO
   COLORREF gradientTo;
   bool windowShadow;
   int dragBorder;
-  WCHAR gradientMethod[MAX_PATH];
+  std::wstring gradientMethod;
   int bevelWidth;
   int padding;
   bool windowBlur;
@@ -196,27 +200,27 @@ DLL_EXPORT HICON EGConvertIcon(HICON sourceIcon, BYTE foregroundAlpha);
 DLL_EXPORT HBRUSH EGCreateBrush(BYTE alpha, COLORREF colour);
 DLL_EXPORT HPEN EGCreatePen(DWORD style, DWORD width, BYTE alpha, COLORREF colour);
 DLL_EXPORT HBITMAP EGCreateBitmap(BYTE alpha, COLORREF colour, RECT wndRect);
-DLL_EXPORT HICON EGGetFileIcon(const WCHAR *file, UINT iconSize);
+DLL_EXPORT HICON EGGetFileIcon(std::wstring file, UINT iconSize);
 DLL_EXPORT HICON EGGetWindowIcon(HWND callerWnd, HWND hwnd, bool smallIcon, bool force);
 DLL_EXPORT HICON EGGetSpecialFolderIcon(int csidl, UINT iconSize);
 DLL_EXPORT HICON EGGetSystemIcon(UINT iconIndex, UINT iconSize);
-DLL_EXPORT HICON EGExtractIcon(const WCHAR *iconLocation, int iconIndex, int iconSize);
-DLL_EXPORT bool EGDrawAlphaText(BYTE alpha, CLIENTINFO clientInfo, FORMATINFO formatInfo, WCHAR *commandText);
-DLL_EXPORT bool EGFillRect(HDC hdc, RECT *rect, BYTE alpha, COLORREF colour);
-DLL_EXPORT bool EGGradientFillRect(HDC hdc, RECT *rect, BYTE alpha, COLORREF colourFrom, COLORREF colourTo, int bevelWidth, WCHAR *gradientMethod);
-DLL_EXPORT bool EGFrameRect(HDC hdc, RECT *rect, BYTE bgAlpha, COLORREF borderColour, int borderWidth);
+DLL_EXPORT HICON EGExtractIcon(const WCHAR* iconLocation, int iconIndex, int iconSize);
+DLL_EXPORT bool EGDrawAlphaText(BYTE alpha, CLIENTINFO clientInfo, FORMATINFO formatInfo, std::wstring commandText);
+DLL_EXPORT bool EGFillRect(HDC hdc, RECT* rect, BYTE alpha, COLORREF colour);
+DLL_EXPORT bool EGGradientFillRect(HDC hdc, RECT* rect, BYTE alpha, COLORREF colourFrom, COLORREF colourTo, int bevelWidth, std::wstring);
+DLL_EXPORT bool EGFrameRect(HDC hdc, RECT* rect, BYTE bgAlpha, COLORREF borderColour, int borderWidth);
 DLL_EXPORT UINT32 EGGetPixel(BYTE alpha, COLORREF colour);
 DLL_EXPORT BYTE EGGetMinAlpha(BYTE alphaBase, BYTE alphaDelta);
-DLL_EXPORT bool EGGetIconDialogue(HWND hwnd, WCHAR *iconPath, int iconIndex);
-DLL_EXPORT void EGFontToString(const LOGFONT& font, WCHAR *str);
-DLL_EXPORT void EGStringToFont(const WCHAR *str, LOGFONT& font);
+DLL_EXPORT bool EGGetIconDialogue(HWND hwnd, WCHAR* iconPath, int iconIndex);
+DLL_EXPORT std::wstring EGFontToString(const LOGFONT& font);
+DLL_EXPORT LOGFONT EGStringToFont(std::wstring str);
 DLL_EXPORT bool EGEqualLogFont(const LOGFONT& source, const LOGFONT& target);
-DLL_EXPORT bool EGGetTextRect(WCHAR *text, HFONT font, RECT *rect, UINT flags);
+DLL_EXPORT bool EGGetTextRect(std::wstring text, HFONT font, RECT* rect, UINT flags);
 DLL_EXPORT HBITMAP EGGetIconBitmap(HICON sourceIcon);
 DLL_EXPORT BOOL EGIsCompositionEnabled();
 DLL_EXPORT HRESULT EGBlurWindow(HWND hwnd, bool enable);
 DLL_EXPORT HRESULT EGDwmRegisterThumbnail(HWND hwndDestination, HWND hwndSource, PHTHUMBNAIL phThumbnailId);
-DLL_EXPORT HRESULT EGDwmUpdateThumbnailProperties(HTHUMBNAIL hThumbnailId, const DWM_THUMBNAIL_PROPERTIES *ptnProperties);
+DLL_EXPORT HRESULT EGDwmUpdateThumbnailProperties(HTHUMBNAIL hThumbnailId, const DWM_THUMBNAIL_PROPERTIES* ptnProperties);
 DLL_EXPORT HRESULT EGDwmUnregisterThumbnail(HTHUMBNAIL hThumbnailId);
 DLL_EXPORT HRESULT EGDwmQueryThumbnailSourceSize(HTHUMBNAIL hThumbnailId, PSIZE pSize);
 #endif

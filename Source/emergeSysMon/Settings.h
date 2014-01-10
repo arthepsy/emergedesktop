@@ -1,27 +1,31 @@
-//---
-//
-//  This file is part of Emerge Desktop.
-//  Copyright (C) 2004-2012  The Emerge Desktop Development Team
-//
-//  Emerge Desktop is free software; you can redistribute it and/or modify
-//  it under the terms of the GNU General Public License as published by
-//  the Free Software Foundation; either version 3 of the License, or
-//  (at your option) any later version.
-//
-//  Emerge Desktop is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//  GNU General Public License for more details.
-//
-//  You should have received a copy of the GNU General Public License
-//  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-//
-//---
+/*!
+  @file Settings.h
+  @brief header for emergeSysMon
+  @author The Emerge Desktop Development Team
 
-#ifndef __ESM_SETTINGS_H
-#define __ESM_SETTINGS_H
+  @attention This file is part of Emerge Desktop.
+  @attention Copyright (C) 2004-2013  The Emerge Desktop Development Team
 
-#include "../emergeLib/emergeLib.h"
+  @attention Emerge Desktop is free software; you can redistribute it and/or
+  modify  it under the terms of the GNU General Public License as published
+  by the Free Software Foundation; either version 3 of the License, or
+  (at your option) any later version.
+
+  @attention Emerge Desktop is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  @attention You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  */
+
+#ifndef __GUARD_bed61178_8719_4bdb_be0e_99bb7b4506d1
+#define __GUARD_bed61178_8719_4bdb_be0e_99bb7b4506d1
+
+#define UNICODE 1
+
+#include <string>
 #include "../emergeBaseClasses/BaseSettings.h"
 #include "resource.h"
 
@@ -36,13 +40,13 @@ public:
   void SetMonitorPagefile(bool mem);
   void SetHistoryMode(bool b);
   void SetShowNumbers(bool b);
-  void SetBarDirection(WCHAR* dir);
-  void SetNumberPosition(WCHAR* str);
+  void SetBarDirection(std::wstring direction);
+  void SetNumberPosition(std::wstring position);
   void SetFont(LOGFONT* font);
-  void SetCPUGradientMethod(const WCHAR* str);
+  void SetCPUGradientMethod(std::wstring method);
   void SetCPUGradientFrom(COLORREF col);
   void SetCPUGradientTo(COLORREF to);
-  void SetMemGradientMethod(const WCHAR* str);
+  void SetMemGradientMethod(std::wstring method);
   void SetMemGradientFrom(COLORREF col);
   void SetMemGradientTo(COLORREF to);
   int GetUpdateInterval();
@@ -52,13 +56,13 @@ public:
   bool GetMonitorPagefile();
   bool GetHistoryMode();
   bool GetShowNumbers();
-  const WCHAR *GetBarDirection();
-  const WCHAR *GetNumberPosition();
+  std::wstring GetBarDirection();
+  std::wstring GetNumberPosition();
   LOGFONT* GetFont();
-  const WCHAR *GetCPUGradientMethod();
+  std::wstring GetCPUGradientMethod();
   COLORREF GetCPUGradientFrom();
   COLORREF GetCPUGradientTo();
-  const WCHAR *GetMemGradientMethod();
+  std::wstring GetMemGradientMethod();
   COLORREF GetMemGradientFrom();
   COLORREF GetMemGradientTo();
 
@@ -76,13 +80,13 @@ private:
   bool monitorPagefile;
   bool historyMode;
   bool showNumbers;
-  WCHAR barDirection[MAX_LINE_LENGTH];
-  WCHAR numberPosition[MAX_LINE_LENGTH];
-  WCHAR fontString[MAX_LINE_LENGTH];
-  WCHAR CPUGradientMethod[MAX_LINE_LENGTH];
+  std::wstring barDirection;
+  std::wstring numberPosition;
+  std::wstring fontString;
+  std::wstring CPUGradientMethod;
   COLORREF CPUGradientFrom;
   COLORREF CPUGradientTo;
-  WCHAR MemGradientMethod[MAX_LINE_LENGTH];
+  std::wstring MemGradientMethod;
   COLORREF MemGradientFrom;
   COLORREF MemGradientTo;
   LOGFONT logFont;

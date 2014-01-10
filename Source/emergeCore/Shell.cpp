@@ -2,7 +2,7 @@
 //----  --------------------------------------------------------------------------------------------------------
 //
 //  This file is part of Emerge Desktop.
-//  Copyright (C) 2004-2012  The Emerge Desktop Development Team
+//  Copyright (C) 2004-2013  The Emerge Desktop Development Team
 //
 //  Emerge Desktop is free software; you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -43,25 +43,29 @@ Shell::~Shell()
 LRESULT Shell::HideExplorerBar()
 {
   if (!ELIsEmergeShell()) // Running on top of Explorer; hide the Taskbar
+  {
+    //get the Taskbar window
+    HWND taskBarWnd = FindWindow(TEXT("Shell_TrayWnd"), NULL);
+
+    //get the start button window
+    HWND startWnd = FindWindow(TEXT("Button"), NULL);
+
+    if (taskBarWnd)
     {
-      //get the Taskbar window
-      HWND taskBarWnd = FindWindow(TEXT("Shell_TrayWnd"), NULL);
-
-      //get the start button window
-      HWND startWnd = FindWindow(TEXT("Button"), NULL);
-
-      if (taskBarWnd)
-        ShowWindow(taskBarWnd, SW_HIDE);
-      if (startWnd)
-        ShowWindow(startWnd, SW_HIDE);
+      ShowWindow(taskBarWnd, SW_HIDE);
     }
+    if (startWnd)
+    {
+      ShowWindow(startWnd, SW_HIDE);
+    }
+  }
 
   return 0;
 }
 
 //----  --------------------------------------------------------------------------------------------------------
 // Function:	RunRegEntries
-// Required:	HKEY key - registry whith entries to be executed
+// Required:	HKEY key - registry key with entries to be executed
 // 		bool clearEntry - delete the entry after execution
 // Returns:	bool - true if entries exist, false otherwise
 // Purpose:	Enumerates and executes the registry key contents
@@ -71,30 +75,35 @@ bool Shell::RunRegEntries(HKEY key, bool clearEntry, bool showStartupErrors)
   DWORD type, index = 0, valueSize = MAX_LINE_LENGTH, dataSize = MAX_LINE_LENGTH;
   BYTE data[MAX_LINE_LENGTH];
   WCHAR value[MAX_LINE_LENGTH];
-  WCHAR error[MAX_LINE_LENGTH];
+  //WCHAR error[MAX_LINE_LENGTH];
   bool found = false;
 
   // Loop while there are entries in the key
   while (RegEnumValue(key, index, value, &valueSize, NULL, &type, data, &dataSize) == ERROR_SUCCESS)
+  {
+    // If it's a string, execute it
+    if ((type == REG_SZ) || (type == REG_EXPAND_SZ))
     {
-      // If it's a string, execute it
-      if ((type == REG_SZ) || (type == REG_EXPAND_SZ))
-        {
-          swprintf(error, TEXT("Failed to execute \"%ls\""), (WCHAR*)data);
-          if (!ELExecute((WCHAR*)data) && showStartupErrors)
-            ELMessageBox(GetDesktopWindow(), error, (WCHAR*)TEXT("emergeCore"), ELMB_ICONWARNING|ELMB_OK);
+      /*swprintf(error, TEXT("Failed to execute \"%ls\""), (WCHAR*)data);
+      if (!ELExecuteFileOrCommand((WCHAR*)data) && showStartupErrors)
+      {
+        ELMessageBox(GetDesktopWindow(), error, TEXT("emergeCore"), ELMB_ICONWARNING | ELMB_OK);
+      }*/
+      ELExecuteFileOrCommand((WCHAR*)data);
 
-          if (clearEntry)
-            RegDeleteValue(key, value);
+      if (clearEntry)
+      {
+        RegDeleteValue(key, value);
+      }
 
-          found = true;
-        }
-
-      valueSize = MAX_LINE_LENGTH;
-      dataSize = MAX_LINE_LENGTH;
-
-      index++;
+      found = true;
     }
+
+    valueSize = MAX_LINE_LENGTH;
+    dataSize = MAX_LINE_LENGTH;
+
+    index++;
+  }
 
   return found;
 }
@@ -102,13 +111,17 @@ bool Shell::RunRegEntries(HKEY key, bool clearEntry, bool showStartupErrors)
 void Shell::RegisterShell(HWND hwnd, bool enable)
 {
   if (enable)
-    {
-      if (ELRegisterShellHook(hwnd, RSH_REGISTER))
-        if (ELRegisterShellHook(hwnd, RSH_TASKMGR))
-          ShellMessage = RegisterWindowMessage(TEXT("SHELLHOOK"));
-    }
+  {
+    if (ELRegisterShellHook(hwnd, RSH_REGISTER))
+      if (ELRegisterShellHook(hwnd, RSH_TASKMGR))
+      {
+        ShellMessage = RegisterWindowMessage(TEXT("SHELLHOOK"));
+      }
+  }
   else
+  {
     ELRegisterShellHook(hwnd, RSH_UNREGISTER);
+  }
 }
 
 void Shell::BuildTaskList()
@@ -118,9 +131,11 @@ void Shell::BuildTaskList()
 
 BOOL CALLBACK Shell::GetTaskCount(HWND hwnd, LPARAM lParam)
 {
-  Shell *pShell = reinterpret_cast<Shell*>(lParam);
+  Shell* pShell = reinterpret_cast<Shell*>(lParam);
   if (pShell)
+  {
     pShell->CountTask(hwnd);
+  }
 
   return TRUE;
 }
@@ -128,24 +143,26 @@ BOOL CALLBACK Shell::GetTaskCount(HWND hwnd, LPARAM lParam)
 void Shell::CountTask(HWND hwnd)
 {
   if ((IsWindowVisible(hwnd)) && ((GetWindowLongPtr(hwnd, GWL_EXSTYLE) & WS_EX_TOOLWINDOW) != WS_EX_TOOLWINDOW))
+  {
     UpdateSessionInformation(true, hwnd);
+  }
 }
 
 bool Shell::UpdateTaskCount(UINT message, UINT shellMessage, HWND task)
 {
   if (message == ShellMessage)
+  {
+    switch (shellMessage)
     {
-      switch (shellMessage)
-        {
-        case HSHELL_WINDOWDESTROYED:
-          return UpdateSessionInformation(false, task);
-        case HSHELL_WINDOWCREATED:
-          return UpdateSessionInformation(true, task);
-        case HSHELL_WINDOWACTIVATED:
-        case HSHELL_RUDEAPPACTIVATED:
-          return HideExplorerBar();
-        }
+    case HSHELL_WINDOWDESTROYED:
+      return UpdateSessionInformation(false, task);
+    case HSHELL_WINDOWCREATED:
+      return UpdateSessionInformation(true, task);
+    case HSHELL_WINDOWACTIVATED:
+    case HSHELL_RUDEAPPACTIVATED:
+      return (HideExplorerBar() != 0);
     }
+  }
 
   return false;
 }
@@ -161,36 +178,46 @@ bool Shell::UpdateSessionInformation(bool add, HWND task)
 
   for (i = 0; i < taskList.size(); i++)
     if (taskList[i] == task)
-      {
-        found = true;
-        break;
-      }
+    {
+      found = true;
+      break;
+    }
 
   if (add)
+  {
+    if (!found)
     {
-      if (!found)
-        taskList.push_back(task);
-      else
-        return false;
+      taskList.push_back(task);
     }
+    else
+    {
+      return false;
+    }
+  }
   else
+  {
+    if (!found)
     {
-      if (!found)
-        return false;
-      else
-        taskList.erase(taskList.begin() + i);
+      return false;
     }
+    else
+    {
+      taskList.erase(taskList.begin() + i);
+    }
+  }
 
   if (RegCreateKeyEx(HKEY_CURRENT_USER, TEXT("SessionInformation"), 0, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS,
                      NULL, &key, &ignore) == ERROR_SUCCESS)
+  {
+    programCount = taskList.size();
+
+    if (RegSetValueEx(key, TEXT("ProgramCount"), 0, REG_DWORD, (BYTE*)&programCount, sizeof(DWORD)) == ERROR_SUCCESS)
     {
-      programCount = taskList.size();
-
-      if (RegSetValueEx(key, TEXT("ProgramCount"), 0, REG_DWORD, (BYTE*)&programCount, sizeof(DWORD)) == ERROR_SUCCESS)
-        result = true;
-
-      ELCloseRegKey(key);
+      result = true;
     }
+
+    ELCloseRegKey(key);
+  }
 
   return result;
 }
@@ -214,99 +241,99 @@ void Shell::RunRegStartup(bool showStartupErrors)
 
   // HKCU startup keys
   keyVector.push_back(StartKey(HKEY_CURRENT_USER,
-                               L"Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer\\Run",
+                               TEXT("Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer\\Run"),
                                false));
   keyVector.push_back(StartKey(HKEY_CURRENT_USER,
-                               L"Software\\Microsoft\\Windows\\CurrentVersion\\Run",
+                               TEXT("Software\\Microsoft\\Windows\\CurrentVersion\\Run"),
                                false));
   keyVector.push_back(StartKey(HKEY_CURRENT_USER,
-                               L"Software\\Microsoft\\Windows\\CurrentVersion\\RunOnce",
+                               TEXT("Software\\Microsoft\\Windows\\CurrentVersion\\RunOnce"),
                                true));
   keyVector.push_back(StartKey(HKEY_CURRENT_USER,
-                               L"Software\\Microsoft\\Windows\\CurrentVersion\\RunServices",
+                               TEXT("Software\\Microsoft\\Windows\\CurrentVersion\\RunServices"),
                                false));
   keyVector.push_back(StartKey(HKEY_CURRENT_USER,
-                               L"Software\\Microsoft\\Windows\\CurrentVersion\\RunServicesOnce",
+                               TEXT("Software\\Microsoft\\Windows\\CurrentVersion\\RunServicesOnce"),
                                true));
 
   // HKCU startup keys (32-bit keys on 64-bit machines)
   keyVector.push_back(StartKey(HKEY_CURRENT_USER,
-                               L"Software\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer\\Run",
+                               TEXT("Software\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer\\Run"),
                                false));
   keyVector.push_back(StartKey(HKEY_CURRENT_USER,
-                               L"Software\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\Run",
+                               TEXT("Software\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\Run"),
                                false));
   keyVector.push_back(StartKey(HKEY_CURRENT_USER,
-                               L"Software\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\RunOnce",
+                               TEXT("Software\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\RunOnce"),
                                true));
   keyVector.push_back(StartKey(HKEY_CURRENT_USER,
-                               L"Software\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\RunServices",
+                               TEXT("Software\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\RunServices"),
                                false));
   keyVector.push_back(StartKey(HKEY_CURRENT_USER,
-                               L"Software\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\RunServicesOnce",
+                               TEXT("Software\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\RunServicesOnce"),
                                true));
 
   // HKLM startup keys
   keyVector.push_back(StartKey(HKEY_LOCAL_MACHINE,
-                               L"Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer\\Run",
+                               TEXT("Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer\\Run"),
                                false));
   keyVector.push_back(StartKey(HKEY_LOCAL_MACHINE,
-                               L"Software\\Microsoft\\Windows\\CurrentVersion\\Run",
+                               TEXT("Software\\Microsoft\\Windows\\CurrentVersion\\Run"),
                                false));
   keyVector.push_back(StartKey(HKEY_LOCAL_MACHINE,
-                               L"Software\\Microsoft\\Windows\\CurrentVersion\\RunOnce",
+                               TEXT("Software\\Microsoft\\Windows\\CurrentVersion\\RunOnce"),
                                true));
   keyVector.push_back(StartKey(HKEY_LOCAL_MACHINE,
-                               L"Software\\Microsoft\\Windows\\CurrentVersion\\RunOnceEx",
+                               TEXT("Software\\Microsoft\\Windows\\CurrentVersion\\RunOnceEx"),
                                true));
   keyVector.push_back(StartKey(HKEY_LOCAL_MACHINE,
-                               L"Software\\Microsoft\\Windows\\CurrentVersion\\RunServices",
+                               TEXT("Software\\Microsoft\\Windows\\CurrentVersion\\RunServices"),
                                false));
   keyVector.push_back(StartKey(HKEY_LOCAL_MACHINE,
-                               L"Software\\Microsoft\\Windows\\CurrentVersion\\RunServicesOnce",
+                               TEXT("Software\\Microsoft\\Windows\\CurrentVersion\\RunServicesOnce"),
                                true));
   keyVector.push_back(StartKey(HKEY_LOCAL_MACHINE,
-                               L"Software\\Microsoft\\Windows NT\\CurrentVersion\\Winlogon\\Userinit",
+                               TEXT("Software\\Microsoft\\Windows NT\\CurrentVersion\\Winlogon\\Userinit"),
                                false));
 
   // HKLM startup keys (32-bit keys on 64-bit machines)
   keyVector.push_back(StartKey(HKEY_LOCAL_MACHINE,
-                               L"Software\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer\\Run",
+                               TEXT("Software\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer\\Run"),
                                false));
   keyVector.push_back(StartKey(HKEY_LOCAL_MACHINE,
-                               L"Software\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\Run",
+                               TEXT("Software\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\Run"),
                                false));
   keyVector.push_back(StartKey(HKEY_LOCAL_MACHINE,
-                               L"Software\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\RunOnce",
+                               TEXT("Software\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\RunOnce"),
                                true));
   keyVector.push_back(StartKey(HKEY_LOCAL_MACHINE,
-                               L"Software\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\RunOnceEx",
+                               TEXT("Software\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\RunOnceEx"),
                                true));
   keyVector.push_back(StartKey(HKEY_LOCAL_MACHINE,
-                               L"Software\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\RunServices",
+                               TEXT("Software\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\RunServices"),
                                false));
   keyVector.push_back(StartKey(HKEY_LOCAL_MACHINE,
-                               L"Software\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\RunServicesOnce",
+                               TEXT("Software\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\RunServicesOnce"),
                                true));
   keyVector.push_back(StartKey(HKEY_LOCAL_MACHINE,
-                               L"Software\\Wow6432Node\\Microsoft\\Windows NT\\CurrentVersion\\Winlogon\\Userinit",
+                               TEXT("Software\\Wow6432Node\\Microsoft\\Windows NT\\CurrentVersion\\Winlogon\\Userinit"),
                                false));
 
   // Execute all keys defined in keyVector
   while (!keyVector.empty())
+  {
+    if (RegOpenKeyEx(keyVector.begin()->key,
+                     keyVector.begin()->subkey.c_str(),
+                     0,
+                     ((keyVector.begin()->clear) ? KEY_ALL_ACCESS : KEY_READ),
+                     &key) == ERROR_SUCCESS)
     {
-      if (RegOpenKeyEx(keyVector.begin()->key,
-                       keyVector.begin()->subkey.c_str(),
-                       0,
-                       ((keyVector.begin()->clear) ? KEY_ALL_ACCESS : KEY_READ),
-                       &key) == ERROR_SUCCESS)
-        {
-          RunRegEntries(key, keyVector.begin()->clear, showStartupErrors);
-          ELCloseRegKey(key);
-        }
-
-      keyVector.erase(keyVector.begin());
+      RunRegEntries(key, keyVector.begin()->clear, showStartupErrors);
+      ELCloseRegKey(key);
     }
+
+    keyVector.erase(keyVector.begin());
+  }
 
   /*
   // Execute the HKCU Run key
@@ -391,41 +418,52 @@ void Shell::RunFolderEntries(LPTSTR path, bool showStartupErrors)
   WIN32_FIND_DATA findData;
   HANDLE find;
   bool found = false;
-  WCHAR error[MAX_LINE_LENGTH];
+  //WCHAR error[MAX_LINE_LENGTH];
 
   // Check the format of the specified path
   if (path[wcslen(path) - 1] != '\\')
+  {
     wcscat(path, TEXT("\\"));
+  }
   wcscpy(appPath, path);
   wcscat(path, TEXT("*"));
 
   // find the first file
   find = FindFirstFile(path, &findData);
   if (find != INVALID_HANDLE_VALUE)
+  {
     found = true;
+  }
 
   // loop through all the files in the path
   while (found)
+  {
+    // Make sure it's a file
+    if (wcscmp(findData.cFileName, TEXT(".")) &&
+        wcscmp(findData.cFileName, TEXT("..")) &&
+        !(findData.dwFileAttributes & FILE_ATTRIBUTE_SYSTEM) &&
+        !(findData.dwFileAttributes & FILE_ATTRIBUTE_HIDDEN))
     {
-      // Make sure it's a file
-      if (wcscmp(findData.cFileName, TEXT(".")) &&
-          wcscmp(findData.cFileName, TEXT("..")) &&
-          !(findData.dwFileAttributes & FILE_ATTRIBUTE_SYSTEM) &&
-          !(findData.dwFileAttributes & FILE_ATTRIBUTE_HIDDEN))
-        {
-          wcscpy(app, appPath);
-          wcscat(app, findData.cFileName);
-          swprintf(error, TEXT("Failed to execute \"%ls\""), app);
-          if (!ELExecute((WCHAR*)app) && showStartupErrors)
-            ELMessageBox(GetDesktopWindow(), error, (WCHAR*)TEXT("emergeCore"), ELMB_ICONWARNING|ELMB_OK);
-        }
-
-      // Get the next file
-      if (FindNextFile(find, &findData) == 1)
-        found = true;
-      else
-        found = false;
+      wcscpy(app, appPath);
+      wcscat(app, findData.cFileName);
+      /*swprintf(error, TEXT("Failed to execute \"%ls\""), app);
+      if (!ELExecuteFileOrCommand(app) && showStartupErrors)
+      {
+        ELMessageBox(GetDesktopWindow(), error, TEXT("emergeCore"), ELMB_ICONWARNING | ELMB_OK);
+      }*/
+      ELExecuteFileOrCommand(app);
     }
+
+    // Get the next file
+    if (FindNextFile(find, &findData) == 1)
+    {
+      found = true;
+    }
+    else
+    {
+      found = false;
+    }
+  }
 }
 
 //----  --------------------------------------------------------------------------------------------------------
@@ -441,23 +479,27 @@ void Shell::RunFolderStartup(bool showStartupErrors)
 
   // Get the contents of the common startup folder
   if (SUCCEEDED(SHGetSpecialFolderLocation(NULL, CSIDL_COMMON_STARTUP, &item)))
+  {
+    if (SHGetPathFromIDList(item, szPath))
+      // Execute the contents
     {
-      if (SHGetPathFromIDList(item, szPath))
-        // Execute the contents
-        RunFolderEntries(szPath, showStartupErrors);
-
-      CoTaskMemFree(item);
+      RunFolderEntries(szPath, showStartupErrors);
     }
+
+    CoTaskMemFree(item);
+  }
 
   // Get the contents of the current user's startup folder
   if (SUCCEEDED(SHGetSpecialFolderLocation(NULL, CSIDL_STARTUP, &item)))
+  {
+    if (SHGetPathFromIDList(item, szPath))
+      // Execute the contents
     {
-      if (SHGetPathFromIDList(item, szPath))
-        // Execute the contents
-        RunFolderEntries(szPath, showStartupErrors);
-
-      CoTaskMemFree(item);
+      RunFolderEntries(szPath, showStartupErrors);
     }
+
+    CoTaskMemFree(item);
+  }
 }
 
 //----  --------------------------------------------------------------------------------------------------------
@@ -474,49 +516,51 @@ bool Shell::FirstRunCheck()
 
   HANDLE hToken;
   if (OpenProcessToken(GetCurrentProcess(), TOKEN_QUERY, &hToken) != 0)
+  {
+    TOKEN_STATISTICS tsStats;
+    DWORD dwOutSize;
+
+    if (GetTokenInformation(hToken, TokenStatistics, &tsStats, sizeof(tsStats), &dwOutSize))
     {
-      TOKEN_STATISTICS tsStats;
-      DWORD dwOutSize;
+      swprintf(sessionInfo, TEXT("SessionInfo\\%08x%08x"),
+               (UINT)tsStats.AuthenticationId.HighPart,
+               (UINT)tsStats.AuthenticationId.LowPart);
 
-      if (GetTokenInformation(hToken, TokenStatistics, &tsStats, sizeof(tsStats), &dwOutSize))
+      // Create the SessionInfo and StartUpHasBeenRun keys
+      LONG lResult = RegCreateKeyEx(HKEY_CURRENT_USER, REGSTR_PATH_EXPLORER, 0, NULL,
+                                    REG_OPTION_NON_VOLATILE, MAXIMUM_ALLOWED, NULL, &hkExplorer, NULL);
+
+      if (lResult == ERROR_SUCCESS)
+      {
+        HKEY hkSessionInfo;
+
+        lResult = RegCreateKeyEx(hkExplorer, sessionInfo, 0, NULL, REG_OPTION_VOLATILE,
+                                 KEY_WRITE, NULL, &hkSessionInfo, NULL);
+
+        if (lResult == ERROR_SUCCESS)
         {
-          swprintf(sessionInfo, TEXT("SessionInfo\\%08x%08x"),
-                   (UINT)tsStats.AuthenticationId.HighPart,
-                   (UINT)tsStats.AuthenticationId.LowPart);
+          DWORD dwDisposition;
+          HKEY hkStartup;
+          lResult = RegCreateKeyEx(hkSessionInfo,  TEXT("StartupHasBeenRun"),
+                                   0, NULL, REG_OPTION_VOLATILE, KEY_WRITE, NULL,
+                                   &hkStartup, &dwDisposition);
 
-          // Create the SessionInfo and StartUpHasBeenRun keys
-          LONG lResult = RegCreateKeyEx(HKEY_CURRENT_USER, REGSTR_PATH_EXPLORER, 0, NULL,
-                                        REG_OPTION_NON_VOLATILE, MAXIMUM_ALLOWED, NULL, &hkExplorer, NULL);
+          RegCloseKey(hkStartup);
 
-          if (lResult == ERROR_SUCCESS)
-            {
-              HKEY hkSessionInfo;
+          if (dwDisposition == REG_CREATED_NEW_KEY)
+          {
+            result = true;
+          }
 
-              lResult = RegCreateKeyEx(hkExplorer, sessionInfo, 0, NULL, REG_OPTION_VOLATILE,
-                                       KEY_WRITE, NULL, &hkSessionInfo, NULL);
-
-              if (lResult == ERROR_SUCCESS)
-                {
-                  DWORD dwDisposition;
-                  HKEY hkStartup;
-                  lResult = RegCreateKeyEx(hkSessionInfo,  TEXT("StartupHasBeenRun"),
-                                           0, NULL, REG_OPTION_VOLATILE, KEY_WRITE, NULL,
-                                           &hkStartup, &dwDisposition);
-
-                  RegCloseKey(hkStartup);
-
-                  if (dwDisposition == REG_CREATED_NEW_KEY)
-                    result = true;
-
-                  RegCloseKey(hkSessionInfo);
-                }
-
-              RegCloseKey(hkExplorer);
-            }
+          RegCloseKey(hkSessionInfo);
         }
 
-      CloseHandle(hToken);
+        RegCloseKey(hkExplorer);
+      }
     }
+
+    CloseHandle(hToken);
+  }
 
   return result;
 }
@@ -532,10 +576,10 @@ void Shell::LoadSSO()
   CLSID clsidTray;
 
   if (!traySSO)
-    {
-      CLSIDFromString((WCHAR*)TEXT("{35CEC8A3-2BE6-11D2-8773-92E220524153}"), &clsidTray);
-      traySSO = ELStartSSO(clsidTray);
-    }
+  {
+    CLSIDFromString((WCHAR*)TEXT("{35CEC8A3-2BE6-11D2-8773-92E220524153}"), &clsidTray);
+    traySSO = ELStartSSO(clsidTray);
+  }
 }
 
 //----  --------------------------------------------------------------------------------------------------------
@@ -547,10 +591,11 @@ void Shell::LoadSSO()
 void Shell::UnloadSSO()
 {
   if (traySSO)
+  {
+    if (traySSO->Exec(&CGID_ShellServiceObject, OLECMDID_SAVE,
+                      OLECMDEXECOPT_DODEFAULT, NULL, NULL) == S_OK)
     {
-      if (traySSO->Exec(&CGID_ShellServiceObject, OLECMDID_SAVE,
-                        OLECMDEXECOPT_DODEFAULT, NULL, NULL) == S_OK)
-        traySSO->Release();
+      traySSO->Release();
     }
+  }
 }
-

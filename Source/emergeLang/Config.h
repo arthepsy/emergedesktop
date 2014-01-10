@@ -1,34 +1,32 @@
-//---
-//
-//  This file is part of Emerge Desktop.
-//  Copyright (C) 2004-2010  The Emerge Desktop Development Team
-//
-//  Emerge Desktop is free software; you can redistribute it and/or modify
-//  it under the terms of the GNU General Public License as published by
-//  the Free Software Foundation; either version 3 of the License, or
-//  (at your option) any later version.
-//
-//  Emerge Desktop is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//  GNU General Public License for more details.
-//
-//  You should have received a copy of the GNU General Public License
-//  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-//
-//---
+/*!
+  @file Config.h
+  @brief header for emergeLang
+  @author The Emerge Desktop Development Team
 
-#ifndef __ELN_CONFIG_H
-#define __ELN_CONFIG_H
+  @attention This file is part of Emerge Desktop.
+  @attention Copyright (C) 2004-2013  The Emerge Desktop Development Team
+
+  @attention Emerge Desktop is free software; you can redistribute it and/or
+  modify  it under the terms of the GNU General Public License as published
+  by the Free Software Foundation; either version 3 of the License, or
+  (at your option) any later version.
+
+  @attention Emerge Desktop is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  @attention You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  */
+
+#ifndef __GUARD_beceaf72_af6c_4234_9cf9_89058a6a44ca
+#define __GUARD_beceaf72_af6c_4234_9cf9_89058a6a44ca
+
+#define UNICODE 1
 
 #undef _WIN32_IE
 #define _WIN32_IE 0x0600
-
-#include "Settings.h"
-#include "resource.h"
-#include "../emergeBaseClasses/BasePositionPage.h"
-#include "../emergeStyleEngine/StyleEditor.h"
-#include "ConfigPage.h"
 
 #ifdef __GNUC__
 #include <tr1/memory>
@@ -37,23 +35,28 @@
 #include <memory>
 #endif
 
+#include "../emergeBaseClasses/BasePositionPage.h"
+#include "../emergeStyleEngine/StyleEditor.h"
+#include "ConfigPage.h"
+#include "resource.h"
+#include "Settings.h"
+
 class Config
 {
 public:
-	Config(HINSTANCE hInstance, HWND mainWnd, WCHAR *instanceName, std::tr1::shared_ptr<Settings> pSettings);
-	~Config();
-	int Show();
-	INT_PTR DoInitDialog(HWND hwndDlg);
+  Config(HINSTANCE hInstance, HWND mainWnd, WCHAR* instanceName, std::tr1::shared_ptr<Settings> pSettings);
+  ~Config();
+  int Show();
+  INT_PTR DoInitDialog(HWND hwndDlg);
 
 private:
-	std::tr1::shared_ptr<BasePositionPage> pPositionPage;
-	std::tr1::shared_ptr<StyleEditor> pStyleEditor;
-	std::tr1::shared_ptr<ConfigPage> pConfigPage;
-	std::tr1::shared_ptr<Settings> pSettings;
-	HINSTANCE hInstance;
-	HWND mainWnd;
-	static INT_PTR CALLBACK ConfigDlgProc(HWND hwndDlg, UINT message, WPARAM wParam, LPARAM lParam);
+  std::tr1::shared_ptr<BasePositionPage> pPositionPage;
+  std::tr1::shared_ptr<StyleEditor> pStyleEditor;
+  std::tr1::shared_ptr<ConfigPage> pConfigPage;
+  std::tr1::shared_ptr<Settings> pSettings;
+  HINSTANCE hInstance;
+  HWND mainWnd;
+  static INT_PTR CALLBACK ConfigDlgProc(HWND hwndDlg, UINT message, WPARAM wParam, LPARAM lParam);
 };
 
 #endif
-

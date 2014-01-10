@@ -1,7 +1,7 @@
 //---
 //
 //  This file is part of Emerge Desktop.
-//  Copyright (C) 2004-2012  The Emerge Desktop Development Team
+//  Copyright (C) 2004-2013  The Emerge Desktop Development Team
 //
 //  Emerge Desktop is free software; you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -23,9 +23,9 @@
 
 Settings::Settings(): BaseSettings(false)
 {
-  ZeroMemory(fontString, MAX_LINE_LENGTH);
-  ZeroMemory(textHorizontalAlign, MAX_LINE_LENGTH);
-  ZeroMemory(textVerticalAlign, MAX_LINE_LENGTH);
+  fontString = TEXT("");
+  textHorizontalAlign = TEXT("");
+  textVerticalAlign = TEXT("");
 
   updateInterval = 60;
 }
@@ -36,16 +36,16 @@ void Settings::DoReadSettings(IOHelper& helper)
   ZeroMemory(&logFont, sizeof(LOGFONT));
 
   BaseSettings::DoReadSettings(helper);
-  helper.ReadString(TEXT("Font"), fontString, TEXT("Tahoma-12"));
-  helper.ReadInt(TEXT("UpdateInterval"), updateInterval, 60);
-  helper.ReadString(TEXT("TextHorizontalAlign"), textHorizontalAlign, TEXT("left"));
-  helper.ReadString(TEXT("TextVerticalAlign"), textVerticalAlign, TEXT("top"));
+  fontString = helper.ReadString(TEXT("Font"), TEXT("Tahoma-12"));
+  updateInterval = helper.ReadInt(TEXT("UpdateInterval"), 60);
+  textHorizontalAlign = helper.ReadString(TEXT("TextHorizontalAlign"), TEXT("left"));
+  textVerticalAlign = helper.ReadString(TEXT("TextVerticalAlign"), TEXT("top"));
 }
 
 void Settings::DoWriteSettings(IOHelper& helper)
 {
   BaseSettings::DoWriteSettings(helper);
-  EGFontToString(logFont, fontString);
+  fontString = EGFontToString(logFont);
   helper.WriteString(TEXT("Font"), fontString);
   helper.WriteInt(TEXT("UpdateInterval"), updateInterval);
   helper.WriteString(TEXT("TextHorizontalAlign"), textHorizontalAlign);
@@ -55,68 +55,66 @@ void Settings::DoWriteSettings(IOHelper& helper)
 void Settings::DoInitialize()
 {
   BaseSettings::DoInitialize();
-  EGStringToFont(fontString, logFont);
+  logFont = EGStringToFont(fontString);
 }
 
 void Settings::ResetDefaults()
 {
   BaseSettings::ResetDefaults();
-  wcscpy(fontString, (WCHAR*)TEXT("Tahoma-12"));
+  fontString = TEXT("Tahoma-12");
   updateInterval = 60;
 }
 
-void Settings::SetFont(LOGFONT *logFont)
+void Settings::SetFont(LOGFONT* logFont)
 {
-  WCHAR tmp[MAX_LINE_LENGTH];
-  EGFontToString(*logFont, tmp);
   if (!EGEqualLogFont(this->logFont, *logFont))
-    {
-      wcscpy(fontString, tmp);
-      CopyMemory(&this->logFont, logFont, sizeof(LOGFONT));
-      SetModified();
-    }
+  {
+    fontString = EGFontToString(*logFont);
+    CopyMemory(&this->logFont, logFont, sizeof(LOGFONT));
+    SetModified();
+  }
 }
 
 void Settings::SetUpdateInterval(int interval)
 {
   if (updateInterval != interval)
-    {
-      updateInterval = interval;
-      SetModified();
-    }
+  {
+    updateInterval = interval;
+    SetModified();
+  }
 }
 
-WCHAR *Settings::GetHorizontalAlign()
+std::wstring Settings::GetHorizontalAlign()
 {
   return textHorizontalAlign;
 }
 
-bool Settings::SetHorizontalAlign(WCHAR *horizontalAlign)
+bool Settings::SetHorizontalAlign(std::wstring horizontalAlign)
 {
-  if (_wcsicmp(textHorizontalAlign, horizontalAlign) != 0)
-    {
-      wcscpy(textHorizontalAlign, horizontalAlign);
-      SetModified();
-    }
+  if (ELToLower(textHorizontalAlign) != ELToLower(horizontalAlign))
+  {
+    textHorizontalAlign = horizontalAlign;
+    SetModified();
+  }
   return true;
 }
 
-WCHAR *Settings::GetVerticalAlign()
+std::wstring Settings::GetVerticalAlign()
 {
   return textVerticalAlign;
 }
 
-bool Settings::SetVerticalAlign(WCHAR *horizontalAlign)
+bool Settings::SetVerticalAlign(std::wstring verticalAlign)
 {
-  if (_wcsicmp(textVerticalAlign, horizontalAlign) != 0)
-    {
-      wcscpy(textVerticalAlign, horizontalAlign);
-      SetModified();
-    }
+  if (ELToLower(textVerticalAlign) == ELToLower(verticalAlign))
+  {
+    textVerticalAlign = verticalAlign;
+    SetModified();
+  }
   return true;
 }
 
-LOGFONT *Settings::GetFont()
+LOGFONT* Settings::GetFont()
 {
   return &logFont;
 }

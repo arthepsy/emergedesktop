@@ -1,7 +1,7 @@
 //----  --------------------------------------------------------------------------------------------------------
 //
 //  This file is part of Emerge Desktop.
-//  Copyright (C) 2004-2012  The Emerge Desktop Development Team
+//  Copyright (C) 2004-2013  The Emerge Desktop Development Team
 //
 //  Emerge Desktop is free software; you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -50,6 +50,6 @@ BEGIN
 	EDITTEXT	IDC_FLASHCOUNT,CONFIG_WIDTH-40,73,30,12,ES_AUTOHSCROLL|ES_NUMBER
   CONTROL "",IDC_FLASHCOUNTUPDOWN,UPDOWN_CLASS,UDS_AUTOBUDDY|UDS_SETBUDDYINT|UDS_ARROWKEYS|UDS_ALIGNRIGHT|UDS_NOTHOUSANDS,0,0,10,12
   //ROBLARKY - 2012-08-11: Added for option to only show tasks on same monitor
-  CONTROL	"Same Monitor Only",IDC_SAMEMONITOR,"Button",BS_AUTOCHECKBOX|WS_TABSTOP,CONFIG_WIDTH-95,35,90,10  
+  CONTROL	"Same Monitor Only",IDC_SAMEMONITOR,"Button",BS_AUTOCHECKBOX|WS_TABSTOP,CONFIG_WIDTH-95,35,90,10
 END
 

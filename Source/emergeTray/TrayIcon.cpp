@@ -2,7 +2,7 @@
 //---
 //
 //  This file is part of Emerge Desktop.
-//  Copyright (C) 2004-2012  The Emerge Desktop Development Team
+//  Copyright (C) 2004-2013  The Emerge Desktop Development Team
 //
 //  Emerge Desktop is free software; you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -35,7 +35,7 @@
 // Returns:	Nothing
 // Purpose:	Creates TrayIcon Class Object
 //-----
-TrayIcon::TrayIcon(HINSTANCE appInstance, HWND wnd, UINT id, HWND mainWnd, Settings *pSettings)
+TrayIcon::TrayIcon(HINSTANCE appInstance, HWND wnd, UINT id, HWND mainWnd, Settings* pSettings)
 {
   this->appInstance = appInstance;
   this->wnd = wnd;
@@ -69,32 +69,36 @@ void TrayIcon::CreateNewIcon(BYTE foregroundAlpha, BYTE backgroundAlpha)
 
   /**< Don't bother converting NULL icons, just set newIcon and return */
   if (origIcon == NULL)
-    {
-      newIcon = NULL;
-      return;
-    }
+  {
+    newIcon = NULL;
+    return;
+  }
 
   if (convertIcon)
-    {
-      convertIcon = false;
+  {
+    convertIcon = false;
 
-      // If the background if fully opaque, don't bother converting the icon, simply copy it
-      if (backgroundAlpha == 0xff)
-        {
-          if (newIcon != NULL)
-            DestroyIcon(newIcon);
-          newIcon = CopyIcon(origIcon);
-        }
-      else
-        {
-          /**< Don't bail if EGConvertIcon returns a NULL icon, since in this case it may be valid (icon flashing) */
-          tmpIcon = EGConvertIcon(origIcon, foregroundAlpha);
-          if (newIcon != NULL)
-            DestroyIcon(newIcon);
-          newIcon = CopyIcon(tmpIcon);
-          DestroyIcon(tmpIcon);
-        }
+    // If the background if fully opaque, don't bother converting the icon, simply copy it
+    if (backgroundAlpha == 0xff)
+    {
+      if (newIcon != NULL)
+      {
+        DestroyIcon(newIcon);
+      }
+      newIcon = CopyIcon(origIcon);
     }
+    else
+    {
+      /**< Don't bail if EGConvertIcon returns a NULL icon, since in this case it may be valid (icon flashing) */
+      tmpIcon = EGConvertIcon(origIcon, foregroundAlpha);
+      if (newIcon != NULL)
+      {
+        DestroyIcon(newIcon);
+      }
+      newIcon = CopyIcon(tmpIcon);
+      DestroyIcon(tmpIcon);
+    }
+  }
 }
 
 //-----
@@ -164,7 +168,7 @@ UINT TrayIcon::GetCallback()
 // Returns:	WCHAR*
 // Purpose:	Retrieves the icon's tooltip
 //-----
-WCHAR *TrayIcon::GetTip()
+WCHAR* TrayIcon::GetTip()
 {
   return tip;
 }
@@ -186,7 +190,7 @@ UINT TrayIcon::GetFlags()
 // Returns:	RECT*
 // Purpose:	Retrieves the bounding rectangle of the icon
 //-----
-RECT *TrayIcon::GetRect()
+RECT* TrayIcon::GetRect()
 {
   return &rect;
 }
@@ -228,17 +232,19 @@ void TrayIcon::SetIconVersion(UINT iconVersion)
 bool TrayIcon::SetIcon(HICON icon)
 {
   if (origIconSource != icon)
+  {
+    if (origIcon)
     {
-      if (origIcon)
-        DestroyIcon(origIcon);
-
-      origIconSource = icon;
-      origIcon = CopyIcon(icon);
-      convertIcon = true;
-
-      // changed
-      return true;
+      DestroyIcon(origIcon);
     }
+
+    origIconSource = icon;
+    origIcon = CopyIcon(icon);
+    convertIcon = true;
+
+    // changed
+    return true;
+  }
 
   return false;
 }
@@ -252,12 +258,12 @@ bool TrayIcon::SetIcon(HICON icon)
 bool TrayIcon::SetCallback(UINT callbackMessage)
 {
   if ((*this).callbackMessage != callbackMessage)
-    {
-      (*this).callbackMessage = callbackMessage;
-      pBalloon->SetCallbackMessage(callbackMessage);
+  {
+    (*this).callbackMessage = callbackMessage;
+    pBalloon->SetCallbackMessage(callbackMessage);
 
-      return true;
-    }
+    return true;
+  }
 
   return false;
 }
@@ -268,15 +274,15 @@ bool TrayIcon::SetCallback(UINT callbackMessage)
 // Returns:	true if tooltip was updated, false otherwise
 // Purpose:	Replaces the existing tooltip text
 //-----
-bool TrayIcon::SetTip(WCHAR *tip)
+bool TrayIcon::SetTip(WCHAR* tip)
 {
   if (wcscmp((*this).tip, tip) != 0)
-    {
-      wcscpy((*this).tip, tip);
+  {
+    wcscpy((*this).tip, tip);
 
-      // changed
-      return true;
-    }
+    // changed
+    return true;
+  }
 
   return false;
 }
@@ -286,24 +292,28 @@ bool TrayIcon::SetTip(WCHAR *tip)
 // Returns:	true if info was updated, false otherwise
 // Purpose:	Replaces the existing info text
 //-----
-void TrayIcon::ShowBalloon(WCHAR *infoTitle, WCHAR *info, DWORD infoFlags, HICON icon)
+void TrayIcon::ShowBalloon(WCHAR* infoTitle, WCHAR* info, DWORD infoFlags, HICON icon)
 {
   POINT balloonPt;
   balloonPt.x = rect.left;
   balloonPt.y = rect.top;
 
   if (ClientToScreen(mainWnd, &balloonPt))
+  {
+    if (pBalloon->SetInfoFlags(infoFlags, icon))
     {
-      if (pBalloon->SetInfoFlags(infoFlags, icon))
-        {
-          pBalloon->SetInfoTitle(infoTitle);
-          pBalloon->SetInfo(info);
-          if (wcslen(info))
-            pBalloon->Show(balloonPt);
-          else
-            pBalloon->Hide();
-        }
+      pBalloon->SetInfoTitle(infoTitle);
+      pBalloon->SetInfo(info);
+      if (wcslen(info))
+      {
+        pBalloon->Show(balloonPt);
+      }
+      else
+      {
+        pBalloon->Hide();
+      }
     }
+  }
 }
 
 void TrayIcon::HideBalloon()
@@ -319,28 +329,34 @@ BOOL TrayIcon::SendMessage(UINT message)
   // Only send an WM_LBUTTONUP message if there has been a previous
   // WM_LBUTTONDOWN or WM_LBUTTONDBLCLK message sent
   if (lParam == WM_LBUTTONUP)
+  {
+    if (!lbuttonDown)
     {
-      if (!lbuttonDown)
-        return TRUE;
-      else
-        lbuttonDown = false;
+      return TRUE;
     }
+    else
+    {
+      lbuttonDown = false;
+    }
+  }
 
   // Set lbuttonDown based on WM_LBUTTONDOWN or WM_LBUTTONDBLCLK
   if ((lParam == WM_LBUTTONDOWN) || (lParam == WM_LBUTTONDBLCLK))
+  {
     lbuttonDown = true;
+  }
 
   if (iconVersion == NOTIFYICON_VERSION_4)
-    {
-      POINT messagePt;
+  {
+    POINT messagePt;
 
-      messagePt.x = rect.left;
-      messagePt.y = rect.top;
-      ClientToScreen(mainWnd, &messagePt);
+    messagePt.x = rect.left;
+    messagePt.y = rect.top;
+    ClientToScreen(mainWnd, &messagePt);
 
-      wParam = MAKEWPARAM(messagePt.x, messagePt.y);
-      lParam = MAKELPARAM(lParam, id);
-    }
+    wParam = MAKEWPARAM(messagePt.x, messagePt.y);
+    lParam = MAKELPARAM(lParam, id);
+  }
 
   return SendNotifyMessage(wnd, callbackMessage, wParam, lParam);
 }
@@ -365,11 +381,11 @@ void TrayIcon::SetFlags(UINT flags)
 void TrayIcon::SetRect(RECT rect)
 {
   if (!EqualRect(&(*this).rect, &rect))
-    {
-      (*this).rect = rect;
-      pBalloon->SetIconRect(rect);
-      convertIcon = true;
-    }
+  {
+    (*this).rect = rect;
+    pBalloon->SetIconRect(rect);
+    convertIcon = true;
+  }
 }
 
 //-----

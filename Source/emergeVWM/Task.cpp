@@ -1,7 +1,7 @@
 //----  --------------------------------------------------------------------------------------------------------
 //
 //  This file is part of Emerge Desktop.
-//  Copyright (C) 2004-2012  The Emerge Desktop Development Team
+//  Copyright (C) 2004-2013  The Emerge Desktop Development Team
 //
 //  Emerge Desktop is free software; you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -45,7 +45,7 @@ Task::Task(HWND taskWnd, HWND mainWnd, HINSTANCE mainInst, UINT currentRow, UINT
 
   UpdateDimensions(currentColumn, currentRow, maxRows, maxColumns, guiInfo);
 
-  ELGetWindowRect(taskWnd, &referenceRect);
+  referenceRect = ELGetWindowRect(taskWnd);
 }
 
 //----  --------------------------------------------------------------------------------------------------------
@@ -74,7 +74,7 @@ std::wstring Task::GetAppName()
 // Returns:	RECT*
 // Purpose:	Retrieves the task reference rectangle
 //----  --------------------------------------------------------------------------------------------------------
-RECT *Task::GetReferenceRect()
+RECT* Task::GetReferenceRect()
 {
   return &referenceRect;
 }
@@ -107,7 +107,7 @@ HWND Task::GetTaskWnd()
 // Returns:	RECT*
 // Purpose:	Retrieves the task rect
 //----  --------------------------------------------------------------------------------------------------------
-RECT *Task::GetRect()
+RECT* Task::GetRect()
 {
   return &taskRect;
 }
@@ -129,7 +129,7 @@ void Task::UpdateDimensions(UINT currentColumn, UINT currentRow, UINT maxColumns
   int windowWidth, windowHeight;
   float rowScalar, columnScalar;
 
-  ELGetWindowRect(taskWnd, &sourceRect);
+  sourceRect = ELGetWindowRect(taskWnd);
   GetClientRect(mainWnd, &clientRect);
 
   rowScalar = (float)(clientRect.bottom - (2 * guiInfo.dragBorder)) /
@@ -170,11 +170,13 @@ void Task::DisplayMenu(HWND callingWnd)
 
   res = EAEDisplayMenu(callingWnd, taskWnd);
   if (res)
+  {
+    if (res != SC_CLOSE)
     {
-      if (res != SC_CLOSE)
-        ELSwitchToThisWindow(taskWnd);
-      PostMessage(taskWnd, WM_SYSCOMMAND, (WPARAM)res, MAKELPARAM(pt.x, pt.y));
+      ELSwitchToThisWindow(taskWnd);
     }
+    PostMessage(taskWnd, WM_SYSCOMMAND, (WPARAM)res, MAKELPARAM(pt.x, pt.y));
+  }
 }
 
 void Task::SetMinimized(bool minimized)

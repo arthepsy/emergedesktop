@@ -1,45 +1,41 @@
-//----  --------------------------------------------------------------------------------------------------------
-//
-//  This file is part of Emerge Desktop.
-//  Copyright (C) 2004-2012  The Emerge Desktop Development Team
-//
-//  Emerge Desktop is free software; you can redistribute it and/or modify
-//  it under the terms of the GNU General Public License as published by
-//  the Free Software Foundation; either version 3 of the License, or
-//  (at your option) any later version.
-//
-//  Emerge Desktop is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//  GNU General Public License for more details.
-//
-//  You should have received a copy of the GNU General Public License
-//  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-//
-//----  --------------------------------------------------------------------------------------------------------
+/*!
+  @file BaseApplet.h
+  @brief header for emergeBaseClasses
+  @author The Emerge Desktop Development Team
 
-#ifndef __EB_BASEAPPLET_H
-#define __EB_BASEAPPLET_H
+  @attention This file is part of Emerge Desktop.
+  @attention Copyright (C) 2004-2013  The Emerge Desktop Development Team
+
+  @attention Emerge Desktop is free software; you can redistribute it and/or
+  modify  it under the terms of the GNU General Public License as published
+  by the Free Software Foundation; either version 3 of the License, or
+  (at your option) any later version.
+
+  @attention Emerge Desktop is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  @attention You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  */
+
+#ifndef __GUARD_d12f0cd8_ef59_49fd_8c72_a77cdf71cc5b
+#define __GUARD_d12f0cd8_ef59_49fd_8c72_a77cdf71cc5b
+
+#define UNICODE 1
+
+#ifdef _MSC_VER
+#pragma warning(push) //store the existing compiler warning level
+#pragma warning(disable: 4251) //'identifier' : class 'type' needs to have dll-interface to be used by clients of class 'type2'
+
+#define _CRT_SECURE_NO_WARNINGS 1 //suppress warnings about old versions of wcscpy, wcscat, etc.
+#define _CRT_NON_CONFORMING_SWPRINTFS 1 //suppress warnings about old swprintf format
+#endif
 
 // Define required for the Window Transparency
 #undef _WIN32_WINNT
 #define _WIN32_WINNT 0x0501
-
-#define UNICODE 1
-
-#include "../emergeLib/emergeLib.h"
-#include "../emergeGraphics/emergeGraphics.h"
-#include "../emergeStyleEngine/emergeStyleEngine.h"
-#include "BaseSettings.h"
-#include "BaseAppletMenu.h"
-#include <vector>
-
-#ifdef __GNUC__
-#include <tr1/memory>
-#include <tr1/shared_ptr.h>
-#else
-#include <memory>
-#endif
 
 #ifdef EMERGEBASECLASSES_EXPORTS
 #undef DLL_EXPORT
@@ -49,6 +45,12 @@
 #define DLL_EXPORT  __declspec(dllimport)
 #endif
 
+#ifdef __GNUC__
+#define UNUSED __attribute__((unused))
+#else
+#define UNUSED
+#endif
+
 #define MIN_APPLET_SIZE 10
 #define MOUSE_TIMER 0
 #define MOUSE_POLL_TIME 250
@@ -56,16 +58,34 @@
 #define FULLSCREEN_WAIT_TIME    100
 #define DISPLAYCHANGE_WAIT_TIME 500
 
+#ifdef __GNUC__
+#include <tr1/memory>
+#include <tr1/shared_ptr.h>
+#else
+#include <memory>
+#endif
+
+#include <vector>
+#include "../emergeGraphics/emergeGraphics.h"
+#include "../emergeLib/emergeCoreLib.h"
+#include "../emergeLib/emergeFileRegistryLib.h"
+#include "../emergeLib/emergeOSLib.h"
+#include "../emergeLib/emergeUtilityLib.h"
+#include "../emergeLib/emergeWindowLib.h"
+#include "../emergeStyleEngine/emergeStyleEngine.h"
+#include "BaseAppletMenu.h"
+#include "BaseSettings.h"
+
 class DLL_EXPORT BaseApplet
 {
 public:
-  BaseApplet(HINSTANCE hInstance, const WCHAR *appletName, bool allowAutoSize, bool allowMultipleInstances);
+  BaseApplet(HINSTANCE hInstance, const WCHAR* appletName, bool allowAutoSize, bool allowMultipleInstances);
   virtual ~BaseApplet();
   UINT Initialize(WNDPROC WindowProcedure, LPVOID lpParam, std::tr1::shared_ptr<BaseSettings> pSettings);
-  LRESULT DoMoving(HWND hwnd, RECT *lpRect);
+  LRESULT DoMoving(HWND hwnd, RECT* lpRect);
   LRESULT DoEnterSizeMove(HWND hwnd);
   LRESULT DoExitSizeMove(HWND hwnd);
-  LRESULT DoWindowPosChanging(WINDOWPOS *windowPos);
+  LRESULT DoWindowPosChanging(WINDOWPOS* windowPos);
   LRESULT DoMove();
   LRESULT DoSize(DWORD width, DWORD height);
   LRESULT DoSizing(HWND hwnd, UINT edge, LPRECT rect);
@@ -78,9 +98,9 @@ public:
   LRESULT DoSysColorChange();
   LRESULT DoSysCommand(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
   LRESULT DoHitTest(LPARAM lParam);
-  LRESULT DoCopyData(COPYDATASTRUCT *cds);
-  void UpdateGUI(WCHAR *styleFile = NULL);
-  void AdjustRect(RECT *wndRect);
+  LRESULT DoCopyData(COPYDATASTRUCT* cds);
+  void UpdateGUI(std::wstring styleFile = TEXT(""));
+  void AdjustRect(RECT* wndRect);
   bool ClickThrough();
   std::tr1::shared_ptr<BaseSettings> pBaseSettings;
   HDC activeBackgroundDC, inactiveBackgroundDC;
@@ -90,8 +110,8 @@ public:
   void SetFullScreen(bool value);
   bool GetFullScreen();
   HWND GetMainWnd();
-  void HideApplet(bool hide, bool *variable, bool force);
-  WCHAR *GetInstanceName();
+  void HideApplet(bool hide, bool* variable, bool force);
+  WCHAR* GetInstanceName();
 
 private:
   int appletCount;
@@ -128,5 +148,9 @@ protected:
   virtual size_t GetVisibleIconCount();
   virtual size_t GetIconCount();
 };
+
+#ifdef _MSC_VER
+#pragma warning(pop) //restore the old compiler warning level
+#endif
 
 #endif

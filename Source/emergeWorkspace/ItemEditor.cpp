@@ -45,9 +45,9 @@ ItemEditor::ItemEditor(HINSTANCE hInstance, HWND mainWnd)
   (*this).hInstance = hInstance;
   (*this).mainWnd = mainWnd;
   section = NULL;
-  ZeroMemory(name, MAX_LINE_LENGTH);
-  ZeroMemory(value, MAX_LINE_LENGTH);
-  ZeroMemory(workingDir, MAX_LINE_LENGTH);
+  name = TEXT("");
+  value = TEXT("");
+  workingDir = TEXT("");
   type = 0;
 
   InitCommonControls();
@@ -87,13 +87,13 @@ ItemEditor::~ItemEditor()
   DestroyWindow(toolWnd);
 }
 
-int ItemEditor::Show(TiXmlElement *section, WCHAR *name, WCHAR *value, UINT type, WCHAR *workingDir)
+int ItemEditor::Show(TiXmlElement *section, std::wstring name, std::wstring value, UINT type, std::wstring workingDir)
 {
   (*this).section = section;
-  wcscpy((*this).name, name);
-  wcscpy((*this).value, value);
+  (*this).name = name;
+  (*this).value = value;
   (*this).type = type;
-  wcscpy((*this).workingDir, workingDir);
+  (*this).workingDir = workingDir;
   dialogVisible = true;
   return (int)DialogBoxParam(hInstance, MAKEINTRESOURCE(IDD_ITEMEDIT), mainWnd, (DLGPROC)MenuDlgProc, (LPARAM)this);
 }
@@ -105,7 +105,7 @@ BOOL ItemEditor::DoInitDialog(HWND hwndDlg)
   TOOLINFO ti;
 
   ZeroMemory(&ti, sizeof(TOOLINFO));
-  ELGetWindowRect(hwndDlg, &rect);
+  rect = ELGetWindowRect(hwndDlg);
 
   HWND nameWnd = GetDlgItem(hwndDlg, IDC_ITEMNAME);
   HWND nameTextWnd = GetDlgItem(hwndDlg, IDC_NAMETEXT);
@@ -159,8 +159,8 @@ BOOL ItemEditor::DoInitDialog(HWND hwndDlg)
   GetClientRect(browseWnd, &ti.rect);
   SendMessage(toolWnd, TTM_ADDTOOL, 0, (LPARAM)(LPTOOLINFO)&ti);
 
-  SetDlgItemText(hwndDlg, IDC_ITEMNAME, name);
-  SetDlgItemText(hwndDlg, IDC_WORKINGDIR, workingDir);
+  SetDlgItemText(hwndDlg, IDC_ITEMNAME, name.c_str());
+  SetDlgItemText(hwndDlg, IDC_WORKINGDIR, workingDir.c_str());
 
   EnableWindow(nameWnd, true);
   EnableWindow(nameTextWnd, true);
@@ -196,28 +196,28 @@ BOOL ItemEditor::DoInitDialog(HWND hwndDlg)
     case IT_INTERNAL_COMMAND:
         {
           int commandIndex = (int)SendMessage(commandWnd, CB_FINDSTRINGEXACT, (WPARAM)-1,
-                                              (LPARAM)ELStripInternalCommandArg(value).c_str());
+                                              (LPARAM)ELStripFileArguments(value).c_str());
           if (commandIndex != CB_ERR)
             {
               SendMessage(commandWnd, CB_SETCURSEL, commandIndex, 0);
-              SetDlgItemText(hwndDlg, IDC_COMMANDARG, ELGetInternalCommandArg(value).c_str());
+              SetDlgItemText(hwndDlg, IDC_COMMANDARG, ELGetFileArguments(value).c_str());
             }
         }
       break;
     case IT_SPECIAL_FOLDER:
         {
-          int folder = ELIsSpecialFolder(value);
-          if (ELGetSpecialFolder(folder, value))
+          value = ELGetSpecialFolderPathFromName(value);
+          if (!value.empty())
             SendMessage(specialFoldersWnd, CB_SETCURSEL,
                         SendMessage(specialFoldersWnd,
                                     CB_FINDSTRINGEXACT,
                                     (WPARAM)-1,
-                                    (LPARAM)value),
+                                    (LPARAM)value.c_str()),
                         0);
         }
       break;
     default:
-      SetDlgItemText(hwndDlg, IDC_ITEMVALUE, value);
+      SetDlgItemText(hwndDlg, IDC_ITEMVALUE, value.c_str());
       break;
     }
   EnableFields(hwndDlg);
@@ -227,18 +227,23 @@ BOOL ItemEditor::DoInitDialog(HWND hwndDlg)
 
 void ItemEditor::PopulateSpecialFolders(HWND specialFoldersWnd)
 {
-  WCHAR tmp[MAX_PATH];
+  std::wstring tmp;
 
-  if (ELGetSpecialFolder(CSIDL_PERSONAL, tmp))
-    SendMessage(specialFoldersWnd, CB_ADDSTRING, 0, (LPARAM)tmp);
-  if (ELGetSpecialFolder(CSIDL_DRIVES, tmp))
-    SendMessage(specialFoldersWnd, CB_ADDSTRING, 0, (LPARAM)tmp);
-  if (ELGetSpecialFolder(CSIDL_NETWORK, tmp))
-    SendMessage(specialFoldersWnd, CB_ADDSTRING, 0, (LPARAM)tmp);
-  if (ELGetSpecialFolder(CSIDL_CONTROLS, tmp))
-    SendMessage(specialFoldersWnd, CB_ADDSTRING, 0, (LPARAM)tmp);
-  if (ELGetSpecialFolder(CSIDL_BITBUCKET, tmp))
-    SendMessage(specialFoldersWnd, CB_ADDSTRING, 0, (LPARAM)tmp);
+  tmp = ELGetSpecialFolderPathFromID(CSIDL_PERSONAL);
+  if (!tmp.empty())
+    SendMessage(specialFoldersWnd, CB_ADDSTRING, 0, (LPARAM)tmp.c_str());
+  tmp = ELGetSpecialFolderPathFromID(CSIDL_DRIVES);
+  if (!tmp.empty())
+    SendMessage(specialFoldersWnd, CB_ADDSTRING, 0, (LPARAM)tmp.c_str());
+  tmp = ELGetSpecialFolderPathFromID(CSIDL_NETWORK);
+  if (!tmp.empty())
+    SendMessage(specialFoldersWnd, CB_ADDSTRING, 0, (LPARAM)tmp.c_str());
+  tmp = ELGetSpecialFolderPathFromID(CSIDL_CONTROLS);
+  if (!tmp.empty())
+    SendMessage(specialFoldersWnd, CB_ADDSTRING, 0, (LPARAM)tmp.c_str());
+  tmp = ELGetSpecialFolderPathFromID(CSIDL_BITBUCKET);
+  if (!tmp.empty())
+    SendMessage(specialFoldersWnd, CB_ADDSTRING, 0, (LPARAM)tmp.c_str());
 }
 
 bool ItemEditor::GetVisible()
@@ -276,7 +281,7 @@ bool ItemEditor::DoBrowseItem(HWND hwndDlg, bool workingDir)
   BROWSEINFO bi;
   HWND typeWnd = GetDlgItem(hwndDlg, IDC_ITEMTYPE);
   WCHAR tmp[MAX_PATH], program[MAX_PATH], arguments[MAX_LINE_LENGTH];
-  WCHAR initPath[MAX_PATH];
+  std::wstring initPath;
   UINT type = GetValueType((int)SendMessage(typeWnd, CB_GETCURSEL, 0, 0));
   std::wstring workingPath;
 
@@ -302,8 +307,8 @@ bool ItemEditor::DoBrowseItem(HWND hwndDlg, bool workingDir)
                   pMalloc->Release();
                 }
 
-              ELUnExpandVars(tmp);
-              std::wstring workingTmp = ELRelativePathFromAbsPath(tmp);
+              wcscpy(tmp, ELUnExpandVars(tmp).c_str());
+              std::wstring workingTmp = ELGetRelativePath(tmp);
               if (workingDir)
                 SetDlgItemText(hwndDlg, IDC_WORKINGDIR, workingTmp.c_str());
               else
@@ -317,17 +322,20 @@ bool ItemEditor::DoBrowseItem(HWND hwndDlg, bool workingDir)
     {
       ZeroMemory(&ofn, sizeof(ofn));
 
-      ELGetCurrentPath(initPath);
+      initPath = ELGetCurrentPath();
 
-      ofn.lpstrInitialDir = initPath;
+      ofn.lpstrInitialDir = initPath.c_str();
       ofn.lStructSize = sizeof(ofn);
       ofn.hwndOwner = hwndDlg;
       ofn.lpstrFilter = TEXT("All Files (*.*)\0*.*\0");
-      GetDlgItemText(hwndDlg, IDC_ITEMVALUE, tmp, MAX_PATH);
-      workingPath = tmp;
+      workingPath.reserve(MAX_PATH);
+      GetDlgItemText(hwndDlg, IDC_ITEMVALUE, &workingPath[0], MAX_PATH);
       workingPath = ELExpandVars(workingPath);
       if (ELParseCommand(workingPath.c_str(), program, arguments))
+      {
         wcscpy(tmp, program);
+      }
+
       ofn.lpstrFile = tmp;
       ofn.nMaxFile = MAX_PATH;
       ofn.lpstrTitle = TEXT("Browse For File");
@@ -335,19 +343,22 @@ bool ItemEditor::DoBrowseItem(HWND hwndDlg, bool workingDir)
       ofn.Flags = OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST | OFN_EXPLORER | OFN_DONTADDTORECENT | OFN_NOCHANGEDIR | OFN_NODEREFERENCELINKS;
 
       if (GetOpenFileName(&ofn))
+      {
+        workingPath = ELUnExpandVars(tmp);
+        if (workingPath.compare(tmp) == 0)
         {
-          ELUnExpandVars(tmp);
-          std::wstring workingTmp = ELRelativePathFromAbsPath(tmp);
+          workingPath = ELGetRelativePath(workingPath);
+        }
           if (type == IT_SPECIAL_FOLDER)
             {
-              swprintf(tmp, TEXT("*%ls"), PathFindFileName(workingTmp.c_str()));
-              workingTmp = tmp;
+              swprintf(tmp, TEXT("*%ls"), PathFindFileName(workingPath.c_str()));
+              workingPath = tmp;
             }
 
-          SetDlgItemText(hwndDlg, IDC_ITEMVALUE, workingTmp.c_str());
+          SetDlgItemText(hwndDlg, IDC_ITEMVALUE, workingPath.c_str());
 
           return true;
-        }
+      }
     }
 
   return false;
@@ -701,7 +712,7 @@ bool ItemEditor::DoSaveItem(HWND hwndDlg)
       GetDlgItemText(hwndDlg, IDC_ITEMNAME, name, MAX_LINE_LENGTH);
       if (wcslen(name) == 0)
         {
-          ELMessageBox(hwndDlg, (WCHAR*)TEXT("Name cannot be empty"), (WCHAR*)TEXT("emergeWorkspace"),
+          ELMessageBox(hwndDlg, TEXT("Name cannot be empty"), TEXT("emergeWorkspace"),
                        ELMB_OK|ELMB_ICONERROR|ELMB_MODAL);
           return false;
         }
@@ -715,14 +726,13 @@ bool ItemEditor::DoSaveItem(HWND hwndDlg)
       GetDlgItemText(hwndDlg, IDC_COMMANDARG, tmp, MAX_LINE_LENGTH);
       if (wcslen(tmp))
         {
-          wcscat(value, L" ");
+          wcscat(value, TEXT(" "));
           wcscat(value, tmp);
         }
       break;
     case 4:
       GetDlgItemText(hwndDlg, IDC_ITEMSPECIALFOLDERS, tmp, MAX_LINE_LENGTH);
-      if (!ELSpecialFolderValue(tmp, value))
-        wcscpy(value, TEXT(""));
+      wcscpy(value, ELGetSpecialFolderNameFromPath(tmp).c_str());
       break;
     default:
       GetDlgItemText(hwndDlg, IDC_ITEMVALUE, value, MAX_LINE_LENGTH);
@@ -730,12 +740,12 @@ bool ItemEditor::DoSaveItem(HWND hwndDlg)
     }
   GetDlgItemText(hwndDlg, IDC_WORKINGDIR, workingDir, MAX_LINE_LENGTH);
 
-  ELWriteXMLStringValue(section, (WCHAR*)TEXT("Name"), name);
-  ELWriteXMLIntValue(section, (WCHAR*)TEXT("Type"), type);
+  ELWriteXMLStringValue(section, TEXT("Name"), name);
+  ELWriteXMLIntValue(section, TEXT("Type"), type);
   if (wcslen(value) > 0)
-    ELWriteXMLStringValue(section, (WCHAR*)TEXT("Value"), value);
+    ELWriteXMLStringValue(section, TEXT("Value"), value);
   if (wcslen(workingDir) > 0)
-    ELWriteXMLStringValue(section, (WCHAR*)TEXT("WorkingDir"), workingDir);
+    ELWriteXMLStringValue(section, TEXT("WorkingDir"), workingDir);
 
   TiXmlDocument *configXML = ELGetXMLConfig(section);
   if (configXML)

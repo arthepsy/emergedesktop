@@ -12,6 +12,7 @@ tags
 bin
 msbin
 bin64
+objs
 hgversion.h
 *.bmarks
 *.layout
@@ -38,6 +39,8 @@ ipch
 *.cbTemp
 *.res
 *.orig
+*.properties
+*.cscope_file_list
 
 # switch to regexp syntax.
 #syntax: regexp

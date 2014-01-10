@@ -2,7 +2,7 @@
 //----  --------------------------------------------------------------------------------------------------------
 //
 //  This file is part of Emerge Desktop.
-//  Copyright (C) 2004-2012  The Emerge Desktop Development Team
+//  Copyright (C) 2004-2013  The Emerge Desktop Development Team
 //
 //  Emerge Desktop is free software; you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -23,24 +23,26 @@
 
 INT_PTR CALLBACK ConfigPage::ConfigPageDlgProc(HWND hwndDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
-  static ConfigPage *pConfigPage = NULL;
-  PROPSHEETPAGE *psp;
+  static ConfigPage* pConfigPage = NULL;
+  PROPSHEETPAGE* psp;
 
   switch (message)
+  {
+  case WM_INITDIALOG:
+    psp = (PROPSHEETPAGE*)lParam;
+    pConfigPage = reinterpret_cast<ConfigPage*>(psp->lParam);
+    if (!pConfigPage)
     {
-    case WM_INITDIALOG:
-      psp = (PROPSHEETPAGE*)lParam;
-      pConfigPage = reinterpret_cast<ConfigPage*>(psp->lParam);
-      if (!pConfigPage)
-        break;
-      return pConfigPage->DoInitDialog(hwndDlg);
-
-    case WM_COMMAND:
-      return pConfigPage->DoCommand(hwndDlg, wParam, lParam);
-
-    case WM_NOTIFY:
-      return pConfigPage->DoNotify(hwndDlg, lParam);
+      break;
     }
+    return pConfigPage->DoInitDialog(hwndDlg);
+
+  case WM_COMMAND:
+    return pConfigPage->DoCommand(hwndDlg, wParam, lParam);
+
+  case WM_NOTIFY:
+    return pConfigPage->DoNotify(hwndDlg, lParam);
+  }
 
   return FALSE;
 }
@@ -66,32 +68,46 @@ bool ConfigPage::DoInitDialog(HWND hwndDlg)
   SendDlgItemMessage(hwndDlg, IDC_ICONSPACINGUPDOWN, UDM_SETRANGE, (WPARAM)0, (LPARAM)100);
 
   if (pSettings->GetSnapMove())
+  {
     SendDlgItemMessage(hwndDlg, IDC_SNAPMOVE, BM_SETCHECK, BST_CHECKED, 0);
+  }
 
   if (pSettings->GetSnapSize())
+  {
     SendDlgItemMessage(hwndDlg, IDC_SNAPSIZE, BM_SETCHECK, BST_CHECKED, 0);
+  }
 
   if (pSettings->GetAutoSize())
+  {
     SendDlgItemMessage(hwndDlg, IDC_AUTOSIZE, BM_SETCHECK, BST_CHECKED, 0);
+  }
 
   if (pSettings->GetClickThrough())
+  {
     SendDlgItemMessage(hwndDlg, IDC_CLICKTHROUGH, BM_SETCHECK, BST_CHECKED, 0);
+  }
 
   if (pSettings->GetStartHidden())
+  {
     SendDlgItemMessage(hwndDlg, IDC_STARTHIDDEN, BM_SETCHECK, BST_CHECKED, 0);
+  }
 
-  SetDlgItemText(hwndDlg, IDC_TITLEBARTEXT, pSettings->GetTitleBarText());
+  SetDlgItemText(hwndDlg, IDC_TITLEBARTEXT, pSettings->GetTitleBarText().c_str());
 
   SetDlgItemText(hwndDlg, IDC_AUTOLIMIT, towstring(pSettings->GetAutoSizeLimit()).c_str());
   if (!pSettings->GetAutoSize())
+  {
     EnableWindow((HWND)GetDlgItem(hwndDlg, IDC_AUTOLIMIT), FALSE);
+  }
   SendDlgItemMessage(hwndDlg, IDC_AUTOLIMITUPDOWN, UDM_SETRANGE, (WPARAM)0, (LPARAM)100);
 
   //CopyMemory(&newFont, pSettings->GetFont(), sizeof(LOGFONT));
   CopyMemory(&newFont, pSettings->GetTitleBarFont(), sizeof(LOGFONT));
 
   if (buttonFont)
+  {
     DeleteObject(buttonFont);
+  }
   buttonFont = CreateFontIndirect(&newFont);
   SendDlgItemMessage(hwndDlg, IDC_FONTBUTTON, WM_SETFONT, (WPARAM)buttonFont, (LPARAM)TRUE);
   SetDlgItemText(hwndDlg, IDC_FONTBUTTON, newFont.lfFaceName);
@@ -101,42 +117,52 @@ bool ConfigPage::DoInitDialog(HWND hwndDlg)
   SendMessage(iconSizeWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("16x16"));
   SendMessage(iconSizeWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("32x32"));
   SendMessage(iconSizeWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("48x48"));
-  if (ELVersionInfo() >= 6.0)
-    {
-      SendMessage(iconSizeWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("128x128"));
-      SendMessage(iconSizeWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("256x256"));
-    }
+  //if (ELOSVersionInfo() >= 6.0)
+  if (IsWindowsVistaOrGreater())
+  {
+    SendMessage(iconSizeWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("128x128"));
+    SendMessage(iconSizeWnd, CB_ADDSTRING, 0, (LPARAM)TEXT("256x256"));
+  }
 
   WPARAM wParam = 0;
   switch (pSettings->GetIconSize())
-    {
-    case 256:
-      wParam = 4;
-      break;
-    case 128:
-      wParam = 3;
-      break;
-    case 48:
-      wParam = 2;
-      break;
-    case 32:
-      wParam = 1;
-      break;
-    }
-  if ((ELVersionInfo() < 6.0) && (wParam > 2))
+  {
+  case 256:
+    wParam = 4;
+    break;
+  case 128:
+    wParam = 3;
+    break;
+  case 48:
     wParam = 2;
+    break;
+  case 32:
+    wParam = 1;
+    break;
+  }
+  //if ((ELOSVersionInfo() < 6.0) && (wParam > 2))
+  if ((!IsWindowsVistaOrGreater()) && (wParam > 2))
+  {
+    wParam = 2;
+  }
   SendMessage(iconSizeWnd, CB_SETCURSEL, wParam, 0);
 
   SendDlgItemMessage(hwndDlg, IDC_CLICKTHROUGHMETHOD, CB_ADDSTRING, 0, (LPARAM)TEXT("Full"));
   SendDlgItemMessage(hwndDlg, IDC_CLICKTHROUGHMETHOD, CB_ADDSTRING, 0, (LPARAM)TEXT("Background"));
 
   if (pSettings->GetClickThrough() == 0)
+  {
     EnableWindow(clickThroughWnd, false);
+  }
 
   if (pSettings->GetClickThrough() == 1)
+  {
     SendDlgItemMessage(hwndDlg, IDC_CLICKTHROUGHMETHOD, CB_SETCURSEL, (WPARAM)0, 0);
+  }
   else
+  {
     SendDlgItemMessage(hwndDlg, IDC_CLICKTHROUGHMETHOD, CB_SETCURSEL, (WPARAM)1, 0);
+  }
 
   return true;
 }
@@ -144,28 +170,30 @@ bool ConfigPage::DoInitDialog(HWND hwndDlg)
 bool ConfigPage::DoCommand(HWND hwndDlg, WPARAM wParam, LPARAM lParam UNUSED)
 {
   switch (LOWORD(wParam))
+  {
+  case IDC_FONTBUTTON:
+    if (DoFontChooser(hwndDlg))
     {
-    case IDC_FONTBUTTON:
-      if (DoFontChooser(hwndDlg))
-        {
-          if (buttonFont)
-            DeleteObject(buttonFont);
-          buttonFont = CreateFontIndirect(&newFont);
-          SendDlgItemMessage(hwndDlg, IDC_FONTBUTTON, WM_SETFONT, (WPARAM)buttonFont, (LPARAM)TRUE);
-          SetDlgItemText(hwndDlg, IDC_FONTBUTTON, newFont.lfFaceName);
+      if (buttonFont)
+      {
+        DeleteObject(buttonFont);
+      }
+      buttonFont = CreateFontIndirect(&newFont);
+      SendDlgItemMessage(hwndDlg, IDC_FONTBUTTON, WM_SETFONT, (WPARAM)buttonFont, (LPARAM)TRUE);
+      SetDlgItemText(hwndDlg, IDC_FONTBUTTON, newFont.lfFaceName);
 
-          return true;
-        }
-      break;
-    case IDC_CLICKTHROUGH:
-      EnableWindow((HWND)GetDlgItem(hwndDlg, IDC_CLICKTHROUGHMETHOD),
-                   (SendDlgItemMessage(hwndDlg, IDC_CLICKTHROUGH, BM_GETCHECK, 0, 0) == BST_CHECKED));
-      return true;
-    case IDC_AUTOSIZE:
-      EnableWindow((HWND)GetDlgItem(hwndDlg, IDC_AUTOLIMIT),
-                   (SendDlgItemMessage(hwndDlg, IDC_AUTOSIZE, BM_GETCHECK, 0, 0) == BST_CHECKED));
       return true;
     }
+    break;
+  case IDC_CLICKTHROUGH:
+    EnableWindow((HWND)GetDlgItem(hwndDlg, IDC_CLICKTHROUGHMETHOD),
+                 (SendDlgItemMessage(hwndDlg, IDC_CLICKTHROUGH, BM_GETCHECK, 0, 0) == BST_CHECKED));
+    return true;
+  case IDC_AUTOSIZE:
+    EnableWindow((HWND)GetDlgItem(hwndDlg, IDC_AUTOLIMIT),
+                 (SendDlgItemMessage(hwndDlg, IDC_AUTOSIZE, BM_GETCHECK, 0, 0) == BST_CHECKED));
+    return true;
+  }
 
   return false;
 }
@@ -191,72 +219,76 @@ bool ConfigPage::UpdateSettings(HWND hwndDlg)
   WCHAR tmp[MAX_LINE_LENGTH];
 
   success = (SendDlgItemMessage(hwndDlg, IDC_STARTHIDDEN, BM_GETCHECK, 0, 0) == BST_CHECKED);
-  pSettings->SetStartHidden(success);
+  pSettings->SetStartHidden((success == TRUE)); //explicitly convert from BOOL to bool, since an implicit conversion triggers a compiler warning in Visual Studio
 
   success = (SendDlgItemMessage(hwndDlg, IDC_SNAPMOVE, BM_GETCHECK, 0, 0) == BST_CHECKED);
-  pSettings->SetSnapMove(success);
+  pSettings->SetSnapMove((success == TRUE)); //explicitly convert from BOOL to bool, since an implicit conversion triggers a compiler warning in Visual Studio
 
   success = (SendDlgItemMessage(hwndDlg, IDC_SNAPSIZE, BM_GETCHECK, 0, 0) == BST_CHECKED);
-  pSettings->SetSnapSize(success);
+  pSettings->SetSnapSize((success == TRUE)); //explicitly convert from BOOL to bool, since an implicit conversion triggers a compiler warning in Visual Studio
 
   success = (SendDlgItemMessage(hwndDlg, IDC_AUTOSIZE, BM_GETCHECK, 0, 0) == BST_CHECKED);
-  pSettings->SetAutoSize(success);
+  pSettings->SetAutoSize((success == TRUE)); //explicitly convert from BOOL to bool, since an implicit conversion triggers a compiler warning in Visual Studio
 
   GetDlgItemText(hwndDlg, IDC_TITLEBARTEXT, tmp, MAX_LINE_LENGTH);
   pSettings->SetTitleBarText(tmp);
 
   if (SendDlgItemMessage(hwndDlg, IDC_CLICKTHROUGH, BM_GETCHECK, 0, 0) == BST_CHECKED)
-    {
-      int index = (int)SendDlgItemMessage(hwndDlg, IDC_CLICKTHROUGHMETHOD, CB_GETCURSEL, 0, 0);
-      index++;
-      pSettings->SetClickThrough(index);
-    }
+  {
+    int index = (int)SendDlgItemMessage(hwndDlg, IDC_CLICKTHROUGHMETHOD, CB_GETCURSEL, 0, 0);
+    index++;
+    pSettings->SetClickThrough(index);
+  }
   else if (SendDlgItemMessage(hwndDlg, IDC_CLICKTHROUGH, BM_GETCHECK, 0, 0) == BST_UNCHECKED)
-    {
-      pSettings->SetClickThrough(0);
-    }
+  {
+    pSettings->SetClickThrough(0);
+  }
 
   result = GetDlgItemInt(hwndDlg, IDC_ICONSPACING, &success, false);
   if (success)
+  {
     pSettings->SetIconSpacing(result);
-  else if (!success)
-    {
-      ELMessageBox(GetDesktopWindow(), (WCHAR*)TEXT("Invalid value for icon spacing"),
-                   (WCHAR*)TEXT("emergeLauncher"), ELMB_OK|ELMB_ICONERROR|ELMB_MODAL);
-      SetDlgItemInt(hwndDlg, IDC_ICONSPACING, pSettings->GetIconSpacing(), false);
-      return false;
-    }
+  }
+  else
+  {
+    ELMessageBox(GetDesktopWindow(), TEXT("Invalid value for icon spacing"),
+                 TEXT("emergeLauncher"), ELMB_OK | ELMB_ICONERROR | ELMB_MODAL);
+    SetDlgItemInt(hwndDlg, IDC_ICONSPACING, pSettings->GetIconSpacing(), false);
+    return false;
+  }
 
   result = GetDlgItemInt(hwndDlg, IDC_AUTOLIMIT, &success, false);
   if (success)
+  {
     pSettings->SetAutoSizeLimit(result);
+  }
   else if (!success)
-    {
-      ELMessageBox(GetDesktopWindow(), (WCHAR*)TEXT("Invalid value for AutoSize wrap"),
-                   (WCHAR*)TEXT("emergeLauncher"), ELMB_OK|ELMB_ICONERROR|ELMB_MODAL);
-      SetDlgItemInt(hwndDlg, IDC_ICONSPACING, pSettings->GetIconSpacing(), false);
-      return false;
-    }
+  {
+    ELMessageBox(GetDesktopWindow(), TEXT("Invalid value for AutoSize wrap"),
+                 TEXT("emergeLauncher"), ELMB_OK | ELMB_ICONERROR | ELMB_MODAL);
+    SetDlgItemInt(hwndDlg, IDC_ICONSPACING, pSettings->GetIconSpacing(), false);
+    return false;
+  }
 
   i = (int)SendMessage(iconSizeWnd, CB_GETCURSEL, 0, 0);
   switch (i)
-    {
-    case 0:
-      size = 16;
-      break;
-    case 1:
-      size = 32;
-      break;
-    case 2:
-      size = 48;
-      break;
-    case 3:
-      size = 128;
-      break;
-    case 4:
-      size = 256;
-      break;
-    }
+  {
+  case 0:
+    size = 16;
+    break;
+  case 1:
+    size = 32;
+    break;
+  case 2:
+    size = 48;
+    break;
+  case 3:
+    size = 128;
+    break;
+  case 4:
+    size = 256;
+    break;
+  }
   pSettings->SetIconSize(size);
 
   //pSettings->SetFont(&newFont);
@@ -268,22 +300,26 @@ bool ConfigPage::UpdateSettings(HWND hwndDlg)
 bool ConfigPage::DoNotify(HWND hwndDlg, LPARAM lParam)
 {
   switch (((LPNMITEMACTIVATE)lParam)->hdr.code)
+  {
+  case PSN_APPLY:
+    if (UpdateSettings(hwndDlg))
     {
-    case PSN_APPLY:
-      if (UpdateSettings(hwndDlg))
-        SetWindowLongPtr(hwndDlg, DWLP_MSGRESULT, PSNRET_NOERROR);
-      else
-        SetWindowLongPtr(hwndDlg, DWLP_MSGRESULT, PSNRET_INVALID);
-      return true;
-
-    case PSN_SETACTIVE:
-      SetWindowLongPtr(hwndDlg, DWLP_MSGRESULT, 0);
-      return true;
-
-    case PSN_KILLACTIVE:
-      SetWindowLongPtr(hwndDlg, DWLP_MSGRESULT, FALSE);
-      return true;
+      SetWindowLongPtr(hwndDlg, DWLP_MSGRESULT, PSNRET_NOERROR);
     }
+    else
+    {
+      SetWindowLongPtr(hwndDlg, DWLP_MSGRESULT, PSNRET_INVALID);
+    }
+    return true;
+
+  case PSN_SETACTIVE:
+    SetWindowLongPtr(hwndDlg, DWLP_MSGRESULT, 0);
+    return true;
+
+  case PSN_KILLACTIVE:
+    SetWindowLongPtr(hwndDlg, DWLP_MSGRESULT, FALSE);
+    return true;
+  }
 
   return false;
 }

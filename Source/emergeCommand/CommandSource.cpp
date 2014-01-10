@@ -1,7 +1,7 @@
 //---
 //
 //  This file is part of Emerge Desktop.
-//  Copyright (C) 2004-2012  The Emerge Desktop Development Team
+//  Copyright (C) 2004-2013  The Emerge Desktop Development Team
 //
 //  Emerge Desktop is free software; you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -27,19 +27,21 @@ CommandSource::CommandSource(HINSTANCE hInst)
   this->hInst = hInst;
 
   commandWnd = CreateWindowEx(
-              WS_EX_TOOLWINDOW,
-              TEXT("COMBOBOX"),
-              NULL,
-              CBS_DROPDOWNLIST,
-              0, 0,
-              0, 0,
-              NULL,
-              NULL,
-              hInst,
-              NULL);
+                 WS_EX_TOOLWINDOW,
+                 TEXT("COMBOBOX"),
+                 NULL,
+                 CBS_DROPDOWNLIST,
+                 0, 0,
+                 0, 0,
+                 NULL,
+                 NULL,
+                 hInst,
+                 NULL);
 
   if (commandWnd)
+  {
     ELPopulateInternalCommandList(commandWnd);
+  }
 
   ShowWindow(commandWnd, SW_HIDE);
 }
@@ -62,11 +64,11 @@ STDMETHODIMP_(ULONG) CommandSource::Release()
   return tmp;
 }
 
-STDMETHODIMP CommandSource::Clone(IEnumString **target)
+STDMETHODIMP CommandSource::Clone(IEnumString** target)
 {
   *target = NULL;
 
-  CommandSource *copy = new CommandSource(hInst);
+  CommandSource* copy = new CommandSource(hInst);
 
   *target = copy;
 
@@ -78,12 +80,14 @@ STDMETHODIMP CommandSource::Skip(ULONG jump)
   currentElement += jump;
 
   if (currentElement > (ULONG)SendMessage(commandWnd, CB_GETCOUNT, 0, 0))
+  {
     currentElement = 0;
+  }
 
   return NOERROR;
 }
 
-STDMETHODIMP CommandSource::Next(ULONG current, LPOLESTR *nextString, ULONG *next)
+STDMETHODIMP CommandSource::Next(ULONG current, LPOLESTR* nextString, ULONG* next)
 {
   UINT i, size = SendMessage(commandWnd, CB_GETCOUNT, 0, 0);
   int wideSize;
@@ -92,24 +96,28 @@ STDMETHODIMP CommandSource::Next(ULONG current, LPOLESTR *nextString, ULONG *nex
   *next = 0;
 
   for (i = 0; i < current; i++)
+  {
+    if (currentElement == size)
     {
-      if (currentElement == size)
-        break;
-
-      SendMessage(commandWnd, CB_SETCURSEL, currentElement, 0);
-      GetWindowText(commandWnd, tmp, MAX_PATH);
-
-      wideSize = sizeof(WCHAR) * (int)(wcslen(tmp) + 1);
-      nextString[i] = (LPWSTR)CoTaskMemAlloc((ULONG)wideSize);
-      wcscpy(nextString[i], tmp);
-
-      *next = i;
-
-      currentElement++;
+      break;
     }
 
+    SendMessage(commandWnd, CB_SETCURSEL, currentElement, 0);
+    GetWindowText(commandWnd, tmp, MAX_PATH);
+
+    wideSize = sizeof(WCHAR) * (int)(wcslen(tmp) + 1);
+    nextString[i] = (LPWSTR)CoTaskMemAlloc((ULONG)wideSize);
+    wcscpy(nextString[i], tmp);
+
+    *next = i;
+
+    currentElement++;
+  }
+
   if (i == current)
+  {
     return NOERROR;
+  }
 
   return S_FALSE;
 }
@@ -120,18 +128,20 @@ STDMETHODIMP CommandSource::Reset()
   return NOERROR;
 }
 
-STDMETHODIMP CommandSource::QueryInterface(REFIID riid, void **ppv)
+STDMETHODIMP CommandSource::QueryInterface(REFIID riid, void** ppv)
 {
-  *ppv=NULL;
+  *ppv = NULL;
 
   if (IsEqualIID(riid, IID_IUnknown) || IsEqualIID(riid, IID_IEnumString))
-    *ppv=(LPVOID)this;
+  {
+    *ppv = (LPVOID)this;
+  }
 
-  if (NULL!=*ppv)
-    {
-      ((LPUNKNOWN)*ppv)->AddRef();
-      return NOERROR;
-    }
+  if (NULL != *ppv)
+  {
+    ((LPUNKNOWN)*ppv)->AddRef();
+    return NOERROR;
+  }
 
   return E_NOINTERFACE;
 }

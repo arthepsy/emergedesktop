@@ -2,7 +2,7 @@
 //----  --------------------------------------------------------------------------------------------------------
 //
 //  This file is part of Emerge Desktop.
-//  Copyright (C) 2004-2012  The Emerge Desktop Development Team
+//  Copyright (C) 2004-2013  The Emerge Desktop Development Team
 //
 //  Emerge Desktop is free software; you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -23,19 +23,21 @@
 
 BOOL CALLBACK ThemeSelector::ThemeSelectorDlgProc(HWND hwndDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
-  static ThemeSelector *pThemeSelector = NULL;
+  static ThemeSelector* pThemeSelector = NULL;
 
   switch (message)
+  {
+  case WM_INITDIALOG:
+    pThemeSelector = reinterpret_cast<ThemeSelector*>(lParam);
+    if (!pThemeSelector)
     {
-    case WM_INITDIALOG:
-      pThemeSelector = reinterpret_cast<ThemeSelector*>(lParam);
-      if (!pThemeSelector)
-        break;
-      return pThemeSelector->DoInitDialog(hwndDlg);
-
-    case WM_COMMAND:
-      return pThemeSelector->DoThemeCommand(hwndDlg, wParam, lParam);
+      break;
     }
+    return pThemeSelector->DoInitDialog(hwndDlg);
+
+  case WM_COMMAND:
+    return pThemeSelector->DoThemeCommand(hwndDlg, wParam, lParam);
+  }
 
   return FALSE;
 }
@@ -57,7 +59,7 @@ ThemeSelector::ThemeSelector(HINSTANCE hInstance, HWND mainWnd)
               0,
               TOOLTIPS_CLASS,
               NULL,
-              TTS_ALWAYSTIP|WS_POPUP|TTS_NOPREFIX,
+              TTS_ALWAYSTIP | WS_POPUP | TTS_NOPREFIX,
               CW_USEDEFAULT, CW_USEDEFAULT,
               CW_USEDEFAULT, CW_USEDEFAULT,
               NULL,
@@ -66,25 +68,35 @@ ThemeSelector::ThemeSelector(HINSTANCE hInstance, HWND mainWnd)
               NULL);
 
   if (toolWnd)
-    {
-      SendMessage(toolWnd, TTM_SETMAXTIPWIDTH, 0, 300);
-      SetWindowPos(toolWnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE |
-                   SWP_NOACTIVATE);
-    }
+  {
+    SendMessage(toolWnd, TTM_SETMAXTIPWIDTH, 0, 300);
+    SetWindowPos(toolWnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE |
+                 SWP_NOACTIVATE);
+  }
 }
 
 ThemeSelector::~ThemeSelector()
 {
   if (saveasIcon)
+  {
     DestroyIcon(saveasIcon);
+  }
   if (saveIcon)
+  {
     DestroyIcon(saveIcon);
+  }
   if (delIcon)
+  {
     DestroyIcon(delIcon);
+  }
   if (exportIcon)
+  {
     DestroyIcon(exportIcon);
+  }
   if (importIcon)
+  {
     DestroyIcon(importIcon);
+  }
 
   DestroyWindow(toolWnd);
 }
@@ -101,7 +113,7 @@ BOOL ThemeSelector::DoInitDialog(HWND hwndDlg)
   TOOLINFO ti;
   ZeroMemory(&ti, sizeof(TOOLINFO));
 
-  ELGetWindowRect(hwndDlg, &rect);
+  rect = ELGetWindowRect(hwndDlg);
 
   HWND themeWnd = GetDlgItem(hwndDlg, IDC_THEMEITEM);
   HWND saveasWnd = GetDlgItem(hwndDlg, IDC_SAVEAS);
@@ -116,15 +128,25 @@ BOOL ThemeSelector::DoInitDialog(HWND hwndDlg)
   ELStealFocus(hwndDlg);
 
   if (saveasIcon)
+  {
     SendMessage(saveasWnd, BM_SETIMAGE, IMAGE_ICON, (LPARAM)saveasIcon);
+  }
   if (saveIcon)
+  {
     SendMessage(saveWnd, BM_SETIMAGE, IMAGE_ICON, (LPARAM)saveIcon);
+  }
   if (delIcon)
+  {
     SendMessage(delWnd, BM_SETIMAGE, IMAGE_ICON, (LPARAM)delIcon);
+  }
   if (exportIcon)
+  {
     SendMessage(exportWnd, BM_SETIMAGE, IMAGE_ICON, (LPARAM)exportIcon);
+  }
   if (importIcon)
+  {
     SendMessage(importWnd, BM_SETIMAGE, IMAGE_ICON, (LPARAM)importIcon);
+  }
 
   ti.cbSize = TTTOOLINFOW_V2_SIZE;
   ti.uFlags = TTF_SUBCLASS;
@@ -171,7 +193,7 @@ BOOL ThemeSelector::DoInitDialog(HWND hwndDlg)
   return TRUE;
 }
 
-void ThemeSelector::PopulateThemes(HWND themeWnd, WCHAR *currentTheme)
+void ThemeSelector::PopulateThemes(HWND themeWnd, WCHAR* currentTheme)
 {
   WIN32_FIND_DATA findData;
   HANDLE fileHandle;
@@ -186,38 +208,44 @@ void ThemeSelector::PopulateThemes(HWND themeWnd, WCHAR *currentTheme)
   themeDir = ELExpandVars(themeDir);
   fileHandle = FindFirstFile(themeDir.c_str(), &findData);
   if (fileHandle == INVALID_HANDLE_VALUE)
+  {
     return;
+  }
   else
+  {
+    int i = 0;
+
+    do
     {
-      int i = 0;
+      // Skip hidden files
+      if (wcscmp(findData.cFileName, TEXT(".")) == 0 ||
+          wcscmp(findData.cFileName, TEXT("..")) == 0 ||
+          (findData.dwFileAttributes & FILE_ATTRIBUTE_HIDDEN) == FILE_ATTRIBUTE_HIDDEN)
+      {
+        continue;
+      }
 
-      do
+      if ((findData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == FILE_ATTRIBUTE_DIRECTORY)
+      {
+        i++;
+        SendMessage(themeWnd, CB_ADDSTRING, 0, (LPARAM)findData.cFileName);
+
+        if (_wcsicmp(currentTheme, findData.cFileName) == 0)
         {
-          // Skip hidden files
-          if (wcscmp(findData.cFileName, TEXT(".")) == 0 ||
-              wcscmp(findData.cFileName, TEXT("..")) == 0 ||
-              (findData.dwFileAttributes & FILE_ATTRIBUTE_HIDDEN) == FILE_ATTRIBUTE_HIDDEN)
-            continue;
-
-          if ((findData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == FILE_ATTRIBUTE_DIRECTORY)
-            {
-              i++;
-              SendMessage(themeWnd, CB_ADDSTRING, 0, (LPARAM)findData.cFileName);
-
-              if (_wcsicmp(currentTheme, findData.cFileName) == 0)
-                {
-                  found = true;
-                  SendMessage(themeWnd, CB_SETCURSEL, (WPARAM)i, 0);
-                }
-            }
+          found = true;
+          SendMessage(themeWnd, CB_SETCURSEL, (WPARAM)i, 0);
         }
-      while (FindNextFile(fileHandle, &findData));
-
-      FindClose(fileHandle);
+      }
     }
+    while (FindNextFile(fileHandle, &findData));
+
+    FindClose(fileHandle);
+  }
 
   if ((_wcsicmp(currentTheme, TEXT("Default")) == 0) || !found)
+  {
     SendMessage(themeWnd, CB_SETCURSEL, (WPARAM)0, 0);
+  }
 }
 
 BOOL ThemeSelector::DoThemeCommand(HWND hwndDlg, WPARAM wParam, LPARAM lParam UNUSED)
@@ -226,35 +254,39 @@ BOOL ThemeSelector::DoThemeCommand(HWND hwndDlg, WPARAM wParam, LPARAM lParam UN
   themePath = ELExpandVars(themePath);
 
   switch (LOWORD(wParam))
+  {
+  case IDOK:
+    SaveTheme(hwndDlg);
+  case IDCANCEL:
+    if (!ELIsDirectory(themePath))
     {
-    case IDOK:
-      SaveTheme(hwndDlg);
-    case IDCANCEL:
-      if (!ELPathIsDirectory(themePath.c_str()))
-        wParam = IDOK;
-      EndDialog(hwndDlg, wParam);
-      return TRUE;
-    case IDC_THEMEITEM:
-      if (HIWORD(wParam) == CBN_SELCHANGE)
-        DoThemeCheck(hwndDlg);
-      return TRUE;
-    case IDC_SAVEAS:
-      DoSaveAs(hwndDlg);
-      return TRUE;
-    case IDC_DELTHEME:
-      DoDelTheme(hwndDlg);
-      return TRUE;
-    case IDC_SAVETHEME:
-      DoSave(hwndDlg);
-      DoThemeCheck(hwndDlg);
-      return TRUE;
-    case IDC_EXPORTTHEME:
-      DoExport(hwndDlg);
-      return TRUE;
-    case IDC_IMPORTTHEME:
-      DoImport(hwndDlg);
-      return TRUE;
+      wParam = IDOK;
     }
+    EndDialog(hwndDlg, wParam);
+    return TRUE;
+  case IDC_THEMEITEM:
+    if (HIWORD(wParam) == CBN_SELCHANGE)
+    {
+      DoThemeCheck(hwndDlg);
+    }
+    return TRUE;
+  case IDC_SAVEAS:
+    DoSaveAs(hwndDlg);
+    return TRUE;
+  case IDC_DELTHEME:
+    DoDelTheme(hwndDlg);
+    return TRUE;
+  case IDC_SAVETHEME:
+    DoSave(hwndDlg);
+    DoThemeCheck(hwndDlg);
+    return TRUE;
+  case IDC_EXPORTTHEME:
+    DoExport(hwndDlg);
+    return TRUE;
+  case IDC_IMPORTTHEME:
+    DoImport(hwndDlg);
+    return TRUE;
+  }
 
   return FALSE;
 }
@@ -267,52 +299,60 @@ void ThemeSelector::DoExport(HWND hwndDlg)
   std::wstring themePath, target, themeRoot = TEXT("%EmergeDir%\\themes");
 
   if (GetWindowText(themeWnd, theme, MAX_PATH) != 0)
+  {
+    themePath = themeRoot + TEXT("\\") + theme;
+    target += theme;
+    target += TEXT(".zip");
+
+    ZeroMemory(&bi, sizeof(BROWSEINFO));
+    bi.hwndOwner = hwndDlg;
+    bi.ulFlags = BIF_NEWDIALOGSTYLE;
+    bi.lpszTitle = TEXT("Export folder:");
+
+    LPITEMIDLIST pItemIDList = SHBrowseForFolder(&bi);
+
+    if (pItemIDList != NULL)
     {
-      themePath = themeRoot + TEXT("\\") + theme;
-      target += theme;
-      target += TEXT(".zip");
-
-      ZeroMemory(&bi, sizeof(BROWSEINFO));
-      bi.hwndOwner = hwndDlg;
-      bi.ulFlags = BIF_NEWDIALOGSTYLE;
-      bi.lpszTitle = TEXT("Export folder:");
-
-      LPITEMIDLIST pItemIDList = SHBrowseForFolder(&bi);
-
-      if (pItemIDList != NULL)
+      if (SHGetPathFromIDList(pItemIDList, tmp))
+      {
+        IMalloc* pMalloc = NULL;
+        if (SUCCEEDED(SHGetMalloc(&pMalloc)))
         {
-          if (SHGetPathFromIDList(pItemIDList, tmp))
-            {
-              IMalloc* pMalloc = NULL;
-              if (SUCCEEDED(SHGetMalloc(&pMalloc)))
-                {
-                  pMalloc->Free(pItemIDList);
-                  pMalloc->Release();
-                }
-
-              target = tmp;
-              if (target.at(target.length() - 1) != '\\')
-                target += TEXT("\\");
-              target += theme;
-              target += TEXT(".zip");
-              if (PathFileExists(target.c_str()))
-                {
-                  swprintf(message, TEXT("Do you want to replace '%ls'?"), target.c_str());
-                  if (ELMessageBox(hwndDlg, message, TEXT("emergeCore"),
-                                   ELMB_YESNO|ELMB_ICONQUESTION) == IDNO)
-                    return;
-                  else
-                    ELFileOp(hwndDlg, false, FO_DELETE, target);
-                }
-              if (ELMakeZip(target, themeRoot, themePath) == 0)
-                swprintf(message, TEXT("Successfully exported '%ls' theme to '%ls'."),
-                         theme, target.c_str());
-              else
-                swprintf(message, TEXT("Failed to export '%ls'."), theme);
-              ELMessageBox(hwndDlg, message, TEXT("emergeCore"), ELMB_OK|ELMB_MODAL|ELMB_ICONINFORMATION);
-            }
+          pMalloc->Free(pItemIDList);
+          pMalloc->Release();
         }
+
+        target = tmp;
+        if (target.at(target.length() - 1) != '\\')
+        {
+          target += TEXT("\\");
+        }
+        target += theme;
+        target += TEXT(".zip");
+        if (PathFileExists(target.c_str()))
+        {
+          swprintf(message, TEXT("Do you want to replace '%ls'?"), target.c_str());
+          if (ELMessageBox(hwndDlg, message, TEXT("emergeCore"),
+                           ELMB_YESNO | ELMB_ICONQUESTION) == IDNO)
+          {
+            return;
+          }
+          else
+          {
+            ELFileOp(hwndDlg, false, FO_DELETE, target);
+          }
+        }
+        if (ELMakeZip(target, themeRoot, themePath) == 0)
+          swprintf(message, TEXT("Successfully exported '%ls' theme to '%ls'."),
+                   theme, target.c_str());
+        else
+        {
+          swprintf(message, TEXT("Failed to export '%ls'."), theme);
+        }
+        ELMessageBox(hwndDlg, message, TEXT("emergeCore"), ELMB_OK | ELMB_MODAL | ELMB_ICONINFORMATION);
+      }
     }
+  }
 }
 
 void ThemeSelector::DoImport(HWND hwndDlg)
@@ -335,17 +375,19 @@ void ThemeSelector::DoImport(HWND hwndDlg)
               OFN_DONTADDTORECENT | OFN_NOCHANGEDIR | OFN_NODEREFERENCELINKS;
 
   if (GetOpenFileName(&ofn))
+  {
+    workingZip = tmp;
+    if (ELExtractZip(workingZip, themesPath) == 0)
     {
-      workingZip = tmp;
-      if (ELExtractZip(workingZip, themesPath) == 0)
-        {
-          swprintf(message, TEXT("Successfully imported '%ls'."), workingZip.c_str());
-          PopulateThemes(themeWnd, (WCHAR*)ELGetThemeName().c_str());
-        }
-      else
-        swprintf(message, TEXT("Failed to import '%ls'."), workingZip.c_str());
-      ELMessageBox(hwndDlg, message, TEXT("emergeCore"), ELMB_OK|ELMB_MODAL|ELMB_ICONINFORMATION);
+      swprintf(message, TEXT("Successfully imported '%ls'."), workingZip.c_str());
+      PopulateThemes(themeWnd, (WCHAR*)ELGetThemeName().c_str());
     }
+    else
+    {
+      swprintf(message, TEXT("Failed to import '%ls'."), workingZip.c_str());
+    }
+    ELMessageBox(hwndDlg, message, TEXT("emergeCore"), ELMB_OK | ELMB_MODAL | ELMB_ICONINFORMATION);
+  }
 }
 
 void ThemeSelector::DoSave(HWND hwndDlg)
@@ -356,7 +398,7 @@ void ThemeSelector::DoSave(HWND hwndDlg)
 
   GetDlgItemText(hwndDlg, IDC_THEMEITEM, source, MAX_PATH);
   wcscpy(theme, source);
-  ELStripModified(theme);
+  ELStripModifiedTheme(theme);
 
   sourceTheme = TEXT("%EmergeDir%\\themes\\");
   sourceTheme += source;
@@ -366,20 +408,24 @@ void ThemeSelector::DoSave(HWND hwndDlg)
 
   // If the destination theme is the same as the source theme, abort
   if (sourceTheme == destTheme)
+  {
     return;
+  }
 
   // If the destTheme directory exists, remove it and re-create it (to make
   // sure its empty.
-  if (ELPathIsDirectory(ELExpandVars(destTheme).c_str()))
+  if (ELIsDirectory(ELExpandVars(destTheme)))
+  {
     ELFileOp(hwndDlg, false, FO_DELETE, destTheme);
+  }
   if (ELCreateDirectory(destTheme))
+  {
+    if (ELFileOp(hwndDlg, false, FO_COPY, copySource, destTheme))
     {
-      if (ELFileOp(hwndDlg, false, FO_COPY, copySource, destTheme))
-        {
-          ELFileOp(hwndDlg, false, FO_DELETE, sourceTheme);
-          ELSetTheme(destTheme);
-        }
+      ELFileOp(hwndDlg, false, FO_DELETE, sourceTheme);
+      ELSetTheme(destTheme);
     }
+  }
 
   PopulateThemes(themeWnd, theme);
 }
@@ -394,15 +440,19 @@ void ThemeSelector::DoDelTheme(HWND hwndDlg)
   themePath += theme;
 
   if (_wcsicmp(ELGetThemeName().c_str(), theme) == 0)
+  {
+    if (ELMessageBox(hwndDlg,
+                     TEXT("You are about to delete the active theme.  This\nwill result in the 'Default' theme becoming the active theme.\nDo you wish to proceed?"),
+                     TEXT("Theme Manager"),
+                     ELMB_YESNO | ELMB_ICONWARNING) == IDNO)
     {
-      if (ELMessageBox(hwndDlg,
-                       TEXT("You are about to delete the active theme.  This\nwill result in the 'Default' theme becoming the active theme.\nDo you wish to proceed?"),
-                       TEXT("Theme Manager"),
-                       ELMB_YESNO | ELMB_ICONWARNING) == IDNO)
-        return;
+      return;
     }
+  }
   if (ELFileOp(hwndDlg, false, FO_DELETE, themePath))
+  {
     PopulateThemes(themeWnd, (WCHAR*)ELGetThemeName().c_str());
+  }
 }
 
 void ThemeSelector::DoSaveAs(HWND hwndDlg)
@@ -412,7 +462,9 @@ void ThemeSelector::DoSaveAs(HWND hwndDlg)
 
   GetWindowText(themeWnd, theme, MAX_PATH);
   if (pThemeSaver->Show(theme) == IDOK)
+  {
     PopulateThemes(themeWnd, (WCHAR*)ELGetThemeName().c_str());
+  }
 }
 
 bool ThemeSelector::SaveTheme(HWND hwndDlg)
@@ -441,20 +493,24 @@ BOOL ThemeSelector::DoThemeCheck(HWND hwndDlg)
   EnableWindow(saveWnd, (ELIsModifiedTheme(theme) && (_wcsicmp(theme, TEXT("Default (Modified)")) != 0)));
   EnableWindow(exportWnd, (_wcsicmp(theme, TEXT("Default")) != 0));
 
-  if (ELIsModifiedTheme(ELGetThemeName().c_str()) && ELPathIsDirectory(themePath.c_str()))
+  if (ELIsModifiedTheme(ELGetThemeName()) && (ELIsDirectory(themePath)))
+  {
+    swprintf (errorText, TEXT("The existing '%ls' theme will be lost, save it?"), ELGetThemeName().c_str());
+    if (ELMessageBox(hwndDlg, errorText, TEXT("Theme Selector"),
+                     ELMB_ICONQUESTION | ELMB_YESNO) == IDYES)
     {
-      swprintf (errorText, TEXT("The existing '%ls' theme will be lost, save it?"), ELGetThemeName().c_str());
-      if (ELMessageBox(hwndDlg, errorText, TEXT("Theme Selector"),
-                       ELMB_ICONQUESTION | ELMB_YESNO) == IDYES)
-        {
-          if (pThemeSaver->Show((WCHAR*)ELGetThemeName().c_str()) == IDOK)
-            PopulateThemes(themeWnd, theme);
-        }
-      else
-        {
-          if (ELFileOp(hwndDlg, false, FO_DELETE, themePath))
-            PopulateThemes(themeWnd, theme);
-        }
+      if (pThemeSaver->Show((WCHAR*)ELGetThemeName().c_str()) == IDOK)
+      {
+        PopulateThemes(themeWnd, theme);
+      }
     }
+    else
+    {
+      if (ELFileOp(hwndDlg, false, FO_DELETE, themePath))
+      {
+        PopulateThemes(themeWnd, theme);
+      }
+    }
+  }
   return TRUE;
 }

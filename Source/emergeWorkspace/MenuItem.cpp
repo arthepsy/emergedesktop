@@ -117,11 +117,11 @@ void MenuItem::SetIcon()
       break;
     case IT_EXECUTABLE:
     case IT_FILE:
-      if ((wcsicmp(lwrValue, TEXT("%documents%")) == 0) ||
-          (wcsicmp(lwrValue, TEXT("%commondocuments%")) == 0))
+      if ((_wcsicmp(lwrValue, TEXT("%documents%")) == 0) ||
+          (_wcsicmp(lwrValue, TEXT("%commondocuments%")) == 0))
         icon = EGGetSpecialFolderIcon(CSIDL_PERSONAL, 16);
-      else if ((wcsicmp(lwrValue, TEXT("%desktop%")) == 0) ||
-               (wcsicmp(lwrValue, TEXT("%commondesktop%")) == 0))
+      else if ((_wcsicmp(lwrValue, TEXT("%desktop%")) == 0) ||
+               (_wcsicmp(lwrValue, TEXT("%commondesktop%")) == 0))
         icon = EGGetSpecialFolderIcon(CSIDL_DESKTOP, 16);
       else
         {
@@ -145,7 +145,7 @@ void MenuItem::SetIcon()
       break;
     case IT_SPECIAL_FOLDER:
         {
-          UINT specialFolder = ELIsSpecialFolder(menuItemData.value);
+          UINT specialFolder = ELGetSpecialFolderIDFromName(menuItemData.value);
           icon = EGGetSpecialFolderIcon(specialFolder, 16);
         }
       break;
@@ -165,7 +165,7 @@ void MenuItem::SetIcon()
         break;
     case IT_XML_MENU:
     case IT_TASKS_MENU:
-      ELGetCurrentPath(command);
+      wcscpy(command, ELGetCurrentPath().c_str());
       icon = EGGetFileIcon(command, 16);
       break;
     case IT_SETTINGS_MENU:

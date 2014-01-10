@@ -24,6 +24,9 @@
 			<Depends filename="emergeBaseClasses/emergeBaseClasses.cbp" />
 			<Depends filename="emergeLib/emergeLib.cbp" />
 		</Project>
+		<Project filename="emergeDefaultInternalCommands/emergeDefaultInternalCommands.cbp">
+			<Depends filename="emergeLib/emergeLib.cbp" />
+		</Project>
 		<Project filename="emergeGraphics/emergeGraphics.cbp">
 			<Depends filename="emergeIcons/emergeIcons.cbp" />
 			<Depends filename="emergeLib/emergeLib.cbp" />
@@ -85,8 +88,6 @@
 		</Project>
 		<Project filename="emergeWorkspace/emergeWorkspace.cbp">
 			<Depends filename="emergeAppletEngine/emergeAppletEngine.cbp" />
-			<Depends filename="emergeBaseClasses/emergeBaseClasses.cbp" />
-			<Depends filename="emergeGraphics/emergeGraphics.cbp" />
 			<Depends filename="emergeLib/emergeLib.cbp" />
 		</Project>
 		<Project filename="Explorer/Explorer.cbp">

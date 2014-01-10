@@ -1,25 +1,34 @@
-//----  --------------------------------------------------------------------------------------------------------
-//
-//  This file is part of Emerge Desktop.
-//  Copyright (C) 2004-2012  The Emerge Desktop Development Team
-//
-//  Emerge Desktop is free software; you can redistribute it and/or modify
-//  it under the terms of the GNU General Public License as published by
-//  the Free Software Foundation; either version 3 of the License, or
-//  (at your option) any later version.
-//
-//  Emerge Desktop is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//  GNU General Public License for more details.
-//
-//  You should have received a copy of the GNU General Public License
-//  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-//
-//----  --------------------------------------------------------------------------------------------------------
+/*!
+  @file Applet.h
+  @brief header for emergeLauncher
+  @author The Emerge Desktop Development Team
 
-#ifndef __EL_APPLET_H
-#define __EL_APPLET_H
+  @attention This file is part of Emerge Desktop.
+  @attention Copyright (C) 2004-2013  The Emerge Desktop Development Team
+
+  @attention Emerge Desktop is free software; you can redistribute it and/or
+  modify  it under the terms of the GNU General Public License as published
+  by the Free Software Foundation; either version 3 of the License, or
+  (at your option) any later version.
+
+  @attention Emerge Desktop is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  @attention You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  */
+
+#ifndef __GUARD_fd579399_5236_44ff_bf78_55155d45ad47
+#define __GUARD_fd579399_5236_44ff_bf78_55155d45ad47
+
+#define UNICODE 1
+
+#ifdef _MSC_VER
+#define _CRT_SECURE_NO_WARNINGS 1 //suppress warnings about old versions of wcscpy, wcscat, etc.
+#define _CRT_NON_CONFORMING_SWPRINTFS 1 //suppress warnings about old swprintf format
+#endif
 
 // Defines required for tooltip
 #undef _WIN32_IE
@@ -38,12 +47,12 @@
 
 #define ACTIVE_DELAY_TIME 500
 
-#include "Settings.h"
-#include <vector>
 #include <process.h>
-#include "Item.h"
-#include "Config.h"
+#include <vector>
 #include "../emergeBaseClasses/BaseApplet.h"
+#include "Config.h"
+#include "Item.h"
+#include "Settings.h"
 
 typedef std::map<DWORD, std::wstring> LiveFolderMap;
 

@@ -68,7 +68,7 @@ int      CHyperLink::g_counter         = 0;
 /*
  * Macros and inline functions
  */
-inline bool PTINRECT( LPCRECT r, const POINT &pt )
+inline bool PTINRECT( LPCRECT r, const POINT& pt )
 {
   return  ( pt.x >= r->left && pt.x < r->right && pt.y >= r->top && pt.y < r->bottom );
 }
@@ -107,20 +107,22 @@ CHyperLink::~CHyperLink(void)
 BOOL CHyperLink::ConvertStaticToHyperlink(HWND hwndCtl, LPCTSTR strURL)
 {
   if( !(setURL(strURL)) )
+  {
     return FALSE;
+  }
 
   // Subclass the parent so we can color the controls as we desire.
 
   HWND hwndParent = GetParent(hwndCtl);
   if (NULL != hwndParent)
+  {
+    WNDPROC pfnOrigProc = (WNDPROC) GetWindowLongPtr(hwndParent, GWLP_WNDPROC);
+    if (pfnOrigProc != _HyperlinkParentProc)
     {
-      WNDPROC pfnOrigProc = (WNDPROC) GetWindowLongPtr(hwndParent, GWLP_WNDPROC);
-      if (pfnOrigProc != _HyperlinkParentProc)
-        {
-          SetWindowLongPtr( hwndParent, GWLP_USERDATA, (LONG_PTR)pfnOrigProc);
-          SetWindowLongPtr( hwndParent, GWLP_WNDPROC, (LONG_PTR)_HyperlinkParentProc);
-        }
+      SetWindowLongPtr( hwndParent, GWLP_USERDATA, (LONG_PTR)pfnOrigProc);
+      SetWindowLongPtr( hwndParent, GWLP_WNDPROC, (LONG_PTR)_HyperlinkParentProc);
     }
+  }
 
   // Make sure the control will send notifications.
   DWORD dwStyle = GetWindowLongPtr(hwndCtl, GWL_STYLE);
@@ -130,7 +132,9 @@ BOOL CHyperLink::ConvertStaticToHyperlink(HWND hwndCtl, LPCTSTR strURL)
   m_StdFont = (HFONT) SendMessage(hwndCtl, WM_GETFONT, 0, 0);
 
   if( g_counter++ == 0 )
-      createGlobalResources();
+  {
+    createGlobalResources();
+  }
 
   // Subclass the existing control.
   m_pfnOrigCtlProc = (WNDPROC) GetWindowLongPtr(hwndCtl, GWLP_WNDPROC);
@@ -155,13 +159,13 @@ BOOL CHyperLink::ConvertStaticToHyperlink(HWND hwndParent, UINT uiCtlId,
 BOOL CHyperLink::setURL(LPCTSTR strURL)
 {
   if( m_strURL )
-    {
-      delete [] m_strURL;
-    }
-  if( !(m_strURL = new TCHAR[lstrlen(strURL)+1]) )
-    {
-      return FALSE;
-    }
+  {
+    delete [] m_strURL;
+  }
+  if( !(m_strURL = new TCHAR[lstrlen(strURL) + 1]) )
+  {
+    return FALSE;
+  }
 
   lstrcpy(m_strURL, strURL);
 
@@ -181,37 +185,37 @@ LRESULT CALLBACK CHyperLink::_HyperlinkParentProc(HWND hwnd, UINT message,
   WNDPROC pfnOrigProc = (WNDPROC)GetWindowLongPtr(hwnd, GWLP_USERDATA);
 
   switch (message)
-    {
-    case WM_CTLCOLORSTATIC:
+  {
+  case WM_CTLCOLORSTATIC:
     {
       HDC hdc = (HDC) wParam;
       HWND hwndCtl = (HWND) lParam;
-      CHyperLink *pHyperLink = reinterpret_cast< CHyperLink * >(GetWindowLongPtr(hwndCtl, GWLP_USERDATA));
+      CHyperLink* pHyperLink = reinterpret_cast< CHyperLink* >(GetWindowLongPtr(hwndCtl, GWLP_USERDATA));
 
       if(pHyperLink)
+      {
+        LRESULT lr = CallWindowProc(pfnOrigProc, hwnd, message,
+                                    wParam, lParam);
+        if (!pHyperLink->m_bVisited)
         {
-          LRESULT lr = CallWindowProc(pfnOrigProc, hwnd, message,
-                                      wParam, lParam);
-          if (!pHyperLink->m_bVisited)
-            {
-              // This is the most common case for static branch prediction
-              // optimization
-              SetTextColor(hdc, CHyperLink::g_crLinkColor);
-            }
-          else
-            {
-              SetTextColor(hdc, CHyperLink::g_crVisitedColor);
-            }
-          return lr;
+          // This is the most common case for static branch prediction
+          // optimization
+          SetTextColor(hdc, CHyperLink::g_crLinkColor);
         }
+        else
+        {
+          SetTextColor(hdc, CHyperLink::g_crVisitedColor);
+        }
+        return lr;
+      }
       break;
     }
-    case WM_DESTROY:
+  case WM_DESTROY:
     {
       SetWindowLongPtr(hwnd, GWLP_WNDPROC, (LONG_PTR) pfnOrigProc);
       break;
     }
-    }
+  }
   return CallWindowProc(pfnOrigProc, hwnd, message, wParam, lParam);
 }
 
@@ -220,7 +224,7 @@ LRESULT CALLBACK CHyperLink::_HyperlinkParentProc(HWND hwnd, UINT message,
  */
 inline void CHyperLink::Navigate(void)
 {
-  ELExecuteAll(m_strURL, (WCHAR*)L"\0");
+  ELExecuteFileOrCommand(m_strURL);
   m_bVisited = TRUE;
 }
 
@@ -232,19 +236,19 @@ inline void CHyperLink::DrawFocusRect(HWND hwnd)
   HWND hwndParent = ::GetParent(hwnd);
 
   if( hwndParent )
-    {
-      // calculate where to draw focus rectangle, in screen coords
-      RECT rc;
-      GetWindowRect(hwnd, &rc);
+  {
+    // calculate where to draw focus rectangle, in screen coords
+    RECT rc;
+    GetWindowRect(hwnd, &rc);
 
-      INFLATERECT(&rc,1,1);					 // add one pixel all around
-      // convert to parent window client coords
-      ::ScreenToClient(hwndParent, (LPPOINT)&rc);
-      ::ScreenToClient(hwndParent, ((LPPOINT)&rc)+1);
-      HDC dcParent = GetDC(hwndParent);		 // parent window's DC
-      ::DrawFocusRect(dcParent, &rc);			 // draw it!
-      ReleaseDC(hwndParent,dcParent);
-    }
+    INFLATERECT(&rc, 1, 1);					 // add one pixel all around
+    // convert to parent window client coords
+    ::ScreenToClient(hwndParent, (LPPOINT)&rc);
+    ::ScreenToClient(hwndParent, ((LPPOINT)&rc) + 1);
+    HDC dcParent = GetDC(hwndParent);		 // parent window's DC
+    ::DrawFocusRect(dcParent, &rc);			 // draw it!
+    ReleaseDC(hwndParent, dcParent);
+  }
 }
 
 /*
@@ -261,43 +265,43 @@ inline void CHyperLink::DrawFocusRect(HWND hwnd)
 LRESULT CALLBACK CHyperLink::_HyperlinkProc(HWND hwnd, UINT message,
     WPARAM wParam, LPARAM lParam)
 {
-  CHyperLink *pHyperLink = reinterpret_cast< CHyperLink * >(GetWindowLongPtr(hwnd, GWLP_USERDATA));
+  CHyperLink* pHyperLink = reinterpret_cast< CHyperLink* >(GetWindowLongPtr(hwnd, GWLP_USERDATA));
 
   switch (message)
-    {
-    case WM_MOUSEMOVE:
+  {
+  case WM_MOUSEMOVE:
     {
       if ( pHyperLink->m_bOverControl )
+      {
+        // This is the most common case for static branch prediction
+        // optimization
+        RECT rect;
+        GetClientRect(hwnd, &rect);
+
+        POINT pt = { LOWORD(lParam), HIWORD(lParam) };
+
+        if (!PTINRECT(&rect, pt))
         {
-          // This is the most common case for static branch prediction
-          // optimization
-          RECT rect;
-          GetClientRect(hwnd,&rect);
-
-          POINT pt = { LOWORD(lParam), HIWORD(lParam) };
-
-          if (!PTINRECT(&rect,pt))
-            {
-              ReleaseCapture();
-            }
+          ReleaseCapture();
         }
+      }
       else
-        {
-          pHyperLink->m_bOverControl = TRUE;
-          SendMessage(hwnd, WM_SETFONT,
-                      (WPARAM)CHyperLink::g_UnderlineFont, FALSE);
-          InvalidateRect(hwnd, NULL, FALSE);
-          pHyperLink->OnSelect();
-          SetCapture(hwnd);
-        }
+      {
+        pHyperLink->m_bOverControl = TRUE;
+        SendMessage(hwnd, WM_SETFONT,
+                    (WPARAM)CHyperLink::g_UnderlineFont, FALSE);
+        InvalidateRect(hwnd, NULL, FALSE);
+        pHyperLink->OnSelect();
+        SetCapture(hwnd);
+      }
       return 0;
     }
-    case WM_SETCURSOR:
+  case WM_SETCURSOR:
     {
       SetCursor(CHyperLink::g_hLinkCursor);
       return TRUE;
     }
-    case WM_CAPTURECHANGED:
+  case WM_CAPTURECHANGED:
     {
       pHyperLink->m_bOverControl = FALSE;
       pHyperLink->OnDeselect();
@@ -306,48 +310,48 @@ LRESULT CALLBACK CHyperLink::_HyperlinkProc(HWND hwnd, UINT message,
       InvalidateRect(hwnd, NULL, FALSE);
       return 0;
     }
-    case WM_KEYUP:
+  case WM_KEYUP:
     {
       if( wParam != VK_SPACE )
-        {
-          break;
-        }
+      {
+        break;
+      }
     }
     // Fall through
-    case WM_LBUTTONUP:
+  case WM_LBUTTONUP:
     {
       pHyperLink->Navigate();
       return 0;
     }
-    case WM_SETFOCUS:	// Fall through
-    case WM_KILLFOCUS:
+  case WM_SETFOCUS:	// Fall through
+  case WM_KILLFOCUS:
     {
       if( message == WM_SETFOCUS )
-        {
-          pHyperLink->OnSelect();
-        }
+      {
+        pHyperLink->OnSelect();
+      }
       else		// WM_KILLFOCUS
-        {
-          pHyperLink->OnDeselect();
-        }
+      {
+        pHyperLink->OnDeselect();
+      }
       CHyperLink::DrawFocusRect(hwnd);
       return 0;
     }
-    case WM_DESTROY:
+  case WM_DESTROY:
     {
       SetWindowLongPtr(hwnd, GWLP_WNDPROC,
-                    (LONG_PTR) pHyperLink->m_pfnOrigCtlProc);
+                       (LONG_PTR) pHyperLink->m_pfnOrigCtlProc);
 
       SendMessage(hwnd, WM_SETFONT, (WPARAM) pHyperLink->m_StdFont, 0);
 
       if( --CHyperLink::g_counter <= 0 )
-        {
-          destroyGlobalResources();
-        }
+      {
+        destroyGlobalResources();
+      }
 
       break;
     }
-    }
+  }
 
   return CallWindowProc(pHyperLink->m_pfnOrigCtlProc, hwnd, message,
                         wParam, lParam);
@@ -372,13 +376,13 @@ void CHyperLink::createLinkCursor(void)
 {
   g_hLinkCursor = ::LoadCursor(NULL, IDC_HAND); // Load Windows' hand cursor
   if( !g_hLinkCursor )    // if not available, use the standard Arrow cursor
-    {
-      /*
-       * There exist an alternative way to get the IDC_HAND by loading winhlp32.exe but I
-       * estimated that it didn't worth the trouble as IDC_HAND is supported since Win98.
-       * I consider that if a user is happy with 10 years old OS, he won't bother to have
-       * an arrow cursor.
-       */
-      g_hLinkCursor = ::LoadCursor(NULL, IDC_ARROW);
-    }
+  {
+    /*
+     * There exist an alternative way to get the IDC_HAND by loading winhlp32.exe but I
+     * estimated that it didn't worth the trouble as IDC_HAND is supported since Win98.
+     * I consider that if a user is happy with 10 years old OS, he won't bother to have
+     * an arrow cursor.
+     */
+    g_hLinkCursor = ::LoadCursor(NULL, IDC_ARROW);
+  }
 }

@@ -1,7 +1,7 @@
 //----  --------------------------------------------------------------------------------------------------------
 //
 //  This file is part of Emerge Desktop.
-//  Copyright (C) 2004-2012  The Emerge Desktop Development Team
+//  Copyright (C) 2004-2013  The Emerge Desktop Development Team
 //
 //  Emerge Desktop is free software; you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -40,35 +40,39 @@ int WINAPI WinMain (HINSTANCE hInstance,
 
   // If Windows Explorer is running as the shell, then don't start
   if (ELIsExplorerShell())
+  {
     return 1;
+  }
 
   // Check to see if Explorer is already running, if so exit
   HANDLE hMutex = CreateMutex(NULL, false, TEXT("Explorer"));
   if (GetLastError() == ERROR_ALREADY_EXISTS)
-    {
-      WCHAR app[MAX_PATH], args[MAX_LINE_LENGTH];
-      ELParseCommand(GetCommandLine(), app, args);
-      std::wstring commandLine = L"%WINDIR%\\Explorer.exe ";
-      commandLine = ELExpandVars(commandLine);
-      commandLine += args;
-      ELExecute((WCHAR*)commandLine.c_str());
-      CloseHandle(hMutex);
-      return 2;
-    }
+  {
+    WCHAR app[MAX_PATH], args[MAX_LINE_LENGTH];
+    ELParseCommand(GetCommandLine(), app, args);
+    std::wstring commandLine = TEXT("%WINDIR%\\Explorer.exe ");
+    commandLine = ELExpandVars(commandLine);
+    commandLine += args;
+    ELExecuteFileOrCommand(commandLine);
+    CloseHandle(hMutex);
+    return 2;
+  }
 
   Applet applet(hInstance);
 
   if (!applet.Initialize())
+  {
     return 3;
+  }
 
   // Run the message loop. It will run until GetMessage() returns 0
   while (GetMessage (&messages, NULL, 0, 0))
-    {
-      // Translate virtual-key messages into character messages
-      TranslateMessage(&messages);
-      // Send message to WindowProcedure
-      DispatchMessage(&messages);
-    }
+  {
+    // Translate virtual-key messages into character messages
+    TranslateMessage(&messages);
+    // Send message to WindowProcedure
+    DispatchMessage(&messages);
+  }
 
   // Clean-up the Mutex
   CloseHandle(hMutex);

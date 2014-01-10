@@ -1,7 +1,7 @@
 //----  --------------------------------------------------------------------------------------------------------
 //
 //  This file is part of Emerge Desktop.
-//  Copyright (C) 2004-2012  The Emerge Desktop Development Team
+//  Copyright (C) 2004-2013  The Emerge Desktop Development Team
 //
 //  Emerge Desktop is free software; you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,39 +18,7 @@
 //
 //----  --------------------------------------------------------------------------------------------------------
 
-#undef _WIN32_IE
-#define _WIN32_IE 0x0501
-
-#undef _WIN32_WINNT
-#define _WIN32_WINNT 0x0501
-
-#undef WINVER
-#define WINVER 0x0501
-
-#include "emergeAppletEngine.h"
-#include <stdio.h>
-#include <shlwapi.h>
-#include <map>
-#include "../emergeLib/emergeLib.h"
-
-#define SYSMENUMIN 1
-#define SYSMENUMAX 0x7ff
-
-// Global definitions
-typedef struct tagCONTEXTINFO
-{
-  IContextMenu2 *ic2;
-  WCHAR value[MAX_PATH];
-} CONTEXTINFO;
-WCHAR appletClass[ ] = TEXT("EmergeDesktopApplet");
-WNDPROC oldWndProc = NULL;
-HMENU selectedMenu = NULL;
-typedef std::map<HMENU,CONTEXTINFO> ContextMap;
-ContextMap contextMap;
-
-// Helper functions
-LRESULT CALLBACK MenuProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
-HRESULT AddContextMenu(WCHAR *file);
+#include "main.h"
 
 //----  --------------------------------------------------------------------------------------------------------
 // Function:    EAEHitTest
@@ -66,9 +34,11 @@ LRESULT EAEHitTest(HWND hwnd, int guiBorder, bool autoSize, int x, int y)
   int dragBorder = guiBorder;
 
   if (dragBorder < 5)
+  {
     dragBorder = 5;
+  }
 
-  ELGetWindowRect(hwnd, &r);
+  r = ELGetWindowRect(hwnd);
   InflateRect(&r, -dragBorder, -dragBorder);
 
   // For some reason the bottom and right check seem to be thinner than the top
@@ -78,26 +48,44 @@ LRESULT EAEHitTest(HWND hwnd, int guiBorder, bool autoSize, int x, int y)
   r.right -= 2;
 
   if (ELIsKeyDown(VK_CONTROL))
+  {
     return HTCAPTION;
+  }
   else if (ELIsKeyDown(VK_MENU) && !autoSize)
+  {
+    if ((x <= r.left) && (y <= r.top))
     {
-      if ((x <= r.left) && (y <= r.top))
-        return HTTOPLEFT;
-      else if ((x <= r.left) && (y >= r.bottom))
-        return HTBOTTOMLEFT;
-      else if (x <= r.left)
-        return HTLEFT;
-      else if ((x >= r.right) && (y <= r.top))
-        return HTTOPRIGHT;
-      else if ((x >= r.right) && (y >= r.bottom))
-        return HTBOTTOMRIGHT;
-      else if (x >= r.right)
-        return HTRIGHT;
-      else if (y <= r.top)
-        return HTTOP;
-      else if (y >= r.bottom)
-        return HTBOTTOM;
+      return HTTOPLEFT;
     }
+    else if ((x <= r.left) && (y >= r.bottom))
+    {
+      return HTBOTTOMLEFT;
+    }
+    else if (x <= r.left)
+    {
+      return HTLEFT;
+    }
+    else if ((x >= r.right) && (y <= r.top))
+    {
+      return HTTOPRIGHT;
+    }
+    else if ((x >= r.right) && (y >= r.bottom))
+    {
+      return HTBOTTOMRIGHT;
+    }
+    else if (x >= r.right)
+    {
+      return HTRIGHT;
+    }
+    else if (y <= r.top)
+    {
+      return HTTOP;
+    }
+    else if (y >= r.bottom)
+    {
+      return HTBOTTOM;
+    }
+  }
 
   return HTCLIENT;
 }
@@ -106,20 +94,26 @@ LRESULT EAEHitTest(HWND hwnd, int guiBorder, bool autoSize, int x, int y)
 // Function:    EAEUpdateGUI
 // Requires:    HWND hwnd - window handle
 //              bool shadow - window shadow indicator
-//              WCHAR *zposition - z-order setting for window
+//              std::wstring zposition - z-order setting for window
 // Returns:     bool
 // Purpose:     Set the window shadow and z-order
 //----  --------------------------------------------------------------------------------------------------------
-HWND EAEUpdateGUI(HWND hwnd, bool shadow, WCHAR *zposition)
+HWND EAEUpdateGUI(HWND hwnd, bool shadow, std::wstring zposition)
 {
   if (shadow)
+  {
     SetClassLongPtr(hwnd, GCL_STYLE, GetClassLongPtr(hwnd, GCL_STYLE) | CS_DROPSHADOW);
+  }
   else
+  {
     SetClassLongPtr(hwnd, GCL_STYLE, GetClassLongPtr(hwnd, GCL_STYLE) & ~CS_DROPSHADOW);
+  }
 
   // Set window z-order
-  if (_wcsicmp(zposition, TEXT("top")) == 0)
+  if (ELToLower(zposition) == ELToLower(TEXT("Top")))
+  {
     return HWND_TOPMOST;
+  }
 
   return HWND_NOTOPMOST;
 }
@@ -143,7 +137,9 @@ HWND EAEInitializeAppletWindow(HINSTANCE appletInstance, WNDPROC windowProcedure
 
   // Register the window class, and if it fails quit the program
   if (!RegisterClassEx (&wcx))
+  {
     return NULL;
+  }
 
   // The class is registered, let's create the window
   appletWindow = CreateWindowEx (
@@ -162,7 +158,7 @@ HWND EAEInitializeAppletWindow(HINSTANCE appletInstance, WNDPROC windowProcedure
   return appletWindow;
 }
 
-LRESULT EAEDisplayChange(HMONITOR appletMonitor, RECT *appletRect, RECT *oldDeskRect)
+LRESULT EAEDisplayChange(HMONITOR appletMonitor, RECT* appletRect, RECT* oldDeskRect)
 {
   RECT deskRect;
   int width, height;
@@ -172,9 +168,13 @@ LRESULT EAEDisplayChange(HMONITOR appletMonitor, RECT *appletRect, RECT *oldDesk
   //  float xdelta, ydelta;
 
   if (!GetMonitorInfo(appletMonitor, &appletMonitorInfo))
+  {
     ELGetDesktopRect(appletRect, &deskRect);
+  }
   else
+  {
     CopyRect(&deskRect, &appletMonitorInfo.rcMonitor);
+  }
 
   width = appletRect->right - appletRect->left;
   height = appletRect->bottom - appletRect->top;
@@ -182,47 +182,59 @@ LRESULT EAEDisplayChange(HMONITOR appletMonitor, RECT *appletRect, RECT *oldDesk
   centre = appletRect->top + (height / 2);
 
   if (!EqualRect(&deskRect, oldDeskRect))
+  {
+    int newX, newY;
+    /*      xdelta = (float)middle / (float)(oldDeskRect->right - oldDeskRect->left);
+            newX = xdelta * 100000;
+            xdelta = (float)newX / 100000;
+            newX = ((deskRect.right - deskRect.left) * xdelta) - (width / 2);
+
+            ydelta = (float)centre / (float)(oldDeskRect->bottom - oldDeskRect->top);
+            newY = ydelta * 100000;
+            ydelta = (float)newY / 100000;
+            newY = ((deskRect.bottom - deskRect.top) * ydelta) - (height / 2);*/
+
+    // Horizontal Positioning
+    int leftDelta = appletRect->left - oldDeskRect->left;
+    int rightDelta = oldDeskRect->right - appletRect->right;
+    int midDelta = ELMid(oldDeskRect->right, oldDeskRect->left) - middle;
+
+    if ((abs(midDelta) < abs(leftDelta)) && (abs(midDelta) < abs(rightDelta)))
     {
-      int newX, newY;
-      /*      xdelta = (float)middle / (float)(oldDeskRect->right - oldDeskRect->left);
-              newX = xdelta * 100000;
-              xdelta = (float)newX / 100000;
-              newX = ((deskRect.right - deskRect.left) * xdelta) - (width / 2);
-
-              ydelta = (float)centre / (float)(oldDeskRect->bottom - oldDeskRect->top);
-              newY = ydelta * 100000;
-              ydelta = (float)newY / 100000;
-              newY = ((deskRect.bottom - deskRect.top) * ydelta) - (height / 2);*/
-
-      // Horizontal Positioning
-      int leftDelta = appletRect->left - oldDeskRect->left;
-      int rightDelta = oldDeskRect->right - appletRect->right;
-      int midDelta = ELMid(oldDeskRect->right, oldDeskRect->left) - middle;
-
-      if ((abs(midDelta) < abs(leftDelta)) && (abs(midDelta) < abs(rightDelta)))
-        newX = ELMid(deskRect.right, deskRect.left) - midDelta - (width / 2);
-      else if (abs(rightDelta) < abs(leftDelta))
-        newX = deskRect.right - rightDelta - width;
-      else
-        newX = deskRect.left + leftDelta;
-
-      // Vertical Positioning
-      int topDelta = appletRect->top - oldDeskRect->top;
-      int bottomDelta = oldDeskRect->bottom - appletRect->bottom;
-      int centreDelta = ELMid(oldDeskRect->bottom, oldDeskRect->top) - centre;
-
-      if ((abs(centreDelta) < abs(topDelta)) && (abs(centreDelta) < abs(bottomDelta)))
-        newY = ELMid(deskRect.bottom, deskRect.top) - centreDelta - (height / 2);
-      else if (abs(bottomDelta) < abs(topDelta))
-        newY = deskRect.bottom - bottomDelta - height;
-      else
-        newY = deskRect.top + topDelta;
-
-      appletRect->left = newX;
-      appletRect->right = appletRect->left + width;
-      appletRect->top = newY;
-      appletRect->bottom = appletRect->top + height;
+      newX = ELMid(deskRect.right, deskRect.left) - midDelta - (width / 2);
     }
+    else if (abs(rightDelta) < abs(leftDelta))
+    {
+      newX = deskRect.right - rightDelta - width;
+    }
+    else
+    {
+      newX = deskRect.left + leftDelta;
+    }
+
+    // Vertical Positioning
+    int topDelta = appletRect->top - oldDeskRect->top;
+    int bottomDelta = oldDeskRect->bottom - appletRect->bottom;
+    int centreDelta = ELMid(oldDeskRect->bottom, oldDeskRect->top) - centre;
+
+    if ((abs(centreDelta) < abs(topDelta)) && (abs(centreDelta) < abs(bottomDelta)))
+    {
+      newY = ELMid(deskRect.bottom, deskRect.top) - centreDelta - (height / 2);
+    }
+    else if (abs(bottomDelta) < abs(topDelta))
+    {
+      newY = deskRect.bottom - bottomDelta - height;
+    }
+    else
+    {
+      newY = deskRect.top + topDelta;
+    }
+
+    appletRect->left = newX;
+    appletRect->right = appletRect->left + width;
+    appletRect->top = newY;
+    appletRect->bottom = appletRect->top + height;
+  }
 
   return 0;
 }
@@ -234,79 +246,95 @@ bool EAEAutoSize(AUTOSIZEINFO autoSizeInfo)
   UINT divider = autoSizeInfo.visibleIconCount;
 
   if (autoSizeInfo.limit > 0)
+  {
+    series = autoSizeInfo.visibleIconCount / autoSizeInfo.limit;
+    if (autoSizeInfo.visibleIconCount % autoSizeInfo.limit > 0)
     {
-      series = autoSizeInfo.visibleIconCount / autoSizeInfo.limit;
-      if (autoSizeInfo.visibleIconCount % autoSizeInfo.limit > 0)
-        series++;
-      divider = MIN(autoSizeInfo.visibleIconCount, autoSizeInfo.limit);
+      series++;
     }
+    divider = MIN(autoSizeInfo.visibleIconCount, autoSizeInfo.limit);
+  }
 
   if (autoSizeInfo.orientation == ASI_VERTICAL)
+  {
+    height = (2 * autoSizeInfo.dragBorder) +
+             (divider * autoSizeInfo.iconSpacing) +
+             (divider * autoSizeInfo.iconSize);
+    if (divider > 0)
     {
-      height = (2 * autoSizeInfo.dragBorder) +
-               (divider * autoSizeInfo.iconSpacing) +
-               (divider * autoSizeInfo.iconSize);
-      if (divider > 0)
-        height -= autoSizeInfo.iconSpacing;
-
-      width = (2 * autoSizeInfo.dragBorder) +
-              (series * autoSizeInfo.iconSpacing) +
-              (series * autoSizeInfo.iconSize);
-      if (series > 0)
-        width -= autoSizeInfo.iconSpacing;
+      height -= autoSizeInfo.iconSpacing;
     }
+
+    width = (2 * autoSizeInfo.dragBorder) +
+            (series * autoSizeInfo.iconSpacing) +
+            (series * autoSizeInfo.iconSize);
+    if (series > 0)
+    {
+      width -= autoSizeInfo.iconSpacing;
+    }
+  }
   else
+  {
+    width = (2 * autoSizeInfo.dragBorder) +
+            (divider * autoSizeInfo.iconSpacing) +
+            (divider * autoSizeInfo.iconSize);
+    if (divider > 0)
     {
-      width = (2 * autoSizeInfo.dragBorder) +
-              (divider * autoSizeInfo.iconSpacing) +
-              (divider * autoSizeInfo.iconSize);
-      if (divider > 0)
-        width -= autoSizeInfo.iconSpacing;
-
-      height = (2 * autoSizeInfo.dragBorder) +
-               (series * autoSizeInfo.iconSpacing) +
-               (series * autoSizeInfo.iconSize);
-      if (series > 0)
-        height -= autoSizeInfo.iconSpacing;
+      width -= autoSizeInfo.iconSpacing;
     }
+
+    height = (2 * autoSizeInfo.dragBorder) +
+             (series * autoSizeInfo.iconSpacing) +
+             (series * autoSizeInfo.iconSize);
+    if (series > 0)
+    {
+      height -= autoSizeInfo.iconSpacing;
+    }
+  }
 
   if (autoSizeInfo.verticalDirection == ASI_UP)
-    {
-      newRect.top = autoSizeInfo.rect->bottom;
-      newRect.top -= height;
-    }
+  {
+    newRect.top = autoSizeInfo.rect->bottom;
+    newRect.top -= height;
+  }
   else if (autoSizeInfo.verticalDirection == ASI_CENTER)
-    {
-      newRect.top = autoSizeInfo.rect->top + ((autoSizeInfo.rect->bottom - autoSizeInfo.rect->top) / 2);
-      newRect.top -= height / 2;
-    }
+  {
+    newRect.top = autoSizeInfo.rect->top + ((autoSizeInfo.rect->bottom - autoSizeInfo.rect->top) / 2);
+    newRect.top -= height / 2;
+  }
   else
+  {
     newRect.top = autoSizeInfo.rect->top;
+  }
 
 
   if (autoSizeInfo.horizontalDirection == ASI_LEFT)
-    {
-      newRect.left = autoSizeInfo.rect->right;
-      newRect.left -= width;
-    }
+  {
+    newRect.left = autoSizeInfo.rect->right;
+    newRect.left -= width;
+  }
   else if (autoSizeInfo.horizontalDirection == ASI_MIDDLE)
-    {
-      newRect.left = autoSizeInfo.rect->left + ((autoSizeInfo.rect->right - autoSizeInfo.rect->left) / 2);
-      newRect.left -= width / 2;
-    }
+  {
+    newRect.left = autoSizeInfo.rect->left + ((autoSizeInfo.rect->right - autoSizeInfo.rect->left) / 2);
+    newRect.left -= width / 2;
+  }
   else
+  {
     newRect.left = autoSizeInfo.rect->left;
+  }
 
   newRect.right = newRect.left + width;
   newRect.bottom = newRect.top + height;
 
   if (!IsRectEmpty(&autoSizeInfo.titleBarRect))
-    {
-      newRect.bottom = newRect.bottom + (autoSizeInfo.titleBarRect.bottom - autoSizeInfo.titleBarRect.top);
+  {
+    newRect.bottom = newRect.bottom + (autoSizeInfo.titleBarRect.bottom - autoSizeInfo.titleBarRect.top);
 
-      if ((autoSizeInfo.titleBarRect.right - autoSizeInfo.titleBarRect.left) > (newRect.right - newRect.left))
-        newRect.right = newRect.left + (autoSizeInfo.titleBarRect.right - autoSizeInfo.titleBarRect.left);
+    if ((autoSizeInfo.titleBarRect.right - autoSizeInfo.titleBarRect.left) > (newRect.right - newRect.left))
+    {
+      newRect.right = newRect.left + (autoSizeInfo.titleBarRect.right - autoSizeInfo.titleBarRect.left);
     }
+  }
 
   CopyRect(autoSizeInfo.rect, &newRect);
 
@@ -323,7 +351,9 @@ HWND EAEInitializeTooltipWindow(HINSTANCE appletInstance)
   ic.dwICC = ICC_BAR_CLASSES;
 
   if (!InitCommonControlsEx(&ic))
+  {
     return NULL;
+  }
 
   // Create the tooltip window
   tooltipWindow = CreateWindowEx(
@@ -341,10 +371,10 @@ HWND EAEInitializeTooltipWindow(HINSTANCE appletInstance)
 
   // If the tooltip window was created successfully, extend it for 2K/XP icon tips
   if (tooltipWindow)
-    {
-      SetWindowPos(tooltipWindow, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
-      SendMessage(tooltipWindow, TTM_SETMAXTIPWIDTH, 0, TIP_SIZE);
-    }
+  {
+    SetWindowPos(tooltipWindow, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
+    SendMessage(tooltipWindow, TTM_SETMAXTIPWIDTH, 0, TIP_SIZE);
+  }
 
   return tooltipWindow;
 }
@@ -365,7 +395,9 @@ int EAEDisplayMenu(HWND callingWnd, HWND taskWnd)
   int command = 0;
 
   if (ELIsModal(taskWnd))
+  {
     return command;
+  }
 
   // Create menu
   systemMenu = GetSystemMenu(taskWnd, false);
@@ -374,7 +406,9 @@ int EAEDisplayMenu(HWND callingWnd, HWND taskWnd)
   GetWindowPlacement(taskWnd, &taskWndPlacement);
 
   if (GetClassLongPtr(taskWnd, GCL_STYLE) & CS_NOCLOSE)
+  {
     DeleteMenu(systemMenu, SC_CLOSE, MF_BYCOMMAND);
+  }
 
   // restore is enabled only if minimized or maximized (not normal)
   EnableMenuItem(systemMenu, SC_RESTORE, MF_BYCOMMAND |
@@ -402,7 +436,7 @@ int EAEDisplayMenu(HWND callingWnd, HWND taskWnd)
 
   // Display menu
   command = TrackPopupMenuEx(systemMenu,
-                             TPM_RETURNCMD|TPM_RECURSE,
+                             TPM_RETURNCMD | TPM_RECURSE,
                              pt.x, pt.y,
                              callingWnd,
                              NULL);
@@ -413,41 +447,43 @@ int EAEDisplayMenu(HWND callingWnd, HWND taskWnd)
   return command;
 }
 
-HRESULT AddContextMenu(WCHAR *file)
+HRESULT AddContextMenu(WCHAR* file)
 {
   HRESULT hr = E_UNEXPECTED;
   LPVOID lpVoid;
   HMENU fileMenu = CreatePopupMenu();
-  IShellFolder *deskFolder = NULL;
-  IShellFolder *appObject = NULL;
+  IShellFolder* deskFolder = NULL;
+  IShellFolder* appObject = NULL;
   LPITEMIDLIST pidlLocal = NULL;
   LPITEMIDLIST pidlRelative = NULL;
-  IContextMenu *contextMenu = NULL;
+  IContextMenu* contextMenu = NULL;
   CONTEXTINFO contextInfo;
 
   wcscpy(contextInfo.value, file);
 
   hr = SHGetDesktopFolder(&deskFolder);
   if (FAILED(hr))
+  {
     return hr;
+  }
 
   hr = deskFolder->ParseDisplayName(NULL, NULL, file, NULL, &pidlLocal, NULL);
   if (FAILED(hr))
-    {
-      deskFolder->Release();
-      return hr;
-    }
+  {
+    deskFolder->Release();
+    return hr;
+  }
 
   pidlRelative = ILClone(ILFindLastID(pidlLocal));
   ILRemoveLastID(pidlLocal);
 
   hr = deskFolder->BindToObject(pidlLocal, NULL, IID_IShellFolder, &lpVoid);
   if (FAILED(hr))
-    {
-      deskFolder->Release();
-      ILFree(pidlLocal);
-      return hr;
-    }
+  {
+    deskFolder->Release();
+    ILFree(pidlLocal);
+    return hr;
+  }
   appObject = reinterpret_cast <IShellFolder*> (lpVoid);
 
   deskFolder->Release();
@@ -456,11 +492,11 @@ HRESULT AddContextMenu(WCHAR *file)
   hr = appObject->GetUIObjectOf(NULL, 1, (LPCITEMIDLIST*)&pidlRelative,
                                 IID_IContextMenu, NULL, &lpVoid);
   if (FAILED(hr))
-    {
-      appObject->Release();
-      ILFree(pidlRelative);
-      return hr;
-    }
+  {
+    appObject->Release();
+    ILFree(pidlRelative);
+    return hr;
+  }
   contextMenu = reinterpret_cast <IContextMenu*> (lpVoid);
 
   ILFree(pidlRelative);
@@ -468,33 +504,33 @@ HRESULT AddContextMenu(WCHAR *file)
 
   contextMenu->QueryInterface(IID_IContextMenu2, &lpVoid);
   if (FAILED(hr))
-    {
-      contextMenu->Release();
-      return hr;
-    }
+  {
+    contextMenu->Release();
+    return hr;
+  }
   contextInfo.ic2 = reinterpret_cast <IContextMenu2*> (lpVoid);
 
   contextMenu->Release();
 
   hr = contextInfo.ic2->QueryContextMenu(fileMenu, 0, SYSMENUMIN, SYSMENUMAX, CMF_NORMAL);
   if (FAILED(hr))
-    {
-      contextInfo.ic2->Release();
-      return hr;
-    }
+  {
+    contextInfo.ic2->Release();
+    return hr;
+  }
 
-  if (!ELPathIsDirectory(file))
-    {
-      AppendMenu(fileMenu, MF_SEPARATOR, 0x8000, NULL);
-      AppendMenu(fileMenu, MF_STRING, 0x8001, TEXT("Open Folder"));
-    }
+  if (!ELIsDirectory(file))
+  {
+    AppendMenu(fileMenu, MF_SEPARATOR, 0x8000, NULL);
+    AppendMenu(fileMenu, MF_STRING, 0x8001, TEXT("Open Folder"));
+  }
 
   contextMap.insert(std::pair<HMENU, CONTEXTINFO>(fileMenu, contextInfo));
 
   return hr;
 }
 
-int EAEDisplayFileMenu(WCHAR *file, HWND callingWnd)
+int EAEDisplayFileMenu(WCHAR* file, HWND callingWnd)
 {
   int command = 0;
   POINT pt;
@@ -512,91 +548,95 @@ int EAEDisplayFileMenu(WCHAR *file, HWND callingWnd)
   ZeroMemory(&commandInfo, sizeof(commandInfo));
 
   while (i < wcslen(file))
+  {
+    if (file[i] == delimiter)
     {
-      if (file[i] == delimiter)
-        {
-          tmp[j] = '\0';
-          ExpandEnvironmentStrings((LPCTSTR)tmp, (LPTSTR)expandedFile, MAX_PATH);
-          AddContextMenu(expandedFile);
+      tmp[j] = '\0';
+      ExpandEnvironmentStrings((LPCTSTR)tmp, (LPTSTR)expandedFile, MAX_PATH);
+      AddContextMenu(expandedFile);
 
-          j = 0;
-        }
-      else
-        {
-          tmp[j] = file[i];
-          j++;
-        }
-
-      i++;
+      j = 0;
     }
+    else
+    {
+      tmp[j] = file[i];
+      j++;
+    }
+
+    i++;
+  }
 
   tmp[j] = '\0';
   ExpandEnvironmentStrings((LPCTSTR)tmp, (LPTSTR)expandedFile, MAX_PATH);
   AddContextMenu(expandedFile);
 
   if (contextMap.size() == 1)
+  {
     contextMenu = contextMap.begin()->first;
+  }
   else
-    {
-      contextMenu = CreatePopupMenu();
-      ZeroMemory(&itemInfo, sizeof(itemInfo));
-      itemInfo.fMask = MIIM_STRING | MIIM_SUBMENU;
-      itemInfo.cbSize = sizeof(MENUITEMINFO);
-      i = 0;
+  {
+    contextMenu = CreatePopupMenu();
+    ZeroMemory(&itemInfo, sizeof(itemInfo));
+    itemInfo.fMask = MIIM_STRING | MIIM_SUBMENU;
+    itemInfo.cbSize = sizeof(MENUITEMINFO);
+    i = 0;
 
-      iter = contextMap.begin();
-      while (iter != contextMap.end())
-        {
-          itemInfo.dwTypeData = iter->second.value;
-          itemInfo.hSubMenu = iter->first;
-          InsertMenuItem(contextMenu, i, TRUE, &itemInfo);
-          i++;
-          iter++;
-        }
+    iter = contextMap.begin();
+    while (iter != contextMap.end())
+    {
+      itemInfo.dwTypeData = iter->second.value;
+      itemInfo.hSubMenu = iter->first;
+      InsertMenuItem(contextMenu, i, TRUE, &itemInfo);
+      i++;
+      iter++;
     }
+  }
 
   // Subclass wndproc to handle messages
   oldWndProc = (WNDPROC)SetWindowLongPtr(callingWnd, GWLP_WNDPROC, (LONG_PTR)MenuProc);
   // Display menu
   command = TrackPopupMenuEx(contextMenu,
-                             TPM_RETURNCMD|TPM_RECURSE,
+                             TPM_RETURNCMD | TPM_RECURSE,
                              pt.x, pt.y,
                              callingWnd,
                              NULL);
   if (oldWndProc)
-    {
-      SetWindowLongPtr(callingWnd, GWLP_WNDPROC, (LONG_PTR)oldWndProc);
-      oldWndProc = NULL;
-    }
+  {
+    SetWindowLongPtr(callingWnd, GWLP_WNDPROC, (LONG_PTR)oldWndProc);
+    oldWndProc = NULL;
+  }
 
   if ((command >= SYSMENUMIN) && (command <= SYSMENUMAX))
+  {
+    iter = contextMap.find(selectedMenu);
+    if (iter == contextMap.end())
     {
-      iter = contextMap.find(selectedMenu);
-      if (iter == contextMap.end())
-        return 0;
-
-      int offset = command - SYSMENUMIN;
-      commandInfo.cbSize = sizeof(commandInfo);
-      commandInfo.hwnd = callingWnd;
-      commandInfo.lpVerb = (LPCSTR)MAKEINTRESOURCE(offset);
-      commandInfo.nShow = SW_SHOW;
-
-      iter->second.ic2->InvokeCommand(&commandInfo);
+      return 0;
     }
+
+    int offset = command - SYSMENUMIN;
+    commandInfo.cbSize = sizeof(commandInfo);
+    commandInfo.hwnd = callingWnd;
+    commandInfo.lpVerb = (LPCSTR)MAKEINTRESOURCE(offset);
+    commandInfo.nShow = SW_SHOW;
+
+    iter->second.ic2->InvokeCommand(&commandInfo);
+  }
   else if (command == 0x8001)
-    {
-      wcscpy(directory, file);
-      PathRemoveFileSpec(directory);
-      ELExecute(directory, directory);
-    }
+  {
+    wcscpy(directory, file);
+    PathRemoveFileSpec(directory);
+    ELExecuteFileOrCommand(directory, directory);
+  }
 
   while (!contextMap.empty())
-    {
-      iter = contextMap.begin();
-      DestroyMenu(iter->first);
-      iter->second.ic2->Release();
-      contextMap.erase(iter);
-    }
+  {
+    iter = contextMap.begin();
+    DestroyMenu(iter->first);
+    iter->second.ic2->Release();
+    contextMap.erase(iter);
+  }
   DestroyMenu(contextMenu);
 
   return command;
@@ -607,35 +647,42 @@ LRESULT CALLBACK MenuProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
   ContextMap::iterator iter;
 
   switch (message)
-    {
-    case WM_MENUSELECT:
+  {
+  case WM_MENUSELECT:
     {
       HMENU menu = (HMENU)lParam;
       if (menu)
+      {
+        iter = contextMap.find(menu);
+        if (iter != contextMap.end())
         {
-          iter = contextMap.find(menu);
-          if (iter != contextMap.end())
-            {
-              selectedMenu = (HMENU)lParam;
-              return 0;
-            }
-          else
-            return CallWindowProc(oldWndProc, hwnd, message, wParam, lParam);
+          selectedMenu = (HMENU)lParam;
+          return 0;
         }
+        else
+        {
+          return CallWindowProc(oldWndProc, hwnd, message, wParam, lParam);
+        }
+      }
     }
     break;
-    case WM_DRAWITEM:
-    case WM_MEASUREITEM:
-      if (wParam) break;
-    case WM_INITMENUPOPUP:
-      iter = contextMap.find(selectedMenu);
-      if (iter == contextMap.end())
-        return 0;
-      iter->second.ic2->HandleMenuMsg(message, wParam, lParam);
-      return (message == WM_INITMENUPOPUP ? 0 : TRUE);
-    default:
+  case WM_DRAWITEM:
+  case WM_MEASUREITEM:
+    if (wParam)
+    {
       break;
     }
+  case WM_INITMENUPOPUP:
+    iter = contextMap.find(selectedMenu);
+    if (iter == contextMap.end())
+    {
+      return 0;
+    }
+    iter->second.ic2->HandleMenuMsg(message, wParam, lParam);
+    return (message == WM_INITMENUPOPUP ? 0 : TRUE);
+  default:
+    break;
+  }
 
   // for all untreated messages, call the original wndproc
   return DefWindowProc(hwnd, message, wParam, lParam);

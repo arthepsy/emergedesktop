@@ -1,7 +1,7 @@
 //----  --------------------------------------------------------------------------------------------------------
 //
 //  This file is part of Emerge Desktop.
-//  Copyright (C) 2004-2012  The Emerge Desktop Development Team
+//  Copyright (C) 2004-2013  The Emerge Desktop Development Team
 //
 //  Emerge Desktop is free software; you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -53,23 +53,35 @@ Command::Command(HWND mainWnd, HINSTANCE hInstance, std::tr1::shared_ptr<Setting
 Command::~Command()
 {
   if (pac)
+  {
     pac->Release();
+  }
 
   if (pom)
+  {
     pom->Release();
+  }
 
   if (fileSource)
+  {
     fileSource->Release();
+  }
 
   if (historySource)
+  {
     historySource->Release();
+  }
 
   if (commandSource)
+  {
     commandSource->Release();
+  }
 
   if (!registered)
     // Unregister the window class
+  {
     UnregisterClass(szCommandClass, mainInst);
+  }
 }
 
 bool Command::Init()
@@ -89,14 +101,14 @@ bool Command::Init()
 
   // Register the window class, and if it fails quit the program
   if (!RegisterClassEx (&wincl))
+  {
+    wincl.style = CS_DBLCLKS;
+    if (!RegisterClassEx (&wincl))
     {
-      wincl.style = CS_DBLCLKS;
-      if (!RegisterClassEx (&wincl))
-        {
-          registered = false;
-          return false;
-        }
+      registered = false;
+      return false;
     }
+  }
 
   // The class is registered, let's create the window
   commandWnd = CreateWindowEx (
@@ -113,7 +125,9 @@ bool Command::Init()
 
   // If the window failed to get created, unregister the class and quit the program
   if (!commandWnd)
+  {
     return false;
+  }
 
   return true;
 }
@@ -127,50 +141,55 @@ bool Command::Init()
 // Returns:		LRESULT
 // Purpose:		Handles messages meant for the Edit Box
 //----  --------------------------------------------------------------------------------------------------------
-LRESULT CALLBACK Command::EditProc(HWND hwnd,UINT message,WPARAM wParam,LPARAM lParam)
+LRESULT CALLBACK Command::EditProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-  WCHAR error[MAX_LINE_LENGTH], buf[MAX_LINE_LENGTH];
-  static Command *pCommand = reinterpret_cast<Command*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
+  //WCHAR error[MAX_LINE_LENGTH];
+  WCHAR buf[MAX_LINE_LENGTH];
+  static Command* pCommand = reinterpret_cast<Command*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
 
   if (message == WM_KEYDOWN)
+  {
+    // When the user presses return - execute the command
+    if (wParam == VK_RETURN)
     {
-      // When the user presses return - execute the command
-      if (wParam==VK_RETURN)
+      int length = GetWindowText(hwnd, buf, MAX_LINE_LENGTH);
+      SetWindowText(hwnd, TEXT(""));
+      //swprintf(error, TEXT("Failed to execute \"%ls\""), buf);
+      if (length > 0)
+      {
+        buf[length] = '\0';
+        if (ELExecuteFileOrCommand(buf))
         {
-          int length = GetWindowText(hwnd,buf,MAX_LINE_LENGTH);
-          SetWindowText(hwnd, TEXT(""));
-          swprintf(error, TEXT("Failed to execute \"%ls\""), buf);
-          if (length > 0)
-            {
-              buf[length] = '\0';
-              if (ELExecuteAll(buf, (WCHAR*)TEXT("\0")))
-                {
-                  pCommand->AddElement(buf);
-                  pCommand->ShowAppletWindow();
-                }
-              else
-                ELMessageBox(GetDesktopWindow(), error, (WCHAR*)TEXT("emergeCommand"), ELMB_ICONWARNING|ELMB_OK);
-            }
-
-          return 0;
-        }
-
-      if (wParam ==VK_ESCAPE)
-        {
-          SetWindowText(hwnd, TEXT(""));
+          pCommand->AddElement(buf);
           pCommand->ShowAppletWindow();
-          return 0;
         }
+        /*else
+        {
+          ELMessageBox(GetDesktopWindow(), error, TEXT("emergeCommand"), ELMB_ICONWARNING | ELMB_OK);
+        }*/
+      }
+
+      return 0;
     }
 
+    if (wParam == VK_ESCAPE)
+    {
+      SetWindowText(hwnd, TEXT(""));
+      pCommand->ShowAppletWindow();
+      return 0;
+    }
+  }
+
   // Do the default thing for everyone else
-  return CallWindowProc(pCommand->GetWndProc(),hwnd,message,wParam,lParam);
+  return CallWindowProc(pCommand->GetWndProc(), hwnd, message, wParam, lParam);
 }
 
-void Command::AddElement(WCHAR *element)
+void Command::AddElement(WCHAR* element)
 {
   if (history)
+  {
     history->AddElement(element);
+  }
 }
 
 void Command::ShowAppletWindow()
@@ -193,64 +212,70 @@ void Command::ShowAppletWindow()
 //----  --------------------------------------------------------------------------------------------------------
 LRESULT CALLBACK Command::CommandProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-  CREATESTRUCT *cs;
-  static Command *pCommand = NULL;
+  CREATESTRUCT* cs;
+  static Command* pCommand = NULL;
 
   if (message == WM_CREATE)
-    {
-      cs = (CREATESTRUCT*)lParam;
-      pCommand = reinterpret_cast<Command*>(cs->lpCreateParams);
-      return DefWindowProc(hwnd, message, wParam, lParam);
-    }
+  {
+    cs = (CREATESTRUCT*)lParam;
+    pCommand = reinterpret_cast<Command*>(cs->lpCreateParams);
+    return DefWindowProc(hwnd, message, wParam, lParam);
+  }
 
   if (pCommand == NULL)
+  {
     return DefWindowProc(hwnd, message, wParam, lParam);
+  }
 
   switch (message)
-    {
-      // Needed to handle changing the system colors.  It forces
-      // a repaint of the window as well as the frame.
-    case WM_SYSCOLORCHANGE:
-      RedrawWindow(hwnd, NULL, NULL, RDW_ERASE | RDW_FRAME | RDW_INVALIDATE);
-      break;
+  {
+    // Needed to handle changing the system colors.  It forces
+    // a repaint of the window as well as the frame.
+  case WM_SYSCOLORCHANGE:
+    RedrawWindow(hwnd, NULL, NULL, RDW_ERASE | RDW_FRAME | RDW_INVALIDATE);
+    break;
 
-      // Repaint the icons as the window size is changing
-    case WM_WINDOWPOSCHANGING:
+    // Repaint the icons as the window size is changing
+  case WM_WINDOWPOSCHANGING:
     {
-      if (!_wcsicmp(pCommand->GetZPosition(), TEXT("bottom")))
-        ((WINDOWPOS *)lParam)->flags |= SWP_NOZORDER;
+      if (ELToLower(pCommand->GetZPosition()) == TEXT("bottom"))
+      {
+        ((WINDOWPOS*)lParam)->flags |= SWP_NOZORDER;
+      }
     }
     break;
 
     // Don't close on alt-F4
-    case WM_SYSCOMMAND:
-      return pCommand->DoSysCommand(hwnd, message, wParam, lParam);
+  case WM_SYSCOMMAND:
+    return pCommand->DoSysCommand(hwnd, message, wParam, lParam);
 
-      // Send a quit message when the window is destroyed
-    case WM_DESTROY:
-    case WM_NCDESTROY:
-      PostQuitMessage (0);
-      break;
+    // Send a quit message when the window is destroyed
+  case WM_DESTROY:
+  case WM_NCDESTROY:
+    PostQuitMessage (0);
+    break;
 
-    case WM_SHOWWINDOW:
+  case WM_SHOWWINDOW:
     {
       if (wParam)
-        {
-          pCommand->ShowTextWindow();
-          SetTimer(hwnd, FOCUS_TIMER, 250, NULL);
-        }
+      {
+        pCommand->ShowTextWindow();
+        SetTimer(hwnd, FOCUS_TIMER, 250, NULL);
+      }
     }
     return 0;
 
-    case WM_TIMER:
-      if (GetForegroundWindow() != hwnd)
-        pCommand->ShowAppletWindow();
-      return 0;
+  case WM_TIMER:
+    if (GetForegroundWindow() != hwnd)
+    {
+      pCommand->ShowAppletWindow();
+    }
+    return 0;
 
     // If not handled just forward the message on
-    default:
-      return DefWindowProc (hwnd, message, wParam, lParam);
-    }
+  default:
+    return DefWindowProc (hwnd, message, wParam, lParam);
+  }
   return 0;
 }
 
@@ -259,7 +284,7 @@ void Command::SetHidden(bool appletHidden)
   this->appletHidden = appletHidden;
 }
 
-WCHAR *Command::GetZPosition()
+std::wstring Command::GetZPosition()
 {
   return pSettings->GetZPosition();
 }
@@ -267,21 +292,23 @@ WCHAR *Command::GetZPosition()
 LRESULT Command::DoSysCommand(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
   switch (wParam)
-    {
-    case SC_CLOSE:
-    case SC_MAXIMIZE:
-    case SC_MINIMIZE:
-      break;
-    default:
-      return DefWindowProc(hwnd, message, wParam, lParam);
-    }
+  {
+  case SC_CLOSE:
+  case SC_MAXIMIZE:
+  case SC_MINIMIZE:
+    break;
+  default:
+    return DefWindowProc(hwnd, message, wParam, lParam);
+  }
   return 0;
 }
 
 void Command::Show()
 {
   if (!appletHidden)
+  {
     ShowWindow(mainWnd, SW_SHOWNOACTIVATE);
+  }
 }
 
 void Command::UpdateEdit(GUIINFO guiInfo, int width, int height)
@@ -290,118 +317,128 @@ void Command::UpdateEdit(GUIINFO guiInfo, int width, int height)
   int dragBorder = guiInfo.dragBorder + guiInfo.bevelWidth + guiInfo.padding;
   LPVOID lpVoid;
 
-  if (_wcsicmp(pSettings->GetCommandVerticalAlign(), TEXT("center")) == 0)
-    {
-      top = (height / 2);
-      top -= (pSettings->GetFont()->lfHeight / 2);
-      if (top < dragBorder)
-        top = dragBorder;
-      bottom = height - (2 * dragBorder);
-    }
-  else if (_wcsicmp(pSettings->GetCommandVerticalAlign(), TEXT("bottom")) == 0)
-    {
-      bottom = height - (2 * dragBorder);
-      top = bottom - pSettings->GetFont()->lfHeight;
-      if (top < dragBorder)
-        top = dragBorder;
-    }
-  else
+  if (ELToLower(pSettings->GetCommandVerticalAlign()) == TEXT("center"))
+  {
+    top = (height / 2);
+    top -= (pSettings->GetFont()->lfHeight / 2);
+    if (top < dragBorder)
     {
       top = dragBorder;
-      bottom = top + pSettings->GetFont()->lfHeight;
     }
+    bottom = height - (2 * dragBorder);
+  }
+  else if (ELToLower(pSettings->GetCommandVerticalAlign()) == TEXT("bottom"))
+  {
+    bottom = height - (2 * dragBorder);
+    top = bottom - pSettings->GetFont()->lfHeight;
+    if (top < dragBorder)
+    {
+      top = dragBorder;
+    }
+  }
+  else
+  {
+    top = dragBorder;
+    bottom = top + pSettings->GetFont()->lfHeight;
+  }
 
   if (hText)
+  {
+    if (pac)
     {
-      if (pac)
-        {
-          pac->Release();
-          pac = NULL;
-        }
-
-      if (pom)
-        {
-          pom->Release();
-          pom = NULL;
-        }
-
-      if (fileSource)
-        {
-          fileSource->Release();
-          fileSource = NULL;
-        }
-
-      if (historySource)
-        {
-          historySource->Release();
-          historySource = NULL;
-        }
-
-      if (commandSource)
-        {
-          commandSource->Release();
-          commandSource = NULL;
-        }
-
-      DestroyWindow(hText);
+      pac->Release();
+      pac = NULL;
     }
+
+    if (pom)
+    {
+      pom->Release();
+      pom = NULL;
+    }
+
+    if (fileSource)
+    {
+      fileSource->Release();
+      fileSource = NULL;
+    }
+
+    if (historySource)
+    {
+      historySource->Release();
+      historySource = NULL;
+    }
+
+    if (commandSource)
+    {
+      commandSource->Release();
+      commandSource = NULL;
+    }
+
+    DestroyWindow(hText);
+  }
 
   if (!pac)
-    {
-      CoCreateInstance(CLSID_AutoComplete,
-                       NULL,
-                       CLSCTX_INPROC_SERVER,
-                       IID_IAutoComplete,
-                       &lpVoid);
-      pac = reinterpret_cast <IAutoComplete*> (lpVoid);
-    }
+  {
+    CoCreateInstance(CLSID_AutoComplete,
+                     NULL,
+                     CLSCTX_INPROC_SERVER,
+                     IID_IAutoComplete,
+                     &lpVoid);
+    pac = reinterpret_cast <IAutoComplete*> (lpVoid);
+  }
 
   if (!fileSource)
-    {
-      CoCreateInstance(CLSID_ACListISF,
-                       NULL,
-                       CLSCTX_INPROC_SERVER,
-                       IID_IACList,
-                       &lpVoid);
-      fileSource = reinterpret_cast <IUnknown*> (lpVoid);
-    }
+  {
+    CoCreateInstance(CLSID_ACListISF,
+                     NULL,
+                     CLSCTX_INPROC_SERVER,
+                     IID_IACList,
+                     &lpVoid);
+    fileSource = reinterpret_cast <IUnknown*> (lpVoid);
+  }
 
   if (!historySource)
-    {
-      history = new CustomSource(pSettings);
+  {
+    history = new CustomSource(pSettings);
 
-      history->QueryInterface(IID_IEnumString, &lpVoid);
-      historySource = reinterpret_cast <IEnumString*> (lpVoid);
-    }
+    history->QueryInterface(IID_IEnumString, &lpVoid);
+    historySource = reinterpret_cast <IEnumString*> (lpVoid);
+  }
 
   if (!commandSource)
-    {
-      command = new CommandSource(mainInst);
+  {
+    command = new CommandSource(mainInst);
 
-      command->QueryInterface(IID_IEnumString, &lpVoid);
-      commandSource = reinterpret_cast <IEnumString*> (lpVoid);
-    }
+    command->QueryInterface(IID_IEnumString, &lpVoid);
+    commandSource = reinterpret_cast <IEnumString*> (lpVoid);
+  }
 
   if (!pom)
-    {
-      CoCreateInstance(CLSID_ACLMulti,
-                       NULL,
-                       CLSCTX_INPROC_SERVER,
-                       IID_IObjMgr,
-                       &lpVoid);
-      pom = reinterpret_cast <IObjMgr*> (lpVoid);
-    }
+  {
+    CoCreateInstance(CLSID_ACLMulti,
+                     NULL,
+                     CLSCTX_INPROC_SERVER,
+                     IID_IObjMgr,
+                     &lpVoid);
+    pom = reinterpret_cast <IObjMgr*> (lpVoid);
+  }
 
   if (fileSource && pom)
+  {
     pom->Append(fileSource);
+  }
 
   if (historySource && pom)
+  {
     pom->Append(historySource);
+  }
 
   if (commandSource && pom)
+  {
     pom->Append(commandSource);
+  }
 
-  if (_wcsicmp(pSettings->GetCommandTextAlign(), TEXT("right")) == 0)
+  if (ELToLower(pSettings->GetCommandTextAlign()) == TEXT("right"))
     hText = CreateWindowEx(
               WS_EX_TOOLWINDOW,
               TEXT("EDIT"),
@@ -413,7 +450,7 @@ void Command::UpdateEdit(GUIINFO guiInfo, int width, int height)
               NULL,
               mainInst,
               NULL);
-  else if (_wcsicmp(pSettings->GetCommandTextAlign(), TEXT("center")) == 0)
+  else if (ELToLower(pSettings->GetCommandTextAlign()) == TEXT("center"))
     hText = CreateWindowEx(
               WS_EX_TOOLWINDOW,
               TEXT("EDIT"),
@@ -438,15 +475,17 @@ void Command::UpdateEdit(GUIINFO guiInfo, int width, int height)
               mainInst,
               this);
 
-  wpOld = (WNDPROC)GetWindowLongPtr(hText,GWLP_WNDPROC);
-  SetWindowLongPtr(hText,GWLP_USERDATA,(LONG_PTR)this);
-  SetWindowLongPtr(hText,GWLP_WNDPROC,(LONG_PTR)EditProc);
+  wpOld = (WNDPROC)GetWindowLongPtr(hText, GWLP_WNDPROC);
+  SetWindowLongPtr(hText, GWLP_USERDATA, (LONG_PTR)this);
+  SetWindowLongPtr(hText, GWLP_WNDPROC, (LONG_PTR)EditProc);
 
   if (textFont)
+  {
     DeleteObject((HFONT)textFont);
+  }
 
   textFont = CreateFontIndirect(pSettings->GetFont());
-  SendMessage(hText,WM_SETFONT,(WPARAM)textFont,TRUE);
+  SendMessage(hText, WM_SETFONT, (WPARAM)textFont, TRUE);
 }
 
 HWND Command::GetCommandWnd()
@@ -469,19 +508,21 @@ void Command::ShowTextWindow()
   SetFocus(hText);
   DWORD pacOptions = ACO_AUTOSUGGEST | ACO_UPDOWNKEYDROPSLIST | ACO_USETAB;
   if (pSettings->GetAutoComplete())
+  {
     pacOptions |= ACO_AUTOAPPEND;
+  }
 
   if (pac)
-    {
-      pac->Init(hText, pom, NULL, NULL);
+  {
+    pac->Init(hText, pom, NULL, NULL);
 
-      if (SUCCEEDED(pac->QueryInterface(IID_IAutoComplete2, &lpVoid)))
-        {
-          pac2 = reinterpret_cast <IAutoComplete2*> (lpVoid);
-          pac2->SetOptions(pacOptions);
-          pac2->Release();
-        }
+    if (SUCCEEDED(pac->QueryInterface(IID_IAutoComplete2, &lpVoid)))
+    {
+      pac2 = reinterpret_cast <IAutoComplete2*> (lpVoid);
+      pac2->SetOptions(pacOptions);
+      pac2->Release();
     }
+  }
 }
 
 void Command::UpdateGUI(GUIINFO guiInfo)

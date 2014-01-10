@@ -1,7 +1,7 @@
 //---
 //
 //  This file is part of Emerge Desktop.
-//  Copyright (C) 2004-2012  The Emerge Desktop Development Team
+//  Copyright (C) 2004-2013  The Emerge Desktop Development Team
 //
 //  Emerge Desktop is free software; you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -22,24 +22,26 @@
 
 INT_PTR CALLBACK IconHidePage::IconHidePageDlgProc(HWND hwndDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
-  static IconHidePage *pIconHidePage = NULL;
-  PROPSHEETPAGE *psp;
+  static IconHidePage* pIconHidePage = NULL;
+  PROPSHEETPAGE* psp;
 
   switch (message)
+  {
+  case WM_INITDIALOG:
+    psp = (PROPSHEETPAGE*)lParam;
+    pIconHidePage = reinterpret_cast<IconHidePage*>(psp->lParam);
+    if (!pIconHidePage)
     {
-    case WM_INITDIALOG:
-      psp = (PROPSHEETPAGE*)lParam;
-      pIconHidePage = reinterpret_cast<IconHidePage*>(psp->lParam);
-      if (!pIconHidePage)
-        break;
-      return pIconHidePage->DoInitPage(hwndDlg);
-
-    case WM_COMMAND:
-      return pIconHidePage->DoCommand(hwndDlg, wParam, lParam);
-
-    case WM_NOTIFY:
-      return pIconHidePage->DoNotify(hwndDlg, lParam);
+      break;
     }
+    return pIconHidePage->DoInitPage(hwndDlg);
+
+  case WM_COMMAND:
+    return pIconHidePage->DoCommand(hwndDlg, wParam, lParam);
+
+  case WM_NOTIFY:
+    return pIconHidePage->DoNotify(hwndDlg, lParam);
+  }
 
   return FALSE;
 }
@@ -60,7 +62,7 @@ IconHidePage::IconHidePage(HINSTANCE hInstance, std::tr1::shared_ptr<Settings> p
               0,
               TOOLTIPS_CLASS,
               NULL,
-              TTS_ALWAYSTIP|WS_POPUP|TTS_NOPREFIX,
+              TTS_ALWAYSTIP | WS_POPUP | TTS_NOPREFIX,
               CW_USEDEFAULT, CW_USEDEFAULT,
               CW_USEDEFAULT, CW_USEDEFAULT,
               NULL,
@@ -69,11 +71,11 @@ IconHidePage::IconHidePage(HINSTANCE hInstance, std::tr1::shared_ptr<Settings> p
               NULL);
 
   if (toolWnd)
-    {
-      SendMessage(toolWnd, TTM_SETMAXTIPWIDTH, 0, 300);
-      SetWindowPos(toolWnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE |
-                   SWP_NOACTIVATE);
-    }
+  {
+    SendMessage(toolWnd, TTM_SETMAXTIPWIDTH, 0, 300);
+    SetWindowPos(toolWnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE |
+                 SWP_NOACTIVATE);
+  }
 
   ExtractIconEx(TEXT("emergeIcons.dll"), 2, NULL, &addIcon, 1);
   ExtractIconEx(TEXT("emergeIcons.dll"), 5, NULL, &editIcon, 1);
@@ -88,15 +90,25 @@ IconHidePage::IconHidePage(HINSTANCE hInstance, std::tr1::shared_ptr<Settings> p
 IconHidePage::~IconHidePage()
 {
   if (addIcon)
+  {
     DestroyIcon(addIcon);
+  }
   if (editIcon)
+  {
     DestroyIcon(editIcon);
+  }
   if (delIcon)
+  {
     DestroyIcon(delIcon);
+  }
   if (saveIcon)
+  {
     DestroyIcon(saveIcon);
+  }
   if (abortIcon)
+  {
     DestroyIcon(abortIcon);
+  }
 
   DestroyWindow(toolWnd);
 }
@@ -110,9 +122,13 @@ int CALLBACK IconHidePage::ListViewCompareProc (LPARAM lParam1, LPARAM lParam2, 
   ListView_GetItemText(si->listWnd, lParam2, si->sortInfo.subItem, szBuf2, MAX_LINE_LENGTH);
 
   if (si->sortInfo.ascending)
+  {
     return(wcscmp(szBuf1, szBuf2));
+  }
   else
+  {
     return(wcscmp(szBuf1, szBuf2) * -1);
+  }
 }
 
 BOOL IconHidePage::DoInitPage(HWND hwndDlg)
@@ -129,24 +145,36 @@ BOOL IconHidePage::DoInitPage(HWND hwndDlg)
   TOOLINFO ti;
 
   ZeroMemory(&ti, sizeof(TOOLINFO));
-  ELGetWindowRect(hwndDlg, &rect);
+  rect = ELGetWindowRect(hwndDlg);
 
   saveCount = 0;
   deleteCount = 0;
 
   if (pSettings->GetUnhideIcons())
+  {
     SendDlgItemMessage(hwndDlg, IDC_UNHIDE, BM_SETCHECK, BST_CHECKED, 0);
+  }
 
   if (addIcon)
+  {
     SendMessage(addWnd, BM_SETIMAGE, IMAGE_ICON, (LPARAM)addIcon);
+  }
   if (editIcon)
+  {
     SendMessage(editWnd, BM_SETIMAGE, IMAGE_ICON, (LPARAM)editIcon);
+  }
   if (delIcon)
+  {
     SendMessage(delWnd, BM_SETIMAGE, IMAGE_ICON, (LPARAM)delIcon);
+  }
   if (saveIcon)
+  {
     SendMessage(saveWnd, BM_SETIMAGE, IMAGE_ICON, (LPARAM)saveIcon);
+  }
   if (abortIcon)
+  {
     SendMessage(abortWnd, BM_SETIMAGE, IMAGE_ICON, (LPARAM)abortIcon);
+  }
 
   EnableWindow(editWnd, false);
   EnableWindow(delWnd, false);
@@ -205,15 +233,19 @@ BOOL IconHidePage::DoInitPage(HWND hwndDlg)
 bool IconHidePage::CheckSaveCount(HWND hwndDlg)
 {
   if ((saveCount != 0) || (deleteCount != 0))
+  {
+    if (ELMessageBox(hwndDlg,
+                     TEXT("All currently modifications will be lost.  To save and exit press OK.\n\nDo you wish to continue?"),
+                     TEXT("emergeLauncher"),
+                     ELMB_YESNO | ELMB_ICONQUESTION | ELMB_MODAL) == IDYES)
     {
-      if (ELMessageBox(hwndDlg,
-                       (WCHAR*)TEXT("All currently modifications will be lost.  To save and exit press OK.\n\nDo you wish to continue?"),
-                       (WCHAR*)TEXT("emergeLauncher"),
-                       ELMB_YESNO|ELMB_ICONQUESTION|ELMB_MODAL) == IDYES)
-        return true;
-      else
-        return false;
+      return true;
     }
+    else
+    {
+      return false;
+    }
+  }
 
   return true;
 }
@@ -226,16 +258,16 @@ bool IconHidePage::PopulateList(HWND listWnd)
   lvItem.mask = LVIF_TEXT;
 
   for (UINT i = 0; i < pSettings->GetHideListSize(); i++)
-    {
-      ret = true;
+  {
+    ret = true;
 
-      lvItem.iItem = i;
-      lvItem.iSubItem = 0;
-      lvItem.pszText = pSettings->GetHideListItem(i);
-      lvItem.cchTextMax = (int)wcslen(pSettings->GetHideListItem(i));
+    lvItem.iItem = i;
+    lvItem.iSubItem = 0;
+    lvItem.pszText = pSettings->GetHideListItem(i);
+    lvItem.cchTextMax = (int)wcslen(pSettings->GetHideListItem(i));
 
-      (void)ListView_InsertItem(listWnd, &lvItem);
-    }
+    (void)ListView_InsertItem(listWnd, &lvItem);
+  }
 
   return ret;
 }
@@ -250,56 +282,68 @@ BOOL IconHidePage::DoNotify(HWND hwndDlg, LPARAM lParam)
   BOOL ret;
 
   switch (((LPNMITEMACTIVATE)lParam)->hdr.code)
+  {
+  case LVN_ITEMCHANGED:
+    EnableWindow(editWnd, true);
+    EnableWindow(delWnd, true);
+    itemIndex = ((LPNMLISTVIEW)lParam)->iItem;
+    if (ListView_GetItemState(listWnd, itemIndex, LVIS_SELECTED))
     {
-    case LVN_ITEMCHANGED:
-      EnableWindow(editWnd, true);
-      EnableWindow(delWnd, true);
-      itemIndex = ((LPNMLISTVIEW)lParam)->iItem;
-      if (ListView_GetItemState(listWnd, itemIndex, LVIS_SELECTED))
-        {
-          ListView_GetItemText(listWnd, itemIndex, 0, tipText, MAX_LINE_LENGTH);
-          SetDlgItemText(hwndDlg, IDC_ICONTEXT, tipText);
-        }
-      return TRUE;
-
-    case LVN_COLUMNCLICK:
-      subItem = ((LPNMLISTVIEW)lParam)->iSubItem;
-      if (toggleSort[subItem])
-        toggleSort[subItem] = false;
-      else
-        toggleSort[subItem] = true;
-      lvSortInfo.sortInfo.ascending = toggleSort[subItem];
-      lvSortInfo.sortInfo.subItem = subItem;
-      pSettings->SetSortInfo(myName, &lvSortInfo.sortInfo);
-      ret = ListView_SortItemsEx(listWnd, ListViewCompareProc, (LPARAM)&lvSortInfo);
-      return ret;
-
-    case PSN_APPLY:
-      if (CheckFields(hwndDlg) && UpdateSettings(hwndDlg))
-        SetWindowLongPtr(hwndDlg, DWLP_MSGRESULT, PSNRET_NOERROR);
-      else
-        SetWindowLongPtr(hwndDlg, DWLP_MSGRESULT, PSNRET_INVALID);
-      return TRUE;
-
-    case PSN_SETACTIVE:
-      SetWindowLongPtr(hwndDlg, DWLP_MSGRESULT, 0);
-      return TRUE;
-
-    case PSN_KILLACTIVE:
-      SetWindowLongPtr(hwndDlg, DWLP_MSGRESULT, FALSE);
-      return TRUE;
-
-    case PSN_RESET:
-      pSettings->BuildHideList();
-      return TRUE;
-
-    case PSN_QUERYCANCEL:
-      if (CheckFields(hwndDlg) && CheckSaveCount(hwndDlg))
-        SetWindowLong(hwndDlg,DWLP_MSGRESULT,FALSE);
-      else
-        SetWindowLong(hwndDlg,DWLP_MSGRESULT,TRUE);
-      return TRUE;
+      ListView_GetItemText(listWnd, itemIndex, 0, tipText, MAX_LINE_LENGTH);
+      SetDlgItemText(hwndDlg, IDC_ICONTEXT, tipText);
     }
+    return TRUE;
+
+  case LVN_COLUMNCLICK:
+    subItem = ((LPNMLISTVIEW)lParam)->iSubItem;
+    if (toggleSort[subItem])
+    {
+      toggleSort[subItem] = false;
+    }
+    else
+    {
+      toggleSort[subItem] = true;
+    }
+    lvSortInfo.sortInfo.ascending = toggleSort[subItem];
+    lvSortInfo.sortInfo.subItem = subItem;
+    pSettings->SetSortInfo(myName, &lvSortInfo.sortInfo);
+    ret = ListView_SortItemsEx(listWnd, ListViewCompareProc, (LPARAM)&lvSortInfo);
+    return ret;
+
+  case PSN_APPLY:
+    if (CheckFields(hwndDlg) && UpdateSettings(hwndDlg))
+    {
+      SetWindowLongPtr(hwndDlg, DWLP_MSGRESULT, PSNRET_NOERROR);
+    }
+    else
+    {
+      SetWindowLongPtr(hwndDlg, DWLP_MSGRESULT, PSNRET_INVALID);
+    }
+    return TRUE;
+
+  case PSN_SETACTIVE:
+    SetWindowLongPtr(hwndDlg, DWLP_MSGRESULT, 0);
+    return TRUE;
+
+  case PSN_KILLACTIVE:
+    SetWindowLongPtr(hwndDlg, DWLP_MSGRESULT, FALSE);
+    return TRUE;
+
+  case PSN_RESET:
+    pSettings->BuildHideList();
+    return TRUE;
+
+  case PSN_QUERYCANCEL:
+    if (CheckFields(hwndDlg) && CheckSaveCount(hwndDlg))
+    {
+      SetWindowLong(hwndDlg, DWLP_MSGRESULT, FALSE);
+    }
+    else
+    {
+      SetWindowLong(hwndDlg, DWLP_MSGRESULT, TRUE);
+    }
+    return TRUE;
+  }
 
   return FALSE;
 }
@@ -307,18 +351,18 @@ BOOL IconHidePage::DoNotify(HWND hwndDlg, LPARAM lParam)
 BOOL IconHidePage::DoCommand(HWND hwndDlg, WPARAM wParam, LPARAM lParam UNUSED)
 {
   switch (LOWORD(wParam))
-    {
-    case IDC_EDITTIP:
-      return DoEdit(hwndDlg);
-    case IDC_DELTIP:
-      return DoDelete(hwndDlg);
-    case IDC_ADDTIP:
-      return DoAdd(hwndDlg);
-    case IDC_SAVETIP:
-      return DoSave(hwndDlg);
-    case IDC_ABORTTIP:
-      return DoAbort(hwndDlg);
-    }
+  {
+  case IDC_EDITTIP:
+    return DoEdit(hwndDlg);
+  case IDC_DELTIP:
+    return DoDelete(hwndDlg);
+  case IDC_ADDTIP:
+    return DoAdd(hwndDlg);
+  case IDC_SAVETIP:
+    return DoSave(hwndDlg);
+  case IDC_ABORTTIP:
+    return DoAbort(hwndDlg);
+  }
 
   return FALSE;
 }
@@ -326,9 +370,13 @@ BOOL IconHidePage::DoCommand(HWND hwndDlg, WPARAM wParam, LPARAM lParam UNUSED)
 bool IconHidePage::UpdateSettings(HWND hwndDlg)
 {
   if (SendDlgItemMessage(hwndDlg, IDC_UNHIDE, BM_GETCHECK, 0, 0) == BST_CHECKED)
+  {
     pSettings->SetUnhideIcons(true);
+  }
   else if (SendDlgItemMessage(hwndDlg, IDC_UNHIDE, BM_GETCHECK, 0, 0) == BST_UNCHECKED)
+  {
     pSettings->SetUnhideIcons(false);
+  }
 
   pSettings->WriteSettings();
   pSettings->WriteHideList();
@@ -362,12 +410,14 @@ bool IconHidePage::DoAbort(HWND hwndDlg)
   int i = 0;
 
   while (i < ListView_GetItemCount(listWnd))
+  {
+    if (ListView_GetItemState(listWnd, i, LVIS_SELECTED))
     {
-      if (ListView_GetItemState(listWnd, i, LVIS_SELECTED))
-        break;
-
-      i++;
+      break;
     }
+
+    i++;
+  }
   ListView_GetItemText(listWnd, i, 0, tipText, MAX_LINE_LENGTH);
   SetDlgItemText(hwndDlg, IDC_ICONTEXT, tipText);
   edit = false;
@@ -398,63 +448,65 @@ bool IconHidePage::DoSave(HWND hwndDlg)
 
   GetDlgItemText(hwndDlg, IDC_ICONTEXT, tmp, MAX_LINE_LENGTH);
   if (wcslen(tmp) > 0)
+  {
+    lvItem.iSubItem = 0;
+    lvItem.pszText = tmp;
+    lvItem.cchTextMax = (int)wcslen(tmp);
+    lvFI.psz = tmp;
+    if (ListView_FindItem(listWnd, 0, &lvFI) != -1)
     {
-      lvItem.iSubItem = 0;
-      lvItem.pszText = tmp;
-      lvItem.cchTextMax = (int)wcslen(tmp);
-      lvFI.psz = tmp;
-      if (ListView_FindItem(listWnd, 0, &lvFI) != -1)
-        {
-          swprintf(error, TEXT("%ls is already in the hidden icon list"), tmp);
-          ELMessageBox(GetDesktopWindow(), error, (WCHAR*)TEXT("emergeTray"),
-                       ELMB_OK|ELMB_ICONERROR|ELMB_MODAL);
-        }
-      else
-        {
-          int i = 0;
-          if (edit)
-            {
-              while (i < ListView_GetItemCount(listWnd))
-                {
-                  if (ListView_GetItemState(listWnd, i, LVIS_SELECTED))
-                    break;
-
-                  i++;
-                }
-              ListView_GetItemText(listWnd, i, 0, itemText, MAX_LINE_LENGTH);
-              if (ListView_DeleteItem(listWnd, i))
-                {
-                  pSettings->ModifyHideListItem(itemText, tmp);
-                  lvItem.iItem = i;
-                }
-            }
-          else
-            {
-              pSettings->AddHideListItem(tmp);
-              lvItem.iItem = ListView_GetItemCount(listWnd);
-            }
-
-          if (ListView_InsertItem(listWnd, &lvItem) != -1)
-            {
-              i = 0;
-              while (i < ListView_GetItemCount(listWnd))
-                {
-                  if (i == lvItem.iItem)
-                    {
-                      ListView_SetItemState(listWnd, i, LVIS_SELECTED, LVIS_SELECTED);
-                    }
-                  else
-                    {
-                      ListView_SetItemState(listWnd, i, 0, LVIS_SELECTED);
-                    }
-
-                  i++;
-                }
-              saveCount++;
-              ret = true;
-            }
-        }
+      swprintf(error, TEXT("%ls is already in the hidden icon list"), tmp);
+      ELMessageBox(GetDesktopWindow(), error, TEXT("emergeTray"),
+                   ELMB_OK | ELMB_ICONERROR | ELMB_MODAL);
     }
+    else
+    {
+      int i = 0;
+      if (edit)
+      {
+        while (i < ListView_GetItemCount(listWnd))
+        {
+          if (ListView_GetItemState(listWnd, i, LVIS_SELECTED))
+          {
+            break;
+          }
+
+          i++;
+        }
+        ListView_GetItemText(listWnd, i, 0, itemText, MAX_LINE_LENGTH);
+        if (ListView_DeleteItem(listWnd, i))
+        {
+          pSettings->ModifyHideListItem(itemText, tmp);
+          lvItem.iItem = i;
+        }
+      }
+      else
+      {
+        pSettings->AddHideListItem(tmp);
+        lvItem.iItem = ListView_GetItemCount(listWnd);
+      }
+
+      if (ListView_InsertItem(listWnd, &lvItem) != -1)
+      {
+        i = 0;
+        while (i < ListView_GetItemCount(listWnd))
+        {
+          if (i == lvItem.iItem)
+          {
+            ListView_SetItemState(listWnd, i, LVIS_SELECTED, LVIS_SELECTED);
+          }
+          else
+          {
+            ListView_SetItemState(listWnd, i, 0, LVIS_SELECTED);
+          }
+
+          i++;
+        }
+        saveCount++;
+        ret = true;
+      }
+    }
+  }
 
   edit = false;
   EnableWindow(saveWnd, false);
@@ -462,7 +514,7 @@ bool IconHidePage::DoSave(HWND hwndDlg)
   EnableWindow(appWnd, false);
   EnableWindow(listWnd, true);
   lvSortInfo.listWnd = listWnd;
-  ret = ListView_SortItemsEx(listWnd, ListViewCompareProc, (LPARAM)&lvSortInfo);
+  ret = (ListView_SortItemsEx(listWnd, ListViewCompareProc, (LPARAM)&lvSortInfo) == TRUE); //explicitly convert from BOOL to bool, since an implicit conversion triggers a compiler warning in Visual Studio
 
   return ret;
 }
@@ -478,47 +530,49 @@ bool IconHidePage::DoDelete(HWND hwndDlg)
   WCHAR itemText[MAX_LINE_LENGTH];
 
   if (ListView_GetSelectedCount(listWnd) > 1)
-    {
-      ELMessageBox(hwndDlg, (WCHAR*)TEXT("You can only delete one item at a time."),
-                   (WCHAR*)TEXT("emergeTray"), ELMB_OK|ELMB_ICONERROR|ELMB_MODAL);
+  {
+    ELMessageBox(hwndDlg, TEXT("You can only delete one item at a time."),
+                 TEXT("emergeTray"), ELMB_OK | ELMB_ICONERROR | ELMB_MODAL);
 
-      return ret;
-    }
+    return ret;
+  }
 
   while (i < pSettings->GetHideListSize())
+  {
+    if (ListView_GetItemState(listWnd, i, LVIS_SELECTED))
     {
-      if (ListView_GetItemState(listWnd, i, LVIS_SELECTED))
+      deleteCount++;
+      ret = true;
+      prevItem = ListView_GetNextItem(listWnd, i, LVNI_ABOVE);
+      ListView_GetItemText(listWnd, i, 0, itemText, MAX_LINE_LENGTH);
+      (void)ListView_DeleteItem(listWnd, i);
+      pSettings->DeleteHideListItem(itemText);
+
+      ListView_SetItemState(listWnd, i, LVIS_SELECTED,
+                            LVIS_SELECTED);
+      if (!ListView_EnsureVisible(listWnd, i, FALSE))
+      {
+        if (prevItem != -1)
         {
-          deleteCount++;
-          ret = true;
-          prevItem = ListView_GetNextItem(listWnd, i, LVNI_ABOVE);
-          ListView_GetItemText(listWnd, i, 0, itemText, MAX_LINE_LENGTH);
-          (void)ListView_DeleteItem(listWnd, i);
-          pSettings->DeleteHideListItem(itemText);
-
-          ListView_SetItemState(listWnd, i, LVIS_SELECTED,
+          ListView_SetItemState(listWnd, prevItem, LVIS_SELECTED,
                                 LVIS_SELECTED);
-          if (!ListView_EnsureVisible(listWnd, i, FALSE))
-            {
-              if (prevItem != -1)
-                {
-                  ListView_SetItemState(listWnd, prevItem, LVIS_SELECTED,
-                                        LVIS_SELECTED);
-                  (void)ListView_EnsureVisible(listWnd, prevItem, FALSE);
-                }
-            }
-
-          break;
+          (void)ListView_EnsureVisible(listWnd, prevItem, FALSE);
         }
-      else
-        i++;
+      }
+
+      break;
     }
+    else
+    {
+      i++;
+    }
+  }
 
   if (ListView_GetItemCount(listWnd) == 0)
-    {
-      EnableWindow(editWnd, false);
-      EnableWindow(delWnd, false);
-    }
+  {
+    EnableWindow(editWnd, false);
+    EnableWindow(delWnd, false);
+  }
 
   return ret;
 }
@@ -546,18 +600,24 @@ bool IconHidePage::CheckFields(HWND hwndDlg)
   HWND textWnd = GetDlgItem(hwndDlg, IDC_ICONTEXT);
 
   if (!IsWindowEnabled(textWnd))
+  {
     return true;
+  }
 
   if (GetWindowText(textWnd, tmp, MAX_LINE_LENGTH) != 0)
+  {
+    if (ELMessageBox(hwndDlg,
+                     TEXT("The current icon will be lost.\n\nDo you wish to continue?"),
+                     TEXT("emergeTray"),
+                     ELMB_YESNO | ELMB_ICONQUESTION | ELMB_MODAL) == IDYES)
     {
-      if (ELMessageBox(hwndDlg,
-                       (WCHAR*)TEXT("The current icon will be lost.\n\nDo you wish to continue?"),
-                       (WCHAR*)TEXT("emergeTray"),
-                       ELMB_YESNO|ELMB_ICONQUESTION|ELMB_MODAL) == IDYES)
-        return true;
-      else
-        return false;
+      return true;
     }
+    else
+    {
+      return false;
+    }
+  }
 
   return true;
 }

@@ -1,7 +1,7 @@
 //---
 //
 //  This file is part of Emerge Desktop.
-//  Copyright (C) 2004-2012  The Emerge Desktop Development Team
+//  Copyright (C) 2004-2013  The Emerge Desktop Development Team
 //
 //  Emerge Desktop is free software; you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -22,7 +22,7 @@
 #include <stdio.h>
 
 Settings::Settings()
-:BaseSettings(true)
+  : BaseSettings(true)
 {
   hiliteActive = true;
   flashCount = 0;
@@ -37,14 +37,14 @@ Settings::Settings()
 void Settings::DoReadSettings(IOHelper& helper)
 {
   BaseSettings::DoReadSettings(helper);
-  helper.ReadBool(TEXT("HighLightActive"), hiliteActive, true);
-  helper.ReadBool(TEXT("SameMonitorOnly"), sameMonitorOnly, false); //ROBLARKY - 2012-08-11: Added for option to only show tasks on same monitor
-  helper.ReadInt(TEXT("FlashCount"), flashCount, 0);
-  helper.ReadBool(TEXT("EnableFlash"), enableFlash, true);
-  helper.ReadInt(TEXT("FlashInterval"), flashInterval, 1000);
-  helper.ReadBool(TEXT("EnableThumbnails"), enableThumbnails, true);
-  helper.ReadInt(TEXT("ThumbnailAlpha"), thumbnailAlpha, 100);
-  helper.ReadInt(TEXT("ThumbnailScale"), thumbnailScale, 20);
+  hiliteActive = helper.ReadBool(TEXT("HighLightActive"), true);
+  sameMonitorOnly = helper.ReadBool(TEXT("SameMonitorOnly"), false); //ROBLARKY - 2012-08-11: Added for option to only show tasks on same monitor
+  flashCount = helper.ReadInt(TEXT("FlashCount"), 0);
+  enableFlash = helper.ReadBool(TEXT("EnableFlash"), true);
+  flashInterval = helper.ReadInt(TEXT("FlashInterval"), 1000);
+  enableThumbnails = helper.ReadBool(TEXT("EnableThumbnails"), true);
+  thumbnailAlpha = helper.ReadInt(TEXT("ThumbnailAlpha"), 100);
+  thumbnailScale = helper.ReadInt(TEXT("ThumbnailScale"), 20);
 }
 
 void Settings::DoWriteSettings(IOHelper& helper)
@@ -71,10 +71,10 @@ void Settings::ResetDefaults()
   y = -40;
   width = 271;
   height = 32;
-  wcscpy(zPosition, TEXT("Top"));
-  wcscpy(horizontalDirection, TEXT("right"));
-  wcscpy(verticalDirection, TEXT("up"));
-  wcscpy(directionOrientation, TEXT("horizontal"));
+  zPosition = TEXT("Top");
+  horizontalDirection = TEXT("right");
+  verticalDirection = TEXT("up");
+  directionOrientation = TEXT("horizontal");
   autoSize = false;
   iconSize = 32;
   iconSpacing = 7;
@@ -83,7 +83,7 @@ void Settings::ResetDefaults()
   dynamicPositioning = true;
   clickThrough = 0;
   appletMonitor = 0;
-  wcscpy(anchorPoint, TEXT("BottomLeft"));
+  anchorPoint = TEXT("BottomLeft");
   sameMonitorOnly = false; //ROBLARKY - 2012-08-11: Added for option to only show tasks on same monitor
   enableThumbnails = true;
   thumbnailAlpha = 100;
@@ -98,10 +98,10 @@ bool Settings::GetHiliteActive()
 bool Settings::SetHiliteActive(bool hiliteActive)
 {
   if (this->hiliteActive != hiliteActive)
-    {
-      this->hiliteActive = hiliteActive;
-      SetModified();
-    }
+  {
+    this->hiliteActive = hiliteActive;
+    SetModified();
+  }
   return true;
 }
 
@@ -114,10 +114,10 @@ bool Settings::GetSameMonitorOnly()
 bool Settings::SetSameMonitorOnly(bool sameMonitorOnly)
 {
   if (this->sameMonitorOnly != sameMonitorOnly)
-    {
-      this->sameMonitorOnly = sameMonitorOnly;
-      SetModified();
-    }
+  {
+    this->sameMonitorOnly = sameMonitorOnly;
+    SetModified();
+  }
   return true;
 }
 
@@ -139,30 +139,30 @@ bool Settings::GetEnableFlash()
 bool Settings::SetFlashCount(int flashCount)
 {
   if (this->flashCount != flashCount)
-    {
-      this->flashCount = flashCount;
-      SetModified();
-    }
+  {
+    this->flashCount = flashCount;
+    SetModified();
+  }
   return true;
 }
 
 bool Settings::SetFlashInterval(int flashInterval)
 {
   if (this->flashInterval != flashInterval)
-    {
-      this->flashInterval = flashInterval;
-      SetModified();
-    }
+  {
+    this->flashInterval = flashInterval;
+    SetModified();
+  }
   return true;
 }
 
 bool Settings::SetEnableFlash(bool enableFlash)
 {
   if (this->enableFlash != enableFlash)
-    {
-      this->enableFlash = enableFlash;
-      SetModified();
-    }
+  {
+    this->enableFlash = enableFlash;
+    SetModified();
+  }
   return true;
 }
 
@@ -174,10 +174,10 @@ bool Settings::GetEnableThumbnails()
 bool Settings::SetEnableThumbnails(bool enableThumbnails)
 {
   if (this->enableThumbnails != enableThumbnails)
-    {
-      this->enableThumbnails = enableThumbnails;
-      SetModified();
-    }
+  {
+    this->enableThumbnails = enableThumbnails;
+    SetModified();
+  }
   return true;
 }
 
@@ -189,10 +189,10 @@ int Settings::GetThumbnailAlpha()
 bool Settings::SetThumbnailAlpha(int thumbnailAlpha)
 {
   if (this->thumbnailAlpha != thumbnailAlpha)
-    {
-      this->thumbnailAlpha = thumbnailAlpha;
-      SetModified();
-    }
+  {
+    this->thumbnailAlpha = thumbnailAlpha;
+    SetModified();
+  }
   return true;
 }
 
@@ -204,9 +204,9 @@ int Settings::GetThumbnailScale()
 bool Settings::SetThumbnailScale(int thumbnailScale)
 {
   if (this->thumbnailScale != thumbnailScale)
-    {
-      this->thumbnailScale = thumbnailScale;
-      SetModified();
-    }
+  {
+    this->thumbnailScale = thumbnailScale;
+    SetModified();
+  }
   return true;
 }

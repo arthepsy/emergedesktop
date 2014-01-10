@@ -1,31 +1,37 @@
-//---
-//
-//  This file is part of Emerge Desktop.
-//  Copyright (C) 2004-2012  The Emerge Desktop Development Team
-//
-//  Emerge Desktop is free software; you can redistribute it and/or modify
-//  it under the terms of the GNU General Public License as published by
-//  the Free Software Foundation; either version 3 of the License, or
-//  (at your option) any later version.
-//
-//  Emerge Desktop is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//  GNU General Public License for more details.
-//
-//  You should have received a copy of the GNU General Public License
-//  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-//
-//---
+/*!
+  @file Settings.h
+  @brief header for emergeTray
+  @author The Emerge Desktop Development Team
 
-#ifndef __ETR_SETTINGS_H
-#define __ETR_SETTINGS_H
+  @attention This file is part of Emerge Desktop.
+  @attention Copyright (C) 2004-2013  The Emerge Desktop Development Team
 
-#include "../emergeLib/emergeLib.h"
-#include "../emergeBaseClasses/BaseSettings.h"
+  @attention Emerge Desktop is free software; you can redistribute it and/or
+  modify  it under the terms of the GNU General Public License as published
+  by the Free Software Foundation; either version 3 of the License, or
+  (at your option) any later version.
+
+  @attention Emerge Desktop is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  @attention You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  */
+
+#ifndef __GUARD_d1fed683_9609_4406_ae88_15e14a42bf14
+#define __GUARD_d1fed683_9609_4406_ae88_15e14a42bf14
+
+#define UNICODE 1
+
+#ifdef _MSC_VER
+#define _CRT_SECURE_NO_WARNINGS 1 //suppress warnings about old versions of wcscpy, wcscat, etc.
+#endif
 
 #include <string>
 #include <vector>
+#include "../emergeBaseClasses/BaseSettings.h"
 
 class Settings : public BaseSettings
 {
@@ -34,17 +40,17 @@ public:
   bool GetUnhideIcons();
   bool SetUnhideIcons(bool unhideIcons);
   UINT GetHideListSize();
-  WCHAR *GetHideListItem(UINT item);
-  void DeleteHideListItem(WCHAR *itemText);
-  void ModifyHideListItem(WCHAR *oldText, WCHAR *newText);
-  bool CheckHide(WCHAR *iconTip);
-  void AddHideListItem(WCHAR *item);
+  WCHAR* GetHideListItem(UINT item);
+  void DeleteHideListItem(WCHAR* itemText);
+  void ModifyHideListItem(WCHAR* oldText, WCHAR* newText);
+  bool CheckHide(WCHAR* iconTip);
+  void AddHideListItem(WCHAR* item);
   void WriteHideList();
   void BuildHideList();
-  LOGFONT *GetInfoFont();
-  LOGFONT *GetInfoTitleFont();
-  bool SetInfoFont(LOGFONT *infoLogFont);
-  bool SetInfoTitleFont(LOGFONT *infoTitleLogFont);
+  LOGFONT* GetInfoFont();
+  LOGFONT* GetInfoTitleFont();
+  bool SetInfoFont(LOGFONT* infoLogFont);
+  bool SetInfoTitleFont(LOGFONT* infoTitleLogFont);
   COLORREF GetTextColor();
   bool SetTextColor(COLORREF textColor);
   COLORREF GetBorderColor();
@@ -55,8 +61,8 @@ public:
   COLORREF GetGradientTo();
   int GetAlpha();
   bool SetAlpha(int alpha);
-  WCHAR *GetGradientMethod();
-  bool SetGradientMethod(WCHAR *gradientMethod);
+  std::wstring GetGradientMethod();
+  bool SetGradientMethod(std::wstring gradientMethod);
 
 protected:
   virtual void DoReadSettings(IOHelper& helper);
@@ -70,7 +76,7 @@ private:
   std::wstring xmlFile;
   bool unhideIcons;
   LOGFONT infoLogFont, infoTitleLogFont;
-  WCHAR infoFontString[MAX_LINE_LENGTH], infoTitleFontString[MAX_LINE_LENGTH], gradientMethod[MAX_LINE_LENGTH];
+  std::wstring infoFontString, infoTitleFontString, gradientMethod;
   COLORREF borderColour, textColour, gradientTo, gradientFrom;
   int alpha;
 };

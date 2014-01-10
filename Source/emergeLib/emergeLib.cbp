@@ -7,37 +7,41 @@
 		<Option compiler="gcc" />
 		<Build>
 			<Target title="Debug">
-				<Option output="..\bin\emergeLib" prefix_auto="1" extension_auto="1" />
-				<Option object_output="obj\Debug\" />
+				<Option output="../bin/emergeLib" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Debug/" />
 				<Option type="3" />
 				<Option compiler="gcc" />
 				<Option createDefFile="1" />
 				<Option createStaticLib="1" />
 				<Compiler>
 					<Add option="-g" />
+					<Add option="-m32" />
 				</Compiler>
 				<Linker>
+					<Add option="-m32" />
 					<Add library="user32" />
 				</Linker>
 			</Target>
 			<Target title="Release">
-				<Option output="..\bin\emergeLib" prefix_auto="1" extension_auto="1" />
-				<Option object_output="obj\Release\" />
+				<Option output="../bin/emergeLib" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Release/" />
 				<Option type="3" />
 				<Option compiler="gcc" />
 				<Option createDefFile="1" />
 				<Option createStaticLib="1" />
 				<Compiler>
 					<Add option="-O2" />
+					<Add option="-m32" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
+					<Add option="-m32" />
 					<Add library="user32" />
 				</Linker>
 			</Target>
 			<Target title="Debug64">
-				<Option output="..\bin64\emergeLib" prefix_auto="1" extension_auto="1" />
-				<Option object_output="obj64\Debug\" />
+				<Option output="../bin64/emergeLib" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj64/Debug/" />
 				<Option type="3" />
 				<Option compiler="gnu_gcc_compiler_for_mingw64" />
 				<Option createDefFile="1" />
@@ -50,8 +54,8 @@
 				</Linker>
 			</Target>
 			<Target title="Release64">
-				<Option output="..\bin64\emergeLib" prefix_auto="1" extension_auto="1" />
-				<Option object_output="obj64\Release\" />
+				<Option output="../bin64/emergeLib" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj64/Release/" />
 				<Option type="3" />
 				<Option compiler="gnu_gcc_compiler_for_mingw64" />
 				<Option createDefFile="1" />
@@ -67,6 +71,7 @@
 		</Build>
 		<Compiler>
 			<Add option="-pedantic" />
+			<Add option="-std=c++11" />
 			<Add option="-Wfatal-errors" />
 			<Add option="-Wextra" />
 			<Add option="-Wall" />
@@ -90,31 +95,78 @@
 		<ExtraCommands>
 			<Add before='[[ IO.Execute(_T(&quot;cmd /c \&quot;cd.. &amp; hgversion.bat\&quot;&quot;)) ]]' />
 		</ExtraCommands>
-		<Unit filename="..\tinyxml\tinystr.cpp" />
-		<Unit filename="..\tinyxml\tinystr.h" />
-		<Unit filename="..\tinyxml\tinyxml.cpp" />
-		<Unit filename="..\tinyxml\tinyxml.h" />
-		<Unit filename="..\tinyxml\tinyxmlerror.cpp" />
-		<Unit filename="..\tinyxml\tinyxmlparser.cpp" />
-		<Unit filename="..\version.h" />
-		<Unit filename="MsgBox.cpp" />
-		<Unit filename="MsgBox.h" />
-		<Unit filename="Shutdown.cpp" />
-		<Unit filename="Shutdown.h" />
-		<Unit filename="emergeLib.h" />
+		<Unit filename="../cppcomponents/cppcomponents/cppcomponents.hpp" />
+		<Unit filename="../cppcomponents/cppcomponents/implementation/spinlock.hpp" />
+		<Unit filename="../cppcomponents/cross_compiler_interface/cross_compiler_interface.hpp" />
+		<Unit filename="../cppcomponents/cross_compiler_interface/cross_compiler_introspection.hpp" />
+		<Unit filename="../cppcomponents/cross_compiler_interface/implementation/any.hpp" />
+		<Unit filename="../cppcomponents/cross_compiler_interface/implementation/cross_compiler_error_handling.hpp" />
+		<Unit filename="../cppcomponents/cross_compiler_interface/implementation/safe_static_initialization.hpp" />
+		<Unit filename="../cppcomponents/cross_compiler_interface/interface_unknown.hpp" />
+		<Unit filename="../cppcomponents/cross_compiler_interface/platform/Windows/platform_specific.hpp" />
+		<Unit filename="../cppcomponents/cross_compiler_interface/uuid.hpp" />
+		<Unit filename="../tinyxml/tinystr.cpp" />
+		<Unit filename="../tinyxml/tinystr.h" />
+		<Unit filename="../tinyxml/tinyxml.cpp" />
+		<Unit filename="../tinyxml/tinyxml.h" />
+		<Unit filename="../tinyxml/tinyxmlerror.cpp" />
+		<Unit filename="../tinyxml/tinyxmlparser.cpp" />
+		<Unit filename="../version.h" />
+		<Unit filename="emergeCoreLib.h" />
+		<Unit filename="emergeCoreLib/Environment.cpp" />
+		<Unit filename="emergeCoreLib/Environment.h" />
+		<Unit filename="emergeCoreLib/MiscOps.cpp" />
+		<Unit filename="emergeCoreLib/MiscOps.h" />
+		<Unit filename="emergeFileRegistryLib.h" />
+		<Unit filename="emergeFileRegistryLib/EmergeInternalCommandInterface.h" />
+		<Unit filename="emergeFileRegistryLib/FileRegistryIO.cpp" />
+		<Unit filename="emergeFileRegistryLib/FileRegistryIO.h" />
+		<Unit filename="emergeFileRegistryLib/FileSystemOps.cpp" />
+		<Unit filename="emergeFileRegistryLib/FileSystemOps.h" />
+		<Unit filename="emergeFileRegistryLib/InternalCommandEngine.cpp" />
+		<Unit filename="emergeFileRegistryLib/InternalCommandEngine.h" />
 		<Unit filename="emergeLib.rc">
 			<Option compilerVar="WINDRES" />
 		</Unit>
+		<Unit filename="emergeLibGlobals.cpp" />
+		<Unit filename="emergeLibGlobals.h" />
+		<Unit filename="emergeOSLib.h" />
+		<Unit filename="emergeOSLib/OSFunctions.cpp" />
+		<Unit filename="emergeOSLib/OSFunctions.h" />
+		<Unit filename="emergeOSLib/Shutdown.cpp" />
+		<Unit filename="emergeOSLib/Shutdown.h" />
+		<Unit filename="emergeOSLib/SystemProcessInfo.cpp" />
+		<Unit filename="emergeOSLib/SystemProcessInfo.h" />
+		<Unit filename="emergeUtilityLib.h" />
+		<Unit filename="emergeUtilityLib/MsgBox.cpp" />
+		<Unit filename="emergeUtilityLib/MsgBox.h" />
+		<Unit filename="emergeUtilityLib/StringOps.cpp" />
+		<Unit filename="emergeUtilityLib/StringOps.h" />
+		<Unit filename="emergeUtilityLib/Utility.cpp" />
+		<Unit filename="emergeUtilityLib/Utility.h" />
+		<Unit filename="emergeUtilityLib/unzip.cpp" />
+		<Unit filename="emergeUtilityLib/unzip.h" />
+		<Unit filename="emergeUtilityLib/zip.cpp" />
+		<Unit filename="emergeUtilityLib/zip.h" />
+		<Unit filename="emergeWindowLib.h" />
+		<Unit filename="emergeWindowLib/WindowOps.cpp" />
+		<Unit filename="emergeWindowLib/WindowOps.h" />
 		<Unit filename="main.cpp" />
+		<Unit filename="main.h" />
 		<Unit filename="resource.h" />
-		<Unit filename="unzip.cpp" />
-		<Unit filename="unzip.h" />
-		<Unit filename="zip.cpp" />
-		<Unit filename="zip.h" />
 		<Extensions>
 			<code_completion />
 			<envvars />
 			<debugger />
+			<DoxyBlocks>
+				<comment_style block="0" line="0" />
+				<doxyfile_project />
+				<doxyfile_build />
+				<doxyfile_warnings />
+				<doxyfile_output />
+				<doxyfile_dot />
+				<general />
+			</DoxyBlocks>
 		</Extensions>
 	</Project>
 </CodeBlocks_project_file>

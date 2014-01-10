@@ -42,7 +42,7 @@ CustomDropTarget::CustomDropTarget(MENUITEMDATA dropItemData, UINT_PTR dropID, H
 
   CF_EMERGE_MENUITEM = RegisterClipboardFormat(TEXT("CF_EMERGE_MENUITEM"));
   if (CF_EMERGE_MENUITEM == 0)
-    ELMessageBox(GetDesktopWindow(), (WCHAR*)TEXT("Failed to register Emerge Desktop Menu Item clipboard format."), (WCHAR*)TEXT("emergeWorkspace"),
+    ELMessageBox(GetDesktopWindow(), TEXT("Failed to register Emerge Desktop Menu Item clipboard format."), TEXT("emergeWorkspace"),
                  ELMB_OK|ELMB_ICONERROR|ELMB_MODAL);
 }
 
@@ -114,7 +114,7 @@ bool CustomDropTarget::DataDrop(IDataObject *pDataObj, POINTL pt, DWORD dropEffe
 {
   FORMATETC fmtetc;
   STGMEDIUM stgmed;
-  bool ret = false;
+  BOOL ret = FALSE;
 
   ZeroMemory(&fmtetc, sizeof(FORMATETC));
   fmtetc.cfFormat = CF_EMERGE_MENUITEM;
@@ -152,7 +152,7 @@ bool CustomDropTarget::DataDrop(IDataObject *pDataObj, POINTL pt, DWORD dropEffe
         }
     }
 
-  return ret;
+  return (ret == TRUE);
 }
 
 bool CustomDropTarget::MenuItemDrop(MENUITEMDATA *menuItemData, POINT menuItemPt)
@@ -197,14 +197,16 @@ bool CustomDropTarget::FileDrop(HDROP hdrop, DWORD dropEffect)
       if (dropEffect & DROPEFFECT_MOVE)
         fileOp = FO_MOVE;
 
-      if (!ELPathIsDirectory(dropItemData.value))
+      if (!ELIsDirectory(dropItemData.value))
         {
           size_t backslash = workingValue.rfind('\\');
           if (backslash != std::wstring::npos)
             workingValue = workingValue.substr(0, backslash);
 
-          if (!ELPathIsDirectory(workingValue.c_str()))
+          if (!ELIsDirectory(workingValue))
+          {
             return false;
+          }
         }
 
       for (UINT i = 0; i < count; i++)

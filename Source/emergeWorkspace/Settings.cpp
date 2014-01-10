@@ -29,14 +29,14 @@ Settings::Settings()
 
 void Settings::DoReadSettings(IOHelper& helper)
 {
-  helper.ReadInt(TEXT("TopBorder"), topBorder, 0);
-  helper.ReadInt(TEXT("BottomBorder"), bottomBorder, 0);
-  helper.ReadInt(TEXT("LeftBorder"), leftBorder, 0);
-  helper.ReadInt(TEXT("RightBorder"), rightBorder, 0);
-  helper.ReadInt(TEXT("MenuAlpha"), menuAlpha, 100);
-  helper.ReadBool(TEXT("MenuIcons"), menuIcons, true);
-  helper.ReadBool(TEXT("BorderPrimary"), borderPrimary, true);
-  helper.ReadBool(TEXT("AeroMenus"), aeroMenus, false);
+  topBorder = helper.ReadInt(TEXT("TopBorder"), 0);
+  bottomBorder = helper.ReadInt(TEXT("BottomBorder"), 0);
+  leftBorder = helper.ReadInt(TEXT("LeftBorder"), 0);
+  rightBorder = helper.ReadInt(TEXT("RightBorder"), 0);
+  menuAlpha = helper.ReadInt(TEXT("MenuAlpha"), 100);
+  menuIcons = helper.ReadBool(TEXT("MenuIcons"), true);
+  borderPrimary = helper.ReadBool(TEXT("BorderPrimary"), true);
+  aeroMenus = helper.ReadBool(TEXT("AeroMenus"), false);
 }
 
 void Settings::DoInitialize()

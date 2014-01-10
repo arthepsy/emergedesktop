@@ -1,24 +1,34 @@
-//----  --------------------------------------------------------------------------------------------------------
-//
-//  This file is part of Emerge Desktop.
-//  Copyright (C) 2004-2012  The Emerge Desktop Development Team
-//
-//  Emerge Desktop is free software; you can redistribute it and/or modify
-//  it under the terms of the GNU General Public License as published by
-//  the Free Software Foundation; either version 3 of the License, or
-//  (at your option) any later version.
-//
-//  Emerge Desktop is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//  GNU General Public License for more details.
-//
-//  You should have received a copy of the GNU General Public License
-//  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-//
-//----  --------------------------------------------------------------------------------------------------------
+/*!
+  @file MenuBuilder.h
+  @brief header for emergeWorkspace
+  @author The Emerge Desktop Development Team
 
-#pragma once
+  @attention This file is part of Emerge Desktop.
+  @attention Copyright (C) 2004-2013  The Emerge Desktop Development Team
+
+  @attention Emerge Desktop is free software; you can redistribute it and/or
+  modify  it under the terms of the GNU General Public License as published
+  by the Free Software Foundation; either version 3 of the License, or
+  (at your option) any later version.
+
+  @attention Emerge Desktop is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  @attention You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  */
+
+#ifndef __GUARD_620C9D0B_74A0_48E8_B6E2_4386C0DA40A0
+#define __GUARD_620C9D0B_74A0_48E8_B6E2_4386C0DA40A0
+
+#define UNICODE 1
+
+#ifdef _MSC_VER
+#define _CRT_SECURE_NO_WARNINGS 1 //suppress warnings about old versions of wcscpy, wcscat, etc.
+#define _CRT_NON_CONFORMING_SWPRINTFS 1 //suppress warnings about old swprintf format
+#endif
 
 // Define required for the Window Transparency
 #undef _WIN32_WINNT
@@ -28,15 +38,16 @@
 #undef WINVER
 #define WINVER 0x0501
 
-#include <map>
 #include <process.h>
 #include <time.h>
-#include "ItemEditor.h"
-#include "MenuListItem.h"
-#include "MenuItem.h"
-#include "Config.h"
-#include "../emergeGraphics/emergeGraphics.h"
+#include <map>
 #include "../emergeAppletEngine/emergeAppletEngine.h"
+#include "../emergeGraphics/emergeGraphics.h"
+#include "../emergeLib/emergeFileRegistryLib.h"
+#include "Config.h"
+#include "ItemEditor.h"
+#include "MenuItem.h"
+#include "MenuListItem.h"
 
 // Define Menu Types
 #define MENU_RIGHT           0x01
@@ -118,7 +129,7 @@ private:
   void BuildDefaultMenu(MenuMap::iterator iter);
   void BuildSettingsMenu(MenuMap::iterator iter);
   void BuildHelpMenu(MenuMap::iterator iter);
-  bool NoPrefixString(WCHAR *source);
+  std::wstring NoPrefixString(std::wstring source);
   MenuMap menuMap;
   HHOOK menuHook;
   RECT explorerWorkArea;
@@ -140,7 +151,6 @@ private:
   bool AddMenuItem(std::tr1::shared_ptr<MenuItem> menuItem);
   bool EditMenuItem(std::tr1::shared_ptr<MenuItem> menuItem);
   void ElevatedExecute(std::tr1::shared_ptr<MenuItem> menuItem);
-  float winVersion;
   HMENU activeMenu;
   HANDLE DragItemDataToHandle(DRAGITEMDATA *menuItemData);
   HDROP FileToHandle(WCHAR *file);
@@ -171,3 +181,5 @@ public:
   void SetActiveMenu(HMENU menu);
   bool DropMenuItem(MENUITEMDATA *menuItemData, MENUITEMDATA *dropItemData, HMENU menu, POINT pt);
 };
+
+#endif

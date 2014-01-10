@@ -2,7 +2,7 @@
 //----  --------------------------------------------------------------------------------------------------------
 //
 //  This file is part of Emerge Desktop.
-//  Copyright (C) 2004-2012  The Emerge Desktop Development Team
+//  Copyright (C) 2004-2013  The Emerge Desktop Development Team
 //
 //  Emerge Desktop is free software; you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -42,34 +42,35 @@ BaseSettings::BaseSettings(bool allowAutoSize)
   iconSpacing = 0;
   clickThrough = false;
   appletMonitor = 0;
-  ZeroMemory(horizontalDirection, MAX_LINE_LENGTH);
-  ZeroMemory(verticalDirection, MAX_LINE_LENGTH);
-  ZeroMemory(directionOrientation, MAX_LINE_LENGTH);
+  horizontalDirection = TEXT("");
+  verticalDirection = TEXT("");
+  directionOrientation = TEXT("");
   autoSize = false;
   snapMove = false;
   snapSize = false;
   dynamicPositioning = false;
-  ZeroMemory(anchorPoint, MAX_LINE_LENGTH);
-  ZeroMemory(zPosition, MAX_LINE_LENGTH);
-  ZeroMemory(appletName, MAX_LINE_LENGTH);
+  anchorPoint = TEXT("");
+  zPosition = TEXT("");
+  appletName = TEXT("");
   appletCount = 0;
   startHidden = false;
-  ZeroMemory(titleBarText, MAX_LINE_LENGTH);
+  titleBarText = TEXT("");
   appletWnd = NULL;
-  ZeroMemory(keyString, MAX_LINE_LENGTH);
-  ZeroMemory(styleFile, MAX_PATH);
+  keyString = TEXT("");
+  styleFile = TEXT("");
   modifiedFlag = false;
-  ZeroMemory(titleBarFontString, MAX_LINE_LENGTH);
+  titleBarFontString = TEXT("");
   autoSizeLimit = 0;
 }
 
 BaseSettings::~BaseSettings()
 {}
 
-void BaseSettings::Init(HWND appletWnd, WCHAR *appletName, int appletCount)
+void BaseSettings::Init(HWND appletWnd, std::wstring appletName, int appletCount)
 {
-  wcscpy(this->appletName, appletName);
-  swprintf(keyString, TEXT("%ls\\Settings"), appletName);
+  this->appletName = appletName;
+  keyString = appletName;
+  keyString = keyString + TEXT("\\Settings");
   this->appletWnd = appletWnd;
   this->appletCount = appletCount;
 }
@@ -77,7 +78,7 @@ void BaseSettings::Init(HWND appletWnd, WCHAR *appletName, int appletCount)
 void BaseSettings::ReadSettings()
 {
   std::tr1::shared_ptr<TiXmlDocument> configXML;
-  TiXmlElement *section;
+  TiXmlElement* section;
   bool readSettings = false;
   std::wstring xmlFile = TEXT("%ThemeDir%\\");
   xmlFile += appletName;
@@ -88,28 +89,32 @@ void BaseSettings::ReadSettings()
   oldTheme = theme;
 
   if (theme != defaultTheme)
+  {
+    configXML = ELOpenXMLConfig(xmlFile, false);
+    if (configXML)
     {
-      configXML = ELOpenXMLConfig(xmlFile, false);
-      if (configXML)
+      section = ELGetXMLSection(configXML.get(), TEXT("Settings"), false);
+
+      if (section)
+      {
+        readSettings = true;
+
+        IOHelper helper(section);
+        DoReadSettings(helper);
+        ClearModified();
+        if (ELPathIsRelative(styleFile))
         {
-          section = ELGetXMLSection(configXML.get(), (WCHAR*)TEXT("Settings"), false);
-
-          if (section)
-            {
-              readSettings = true;
-
-              IOHelper helper(section);
-              DoReadSettings(helper);
-              ClearModified();
-              if (ELPathIsRelative(styleFile))
-                ELConvertThemePath(styleFile, CTP_FULL);
-            }
+          styleFile = ELGetAbsolutePath(styleFile, TEXT("%ThemeDir%\\"));
         }
+      }
     }
+  }
 
   // In the case where there is an issue accessing the XML file, use default values;
   if (!readSettings)
+  {
     ResetDefaults();
+  }
 
   DoInitialize();
 }
@@ -120,7 +125,9 @@ bool BaseSettings::ModifiedCheck()
 
   if (!ELIsModifiedTheme(theme))
     // Perserve the old theme name
+  {
     oldTheme = theme;
+  }
 
   return ELSetModifiedTheme(theme);
 }
@@ -133,14 +140,16 @@ bool BaseSettings::CopyTheme()
   oldThemePath += TEXT("\\*");
   newThemePath = TEXT("%ThemeDir%");
 
-  if (!ELPathIsDirectory(newThemePath.c_str()))
+  if (!ELIsDirectory(newThemePath))
+  {
+    if (ELCreateDirectory(newThemePath))
     {
-      if (ELCreateDirectory(newThemePath))
-        {
-          if (ELFileOp(appletWnd, false, FO_COPY, oldThemePath, newThemePath))
-            return CopyStyle();
-        }
+      if (ELFileOp(appletWnd, false, FO_COPY, oldThemePath, newThemePath))
+      {
+        return CopyStyle();
+      }
     }
+  }
 
   return false;
 }
@@ -148,38 +157,40 @@ bool BaseSettings::CopyTheme()
 bool BaseSettings::WriteSettings()
 {
   std::tr1::shared_ptr<TiXmlDocument> configXML;
-  TiXmlElement *section;
+  TiXmlElement* section;
   std::wstring xmlFile = TEXT("%ThemeDir%\\");
   xmlFile += appletName;
   xmlFile += TEXT(".xml");
   bool ret = false;
 
   if (GetModified())
+  {
+    if (ModifiedCheck())
     {
-      if (ModifiedCheck())
-        CopyTheme();
-
-      std::wstring theme = ELGetThemeName();
-      theme = ELToLower(theme);
-      if ((theme != defaultTheme) && (theme != GBRYTheme))
-        {
-          configXML = ELOpenXMLConfig(xmlFile, true);
-          if (configXML)
-            {
-              section = ELGetXMLSection(configXML.get(), (WCHAR*)TEXT("Settings"), true);
-
-              if (section)
-                {
-                  IOHelper helper(section);
-                  DoWriteSettings(helper);
-
-                  ret = ELWriteXMLConfig(configXML.get());
-                  oldTheme = ELGetThemeName();
-                  ClearModified();
-                }
-            }
-        }
+      CopyTheme();
     }
+
+    std::wstring theme = ELGetThemeName();
+    theme = ELToLower(theme);
+    if ((theme != defaultTheme) && (theme != GBRYTheme))
+    {
+      configXML = ELOpenXMLConfig(xmlFile, true);
+      if (configXML)
+      {
+        section = ELGetXMLSection(configXML.get(), TEXT("Settings"), true);
+
+        if (section)
+        {
+          IOHelper helper(section);
+          DoWriteSettings(helper);
+
+          ret = ELWriteXMLConfig(configXML.get());
+          oldTheme = ELGetThemeName();
+          ClearModified();
+        }
+      }
+    }
+  }
 
   return ret;
 }
@@ -188,54 +199,59 @@ void BaseSettings::DoReadSettings(IOHelper& helper)
 {
   ZeroMemory(&titleBarFont, sizeof(LOGFONT));
 
-  helper.ReadInt(TEXT("Monitor"), appletMonitor, 0);
-  helper.ReadInt(TEXT("X"), x, 0);
-  helper.ReadInt(TEXT("Y"), y, 0);
-  helper.ReadInt(TEXT("Width"), width, 100);
-  helper.ReadInt(TEXT("Height"), height, 100);
-  helper.ReadString(TEXT("ZPosition"), zPosition, TEXT("normal"));
-  helper.ReadString(TEXT("HorizontalDirection"), horizontalDirection, TEXT("right"));
-  helper.ReadString(TEXT("VerticalDirection"), verticalDirection, TEXT("down"));
-  helper.ReadString(TEXT("DirectionOrientation"), directionOrientation, (WCHAR*)TEXT("down"));
-  helper.ReadBool(TEXT("AutoSize"), autoSize, false);
-  helper.ReadInt(TEXT("AutoSizeLimit"), autoSizeLimit, 0);
-  helper.ReadInt(TEXT("IconSize"), iconSize, 16);
-  helper.ReadInt(TEXT("IconSpacing"), iconSpacing, 1);
-  helper.ReadBool(TEXT("SnapMove"), snapMove, true);
-  helper.ReadBool(TEXT("SnapSize"), snapSize, true);
-  helper.ReadBool(TEXT("DynamicPositioning"), dynamicPositioning, true);
-  helper.ReadInt(TEXT("ClickThrough"), clickThrough, 0);
-  helper.ReadString(TEXT("AnchorPoint"), anchorPoint, (WCHAR*)TEXT("TopLeft"));
-  helper.ReadBool(TEXT("StartHidden"), startHidden, false);
-  helper.ReadString(TEXT("TitleBarFont"), titleBarFontString, TEXT("Arial-16"));
-  helper.ReadString(TEXT("TitleBarText"), titleBarText, TEXT(""));
+  appletMonitor = helper.ReadInt(TEXT("Monitor"), 0);
+  x = helper.ReadInt(TEXT("X"), 0);
+  y = helper.ReadInt(TEXT("Y"), 0);
+  width = helper.ReadInt(TEXT("Width"), 100);
+  height = helper.ReadInt(TEXT("Height"), 100);
+  zPosition = helper.ReadString(TEXT("ZPosition"), TEXT("normal"));
+  horizontalDirection = helper.ReadString(TEXT("HorizontalDirection"), TEXT("right"));
+  verticalDirection = helper.ReadString(TEXT("VerticalDirection"), TEXT("down"));
+  directionOrientation = helper.ReadString(TEXT("DirectionOrientation"), TEXT("down"));
+  autoSize = helper.ReadBool(TEXT("AutoSize"), false);
+  autoSizeLimit = helper.ReadInt(TEXT("AutoSizeLimit"), 0);
+  iconSize = helper.ReadInt(TEXT("IconSize"), 16);
+  iconSpacing = helper.ReadInt(TEXT("IconSpacing"), 1);
+  snapMove = helper.ReadBool(TEXT("SnapMove"), true);
+  snapSize = helper.ReadBool(TEXT("SnapSize"), true);
+  dynamicPositioning = helper.ReadBool(TEXT("DynamicPositioning"), true);
+  clickThrough = helper.ReadInt(TEXT("ClickThrough"), 0);
+  anchorPoint = helper.ReadString(TEXT("AnchorPoint"), TEXT("TopLeft"));
+  startHidden = helper.ReadBool(TEXT("StartHidden"), false);
+  titleBarFontString = helper.ReadString(TEXT("TitleBarFont"), TEXT("Arial-16"));
+  titleBarText = helper.ReadString(TEXT("TitleBarText"), TEXT(""));
   // Check for a Style entry...
-  if (!helper.ReadString(TEXT("Style"), styleFile, TEXT("\0")))
+  styleFile = helper.ReadString(TEXT("Style"), TEXT(""));
+  if (styleFile.empty())
+  {
+    // ... if not found, look for a Scheme entry.  If found...
+    styleFile = helper.ReadString(TEXT("Scheme"), TEXT(""));
+    if (!styleFile.empty())
     {
-      // ... if not found, look for a Scheme entry.  If found...
-      if (helper.ReadString(TEXT("Scheme"), styleFile, TEXT("\0")))
+      // ... remove it ...
+      if (helper.RemoveElement(TEXT("Scheme")))
+      {
+        // .. if removed, add a Style entry.
+        if (helper.WriteString(TEXT("Style"), styleFile))
         {
-          // ... remove it ...
-          if (helper.RemoveElement(TEXT("Scheme")))
-            {
-              // .. if removed, add a Style entry.
-              if (helper.WriteString(TEXT("Style"), styleFile))
-                ELWriteXMLConfig(ELGetXMLConfig(helper.GetSection()));
-            }
+          ELWriteXMLConfig(ELGetXMLConfig(helper.GetSection()));
         }
+      }
     }
+  }
   else
+  {
+    // ... if found, check for a 'Scheme' entry...
+    if (!helper.ReadString(TEXT("Scheme"), TEXT("")).empty())
     {
-      WCHAR tmp[MAX_LINE_LENGTH];
-      // ... if found, check for a 'Scheme' entry...
-      if (helper.ReadString(TEXT("Scheme"), tmp, TEXT("\0")))
-        {
-          // ... and remove it.
-          if (helper.RemoveElement(TEXT("Scheme")))
-            ELWriteXMLConfig(ELGetXMLConfig(helper.GetSection()));
-        }
-
+      // ... and remove it.
+      if (helper.RemoveElement(TEXT("Scheme")))
+      {
+        ELWriteXMLConfig(ELGetXMLConfig(helper.GetSection()));
+      }
     }
+
+  }
 }
 
 void BaseSettings::DoWriteSettings(IOHelper& helper)
@@ -260,15 +276,17 @@ void BaseSettings::DoWriteSettings(IOHelper& helper)
   helper.WriteInt(TEXT("Monitor"), appletMonitor);
   helper.WriteString(TEXT("AnchorPoint"), anchorPoint);
   helper.WriteBool(TEXT("StartHidden"), startHidden);
-  EGFontToString(titleBarFont, titleBarFontString);
+  titleBarFontString = EGFontToString(titleBarFont);
   helper.WriteString(TEXT("TitleBarFont"), titleBarFontString);
   helper.WriteString(TEXT("TitleBarText"), titleBarText);
 }
 
 void BaseSettings::DoInitialize()
 {
-  if (wcslen(titleBarFontString))
-    EGStringToFont(titleBarFontString, titleBarFont);
+  if (!titleBarFontString.empty())
+  {
+    titleBarFont = EGStringToFont(titleBarFontString);
+  }
 }
 
 POINT BaseSettings::InstancePosition(SIZE appletSize)
@@ -294,13 +312,21 @@ POINT BaseSettings::InstancePosition(SIZE appletSize)
 
   // Make sure the applet is on the same monitor as the cursor
   if ((cursorPt.x + appletSize.cx) > cursorMonitorInfo.rcMonitor.right)
+  {
     cursorPt.x = cursorMonitorInfo.rcMonitor.right - appletSize.cx;
+  }
   if (cursorPt.x < cursorMonitorInfo.rcMonitor.left)
+  {
     cursorPt.x = cursorMonitorInfo.rcMonitor.left;
+  }
   if ((cursorPt.y + appletSize.cy) > cursorMonitorInfo.rcMonitor.bottom)
+  {
     x = cursorMonitorInfo.rcMonitor.bottom - appletSize.cy;
+  }
   if (cursorPt.y < cursorMonitorInfo.rcMonitor.top)
+  {
     cursorPt.y = cursorMonitorInfo.rcMonitor.top;
+  }
 
   return cursorPt;
 }
@@ -311,24 +337,24 @@ void BaseSettings::ResetDefaults()
   y = 0;
   width = 100;
   height = 100;
-  wcscpy(zPosition, (WCHAR*)TEXT("normal"));
-  wcscpy(horizontalDirection, (WCHAR*)TEXT("right"));
-  wcscpy(verticalDirection, (WCHAR*)TEXT("down"));
-  wcscpy(directionOrientation, (WCHAR*)TEXT("down"));
+  zPosition = TEXT("normal");
+  horizontalDirection = TEXT("right");
+  verticalDirection = TEXT("down");
+  directionOrientation = TEXT("down");
   autoSize = false;
   autoSizeLimit = 0;
   iconSize = 16;
   iconSpacing = 1;
-  wcscpy(styleFile, (WCHAR*)TEXT("\0"));
+  styleFile = TEXT("");
   snapMove = true;
   snapSize = true;
   dynamicPositioning = true;
   clickThrough = 0;
   appletMonitor = 0;
-  wcscpy(anchorPoint, (WCHAR*)TEXT("TopLeft"));
+  anchorPoint = TEXT("TopLeft");
   startHidden = false;
-  wcscpy(titleBarFontString, (WCHAR*)TEXT("Arial-16"));
-  wcscpy(titleBarText, TEXT(""));
+  titleBarFontString = TEXT("Arial-16");
+  titleBarText = TEXT("");
 }
 
 void BaseSettings::SetModified()
@@ -349,41 +375,41 @@ void BaseSettings::ClearModified()
 bool BaseSettings::SetSize(int width, int height)
 {
   if (this->width != width || this->height != height)
-    {
-      this->width = width;
-      this->height = height;
-      SetModified();
-    }
+  {
+    this->width = width;
+    this->height = height;
+    SetModified();
+  }
   return true;
 }
 
 bool BaseSettings::SetIconSize(int iconSize)
 {
   if (this->iconSize != iconSize)
-    {
-      this->iconSize = iconSize;
-      SetModified();
-    }
+  {
+    this->iconSize = iconSize;
+    SetModified();
+  }
   return true;
 }
 
 bool BaseSettings::SetAppletMonitor(int monitor)
 {
   if (this->appletMonitor != monitor)
-    {
-      this->appletMonitor = monitor;
-      SetModified();
-    }
+  {
+    this->appletMonitor = monitor;
+    SetModified();
+  }
   return true;
 }
 
 bool BaseSettings::SetIconSpacing(int iconSpacing)
 {
   if (this->iconSpacing != iconSpacing)
-    {
-      this->iconSpacing = iconSpacing;
-      SetModified();
-    }
+  {
+    this->iconSpacing = iconSpacing;
+    SetModified();
+  }
   return true;
 }
 
@@ -392,56 +418,79 @@ bool BaseSettings::SetPosition()
   int tmpx, tmpy;
   RECT appletRect;
 
-  if (!ELGetWindowRect(appletWnd, &appletRect))
+  appletRect = ELGetWindowRect(appletWnd);
+  if (IsRectEmpty(&appletRect))
+  {
     return false;
+  }
 
-  if (_wcsicmp(verticalDirection, TEXT("up")) == 0)
+  if (ELToLower(verticalDirection) == TEXT("up"))
+  {
     tmpy = appletRect.bottom;
-  else if (_wcsicmp(verticalDirection, TEXT("center")) == 0)
+  }
+  else if (ELToLower(verticalDirection) == TEXT("center"))
+  {
     tmpy = appletRect.top + ((appletRect.bottom - appletRect.top) / 2);
+  }
   else
+  {
     tmpy = appletRect.top;
+  }
 
-  if (_wcsicmp(horizontalDirection, TEXT("left")) == 0)
+  if (ELToLower(horizontalDirection) == TEXT("left"))
+  {
     tmpx = appletRect.right;
-  else if (_wcsicmp(horizontalDirection, TEXT("center")) == 0)
+  }
+  else if (ELToLower(horizontalDirection) == TEXT("center"))
+  {
     tmpx = appletRect.left + ((appletRect.right - appletRect.left) / 2);
+  }
   else
+  {
     tmpx = appletRect.left;
+  }
 
   if (dynamicPositioning)
+  {
+    RECT monitorRect = ELGetMonitorRect(ELGetAppletMonitor(appletWnd));
+    tmpx -= monitorRect.left;
+    tmpy -= monitorRect.top;
+    int width = monitorRect.right - monitorRect.left;
+    int height = monitorRect.bottom - monitorRect.top;
+
+    if (anchorPoint.find(TEXT("Center")) != std::wstring::npos)
     {
-      RECT monitorRect = ELGetMonitorRect(ELGetAppletMonitor(appletWnd));
-      tmpx -= monitorRect.left;
-      tmpy -= monitorRect.top;
-      int width = monitorRect.right - monitorRect.left;
-      int height = monitorRect.bottom - monitorRect.top;
-
-      if (wcsstr(anchorPoint, TEXT("Center")) != NULL)
-        tmpy -= (height / 2);
-      if (wcsstr(anchorPoint, TEXT("Bottom")) != NULL)
-        {
-          tmpy -= height;
-          if (tmpy == 0)
-            tmpy = -1;
-        }
-
-      if (wcsstr(anchorPoint, TEXT("Middle")) != NULL)
-        tmpx -= (width / 2);
-      if (wcsstr(anchorPoint, TEXT("Right")) != NULL)
-        {
-          tmpx -= width;
-          if (tmpx == 0)
-            tmpx = -1;
-        }
+      tmpy -= (height / 2);
     }
+    if (anchorPoint.find(TEXT("Bottom")) != std::wstring::npos)
+    {
+      tmpy -= height;
+      if (tmpy == 0)
+      {
+        tmpy = -1;
+      }
+    }
+
+    if (anchorPoint.find(TEXT("Middle")) != std::wstring::npos)
+    {
+      tmpx -= (width / 2);
+    }
+    if (anchorPoint.find(TEXT("Right")) != std::wstring::npos)
+    {
+      tmpx -= width;
+      if (tmpx == 0)
+      {
+        tmpx = -1;
+      }
+    }
+  }
 
   if ((this->x != tmpx) || (this->y != tmpy))
-    {
-      this->x = tmpx;
-      this->y = tmpy;
-      SetModified();
-    }
+  {
+    this->x = tmpx;
+    this->y = tmpy;
+    SetModified();
+  }
 
   return true;
 }
@@ -453,27 +502,39 @@ int BaseSettings::GetX()
   GetClientRect(appletWnd, &appletRect);
 
   if (dynamicPositioning)
+  {
+    RECT monitorRect = ELGetMonitorRect(appletMonitor);
+    if (anchorPoint.find(TEXT("Left")) != std::wstring::npos)
     {
-      RECT monitorRect = ELGetMonitorRect(appletMonitor);
-      if (wcsstr(anchorPoint, TEXT("Left")) != NULL)
-        xpos = monitorRect.left + x;
-      if (wcsstr(anchorPoint, TEXT("Middle")) != NULL)
-        xpos = ((monitorRect.right - monitorRect.left) / 2) + x;
-      if (wcsstr(anchorPoint, TEXT("Right")) != NULL)
-        {
-          if (x == -1)
-            xpos =  monitorRect.right;
-          else
-            xpos = monitorRect.right + x;
-        }
+      xpos = monitorRect.left + x;
     }
+    if (anchorPoint.find(TEXT("Middle")) != std::wstring::npos)
+    {
+      xpos = ((monitorRect.right - monitorRect.left) / 2) + x;
+    }
+    if (anchorPoint.find(TEXT("Right")) != std::wstring::npos)
+    {
+      if (x == -1)
+      {
+        xpos =  monitorRect.right;
+      }
+      else
+      {
+        xpos = monitorRect.right + x;
+      }
+    }
+  }
 
   // Make sure that the applet is within the virtual screen (i.e. does not
   // display off screen)
   if (xpos < GetSystemMetrics(SM_XVIRTUALSCREEN))
+  {
     xpos = GetSystemMetrics(SM_XVIRTUALSCREEN);
+  }
   if (xpos > GetSystemMetrics(SM_CXVIRTUALSCREEN))
+  {
     xpos = GetSystemMetrics(SM_CXVIRTUALSCREEN) - MAX(appletRect.right, iconSize);
+  }
 
   return xpos;
 }
@@ -498,27 +559,39 @@ int BaseSettings::GetY()
   int ypos = y;
 
   if (dynamicPositioning)
+  {
+    RECT monitorRect = ELGetMonitorRect(appletMonitor);
+    if (anchorPoint.find(TEXT("Top")) != std::wstring::npos)
     {
-      RECT monitorRect = ELGetMonitorRect(appletMonitor);
-      if (wcsstr(anchorPoint, TEXT("Top")) != NULL)
-        ypos = monitorRect.top + y;
-      if (wcsstr(anchorPoint, TEXT("Center")) != NULL)
-        ypos = ((monitorRect.bottom - monitorRect.top) / 2) + y;
-      if (wcsstr(anchorPoint, TEXT("Bottom")) != NULL)
-        {
-          if (y == -1)
-            ypos = monitorRect.bottom;
-          else
-            ypos = monitorRect.bottom + y;
-        }
+      ypos = monitorRect.top + y;
     }
+    if (anchorPoint.find(TEXT("Center")) != std::wstring::npos)
+    {
+      ypos = ((monitorRect.bottom - monitorRect.top) / 2) + y;
+    }
+    if (anchorPoint.find(TEXT("Bottom")) != std::wstring::npos)
+    {
+      if (y == -1)
+      {
+        ypos = monitorRect.bottom;
+      }
+      else
+      {
+        ypos = monitorRect.bottom + y;
+      }
+    }
+  }
 
   // Make sure that the applet is within the virtual screen (i.e. does not
   // display off screen)
   if (ypos < GetSystemMetrics(SM_YVIRTUALSCREEN))
+  {
     ypos = GetSystemMetrics(SM_YVIRTUALSCREEN);
+  }
   if (ypos > GetSystemMetrics(SM_CYVIRTUALSCREEN))
+  {
     ypos = GetSystemMetrics(SM_CYVIRTUALSCREEN) - iconSize;
+  }
 
   return ypos;
 }
@@ -533,7 +606,7 @@ int BaseSettings::GetHeight()
   return height;
 }
 
-WCHAR *BaseSettings::GetAnchorPoint()
+std::wstring BaseSettings::GetAnchorPoint()
 {
   return anchorPoint;
 }
@@ -543,22 +616,22 @@ bool BaseSettings::GetStartHidden()
   return startHidden;
 }
 
-WCHAR *BaseSettings::GetZPosition()
+std::wstring BaseSettings::GetZPosition()
 {
   return zPosition;
 }
 
-WCHAR *BaseSettings::GetHorizontalDirection()
+std::wstring BaseSettings::GetHorizontalDirection()
 {
   return horizontalDirection;
 }
 
-WCHAR *BaseSettings::GetVerticalDirection()
+std::wstring BaseSettings::GetVerticalDirection()
 {
   return verticalDirection;
 }
 
-WCHAR *BaseSettings::GetDirectionOrientation()
+std::wstring BaseSettings::GetDirectionOrientation()
 {
   return directionOrientation;
 }
@@ -571,7 +644,9 @@ int BaseSettings::GetClickThrough()
 bool BaseSettings::GetAutoSize()
 {
   if (!allowAutoSize)
+  {
     return false;
+  }
 
   return autoSize;
 }
@@ -596,265 +671,266 @@ bool BaseSettings::GetSnapSize()
   return snapSize;
 }
 
-WCHAR *BaseSettings::GetStyleFile()
+std::wstring BaseSettings::GetStyleFile()
 {
   return styleFile;
 }
 
-LOGFONT *BaseSettings::GetTitleBarFont()
+LOGFONT* BaseSettings::GetTitleBarFont()
 {
   return &titleBarFont;
 }
 
-WCHAR *BaseSettings::GetTitleBarText()
+std::wstring BaseSettings::GetTitleBarText()
 {
   return titleBarText;
 }
 
-bool BaseSettings::SetZPosition(WCHAR *zPosition)
+bool BaseSettings::SetZPosition(std::wstring zPosition)
 {
-  if (_wcsicmp(this->zPosition, zPosition) != 0)
-    {
-      wcscpy(this->zPosition, zPosition);
-      SetModified();
-    }
+  if (ELToLower(this->zPosition) != ELToLower(zPosition))
+  {
+    this->zPosition = zPosition;
+    SetModified();
+  }
   return true;
 }
 
-bool BaseSettings::SetHorizontalDirection(WCHAR *horizontalDirection)
+bool BaseSettings::SetHorizontalDirection(std::wstring horizontalDirection)
 {
-  if (_wcsicmp(this->horizontalDirection, horizontalDirection) != 0)
-    {
-      wcscpy(this->horizontalDirection, horizontalDirection);
-      SetModified();
-    }
+  if (ELToLower(this->horizontalDirection) != ELToLower(horizontalDirection))
+  {
+    this->horizontalDirection = horizontalDirection;
+    SetModified();
+  }
   return true;
 }
 
-bool BaseSettings::SetVerticalDirection(WCHAR *verticalDirection)
+bool BaseSettings::SetVerticalDirection(std::wstring verticalDirection)
 {
-  if (_wcsicmp(this->verticalDirection, verticalDirection) != 0)
-    {
-      wcscpy(this->verticalDirection, verticalDirection);
-      SetModified();
-    }
+  if (ELToLower(this->verticalDirection) != verticalDirection)
+  {
+    this->verticalDirection = verticalDirection;
+    SetModified();
+  }
   return true;
 }
 
-bool BaseSettings::SetDirectionOrientation(WCHAR *directionOrientation)
+bool BaseSettings::SetDirectionOrientation(std::wstring directionOrientation)
 {
-  if (_wcsicmp(this->directionOrientation, directionOrientation) != 0)
-    {
-      wcscpy(this->directionOrientation, directionOrientation);
-      SetModified();
-    }
+  if (ELToLower(this->directionOrientation) != directionOrientation)
+  {
+    this->directionOrientation = directionOrientation;
+    SetModified();
+  }
   return true;
 }
 
-bool BaseSettings::SetAnchorPoint(WCHAR *anchorPoint)
+bool BaseSettings::SetAnchorPoint(std::wstring anchorPoint)
 {
-  if (_wcsicmp(this->anchorPoint, anchorPoint) != 0)
-    {
-      wcscpy(this->anchorPoint, anchorPoint);
-      SetPosition();
-      SetModified();
-    }
+  if (ELToLower(this->anchorPoint) != anchorPoint)
+  {
+    this->anchorPoint = anchorPoint;
+    SetPosition();
+    SetModified();
+  }
   return true;
 }
 
 bool BaseSettings::SetStartHidden(bool startHidden)
 {
   if (this->startHidden != startHidden)
-    {
-      this->startHidden = startHidden;
-      SetModified();
-    }
+  {
+    this->startHidden = startHidden;
+    SetModified();
+  }
   return true;
 }
 
 bool BaseSettings::SetClickThrough(int clickThrough)
 {
   if (this->clickThrough != clickThrough)
-    {
-      this->clickThrough = clickThrough;
-      SetModified();
-    }
+  {
+    this->clickThrough = clickThrough;
+    SetModified();
+  }
   return true;
 }
 
 bool BaseSettings::SetAutoSize(bool autoSize)
 {
   if (this->autoSize != autoSize)
-    {
-      this->autoSize = autoSize;
-      SetModified();
-    }
+  {
+    this->autoSize = autoSize;
+    SetModified();
+  }
   return true;
 }
 
 bool BaseSettings::SetAutoSizeLimit(int autoSizeLimit)
 {
   if (this->autoSizeLimit != autoSizeLimit)
-    {
-      this->autoSizeLimit = autoSizeLimit;
-      SetModified();
-    }
+  {
+    this->autoSizeLimit = autoSizeLimit;
+    SetModified();
+  }
   return true;
 }
 
 bool BaseSettings::SetSnapMove(bool snapMove)
 {
   if (this->snapMove != snapMove)
-    {
-      this->snapMove = snapMove;
-      SetModified();
-    }
+  {
+    this->snapMove = snapMove;
+    SetModified();
+  }
   return true;
 }
 
 bool BaseSettings::SetDynamicPositioning(bool dynamicPositioning)
 {
   if (this->dynamicPositioning != dynamicPositioning)
-    {
-      this->dynamicPositioning = dynamicPositioning;
-      SetModified();
-    }
+  {
+    this->dynamicPositioning = dynamicPositioning;
+    SetModified();
+  }
   return true;
 }
 
 bool BaseSettings::SetSnapSize(bool snapSize)
 {
   if (this->snapSize != snapSize)
-    {
-      this->snapSize = snapSize;
-      SetModified();
-    }
+  {
+    this->snapSize = snapSize;
+    SetModified();
+  }
   return true;
 }
 
-bool BaseSettings::SetStyleFile(const WCHAR *styleFile)
+bool BaseSettings::SetStyleFile(std::wstring styleFile)
 {
-  if (_wcsicmp(this->styleFile, styleFile) != 0)
-    {
-      wcscpy(this->styleFile, styleFile);
-      SetModified();
-    }
+  if (ELToLower(this->styleFile) != styleFile)
+  {
+    this->styleFile = styleFile;
+    SetModified();
+  }
   return true;
 }
 
-bool BaseSettings::SetTitleBarFont(LOGFONT *titleBarFont)
+bool BaseSettings::SetTitleBarFont(LOGFONT* titleBarFont)
 {
-  WCHAR tmp[MAX_LINE_LENGTH];
-  EGFontToString(*titleBarFont, tmp);
-
   if (!EGEqualLogFont(this->titleBarFont, *titleBarFont))
-    {
-      wcscpy(titleBarFontString, tmp);
-      CopyMemory(&this->titleBarFont, titleBarFont, sizeof(LOGFONT));
-      SetModified();
-    }
+  {
+    titleBarFontString = EGFontToString(*titleBarFont);
+    CopyMemory(&this->titleBarFont, titleBarFont, sizeof(LOGFONT));
+    SetModified();
+  }
   return true;
 }
 
-void BaseSettings::SetTitleBarText(WCHAR* titleBarText)
+void BaseSettings::SetTitleBarText(std::wstring titleBarText)
 {
-  if (_wcsicmp(this->titleBarText, titleBarText) != 0)
-    {
-      wcscpy(this->titleBarText, titleBarText);
-      SetModified();
-    }
+  if (ELToLower(this->titleBarText) != titleBarText)
+  {
+    this->titleBarText = titleBarText;
+    SetModified();
+  }
 }
 
 bool BaseSettings::CopyStyle()
 {
   std::wstring workingStyle = styleFile, destStyle;
 
-  if (workingStyle.find(L"\\Styles\\") == std::wstring::npos)
-    {
-      destStyle = L"%ThemeDir%\\Styles";
-      if (!ELPathIsDirectory(destStyle.c_str()))
-        if (!ELCreateDirectory(destStyle))
-          return false;
-
-      if (ELFileOp(NULL, false, FO_COPY, workingStyle, destStyle) && !workingStyle.empty())
-        {
-          destStyle += workingStyle.substr(workingStyle.rfind(L"\\"));
-          wcscpy(styleFile, destStyle.c_str());
-        }
-      else
+  if (workingStyle.find(TEXT("\\Styles\\")) == std::wstring::npos)
+  {
+    destStyle = TEXT("%ThemeDir%\\Styles");
+    if (!ELIsDirectory(destStyle))
+      if (!ELCreateDirectory(destStyle))
+      {
         return false;
+      }
+
+    if (ELFileOp(NULL, false, FO_COPY, workingStyle, destStyle) && !workingStyle.empty())
+    {
+      destStyle += workingStyle.substr(workingStyle.rfind(TEXT("\\")));
+      styleFile = destStyle;
     }
+    else
+    {
+      return false;
+    }
+  }
 
   return true;
 }
 
-bool BaseSettings::GetSortInfo(WCHAR *editorName, PSORTINFO sortInfo)
+bool BaseSettings::GetSortInfo(std::wstring editorName, PSORTINFO sortInfo)
 {
   std::tr1::shared_ptr<TiXmlDocument> configXML;
-  TiXmlElement *section, *editor, *applet;
+  TiXmlElement* section, *editor, *applet;
   bool readSettings = false;
   std::wstring xmlFile = TEXT("%EmergeDir%\\files\\SortOrder.xml");
 
   configXML = ELOpenXMLConfig(xmlFile, false);
   if (configXML)
+  {
+    section = ELGetXMLSection(configXML.get(), TEXT("Settings"), false);
+    if (section)
     {
-      section = ELGetXMLSection(configXML.get(), (WCHAR*)TEXT("Settings"), false);
-      if (section)
+      applet = ELGetFirstXMLElementByName(section, appletName, false);
+      if (applet)
+      {
+        editor = ELGetFirstXMLElementByName(applet, editorName, false);
+        if (editor)
         {
-          applet = ELGetFirstXMLElementByName(section, appletName, false);
-          if (applet)
-            {
-              editor = ELGetFirstXMLElementByName(applet, editorName, false);
-              if (editor)
-                {
-                  readSettings = true;
+          readSettings = true;
 
-                  ELReadXMLIntValue(editor, TEXT("SubItem"), &sortInfo->subItem, 0);
-                  ELReadXMLBoolValue(editor, TEXT("Ascending"), &sortInfo->ascending, true);
-                }
-            }
+          sortInfo->subItem = ELReadXMLIntValue(editor, TEXT("SubItem"), 0);
+          sortInfo->ascending = ELReadXMLBoolValue(editor, TEXT("Ascending"), true);
         }
+      }
     }
+  }
 
   if (!readSettings)
-    {
-      sortInfo->subItem = 0;
-      sortInfo->ascending = true;
-    }
+  {
+    sortInfo->subItem = 0;
+    sortInfo->ascending = true;
+  }
 
   return readSettings;
 }
 
-bool BaseSettings::SetSortInfo(WCHAR *editorName, PSORTINFO sortInfo)
+bool BaseSettings::SetSortInfo(std::wstring editorName, PSORTINFO sortInfo)
 {
   std::tr1::shared_ptr<TiXmlDocument> configXML;
-  TiXmlElement *section, *applet, *editor;
+  TiXmlElement* section, *applet, *editor;
   std::wstring xmlFile = TEXT("%EmergeDir%\\files\\SortOrder.xml");
 
   configXML = ELOpenXMLConfig(xmlFile, true);
   if (configXML)
+  {
+    section = ELGetXMLSection(configXML.get(), TEXT("Settings"), true);
+    if (section)
     {
-      section = ELGetXMLSection(configXML.get(), (WCHAR*)TEXT("Settings"), true);
-      if (section)
+      applet = ELGetFirstXMLElementByName(section, appletName, true);
+      if (applet)
+      {
+        editor = ELGetFirstXMLElementByName(applet, editorName, true);
+        if (editor)
         {
-          applet = ELGetFirstXMLElementByName(section, appletName, true);
-          if (applet)
-            {
-              editor = ELGetFirstXMLElementByName(applet, editorName, true);
-              if (editor)
-                {
-                  ELWriteXMLIntValue(editor, TEXT("SubItem"), sortInfo->subItem);
-                  ELWriteXMLBoolValue(editor, TEXT("Ascending"), sortInfo->ascending);
-                  return ELWriteXMLConfig(configXML.get());
-                }
-            }
+          ELWriteXMLIntValue(editor, TEXT("SubItem"), sortInfo->subItem);
+          ELWriteXMLBoolValue(editor, TEXT("Ascending"), sortInfo->ascending);
+          return ELWriteXMLConfig(configXML.get());
         }
+      }
     }
+  }
 
   return false;
 }
 
-BaseSettings::IOHelper::IOHelper(TiXmlElement *sec)
+BaseSettings::IOHelper::IOHelper(TiXmlElement* sec)
 {
   section = sec;
   item = NULL;
@@ -870,186 +946,210 @@ BaseSettings::IOHelper::~IOHelper()
 void BaseSettings::IOHelper::Clear()
 {
   if (!section)
+  {
     return;
+  }
 
-  TiXmlElement *tmpItem;
+  TiXmlElement* tmpItem;
 
   tmpItem = ELGetFirstXMLElement(section);
   while (tmpItem)
-    {
-      ELRemoveXMLElement(tmpItem);
-      tmpItem = ELGetFirstXMLElement(section);
-    }
+  {
+    ELRemoveXMLElement(tmpItem);
+    tmpItem = ELGetFirstXMLElement(section);
+  }
 
   itemIndex = 0;
 }
 
 bool BaseSettings::IOHelper::GetElement()
 {
-  TiXmlElement *tmpItem = NULL;
+  TiXmlElement* tmpItem = NULL;
 
   if (section)
+  {
+    if (item == NULL)
     {
-      if (item == NULL)
-        item = ELGetFirstXMLElement(section);
-      else
-        {
-          tmpItem = item;
-          item = ELGetSiblingXMLElement(tmpItem);
-        }
-
-      // If item is found, set it as the target element
-      if (item)
-        target = item;
-
-      return (item != NULL);
+      item = ELGetFirstXMLElement(section);
     }
+    else
+    {
+      tmpItem = item;
+      item = ELGetSiblingXMLElement(tmpItem);
+    }
+
+    // If item is found, set it as the target element
+    if (item)
+    {
+      target = item;
+    }
+
+    return (item != NULL);
+  }
 
   return false;
 }
 
-bool BaseSettings::IOHelper::SetElement(const WCHAR *name)
+bool BaseSettings::IOHelper::SetElement(std::wstring name)
 {
   bool ret = false;
 
   if (section)
+  {
+    item = ELSetFirstXMLElementByName(section, name);
+    if (item)
     {
-      item = ELSetFirstXMLElementByName(section, name);
-      if (item)
-        {
-          ret = true;
-          target = item;
-        }
+      ret = true;
+      target = item;
     }
+  }
 
   return ret;
 }
 
-void *BaseSettings::IOHelper::GetTarget()
+void* BaseSettings::IOHelper::GetTarget()
 {
   if (section)
+  {
     return reinterpret_cast<void*>(target);
+  }
 
   return NULL;
 }
 
-void *BaseSettings::IOHelper::GetElement(WCHAR *name)
+void* BaseSettings::IOHelper::GetElement(std::wstring name)
 {
   if (section)
+  {
+    item = ELGetFirstXMLElementByName(section, name, false);
+
+    // If item is found, set it as the target element
+    if (item)
     {
-      item = ELGetFirstXMLElementByName(section, name, false);
-
-      // If item is found, set it as the target element
-      if (item)
-        target = item;
-
-      return reinterpret_cast<void*>(item);
+      target = item;
     }
 
+    return reinterpret_cast<void*>(item);
+  }
+
   return NULL;
 }
 
-bool BaseSettings::IOHelper::GetElementText(WCHAR *text)
+bool BaseSettings::IOHelper::GetElementText(std::wstring text)
 {
   if (section)
+  {
     return ELGetXMLElementText(item, text);
+  }
 
   return false;
 }
 
-bool BaseSettings::IOHelper::RemoveElement(const WCHAR *name)
+bool BaseSettings::IOHelper::RemoveElement(std::wstring name)
 {
   if (section)
+  {
+    TiXmlElement* itemToRemove = ELGetFirstXMLElementByName(section, name, false);
+    if (itemToRemove)
     {
-      TiXmlElement *itemToRemove = ELGetFirstXMLElementByName(section, (WCHAR*)name, false);
-      if (itemToRemove)
-        return ELRemoveXMLElement(itemToRemove);
+      return ELRemoveXMLElement(itemToRemove);
     }
+  }
 
   return false;
 }
 
-TiXmlElement *BaseSettings::IOHelper::GetSection()
+TiXmlElement* BaseSettings::IOHelper::GetSection()
 {
   return section;
 }
 
-bool BaseSettings::IOHelper::ReadBool(const WCHAR* name, bool& data, bool def)
-{
-  bool ret = false;
-
-  if (target)
-    return ELReadXMLBoolValue(target, name, &data, def);
-
-  return ret;
-}
-
-bool BaseSettings::IOHelper::ReadInt(const WCHAR* name, int& data, int def)
+bool BaseSettings::IOHelper::ReadBool(std::wstring name, bool defaultValue)
 {
   if (target)
-    return ELReadXMLIntValue(target, name, &data, def);
+  {
+    return ELReadXMLBoolValue(target, name, defaultValue);
+  }
 
-  return false;
+  return defaultValue;
 }
 
-bool BaseSettings::IOHelper::ReadFloat(const WCHAR* name, float& data, float def)
+int BaseSettings::IOHelper::ReadInt(std::wstring name, int defaultValue)
 {
   if (target)
-    return ELReadXMLFloatValue(target, name, &data, def);
+  {
+    return ELReadXMLIntValue(target, name, defaultValue);
+  }
 
-  return false;
+  return defaultValue;
 }
 
-bool BaseSettings::IOHelper::ReadString(const WCHAR* name, WCHAR* data, const WCHAR* def)
+float BaseSettings::IOHelper::ReadFloat(std::wstring name, float defaultValue)
 {
   if (target)
-    return ELReadXMLStringValue(target, name, data, def);
+  {
+    return ELReadXMLFloatValue(target, name, defaultValue);
+  }
 
-  return false;
+  return defaultValue;
 }
 
-bool BaseSettings::IOHelper::ReadRect(const WCHAR* name, RECT& data, RECT& def)
+std::wstring BaseSettings::IOHelper::ReadString(std::wstring name, std::wstring defaultValue)
 {
   if (target)
-    return ELReadXMLRectValue(target, name, &data, def);
+  {
+    return ELReadXMLStringValue(target, name, defaultValue);
+  }
 
-  return false;
+  return defaultValue;
 }
 
-bool BaseSettings::IOHelper::ReadColor(const WCHAR* name, COLORREF& data, COLORREF def)
+RECT BaseSettings::IOHelper::ReadRect(std::wstring name, RECT defaultValue)
 {
   if (target)
-    return ELReadXMLColorValue(target, name, &data, def);
+  {
+    return ELReadXMLRectValue(target, name, defaultValue);
+  }
 
-  return false;
+  return defaultValue;
 }
 
-bool BaseSettings::IOHelper::WriteBool(const WCHAR* name, bool data)
+COLORREF BaseSettings::IOHelper::ReadColor(std::wstring name, COLORREF defaultValue)
+{
+  if (target)
+  {
+    return ELReadXMLColorValue(target, name, defaultValue);
+  }
+
+  return defaultValue;
+}
+
+bool BaseSettings::IOHelper::WriteBool(std::wstring name, bool data)
 {
   return ELWriteXMLBoolValue(target, name, data);
 }
 
-bool BaseSettings::IOHelper::WriteInt(const WCHAR* name, int data)
+bool BaseSettings::IOHelper::WriteInt(std::wstring name, int data)
 {
   return ELWriteXMLIntValue(target, name, data);
 }
 
-bool BaseSettings::IOHelper::WriteFloat(const WCHAR* name, float data)
+bool BaseSettings::IOHelper::WriteFloat(std::wstring name, float data)
 {
   return ELWriteXMLFloatValue(target, name, data);
 }
 
-bool BaseSettings::IOHelper::WriteString(const WCHAR* name, WCHAR* data)
+bool BaseSettings::IOHelper::WriteString(std::wstring name, std::wstring data)
 {
   return ELWriteXMLStringValue(target, name, data);
 }
 
-bool BaseSettings::IOHelper::WriteRect(const WCHAR* name, RECT& data)
+bool BaseSettings::IOHelper::WriteRect(std::wstring name, RECT data)
 {
   return ELWriteXMLRectValue(target, name, data);
 }
 
-bool BaseSettings::IOHelper::WriteColor(const WCHAR* name, COLORREF data)
+bool BaseSettings::IOHelper::WriteColor(std::wstring name, COLORREF data)
 {
   return ELWriteXMLColorValue(target, name, data);
 }

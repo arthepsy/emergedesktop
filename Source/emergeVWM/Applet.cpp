@@ -1,7 +1,7 @@
 //----  --------------------------------------------------------------------------------------------------------
 //
 //  This file is part of Emerge Desktop.
-//  Copyright (C) 2004-2012  The Emerge Desktop Development Team
+//  Copyright (C) 2004-2013  The Emerge Desktop Development Team
 //
 //  Emerge Desktop is free software; you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -34,106 +34,108 @@ WCHAR myName[ ] = TEXT("emergeVWM");
 //----  --------------------------------------------------------------------------------------------------------
 LRESULT CALLBACK Applet::WindowProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-  CREATESTRUCT *cs;
-  static Applet *pApplet = NULL;
+  CREATESTRUCT* cs;
+  static Applet* pApplet = NULL;
 
   if (message == WM_CREATE)
-    {
-      // Register to recieve the specified Emerge Desktop messages
-      PostMessage(ELGetCoreWindow(), EMERGE_REGISTER, (WPARAM)hwnd, (LPARAM)EMERGE_CORE);
+  {
+    // Register to recieve the specified Emerge Desktop messages
+    PostMessage(ELGetCoreWindow(), EMERGE_REGISTER, (WPARAM)hwnd, (LPARAM)EMERGE_CORE);
 
-      cs = (CREATESTRUCT*)lParam;
-      pApplet = reinterpret_cast<Applet*>(cs->lpCreateParams);
-      return DefWindowProc(hwnd, message, wParam, lParam);
-    }
+    cs = (CREATESTRUCT*)lParam;
+    pApplet = reinterpret_cast<Applet*>(cs->lpCreateParams);
+    return DefWindowProc(hwnd, message, wParam, lParam);
+  }
 
   if (pApplet == NULL)
+  {
     return DefWindowProc(hwnd, message, wParam, lParam);
+  }
 
   switch (message)
-    {
-    case WM_COPYDATA:
-      return pApplet->DoCopyData((COPYDATASTRUCT *)lParam);
+  {
+  case WM_COPYDATA:
+    return pApplet->DoCopyData((COPYDATASTRUCT*)lParam);
 
-      // Needed to handle changing the system colors.  It forces
-      // a repaint of the window as well as the frame.
-    case WM_SYSCOLORCHANGE:
-      return pApplet->DoSysColorChange();
+    // Needed to handle changing the system colors.  It forces
+    // a repaint of the window as well as the frame.
+  case WM_SYSCOLORCHANGE:
+    return pApplet->DoSysColorChange();
 
-      // Allow for window dragging via Ctrl - Left - Click dragging
-    case WM_NCLBUTTONDOWN:
-      pApplet->DoNCLButtonDown();
-      return DefWindowProc(hwnd, message, wParam, lParam);
+    // Allow for window dragging via Ctrl - Left - Click dragging
+  case WM_NCLBUTTONDOWN:
+    pApplet->DoNCLButtonDown();
+    return DefWindowProc(hwnd, message, wParam, lParam);
 
-      // Display the mainMenu via Ctrl - Right - Click
-    case WM_NCRBUTTONUP:
-      return pApplet->DoNCRButtonUp();
+    // Display the mainMenu via Ctrl - Right - Click
+  case WM_NCRBUTTONUP:
+    return pApplet->DoNCRButtonUp();
 
-      // Forward the appropriate clicks to the icons
-    case WM_LBUTTONDOWN:
-    case WM_LBUTTONUP:
-    case WM_RBUTTONUP:
-    case WM_MOUSEMOVE:
-    case WM_LBUTTONDBLCLK:
-      return pApplet->DesktopMouseEvent(hwnd, message, lParam);
+    // Forward the appropriate clicks to the icons
+  case WM_LBUTTONDOWN:
+  case WM_LBUTTONUP:
+  case WM_RBUTTONUP:
+  case WM_MOUSEMOVE:
+  case WM_LBUTTONDBLCLK:
+    return pApplet->DesktopMouseEvent(hwnd, message, lParam);
 
-      // Reset the cursor back to the standard arrow after dragging
-    case WM_NCLBUTTONUP:
-      pApplet->DoNCLButtonUp();
-      return DefWindowProc(hwnd, message, wParam, lParam);
+    // Reset the cursor back to the standard arrow after dragging
+  case WM_NCLBUTTONUP:
+    pApplet->DoNCLButtonUp();
+    return DefWindowProc(hwnd, message, wParam, lParam);
 
-    case WM_SETCURSOR:
-      pApplet->DoSetCursor();
-      return DefWindowProc(hwnd, message, wParam, lParam);
+  case WM_SETCURSOR:
+    pApplet->DoSetCursor();
+    return DefWindowProc(hwnd, message, wParam, lParam);
 
-      // Handles the resizing of the window
-    case WM_NCHITTEST:
-      return pApplet->DoHitTest(lParam);
+    // Handles the resizing of the window
+  case WM_NCHITTEST:
+    return pApplet->DoHitTest(lParam);
 
-      // Repaint the icons as the window size is changing
-    case WM_WINDOWPOSCHANGING:
-      return pApplet->DoWindowPosChanging((WINDOWPOS *)lParam);
+    // Repaint the icons as the window size is changing
+  case WM_WINDOWPOSCHANGING:
+    return pApplet->DoWindowPosChanging((WINDOWPOS*)lParam);
 
-    case WM_ENTERSIZEMOVE:
-      return pApplet->DoEnterSizeMove(hwnd);
+  case WM_ENTERSIZEMOVE:
+    return pApplet->DoEnterSizeMove(hwnd);
 
-    case WM_EXITSIZEMOVE:
-      return pApplet->DoExitSizeMove(hwnd);
+  case WM_EXITSIZEMOVE:
+    return pApplet->DoExitSizeMove(hwnd);
 
-    case WM_SIZING:
-      return pApplet->DoSizing(hwnd, (UINT)wParam, (LPRECT)lParam);
+  case WM_SIZING:
+    return pApplet->DoSizing(hwnd, (UINT)wParam, (LPRECT)lParam);
 
-    case WM_MOVING:
-      return pApplet->DoMoving(hwnd, (LPRECT)lParam);
+  case WM_MOVING:
+    return pApplet->DoMoving(hwnd, (LPRECT)lParam);
 
-      // Write the width height to the registry if the size changed
-    case WM_SIZE:
-      return pApplet->MySize();
+    // Write the width height to the registry if the size changed
+  case WM_SIZE:
+    return pApplet->MySize();
 
-    case WM_SYSCOMMAND:
-      return pApplet->DoSysCommand(hwnd, message, wParam, lParam);
+  case WM_SYSCOMMAND:
+    return pApplet->DoSysCommand(hwnd, message, wParam, lParam);
 
-    case WM_TIMER:
-      return pApplet->DoTimer((UINT)wParam);
+  case WM_TIMER:
+    return pApplet->DoTimer((UINT)wParam);
 
-    case WM_DISPLAYCHANGE:
-      return pApplet->DoDisplayChange(hwnd);
+  case WM_DISPLAYCHANGE:
+    return pApplet->DoDisplayChange(hwnd);
 
-    case WM_NOTIFY:
-      return pApplet->DoNotify(hwnd, lParam);
+  case WM_NOTIFY:
+    return pApplet->DoNotify(hwnd, lParam);
 
-    case WM_DESTROY:
-    case WM_NCDESTROY:
-      // Unregister the specified Emerge Desktop messages
-      PostMessage(ELGetCoreWindow(), EMERGE_UNREGISTER, (WPARAM)hwnd, (LPARAM)EMERGE_CORE);
+  case WM_DESTROY:
+  case WM_NCDESTROY:
+    // Unregister the specified Emerge Desktop messages
+    PostMessage(ELGetCoreWindow(), EMERGE_UNREGISTER, (WPARAM)hwnd, (LPARAM)EMERGE_CORE);
 
-      PostQuitMessage(0);
-      break;
+    PostQuitMessage(0);
+    break;
 
-      // If not handled just forward the message on
-    default:
-      return pApplet->DoDefault(hwnd, message, wParam, lParam);
-    }
+    // If not handled just forward the message on
+  default:
+    return pApplet->DoDefault(hwnd, message, wParam, lParam);
+  }
 
   return 0;
 }
@@ -144,7 +146,7 @@ LRESULT Applet::DoDefault(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 }
 
 Applet::Applet(HINSTANCE hInstance)
-:BaseApplet(hInstance, myName, false, false)
+  : BaseApplet(hInstance, myName, false, false)
 {
   // Set current row and column
   currentRow = 0;
@@ -177,7 +179,9 @@ Applet::~Applet()
 
   // Cleanup the icon vectors
   if (!taskList.empty())
+  {
     taskList.clear();
+  }
 }
 
 GUIINFO Applet::GetGUIInfo()
@@ -190,7 +194,9 @@ UINT Applet::Initialize()
   pSettings = std::tr1::shared_ptr<Settings>(new Settings());
   UINT ret = BaseApplet::Initialize(WindowProcedure, this, pSettings);
   if (ret == 0)
+  {
     return ret;
+  }
 
   // Set the window transparency
   UpdateGUI();
@@ -218,41 +224,43 @@ void Applet::RemoveInvalidTasks()
 
   // traverse the taskList vector looking for invalid tasks
   while (iter < taskList.end())
+  {
+    // Check to see if the task is not a valid window or if it is no longer
+    // visible
+    if ((!IsWindow((*iter)->GetTaskWnd())) ||
+        (!IsWindowVisible((*iter)->GetTaskWnd())))
     {
-      // Check to see if the task is not a valid window or if it is no longer
-      // visible
-      if ((!IsWindow((*iter)->GetTaskWnd())) ||
-          (!IsWindowVisible((*iter)->GetTaskWnd())))
-        {
-          // If not erase the task
-          tmpIter = taskList.erase(iter);
-          iter = tmpIter;
-        }
-      else
-        iter++;
+      // If not erase the task
+      tmpIter = taskList.erase(iter);
+      iter = tmpIter;
     }
+    else
+    {
+      iter++;
+    }
+  }
 }
 
 DWORD WINAPI Applet::TaskThreadProc(LPVOID lpParameter)
 {
   // reinterpret lpParameter as a BaseApplet*
-  Applet *pApplet = reinterpret_cast< Applet* >(lpParameter);
+  Applet* pApplet = reinterpret_cast< Applet* >(lpParameter);
 
   // loop infinitely
   while (true)
-    {
-      // Pause the current thread for TASK_WAIT_TIME
-      WaitForSingleObject(GetCurrentThread(), TASK_WAIT_TIME);
+  {
+    // Pause the current thread for TASK_WAIT_TIME
+    WaitForSingleObject(GetCurrentThread(), TASK_WAIT_TIME);
 
-      // Remove invalid tasks
-      pApplet->RemoveInvalidTasks();
+    // Remove invalid tasks
+    pApplet->RemoveInvalidTasks();
 
-      // Add new tasks
-      EnumWindows(pApplet->BuildTasksList, (LPARAM)pApplet);
+    // Add new tasks
+    EnumWindows(pApplet->BuildTasksList, (LPARAM)pApplet);
 
-      // Redraw the main window
-      pApplet->DrawAlphaBlend();
-    }
+    // Redraw the main window
+    pApplet->DrawAlphaBlend();
+  }
 
   return 0;
 }
@@ -266,9 +274,11 @@ DWORD WINAPI Applet::TaskThreadProc(LPVOID lpParameter)
 //----  --------------------------------------------------------------------------------------------------------
 BOOL CALLBACK Applet::BuildTasksList(HWND hwnd, LPARAM lParam)
 {
-  Applet *pApplet = reinterpret_cast<Applet*>(lParam);
+  Applet* pApplet = reinterpret_cast<Applet*>(lParam);
   if (pApplet)
+  {
     return pApplet->AddTasks(hwnd);
+  }
 
   return FALSE;
 }
@@ -279,58 +289,62 @@ bool Applet::AddTasks(HWND hwnd)
   bool found = false;
 
   if (!IsWindowValidTask(hwnd))
+  {
     return true;
+  }
 
   iter = taskList.begin();
 
   while (iter < taskList.end())
+  {
+    if ((*iter)->GetTaskWnd() == hwnd)
     {
-      if ((*iter)->GetTaskWnd() == hwnd)
+      if (((*iter)->GetTaskWnd() == GetForegroundWindow()) &&
+          ((*iter)->GetTaskWnd() != oldActiveWindow))
+      {
+        int row, column;
+
+        if ((*iter)->GetMinimized())
         {
-          if (((*iter)->GetTaskWnd() == GetForegroundWindow()) &&
-              ((*iter)->GetTaskWnd() != oldActiveWindow))
-            {
-              int row, column;
-
-              if ((*iter)->GetMinimized())
-                {
-                  (*iter)->SetMinimized(false);
-                  MakeCurrent((*iter)->GetTaskWnd());
-                }
-              else if (GetTaskRowColumn((*iter)->GetTaskWnd(), &row, &column))
-                {
-                  if ((row != currentRow) || (column != currentColumn))
-                    SwitchDesktop(row, column, false);
-                }
-
-              oldActiveWindow = (*iter)->GetTaskWnd();
-
-              taskList.erase(iter);
-            }
-          else if (IsIconic((*iter)->GetTaskWnd()))
-            {
-              (*iter)->SetMinimized(true);
-              found = true;
-            }
-          else
-            {
-              (*iter)->UpdateDimensions(currentColumn, currentRow, pSettings->GetDesktopColumns(),
-                                        pSettings->GetDesktopRows(), guiInfo);
-              found = true;
-            }
-
-          break;
+          (*iter)->SetMinimized(false);
+          MakeCurrent((*iter)->GetTaskWnd());
+        }
+        else if (GetTaskRowColumn((*iter)->GetTaskWnd(), &row, &column))
+        {
+          if ((row != currentRow) || (column != currentColumn))
+          {
+            SwitchDesktop(row, column, false);
+          }
         }
 
-      iter++;
+        oldActiveWindow = (*iter)->GetTaskWnd();
+
+        taskList.erase(iter);
+      }
+      else if (IsIconic((*iter)->GetTaskWnd()))
+      {
+        (*iter)->SetMinimized(true);
+        found = true;
+      }
+      else
+      {
+        (*iter)->UpdateDimensions(currentColumn, currentRow, pSettings->GetDesktopColumns(),
+                                  pSettings->GetDesktopRows(), guiInfo);
+        found = true;
+      }
+
+      break;
     }
 
+    iter++;
+  }
+
   if (!found)
-    {
-      Task *task = new Task(hwnd, mainWnd, mainInst, currentRow, currentColumn,
-                            pSettings->GetDesktopRows(), pSettings->GetDesktopColumns(), guiInfo);
-      taskList.push_back(std::tr1::shared_ptr<Task>(task));
-    }
+  {
+    Task* task = new Task(hwnd, mainWnd, mainInst, currentRow, currentColumn,
+                          pSettings->GetDesktopRows(), pSettings->GetDesktopColumns(), guiInfo);
+    taskList.push_back(std::tr1::shared_ptr<Task>(task));
+  }
 
   return true;
 }
@@ -345,28 +359,42 @@ void Applet::MakeCurrent(HWND taskWnd)
   RECT r;
 
   if (GetTaskRowColumn(taskWnd, &taskRow, &taskColumn))
+  {
+    if ((taskRow == currentRow) && (taskColumn == currentColumn))
     {
-      if ((taskRow == currentRow) && (taskColumn == currentColumn))
-        return;
+      return;
     }
+  }
 
-  ELGetWindowRect(taskWnd, &r);
+  r = ELGetWindowRect(taskWnd);
 
   while (r.top < screenTop)
+  {
     r.top += screenHeight;
+  }
   while (r.top > (screenTop + screenHeight))
+  {
     r.top -= screenHeight;
+  }
 
   if (IsZoomed(taskWnd))
+  {
     r.top -= screenHeight;
+  }
 
   while (r.left < screenLeft)
+  {
     r.left += screenWidth;
+  }
   while (r.left > (screenLeft + screenWidth))
+  {
     r.left -= screenWidth;
+  }
 
   if (IsZoomed(taskWnd))
+  {
     r.left -= screenWidth;
+  }
 
   SetWindowPos(taskWnd, NULL, r.left, r.top, 0, 0, SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE);
 }
@@ -384,13 +412,19 @@ bool Applet::IsWindowValidTask(HWND hwnd)
 
   // Ignore hidden windows
   if (!IsWindowVisible(hwnd))
+  {
     return false;
+  }
 
   if (ELIsApplet(hwnd))
+  {
     return false;
+  }
 
   if (ELIsExplorer(hwnd))
+  {
     return false;
+  }
 
   // Ignore toolwindows
   /*  if((GetWindowLongPtr(hwnd, GWL_EXSTYLE) & WS_EX_TOOLWINDOW) == WS_EX_TOOLWINDOW)
@@ -398,11 +432,15 @@ bool Applet::IsWindowValidTask(HWND hwnd)
 
   // Ignore menus
   if (_wcsicmp(windowClass, TEXT("#32768")) == 0)
+  {
     return false;
+  }
 
   // Ignore tooltips
   if (_wcsicmp(windowClass, TOOLTIPS_CLASS) == 0)
+  {
     return false;
+  }
 
   // Ignore emergeDesktop window
   /*  if (hwnd == ELGetDesktopWindow())
@@ -423,7 +461,9 @@ void Applet::SwitchDesktop(int row, int column, bool gather)
 {
   if (((row > (pSettings->GetDesktopRows() - 1)) || (column > (pSettings->GetDesktopColumns() - 1)) ||
        (row == currentRow && column == currentColumn)) && !gather)
+  {
     return;
+  }
 
   HDWP dwp;
   std::vector< std::tr1::shared_ptr<Task> >::iterator iter;
@@ -446,83 +486,93 @@ void Applet::SwitchDesktop(int row, int column, bool gather)
   currentColumn = column;
 
   if (!gather)
+  {
+    dwp = BeginDeferWindowPos((int)taskList.size());
+
+    iter = taskList.begin();
+    while (iter < taskList.end())
     {
-      dwp = BeginDeferWindowPos((int)taskList.size());
-
-      iter = taskList.begin();
-      while (iter < taskList.end())
+      // VERY IMPORTANT: Only modify a valid window
+      r = ELGetWindowRect((*iter)->GetTaskWnd());
+      if (!IsRectEmpty(&r))
+      {
+        // Ignore the window if it's sticky
+        if (!pSettings->CheckSticky((*iter)->GetAppName()))
         {
-          // VERY IMPORTANT: Only modify a valid window
-          if (ELGetWindowRect((*iter)->GetTaskWnd(), &r))
-            {
-              // Ignore the window if it's sticky
-              if (!pSettings->CheckSticky((*iter)->GetAppName()))
-                {
-                  r.left += maxColumnShift;
-                  r.top += maxRowShift;
+          r.left += maxColumnShift;
+          r.top += maxRowShift;
 
-                  dwp = DeferWindowPos(dwp, (*iter)->GetTaskWnd(), NULL,
-                                       r.left,	r.top,
-                                       0, 0,
-                                       SWP_NOZORDER | SWP_NOACTIVATE | SWP_NOSIZE);
-                }
-            }
-
-          iter++;
+          dwp = DeferWindowPos(dwp, (*iter)->GetTaskWnd(), NULL,
+                               r.left,	r.top,
+                               0, 0,
+                               SWP_NOZORDER | SWP_NOACTIVATE | SWP_NOSIZE);
         }
+      }
 
-      EndDeferWindowPos(dwp);
+      iter++;
     }
+
+    EndDeferWindowPos(dwp);
+  }
 
   dwp = BeginDeferWindowPos((int)taskList.size());
 
   iter = taskList.begin();
   while (iter < taskList.end())
+  {
+    // VERY IMPORTANT: Only modify a valid window
+    r = ELGetWindowRect((*iter)->GetTaskWnd());
+    if (!IsRectEmpty(&r))
     {
-      // VERY IMPORTANT: Only modify a valid window
-      if (ELGetWindowRect((*iter)->GetTaskWnd(), &r))
+      // Ignore the window if it's sticky
+      if (!pSettings->CheckSticky((*iter)->GetAppName()))
+      {
+        if (gather)
         {
-          // Ignore the window if it's sticky
-          if (!pSettings->CheckSticky((*iter)->GetAppName()))
+          RECT deskRect, tmpRect;
+          deskRect.left = screenLeft;
+          deskRect.right = deskRect.left + screenWidth;
+          deskRect.top = screenTop;
+          deskRect.bottom = deskRect.top + screenHeight;
+
+          if (!IntersectRect(&tmpRect, &r, &deskRect) && !IsZoomed((*iter)->GetTaskWnd()))
+          {
+            while (r.left < screenLeft)
             {
-              if (gather)
-                {
-                  RECT deskRect, tmpRect;
-                  deskRect.left = screenLeft;
-                  deskRect.right = deskRect.left + screenWidth;
-                  deskRect.top = screenTop;
-                  deskRect.bottom = deskRect.top + screenHeight;
-
-                  if (!IntersectRect(&tmpRect, &r, &deskRect) && !IsZoomed((*iter)->GetTaskWnd()))
-                    {
-                      while (r.left < screenLeft)
-                        r.left += screenWidth;
-                      while (r.left > (screenLeft + screenWidth))
-                        r.left -= screenWidth;
-
-                      while (r.top < screenTop)
-                        r.top += screenHeight;
-                      while (r.top  > (screenTop + screenHeight))
-                        r.top -= screenHeight;
-                    }
-                }
-              else
-                {
-                  r.left -= maxColumnShift;
-                  r.left -= columnOffset;
-                  r.top -= maxRowShift;
-                  r.top -= rowOffset;
-                }
-
-              dwp = DeferWindowPos(dwp, (*iter)->GetTaskWnd(), NULL,
-                                   r.left, r.top,
-                                   0, 0,
-                                   SWP_NOZORDER | SWP_NOACTIVATE | SWP_NOSIZE);
+              r.left += screenWidth;
             }
+            while (r.left > (screenLeft + screenWidth))
+            {
+              r.left -= screenWidth;
+            }
+
+            while (r.top < screenTop)
+            {
+              r.top += screenHeight;
+            }
+            while (r.top  > (screenTop + screenHeight))
+            {
+              r.top -= screenHeight;
+            }
+          }
+        }
+        else
+        {
+          r.left -= maxColumnShift;
+          r.left -= columnOffset;
+          r.top -= maxRowShift;
+          r.top -= rowOffset;
         }
 
-      iter++;
+        dwp = DeferWindowPos(dwp, (*iter)->GetTaskWnd(), NULL,
+                             r.left, r.top,
+                             0, 0,
+                             SWP_NOZORDER | SWP_NOACTIVATE | SWP_NOSIZE);
+      }
     }
+
+    iter++;
+  }
 
   oldActiveWindow = NULL;
 
@@ -560,121 +610,129 @@ LRESULT Applet::DesktopMouseEvent(HWND hwnd, UINT message, LPARAM lParam)
   std::vector< std::tr1::shared_ptr<Task> >::reverse_iterator iter;
 
   for (iter = taskList.rbegin(); iter != taskList.rend(); iter++)
+  {
+    if ((PtInRect((*iter)->GetRect(), pt)) || ((*iter)->GetTaskWnd() == selectedWindow))
     {
-      if ((PtInRect((*iter)->GetRect(), pt)) || ((*iter)->GetTaskWnd() == selectedWindow))
+      found = true;
+      break;
+    }
+  }
+
+  if (found)
+  {
+    if (message == WM_LBUTTONDOWN)
+    {
+      selectedWindow = (*iter)->GetTaskWnd();
+      popupWnd = GetLastActivePopup(selectedWindow);
+      referencePt = pt;
+      SetForegroundWindow(popupWnd);
+    }
+
+    if (message == WM_RBUTTONUP)
+    {
+      (*iter)->DisplayMenu(mainWnd);
+    }
+
+    if (message == WM_MOUSEMOVE)
+    {
+      if (ELIsKeyDown(VK_LBUTTON))
+      {
+        float xOffset, yOffset, rowScalar, columnScalar;
+        RECT windowRect, clientRect;
+
+        windowRect = ELGetWindowRect(selectedWindow);
+        GetClientRect(mainWnd, &clientRect);
+
+        rowScalar = (float)(clientRect.bottom - (2 * dragBorder)) /
+                    (float)pSettings->GetDesktopRows();
+        rowScalar = (float)screenHeight / rowScalar;
+        columnScalar = (float)(clientRect.right - (2 * dragBorder)) /
+                       (float)pSettings->GetDesktopColumns();
+        columnScalar = (float)screenWidth / columnScalar;
+
+        xOffset = (float)pt.x - (float)referencePt.x;
+        xOffset *= columnScalar;
+        yOffset = (float)pt.y - (float)referencePt.y;
+        yOffset *= rowScalar;
+
+        SetWindowPos(selectedWindow, NULL,
+                     (windowRect.left + (int)xOffset),
+                     (windowRect.top + (int)yOffset),
+                     0, 0,
+                     SWP_NOSIZE | SWP_NOACTIVATE);
+
+        referencePt = pt;
+      }
+      else if ((*iter)->GetTaskWnd() != oldTipWindow)
+      {
+        oldTipWindow = (*iter)->GetTaskWnd();
+        SendMessage(toolWnd, TTM_UPDATE, 0, 0);
+      }
+    }
+
+    if (message == WM_LBUTTONUP)
+    {
+      oldActiveWindow = NULL;
+      selectedWindow = NULL;
+      SetForegroundWindow(selectedWindow);
+    }
+
+    return 0;
+  }
+  else
+  {
+    if (message == WM_MOUSEMOVE)
+    {
+      if (oldTipWindow != NULL)
+      {
+        SendMessage(toolWnd, TTM_UPDATE, 0, 0);
+        oldTipWindow = NULL;
+        return 0;
+      }
+    }
+
+    for (row = 0; row < pSettings->GetDesktopRows(); row++)
+    {
+      for (column = 0; column < pSettings->GetDesktopColumns(); column++)
+      {
+        float rowScalar = (float)(clientRect.bottom - (2 * dragBorder)) /
+                          (float)pSettings->GetDesktopRows();
+        float columnScalar = (float)(clientRect.right - (2 * dragBorder)) /
+                             (float)pSettings->GetDesktopColumns();
+
+        desktopRect.top = dragBorder + (int)(row * rowScalar);
+        desktopRect.bottom = desktopRect.top + (int)rowScalar;
+        desktopRect.left = dragBorder + (int)(column * columnScalar);
+        desktopRect.right = desktopRect.left + (int)columnScalar;
+
+        if (PtInRect(&desktopRect, pt))
         {
           found = true;
           break;
         }
+      }
+
+      if (found)
+      {
+        break;
+      }
     }
 
-  if (found)
+    if (found)
     {
       if (message == WM_LBUTTONDOWN)
-        {
-          selectedWindow = (*iter)->GetTaskWnd();
-          popupWnd = GetLastActivePopup(selectedWindow);
-          referencePt = pt;
-          SetForegroundWindow(popupWnd);
-        }
+      {
+        SwitchDesktop(row, column, false);
+      }
 
-      if (message == WM_RBUTTONUP)
-        (*iter)->DisplayMenu(mainWnd);
-
-      if (message == WM_MOUSEMOVE)
-        {
-          if (ELIsKeyDown(VK_LBUTTON))
-            {
-              float xOffset, yOffset, rowScalar, columnScalar;
-              RECT windowRect, clientRect;
-
-              ELGetWindowRect(selectedWindow, &windowRect);
-              GetClientRect(mainWnd, &clientRect);
-
-              rowScalar = (float)(clientRect.bottom - (2 * dragBorder)) /
-                (float)pSettings->GetDesktopRows();
-              rowScalar = (float)screenHeight / rowScalar;
-              columnScalar = (float)(clientRect.right - (2 * dragBorder)) /
-                (float)pSettings->GetDesktopColumns();
-              columnScalar = (float)screenWidth / columnScalar;
-
-              xOffset = (float)pt.x - (float)referencePt.x;
-              xOffset *= columnScalar;
-              yOffset = (float)pt.y - (float)referencePt.y;
-              yOffset *= rowScalar;
-
-              SetWindowPos(selectedWindow, NULL,
-                           (windowRect.left + (int)xOffset),
-                           (windowRect.top + (int)yOffset),
-                           0, 0,
-                           SWP_NOSIZE | SWP_NOACTIVATE);
-
-              referencePt = pt;
-            }
-          else if ((*iter)->GetTaskWnd() != oldTipWindow)
-            {
-              oldTipWindow = (*iter)->GetTaskWnd();
-              SendMessage(toolWnd, TTM_UPDATE, 0, 0);
-            }
-        }
-
-      if (message == WM_LBUTTONUP)
-        {
-          oldActiveWindow = NULL;
-          selectedWindow = NULL;
-          SetForegroundWindow(selectedWindow);
-        }
+      if (message == WM_LBUTTONDBLCLK)
+      {
+        ELExecuteFileOrCommand(TEXT("desk.cpl,,4"));
+      }
 
       return 0;
     }
-  else
-    {
-      if (message == WM_MOUSEMOVE)
-        {
-          if (oldTipWindow != NULL)
-            {
-              SendMessage(toolWnd, TTM_UPDATE, 0, 0);
-              oldTipWindow = NULL;
-              return 0;
-            }
-        }
-
-      for (row = 0; row < pSettings->GetDesktopRows(); row++)
-        {
-          for (column = 0; column < pSettings->GetDesktopColumns(); column++)
-            {
-              float rowScalar = (float)(clientRect.bottom - (2 * dragBorder)) /
-                (float)pSettings->GetDesktopRows();
-              float columnScalar = (float)(clientRect.right - (2 * dragBorder)) /
-                (float)pSettings->GetDesktopColumns();
-
-              desktopRect.top = dragBorder + (int)(row * rowScalar);
-              desktopRect.bottom = desktopRect.top + (int)rowScalar;
-              desktopRect.left = dragBorder + (int)(column * columnScalar);
-              desktopRect.right = desktopRect.left + (int)columnScalar;
-
-              if (PtInRect(&desktopRect, pt))
-                {
-                  found = true;
-                  break;
-                }
-            }
-
-          if (found)
-            break;
-        }
-
-      if (found)
-        {
-          if (message == WM_LBUTTONDOWN)
-            SwitchDesktop(row, column, false);
-
-          if (message == WM_LBUTTONDBLCLK)
-            ELExecute((WCHAR*)TEXT("desk.cpl,,4"));
-
-          return 0;
-        }
-    }
+  }
 
   return 1;
 }
@@ -692,59 +750,73 @@ LRESULT Applet::PaintContent(HDC hdc, RECT clientrt)
   columnScalar = (float)width / (float)pSettings->GetDesktopColumns();
 
   for (row = 0; row < pSettings->GetDesktopRows(); row++)
+  {
+    for (column = 0; column < pSettings->GetDesktopColumns(); column++)
     {
-      for (column = 0; column < pSettings->GetDesktopColumns(); column++)
-        {
-          desktoprt.top = clientrt.top + (int)(row * rowScalar);
-          desktoprt.bottom = desktoprt.top + (int)rowScalar;
-          desktoprt.left = clientrt.left + (int)(column * columnScalar);
-          desktoprt.right = desktoprt.left + (int)columnScalar;
+      desktoprt.top = clientrt.top + (int)(row * rowScalar);
+      desktoprt.bottom = desktoprt.top + (int)rowScalar;
+      desktoprt.left = clientrt.left + (int)(column * columnScalar);
+      desktoprt.right = desktoprt.left + (int)columnScalar;
 
-          if ((row == currentRow) && (column == currentColumn))
-            EGFillRect(hdc, &desktoprt, guiInfo.alphaSelected, guiInfo.colorSelected);
-        }
+      if ((row == currentRow) && (column == currentColumn))
+      {
+        EGFillRect(hdc, &desktoprt, guiInfo.alphaSelected, guiInfo.colorSelected);
+      }
     }
+  }
 
   for (iter = taskList.begin(); iter != taskList.end(); iter++)
+  {
+    if (PaintTask((*iter).get()))
     {
-      if (PaintTask((*iter).get()))
-        {
-          if ((*iter)->GetRect()->top < clientrt.top)
-            (*iter)->GetRect()->top = clientrt.top;
-          if ((*iter)->GetRect()->bottom > clientrt.bottom)
-            (*iter)->GetRect()->bottom = clientrt.bottom;
-          if ((*iter)->GetRect()->left < clientrt.left)
-            (*iter)->GetRect()->left = clientrt.left;
-          if ((*iter)->GetRect()->right > clientrt.right)
-            (*iter)->GetRect()->right = clientrt.right;
-          EGFillRect(hdc, (*iter)->GetRect(), guiInfo.alphaForeground, guiInfo.colorForeground);
-          EGFrameRect(hdc, (*iter)->GetRect(), guiInfo.alphaFrame, guiInfo.colorFrame, 1);
-        }
+      if ((*iter)->GetRect()->top < clientrt.top)
+      {
+        (*iter)->GetRect()->top = clientrt.top;
+      }
+      if ((*iter)->GetRect()->bottom > clientrt.bottom)
+      {
+        (*iter)->GetRect()->bottom = clientrt.bottom;
+      }
+      if ((*iter)->GetRect()->left < clientrt.left)
+      {
+        (*iter)->GetRect()->left = clientrt.left;
+      }
+      if ((*iter)->GetRect()->right > clientrt.right)
+      {
+        (*iter)->GetRect()->right = clientrt.right;
+      }
+      EGFillRect(hdc, (*iter)->GetRect(), guiInfo.alphaForeground, guiInfo.colorForeground);
+      EGFrameRect(hdc, (*iter)->GetRect(), guiInfo.alphaFrame, guiInfo.colorFrame, 1);
     }
+  }
 
   for (row = 0; row < pSettings->GetDesktopRows(); row++)
+  {
+    for (column = 0; column < pSettings->GetDesktopColumns(); column++)
     {
-      for (column = 0; column < pSettings->GetDesktopColumns(); column++)
-        {
-          desktoprt.top = clientrt.top + (int)(row * rowScalar);
-          desktoprt.bottom = desktoprt.top + (int)rowScalar;
-          desktoprt.left = clientrt.left + (int)(column * columnScalar);
-          desktoprt.right = desktoprt.left + (int)columnScalar;
+      desktoprt.top = clientrt.top + (int)(row * rowScalar);
+      desktoprt.bottom = desktoprt.top + (int)rowScalar;
+      desktoprt.left = clientrt.left + (int)(column * columnScalar);
+      desktoprt.right = desktoprt.left + (int)columnScalar;
 
-          EGFrameRect(hdc, &desktoprt, guiInfo.alphaFrame, guiInfo.colorFrame, 1);
-        }
+      EGFrameRect(hdc, &desktoprt, guiInfo.alphaFrame, guiInfo.colorFrame, 1);
     }
+  }
 
   return 0;
 }
 
-bool Applet::PaintTask(Task *task)
+bool Applet::PaintTask(Task* task)
 {
   if (IsIconic(task->GetTaskWnd()))
+  {
     return false;
+  }
 
   if (pSettings->CheckSticky(task->GetAppName()) && pSettings->GetHideSticky())
+  {
     return false;
+  }
 
   return true;
 }
@@ -755,7 +827,9 @@ void Applet::ShowConfig()
   int res = config.Show();
 
   if ((res == IDOK) || (res == IDCANCEL))
+  {
     UpdateGUI();
+  }
 }
 
 LRESULT Applet::MySize()
@@ -767,94 +841,120 @@ LRESULT Applet::MySize()
   emptyRect.left = emptyRect.right = 0;
 
   for (iter = taskList.begin(); iter != taskList.end(); iter++)
+  {
     (*iter)->SetReferenceRect(emptyRect);
+  }
 
   return 0;
 }
 
-LRESULT Applet::DoCopyData(COPYDATASTRUCT *cds)
+LRESULT Applet::DoCopyData(COPYDATASTRUCT* cds)
 {
   if ((cds->dwData == EMERGE_NOTIFY) && (cds->cbData == sizeof(NOTIFYINFO)))
+  {
+    LPNOTIFYINFO notifyInfo = reinterpret_cast<LPNOTIFYINFO>(cds->lpData);
+
+    //This modified code simply removed the edges of the VWM
+    //When at an edge, it now loops back to the first or last virtual desktop
+    //Modified by Jason "Teshadael" Price, 28/02/07
+    if ((notifyInfo->Type & EMERGE_VWM) == EMERGE_VWM)
     {
-      LPNOTIFYINFO notifyInfo = reinterpret_cast<LPNOTIFYINFO>(cds->lpData);
-
-      //This modified code simply removed the edges of the VWM
-      //When at an edge, it now loops back to the first or last virtual desktop
-      //Modified by Jason "Teshadael" Price, 28/02/07
-      if ((notifyInfo->Type & EMERGE_VWM) == EMERGE_VWM)
+      UINT windowsNumber, selectedWindow, newRow, newColumn;
+      if (notifyInfo->Message >= VWM_1 && notifyInfo->Message <= VWM_9)
+      {
+        windowsNumber = pSettings->GetDesktopRows() * pSettings->GetDesktopColumns() ;
+        selectedWindow = (notifyInfo->Message - VWM_1) % windowsNumber ;
+        newRow = (UINT)(selectedWindow / pSettings->GetDesktopColumns()) ;
+        newColumn = selectedWindow % pSettings->GetDesktopColumns() ;
+        SwitchDesktop(newRow, newColumn, false);
+      }
+      else
+      {
+        UINT currentWindow;
+        switch (notifyInfo->Message)
         {
-          UINT windowsNumber, selectedWindow, newRow, newColumn;
-          if (notifyInfo->Message >= VWM_1 && notifyInfo->Message <= VWM_9)
-            {
-              windowsNumber = pSettings->GetDesktopRows() * pSettings->GetDesktopColumns() ;
-              selectedWindow = (notifyInfo->Message - VWM_1) % windowsNumber ;
-              newRow = (UINT)(selectedWindow / pSettings->GetDesktopColumns()) ;
-              newColumn = selectedWindow % pSettings->GetDesktopColumns() ;
-              SwitchDesktop(newRow, newColumn, false);
-            }
+        case VWM_UP:
+          if (currentRow > 0)
+          {
+            SwitchDesktop(currentRow - 1, currentColumn, false);
+          }
           else
-            {
-              UINT currentWindow;
-              switch (notifyInfo->Message)
-                {
-                case VWM_UP:
-                  if (currentRow > 0)
-                    SwitchDesktop(currentRow - 1, currentColumn, false);
-                  else
-                    SwitchDesktop((pSettings->GetDesktopRows() - 1), currentColumn, false);
-                  break;
-                case VWM_DOWN:
-                  if (currentRow < (pSettings->GetDesktopRows() - 1))
-                    SwitchDesktop(currentRow + 1, currentColumn, false);
-                  else
-                    SwitchDesktop(0, currentColumn, false);  //If 0 doesn't work, perhaps try currentRow - currentRow?
-                  break;
-                case VWM_LEFT:
-                  if (currentColumn > 0)
-                    SwitchDesktop(currentRow, currentColumn -1, false);
-                  else
-                    SwitchDesktop(currentRow, (pSettings->GetDesktopColumns() - 1), false);
-                  break;
-                case VWM_RIGHT:
-                  if (currentColumn < (pSettings->GetDesktopColumns() - 1))
-                    SwitchDesktop(currentRow, currentColumn + 1, false);
-                  else
-                    SwitchDesktop(currentRow, 0, false);  //If 0 doesn't work, perhaps try currentColumn - currentColumn?
-                  break;
-                case VWM_GATHER:
-                  SwitchDesktop(currentRow, currentColumn, true);
-                  break;
-                case VWM_PREV:
-                  windowsNumber = pSettings->GetDesktopRows() * pSettings->GetDesktopColumns() ;
-                  currentWindow = pSettings->GetDesktopColumns() * currentRow + currentColumn ;
+          {
+            SwitchDesktop((pSettings->GetDesktopRows() - 1), currentColumn, false);
+          }
+          break;
+        case VWM_DOWN:
+          if (currentRow < (pSettings->GetDesktopRows() - 1))
+          {
+            SwitchDesktop(currentRow + 1, currentColumn, false);
+          }
+          else
+          {
+            SwitchDesktop(0, currentColumn, false);  //If 0 doesn't work, perhaps try currentRow - currentRow?
+          }
+          break;
+        case VWM_LEFT:
+          if (currentColumn > 0)
+          {
+            SwitchDesktop(currentRow, currentColumn - 1, false);
+          }
+          else
+          {
+            SwitchDesktop(currentRow, (pSettings->GetDesktopColumns() - 1), false);
+          }
+          break;
+        case VWM_RIGHT:
+          if (currentColumn < (pSettings->GetDesktopColumns() - 1))
+          {
+            SwitchDesktop(currentRow, currentColumn + 1, false);
+          }
+          else
+          {
+            SwitchDesktop(currentRow, 0, false);  //If 0 doesn't work, perhaps try currentColumn - currentColumn?
+          }
+          break;
+        case VWM_GATHER:
+          SwitchDesktop(currentRow, currentColumn, true);
+          break;
+        case VWM_PREV:
+          windowsNumber = pSettings->GetDesktopRows() * pSettings->GetDesktopColumns() ;
+          currentWindow = pSettings->GetDesktopColumns() * currentRow + currentColumn ;
 
-                  if (currentWindow > 0)
-                    selectedWindow = currentWindow - 1 ;
-                  else
-                    selectedWindow = windowsNumber - 1 ;
+          if (currentWindow > 0)
+          {
+            selectedWindow = currentWindow - 1 ;
+          }
+          else
+          {
+            selectedWindow = windowsNumber - 1 ;
+          }
 
-                  newRow = (UINT)(selectedWindow / pSettings->GetDesktopColumns()) ;
-                  newColumn = selectedWindow % pSettings->GetDesktopColumns() ;
-                  SwitchDesktop(newRow, newColumn, false);
-                  break;
-                case VWM_NEXT:
-                  windowsNumber = pSettings->GetDesktopRows() * pSettings->GetDesktopColumns() ;
-                  currentWindow = pSettings->GetDesktopColumns() * currentRow + currentColumn ;
+          newRow = (UINT)(selectedWindow / pSettings->GetDesktopColumns()) ;
+          newColumn = selectedWindow % pSettings->GetDesktopColumns() ;
+          SwitchDesktop(newRow, newColumn, false);
+          break;
+        case VWM_NEXT:
+          windowsNumber = pSettings->GetDesktopRows() * pSettings->GetDesktopColumns() ;
+          currentWindow = pSettings->GetDesktopColumns() * currentRow + currentColumn ;
 
-                  if (currentWindow < windowsNumber - 1)
-                    selectedWindow = currentWindow + 1 ;
-                  else
-                    selectedWindow = 0 ;
+          if (currentWindow < windowsNumber - 1)
+          {
+            selectedWindow = currentWindow + 1 ;
+          }
+          else
+          {
+            selectedWindow = 0 ;
+          }
 
-                  newRow = (UINT)(selectedWindow / pSettings->GetDesktopColumns()) ;
-                  newColumn = selectedWindow % pSettings->GetDesktopColumns() ;
-                  SwitchDesktop(newRow, newColumn, false);
-                  break;
-                }
-            }
-          return 1;
+          newRow = (UINT)(selectedWindow / pSettings->GetDesktopColumns()) ;
+          newColumn = selectedWindow % pSettings->GetDesktopColumns() ;
+          SwitchDesktop(newRow, newColumn, false);
+          break;
         }
+      }
+      return 1;
     }
+  }
 
   return BaseApplet::DoCopyData(cds);
 }
@@ -895,34 +995,36 @@ LRESULT Applet::DoNotify(HWND hwnd, LPARAM lParam)
 
   // Fetch tooltip text
   if (pnmh->code == TTN_NEEDTEXT)
+  {
+    LPTOOLTIPTEXT lpttt = (LPTOOLTIPTEXT) lParam ;
+    std::vector< std::tr1::shared_ptr<Task> >::reverse_iterator iter;
+
+    rt = ELGetWindowRect(hwnd);
+
+    for (iter = taskList.rbegin(); iter != taskList.rend(); iter++)
     {
-      LPTOOLTIPTEXT lpttt = (LPTOOLTIPTEXT) lParam ;
-      std::vector< std::tr1::shared_ptr<Task> >::reverse_iterator iter;
+      GetCursorPos(&pt);
+      pt.x -= rt.left;
+      pt.y -= rt.top;
 
-      ELGetWindowRect(hwnd, &rt);
-
-      for (iter = taskList.rbegin(); iter != taskList.rend(); iter++)
+      if (PtInRect((*iter)->GetRect(), pt))
+      {
+        if (GetWindowText((*iter)->GetTaskWnd(), windowTitle, TIP_SIZE) != 0)
         {
-          GetCursorPos(&pt);
-          pt.x -= rt.left;
-          pt.y -= rt.top;
-
-          if (PtInRect((*iter)->GetRect(), pt))
-            {
-              if (GetWindowText((*iter)->GetTaskWnd(), windowTitle, TIP_SIZE) != 0)
-                {
-                  lpttt->lpszText = windowTitle;
-                  SetWindowPos(toolWnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOACTIVATE);
-                }
-              else
-                lpttt->lpszText = (WCHAR*)TEXT("\0");
-
-              return 0;
-            }
+          lpttt->lpszText = windowTitle;
+          SetWindowPos(toolWnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOACTIVATE);
+        }
+        else
+        {
+          lpttt->lpszText = (WCHAR*)TEXT("\0");
         }
 
-      lpttt->lpszText = (WCHAR*)TEXT("\0");
+        return 0;
+      }
     }
+
+    lpttt->lpszText = (WCHAR*)TEXT("\0");
+  }
 
   return 1;
 }
@@ -938,7 +1040,7 @@ LRESULT Applet::DoNotify(HWND hwnd, LPARAM lParam)
 // Note:	Many thanx go to RabidCow for the suggestion of using the window title dimenions
 // 		to determine the application desktop
 //----  --------------------------------------------------------------------------------------------------------
-bool Applet::GetTaskRowColumn(HWND hwnd, int *row, int *column)
+bool Applet::GetTaskRowColumn(HWND hwnd, int* row, int* column)
 {
   RECT winRect, desktopRect, tmpRect;
   int screenWidth = GetSystemMetrics(SM_CXVIRTUALSCREEN);
@@ -950,24 +1052,28 @@ bool Applet::GetTaskRowColumn(HWND hwnd, int *row, int *column)
   int titleHeight = GetSystemMetrics(SM_CYSIZE);
   int titleWidth, titleVerticalCentre, titleHorizontalCentre;
 
-  ELGetWindowRect(hwnd, &winRect);
+  winRect = ELGetWindowRect(hwnd);
   desktopRect.left = screenLeft;
   desktopRect.right = screenLeft + screenWidth;
   desktopRect.top = screenTop;
   desktopRect.bottom = screenTop + screenHeight;
 
   if (IsIconic(hwnd))
+  {
     return false;
+  }
 
   if (ELIsFullScreen(mainWnd))
+  {
     return false;
+  }
 
   if (IntersectRect(&tmpRect, &winRect, &desktopRect))
-    {
-      *row = currentRow;
-      *column = currentColumn;
-      return true;
-    }
+  {
+    *row = currentRow;
+    *column = currentColumn;
+    return true;
+  }
 
   titleWidth = winRect.right - winRect.left;
   titleHorizontalCentre = winRect.left + (titleWidth / 2);
@@ -975,39 +1081,43 @@ bool Applet::GetTaskRowColumn(HWND hwnd, int *row, int *column)
 
   while ((currentColumn + columnDifferential > 0) &&
          (titleHorizontalCentre <= screenLeft))
-    {
-      columnDifferential--;
-      titleHorizontalCentre += screenWidth;
-    }
+  {
+    columnDifferential--;
+    titleHorizontalCentre += screenWidth;
+  }
 
   while ((currentColumn + columnDifferential < pSettings->GetDesktopColumns()) &&
          (titleHorizontalCentre >= (screenLeft + screenWidth)))
-    {
-      columnDifferential++;
-      titleHorizontalCentre -= screenWidth;
-    }
+  {
+    columnDifferential++;
+    titleHorizontalCentre -= screenWidth;
+  }
 
   while ((currentRow + rowDifferential > 0) &&
          (titleVerticalCentre <= screenTop))
-    {
-      rowDifferential--;
-      titleVerticalCentre += screenHeight;
-    }
+  {
+    rowDifferential--;
+    titleVerticalCentre += screenHeight;
+  }
 
   while ((currentRow + rowDifferential < pSettings->GetDesktopRows()) &&
          (titleVerticalCentre >= (screenTop + screenHeight)))
-    {
-      rowDifferential++;
-      titleVerticalCentre -= screenHeight;
-    }
+  {
+    rowDifferential++;
+    titleVerticalCentre -= screenHeight;
+  }
 
   *row = currentRow + rowDifferential;
   if ((*row > (pSettings->GetDesktopRows() - 1)) || (*row < 0))
+  {
     *row = currentRow;
+  }
 
   *column = currentColumn + columnDifferential;
   if ((*column > (pSettings->GetDesktopColumns() - 1)) || (*column < 0))
+  {
     *column = currentColumn;
+  }
 
   return true;
 }

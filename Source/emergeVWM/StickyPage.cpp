@@ -1,7 +1,7 @@
 //----  --------------------------------------------------------------------------------------------------------
 //
 //  This file is part of Emerge Desktop.
-//  Copyright (C) 2004-2012  The Emerge Desktop Development Team
+//  Copyright (C) 2004-2013  The Emerge Desktop Development Team
 //
 //  Emerge Desktop is free software; you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -22,28 +22,34 @@
 
 INT_PTR CALLBACK StickyPage::StickyPageDlgProc(HWND hwndDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
-  static StickyPage *pStickyPage = NULL;
-  PROPSHEETPAGE *psp;
+  static StickyPage* pStickyPage = NULL;
+  PROPSHEETPAGE* psp;
 
   switch (message)
+  {
+  case WM_INITDIALOG:
+    psp = (PROPSHEETPAGE*)lParam;
+    pStickyPage = reinterpret_cast<StickyPage*>(psp->lParam);
+    if (!pStickyPage)
     {
-    case WM_INITDIALOG:
-      psp = (PROPSHEETPAGE*)lParam;
-      pStickyPage = reinterpret_cast<StickyPage*>(psp->lParam);
-      if (!pStickyPage)
-        break;
-      return pStickyPage->DoInitDialog(hwndDlg);
-
-    case WM_COMMAND:
-      if (!pStickyPage)
-        break;
-      return pStickyPage->DoCommand(hwndDlg, wParam, lParam);
-
-    case WM_NOTIFY:
-      if (!pStickyPage)
-        break;
-      return pStickyPage->DoNotify(hwndDlg, lParam);
+      break;
     }
+    return pStickyPage->DoInitDialog(hwndDlg);
+
+  case WM_COMMAND:
+    if (!pStickyPage)
+    {
+      break;
+    }
+    return pStickyPage->DoCommand(hwndDlg, wParam, lParam);
+
+  case WM_NOTIFY:
+    if (!pStickyPage)
+    {
+      break;
+    }
+    return pStickyPage->DoNotify(hwndDlg, lParam);
+  }
 
   return FALSE;
 }
@@ -64,7 +70,7 @@ StickyPage::StickyPage(HINSTANCE hInstance, std::tr1::shared_ptr<Settings> pSett
               0,
               TOOLTIPS_CLASS,
               NULL,
-              TTS_ALWAYSTIP|WS_POPUP|TTS_NOPREFIX,
+              TTS_ALWAYSTIP | WS_POPUP | TTS_NOPREFIX,
               CW_USEDEFAULT, CW_USEDEFAULT,
               CW_USEDEFAULT, CW_USEDEFAULT,
               NULL,
@@ -73,11 +79,11 @@ StickyPage::StickyPage(HINSTANCE hInstance, std::tr1::shared_ptr<Settings> pSett
               NULL);
 
   if (toolWnd)
-    {
-      SendMessage(toolWnd, TTM_SETMAXTIPWIDTH, 0, 300);
-      SetWindowPos(toolWnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE |
-                   SWP_NOACTIVATE);
-    }
+  {
+    SendMessage(toolWnd, TTM_SETMAXTIPWIDTH, 0, 300);
+    SetWindowPos(toolWnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE |
+                 SWP_NOACTIVATE);
+  }
 
   ExtractIconEx(TEXT("emergeIcons.dll"), 2, NULL, &addIcon, 1);
   ExtractIconEx(TEXT("emergeIcons.dll"), 5, NULL, &editIcon, 1);
@@ -93,17 +99,29 @@ StickyPage::StickyPage(HINSTANCE hInstance, std::tr1::shared_ptr<Settings> pSett
 StickyPage::~StickyPage()
 {
   if (addIcon)
+  {
     DestroyIcon(addIcon);
+  }
   if (editIcon)
+  {
     DestroyIcon(editIcon);
+  }
   if (delIcon)
+  {
     DestroyIcon(delIcon);
+  }
   if (fileIcon)
+  {
     DestroyIcon(fileIcon);
+  }
   if (saveIcon)
+  {
     DestroyIcon(saveIcon);
+  }
   if (abortIcon)
+  {
     DestroyIcon(abortIcon);
+  }
 
   DestroyWindow(toolWnd);
 }
@@ -117,9 +135,13 @@ int CALLBACK StickyPage::ListViewCompareProc (LPARAM lParam1, LPARAM lParam2, LP
   ListView_GetItemText(si->listWnd, lParam2, si->sortInfo.subItem, szBuf2, MAX_LINE_LENGTH);
 
   if (si->sortInfo.ascending)
+  {
     return(wcscmp(szBuf1, szBuf2));
+  }
   else
+  {
     return(wcscmp(szBuf1, szBuf2) * -1);
+  }
 }
 
 BOOL StickyPage::DoInitDialog(HWND hwndDlg)
@@ -142,17 +164,29 @@ BOOL StickyPage::DoInitDialog(HWND hwndDlg)
   ZeroMemory(&ti, sizeof(TOOLINFO));
 
   if (addIcon)
+  {
     SendMessage(addWnd, BM_SETIMAGE, IMAGE_ICON, (LPARAM)addIcon);
+  }
   if (editIcon)
+  {
     SendMessage(editWnd, BM_SETIMAGE, IMAGE_ICON, (LPARAM)editIcon);
+  }
   if (delIcon)
+  {
     SendMessage(delWnd, BM_SETIMAGE, IMAGE_ICON, (LPARAM)delIcon);
+  }
   if (fileIcon)
+  {
     SendMessage(fileWnd, BM_SETIMAGE, IMAGE_ICON, (LPARAM)fileIcon);
+  }
   if (saveIcon)
+  {
     SendMessage(saveWnd, BM_SETIMAGE, IMAGE_ICON, (LPARAM)saveIcon);
+  }
   if (abortIcon)
+  {
     SendMessage(abortWnd, BM_SETIMAGE, IMAGE_ICON, (LPARAM)abortIcon);
+  }
 
   EnableWindow(editWnd, false);
   EnableWindow(delWnd, false);
@@ -169,7 +203,9 @@ BOOL StickyPage::DoInitDialog(HWND hwndDlg)
   (void)ListView_SetExtendedListViewStyle(listWnd,  LVS_EX_FULLROWSELECT);
 
   if (pSettings->GetHideSticky())
+  {
     SendDlgItemMessage(hwndDlg, IDC_HIDESTICKY, BM_SETCHECK, BST_CHECKED, 0);
+  }
 
   ti.cbSize = TTTOOLINFOW_V2_SIZE;
   ti.uFlags = TTF_SUBCLASS;
@@ -221,15 +257,19 @@ BOOL StickyPage::DoInitDialog(HWND hwndDlg)
 bool StickyPage::CheckSaveCount(HWND hwndDlg)
 {
   if ((saveCount != 0) || (deleteCount != 0))
+  {
+    if (ELMessageBox(hwndDlg,
+                     TEXT("All current modifications will be lost.  To save and exit press OK.\n\nDo you wish to continue?"),
+                     TEXT("emergeVWM"),
+                     ELMB_YESNO | ELMB_ICONQUESTION | ELMB_MODAL) == IDYES)
     {
-      if (ELMessageBox(hwndDlg,
-                       (WCHAR*)TEXT("All current modifications will be lost.  To save and exit press OK.\n\nDo you wish to continue?"),
-                       (WCHAR*)TEXT("emergeVWM"),
-                       ELMB_YESNO|ELMB_ICONQUESTION|ELMB_MODAL) == IDYES)
-        return true;
-      else
-        return false;
+      return true;
     }
+    else
+    {
+      return false;
+    }
+  }
 
   return true;
 }
@@ -240,16 +280,22 @@ bool StickyPage::CheckFields(HWND hwndDlg)
   HWND appText = GetDlgItem(hwndDlg, IDC_APPLICATION);
 
   if (!IsWindowEnabled(appText))
+  {
     return true;
+  }
 
   if (GetDlgItemText(hwndDlg, IDC_APPLICATION, tmp, MAX_LINE_LENGTH) != 0)
+  {
+    if (MessageBox(hwndDlg, TEXT("The current application will be lost.\n\nDo you wish to continue?"),
+                   TEXT("emergeVWM"), MB_TOPMOST | MB_YESNO | MB_ICONQUESTION) == IDYES)
     {
-      if (MessageBox(hwndDlg, TEXT("The current application will be lost.\n\nDo you wish to continue?"),
-                     TEXT("emergeVWM"), MB_TOPMOST | MB_YESNO | MB_ICONQUESTION) == IDYES)
-        return true;
-      else
-        return false;
+      return true;
     }
+    else
+    {
+      return false;
+    }
+  }
 
   return true;
 }
@@ -257,20 +303,20 @@ bool StickyPage::CheckFields(HWND hwndDlg)
 BOOL StickyPage::DoCommand(HWND hwndDlg, WPARAM wParam, LPARAM lParam UNUSED)
 {
   switch (LOWORD(wParam))
-    {
-    case IDC_DELAPP:
-      return DoDelete(hwndDlg);
-    case IDC_EDITAPP:
-      return DoEdit(hwndDlg);
-    case IDC_ADDAPP:
-      return DoAdd(hwndDlg);
-    case IDC_SAVEAPP:
-      return DoSave(hwndDlg);
-    case IDC_ABORTAPP:
-      return DoAbort(hwndDlg);
-    case IDC_BROWSE:
-      return DoBrowse(hwndDlg);
-    }
+  {
+  case IDC_DELAPP:
+    return DoDelete(hwndDlg);
+  case IDC_EDITAPP:
+    return DoEdit(hwndDlg);
+  case IDC_ADDAPP:
+    return DoAdd(hwndDlg);
+  case IDC_SAVEAPP:
+    return DoSave(hwndDlg);
+  case IDC_ABORTAPP:
+    return DoAbort(hwndDlg);
+  case IDC_BROWSE:
+    return DoBrowse(hwndDlg);
+  }
 
   return FALSE;
 }
@@ -284,12 +330,12 @@ bool StickyPage::DoEdit(HWND hwndDlg)
   HWND appWnd = GetDlgItem(hwndDlg, IDC_APPLICATION);
 
   if (ListView_GetSelectedCount(listWnd) > 1)
-    {
-      ELMessageBox(hwndDlg, (WCHAR*)TEXT("You can only edit one item at a time."),
-                   (WCHAR*)TEXT("emergeLauncher"), ELMB_OK|ELMB_ICONERROR|ELMB_MODAL);
+  {
+    ELMessageBox(hwndDlg, TEXT("You can only edit one item at a time."),
+                 TEXT("emergeLauncher"), ELMB_OK | ELMB_ICONERROR | ELMB_MODAL);
 
-      return false;
-    }
+    return false;
+  }
 
   edit = true;
   EnableWindow(saveWnd, true);
@@ -306,27 +352,33 @@ bool StickyPage::UpdateSettings(HWND hwndDlg)
   HWND listWnd = GetDlgItem(hwndDlg, IDC_STICKYLIST);
 
   if (SendDlgItemMessage(hwndDlg, IDC_HIDESTICKY, BM_GETCHECK, 0, 0) == BST_CHECKED)
+  {
     pSettings->SetHideSticky(true);
+  }
   else if (SendDlgItemMessage(hwndDlg, IDC_HIDESTICKY, BM_GETCHECK, 0, 0) == BST_UNCHECKED)
+  {
     pSettings->SetHideSticky(false);
+  }
 
   if ((saveCount != 0) || (deleteCount != 0))
+  {
+    int i = 0;
+    while (pSettings->GetStickyListSize() != 0)
     {
-      int i = 0;
-      while (pSettings->GetStickyListSize() != 0)
-        pSettings->DeleteStickyListItem(0);
-
-      while (i < ListView_GetItemCount(listWnd))
-        {
-          ZeroMemory(stickyApp, MAX_LINE_LENGTH);
-          ListView_GetItemText(listWnd, i, 0, stickyApp, MAX_LINE_LENGTH);
-          pSettings->AddStickyListItem(stickyApp);
-
-          i++;
-        }
-
-      pSettings->WriteStickyList();
+      pSettings->DeleteStickyListItem(0);
     }
+
+    while (i < ListView_GetItemCount(listWnd))
+    {
+      ZeroMemory(stickyApp, MAX_LINE_LENGTH);
+      ListView_GetItemText(listWnd, i, 0, stickyApp, MAX_LINE_LENGTH);
+      pSettings->AddStickyListItem(stickyApp);
+
+      i++;
+    }
+
+    pSettings->WriteStickyList();
+  }
 
   pSettings->WriteSettings();
 
@@ -341,16 +393,16 @@ bool StickyPage::PopulateList(HWND listWnd)
   lvItem.mask = LVIF_TEXT;
 
   for (UINT i = 0; i < pSettings->GetStickyListSize(); i++)
-    {
-      ret = true;
+  {
+    ret = true;
 
-      lvItem.iItem = i;
-      lvItem.iSubItem = 0;
-      lvItem.pszText = pSettings->GetStickyListItem(i);
-      lvItem.cchTextMax = (int)wcslen(pSettings->GetStickyListItem(i));
+    lvItem.iItem = i;
+    lvItem.iSubItem = 0;
+    lvItem.pszText = pSettings->GetStickyListItem(i);
+    lvItem.cchTextMax = (int)wcslen(pSettings->GetStickyListItem(i));
 
-      (void)ListView_InsertItem(listWnd, &lvItem);
-    }
+    (void)ListView_InsertItem(listWnd, &lvItem);
+  }
 
   return ret;
 }
@@ -363,42 +415,46 @@ bool StickyPage::DoDelete(HWND hwndDlg)
   int prevItem = 0, i = 0;
 
   if (ListView_GetSelectedCount(listWnd) > 1)
-    {
-      ELMessageBox(hwndDlg, (WCHAR*)TEXT("You can only delete one item at a time."),
-                   (WCHAR*)TEXT("emergeVWM"), ELMB_OK|ELMB_ICONERROR|ELMB_MODAL);
+  {
+    ELMessageBox(hwndDlg, TEXT("You can only delete one item at a time."),
+                 TEXT("emergeVWM"), ELMB_OK | ELMB_ICONERROR | ELMB_MODAL);
 
-      return ret;
-    }
+    return ret;
+  }
 
   while (i < ListView_GetItemCount(listWnd))
+  {
+    if (ListView_GetItemState(listWnd, i, LVIS_SELECTED))
     {
-      if (ListView_GetItemState(listWnd, i, LVIS_SELECTED))
+      ret = true;
+      prevItem = ListView_GetNextItem(listWnd, i, LVNI_ABOVE);
+      deleteCount++;
+      (void)ListView_DeleteItem(listWnd, i);
+
+      ListView_SetItemState(listWnd, i, LVIS_SELECTED,
+                            LVIS_SELECTED);
+      if (!ListView_EnsureVisible(listWnd, i, FALSE))
+      {
+        if (prevItem != -1)
         {
-          ret = true;
-          prevItem = ListView_GetNextItem(listWnd, i, LVNI_ABOVE);
-          deleteCount++;
-          (void)ListView_DeleteItem(listWnd, i);
-
-          ListView_SetItemState(listWnd, i, LVIS_SELECTED,
+          ListView_SetItemState(listWnd, prevItem, LVIS_SELECTED,
                                 LVIS_SELECTED);
-          if (!ListView_EnsureVisible(listWnd, i, FALSE))
-            {
-              if (prevItem != -1)
-                {
-                  ListView_SetItemState(listWnd, prevItem, LVIS_SELECTED,
-                                        LVIS_SELECTED);
-                  (void)ListView_EnsureVisible(listWnd, prevItem, FALSE);
-                }
-            }
-
-          break;
+          (void)ListView_EnsureVisible(listWnd, prevItem, FALSE);
         }
-      else
-        i++;
+      }
+
+      break;
     }
+    else
+    {
+      i++;
+    }
+  }
 
   if (ListView_GetItemCount(listWnd) == 0)
+  {
     EnableWindow(delWnd, false);
+  }
 
   return ret;
 }
@@ -412,7 +468,9 @@ bool StickyPage::DoAdd(HWND hwndDlg)
   HWND appWnd = GetDlgItem(hwndDlg, IDC_APPLICATION);
 
   for (int i = 0; i < ListView_GetItemCount(listWnd); i++)
+  {
     ListView_SetItemState(listWnd, i, 0, LVIS_SELECTED);
+  }
   SetDlgItemText(hwndDlg, IDC_APPLICATION, TEXT(""));
 
   EnableWindow(saveWnd, true);
@@ -456,55 +514,61 @@ bool StickyPage::DoSave(HWND hwndDlg)
   ZeroMemory(tmp, MAX_LINE_LENGTH);
 
   lvFI.flags = LVFI_STRING;
-  lvItem.mask = LVIF_TEXT|LVIF_STATE;
+  lvItem.mask = LVIF_TEXT | LVIF_STATE;
 
   GetDlgItemText(hwndDlg, IDC_APPLICATION, tmp, MAX_LINE_LENGTH);
   if (wcslen(tmp) > 0)
+  {
+    // Strip the path from tmp so it's the basename of the application.
+    PathStripPath(tmp);
+    lvFI.psz = tmp;
+
+    if (ListView_FindItem(listWnd, 0, &lvFI) == -1)
     {
-      // Strip the path from tmp so it's the basename of the application.
-      PathStripPath(tmp);
-      lvFI.psz = tmp;
+      lvItem.iSubItem = 0;
+      lvItem.pszText = tmp;
+      lvItem.cchTextMax = (int)wcslen(tmp);
+      lvItem.state = LVIS_SELECTED;
+      lvItem.stateMask = LVIS_SELECTED;
 
-      if (ListView_FindItem(listWnd, 0, &lvFI) == -1)
+      if (edit)
+      {
+        int i = 0;
+        while (i < ListView_GetItemCount(listWnd))
         {
-          lvItem.iSubItem = 0;
-          lvItem.pszText = tmp;
-          lvItem.cchTextMax = (int)wcslen(tmp);
-          lvItem.state = LVIS_SELECTED;
-          lvItem.stateMask = LVIS_SELECTED;
+          if (ListView_GetItemState(listWnd, i, LVIS_SELECTED))
+          {
+            break;
+          }
 
-          if (edit)
-            {
-              int i = 0;
-              while (i < ListView_GetItemCount(listWnd))
-                {
-                  if (ListView_GetItemState(listWnd, i, LVIS_SELECTED))
-                    break;
-
-                  i++;
-                }
-              if (ListView_DeleteItem(listWnd, i))
-                lvItem.iItem = i;
-            }
-          else
-            lvItem.iItem = ListView_GetItemCount(listWnd);
-
-          if (ListView_InsertItem(listWnd, &lvItem) != -1)
-            {
-              saveCount++;
-
-              ret = true;
-            }
+          i++;
         }
+        if (ListView_DeleteItem(listWnd, i))
+        {
+          lvItem.iItem = i;
+        }
+      }
       else
-        {
-          swprintf(error, TEXT("%ls is already in the sticky application list"), tmp);
-          ELMessageBox(GetDesktopWindow(), error, (WCHAR*)TEXT("emergeVWM"),
-                       ELMB_OK|ELMB_ICONERROR|ELMB_MODAL);
-        }
+      {
+        lvItem.iItem = ListView_GetItemCount(listWnd);
+      }
 
-      SetDlgItemText(hwndDlg, IDC_APPLICATION, TEXT(""));
+      if (ListView_InsertItem(listWnd, &lvItem) != -1)
+      {
+        saveCount++;
+
+        ret = true;
+      }
     }
+    else
+    {
+      swprintf(error, TEXT("%ls is already in the sticky application list"), tmp);
+      ELMessageBox(GetDesktopWindow(), error, TEXT("emergeVWM"),
+                   ELMB_OK | ELMB_ICONERROR | ELMB_MODAL);
+    }
+
+    SetDlgItemText(hwndDlg, IDC_APPLICATION, TEXT(""));
+  }
 
   EnableWindow(saveWnd, false);
   EnableWindow(abortWnd, false);
@@ -512,7 +576,7 @@ bool StickyPage::DoSave(HWND hwndDlg)
   EnableWindow(fileWnd, false);
   edit = false;
   lvSortInfo.listWnd = listWnd;
-  ret = ListView_SortItemsEx(listWnd, ListViewCompareProc, (LPARAM)&lvSortInfo);
+  ret = (ListView_SortItemsEx(listWnd, ListViewCompareProc, (LPARAM)&lvSortInfo) == TRUE); //explicitly convert from BOOL to bool, since an implicit conversion triggers a compiler warning in Visual Studio
 
   return ret;
 }
@@ -536,11 +600,11 @@ bool StickyPage::DoBrowse(HWND hwndDlg)
   ofn.Flags = OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST | OFN_EXPLORER | OFN_DONTADDTORECENT | OFN_NOCHANGEDIR | OFN_NODEREFERENCELINKS;
 
   if (GetOpenFileName(&ofn))
-    {
-      SetDlgItemText(hwndDlg, IDC_APPLICATION, PathFindFileName(tmp));
+  {
+    SetDlgItemText(hwndDlg, IDC_APPLICATION, PathFindFileName(tmp));
 
-      ret = true;
-    }
+    ret = true;
+  }
 
   return ret;
 }
@@ -555,52 +619,64 @@ BOOL StickyPage::DoNotify(HWND hwndDlg, LPARAM lParam)
   BOOL ret;
 
   switch (((LPNMITEMACTIVATE)lParam)->hdr.code)
+  {
+  case LVN_ITEMCHANGED:
+    EnableWindow(delWnd, true);
+    EnableWindow(editWnd, true);
+    itemIndex = ((LPNMLISTVIEW)lParam)->iItem;
+    if (ListView_GetItemState(listWnd, itemIndex, LVIS_SELECTED))
     {
-    case LVN_ITEMCHANGED:
-      EnableWindow(delWnd, true);
-      EnableWindow(editWnd, true);
-      itemIndex = ((LPNMLISTVIEW)lParam)->iItem;
-      if (ListView_GetItemState(listWnd, itemIndex, LVIS_SELECTED))
-        {
-          ListView_GetItemText(listWnd, itemIndex, 0, appName, MAX_LINE_LENGTH);
-          SetDlgItemText(hwndDlg, IDC_APPLICATION, appName);
-        }
-      return TRUE;
-
-    case LVN_COLUMNCLICK:
-      subItem = ((LPNMLISTVIEW)lParam)->iSubItem;
-      if (toggleSort[subItem])
-        toggleSort[subItem] = false;
-      else
-        toggleSort[subItem] = true;
-      lvSortInfo.sortInfo.ascending = toggleSort[subItem];
-      lvSortInfo.sortInfo.subItem = subItem;
-      pSettings->SetSortInfo(myName, &lvSortInfo.sortInfo);
-      ret = ListView_SortItemsEx(listWnd, ListViewCompareProc, (LPARAM)&lvSortInfo);
-      return ret;
-
-    case PSN_APPLY:
-      if (CheckFields(hwndDlg) && UpdateSettings(hwndDlg))
-        SetWindowLongPtr(hwndDlg, DWLP_MSGRESULT, PSNRET_NOERROR);
-      else
-        SetWindowLongPtr(hwndDlg, DWLP_MSGRESULT, PSNRET_INVALID);
-      return TRUE;
-
-    case PSN_SETACTIVE:
-      SetWindowLongPtr(hwndDlg, DWLP_MSGRESULT, FALSE);
-      return TRUE;
-
-    case PSN_KILLACTIVE:
-      SetWindowLongPtr(hwndDlg, DWLP_MSGRESULT, FALSE);
-      return TRUE;
-
-    case PSN_QUERYCANCEL:
-      if (CheckFields(hwndDlg) && CheckSaveCount(hwndDlg))
-        SetWindowLong(hwndDlg,DWLP_MSGRESULT,FALSE);
-      else
-        SetWindowLong(hwndDlg,DWLP_MSGRESULT,TRUE);
-      return TRUE;
+      ListView_GetItemText(listWnd, itemIndex, 0, appName, MAX_LINE_LENGTH);
+      SetDlgItemText(hwndDlg, IDC_APPLICATION, appName);
     }
+    return TRUE;
+
+  case LVN_COLUMNCLICK:
+    subItem = ((LPNMLISTVIEW)lParam)->iSubItem;
+    if (toggleSort[subItem])
+    {
+      toggleSort[subItem] = false;
+    }
+    else
+    {
+      toggleSort[subItem] = true;
+    }
+    lvSortInfo.sortInfo.ascending = toggleSort[subItem];
+    lvSortInfo.sortInfo.subItem = subItem;
+    pSettings->SetSortInfo(myName, &lvSortInfo.sortInfo);
+    ret = ListView_SortItemsEx(listWnd, ListViewCompareProc, (LPARAM)&lvSortInfo);
+    return ret;
+
+  case PSN_APPLY:
+    if (CheckFields(hwndDlg) && UpdateSettings(hwndDlg))
+    {
+      SetWindowLongPtr(hwndDlg, DWLP_MSGRESULT, PSNRET_NOERROR);
+    }
+    else
+    {
+      SetWindowLongPtr(hwndDlg, DWLP_MSGRESULT, PSNRET_INVALID);
+    }
+    return TRUE;
+
+  case PSN_SETACTIVE:
+    SetWindowLongPtr(hwndDlg, DWLP_MSGRESULT, FALSE);
+    return TRUE;
+
+  case PSN_KILLACTIVE:
+    SetWindowLongPtr(hwndDlg, DWLP_MSGRESULT, FALSE);
+    return TRUE;
+
+  case PSN_QUERYCANCEL:
+    if (CheckFields(hwndDlg) && CheckSaveCount(hwndDlg))
+    {
+      SetWindowLong(hwndDlg, DWLP_MSGRESULT, FALSE);
+    }
+    else
+    {
+      SetWindowLong(hwndDlg, DWLP_MSGRESULT, TRUE);
+    }
+    return TRUE;
+  }
 
   return FALSE;
 }

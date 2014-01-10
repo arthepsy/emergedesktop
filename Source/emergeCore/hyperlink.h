@@ -1,31 +1,31 @@
-/*
- * Module ID: hyperlink.h
- * Title    : CHyperLink Declaration.
- *
- * Author   : Olivier Langlois <olanglois@sympatico.ca>
- * Date     : November 15, 2005
- *
- * To read the article describing this class, visit
- * http://www3.sympatico.ca/olanglois/hyperlinkdemo.htm
- *
- * Note: Strongly inspired by Neal Stublen code
- *       Minor ideas come from Chris Maunder and Paul DiLascia code
- *
- * Revision :
- *
- * 002        15-Dec-2011 - Chris Sutcliffe
- *            - Default to UNICODE
- *
- * 001        26-Nov-2005 - Olivier Langlois
- *            - Added changes to make CHyperLink compatible with UNICODE
- *            - Use dynamic memory allocation for the URL string
- */
+/*!
+  @file hyperlink.h
+  @brief CHyperLink Declaration
+  @author Olivier Langlois <olanglois@sympatico.ca>
+  @date November 15, 2005
 
-#ifndef   _HYPERLINK_H_
-#define   _HYPERLINK_H_
+  @attention To read the article describing this class, visit
+  http://www3.sympatico.ca/olanglois/hyperlinkdemo.htm
+
+  @note Strongly inspired by Neal Stublen code
+         Minor ideas come from Chris Maunder and Paul DiLascia code
+
+  @par Revision :
+  002        15-Dec-2011 - Chris Sutcliffe
+              - Default to UNICODE
+
+  001        26-Nov-2005 - Olivier Langlois
+              - Added changes to make CHyperLink compatible with UNICODE
+              - Use dynamic memory allocation for the URL string
+  */
+
+#ifndef   __GUARD_2b2a61fd_11f7_4327_b2f5_68adb3a9cb44
+#define   __GUARD_2b2a61fd_11f7_4327_b2f5_68adb3a9cb44
 
 #define UNICODE 1
-#include "../emergeLib/emergeLib.h"
+
+#include <windows.h>
+#include "../emergeLib/emergeFileRegistryLib.h"
 
 class CHyperLink
 {
@@ -86,7 +86,7 @@ private:
   static LONG_PTR WINAPI _HyperlinkParentProc(HWND hwnd, UINT message,
       WPARAM wParam, LPARAM lParam);
   static LONG_PTR WINAPI _HyperlinkProc(HWND hwnd, UINT message,
-                                         WPARAM wParam, LPARAM lParam);
+                                        WPARAM wParam, LPARAM lParam);
 };
 
-#endif /* _HYPERLINK_H_ */
+#endif

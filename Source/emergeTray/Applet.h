@@ -1,25 +1,34 @@
-//----  --------------------------------------------------------------------------------------------------------
-//
-//  This file is part of Emerge Desktop.
-//  Copyright (C) 2004-2012  The Emerge Desktop Development Team
-//
-//  Emerge Desktop is free software; you can redistribute it and/or modify
-//  it under the terms of the GNU General Public License as published by
-//  the Free Software Foundation; either version 3 of the License, or
-//  (at your option) any later version.
-//
-//  Emerge Desktop is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//  GNU General Public License for more details.
-//
-//  You should have received a copy of the GNU General Public License
-//  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-//
-//----  --------------------------------------------------------------------------------------------------------
+/*!
+  @file Applet.h
+  @brief header for emergeTray
+  @author The Emerge Desktop Development Team
 
-#ifndef __ETR_APPLET_H
-#define __ETR_APPLET_H
+  @attention This file is part of Emerge Desktop.
+  @attention Copyright (C) 2004-2013  The Emerge Desktop Development Team
+
+  @attention Emerge Desktop is free software; you can redistribute it and/or
+  modify  it under the terms of the GNU General Public License as published
+  by the Free Software Foundation; either version 3 of the License, or
+  (at your option) any later version.
+
+  @attention Emerge Desktop is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  @attention You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  */
+
+#ifndef __GUARD_3a98a69a_5d06_414b_b98a_34b6cf75dd1a
+#define __GUARD_3a98a69a_5d06_414b_b98a_34b6cf75dd1a
+
+#define UNICODE 1
+
+#ifdef _MSC_VER
+#define _CRT_SECURE_NO_WARNINGS 1 //suppress warnings about old versions of wcscpy, wcscat, etc.
+#define _CRT_NON_CONFORMING_SWPRINTFS 1 //suppress warnings about old swprintf format
+#endif
 
 // Define required for the Window Transparency
 #undef _WIN32_WINNT
@@ -40,15 +49,34 @@
 #define TRAY_MESSAGE            1
 #define ICONIDENTIFIER_MESSAGE  3
 
-#include <vector>
-#include <process.h>
-#include "AppBar.h"
 #include <docobj.h>
+#include <process.h>
 #include <shlguid.h>
+#include <vector>
 #include "../emergeBaseClasses/BaseApplet.h"
-#include "Settings.h"
+#include "AppBar.h"
 #include "Config.h"
+#include "Settings.h"
 #include "TrayIcon.h"
+
+//GetVersionEx is deprecated in Visual Studio, to be replaced by IsWindows* functions. It's supposed to be deprecated
+//in other compilers too, but so far only VS has the replacements implemented. So we'll have to roll our own for other
+//compilers until GCC gets around to adding proper support.
+#ifdef _MSC_VER
+#include <versionhelpers.h>
+#else
+inline bool IsWindows7OrGreater()
+{
+  OSVERSIONINFO osv;
+
+  ZeroMemory(&osv, sizeof(osv));
+
+  osv.dwOSVersionInfoSize = sizeof(osv);
+  GetVersionEx(&osv);
+
+  return ((osv.dwMajorVersion + (osv.dwMinorVersion / 10.0)) >= 6.1);
+}
+#endif
 
 #ifndef NIN_POPUPOPEN
 #define NIN_POPUPOPEN WM_USER+6
@@ -435,7 +463,7 @@ typedef struct SHELLTRAYDATAWOW32
 SHELLTRAYDATAWOW32, *PSHELLTRAYDATAWOW32;
 
 // In SDK 7.0A the structure NOTIFYICONIDENTIFIER is defined in ShellAPI.h
-#ifdef __MINGW32__
+/*#ifdef __MINGW32__
 typedef struct _NOTIFYICONIDENTIFIER
 {
   DWORD cbSize;
@@ -443,7 +471,7 @@ typedef struct _NOTIFYICONIDENTIFIER
   UINT uID;
   GUID guidItem;
 } NOTIFYICONIDENTIFIER, *PNOTIFYICONIDENTIFIER;
-#endif
+#endif*/
 
 typedef struct ICONIDENTIFIERDATA
 {
@@ -485,22 +513,22 @@ private:
   static LRESULT CALLBACK WindowProcedure (HWND, UINT, WPARAM, LPARAM);
   static LRESULT CALLBACK TrayProcedure (HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
   bool AcquireExplorerTrayIconList();
-  bool IsIconVisible(TrayIcon *pTrayIcon);
-  TrayIcon *activeIcon;
+  bool IsIconVisible(TrayIcon* pTrayIcon);
+  TrayIcon* activeIcon;
   bool SetAutoHideEdge(UINT edge);
   bool ClearAutoHideEdge(UINT edge);
   bool autoHideLeft, autoHideRight, autoHideTop, autoHideBottom;
-  APPBARDATA *LockAppBarMemory(HANDLE sharedMem, DWORD processID);
+  APPBARDATA* LockAppBarMemory(HANDLE sharedMem, DWORD processID);
   CRITICAL_SECTION trayVectorCS;
   TOOLINFO ti;
-  TrayIcon *oldTipIcon;
+  TrayIcon* oldTipIcon;
 
 public:
   Applet(HINSTANCE hInstance);
   ~Applet();
   UINT Initialize();
   UINT PortableInitialize();
-  TrayIcon *GetTrayIconListItem(UINT index);
+  TrayIcon* GetTrayIconListItem(UINT index);
   size_t GetTrayIconListSize();
   LRESULT DoTimer(UINT timerID);
   LRESULT DoSetCursor();
@@ -514,9 +542,9 @@ public:
   void CleanTray();
   void ShowConfig();
   TrayIcon* FindTrayIcon(HWND hwnd, UINT uID);
-  AppBar* FindAppBar(APPBARDATA *pAppBarData);
-  bool RemoveAppBar(AppBar *pAppBar);
-  bool RemoveTrayIconListItem(TrayIcon *pTrayIcon);
+  AppBar* FindAppBar(APPBARDATA* pAppBarData);
+  bool RemoveAppBar(AppBar* pAppBar);
+  bool RemoveTrayIconListItem(TrayIcon* pTrayIcon);
   LRESULT RemoveTrayIcon(HWND hwnd, UINT uID);
   LRESULT ModifyTrayIcon(HWND hwnd, UINT uID, UINT uFlags, UINT uCallbackMessage,
                          HICON icon, LPTSTR newTip, LPTSTR newInfo,
@@ -528,9 +556,9 @@ public:
                       LPTSTR szInfoTitle, DWORD dwInfoFlags, bool hidden,
                       bool shared);
   LRESULT TrayMouseEvent(UINT message, LPARAM lParam);
-  LRESULT TrayIconEvent(COPYDATASTRUCT *cpData);
-  LRESULT AppBarEvent(COPYDATASTRUCT *cpData);
-  LRESULT IconIdentifierEvent(COPYDATASTRUCT *cpData);
+  LRESULT TrayIconEvent(COPYDATASTRUCT* cpData);
+  LRESULT AppBarEvent(COPYDATASTRUCT* cpData);
+  LRESULT IconIdentifierEvent(COPYDATASTRUCT* cpData);
   void ShowHiddenIcons(bool cmd, bool force);
   void SortIcons();
   bool PaintItem(HDC hdc, size_t index, int x, int y, RECT rect);

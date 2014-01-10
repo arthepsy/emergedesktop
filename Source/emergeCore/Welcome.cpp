@@ -1,7 +1,7 @@
 //----  --------------------------------------------------------------------------------------------------------
 //
 //  This file is part of Emerge Desktop.
-//  Copyright (C) 2004-2012  The Emerge Desktop Development Team
+//  Copyright (C) 2004-2013  The Emerge Desktop Development Team
 //
 //  Emerge Desktop is free software; you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -21,26 +21,28 @@
 #include "Welcome.h"
 #include <stdio.h>
 
-extern Welcome *pWelcome;
+extern Welcome* pWelcome;
 
 BOOL CALLBACK Welcome::WelcomeDlgProc(HWND hwndDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
-  static Welcome *pWelcome = NULL;
+  static Welcome* pWelcome = NULL;
 
   switch (message)
+  {
+  case WM_INITDIALOG:
+    pWelcome = reinterpret_cast<Welcome*>(lParam);
+    if (!pWelcome)
     {
-    case WM_INITDIALOG:
-      pWelcome = reinterpret_cast<Welcome*>(lParam);
-      if (!pWelcome)
-        break;
-      return pWelcome->DoInitDialog(hwndDlg);
-
-    case WM_COMMAND:
-      return pWelcome->DoCommand(hwndDlg, wParam, lParam);
-
-    case WM_NOTIFY:
-      return pWelcome->DoNotify(hwndDlg, lParam);
+      break;
     }
+    return pWelcome->DoInitDialog(hwndDlg);
+
+  case WM_COMMAND:
+    return pWelcome->DoCommand(hwndDlg, wParam, lParam);
+
+  case WM_NOTIFY:
+    return pWelcome->DoNotify(hwndDlg, lParam);
+  }
 
   return FALSE;
 }
@@ -64,7 +66,9 @@ Welcome::Welcome(HINSTANCE hInstance, HWND mainWnd, std::tr1::shared_ptr<Setting
 Welcome::~Welcome()
 {
   if (logoBMP)
+  {
     DeleteObject(logoBMP);
+  }
 
   FreeLibrary(hIconsDLL);
 }
@@ -79,30 +83,34 @@ BOOL Welcome::DoInitDialog(HWND hwndDlg)
   RECT rect;
   int x, y;
 
-  ELGetWindowRect(hwndDlg, &rect);
+  rect = ELGetWindowRect(hwndDlg);
   x = (GetSystemMetrics(SM_CXSCREEN) / 2) - ((rect.right - rect.left) / 2);
   y = (GetSystemMetrics(SM_CYSCREEN) / 2) - ((rect.bottom - rect.top) / 2);
   SetWindowPos(hwndDlg, HWND_TOPMOST, x, y, 0, 0, SWP_NOSIZE);
   ELStealFocus(hwndDlg);
 
   if (logoBMP)
+  {
     SendDlgItemMessage(hwndDlg, IDC_LOGO, STM_SETIMAGE, IMAGE_BITMAP, (LPARAM)logoBMP);
+  }
 
   if (pSettings->GetShowWelcome())
+  {
     SendDlgItemMessage(hwndDlg, IDC_SHOWWELCOME, BM_SETCHECK, BST_CHECKED, 0);
+  }
 
   pForumLink->ConvertStaticToHyperlink(hwndDlg,
                                        IDC_FORUMLINK,
-                                       (WCHAR*)L"Homepage");
+                                       (WCHAR*)TEXT("Homepage"));
   /*pWikiLink->ConvertStaticToHyperlink(hwndDlg,
                                       IDC_WIKILINK,
-                                      (WCHAR*)L"http://ed.xaerolimit.net/wiki/");*/
+                                      (WCHAR*)TEXT("http://ed.xaerolimit.net/wiki/"));*/
   pTutorialLink->ConvertStaticToHyperlink(hwndDlg,
                                           IDC_TUTORIALLINK,
-                                          (WCHAR*)L"Tutorial");
+                                          (WCHAR*)TEXT("Tutorial"));
   pOfflineLink->ConvertStaticToHyperlink(hwndDlg,
-                                          IDC_HELPLINK,
-                                          (WCHAR*)L"Help");
+                                         IDC_HELPLINK,
+                                         (WCHAR*)TEXT("Help"));
 
   return TRUE;
 }
@@ -110,12 +118,14 @@ BOOL Welcome::DoInitDialog(HWND hwndDlg)
 BOOL Welcome::DoCommand(HWND hwndDlg, WPARAM wParam, LPARAM lParam UNUSED)
 {
   switch (LOWORD(wParam))
+  {
+  case IDOK:
+    if (UpdateSettings(hwndDlg))
     {
-    case IDOK:
-      if (UpdateSettings(hwndDlg))
-        EndDialog(hwndDlg, wParam);
-      return TRUE;
+      EndDialog(hwndDlg, wParam);
     }
+    return TRUE;
+  }
 
   return FALSE;
 }
@@ -128,7 +138,7 @@ BOOL Welcome::DoNotify(HWND hwndDlg UNUSED, LPARAM lParam UNUSED)
 bool Welcome::UpdateSettings(HWND hwndDlg)
 {
   pSettings->SetShowWelcome(SendDlgItemMessage(hwndDlg, IDC_SHOWWELCOME,
-                                               BM_GETCHECK, 0, 0) == BST_CHECKED);
+                            BM_GETCHECK, 0, 0) == BST_CHECKED);
   pSettings->WriteUserSettings();
   return true;
 }

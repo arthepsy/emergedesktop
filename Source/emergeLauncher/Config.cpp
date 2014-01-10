@@ -1,7 +1,7 @@
 //----  --------------------------------------------------------------------------------------------------------
 //
 //  This file is part of Emerge Desktop.
-//  Copyright (C) 2004-2012  The Emerge Desktop Development Team
+//  Copyright (C) 2004-2013  The Emerge Desktop Development Team
 //
 //  Emerge Desktop is free software; you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -23,21 +23,23 @@
 
 INT_PTR CALLBACK Config::ConfigDlgProc(HWND hwndDlg, UINT message, WPARAM wParam UNUSED, LPARAM lParam UNUSED)
 {
-  static Config *pConfig = NULL;
+  static Config* pConfig = NULL;
 
   switch (message)
+  {
+  case WM_INITDIALOG:
+    pConfig = reinterpret_cast<Config*>(lParam);
+    if (!pConfig)
     {
-    case WM_INITDIALOG:
-      pConfig = reinterpret_cast<Config*>(lParam);
-      if (!pConfig)
-        break;
-      return pConfig->DoInitDialog(hwndDlg);
+      break;
     }
+    return pConfig->DoInitDialog(hwndDlg);
+  }
 
   return 0;
 }
 
-Config::Config(HINSTANCE hInstance, HWND mainWnd, WCHAR *instanceName, std::tr1::shared_ptr<Settings> pSettings)
+Config::Config(HINSTANCE hInstance, HWND mainWnd, WCHAR* instanceName, std::tr1::shared_ptr<Settings> pSettings)
 {
   this->hInstance = hInstance;
   this->mainWnd = mainWnd;
@@ -46,7 +48,7 @@ Config::Config(HINSTANCE hInstance, HWND mainWnd, WCHAR *instanceName, std::tr1:
   pConfigPage = std::tr1::shared_ptr<ConfigPage>(new ConfigPage(pSettings));
   pLaunchPage = std::tr1::shared_ptr<LaunchPage>(new LaunchPage(hInstance, pSettings));
   pPositionPage = std::tr1::shared_ptr<BasePositionPage>
-                  (new BasePositionPage(pSettings, BPP_ZORDER|BPP_HORIZONTAL|BPP_ORIENTATION|BPP_VERTICAL));
+                  (new BasePositionPage(pSettings, BPP_ZORDER | BPP_HORIZONTAL | BPP_ORIENTATION | BPP_VERTICAL));
   pStyleEditor = std::tr1::shared_ptr<StyleEditor>(new StyleEditor(mainWnd, instanceName));
 }
 
@@ -66,7 +68,7 @@ INT_PTR Config::DoInitDialog(HWND hwndDlg)
   PROPSHEETHEADER psh;
 
   ELStealFocus(hwndDlg);
-  SetWindowPos(hwndDlg, HWND_TOPMOST, 0, 0, 0, 0,  SWP_NOSIZE|SWP_NOMOVE);
+  SetWindowPos(hwndDlg, HWND_TOPMOST, 0, 0, 0, 0,  SWP_NOSIZE | SWP_NOMOVE);
 
   psp[0].dwSize = sizeof(PROPSHEETPAGE);
   psp[0].dwFlags = PSP_USETITLE;
@@ -119,13 +121,15 @@ INT_PTR Config::DoInitDialog(HWND hwndDlg)
   ret = PropertySheet(&psh);
 
   if (ret >= 1)
-    {
-      pSettings->SetStyleFile(ESEGetStyle());
-      pSettings->WriteSettings();
-      EndDialog(hwndDlg, IDOK);
-    }
+  {
+    pSettings->SetStyleFile(ESEGetStyle());
+    pSettings->WriteSettings();
+    EndDialog(hwndDlg, IDOK);
+  }
   if (ret <= 0)
+  {
     EndDialog(hwndDlg, IDCANCEL);
+  }
 
   return 1;
 }

@@ -1,25 +1,33 @@
-//----  --------------------------------------------------------------------------------------------------------
-//
-//  This file is part of Emerge Desktop.
-//  Copyright (C) 2004-2012  The Emerge Desktop Development Team
-//
-//  Emerge Desktop is free software; you can redistribute it and/or modify
-//  it under the terms of the GNU General Public License as published by
-//  the Free Software Foundation; either version 3 of the License, or
-//  (at your option) any later version.
-//
-//  Emerge Desktop is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//  GNU General Public License for more details.
-//
-//  You should have received a copy of the GNU General Public License
-//  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-//
-//----  --------------------------------------------------------------------------------------------------------
+/*!
+  @file Applet.h
+  @brief header for emergeCommand
+  @author The Emerge Desktop Development Team
 
-#ifndef __ECM_APPLET_H
-#define __ECM_APPLET_H
+  @attention This file is part of Emerge Desktop.
+  @attention Copyright (C) 2004-2013  The Emerge Desktop Development Team
+
+  @attention Emerge Desktop is free software; you can redistribute it and/or
+  modify  it under the terms of the GNU General Public License as published
+  by the Free Software Foundation; either version 3 of the License, or
+  (at your option) any later version.
+
+  @attention Emerge Desktop is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  @attention You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  */
+
+#ifndef __GUARD_7a773ab0_829b_45fd_a007_3d4962ebdf5b
+#define __GUARD_7a773ab0_829b_45fd_a007_3d4962ebdf5b
+
+#define UNICODE 1
+
+#ifdef _MSC_VER
+#define _CRT_SECURE_NO_WARNINGS 1 //suppress warnings about old versions of wcscpy, wcscat, etc.
+#endif
 
 // Defines required for tooltip
 #undef _WIN32_IE
@@ -52,7 +60,7 @@ class Applet: public BaseApplet
 private:
   std::tr1::shared_ptr<Settings> pSettings;
   std::tr1::shared_ptr<Command> pCommand;
-  WCHAR commandText[MAX_LINE_LENGTH];
+  std::wstring commandText;
   HFONT mainFont;
   static LRESULT CALLBACK WindowProcedure (HWND, UINT, WPARAM, LPARAM);
 
@@ -68,8 +76,8 @@ public:
   void WriteAppletSettings();
   LRESULT DoButtonDown(UINT message, WPARAM wParam, LPARAM lParam);
   LRESULT ShowCommand();
-  void SetCommandText(WCHAR *commandText);
-  void UpdateTip(WCHAR *tip);
+  void SetCommandText(std::wstring commandText);
+  void UpdateTip(std::wstring tip);
   LRESULT PaintContent(HDC hdc, RECT clientrt);
   void Activate();
   void Show();
