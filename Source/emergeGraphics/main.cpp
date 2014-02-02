@@ -724,21 +724,18 @@ HICON EGGetFileIcon(std::wstring file, UINT iconSize)
                 wcscpy(iconLocation, suppliedFile.c_str());
               }
 
-              if (ELFileExists(iconLocation) || (wcscmp(iconLocation, TEXT("*")) == 0))
+              hr = extractIcon->Extract(iconLocation, iconIndex, &largeIcon, &smallIcon, MAKELONG(iconSize, iconSize));
+              if ((iconSize == 16) && smallIcon)
               {
-                hr = extractIcon->Extract(iconLocation, iconIndex, &largeIcon, &smallIcon, MAKELONG(iconSize, iconSize));
-                if ((iconSize == 16) && smallIcon)
-                {
-                  icon = CopyIcon(smallIcon);
-                }
-                else
-                {
-                  icon = CopyIcon(largeIcon);
-                }
-
-                DestroyIcon(smallIcon);
-                DestroyIcon(largeIcon);
+                icon = CopyIcon(smallIcon);
               }
+              else
+              {
+                icon = CopyIcon(largeIcon);
+              }
+
+              DestroyIcon(smallIcon);
+              DestroyIcon(largeIcon);
             }
           }
           extractIcon->Release();
