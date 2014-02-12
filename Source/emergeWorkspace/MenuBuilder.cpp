@@ -2122,23 +2122,27 @@ void MenuBuilder::AddSpecialItem(MenuMap::iterator iter, UINT type, WCHAR* text,
 
 void MenuBuilder::ExecuteXMLMenuItem(UINT type, WCHAR *value, WCHAR *workingDir)
 {
-  bool ret = false;
+  //bool ret = false;
   /*WCHAR error[MAX_LINE_LENGTH];
   swprintf(error, TEXT("Failed to execute \"%ls\""), value);*/
 
   switch (type)
     {
     case IT_EXECUTABLE:
-      ret = ELExecuteFileOrCommand(value, workingDir);
+      //ret = ELExecuteFileOrCommand(value, workingDir);
+      ELExecuteFileOrCommand(value, workingDir);
       break;
     case IT_INTERNAL_COMMAND:
-      ret = ELExecuteFileOrCommand(value);
+      //ret = ELExecuteFileOrCommand(value);
+      ELExecuteFileOrCommand(value);
       break;
     case IT_DATE_TIME:
-      ret = ELExecuteFileOrCommand(TEXT("timedate.cpl"));
+      //ret = ELExecuteFileOrCommand(TEXT("timedate.cpl"));
+      ELExecuteFileOrCommand(TEXT("timedate.cpl"));
       break;
     case IT_SPECIAL_FOLDER:
-      ret = ELExecuteFileOrCommand(value);
+      //ret = ELExecuteFileOrCommand(value);
+      ELExecuteFileOrCommand(value);
       break;
     }
 

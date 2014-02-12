@@ -70,7 +70,7 @@ LRESULT Shell::HideExplorerBar()
 // Returns:	bool - true if entries exist, false otherwise
 // Purpose:	Enumerates and executes the registry key contents
 //----  --------------------------------------------------------------------------------------------------------
-bool Shell::RunRegEntries(HKEY key, bool clearEntry, bool showStartupErrors)
+bool Shell::RunRegEntries(HKEY key, bool clearEntry, bool showStartupErrors UNUSED)
 {
   DWORD type, index = 0, valueSize = MAX_LINE_LENGTH, dataSize = MAX_LINE_LENGTH;
   BYTE data[MAX_LINE_LENGTH];
@@ -412,7 +412,7 @@ void Shell::RunRegStartup(bool showStartupErrors)
 // Returns:	Nothing
 // Purpose:	Enumerates and executes the files in the path
 //----  --------------------------------------------------------------------------------------------------------
-void Shell::RunFolderEntries(LPTSTR path, bool showStartupErrors)
+void Shell::RunFolderEntries(LPTSTR path, bool showStartupErrors UNUSED)
 {
   WCHAR appPath[MAX_PATH], app[MAX_PATH];
   WIN32_FIND_DATA findData;
