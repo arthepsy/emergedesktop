@@ -35,6 +35,7 @@
 #include <windows.h>
 #include <shlobj.h>
 #include <shlwapi.h>
+#include <shobjidl.h>
 #include <map>
 #include <string>
 #include <vector>
