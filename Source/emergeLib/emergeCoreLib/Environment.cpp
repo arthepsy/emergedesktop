@@ -273,10 +273,10 @@ bool ELSetEmergeVars()
 
 void ELSetEnvironmentVars(bool showErrors)
 {
-  WCHAR tmp[MAX_LINE_LENGTH];
+  WCHAR tmp[MAX_PATH];
 
   bool localCheck = true;
-  if (SHGetSpecialFolderPath(GetDesktopWindow(), tmp, CSIDL_STARTMENU, FALSE))
+  if (SHGetFolderPath(GetDesktopWindow(), CSIDL_STARTMENU, NULL, SHGFP_TYPE_CURRENT, tmp) == S_OK)
   {
     if (!SetEnvironmentVariable(TEXT("StartMenu"), tmp))
     {
@@ -288,12 +288,12 @@ void ELSetEnvironmentVars(bool showErrors)
     localCheck = false;
   }
   if (showErrors && !localCheck)
-    ELMessageBox(GetDesktopWindow(), TEXT("Failed to set %%StartMenu%%"),
-                 TEXT("Emerge Desktop"), ELMB_OK | ELMB_ICONERROR);
+    MessageBox(GetDesktopWindow(), TEXT("Failed to set %%StartMenu%%"),
+                 TEXT("Emerge Desktop"), MB_OK | MB_ICONERROR);
 
 
   localCheck = true;
-  if (SHGetSpecialFolderPath(GetDesktopWindow(), tmp, CSIDL_COMMON_STARTMENU, FALSE))
+  if (SHGetFolderPath(GetDesktopWindow(), CSIDL_COMMON_STARTMENU, NULL, SHGFP_TYPE_CURRENT, tmp) == S_OK)
   {
     if (!SetEnvironmentVariable(TEXT("CommonStartMenu"), tmp))
     {
@@ -305,11 +305,11 @@ void ELSetEnvironmentVars(bool showErrors)
     localCheck = false;
   }
   if (showErrors && !localCheck)
-    ELMessageBox(GetDesktopWindow(), TEXT("Failed to set %%CommonStartMenu%%"),
-                 TEXT("Emerge Desktop"), ELMB_OK | ELMB_ICONERROR);
+    MessageBox(GetDesktopWindow(), TEXT("Failed to set %%CommonStartMenu%%"),
+                 TEXT("Emerge Desktop"), MB_OK | MB_ICONERROR);
 
   localCheck = true;
-  if (SHGetSpecialFolderPath(GetDesktopWindow(), tmp, CSIDL_DESKTOPDIRECTORY, FALSE))
+  if (SHGetFolderPath(GetDesktopWindow(), CSIDL_DESKTOPDIRECTORY, NULL, SHGFP_TYPE_CURRENT, tmp) == S_OK)
   {
     if (!SetEnvironmentVariable(TEXT("Desktop"), tmp))
     {
@@ -321,11 +321,11 @@ void ELSetEnvironmentVars(bool showErrors)
     localCheck = false;
   }
   if (showErrors && !localCheck)
-    ELMessageBox(GetDesktopWindow(), TEXT("Failed to set %%Desktop%%"),
-                 TEXT("Emerge Desktop"), ELMB_OK | ELMB_ICONERROR);
+    MessageBox(GetDesktopWindow(), TEXT("Failed to set %%Desktop%%"),
+                 TEXT("Emerge Desktop"), MB_OK | MB_ICONERROR);
 
   localCheck = true;
-  if (SHGetSpecialFolderPath(GetDesktopWindow(), tmp, CSIDL_COMMON_DESKTOPDIRECTORY, FALSE))
+  if (SHGetFolderPath(GetDesktopWindow(), CSIDL_COMMON_DESKTOPDIRECTORY, NULL, SHGFP_TYPE_CURRENT, tmp) == S_OK)
   {
     if (!SetEnvironmentVariable(TEXT("CommonDesktop"), tmp))
     {
@@ -337,11 +337,11 @@ void ELSetEnvironmentVars(bool showErrors)
     localCheck = false;
   }
   if (showErrors && !localCheck)
-    ELMessageBox(GetDesktopWindow(), TEXT("Failed to set %%CommonDesktop%%"),
-                 TEXT("Emerge Desktop"), ELMB_OK | ELMB_ICONERROR);
+    MessageBox(GetDesktopWindow(), TEXT("Failed to set %%CommonDesktop%%"),
+                 TEXT("Emerge Desktop"), MB_OK | MB_ICONERROR);
 
   localCheck = true;
-  if (SHGetSpecialFolderPath(GetDesktopWindow(), tmp, CSIDL_PERSONAL, FALSE))
+  if (SHGetFolderPath(GetDesktopWindow(), CSIDL_PERSONAL, NULL, SHGFP_TYPE_CURRENT, tmp) == S_OK)
   {
     if (!SetEnvironmentVariable(TEXT("Documents"), tmp))
     {
@@ -353,11 +353,11 @@ void ELSetEnvironmentVars(bool showErrors)
     localCheck = false;
   }
   if (showErrors && !localCheck)
-    ELMessageBox(GetDesktopWindow(), TEXT("Failed to set %%Documents%%"),
-                 TEXT("Emerge Desktop"), ELMB_OK | ELMB_ICONERROR);
+    MessageBox(GetDesktopWindow(), TEXT("Failed to set %%Documents%%"),
+                 TEXT("Emerge Desktop"), MB_OK | MB_ICONERROR);
 
   localCheck = true;
-  if (SHGetSpecialFolderPath(GetDesktopWindow(), tmp, CSIDL_COMMON_DOCUMENTS, FALSE))
+  if (SHGetFolderPath(GetDesktopWindow(), CSIDL_COMMON_DOCUMENTS, NULL, SHGFP_TYPE_CURRENT, tmp) == S_OK)
   {
     if (!SetEnvironmentVariable(TEXT("CommonDocuments"), tmp))
     {
@@ -369,8 +369,8 @@ void ELSetEnvironmentVars(bool showErrors)
     localCheck = false;
   }
   if (showErrors && !localCheck)
-    ELMessageBox(GetDesktopWindow(), TEXT("Failed to set %%CommonDocuments%%"),
-                 TEXT("Emerge Desktop"), ELMB_OK | ELMB_ICONERROR);
+    MessageBox(GetDesktopWindow(), TEXT("Failed to set %%CommonDocuments%%"),
+                 TEXT("Emerge Desktop"), MB_OK | MB_ICONERROR);
 }
 
 bool ELIsExplorerShell()
