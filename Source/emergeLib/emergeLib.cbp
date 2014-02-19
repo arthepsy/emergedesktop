@@ -78,6 +78,7 @@
 			<Add option="-Wno-unused-value" />
 			<Add option="-Wno-strict-aliasing" />
 			<Add option="-Wno-long-long" />
+			<Add option="-Wno-ignored-qualifiers" />
 			<Add option="-DEMERGELIB_EXPORTS" />
 			<Add option="-DTIXML_USE_STL" />
 		</Compiler>
