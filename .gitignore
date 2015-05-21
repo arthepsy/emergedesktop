@@ -1,7 +1,4 @@
-# use glob syntax.
-syntax: glob
-
-tags
+*~
 *.swp
 *.7z
 *.xz
@@ -41,8 +38,4 @@ ipch
 *.orig
 *.properties
 *.cscope_file_list
-
-# switch to regexp syntax.
-#syntax: regexp
-#^\.pc/
 CppCheckResults.xml
