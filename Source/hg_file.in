@@ -1,2 +1,2 @@
 $(HG_FILE):
-	hg tip --template "#define BUILD_VERSION {rev}\n" > $(HG_FILE)
+	@echo "#define BUILD_VERSION $(shell git rev-list --count HEAD)" > $(HG_FILE)
