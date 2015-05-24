@@ -36,6 +36,11 @@
 #undef _WIN32_WINNT
 #define _WIN32_WINNT	0x501
 
+// fix for mingw
+#include <basetyps.h>
+#include <windef.h>
+#include <wtypesbase.h>
+
 #include <shlobj.h>
 #include <stdio.h>
 #include "../emergeLib/emergeFileRegistryLib.h"

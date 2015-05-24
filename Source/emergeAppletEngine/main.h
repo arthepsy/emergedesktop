@@ -42,6 +42,11 @@
 #define SYSMENUMIN 1
 #define SYSMENUMAX 0x7ff
 
+// fix for mingw
+#include <basetyps.h>
+#include <windef.h>
+#include <wtypesbase.h>
+
 #include <shlobj.h>
 #include <shlwapi.h>
 #include <stdio.h>
