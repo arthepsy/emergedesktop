@@ -92,17 +92,6 @@ SectionIn RO
 SetOutPath "$INSTDIR"
 File "${BINDIR}\emergeCore.exe"
 File "${BINDIR}\Explorer.exe"
-SetOutPath "$APPDATA\Emerge Desktop\scripts"
-IfFileExists "$APPDATA\Emerge Desktop\scripts\hide.pl" +2
-File "..\Source\scripts\hide.pl"
-IfFileExists "$APPDATA\Emerge Desktop\scripts\Perl_HowTo.txt" +2
-File "..\Source\scripts\Perl_HowTo.txt"
-IfFileExists "$APPDATA\Emerge Desktop\scripts\hide.pyw" +2
-File "..\Source\scripts\hide.pyw"
-IfFileExists "$APPDATA\Emerge Desktop\scripts\Python_HowTo.txt" +2
-File "..\Source\scripts\Python_HowTo.txt"
-IfFileExists "$APPDATA\Emerge Desktop\scripts\hide.rb" +2
-File "..\Source\scripts\hide.rb"
 Push $R0
 ${If} ${FIELD1} == ${BST_CHECKED}
   System::Call "kernel32::GetCurrentProcess() i .s"
@@ -156,7 +145,7 @@ File "${BINDIR}\emergeCommand.exe"
 CreateDirectory "$APPDATA\Emerge Desktop\files"
 IfFileExists "$APPDATA\Emerge Desktop\files\cmd.txt" +3
 SetOutPath "$APPDATA\Emerge Desktop\files"
-File "..\Source\files\cmd.txt"
+File /nonfatal "..\Source\files\cmd.txt"
 SectionEnd
 
 Section "emergeHotkeys" SecemergeHotkeys
@@ -198,14 +187,15 @@ SubSectionEnd
 Section "-Libraries"
 SetOutPath "$INSTDIR"
 File "${BINDIR}\emergeLib.dll"
-File "${BINDIR}\libgcc_s_sjlj-1.dll"
-File "${BINDIR}\libstdc++-6.dll"
 File "${BINDIR}\emergeIcons.dll"
 File "${BINDIR}\emergeGraphics.dll"
 File "${BINDIR}\emergeAppletEngine.dll"
 File "${BINDIR}\emergeStyleEngine.dll"
 File "${BINDIR}\emergeBaseClasses.dll"
+File "${BINDIR}\emergeTrayExplorerHook.dll"
 Delete "$INSTDIR\emergeSchemeEngine.dll"
+SetOutPath "$INSTDIR\Plugins\"
+File "${BINDIR}\Plugins\emergeDefaultInternalCommands.dll"
 SectionEnd
 
 Section "-Themes"
@@ -305,13 +295,14 @@ Section Uninstall
   Delete "$INSTDIR\emergeSysMon.exe"
   Delete "$INSTDIR\Explorer.exe"
   Delete "$INSTDIR\emergeLib.dll"
-  Delete "$INSTDIR\libgcc_s_sjlj-1.dll"
-  Delete "$INSTDIR\libstdc++-6.dll"
   Delete "$INSTDIR\emergeIcons.dll"
   Delete "$INSTDIR\emergeAppletEngine.dll"
   Delete "$INSTDIR\emergeStyleEngine.dll"
   Delete "$INSTDIR\emergeGraphics.dll"
   Delete "$INSTDIR\emergeBaseClasses.dll"
+  Delete "$INSTDIR\emergeTrayExplorerHook.dll"
+  Delete "$INSTDIR\Plugins\emergeDefaultInternalCommands.dll"
+  RMDir "$INSTDIR\Plugins"
   Delete "$INSTDIR\uninst.exe"
   RMDir "$INSTDIR"
   RMDir "$APPDATA\Emerge Desktop"
