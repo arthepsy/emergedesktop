@@ -254,7 +254,7 @@ bool HideCommandHandler(std::vector<std::wstring> args)
 
 bool HomepageCommandHandler(std::vector<std::wstring> args UNUSED)
 {
-  ELExecuteFileOrCommand(TEXT("https://github.org/arthepsy/emergedesktop/wiki"));
+  ELExecuteFileOrCommand(TEXT("https://github.com/arthepsy/emergedesktop/wiki"));
 
   return true;
 }
