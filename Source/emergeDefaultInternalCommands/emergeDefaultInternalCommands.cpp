@@ -254,7 +254,7 @@ bool HideCommandHandler(std::vector<std::wstring> args)
 
 bool HomepageCommandHandler(std::vector<std::wstring> args UNUSED)
 {
-  ELExecuteFileOrCommand(TEXT("http://emergedesktop.org"));
+  ELExecuteFileOrCommand(TEXT("https://github.org/arthepsy/emergedesktop/wiki"));
 
   return true;
 }
@@ -435,7 +435,7 @@ bool ThemeManagerCommandHandler(std::vector<std::wstring> args UNUSED)
 
 bool TutorialCommandHandler(std::vector<std::wstring> args UNUSED)
 {
-  ELExecuteFileOrCommand(TEXT("http://www.emergedesktop.org/?page_id=220"));
+  ELExecuteFileOrCommand(TEXT("https://github.com/arthepsy/emergedesktop/wiki/The-Basics"));
 
   return true;
 }
