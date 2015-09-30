@@ -1,4 +1,5 @@
 ![](https://raw.githubusercontent.com/wiki/arthepsy/emergedesktop/images/ed_logo_x100.png)
+
 Emerge Desktop is a modular replacement "shell" for Windows.
 
 Read more in [wiki](https://github.com/arthepsy/emergedesktop/wiki).
