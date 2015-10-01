@@ -2,7 +2,7 @@
 
 Emerge Desktop is a modular replacement "shell" for Windows.
 
-See [wiki](https://github.com/arthepsy/emergedesktop/wiki) for more information, like tutorial page of [basics](https://github.com/arthepsy/emergedesktop/wiki/The-Basics).
+See [wiki](https://github.com/arthepsy/emergedesktop/wiki) for more information, like answer to [what is a shell](https://github.com/arthepsy/emergedesktop/wiki/What-is-a-Shell) or [basics](https://github.com/arthepsy/emergedesktop/wiki/The-Basics) of Emerge Desktop.
 
 ## ChangeLog
 
